@@ -54,23 +54,18 @@
             }
 
             try {
-                const response = await fetch('characters.json');
+                const response = await fetch(`characters/${characterName}.json`);
                 if (!response.ok) {
-                    throw new Error('Помилка мережі');
+                    throw new Error(`Помилка завантаження: ${response.status} ${response.statusText}`);
                 }
-                const characters = await response.json();
-                const character = characters.find(c => c.name === characterName);
-                if (!character) {
-                    document.getElementById('characterDescription').innerText = 'Персонаж не знайдений';
-                    return;
-                }
-
+                const character = await response.json();
+                
                 document.getElementById('characterName').innerText = character.name;
                 document.getElementById('characterImage').src = `images/${character.image}`;
                 document.getElementById('characterDescription').innerText = character.description;
             } catch (error) {
                 console.error('Помилка завантаження персонажа:', error);
-                document.getElementById('characterDescription').innerText = 'Помилка завантаження даних';
+                document.getElementById('characterDescription').innerText = `Помилка завантаження даних: ${error.message}`;
             }
         }
 
