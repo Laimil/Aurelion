@@ -46,7 +46,7 @@
             box-sizing: border-box;
         }
         #home { background-color: #1e1e1e; }
-        #lore { background-color: #252525; }
+        #lore { background-color: #252525; position: relative; }
         #characters { background-color: #2e2e2e; }
         .grid {
             display: flex;
@@ -54,13 +54,13 @@
             gap: 10px;
             justify-content: center;
         }
-        .character {
+        .character, .lore-item {
             width: 150px;
             text-align: center;
             cursor: pointer;
             position: relative;
         }
-        .character img {
+        .character img, .lore-item img {
             width: 100%;
             border-radius: 8px;
         }
@@ -70,11 +70,34 @@
             margin-top: 20px;
             display: none;
         }
+        .lore-menu {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .lore-item {
+            background: #444;
+            padding: 10px;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+        }
+        .lore-item:hover {
+            background: #666;
+        }
         @media (max-width: 768px) {
             nav a {
                 font-size: 16px;
             }
-            .character {
+            .character, .lore-item {
                 width: 120px;
             }
         }
@@ -94,7 +117,8 @@
         </div>
         <div id="lore" class="page">
             <h2>Світобудова</h2>
-            <p>Тут буде інформація про світ гри...</p>
+            <div class="lore-menu" id="loreGrid"></div>
+            <p class="error-message" id="loreErrorMessage">Не вдалося завантажити дані про світобудову.</p>
         </div>
         <div id="characters" class="page">
             <h2>Анкети персонажів</h2>
@@ -122,21 +146,45 @@
                     charDiv.className = 'character';
                     charDiv.innerHTML = `
                         <a href="${character.link}" target="_blank">
-                            <img src="./images/${character.image}" alt="${character.name}" onerror="this.onerror=null; this.src='default.jpg'">
+                            <img src="images/${character.image}" alt="${character.name}" onerror="this.onerror=null; this.src='default.jpg'">
                             <p>${character.name}</p>
                         </a>
                     `;
                     charactersGrid.appendChild(charDiv);
                 });
             } catch (error) {
-                console.error('Помилка завантаження персонажів:', error);
-                const errorMessage = document.getElementById('errorMessage');
-                errorMessage.innerText = `Не вдалося завантажити дані про персонажів: ${error.message}`;
-                errorMessage.style.display = 'block';
+                document.getElementById('errorMessage').innerText = `Не вдалося завантажити дані про персонажів: ${error.message}`;
+                document.getElementById('errorMessage').style.display = 'block';
             }
         }
         
-        document.addEventListener('DOMContentLoaded', loadCharacters);
+        async function loadLore() {
+            try {
+                const response = await fetch('lore.json');
+                if (!response.ok) {
+                    throw new Error(`Помилка мережі: ${response.status} ${response.statusText}`);
+                }
+                const loreData = await response.json();
+                const loreGrid = document.getElementById('loreGrid');
+                loreGrid.innerHTML = '';
+                loreData.forEach((loreItem) => {
+                    const loreDiv = document.createElement('div');
+                    loreDiv.className = 'lore-item';
+                    loreDiv.innerHTML = `
+                        <a href="${loreItem.link}" target="_blank">${loreItem.name}</a>
+                    `;
+                    loreGrid.appendChild(loreDiv);
+                });
+            } catch (error) {
+                document.getElementById('loreErrorMessage').innerText = `Не вдалося завантажити дані про світобудову: ${error.message}`;
+                document.getElementById('loreErrorMessage').style.display = 'block';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCharacters();
+            loadLore();
+        });
     </script>
 </body>
 </html>
