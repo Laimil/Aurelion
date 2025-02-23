@@ -54,13 +54,13 @@
             gap: 10px;
             justify-content: center;
         }
-        .character, .lore-item {
+        .character {
             width: 150px;
             text-align: center;
             cursor: pointer;
             position: relative;
         }
-        .character img, .lore-item img {
+        .character img {
             width: 100%;
             border-radius: 8px;
         }
@@ -70,34 +70,45 @@
             margin-top: 20px;
             display: none;
         }
-        .lore-menu {
+        .lore-sections {
+            width: 80%;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+            flex-direction: column;
+            gap: 10px;
         }
-        .lore-item {
+        .lore-section {
             background: #444;
-            padding: 10px;
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            overflow: hidden;
+            max-height: 50px;
+            cursor: pointer;
             text-align: center;
-            color: white;
-            font-size: 14px;
         }
-        .lore-item:hover {
+        .lore-section:hover {
+            max-height: 200px;
             background: #666;
+        }
+        .lore-section a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            display: block;
+        }
+        .lore-section p {
+            display: none;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .lore-section:hover p {
+            display: block;
         }
         @media (max-width: 768px) {
             nav a {
                 font-size: 16px;
             }
-            .character, .lore-item {
+            .character {
                 width: 120px;
             }
         }
@@ -117,7 +128,7 @@
         </div>
         <div id="lore" class="page">
             <h2>Світобудова</h2>
-            <div class="lore-menu" id="loreGrid"></div>
+            <div class="lore-sections" id="loreGrid"></div>
             <p class="error-message" id="loreErrorMessage">Не вдалося завантажити дані про світобудову.</p>
         </div>
         <div id="characters" class="page">
@@ -132,32 +143,6 @@
             document.getElementById('content').style.transform = `translateX(-${index * 100}vw)`;
         }
         
-        async function loadCharacters() {
-            try {
-                const response = await fetch('characters.json');
-                if (!response.ok) {
-                    throw new Error(`Помилка мережі: ${response.status} ${response.statusText}`);
-                }
-                const characters = await response.json();
-                const charactersGrid = document.getElementById('charactersGrid');
-                charactersGrid.innerHTML = '';
-                characters.forEach((character) => {
-                    const charDiv = document.createElement('div');
-                    charDiv.className = 'character';
-                    charDiv.innerHTML = `
-                        <a href="${character.link}" target="_blank">
-                            <img src="images/${character.image}" alt="${character.name}" onerror="this.onerror=null; this.src='default.jpg'">
-                            <p>${character.name}</p>
-                        </a>
-                    `;
-                    charactersGrid.appendChild(charDiv);
-                });
-            } catch (error) {
-                document.getElementById('errorMessage').innerText = `Не вдалося завантажити дані про персонажів: ${error.message}`;
-                document.getElementById('errorMessage').style.display = 'block';
-            }
-        }
-        
         async function loadLore() {
             try {
                 const response = await fetch('lore.json');
@@ -169,9 +154,10 @@
                 loreGrid.innerHTML = '';
                 loreData.forEach((loreItem) => {
                     const loreDiv = document.createElement('div');
-                    loreDiv.className = 'lore-item';
+                    loreDiv.className = 'lore-section';
                     loreDiv.innerHTML = `
                         <a href="${loreItem.link}" target="_blank">${loreItem.name}</a>
+                        <p>${loreItem.description}</p>
                     `;
                     loreGrid.appendChild(loreDiv);
                 });
@@ -182,7 +168,6 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            loadCharacters();
             loadLore();
         });
     </script>
