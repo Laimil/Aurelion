@@ -64,14 +64,6 @@
             width: 100%;
             border-radius: 8px;
         }
-        .character-info {
-            display: none;
-            background-color: #444;
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 5px;
-        }
         .error-message {
             color: red;
             text-align: center;
@@ -115,10 +107,6 @@
         function showPage(index) {
             document.getElementById('content').style.transform = `translateX(-${index * 100}vw)`;
         }
-        function toggleCharacterInfo(id) {
-            const info = document.getElementById(id);
-            info.style.display = info.style.display === 'block' ? 'none' : 'block';
-        }
         
         async function loadCharacters() {
             try {
@@ -129,15 +117,14 @@
                 const characters = await response.json();
                 const charactersGrid = document.getElementById('charactersGrid');
                 charactersGrid.innerHTML = '';
-                characters.forEach((character, index) => {
+                characters.forEach((character) => {
                     const charDiv = document.createElement('div');
                     charDiv.className = 'character';
                     charDiv.innerHTML = `
-                        <img src="images/${character.image}" alt="${character.name}" onclick="toggleCharacterInfo('info-${index}')">
-                        <p>${character.name}</p>
-                        <div id="info-${index}" class="character-info">
-                            <p>${character.description}</p>
-                        </div>
+                        <a href="character.html?name=${encodeURIComponent(character.name)}">
+                            <img src="images/${character.image}" alt="${character.name}">
+                            <p>${character.name}</p>
+                        </a>
                     `;
                     charactersGrid.appendChild(charDiv);
                 });
