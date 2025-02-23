@@ -1,17 +1,17 @@
 [
     {
-        "name": "Amelia",
+        "name": "Амелія",
         "image": "Amelia.jpg",
         "link": "https://telegra.ph/Amel%D1%96ya-02-21"
     },
     {
-        "name": "Ім'я персонажа 2",
-        "image": "character2.jpg",
-        "link": "https://external-resource.com/character2"
+        "name": "Лорелі Вайлланкорт",
+        "image": "loreliv.jpg",
+        "link": "https://telegra.ph/Lorel%D1%96-02-21-2"
     },
     {
-        "name": "Ім'я персонажа 3",
-        "image": "character3.jpg",
-        "link": "https://external-resource.com/character3"
+        "name": "Джефрі",
+        "image": "jefri.jpg",
+        "link": "https://telegra.ph/Dzhefr%D1%96-02-21"
     }
 ]
