@@ -8,5 +8,25 @@
         "name": "Персонаж 2",
         "image": "character2.jpg",
         "description": "Тут буде опис персонажа 2"
+    },
+    {
+        "name": "Персонаж 3",
+        "image": "character2.jpg",
+        "description": "Тут буде опис персонажа 2"
+    },
+    {
+        "name": "Персонаж 4",
+        "image": "character2.jpg",
+        "description": "Тут буде опис персонажа 2"
+    },
+    {
+        "name": "Персонаж 5",
+        "image": "character2.jpg",
+        "description": "Тут буде опис персонажа 2"
+    },
+    {
+        "name": "Персонаж 6",
+        "image": "character2.jpg",
+        "description": "Тут буде опис персонажа 2"
     }
 ]
