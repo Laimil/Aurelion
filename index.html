@@ -122,7 +122,7 @@
                     charDiv.className = 'character';
                     charDiv.innerHTML = `
                         <a href="${character.link}" target="_blank">
-                            <img src="images/${character.image}" alt="${character.name}">
+                            <img src="./images/${character.image}" alt="${character.name}" onerror="this.onerror=null; this.src='default.jpg'">
                             <p>${character.name}</p>
                         </a>
                     `;
