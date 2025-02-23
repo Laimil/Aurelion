@@ -116,16 +116,7 @@
         </div>
         <div id="characters" class="page">
             <h2>Анкети персонажів</h2>
-            <div class="grid">
-                <div class="character" onclick="openModal('Персонаж 1', 'character1.jpg', 'Тут буде опис персонажа 1')">
-                    <img src="character1.jpg" alt="Персонаж 1">
-                    <p>Персонаж 1</p>
-                </div>
-                <div class="character" onclick="openModal('Персонаж 2', 'character2.jpg', 'Тут буде опис персонажа 2')">
-                    <img src="character2.jpg" alt="Персонаж 2">
-                    <p>Персонаж 2</p>
-                </div>
-            </div>
+            <div class="grid" id="charactersGrid"></div>
         </div>
     </div>
     
@@ -151,6 +142,28 @@
         function closeModal(event) {
             document.getElementById('characterModal').style.display = 'none';
         }
+        
+        async function loadCharacters() {
+            try {
+                const response = await fetch('characters.json');
+                const characters = await response.json();
+                const charactersGrid = document.getElementById('charactersGrid');
+                charactersGrid.innerHTML = '';
+                characters.forEach(character => {
+                    const charDiv = document.createElement('div');
+                    charDiv.className = 'character';
+                    charDiv.innerHTML = `
+                        <img src="${character.image}" alt="${character.name}" onclick="openModal('${character.name}', '${character.image}', '${character.description}')">
+                        <p>${character.name}</p>
+                    `;
+                    charactersGrid.appendChild(charDiv);
+                });
+            } catch (error) {
+                console.error('Помилка завантаження персонажів:', error);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadCharacters);
     </script>
 </body>
 </html>
