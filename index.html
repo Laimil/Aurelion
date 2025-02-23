@@ -58,10 +58,19 @@
             width: 150px;
             text-align: center;
             cursor: pointer;
+            position: relative;
         }
         .character img {
             width: 100%;
             border-radius: 8px;
+        }
+        .character-info {
+            display: none;
+            background-color: #444;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 5px;
         }
         .error-message {
             color: red;
@@ -102,27 +111,13 @@
         </div>
     </div>
     
-    <div id="characterModal" class="modal" onclick="closeModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close" onclick="closeModal(event)">&times;</span>
-            <h2 id="modalTitle"></h2>
-            <img id="modalImage" src="" alt="" style="width:100%; border-radius: 8px;">
-            <p id="modalDescription"></p>
-        </div>
-    </div>
-    
     <script>
         function showPage(index) {
             document.getElementById('content').style.transform = `translateX(-${index * 100}vw)`;
         }
-        function openModal(name, imgSrc, description) {
-            document.getElementById('modalTitle').innerText = name;
-            document.getElementById('modalImage').src = imgSrc;
-            document.getElementById('modalDescription').innerText = description;
-            document.getElementById('characterModal').style.display = 'flex';
-        }
-        function closeModal(event) {
-            document.getElementById('characterModal').style.display = 'none';
+        function toggleCharacterInfo(id) {
+            const info = document.getElementById(id);
+            info.style.display = info.style.display === 'block' ? 'none' : 'block';
         }
         
         async function loadCharacters() {
@@ -134,12 +129,15 @@
                 const characters = await response.json();
                 const charactersGrid = document.getElementById('charactersGrid');
                 charactersGrid.innerHTML = '';
-                characters.forEach(character => {
+                characters.forEach((character, index) => {
                     const charDiv = document.createElement('div');
                     charDiv.className = 'character';
                     charDiv.innerHTML = `
-                        <img src="${character.image}" alt="${character.name}" onclick="openModal('${character.name}', '${character.image}', '${character.description}')">
+                        <img src="images/${character.image}" alt="${character.name}" onclick="toggleCharacterInfo('info-${index}')">
                         <p>${character.name}</p>
+                        <div id="info-${index}" class="character-info">
+                            <p>${character.description}</p>
+                        </div>
                     `;
                     charactersGrid.appendChild(charDiv);
                 });
