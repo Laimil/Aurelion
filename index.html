@@ -46,7 +46,7 @@
             box-sizing: border-box;
         }
         #home { background-color: #1e1e1e; }
-        #lore { background-color: #252525; position: relative; width: 100vw; }
+        #lore { background-color: #252525; position: relative; width: 100vw; display: flex; flex-direction: column; align-items: center; }
         #characters { background-color: #2e2e2e; }
         .grid {
             display: flex;
@@ -80,6 +80,42 @@
             margin: 0;
             padding: 5px 0;
             text-align: center;
+        }
+        .lore-sections {
+            display: flex;
+            flex-direction: column;
+            width: 80%;
+        }
+        .lore-section {
+            width: 100%;
+            background: #444;
+            padding: 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            text-align: center;
+            overflow: hidden;
+            max-height: 50px;
+        }
+        .lore-section:hover {
+            max-height: 200px;
+            background: #666;
+        }
+        .lore-section a {
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+            display: block;
+        }
+        .lore-section p {
+            display: none;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .lore-section:hover p {
+            display: block;
         }
         .error-message {
             color: red;
