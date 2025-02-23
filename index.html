@@ -121,7 +121,7 @@
                     const charDiv = document.createElement('div');
                     charDiv.className = 'character';
                     charDiv.innerHTML = `
-                        <a href="character.html?name=${encodeURIComponent(character.name)}">
+                        <a href="${character.link}" target="_blank">
                             <img src="images/${character.image}" alt="${character.name}">
                             <p>${character.name}</p>
                         </a>
