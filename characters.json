@@ -1,11 +1,11 @@
 [
     {
-        "name": "Персонаж 1",
+        "name": "character1",
         "image": "images/character1.png",
         "description": "Тут буде опис персонажа 2"
     },
     {
-        "name": "Персонаж 2",
+        "name": "character2",
         "image": "images/character2.png",
         "description": "Тут буде опис персонажа 2"
     },
