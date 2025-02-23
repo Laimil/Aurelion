@@ -1,18 +1,22 @@
 [
     {
         "name": "Історія світу",
-        "link": "https://example.com/lore/history"
+        "link": "https://example.com/lore/history",
+        "description": ""
     },
     {
         "name": "Географія",
-        "link": "https://example.com/lore/geography"
+        "link": "https://example.com/lore/geography",
+        "description": ""
     },
     {
         "name": "Магічні системи",
-        "link": "https://example.com/lore/magic"
+        "link": "https://example.com/lore/magic",
+        "description": ""
     },
     {
         "name": "Фракції та держави",
-        "link": "https://example.com/lore/factions"
+        "link": "https://example.com/lore/factions",
+        "description": ""
     }
 ]
