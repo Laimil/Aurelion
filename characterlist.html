@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Персонажі</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
+        #charactersGrid { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            justify-content: center; 
+            padding: 10px;
+        }
+        .character { 
+            width: 150px; 
+            text-align: center; 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+            border-radius: 5px; 
+            background: white; 
+            padding: 10px;
+        }
+        .character img { 
+            width: 100%; 
+            height: auto; 
+            border-radius: 5px; 
+        }
+        .character p { 
+            margin: 5px 0; 
+            font-size: 14px;
+        }
+        #errorMessage { 
+            color: red; 
+            display: none; 
+        }
+        @media (max-width: 600px) {
+            #charactersGrid {
+                flex-direction: column;
+                align-items: center;
+            }
+            .character {
+                width: 90%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Список персонажів</h1>
+    <div id="errorMessage"></div>
+    <div id="charactersGrid"></div>
+    
+    <script>
+        async function loadCharacters() {
+            try {
+                const response = await fetch('characters.json');
+                if (!response.ok) {
+                    throw new Error(`Помилка мережі: ${response.status} ${response.statusText}`);
+                }
+                const characters = await response.json();
+                const charactersGrid = document.getElementById('charactersGrid');
+                charactersGrid.innerHTML = '';
+                characters.forEach((character) => {
+                    const charDiv = document.createElement('div');
+                    charDiv.className = 'character';
+                    charDiv.innerHTML = `
+                        <a href="${character.link}" target="_blank">
+                            <img src="images/${character.image}" alt="${character.name}" onerror="this.onerror=null; this.src='default.jpg'">
+                            <p>${character.name}</p>
+                        </a>
+                    `;
+                    charactersGrid.appendChild(charDiv);
+                });
+            } catch (error) {
+                document.getElementById('errorMessage').innerText = `Не вдалося завантажити дані про персонажів: ${error.message}`;
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", loadCharacters);
+    </script>
+</body>
+</html>
