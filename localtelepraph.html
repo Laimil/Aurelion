@@ -51,8 +51,14 @@
         }
         img {
             max-width: 100%;
-            margin-bottom: 10px;
+            max-height: 400px;
+            object-fit: cover;
             border-radius: 8px;
+            display: block;
+            margin: 10px auto;
+        }
+        .toolbar {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -61,19 +67,24 @@
         <input type="text" id="title" placeholder="Заголовок">
         <input type="file" id="imageUpload" accept="image/*">
         <img id="uploadedImage" style="display:none;">
-        <textarea id="content" placeholder="Тут ваш текст..."></textarea>
+        <div class="toolbar">
+            <button onclick="formatText('bold')">Жирний</button>
+            <button onclick="formatText('italic')">Курсив</button>
+            <button onclick="formatText('underline')">Підкреслення</button>
+        </div>
+        <div contenteditable="true" id="content" style="border: 1px solid #ccc; padding: 10px; min-height: 300px; background: #f0f0f0;"></div>
         <button onclick="clearPage()">Очистити</button>
         <button onclick="downloadHTML()">Завантажити як HTML</button>
     </div>
     
     <script>
         const titleInput = document.getElementById("title");
-        const contentInput = document.getElementById("content");
+        const contentDiv = document.getElementById("content");
         const imageUpload = document.getElementById("imageUpload");
         const uploadedImage = document.getElementById("uploadedImage");
 
         titleInput.value = localStorage.getItem("savedTitle") || "";
-        contentInput.value = localStorage.getItem("savedContent") || "";
+        contentDiv.innerHTML = localStorage.getItem("savedContent") || "";
         uploadedImage.src = localStorage.getItem("savedImage") || "";
         if (uploadedImage.src) uploadedImage.style.display = "block";
 
@@ -81,8 +92,8 @@
             localStorage.setItem("savedTitle", titleInput.value);
         });
 
-        contentInput.addEventListener("input", () => {
-            localStorage.setItem("savedContent", contentInput.value);
+        contentDiv.addEventListener("input", () => {
+            localStorage.setItem("savedContent", contentDiv.innerHTML);
         });
 
         imageUpload.addEventListener("change", (event) => {
@@ -98,21 +109,26 @@
             }
         });
 
+        function formatText(command) {
+            document.execCommand(command, false, null);
+        }
+
         function clearPage() {
             if (confirm("Ви впевнені, що хочете очистити сторінку?")) {
                 localStorage.removeItem("savedTitle");
                 localStorage.removeItem("savedContent");
                 localStorage.removeItem("savedImage");
                 titleInput.value = "";
-                contentInput.value = "";
+                contentDiv.innerHTML = "";
                 uploadedImage.style.display = "none";
                 uploadedImage.src = "";
             }
         }
 
         function downloadHTML() {
+            document.title = titleInput.value || 'Стаття';
             const title = titleInput.value;
-            const content = contentInput.value.replace(/\n/g, "<br>");
+            const content = contentDiv.innerHTML;
             const imageSrc = uploadedImage.src ? `<img src="${uploadedImage.src}">` : "";
             const htmlContent = `
                 <!DOCTYPE html>
@@ -129,7 +145,7 @@
                 <body>
                     <h1>${title}</h1>
                     ${imageSrc}
-                    <p>${content}</p>
+                    <div>${content}</div>
                 </body>
                 </html>
             `;
