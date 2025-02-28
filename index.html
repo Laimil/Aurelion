@@ -56,6 +56,7 @@
         }
         .character {
             width: 150px;
+            height: 200px;
             text-align: center;
             cursor: pointer;
             position: relative;
@@ -64,9 +65,11 @@
         }
         .character img {
             width: 100%;
+            height: 100%;
+            object-fit: cover; /* Обрізає зображення, щоб воно займало всю площу */
             border-radius: 8px;
             transition: transform 0.3s ease-in-out;
-        }
+}
         .character:hover img {
             transform: scale(1.1);
         }
@@ -92,15 +95,16 @@
             padding: 20px;
             margin-bottom: 10px;
             border-radius: 8px;
-            transition: all 0.3s ease-in-out;
             cursor: pointer;
             text-align: center;
             overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.3s ease-in-out, background 0.3s ease-in-out;
             max-height: 50px;
         }
         .lore-section:hover {
             max-height: 200px;
             background: #666;
+            padding: 30px;
         }
         .lore-section a {
             color: white;
