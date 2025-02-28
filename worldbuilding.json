@@ -22,5 +22,11 @@
         "description": "потрібна інформація про божества та їх можливості",
         "image": "religion1.jpg",
         "link": "religion.html"
+    },
+    {
+        "title": "Персонажі",
+        "description": "Так-так, вони ваші",
+        "image": "main.jpg",
+        "link": "characters.html"
     }
 ]
