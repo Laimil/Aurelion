@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Світобудова</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #4a4a4a; 
+            color: white; 
+        }
+        #worldGrid { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            justify-content: center; 
+            padding: 10px;
+        }
+        .world-item { 
+            width: 250px; 
+            text-align: center; 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+            border-radius: 5px; 
+            background: #6c6c6c; 
+            color: white; 
+            padding: 10px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .world-item:hover {
+            transform: scale(1.05);
+        }
+        .world-item img { 
+            width: 100%; 
+            height: 150px; 
+            object-fit: cover; 
+            border-radius: 5px;
+        }
+        .world-item p {
+            font-size: 14px;
+            text-align: justify;
+        }
+        #errorMessage { 
+            color: #ff4d4d; 
+            font-weight: bold; 
+            display: none; 
+        }
+        @media (max-width: 600px) {
+            #worldGrid {
+                flex-direction: column;
+                align-items: center;
+            }
+            .world-item {
+                width: 90%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Світобудова</h1>
+    <div id="errorMessage"></div>
+    <div id="worldGrid"></div>
+    
+    <script>
+        async function loadWorldbuilding() {
+            try {
+                const response = await fetch('worldbuilding.json');
+                if (!response.ok) {
+                    throw new Error(`Помилка мережі: ${response.status} ${response.statusText}`);
+                }
+                const worldData = await response.json();
+                const worldGrid = document.getElementById('worldGrid');
+                worldGrid.innerHTML = '';
+                worldData.forEach((entry) => {
+                    const worldDiv = document.createElement('div');
+                    worldDiv.className = 'world-item';
+                    worldDiv.innerHTML = `
+                        <a href="${entry.link}" target="_blank">
+                            <img src="images/${entry.image}" alt="${entry.title}" onerror="this.onerror=null; this.src='default.jpg'">
+                            <h3>${entry.title}</h3>
+                        </a>
+                        <p>${entry.description}</p>
+                    `;
+                    worldGrid.appendChild(worldDiv);
+                });
+            } catch (error) {
+                document.getElementById('errorMessage').innerText = `Не вдалося завантажити дані: ${error.message}`;
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", loadWorldbuilding);
+    </script>
+</body>
+</html>

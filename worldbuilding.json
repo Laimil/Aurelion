@@ -1,0 +1,14 @@
+[
+    {
+        "title": "Правила",
+        "description": "Як ми тут живемо...",
+        "image": "main.jpg",
+        "link": "rules.html"
+    },
+    {
+        "title": "Південні землі",
+        "description": "Пустельні землі, де проживають незалежні племена...",
+        "image": "southlands.jpg",
+        "link": "southlands.html"
+    }
+]
