@@ -1,17 +1,67 @@
-[
+[   
     {
-        "name": "Каан АрʼЗаха",
-        "image": "kaan.jpg",
-        "link": "https://telegra.ph/Kaan-Ar%CA%BCZaha-02-28"
+        "name": "Амадей Віллар",
+        "image": "amadej.jpg",
+        "link": "./characters/amadej.html"
+    },
+    {
+        "name": "Арбо Вірідіс",
+        "image": "arbo.jpg",
+        "link": "./characters/arbo.html"
+    },
+    {
+        "name": "Едвіна Кабрера",
+        "image": "edvina.jpg",
+        "link": "./characters/edvina.html"
+    },
+    {
+        "name": "Еймон Ріорсон",
+        "image": "ejmon.jpg",
+        "link": "./characters/ejmon.html"
     },
     {
         "name": "Іда Трілл",
-        "image": "ida.png",
-        "link": "./characters/IdaTrill.html"
+        "image": "idatrill.png",
+        "link": "./characters/idatrill.html"
     },
     {
-        "name": "Джефрі",
-        "image": "jefri.jpg",
-        "link": "https://telegra.ph/Dzhefr%D1%96-02-21"
+        "name": "Ясмина Хайдісс",
+        "image": "jasmyna.jpg",
+        "link": "./characters/jasmyna.html"
+    },
+    {
+        "name": "Канделарія Фокс",
+        "image": "kandelaria.jpg",
+        "link": "./characters/kandelaria.html"
+    },
+    {
+        "name": "Кастор Атейрос",
+        "image": "kastor.jpg",
+        "link": "./characters/kastor.html"
+    },
+    {
+        "name": " Лýна Рів'єр",
+        "image": "luna.jpg",
+        "link": "./characters/luna.html"
+    },
+    {
+        "name": "Міхаелла Мор",
+        "image": "mor.jpg",
+        "link": "./characters/mor.html"
+    },
+    {
+        "name": "Наганохара Шинʼя",
+        "image": "nagohara.jpg",
+        "link": "./characters/nagohara.html"
+    },
+    {
+        "name": "Рубус Вірідіс",
+        "image": "rubus.jpg",
+        "link": "./characters/rubus.html"
+    },
+    {
+        "name": "Каан АрʼЗаха",
+        "image": "kaan.jpg",
+        "link": "./characters/kaan.html"
     }
 ]
