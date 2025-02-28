@@ -50,19 +50,14 @@
         }
         #modal-content {
             background-color: #6c6c6c;
-            margin: 10% auto;
+            margin: 5% auto;
             padding: 20px;
             width: 80%;
             max-width: 600px;
             text-align: left;
             border-radius: 10px;
-        }
-        #modal img {
-            width: 100%;
-            border-radius: 5px;
-        }
-        #modal h3 {
-            margin-top: 0;
+            overflow-y: auto;
+            height: 80%;
         }
         .close {
             color: white;
@@ -70,6 +65,12 @@
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+        }
+        .modal-content-frame {
+            width: 100%;
+            height: calc(100% - 40px);
+            border: none;
+            background: white;
         }
         @media (max-width: 600px) {
             #worldGrid {
@@ -86,9 +87,7 @@
     <div id="modal">
         <div id="modal-content">
             <span class="close">&times;</span>
-            <h3 id="modal-title"></h3>
-            <img id="modal-image" src="" alt="">
-            <p id="modal-description"></p>
+            <iframe id="modal-frame" class="modal-content-frame" src=""></iframe>
         </div>
     </div>
     
@@ -107,7 +106,7 @@
                     worldDiv.className = 'world-item';
                     worldDiv.innerHTML = `<h3>${entry.title}</h3>`;
                     worldDiv.addEventListener("click", function() {
-                        openModal(entry);
+                        openModal(entry.link);
                     });
                     worldGrid.appendChild(worldDiv);
                 });
@@ -117,21 +116,20 @@
             }
         }
         
-        function openModal(entry) {
-            document.getElementById('modal-title').textContent = entry.title;
-            document.getElementById('modal-image').src = `images/${entry.image}`;
-            document.getElementById('modal-image').alt = entry.title;
-            document.getElementById('modal-description').textContent = entry.description;
+        function openModal(link) {
+            document.getElementById('modal-frame').src = link;
             document.getElementById('modal').style.display = "block";
         }
         
         document.querySelector(".close").addEventListener("click", function() {
             document.getElementById('modal').style.display = "none";
+            document.getElementById('modal-frame').src = "";
         });
         
         window.addEventListener("click", function(event) {
             if (event.target === document.getElementById('modal')) {
                 document.getElementById('modal').style.display = "none";
+                document.getElementById('modal-frame').src = "";
             }
         });
         
