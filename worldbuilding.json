@@ -2,13 +2,25 @@
     {
         "title": "Правила",
         "description": "Як ми тут живемо...",
-        "image": "main.jpg",
-        "link": "rules.html"
+        "image": "rules.jpg",
+        "link": "rules1.html"
     },
     {
-        "title": "Південні землі",
-        "description": "Пустельні землі, де проживають незалежні племена...",
-        "image": "southlands.jpg",
-        "link": "southlands.html"
+        "title": "Сюжет",
+        "description": "сюжет та передісторія",
+        "image": "script.jpg",
+        "link": "script.html"
+    },
+    {
+        "title": "Світобудова",
+        "description": "все що потрібно знати про наш світ",
+        "image": "world.jpg",
+        "link": "world.html"
+    },
+    {
+        "title": "Релігія",
+        "description": "потрібна інформація про божества та їх можливості",
+        "image": "religion1.jpg",
+        "link": "religion.html"
     }
 ]
