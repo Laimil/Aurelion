@@ -5,6 +5,11 @@
         "link": "./characters/amadej.html"
     },
     {
+        "name": "Амелія Бінах",
+        "image": "Amelia.jpg",
+        "link": "./characters/amelia.html"
+    },
+    {
         "name": "Арбо Вірідіс",
         "image": "arbo.jpg",
         "link": "./characters/arbo.html"
