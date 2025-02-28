@@ -36,18 +36,45 @@
             resize: vertical;
             text-align: left;
         }
-        button {
-            background: #007BFF;
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            border-radius: 5px;
-            margin: 5px;
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 10px;
         }
-        button:hover {
-            background: #0056b3;
+        .toolbar button {
+            background: #e0e0e0;
+            color: black;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 3px;
+            min-width: 30px;
+        }
+        .toolbar button:hover {
+            background: #d0d0d0;
+        }
+        .toolbar button[data-command="bold"] {
+            font-weight: bold;
+        }
+        .toolbar button[data-command="italic"] {
+            font-style: italic;
+        }
+        .toolbar button[data-command="underline"] {
+            text-decoration: underline;
+        }
+        .toolbar button[data-command="justifyLeft"] {
+            text-align: left;
+        }
+        .toolbar button[data-command="justifyCenter"] {
+            text-align: center;
+        }
+        .toolbar button[data-command="justifyRight"] {
+            text-align: right;
+        }
+        .toolbar button[data-command="justifyFull"] {
+            text-align: justify;
         }
         img {
             max-width: 100%;
@@ -57,9 +84,6 @@
             display: block;
             margin: 10px auto;
         }
-        .toolbar {
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
@@ -68,9 +92,13 @@
         <input type="file" id="imageUpload" accept="image/*">
         <img id="uploadedImage" style="display:none;">
         <div class="toolbar">
-            <button onclick="formatText('bold')">Жирний</button>
-            <button onclick="formatText('italic')">Курсив</button>
-            <button onclick="formatText('underline')">Підкреслення</button>
+            <button data-command="bold" onclick="formatText('bold')">B</button>
+            <button data-command="italic" onclick="formatText('italic')">I</button>
+            <button data-command="underline" onclick="formatText('underline')">U</button>
+            <button data-command="justifyLeft" onclick="formatText('justifyLeft')">⬅</button>
+            <button data-command="justifyCenter" onclick="formatText('justifyCenter')">⬜</button>
+            <button data-command="justifyRight" onclick="formatText('justifyRight')">➡</button>
+            <button data-command="justifyFull" onclick="formatText('justifyFull')">↔</button>
         </div>
         <div contenteditable="true" id="content" style="border: 1px solid #ccc; padding: 10px; min-height: 300px; background: #f0f0f0;"></div>
         <button onclick="clearPage()">Очистити</button>
@@ -111,49 +139,6 @@
 
         function formatText(command) {
             document.execCommand(command, false, null);
-        }
-
-        function clearPage() {
-            if (confirm("Ви впевнені, що хочете очистити сторінку?")) {
-                localStorage.removeItem("savedTitle");
-                localStorage.removeItem("savedContent");
-                localStorage.removeItem("savedImage");
-                titleInput.value = "";
-                contentDiv.innerHTML = "";
-                uploadedImage.style.display = "none";
-                uploadedImage.src = "";
-            }
-        }
-
-        function downloadHTML() {
-            document.title = titleInput.value || 'Стаття';
-            const title = titleInput.value;
-            const content = contentDiv.innerHTML;
-            const imageSrc = uploadedImage.src ? `<img src="${uploadedImage.src}">` : "";
-            const htmlContent = `
-                <!DOCTYPE html>
-                <html lang="uk">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>${title}</title>
-                    <style>
-                        body { font-family: Georgia, serif; text-align: center; padding: 20px; }
-                        img { max-width: 100%; border-radius: 8px; }
-                    </style>
-                </head>
-                <body>
-                    <h1>${title}</h1>
-                    ${imageSrc}
-                    <div>${content}</div>
-                </body>
-                </html>
-            `;
-            const blob = new Blob([htmlContent], { type: "text/html" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "стаття.html";
-            link.click();
         }
     </script>
 </body>
