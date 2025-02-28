@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Персонажі</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #4a4a4a; /* Нечищене майже сіре золото */
+         color: white; }
         #charactersGrid { 
             display: flex; 
             flex-wrap: wrap; 
@@ -14,26 +20,28 @@
             padding: 10px;
         }
         .character { 
-            width: 150px; 
+            width: 180px; 
             text-align: center; 
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
             border-radius: 5px; 
-            background: white; 
+            background: #6c6c6c; color: white; 
             padding: 10px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .character:hover {
+            transform: scale(1.1);
         }
         .character img { 
-            width: 100%; 
-            height: auto; 
+            width: 150px; 
+            height: 200px; 
+            object-fit: cover; 
             border-radius: 5px; 
         }
         .character p { 
             margin: 5px 0; 
             font-size: 14px;
         }
-        #errorMessage { 
-            color: red; 
-            display: none; 
-        }
+        #errorMessage { color: #ff4d4d; font-weight: bold; display: none; }
         @media (max-width: 600px) {
             #charactersGrid {
                 flex-direction: column;
