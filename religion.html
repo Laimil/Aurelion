@@ -141,18 +141,22 @@
     </div>
     <div id="menu-placeholder"></div>
 
-<script>
-    fetch("worldbuilding.json")
-        .then(response => response.json())
-        .then(menuItems => {
-            let menuHTML = '<nav class="navbar"><ul>';
-            menuItems.forEach(item => {
-                menuHTML += `<li><a href="${item.link}">${item.title}</a></li>`;
-            });
-            menuHTML += '</ul></nav>';
-            document.getElementById("menu-placeholder").innerHTML = menuHTML;
-        })
-        .catch(error => console.error("Помилка завантаження меню:", error));
-</script>
+    <script>
+        fetch("menu.json")
+            .then(response => response.json())
+            .then(menuItems => {
+                let menuHTML = '<nav class="bottom-menu">';
+                menuItems.forEach(item => {
+                    menuHTML += `
+                        <a href="${item.link}" class="menu-item">
+                            <img src="${item.icon}" alt="${item.name}" title="${item.name}">
+                        </a>
+                    `;
+                });
+                menuHTML += '</nav>';
+                document.getElementById("menu-placeholder").innerHTML = menuHTML;
+            })
+            .catch(error => console.error("Помилка завантаження меню:", error));
+    </script>
 </body>
 </html>
