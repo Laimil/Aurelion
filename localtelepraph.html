@@ -137,8 +137,34 @@
             }
         });
 
-        function formatText(command) {
-            document.execCommand(command, false, null);
+        function downloadHTML() {
+            const title = titleInput.value || "Стаття";
+            const content = contentDiv.innerHTML;
+            const imageSrc = uploadedImage.src ? `<img src="${uploadedImage.src}">` : "";
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html lang="uk">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>${title}</title>
+                    <style>
+                        body { font-family: Georgia, serif; text-align: center; padding: 20px; }
+                        img { max-width: 100%; border-radius: 8px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${title}</h1>
+                    ${imageSrc}
+                    <div>${content}</div>
+                </body>
+                </html>
+            `;
+            const blob = new Blob([htmlContent], { type: "text/html" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${title.replace(/\s+/g, '_')}.html`;
+            link.click();
         }
     </script>
 </body>
