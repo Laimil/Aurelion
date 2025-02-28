@@ -15,66 +15,42 @@
         }
         #worldGrid { 
             display: flex; 
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 10px; 
             justify-content: center; 
             padding: 10px;
-            max-width: 600px;
-            margin: auto;
         }
         .world-item { 
-            text-align: left; 
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
-            border-radius: 5px; 
-            background: #6c6c6c; 
-            color: white; 
-            padding: 10px;
+            position: relative;
+            width: 250px;
+            height: 150px;
             cursor: pointer;
+            transition: transform 0.3s ease-in-out;
         }
-        .world-item h3 {
-            margin: 0;
-            padding: 10px;
-            text-decoration: none; 
-            color: white; 
-            cursor: pointer;
+        .world-item:hover {
+            transform: scale(1.1);
         }
-        #modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
+        .world-item img {
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-        #modal-content {
-            background-color: #6c6c6c;
-            margin: 5% auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 600px;
-            text-align: left;
+            object-fit: cover;
             border-radius: 10px;
-            overflow-y: auto;
-            height: 80%;
         }
-        .close {
+        .world-item h3 {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
             color: white;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .modal-content-frame {
-            width: 100%;
-            height: calc(100% - 40px);
-            border: none;
-            background: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 16px;
         }
         @media (max-width: 600px) {
             #worldGrid {
-                width: 90%;
+                flex-direction: column;
+                align-items: center;
             }
         }
     </style>
@@ -83,13 +59,6 @@
     <h1>Світобудова</h1>
     <div id="errorMessage"></div>
     <div id="worldGrid"></div>
-    
-    <div id="modal">
-        <div id="modal-content">
-            <span class="close">&times;</span>
-            <iframe id="modal-frame" class="modal-content-frame" src=""></iframe>
-        </div>
-    </div>
     
     <script>
         async function loadWorldbuilding() {
@@ -104,10 +73,12 @@
                 worldData.forEach((entry) => {
                     const worldDiv = document.createElement('div');
                     worldDiv.className = 'world-item';
-                    worldDiv.innerHTML = `<h3>${entry.title}</h3>`;
-                    worldDiv.addEventListener("click", function() {
-                        openModal(entry.link);
-                    });
+                    worldDiv.innerHTML = `
+                        <a href="${entry.link}" target="_blank">
+                            <img src="images/${entry.image}" alt="${entry.title}" onerror="this.onerror=null; this.src='default.jpg'">
+                            <h3>${entry.title}</h3>
+                        </a>
+                    `;
                     worldGrid.appendChild(worldDiv);
                 });
             } catch (error) {
@@ -115,23 +86,6 @@
                 document.getElementById('errorMessage').style.display = 'block';
             }
         }
-        
-        function openModal(link) {
-            document.getElementById('modal-frame').src = link;
-            document.getElementById('modal').style.display = "block";
-        }
-        
-        document.querySelector(".close").addEventListener("click", function() {
-            document.getElementById('modal').style.display = "none";
-            document.getElementById('modal-frame').src = "";
-        });
-        
-        window.addEventListener("click", function(event) {
-            if (event.target === document.getElementById('modal')) {
-                document.getElementById('modal').style.display = "none";
-                document.getElementById('modal-frame').src = "";
-            }
-        });
         
         document.addEventListener("DOMContentLoaded", loadWorldbuilding);
     </script>
