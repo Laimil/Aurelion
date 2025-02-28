@@ -1,0 +1,23 @@
+.navbar {
+    background: #222;
+    padding: 10px;
+    text-align: center;
+}
+.navbar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+.navbar ul li {
+    display: inline;
+    margin: 0 15px;
+}
+.navbar ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+}
+.navbar ul li a:hover {
+    color: #FFD700;
+}
