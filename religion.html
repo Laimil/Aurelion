@@ -142,14 +142,14 @@
     <div id="menu-placeholder"></div>
 
     <script>
-        fetch("menu.json")
+        fetch("worldbuilding.json")
             .then(response => response.json())
             .then(menuItems => {
                 let menuHTML = '<nav class="bottom-menu">';
                 menuItems.forEach(item => {
                     menuHTML += `
                         <a href="${item.link}" class="menu-item">
-                            <img src="${item.icon}" alt="${item.name}" title="${item.name}">
+                            <img src="${item.image}" alt="${item.name}" title="${item.name}">
                         </a>
                     `;
                 });
