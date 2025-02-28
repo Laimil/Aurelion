@@ -45,6 +45,11 @@
         "link": "./characters/kastor.html"
     },
     {
+        "name": "Ліам Бреккер",
+        "image": "liam.jpg",
+        "link": "./characters/liam.html"
+    },
+    {
         "name": " Лýна Рів'єр",
         "image": "luna.jpg",
         "link": "./characters/luna.html"
