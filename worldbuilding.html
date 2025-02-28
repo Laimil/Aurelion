@@ -15,23 +15,28 @@
         }
         #worldGrid { 
             display: flex; 
-            flex-wrap: wrap; 
+            flex-direction: column;
             gap: 10px; 
             justify-content: center; 
             padding: 10px;
+            max-width: 600px;
+            margin: auto;
         }
         .world-item { 
-            width: 250px; 
-            text-align: center; 
+            text-align: left; 
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
             border-radius: 5px; 
             background: #6c6c6c; 
             color: white; 
             padding: 10px;
-            transition: transform 0.3s ease-in-out;
+            cursor: pointer;
         }
-        .world-item:hover {
-            transform: scale(1.05);
+        .world-item h3 {
+            margin: 0;
+            padding: 10px;
+            text-decoration: none; 
+            color: white; 
+            cursor: pointer;
         }
         .world-item img { 
             width: 100%; 
@@ -39,9 +44,10 @@
             object-fit: cover; 
             border-radius: 5px;
         }
-        .world-item p {
-            font-size: 14px;
-            text-align: justify;
+        .world-content {
+            display: none;
+            padding: 10px;
+            border-top: 1px solid #888;
         }
         #errorMessage { 
             color: #ff4d4d; 
@@ -50,12 +56,7 @@
         }
         @media (max-width: 600px) {
             #worldGrid {
-                flex-direction: column;
-                align-items: center;
-            }
-            .world-item {
                 width: 90%;
-                max-width: 300px;
             }
         }
     </style>
@@ -79,12 +80,16 @@
                     const worldDiv = document.createElement('div');
                     worldDiv.className = 'world-item';
                     worldDiv.innerHTML = `
-                        <a href="${entry.link}" target="_blank">
+                        <h3>${entry.title}</h3>
+                        <div class="world-content">
                             <img src="images/${entry.image}" alt="${entry.title}" onerror="this.onerror=null; this.src='default.jpg'">
-                            <h3>${entry.title}</h3>
-                        </a>
-                        <p>${entry.description}</p>
+                            <p>${entry.description}</p>
+                        </div>
                     `;
+                    worldDiv.addEventListener("click", function() {
+                        const content = this.querySelector(".world-content");
+                        content.style.display = content.style.display === "block" ? "none" : "block";
+                    });
                     worldGrid.appendChild(worldDiv);
                 });
             } catch (error) {
