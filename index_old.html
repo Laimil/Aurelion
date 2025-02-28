@@ -179,7 +179,7 @@
                     const charDiv = document.createElement('div');
                     charDiv.className = 'character';
                     charDiv.innerHTML = `
-                        <a href="${character.link}" target="_blank">
+                        <a href="${character.link}" >
                             <img src="images/${character.image}" alt="${character.name}" onerror="this.onerror=null; this.src='default.jpg'">
                             <p>${character.name}</p>
                         </a>
@@ -205,7 +205,7 @@
                     const loreDiv = document.createElement('div');
                     loreDiv.className = 'lore-section';
                     loreDiv.innerHTML = `
-                        <a href="${loreItem.link}" target="_blank">${loreItem.name}</a>
+                        <a href="${loreItem.link}" >${loreItem.name}</a>
                         <p>${loreItem.description}</p>
                     `;
                     loreGrid.appendChild(loreDiv);
