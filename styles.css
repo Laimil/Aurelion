@@ -17,20 +17,20 @@
     flex: 1;
 }
 
-.menu-item img {
+.menu-item image {
     width: 32px;  /* Фіксований розмір */
     height: 32px; /* Щоб всі іконки були однаковими */
     object-fit: contain; /* Щоб не спотворювались */
     transition: transform 0.2s ease-in-out;
 }
 
-.menu-item img:hover {
+.menu-item image:hover {
     transform: scale(1.2);
 }
 
 /* Оптимізація для мобільних пристроїв */
 @media (max-width: 600px) {
-    .menu-item img {
+    .menu-item image {
         width: 28px;
         height: 28px;
     }
