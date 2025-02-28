@@ -6,8 +6,10 @@
     background: rgba(34, 34, 34, 0.9);
     display: flex;
     justify-content: space-around;
-    padding: 10px 0;
+    align-items: center;
+    padding: 8px 0;
     box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000; /* Щоб меню завжди було поверх всього */
 }
 
 .menu-item {
@@ -16,11 +18,20 @@
 }
 
 .menu-item img {
-    width: 40px;
-    height: 40px;
+    width: 32px;  /* Фіксований розмір */
+    height: 32px; /* Щоб всі іконки були однаковими */
+    object-fit: contain; /* Щоб не спотворювались */
     transition: transform 0.2s ease-in-out;
 }
 
 .menu-item img:hover {
     transform: scale(1.2);
+}
+
+/* Оптимізація для мобільних пристроїв */
+@media (max-width: 600px) {
+    .menu-item img {
+        width: 28px;
+        height: 28px;
+    }
 }
