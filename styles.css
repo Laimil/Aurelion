@@ -5,7 +5,7 @@
     width: 100%;
     background: rgba(34, 34, 34, 0.9);
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     padding: 8px 0;
     box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
@@ -14,13 +14,16 @@
 
 .menu-item {
     text-align: center;
-    flex: 1;
+    flex: 0 1 auto; /* Фіксує розмір іконок */
+    margin: 0 10px; /* Відступи між елементами */
 }
 
 .menu-item img {
     width: 32px;
     height: 32px;
-    object-fit: contain;
+    max-width: 32px; /* Гарантія, що зображення не перевищить розмір */
+    max-height: 32px;
+    object-fit: contain; /* Забезпечує правильне відображення */
     transition: transform 0.2s ease-in-out;
 }
 
@@ -33,5 +36,7 @@
     .menu-item img {
         width: 28px;
         height: 28px;
+        max-width: 28px;
+        max-height: 28px;
     }
 }
