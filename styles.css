@@ -20,10 +20,10 @@
 }
 
 .menu-item img {
-    width: 40px;
-    height: 40px;
-    max-width: 40px;
-    max-height: 40px;
+    width: 80px;
+    height: 60px;
+    max-width: 80px;
+    max-height: 60px;
     object-fit: contain;
     transition: transform 0.2s ease-in-out;
 }
@@ -55,8 +55,4 @@
     .menu-item span {
         font-size: 10px;
     }
-}
-
-body {
-    padding-top: 60px; /* Відступ залежить від висоти меню */
 }
