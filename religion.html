@@ -145,7 +145,7 @@
     <script>
         async function loadMenu() {
             try {
-                const response = await fetch('menu.json');
+                const response = await fetch('worldbuilding.json');
                 if (!response.ok) {
                     throw new Error(`Помилка завантаження меню: ${response.status} ${response.statusText}`);
                 }
