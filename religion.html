@@ -141,19 +141,21 @@
         </div>
     </div>
     <div id="menu-placeholder"></div>
+
     <script>
         async function loadMenu() {
             try {
-                const response = await fetch('worldbuilding.json');
+                const response = await fetch('menu.json');
                 if (!response.ok) {
                     throw new Error(`Помилка завантаження меню: ${response.status} ${response.statusText}`);
                 }
                 const menuItems = await response.json();
-                let menuHTML = '<nav class="bottom-menu">';
+                let menuHTML = '<nav class="top-menu">';
                 menuItems.forEach(item => {
                     menuHTML += `
                         <a href="${item.link}" class="menu-item">
-                            <img src="images/${item.image}" alt="${item.title}" title="${item.title}">
+                            <img src="${item.icon}" alt="${item.name}" title="${item.name}">
+                            <span>${item.name}</span>
                         </a>
                     `;
                 });
