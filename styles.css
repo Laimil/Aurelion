@@ -9,7 +9,7 @@
     align-items: center;
     padding: 8px 0;
     box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
-    z-index: 1000; /* Щоб меню завжди було поверх всього */
+    z-index: 1000;
 }
 
 .menu-item {
@@ -17,20 +17,20 @@
     flex: 1;
 }
 
-.menu-item image {
-    width: 32px;  /* Фіксований розмір */
-    height: 32px; /* Щоб всі іконки були однаковими */
-    object-fit: contain; /* Щоб не спотворювались */
+.menu-item img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
     transition: transform 0.2s ease-in-out;
 }
 
-.menu-item image:hover {
+.menu-item img:hover {
     transform: scale(1.2);
 }
 
 /* Оптимізація для мобільних пристроїв */
 @media (max-width: 600px) {
-    .menu-item image {
+    .menu-item img {
         width: 28px;
         height: 28px;
     }

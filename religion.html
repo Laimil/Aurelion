@@ -139,34 +139,30 @@
             </p>
         </div>
     </div>
+    <div id="menu-placeholder"></div>
     <script>
-        async function loadWorldbuilding() {
+        async function loadMenu() {
             try {
-                const response = await fetch('worldbuilding.json');
+                const response = await fetch('menu.json');
                 if (!response.ok) {
-                    throw new Error(`Помилка мережі: ${response.status} ${response.statusText}`);
+                    throw new Error(`Помилка завантаження меню: ${response.status} ${response.statusText}`);
                 }
-                const worldData = await response.json();
-                const worldGrid = document.getElementById('worldGrid');
-                worldGrid.innerHTML = '';
-                worldData.forEach((entry) => {
-                    const worldDiv = document.createElement('div');
-                    worldDiv.className = 'world-item';
-                    worldDiv.innerHTML = `
-                        <a href="${entry.link}" >
-                            <img src="images/${entry.image}" alt="${entry.title}" onerror="this.onerror=null; this.src='default.jpg'">
-                            <h3>${entry.title}</h3>
+                const menuItems = await response.json();
+                let menuHTML = '<nav class="bottom-menu">';
+                menuItems.forEach(item => {
+                    menuHTML += `
+                        <a href="${item.link}" class="menu-item">
+                            <img src="images/${item.image}" alt="${item.title}" title="${item.title}">
                         </a>
                     `;
-                    worldGrid.appendChild(worldDiv);
                 });
+                menuHTML += '</nav>';
+                document.getElementById("menu-placeholder").innerHTML = menuHTML;
             } catch (error) {
-                document.getElementById('errorMessage').innerText = `Не вдалося завантажити дані: ${error.message}`;
-                document.getElementById('errorMessage').style.display = 'block';
+                console.error("Помилка завантаження меню:", error);
             }
         }
-        
-        document.addEventListener("DOMContentLoaded", loadWorldbuilding);
+        document.addEventListener("DOMContentLoaded", loadMenu);
     </script>
 </body>
 </html>
