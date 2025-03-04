@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Локальний Telegraph</title>
+  <!-- Підключення бібліотеки Panzoom для інтерактивної мапи -->
+  <script src="https://unpkg.com/@panzoom/panzoom@9.4.0/dist/panzoom.min.js"></script>
+  <style>
+    /* Загальні стилі за мотивами world.html */
+    body {
+      font-family: "Georgia", serif;
+      background-color: #1a1a1a;
+      color: white;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      padding-top: 80px;
+      margin-top: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    /* Стилі для заголовка */
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 20px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      text-align: center;
+    }
+    /* Стилізація для завантаження файлу */
+    input[type="file"] {
+      display: none;
+    }
+    .custom-file-upload {
+      display: inline-block;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    /* Контейнер для інтерактивної мапи */
+    #map-container {
+      overflow: hidden;
+      cursor: grab;
+      margin-bottom: 20px;
+    }
+    #map-container img {
+      width: 100%;
+      display: block;
+      border-radius: 8px;
+      transition: transform 0.2s ease;
+    }
+    /* Панель інструментів для форматування */
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .toolbar button {
+      background: none;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 16px;
+      color: #ccc;
+    }
+    .toolbar button:hover {
+      text-decoration: underline;
+    }
+    /* Контейнер для редагованого контенту – за мотивами world.html */
+    #content {
+      width: 100%;
+      min-height: 300px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      text-align: justify;
+      margin-bottom: 10px;
+    }
+    /* Контейнер для кольорових налаштувань */
+    .color-picker-container {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .color-picker-container label {
+      margin-right: 5px;
+      font-size: 16px;
+      color: #ccc;
+    }
+    .color-picker-container input[type="color"] {
+      margin-right: 10px;
+    }
+    /* Кнопки управління */
+    button.action-btn {
+      background: none;
+      border: none;
+      padding: 10px 15px;
+      font-size: 16px;
+      color: #ccc;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button.action-btn:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Поле для заголовка -->
+    <input type="text" id="title" placeholder="Заголовок">
+    <!-- Кнопка для вибору файлу (зображення/мапи) -->
+    <label for="imageUpload" class="custom-file-upload">Пікча</label>
+    <input type="file" id="imageUpload" accept="image/*">
+    <!-- Контейнер для інтерактивної мапи -->
+    <div id="map-container">
+      <img id="uploadedImage" style="display:none;" alt="Мапа">
+    </div>
+    <!-- Панель інструментів для форматування -->
+    <div class="toolbar">
+      <button data-command="bold" onclick="formatText('bold')">B</button>
+      <button data-command="italic" onclick="formatText('italic')">I</button>
+      <button data-command="underline" onclick="formatText('underline')">U</button>
+      <button data-command="justifyLeft" onclick="formatText('justifyLeft')">⬅</button>
+      <button data-command="justifyCenter" onclick="formatText('justifyCenter')">⬜</button>
+      <button data-command="justifyRight" onclick="formatText('justifyRight')">➡</button>
+      <button data-command="justifyFull" onclick="formatText('justifyFull')">↔</button>
+    </div>
+    <!-- Контейнер для налаштувань кольору тексту та фону виділення -->
+    <div class="color-picker-container">
+      <label for="textColorPicker">Колір тексту:</label>
+      <input type="color" id="textColorPicker" value="#ffffff">
+      <button onclick="applyTextColor()">Застосувати</button>
+      <br><br>
+      <label for="textBgColorPicker">Колір фону тексту:</label>
+      <input type="color" id="textBgColorPicker" value="#ffffff">
+      <button onclick="applyTextBgColor()">Застосувати</button>
+    </div>
+    <!-- Контент, який можна редагувати -->
+    <div contenteditable="true" id="content"></div>
+    <!-- Кнопки дій -->
+    <button class="action-btn" onclick="clearPage()">Очистити</button>
+    <button class="action-btn" onclick="downloadHTML()">Завантажити як HTML</button>
+  </div>
+ 
+  <script>
+    // Отримання елементів та відновлення даних з localStorage
+    const titleInput = document.getElementById("title");
+    const contentDiv = document.getElementById("content");
+    const imageUpload = document.getElementById("imageUpload");
+    const uploadedImage = document.getElementById("uploadedImage");
+
+    titleInput.value = localStorage.getItem("savedTitle") || "";
+    contentDiv.innerHTML = localStorage.getItem("savedContent") || "";
+    if (localStorage.getItem("savedImage")) {
+      uploadedImage.src = localStorage.getItem("savedImage");
+      uploadedImage.style.display = "block";
+    }
+
+    titleInput.addEventListener("input", () => {
+      localStorage.setItem("savedTitle", titleInput.value);
+    });
+    contentDiv.addEventListener("input", () => {
+      localStorage.setItem("savedContent", contentDiv.innerHTML);
+    });
+    imageUpload.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          uploadedImage.src = e.target.result;
+          uploadedImage.style.display = "block";
+          localStorage.setItem("savedImage", e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Функція для базового форматування тексту
+    function formatText(command) {
+      document.execCommand(command, false, null);
+    }
+
+    // Функція для зміни кольору виділеного тексту
+    function applyTextColor() {
+      const newColor = document.getElementById('textColorPicker').value;
+      document.execCommand('foreColor', false, newColor);
+    }
+
+    // Функція для зміни кольору фону виділеного тексту
+    function applyTextBgColor() {
+      const newColor = document.getElementById('textBgColorPicker').value;
+      document.execCommand('hiliteColor', false, newColor);
+    }
+
+    // Функція для очищення сторінки
+    function clearPage() {
+      titleInput.value = "";
+      contentDiv.innerHTML = "";
+      uploadedImage.src = "";
+      uploadedImage.style.display = "none";
+      localStorage.removeItem("savedTitle");
+      localStorage.removeItem("savedContent");
+      localStorage.removeItem("savedImage");
+    }
+
+    // Функція для завантаження готової HTML-сторінки із стилізацією, схожою на world.html
+    function downloadHTML() {
+      const title = titleInput.value || "Стаття";
+      const content = contentDiv.innerHTML;
+      const imageSrc = uploadedImage.src
+        ? `<img src="${uploadedImage.src}" alt="Мапа" style="max-width: 600px; display: block; margin: 20px auto; border-radius: 8px;">`
+        : "";
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+  <style>
+    body {
+      font-family: "Georgia", serif;
+      background-color: #1a1a1a;
+      color: white;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      padding-top: 80px;
+      margin-top: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    img {
+      width: 100%;
+      display: block;
+      margin: 20px auto;
+      border-radius: 8px;
+    }
+    .description {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      text-align: justify;
+      margin-top: 20px;
+    }
+    .content {
+      max-width: 700px;
+      margin: auto;
+      text-align: justify;
+      padding: 15px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="description">
+      <h1>${title}</h1>
+      ${imageSrc}
+      <div class="content">
+        ${content}
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+      `;
+      const blob = new Blob([htmlContent], { type: "text/html" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${title.replace(/\s+/g, '_')}.html`;
+      link.click();
+    }
+  </script>
+</body>
+</html>
