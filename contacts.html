@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Правила</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: "Georgia", serif;
+            background-color: #1a1a1a;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .rules-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: justify;
+            margin-top: 20px;
+            padding-top: 80px;
+        }
+
+        .rules-container img {
+            max-height: 400px;
+            width: 80%;
+            display: block;
+            object-fit: cover;
+            margin: 10px auto;
+            border-radius: 8px;
+        }
+
+        .contacts a {
+
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: inherit;
+            font-family: inherit;
+            color: #ccc;
+            /* або інший стриманий відтінок */
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Зв'язок</h1>
+        <div class="rules-container">
+            <p>
+            <div>
+                <img src="images/contacts.jpg">
+                <div style="text-align: center; color:white;">
+                    <div>Якщо вас цікавить участь у проєкті, просимо перейти за одним із цих посиланнь:</div>
+                    <div><br></div>
+                    <div>
+                        <div class="contacts">Адмін -> <a href="https://t.me/rprysma">https://t.me/rprysma</a> <- </h2>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="contacts">Флуд -> <a
+                                href="https://t.me/+m8PW_tOH6ZpkYmM6">https://t.me/+m8PW_tOH6ZpkYmM6</a> <- </h2>&nbsp;
+                        </div>
+                    </div>
+                </div>
+                </p>
+            </div>
+        </div>
+        <div id="menu-placeholder"></div>
+
+        <script>
+            async function loadMenu() {
+                try {
+                    const response = await fetch('worldbuilding.json');
+                    if (!response.ok) {
+                        throw new Error(`Помилка завантаження меню: ${response.status} ${response.statusText}`);
+                    }
+                    const menuItems = await response.json();
+                    let menuHTML = '<nav class="top-menu">';
+                    menuItems.forEach(item => {
+                        menuHTML += `
+                        <a href="${item.link}" class="menu-item">
+                            <img src="images/${item.image}" alt="${item.title}" title="${item.title}">
+                            <span>${item.title}</span>
+                        </a>
+                    `;
+                    });
+                    menuHTML += '</nav>';
+                    document.getElementById("menu-placeholder").innerHTML = menuHTML;
+                } catch (error) {
+                    console.error("Помилка завантаження меню:", error);
+                }
+            }
+            document.addEventListener("DOMContentLoaded", loadMenu);
+        </script>
+</body>
+
+</html>

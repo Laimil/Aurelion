@@ -28,5 +28,11 @@
         "description": "Так-так, вони ваші",
         "image": "main.jpg",
         "link": "characterlist.html"
+    },
+    {
+        "title": "Зв'язок",
+        "description": "Те чим воно є",
+        "image": "contacts.jpg",
+        "link": "contacts.html"
     }
 ]
