@@ -20,6 +20,11 @@
         "link": "./characters/idatrill_v2.html"
     },
     {
+        "name": "Іксо",
+        "image": "ikso_look.jpg",
+        "link": "./characters/ikso.html"
+    },
+    {
         "name": "Ясмина Хайдісс",
         "image": "jasmyna.jpg",
         "link": "./characters/jasmyna.html"
