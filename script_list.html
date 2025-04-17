@@ -1,0 +1,192 @@
+<!-- Google Tag Manager -->
+<script>(function (w, d, s, l, i) {
+        w[l] = w[l] || []; w[l].push({
+            'gtm.start':
+                new Date().getTime(), event: 'gtm.js'
+        }); var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-NGRQK46P');</script>
+<!-- End Google Tag Manager -->
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZQXZ5SYZYZ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-ZQXZ5SYZYZ');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Релігії світу</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: "Georgia", serif;
+            background-color: #1a1a1a;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .gods-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .god-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            width: 250px;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .god-card:hover {
+            transform: scale(1.05);
+        }
+
+        .god-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .description {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        .god-section {
+            display: flex;
+            align-items: center;
+            margin: 40px auto;
+            padding: 20px;
+            max-width: 900px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            gap: 20px;
+        }
+
+        /* Секції з класом .reverse міняють порядок елементів */
+        .god-section.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .god-section img {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .god-info {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .god-info h2 {
+            margin-top: 0;
+        }
+
+        @media (max-width: 768px) {
+
+            .god-section,
+            .god-section.reverse {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .god-section,
+            .god-section.reverse {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Сюжетні Гілки</h1>
+    <!-- Перша секція: зображення зліва, текст праворуч -->
+
+    <div class="container">
+        <div class="description">
+            <div class="container">
+                <section class="god-section">
+                    <a href="https://telegra.ph/Rozshirenij-syuzhet-03-10"><img src="images/script.jpg" alt="Ваал"></a>
+                    <div class="god-info">
+                        <h2>Ваал</h2>
+                        <p>Імперія Ауреліон: світ на межі знищення</p>
+                    </div>
+                </section>
+                <!-- Друга секція: текст зліва, зображення праворуч -->
+                <section class="god-section reverse">
+                    <a href="https://telegra.ph/Syuzhet-Rabotorg%D1%96vlya-03-04"><img src="images/stories.jpg" alt="Работоргівля"></a>
+                    <div class="god-info">
+                        <h2>Работоргівля</h2>
+                        <p>Другорядна сюжетна гілка</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div id="menu-placeholder"></div>
+
+        <script>
+            async function loadMenu() {
+                try {
+                    const response = await fetch('worldbuilding.json');
+                    if (!response.ok) {
+                        throw new Error(`Помилка завантаження меню: ${response.status} ${response.statusText}`);
+                    }
+                    const menuItems = await response.json();
+                    let menuHTML = '<nav class="top-menu">';
+                    menuItems.forEach(item => {
+                        menuHTML += `
+                        <a href="${item.link}" class="menu-item">
+                            <img src="images/${item.image}" alt="${item.title}" title="${item.title}">
+                            <span>${item.title}</span>
+                        </a>
+                    `;
+                    });
+                    menuHTML += '</nav>';
+                    document.getElementById("menu-placeholder").innerHTML = menuHTML;
+                } catch (error) {
+                    console.error("Помилка завантаження меню:", error);
+                }
+            }
+            document.addEventListener("DOMContentLoaded", loadMenu);
+        </script>
+</body>
+
+</html>
