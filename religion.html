@@ -1,23 +1,26 @@
 <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-NGRQK46P');</script>
-    <!-- End Google Tag Manager -->
+<script>(function (w, d, s, l, i) {
+        w[l] = w[l] || []; w[l].push({
+            'gtm.start':
+                new Date().getTime(), event: 'gtm.js'
+        }); var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-NGRQK46P');</script>
+<!-- End Google Tag Manager -->
 <!DOCTYPE html>
 <html lang="uk">
 
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZQXZ5SYZYZ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZQXZ5SYZYZ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-  gtag('config', 'G-ZQXZ5SYZYZ');
-</script>
+        gtag('config', 'G-ZQXZ5SYZYZ');
+    </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -81,39 +84,46 @@
         }
 
         .god-section {
-      display: flex;
-      align-items: center;
-      margin: 40px auto;
-      padding: 20px;
-      max-width: 900px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      gap: 20px;
-    }
-    /* Секції з класом .reverse міняють порядок елементів */
-    .god-section.reverse {
-      flex-direction: row-reverse;
-    }
-    .god-section img {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 10px;
-      object-fit: cover;
-    }
-    .god-info {
-      flex: 1;
-      padding: 20px;
-    }
-    .god-info h2 {
-      margin-top: 0;
-    }
-    @media (max-width: 768px) {
-      .god-section, .god-section.reverse {
-        flex-direction: column;
-      }
-    }
+            display: flex;
+            align-items: center;
+            margin: 40px auto;
+            padding: 20px;
+            max-width: 900px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            gap: 20px;
+        }
+
+        /* Секції з класом .reverse міняють порядок елементів */
+        .god-section.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .god-section img {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .god-info {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .god-info h2 {
+            margin-top: 0;
+        }
+
+        @media (max-width: 768px) {
+
+            .god-section,
+            .god-section.reverse {
+                flex-direction: column;
+            }
+        }
 
         @media (max-width: 768px) {
 
@@ -126,69 +136,75 @@
 </head>
 
 <body>
-        <h1>Релігії та Боги</h1>
-        <!-- Перша секція: зображення зліва, текст праворуч -->
-         <div class="description">
-            
+    <h1>Релігії та Боги</h1>
+    <!-- Перша секція: зображення зліва, текст праворуч -->
+     
     <div class="container">
-        <section class="god-section">
-            <img src="images/lesta.jpg" alt="Леста">
-            <div class="god-info">
-                <h2>Леста</h2>
-                <p>Леста. Богиня Світла і Життя.<br>
-                       • Сфера відповідальності: Світло, життя, знання, здоров'я, родючість.<br>
-                       • Роль у суспільстві: Забезпечує здоров'я і благополуччя, підтримує знання і просвітництво,
-                    сприяє росту і розвитку, дарує надію та світло.</p>
-             </div>
-        </section>
-        </div>
-        <!-- Друга секція: текст зліва, зображення праворуч -->
-        <section class="god-section reverse">
-            <img src="images/nokta.jpg" alt="Нокта">
-            <div class="god-info">
-                <h2>Нокта</h2><p>Нокта. Бог Темряви і Смерті.<br>
-                       • Сфера відповідальності: Темрява, смерть, таємниці, перехід.<br>
-                       • Роль у суспільстві: Підтримує баланс між життям і смертю, захищає таємниці, допомагає в
-                    перехідних моментах, забезпечує спокій і завершення.</p>
-            </div>
-        </section>
+    <div class="description">
 
-        <!-- Третя секція: зображення зліва, текст праворуч -->
-        <section class="god-section">
-            <img src="images/konk.jpg" alt="Конкорфату">
-            <div class="god-info">
-                <h2>Конкорфату</h2>
-                <p>Конкорфату. Бог Долі і Гармонії.<br>
-                       • Сфера відповідальності: Доля, баланс, мир, взаємодія, час.<br>
-                       • Роль у суспільстві: Забезпечує гармонію між визначеністю і випадковістю, допомагає людям
-                    знаходити своє місце в світі, врівноважує сили та підтримує мир і стабільність</p>
+        <div class="container">
+            <div class="description">
+                <section class="god-section">
+                    <img src="images/lesta.jpg" alt="Леста">
+                    <div class="god-info">
+                        <h2>Леста</h2>
+                        <p>Леста. Богиня Світла і Життя.<br>
+                               • Сфера відповідальності: Світло, життя, знання, здоров'я, родючість.<br>
+                               • Роль у суспільстві: Забезпечує здоров'я і благополуччя, підтримує знання і
+                            просвітництво,
+                            сприяє росту і розвитку, дарує надію та світло.</p>
+                    </div>
+                </section>
             </div>
-        </section>
+            <!-- Друга секція: текст зліва, зображення праворуч -->
+            <section class="god-section reverse">
+                <img src="images/nokta.jpg" alt="Нокта">
+                <div class="god-info">
+                    <h2>Нокта</h2>
+                    <p>Нокта. Бог Темряви і Смерті.<br>
+                           • Сфера відповідальності: Темрява, смерть, таємниці, перехід.<br>
+                           • Роль у суспільстві: Підтримує баланс між життям і смертю, захищає таємниці, допомагає в
+                        перехідних моментах, забезпечує спокій і завершення.</p>
+                </div>
+            </section>
 
-        <!-- Четверта секція: текст зліва, зображення праворуч -->
-        <section class="god-section reverse">
-            <img src="images/floriana.jpg" alt="Флоріана">
-            <div class="god-info">
-                <h2>Флоріана</h2>
-                <p>Флоріана. Богиня Природи.<br>
-                    • Сфера відповідальності: Природа, стихії, екологія, відродження.<br>
-                    • Роль у суспільстві: Забезпечує гармонію між людством і природою, підтримує екологічний баланс,
-                    допомагає у відновленні і регенерації природних ресурсів.</p>
-            </div>
-        </section>
+            <!-- Третя секція: зображення зліва, текст праворуч -->
+            <section class="god-section">
+                <img src="images/konk.jpg" alt="Конкорфату">
+                <div class="god-info">
+                    <h2>Конкорфату</h2>
+                    <p>Конкорфату. Бог Долі і Гармонії.<br>
+                           • Сфера відповідальності: Доля, баланс, мир, взаємодія, час.<br>
+                           • Роль у суспільстві: Забезпечує гармонію між визначеністю і випадковістю, допомагає людям
+                        знаходити своє місце в світі, врівноважує сили та підтримує мир і стабільність</p>
+                </div>
+            </section>
 
-        <!-- П'ята секція: зображення зліва, текст праворуч -->
-        <section class="god-section">
-            <img src="images/arcania.jpg" alt="Арканія">
-            <div class="god-info">
-                <h2>Арканія</h2>
-                <p>
-                    Арканія. Богиня Мудрості і Магії.<br>
+            <!-- Четверта секція: текст зліва, зображення праворуч -->
+            <section class="god-section reverse">
+                <img src="images/floriana.jpg" alt="Флоріана">
+                <div class="god-info">
+                    <h2>Флоріана</h2>
+                    <p>Флоріана. Богиня Природи.<br>
+                        • Сфера відповідальності: Природа, стихії, екологія, відродження.<br>
+                        • Роль у суспільстві: Забезпечує гармонію між людством і природою, підтримує екологічний баланс,
+                        допомагає у відновленні і регенерації природних ресурсів.</p>
+                </div>
+            </section>
+
+            <!-- П'ята секція: зображення зліва, текст праворуч -->
+            <section class="god-section">
+                <img src="images/arcania.jpg" alt="Арканія">
+                <div class="god-info">
+                    <h2>Арканія</h2>
+                    <p>
+                        Арканія. Богиня Мудрості і Магії.<br>
                         • Сфера: Мудрість, магія, знання, навчання.<br>
                         • Роль: Навчає магів, забезпечує поширення знань, підтримує розвиток магічних наук.
-                </p>
-            </div>
-        </section>
+                    </p>
+                </div>
+            </section>
+        </div>
     </div>
     <div class="description">
         <p>
@@ -239,9 +255,8 @@
             (та інші похідні)
         </p>
     </div>
+
     </div>
-    
-</div>
     <div class="container">
         <div class="description">
             <i><b>Важливе оголошення щодо богів у світі гри</b><br><br>
