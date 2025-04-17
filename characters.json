@@ -15,6 +15,11 @@
         "link": "./characters/arbo.html"
     },
     {
+        "name": "Генрі Вістрал-Тес",
+        "image": "vistral.jpg",
+        "link": "./characters/henry.html"
+    },
+    {
         "name": "Іда Трілл",
         "image": "idatrill.png",
         "link": "./characters/idatrill_v2.html"
@@ -28,6 +33,11 @@
         "name": "Ясмина Хайдісс",
         "image": "jasmyna.jpg",
         "link": "./characters/jasmyna.html"
+    },
+    {
+        "name": "Каан АрʼЗаха",
+        "image": "kaan.jpg",
+        "link": "./characters/kaan.html"
     },
     {
         "name": "Канделарія Фокс",
@@ -65,8 +75,13 @@
         "link": "./characters/rubus.html"
     },
     {
-        "name": "Каан АрʼЗаха",
-        "image": "kaan.jpg",
-        "link": "./characters/kaan.html"
+        "name": "Сальвіан Корвус",
+        "image": "salvian.png",
+        "link": "./characters/salvian.html"
+    },
+    {
+        "name": "Сяо Фєй",
+        "image": "sjao.png",
+        "link": "./characters/sjao.html"
     }
 ]
