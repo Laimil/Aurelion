@@ -76,12 +76,12 @@
     },
     {
         "name": "Сальвіан Корвус",
-        "image": "salvian.png",
+        "image": "salvian.jpg",
         "link": "./characters/salvian.html"
     },
     {
         "name": "Сяо Фєй",
-        "image": "sjao.png",
+        "image": "sjao.jpg",
         "link": "./characters/sjao.html"
     }
 ]
