@@ -3,79 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Локальний Telegraph</title>
+    <title>Локальний Telegraph - Aurelion</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Georgia, serif;
             margin: 0;
             padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
+            background-color: #1a1a1a;
+            color: white;
+            min-height: 100vh;
         }
+
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: auto;
-            background: white;
+            background: rgba(255, 255, 255, 0.1);
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
         }
-        input, textarea {
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            font-size: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
             width: 100%;
-            background: #f0f0f0;
-            color: #333;
-            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            font-family: Georgia, serif;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        input[type="file"] {
+            width: 100%;
             padding: 10px;
-            margin-bottom: 10px;
-            font-size: 18px;
-            border-radius: 5px;
-        }
-        textarea {
-            min-height: 300px;
-            resize: vertical;
-            text-align: left;
-        }
-        .toolbar {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            margin-bottom: 10px;
-        }
-        .toolbar button {
-            background: #e0e0e0;
-            color: black;
-            border: none;
-            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
             cursor: pointer;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .description-input {
+            min-height: 80px;
+            resize: vertical;
             font-size: 14px;
-            border-radius: 3px;
-            min-width: 30px;
         }
-        .toolbar button:hover {
-            background: #d0d0d0;
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
         }
-        .toolbar button[data-command="bold"] {
-            font-weight: bold;
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
         }
-        .toolbar button[data-command="italic"] {
-            font-style: italic;
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
         }
-        .toolbar button[data-command="underline"] {
-            text-decoration: underline;
-        }
-        .toolbar button[data-command="justifyLeft"] {
-            text-align: left;
-        }
-        .toolbar button[data-command="justifyCenter"] {
-            text-align: center;
-        }
-        .toolbar button[data-command="justifyRight"] {
-            text-align: right;
-        }
-        .toolbar button[data-command="justifyFull"] {
-            text-align: justify;
-        }
+
         img {
             width: 100%;
             max-height: 400px;
@@ -84,40 +130,379 @@
             display: block;
             margin: 10px auto;
         }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+            min-width: 35px;
+            transition: all 0.3s ease;
+        }
+
+        .toolbar button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .toolbar button[data-command="bold"] {
+            font-weight: bold;
+        }
+
+        .toolbar button[data-command="italic"] {
+            font-style: italic;
+        }
+
+        .toolbar button[data-command="underline"] {
+            text-decoration: underline;
+        }
+
+        #content {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            min-height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            text-align: left;
+            outline: none;
+        }
+
+        #content:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button.action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: Georgia, serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button.action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button.action-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #2a2a2a;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .close {
+            color: rgba(255, 255, 255, 0.7);
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: white;
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #88ff88;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .download-link {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .download-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Preview modal styles */
+        .preview-content {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .preview-content h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .preview-content img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <input type="text" id="title" placeholder="Заголовок">
-        <input type="file" id="imageUpload" accept="image/*">
-        <img id="uploadedImage" style="display:none;">
-        <div class="toolbar">
-            <button data-command="bold" onclick="formatText('bold')">B</button>
-            <button data-command="italic" onclick="formatText('italic')">I</button>
-            <button data-command="underline" onclick="formatText('underline')">U</button>
-            <button data-command="justifyLeft" onclick="formatText('justifyLeft')">⬅</button>
-            <button data-command="justifyCenter" onclick="formatText('justifyCenter')">⬜</button>
-            <button data-command="justifyRight" onclick="formatText('justifyRight')">➡</button>
-            <button data-command="justifyFull" onclick="formatText('justifyFull')">↔</button>
+        <h1>Локальний Telegraph - Aurelion</h1>
+
+        <div class="form-group">
+            <label for="title">Назва статті</label>
+            <input type="text" id="title" placeholder="Введіть назву статті...">
         </div>
-        <div contenteditable="true" id="content" style="border: 1px solid #ccc; padding: 10px; min-height: 300px; background: #f0f0f0;"></div>
-        <button onclick="clearPage()">Очистити</button>
-        <button onclick="downloadHTML()">Завантажити як HTML</button>
+
+        <div class="form-group">
+            <label for="description">Опис (короткий)</label>
+            <textarea id="description" class="description-input" placeholder="Короткий опис статті для превʼю..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="status">Статус</label>
+            <select id="status">
+                <option value="main">Main</option>
+                <option value="secondary">Secondary</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="imageUpload">Зображення</label>
+            <input type="file" id="imageUpload" accept="image/*">
+            <img id="uploadedImage" style="display:none;">
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="publishNow">
+            <label for="publishNow">Опублікувати зараз</label>
+        </div>
+
+        <div class="form-group" style="margin-top: 30px;">
+            <label for="content">Контент статті</label>
+            <div class="toolbar">
+                <button data-command="bold" onclick="formatText('bold')">B</button>
+                <button data-command="italic" onclick="formatText('italic')">I</button>
+                <button data-command="underline" onclick="formatText('underline')">U</button>
+                <button data-command="justifyLeft" onclick="formatText('justifyLeft')">⬅</button>
+                <button data-command="justifyCenter" onclick="formatText('justifyCenter')">⬜</button>
+                <button data-command="justifyRight" onclick="formatText('justifyRight')">➡</button>
+                <button data-command="justifyFull" onclick="formatText('justifyFull')">↔</button>
+            </div>
+            <div contenteditable="true" id="content"></div>
+        </div>
+
+        <div class="button-group">
+            <button class="action-btn" onclick="showPreview()">👁️ Попередній перегляд</button>
+            <button class="action-btn" onclick="exportForGitHub()">📥 Експорт для GitHub</button>
+            <button class="action-btn" onclick="downloadHTML()">📝 Завантажити HTML</button>
+            <button class="action-btn" onclick="clearPage()">✏️ Очистити</button>
+        </div>
+    </div>
+
+    <!-- GitHub Export Modal -->
+    <div id="githubModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGitHubModal()">&times;</span>
+            <h2>Експорт для GitHub</h2>
+
+            <h3>1. JSON для scripts.json</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyJSON()">Копіювати</button>
+                <pre id="jsonOutput"></pre>
+            </div>
+
+            <h3>2. HTML файл</h3>
+            <p>Завантажте HTML файл для папки /scripts/:</p>
+            <a id="downloadHtmlLink" class="download-link" download>📥 Завантажити HTML файл</a>
+
+            <div class="instructions">
+                <h3>Інструкція:</h3>
+                <ol>
+                    <li>Скопіюйте JSON вище та додайте його у файл <code>scripts.json</code></li>
+                    <li>Завантажте HTML файл та помістіть його у папку <code>/scripts/</code></li>
+                    <li>Виконайте git commit та push змін до репозиторію</li>
+                    <li>Перевірте результат на вашому сайті</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePreviewModal()">&times;</span>
+            <h2>Попередній перегляд</h2>
+            <div class="preview-content" id="previewContent"></div>
+        </div>
     </div>
     
     <script>
+        // Get all form elements
         const titleInput = document.getElementById("title");
+        const descriptionInput = document.getElementById("description");
+        const statusSelect = document.getElementById("status");
+        const publishNowCheckbox = document.getElementById("publishNow");
         const contentDiv = document.getElementById("content");
         const imageUpload = document.getElementById("imageUpload");
         const uploadedImage = document.getElementById("uploadedImage");
 
+        // Load saved data from localStorage
         titleInput.value = localStorage.getItem("savedTitle") || "";
+        descriptionInput.value = localStorage.getItem("savedDescription") || "";
+        statusSelect.value = localStorage.getItem("savedStatus") || "main";
+        publishNowCheckbox.checked = localStorage.getItem("savedPublishNow") === "true";
         contentDiv.innerHTML = localStorage.getItem("savedContent") || "";
         uploadedImage.src = localStorage.getItem("savedImage") || "";
         if (uploadedImage.src) uploadedImage.style.display = "block";
 
+        // Save data to localStorage on input
         titleInput.addEventListener("input", () => {
             localStorage.setItem("savedTitle", titleInput.value);
+        });
+
+        descriptionInput.addEventListener("input", () => {
+            localStorage.setItem("savedDescription", descriptionInput.value);
+        });
+
+        statusSelect.addEventListener("change", () => {
+            localStorage.setItem("savedStatus", statusSelect.value);
+        });
+
+        publishNowCheckbox.addEventListener("change", () => {
+            localStorage.setItem("savedPublishNow", publishNowCheckbox.checked);
         });
 
         contentDiv.addEventListener("input", () => {
@@ -137,66 +522,281 @@
             }
         });
 
+        // Format text function
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            contentDiv.focus();
+        }
+
+        // Clear all form data
+        function clearPage() {
+            if (confirm("Ви впевнені, що хочете очистити всі дані?")) {
+                titleInput.value = "";
+                descriptionInput.value = "";
+                statusSelect.value = "main";
+                publishNowCheckbox.checked = false;
+                contentDiv.innerHTML = "";
+                uploadedImage.src = "";
+                uploadedImage.style.display = "none";
+
+                localStorage.removeItem("savedTitle");
+                localStorage.removeItem("savedDescription");
+                localStorage.removeItem("savedStatus");
+                localStorage.removeItem("savedPublishNow");
+                localStorage.removeItem("savedContent");
+                localStorage.removeItem("savedImage");
+            }
+        }
+
+        // Generate slug from title
+        function generateSlug(title) {
+            const translitMap = {
+                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'ґ': 'g', 'д': 'd', 'е': 'e', 'є': 'ye',
+                'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'y', 'к': 'k', 'л': 'l',
+                'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+                'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'yu',
+                'я': 'ya', 'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Ґ': 'G', 'Д': 'D', 'Е': 'E',
+                'Є': 'Ye', 'Ж': 'Zh', 'З': 'Z', 'И': 'Y', 'І': 'I', 'Ї': 'Yi', 'Й': 'Y', 'К': 'K',
+                'Л': 'L', 'М': 'M', 'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T',
+                'У': 'U', 'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Shch', 'Ь': '',
+                'Ю': 'Yu', 'Я': 'Ya'
+            };
+
+            let slug = title.split('').map(char => translitMap[char] || char).join('');
+            slug = slug.toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            return slug;
+        }
+
+        // Generate HTML for GitHub export
+        function generateGitHubHTML() {
+            const title = titleInput.value || "Стаття";
+            const content = contentDiv.innerHTML;
+            const imageSrc = uploadedImage.src;
+            const imageTag = imageSrc ? `<img src="${imageSrc}" style="max-width: 100%; display: block; margin: 20px auto; border-radius: 8px;">` : "";
+
+            return `<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <link rel="stylesheet" href="../character-profile.css">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Georgia, serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 36px;
+        }
+
+        .article-content {
+            line-height: 1.8;
+            font-size: 18px;
+        }
+
+        .article-content img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .article-content p {
+            margin: 15px 0;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-placeholder"></div>
+
+    <div class="container">
+        <h1>${title}</h1>
+        ${imageTag}
+        <div class="article-content">
+            ${content}
+        </div>
+        <a href="../scripts.html" class="back-link">← Назад до списку</a>
+    </div>
+
+    <script src="../menu.js"></script>
+</body>
+</html>`;
+        }
+
+        // Download simple HTML
         function downloadHTML() {
             const title = titleInput.value || "Стаття";
             const content = contentDiv.innerHTML;
             const imageSrc = uploadedImage.src ? `<img src="${uploadedImage.src}" style="max-width: 600px; display: block; margin: 20px auto; border-radius: 8px;">` : "";
-            const htmlContent = `
-                <!DOCTYPE html>
-                <html lang="uk">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>${title}</title>
-                    <style>
-                         body {
-                            max-width: 800px;
-                            width:80%;
-                            margin-left:auto;
-                            margin-right:auto;
-                            font-family: Georgia, serif;
-                            text-align: center;
-                            padding: 20px;
-                            background-color: #f5f5f5;
-                        }
-                        .container {
-                            max-width: 800px;
-                            margin: auto;
-                            width:80%;
-                            margin-left:auto;
-                            margin-right:auto;
-                            background: white;
-                            padding: 40px;
-                            border-radius: 8px;
-                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                            text-align: left;
-                            word-wrap: break-word;
-                        }
-                        img {
-                            width: 100%;
-                            display: block;
-                            margin: 20px auto;
-                            border-radius: 8px;
-                        }
-                        .content {
-                            max-width: 700px;
-                            margin: auto;
-                            text-align: justify;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <h1>${title}</h1>
-                    ${imageSrc}
-                    <div>${content}</div>
-                </body>
-                </html>
-            `;
+            const htmlContent = `<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body {
+            max-width: 800px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: Georgia, serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            word-wrap: break-word;
+        }
+        img {
+            width: 100%;
+            display: block;
+            margin: 20px auto;
+            border-radius: 8px;
+        }
+        .content {
+            max-width: 700px;
+            margin: auto;
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>${title}</h1>
+        ${imageSrc}
+        <div class="content">${content}</div>
+    </div>
+</body>
+</html>`;
             const blob = new Blob([htmlContent], { type: "text/html" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
             link.download = `${title.replace(/\s+/g, '_')}.html`;
             link.click();
+        }
+
+        // Export for GitHub
+        function exportForGitHub() {
+            const title = titleInput.value || "Стаття";
+            const description = descriptionInput.value || "Опис статті";
+            const status = statusSelect.value;
+            const slug = generateSlug(title);
+
+            // Generate JSON
+            const jsonData = {
+                "title": title,
+                "description": description,
+                "image": "script.jpg",
+                "link": `./scripts/${slug}.html`,
+                "status": status
+            };
+
+            const jsonString = JSON.stringify(jsonData, null, 2);
+            document.getElementById("jsonOutput").textContent = jsonString;
+
+            // Generate HTML file
+            const htmlContent = generateGitHubHTML();
+            const blob = new Blob([htmlContent], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+            const downloadLink = document.getElementById("downloadHtmlLink");
+            downloadLink.href = url;
+            downloadLink.download = `${slug}.html`;
+
+            // Show modal
+            document.getElementById("githubModal").style.display = "block";
+        }
+
+        // Copy JSON to clipboard
+        function copyJSON() {
+            const jsonText = document.getElementById("jsonOutput").textContent;
+            navigator.clipboard.writeText(jsonText).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = "Скопійовано!";
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // Show preview
+        function showPreview() {
+            const title = titleInput.value || "Стаття";
+            const content = contentDiv.innerHTML;
+            const imageSrc = uploadedImage.src;
+            const imageTag = imageSrc ? `<img src="${imageSrc}">` : "";
+
+            const previewHTML = `
+                <h1>${title}</h1>
+                ${imageTag}
+                <div>${content}</div>
+            `;
+
+            document.getElementById("previewContent").innerHTML = previewHTML;
+            document.getElementById("previewModal").style.display = "block";
+        }
+
+        // Close modals
+        function closeGitHubModal() {
+            document.getElementById("githubModal").style.display = "none";
+        }
+
+        function closePreviewModal() {
+            document.getElementById("previewModal").style.display = "none";
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const githubModal = document.getElementById("githubModal");
+            const previewModal = document.getElementById("previewModal");
+            if (event.target == githubModal) {
+                githubModal.style.display = "none";
+            }
+            if (event.target == previewModal) {
+                previewModal.style.display = "none";
+            }
         }
     </script>
 </body>
