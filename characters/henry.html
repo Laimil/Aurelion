@@ -3,37 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Генрі Вістрал-Тес</title>
-  <style>
-    body {
-      font-family: 'Georgia', serif;
-      background-color: #1a1a1a;
-      color: white;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-      padding-top: 80px;
-    }
-    img {
-      width: 100%;
-      display: block;
-      margin: 20px auto;
-      border-radius: 8px;
-    }
-    .description {
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 10px;
-      text-align: justify;
-      max-width: 800px;
-      margin: auto;
-    }
-  </style>
+  <meta name="description" content="Генрі Вістрал-Тес - персонаж світу Aurelion">
+  <meta property="og:title" content="Генрі Вістрал-Тес - Aurelion">
+  <meta property="og:description" content="Профіль персонажа Генрі Вістрал-Тес у світі Aurelion">
+  <title>Генрі Вістрал-Тес - Персонаж Aurelion</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../css/character-profile.css">
 </head>
 <body>
-  <div class="description">
+  <!-- Навігація -->
+  <nav class="character-nav">
+    <a href="arbo.html">← Попередній</a>
+    <span class="nav-center">Генрі Вістрал-Тес</span>
+    <a href="idatrill_v2.html">Наступний →</a>
+  </nav>
+
+  <div class="character-header">
     <h1>Генрі Вістрал-Тес</h1>
-    <img src="../images/vistral.jpg" alt="Генрі Вістрал-Тес">
+  </div>
+
+  <div class="description">
+    <img src="../images/vistral.jpg" alt="Портрет персонажа Генрі Вістрал-Тес" class="character-image" loading="lazy">
     <div style="text-align: left; white-space: pre-wrap;">
 ༺࿅ིཽ༼⛩ПІБ: Генрі Вістрал-Тес               
              
@@ -121,5 +111,8 @@
 Від неї завжди віє холодом і легким відчуттям нереальності, що змушує звичайних людей відчувати дискомфорт в її присутності. Навколо неї іноді з'являється ледь помітна зеленувата імла, особливо у стані сильних емоцій.
 Прототип у реальності: Дженніфер Лінн Коннеллі</div>
   </div>
+
+  <div id="menu-placeholder"></div>
+  <script src="../js/menu.js" defer></script>
 </body>
 </html>

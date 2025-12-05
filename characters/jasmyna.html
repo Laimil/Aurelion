@@ -21,50 +21,29 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Ясмина(Сіґнісі) Хайдісс</title>
-    <style>
-        body {
-            font-family: "Georgia", serif;
-            background-color: #1a1a1a;
-            color: white;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            padding-top: 80px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-
-        img {
-            width: 100%;
-            display: block;
-            margin: 20px auto;
-            border-radius: 8px;
-        }
-
-        .content {
-            max-width: 700px;
-            margin: auto;
-            text-align: justify;
-        }
-
-        .description {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: justify;
-            margin-top: 20px;
-        }
-    </style>
+    <meta name="description" content="Ясмина Хайдісс - персонаж світу Aurelion">
+    <meta property="og:title" content="Ясмина Хайдісс - Aurelion">
+    <meta property="og:description" content="Профіль персонажа Ясмина Хайдісс у світі Aurelion">
+    <title>Ясмина Хайдісс - Персонаж Aurelion</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/character-profile.css">
 </head>
 
-<body><div class="container">
+<body>
+    <!-- Навігація -->
+    <nav class="character-nav">
+        <a href="ikso.html">← Попередній</a>
+        <span class="nav-center">Ясмина Хайдісс</span>
+        <a href="kaan.html">Наступний →</a>
+    </nav>
+
+    <div class="character-header">
+        <h1>Ясмина Хайдісс</h1>
+    </div>
+
+    <div class="container">
         <div class="description">
-            <h1> Ясмина(Сіґнісі) Хайдісс</h1>
-            <img src="../images/jasmyna.jpg">
+            <img src="../images/jasmyna.jpg" alt="Портрет персонажа Ясмина Хайдісс" class="character-image" loading="lazy">
             <div>
                 <div style="text-align: left;">༺࿅ིཽ༼⛩️ПІБ: Ясмина Хайдісс (друге імʼя Сіґнісі)</div>
                 <div style="text-align: left;">༺࿅ིཽ༼⛩️Вік/Дата народження: 23/ 13.03.</div>
@@ -244,7 +223,12 @@
                     вкраде на видному місці, ніби знущаючись над мандрівниками.</div>
                 <div style="text-align: left;">— Вона стала найманкою та бере завдання, які не повʼязані із вбивствами
                     чи шкодою іншим, адже для неї це лише створений образ для легшого отримання інформації</div>
-            </div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-placeholder"></div>
+    <script src="../js/menu.js" defer></script>
 </body>
 
 </html>

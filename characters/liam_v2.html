@@ -21,50 +21,29 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ліам Бреккер</title>
-    <style>
-        body {
-            font-family: "Georgia", serif;
-            background-color: #1a1a1a;
-            color: white;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            padding-top: 80px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-
-        img {
-            width: 100%;
-            display: block;
-            margin: 20px auto;
-            border-radius: 8px;
-        }
-
-        .content {
-            max-width: 700px;
-            margin: auto;
-            text-align: justify;
-        }
-
-        .description {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: justify;
-            margin-top: 20px;
-        }
-    </style>
+    <meta name="description" content="Ліам Бреккер - персонаж світу Aurelion">
+    <meta property="og:title" content="Ліам Бреккер - Aurelion">
+    <meta property="og:description" content="Профіль персонажа Ліам Бреккер у світі Aurelion">
+    <title>Ліам Бреккер - Персонаж Aurelion</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/character-profile.css">
 </head>
 
-<body><div class="container">
+<body>
+    <!-- Навігація -->
+    <nav class="character-nav">
+        <a href="kastor.html">← Попередній</a>
+        <span class="nav-center">Ліам Бреккер</span>
+        <a href="luna.html">Наступний →</a>
+    </nav>
+
+    <div class="character-header">
+        <h1>Ліам Бреккер</h1>
+    </div>
+
+    <div class="container">
         <div class="description">
-            <h1>Ліам Бреккер</h1>
-            <img src="../images/liam.jpg"><div>
+            <img src="../images/liam.jpg" alt="Портрет персонажа Ліам Бреккер" class="character-image" loading="lazy"><div>
                 <div style="text-align: left;">
                     <div>༺࿅ིཽ༼⛩ПІБ: Ліам Бреккер</div>
                     <div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>
@@ -175,7 +154,12 @@
                     <div><br></div>
                     <div>༺࿅ིཽ༼⛩Зовнішність:</div>
                 </div>
-            </div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-placeholder"></div>
+    <script src="../js/menu.js" defer></script>
 </body>
 
 </html>

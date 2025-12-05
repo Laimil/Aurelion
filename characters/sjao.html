@@ -3,37 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Сяо Фєй</title>
-  <style>
-    body {
-      font-family: 'Georgia', serif;
-      background-color: #1a1a1a;
-      color: white;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-      padding-top: 80px;
-    }
-    img {
-      width: 100%;
-      display: block;
-      margin: 20px auto;
-      border-radius: 8px;
-    }
-    .description {
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 10px;
-      text-align: justify;
-      max-width: 800px;
-      margin: auto;
-    }
-  </style>
+  <meta name="description" content="Сяо Фєй - персонаж світу Aurelion">
+  <meta property="og:title" content="Сяо Фєй - Aurelion">
+  <meta property="og:description" content="Профіль персонажа Сяо Фєй у світі Aurelion">
+  <title>Сяо Фєй - Персонаж Aurelion</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../css/character-profile.css">
 </head>
 <body>
-  <div class="description">
+  <!-- Навігація -->
+  <nav class="character-nav">
+    <a href="salvian.html">← Попередній</a>
+    <span class="nav-center">Сяо Фєй</span>
+    <a href="">Наступний →</a>
+  </nav>
+
+  <div class="character-header">
     <h1>Сяо Фєй</h1>
-    <img src="../images/sjao.jpg" alt="Сяо Фєй">
+  </div>
+
+  <div class="description">
+    <img src="../images/sjao.jpg" alt="Портрет персонажа Сяо Фєй" class="character-image" loading="lazy">
     <div style="text-align: left; white-space: pre-wrap;">
 ༺࿅ིཽ༼⛩ПІБ: Сяо Фєй
 
@@ -84,5 +74,8 @@
 
 ༺࿅ིཽ༼⛩Зовнішність:</div>
   </div>
+
+  <div id="menu-placeholder"></div>
+  <script src="../js/menu.js" defer></script>
 </body>
 </html>

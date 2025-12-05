@@ -24,55 +24,29 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Іда Трілл</title>
-    <style>
-        body {
-            font-family: "Georgia", serif;
-            background-color: #1a1a1a;
-            color: white;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            padding-top: 80px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-
-        img {
-            width: 100%;
-            display: block;
-            margin: 20px auto;
-            border-radius: 8px;
-        }
-
-        .content {
-            max-width: 700px;
-            margin: auto;
-            text-align: justify;
-        }
-
-        .description {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: justify;
-            margin-top: 20px;
-        }
-
-        .formatted-text {
-            white-space: pre-line;
-        }
-    </style>
+    <meta name="description" content="Іда Трілл - персонаж світу Aurelion">
+    <meta property="og:title" content="Іда Трілл - Aurelion">
+    <meta property="og:description" content="Профіль персонажа Іда Трілл у світі Aurelion">
+    <title>Іда Трілл - Персонаж Aurelion</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/character-profile.css">
 </head>
 
 <body>
+    <!-- Навігація -->
+    <nav class="character-nav">
+        <a href="henry.html">← Попередній</a>
+        <span class="nav-center">Іда Трілл</span>
+        <a href="ikso.html">Наступний →</a>
+    </nav>
+
+    <div class="character-header">
+        <h1>Іда Трілл</h1>
+    </div>
+
     <div class="container">
         <div class="description">
-            <h1>Іда Трілл</h1>
-            <img src="../images/idatrill.png">
+            <img src="../images/idatrill.png" alt="Портрет персонажа Іда Трілл" class="character-image" loading="lazy">
             <div>
                 <div style="text-align: left;">
                     <div>༺࿅ིཽ༼⛩ПІБ: Іда Трілл</div>
@@ -251,6 +225,9 @@
             </div>
         </div>
     </div>
+
+    <div id="menu-placeholder"></div>
+    <script src="../js/menu.js" defer></script>
 </body>
 
 </html>

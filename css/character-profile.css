@@ -1,0 +1,145 @@
+/* Стилі для сторінок профілів персонажів */
+body {
+    font-family: "Georgia", serif;
+    background-color: #1a1a1a;
+    color: white;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+    padding-top: 100px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* Навігація */
+.character-nav {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: rgba(34, 34, 34, 0.95);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 999;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.character-nav a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+    font-size: 14px;
+}
+
+.character-nav a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.character-nav .nav-center {
+    font-weight: bold;
+}
+
+/* Основний контент */
+.character-header {
+    margin-bottom: 30px;
+}
+
+.character-header h1 {
+    font-size: 2.5em;
+    margin: 20px 0;
+    color: #fff;
+}
+
+.character-image {
+    width: 100%;
+    max-width: 600px;
+    display: block;
+    margin: 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.description {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: left;
+    margin-top: 20px;
+    line-height: 1.8;
+}
+
+/* Секції інформації */
+.info-section {
+    margin-bottom: 30px;
+}
+
+.info-section h2 {
+    color: #fff;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-section p,
+.info-section div {
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+/* Список характеристик */
+.stats-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.stats-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-list li:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: bold;
+    display: inline-block;
+    min-width: 180px;
+}
+
+/* Адаптивність */
+@media (max-width: 600px) {
+    body {
+        padding-top: 120px;
+    }
+
+    .character-nav {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px 10px;
+    }
+
+    .character-header h1 {
+        font-size: 1.8em;
+    }
+
+    .description {
+        padding: 20px;
+    }
+
+    .stat-label {
+        display: block;
+        min-width: auto;
+        margin-bottom: 5px;
+    }
+}

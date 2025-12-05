@@ -21,50 +21,29 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Канделарія Фокс</title>
-    <style>
-        body {
-            font-family: "Georgia", serif;
-            background-color: #1a1a1a;
-            color: white;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            padding-top: 80px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-
-        img {
-            width: 100%;
-            display: block;
-            margin: 20px auto;
-            border-radius: 8px;
-        }
-
-        .content {
-            max-width: 700px;
-            margin: auto;
-            text-align: justify;
-        }
-
-        .description {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: justify;
-            margin-top: 20px;
-        }
-    </style>
+    <meta name="description" content="Канделарія Фокс - персонаж світу Aurelion">
+    <meta property="og:title" content="Канделарія Фокс - Aurelion">
+    <meta property="og:description" content="Профіль персонажа Канделарія Фокс у світі Aurelion">
+    <title>Канделарія Фокс - Персонаж Aurelion</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/character-profile.css">
 </head>
 
-<body><div class="container">
+<body>
+    <!-- Навігація -->
+    <nav class="character-nav">
+        <a href="kaan.html">← Попередній</a>
+        <span class="nav-center">Канделарія Фокс</span>
+        <a href="kastor.html">Наступний →</a>
+    </nav>
+
+    <div class="character-header">
+        <h1>Канделарія Фокс</h1>
+    </div>
+
+    <div class="container">
         <div class="description">
-            <h1>Канделарія Фокс</h1>
-            <img src="../images/kandelaria.jpg"><div>
+            <img src="../images/kandelaria.jpg" alt="Портрет персонажа Канделарія Фокс" class="character-image" loading="lazy"><div>
                 <div style="text-align: left;">
                     <div>༺࿅ིཽ༼⛩️ ПІБ: Канделарія Фокс</div>
                     <div><br></div>
@@ -147,7 +126,12 @@
                     <div>• обожнює червоний колір</div>
                     <div>• дорого одягається</div>
                 </div>
-            </div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-placeholder"></div>
+    <script src="../js/menu.js" defer></script>
 </body>
 
 </html>

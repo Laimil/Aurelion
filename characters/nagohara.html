@@ -21,50 +21,29 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Наганохара Шинʼя</title>
-    <style>
-        body {
-            font-family: "Georgia", serif;
-            background-color: #1a1a1a;
-            color: white;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            padding-top: 80px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-
-        img {
-            width: 100%;
-            display: block;
-            margin: 20px auto;
-            border-radius: 8px;
-        }
-
-        .content {
-            max-width: 700px;
-            margin: auto;
-            text-align: justify;
-        }
-
-        .description {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: justify;
-            margin-top: 20px;
-        }
-    </style>
+    <meta name="description" content="Наганохара Шинʼя - персонаж світу Aurelion">
+    <meta property="og:title" content="Наганохара Шинʼя - Aurelion">
+    <meta property="og:description" content="Профіль персонажа Наганохара Шинʼя у світі Aurelion">
+    <title>Наганохара Шинʼя - Персонаж Aurelion</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/character-profile.css">
 </head>
 
-<body><div class="container">
+<body>
+    <!-- Навігація -->
+    <nav class="character-nav">
+        <a href="mor.html">← Попередній</a>
+        <span class="nav-center">Наганохара Шинʼя</span>
+        <a href="rubus.html">Наступний →</a>
+    </nav>
+
+    <div class="character-header">
+        <h1>Наганохара Шинʼя</h1>
+    </div>
+
+    <div class="container">
         <div class="description">
-            <h1>Наганохара Шинʼя</h1>
-            <img src="../images/nagohara.jpg"><div>
+            <img src="../images/nagohara.jpg" alt="Портрет персонажа Наганохара Шинʼя" class="character-image" loading="lazy"><div>
                 <div style="text-align: left;">
                     <div>༺࿅ིཽ༼⛩️ПІБ: Наганохара Шинʼя</div>
                     <div><br></div>
@@ -127,11 +106,15 @@
                     <div><br></div>
                     <div>༺࿅ིཽ༼⛩️Додатково:&nbsp;</div>
                     <div>&nbsp; • Шинʼя веде детальний щоденник, де записує свої спостереження, думки та досягнення. Це
-                        допомагає йому підтримувати внутрішню гармонію та пам’ятати про свій шлях.</div>
+                        допомагає йому підтримувати внутрішню гармонію та пам'ятати про свій шлях.</div>
                     <div>&nbsp; • Він носить амулет, який є символом його відданості Конкорфату.</div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="menu-placeholder"></div>
+    <script src="../js/menu.js" defer></script>
 </body>
 
 </html>

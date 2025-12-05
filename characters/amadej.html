@@ -21,50 +21,29 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Амадей Віллар</title>
-    <style>
-        body {
-            font-family: "Georgia", serif;
-            background-color: #1a1a1a;
-            color: white;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            padding-top: 80px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-
-        img {
-            width: 100%;
-            display: block;
-            margin: 20px auto;
-            border-radius: 8px;
-        }
-
-        .content {
-            max-width: 700px;
-            margin: auto;
-            text-align: justify;
-        }
-
-        .description {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: justify;
-            margin-top: 20px;
-        }
-    </style>
+    <meta name="description" content="Амадей Віллар - персонаж світу Aurelion. Віллар-старший зробив Садиста першокласним шпигуном та найманим вбивцею.">
+    <meta property="og:title" content="Амадей Віллар - Aurelion">
+    <meta property="og:description" content="Профіль персонажа Амадей Віллар у світі Aurelion">
+    <title>Амадей Віллар - Персонаж Aurelion</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/character-profile.css">
 </head>
 
-<body><div class="container">
-        <div class="description">
+<body>
+    <!-- Навігація -->
+    <nav class="character-nav">
+        <a href="../characterlist.html">← Всі персонажі</a>
+        <span class="nav-center">Амадей Віллар</span>
+        <a href="amelia.html">Наступний →</a>
+    </nav>
+
+    <div class="container">
+        <div class="character-header">
             <h1>Амадей Віллар</h1>
-            <img src="../images/amadej.jpg">
+        </div>
+        <img src="../images/amadej.jpg" alt="Портрет персонажа Амадей Віллар" class="character-image" loading="lazy">
+
+        <div class="description">
             <div>
                 <div style="text-align: left;">
                     <div>
@@ -135,6 +114,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="menu-placeholder"></div>
+    <script src="../js/menu.js" defer></script>
 </body>
 
 </html>
