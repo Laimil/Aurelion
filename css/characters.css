@@ -1,0 +1,81 @@
+/* Стилі для сторінки списку персонажів */
+body {
+    padding-top: 80px;
+}
+
+#charactersGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 10px;
+}
+
+.character {
+    width: 180px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    background: #1a1a1a;
+    color: white;
+    padding: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.character:hover {
+    transform: scale(1.1);
+}
+
+.character img {
+    width: 150px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.character p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.character a {
+    text-decoration: none;
+    color: white;
+}
+
+/* Поле пошуку */
+#characterSearch {
+    width: 90%;
+    max-width: 400px;
+    padding: 12px 20px;
+    margin: 20px auto;
+    display: block;
+    font-size: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+#characterSearch:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+#characterSearch::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 600px) {
+    #charactersGrid {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .character {
+        width: 90%;
+        max-width: 300px;
+    }
+}

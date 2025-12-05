@@ -21,137 +21,24 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Персонажі</title>
+    <meta name="description" content="Список персонажів Aurelion - українська фентезі рольова гра">
+    <meta name="keywords" content="персонажі, Aurelion, рольова гра, фентезі">
+    <meta property="og:title" content="Персонажі - Aurelion">
+    <meta property="og:description" content="Галерея персонажів світу Aurelion">
+    <meta property="og:type" content="website">
+    <title>Персонажі - Aurelion</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #1a1a1a;
-            /* Нечищене майже сіре золото */
-            color: white;
-            padding-top: 80px;
-        }
-
-        #charactersGrid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            padding: 10px;
-        }
-
-        .character {
-            width: 180px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            background: #1a1a1a;
-            color: white;
-            padding: 10px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .character:hover {
-            transform: scale(1.1);
-        }
-
-        .character img {
-            width: 150px;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
-
-        .character p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-
-        #errorMessage {
-            color: #ff4d4d;
-            font-weight: bold;
-            display: none;
-        }
-
-        @media (max-width: 600px) {
-            #charactersGrid {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .character {
-                width: 90%;
-                max-width: 300px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/characters.css">
 </head>
 
 <body>
     <div class="container">
     <h1>Список персонажів</h1>
+    <input type="search" id="characterSearch" placeholder="Пошук персонажа..." aria-label="Пошук персонажів">
     <div id="errorMessage"></div>
     <div id="charactersGrid"></div>
-
-    <script>
-        async function loadCharacters() {
-            try {
-                const response = await fetch('characters.json');
-                if (!response.ok) {
-                    throw new Error(`Помилка мережі: ${response.status} ${response.statusText}`);
-                }
-                const characters = await response.json();
-                const charactersGrid = document.getElementById('charactersGrid');
-                charactersGrid.innerHTML = '';
-                characters.forEach((character) => {
-                    const charDiv = document.createElement('div');
-                    charDiv.className = 'character';
-                    charDiv.innerHTML = `
-                        <a href="${character.link}" >
-                            <img src="images/${character.image}" alt="${character.name}" onerror="this.onerror=null; this.src='default.jpg'">
-                            <p style="text-decoration: none; color: white; pointer-events: none;">${character.name}</p>
-                        </a>
-                    `;
-                    charactersGrid.appendChild(charDiv);
-                });
-            } catch (error) {
-                document.getElementById('errorMessage').innerText = `Не вдалося завантажити дані про персонажів: ${error.message}`;
-                document.getElementById('errorMessage').style.display = 'block';
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", loadCharacters);
-    </script>
     <div id="menu-placeholder"></div>
-
-    <script>
-        async function loadMenu() {
-            try {
-                const response = await fetch('worldbuilding.json');
-                if (!response.ok) {
-                    throw new Error(`Помилка завантаження меню: ${response.status} ${response.statusText}`);
-                }
-                const menuItems = await response.json();
-                let menuHTML = '<nav class="top-menu">';
-                menuItems.forEach(item => {
-                    menuHTML += `
-                            <a href="${item.link}" class="menu-item">
-                                <img src="images/${item.image}" alt="${item.title}" title="${item.title}">
-                                <span>${item.title}</span>
-                            </a>
-                        `;
-                });
-                menuHTML += '</nav>';
-                document.getElementById("menu-placeholder").innerHTML = menuHTML;
-            } catch (error) {
-                console.error("Помилка завантаження меню:", error);
-            }
-        }
-        document.addEventListener("DOMContentLoaded", loadMenu);
-    </script>
 <script src="js/characters.js" defer></script>
 <script src="js/menu.js" defer></script>
 </body>

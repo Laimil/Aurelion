@@ -6,11 +6,11 @@ async function loadMenu() {
       throw new Error(`Помилка завантаження меню: ${response.status} ${response.statusText}`);
     }
     const menuItems = await response.json();
-    let menuHTML = '<nav class="top-menu">';
+    let menuHTML = '<nav class="top-menu" role="navigation" aria-label="Головне меню">';
     menuItems.forEach(item => {
       menuHTML += `
-        <a href="${item.link}" class="menu-item">
-          <img src="images/${item.image}" alt="${item.title}" title="${item.title}">
+        <a href="${item.link}" class="menu-item" aria-label="Перейти до ${item.title}">
+          <img src="images/${item.image}" alt="${item.title}" title="${item.title}" loading="lazy">
           <span>${item.title}</span>
         </a>
       `;
