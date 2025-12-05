@@ -1,0 +1,18 @@
+[
+    {
+        "title": "Ваал",
+        "description": "Імперія Ауреліон: світ на межі знищення",
+        "image": "script.jpg",
+        "link": "./scripts/vaal.html",
+        "status": "main",
+        "externalLink": "https://telegra.ph/Rozshirenij-syuzhet-03-10"
+    },
+    {
+        "title": "Работоргівля",
+        "description": "Другорядна сюжетна гілка",
+        "image": "stories.jpg",
+        "link": "./scripts/slavery.html",
+        "status": "secondary",
+        "externalLink": "https://telegra.ph/Syuzhet-Rabotorg%D1%96vlya-03-04"
+    }
+]
