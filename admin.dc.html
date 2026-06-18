@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#141414;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.25);border-radius:3px}
+::selection{background:rgba(255,215,0,0.18);color:#fff}
+input,textarea,select{font-family:inherit;font-size:14px;color:#fff;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:9px 12px;width:100%;outline:none;transition:border-color 0.18s,background 0.18s;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:rgba(255,215,0,0.5);background:rgba(255,255,255,0.1)}
+textarea{min-height:90px;line-height:1.55}
+select option{background:#222;color:#fff}
+label{display:block;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.38);margin-bottom:5px}
+button{font-family:inherit;cursor:pointer}
+
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+.tab-btn[data-active="true"]{background:rgba(255,215,0,0.12)!important;border-color:rgba(255,215,0,0.4)!important;color:#ffd700!important}
+.tab-btn[data-active="false"]:hover{background:rgba(255,255,255,0.07)!important;color:#fff!important}
+.item-row:hover{background:rgba(255,255,255,0.06)!important}
+</style>
+</helmet>
+
+<!-- ═══ TOP BAR ═══ -->
+<div style="position:sticky;top:0;z-index:50;background:rgba(22,22,22,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.09);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <a href="Aurelion Site.dc.html" style="font-size:0.78rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.18s;" style-hover="color:#fff;">← Сайт</a>
+    <span style="color:rgba(255,255,255,0.15);">|</span>
+    <span style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.1em;">✦ ADMIN</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <button onClick="{{ exportData }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.55);border-radius:6px;padding:6px 14px;font-size:0.78rem;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">↓ JSON</button>
+    <button onClick="{{ openImport }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.55);border-radius:6px;padding:6px 14px;font-size:0.78rem;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">↑ Імпорт</button>
+    <button onClick="{{ saveAll }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:6px 18px;font-size:0.82rem;font-weight:700;font-family:'Cinzel',serif;letter-spacing:0.05em;transition:all 0.18s;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.4);">Зберегти</button>
+  </div>
+</div>
+
+<!-- ═══ TAB BAR ═══ -->
+<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:0 24px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;">
+  <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="6">
+    <button data-tab="{{ tab.id }}" data-active="{{ tab.active }}" onClick="{{ setTab }}" class="tab-btn" style="background:transparent;border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;padding:10px 16px;font-size:0.8rem;color:rgba(255,255,255,0.45);white-space:nowrap;flex-shrink:0;transition:all 0.18s;margin-bottom:-1px;">{{ tab.label }}</button>
+  </sc-for>
+</div>
+
+<!-- ═══ SITE TAB ═══ -->
+<sc-if value="{{ showSite }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:720px;margin:0 auto;padding:32px 24px 80px;">
+    <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:24px;">⚙ Налаштування сайту</h2>
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div>
+        <label>Назва (AURELION)</label>
+        <input value="{{ siteTitle }}" onChange="{{ handleSiteInput }}" data-field="title" placeholder="AURELION" />
+      </div>
+      <div>
+        <label>Підзаголовок</label>
+        <input value="{{ siteSubtitle }}" onChange="{{ handleSiteInput }}" data-field="subtitle" placeholder="Темне фентезі. Живі легенди." />
+      </div>
+      <div>
+        <label>Вітальний текст (головна)</label>
+        <textarea value="{{ siteWelcome }}" onChange="{{ handleSiteInput }}" data-field="welcome" style="min-height:80px;"></textarea>
+      </div>
+      <div>
+        <label>Текст «Про проєкт»</label>
+        <textarea value="{{ siteAbout }}" onChange="{{ handleSiteInput }}" data-field="contactsAbout" style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <p style="margin-top:20px;font-size:0.75rem;color:rgba(255,255,255,0.22);">Зміни зберігаються після натискання кнопки «Зберегти».</p>
+  </div>
+</sc-if>
+
+<!-- ═══ LORE TAB ═══ -->
+<sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">📜 Лор-статті</h2>
+      <button data-section="lore" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.18);">+ Нова стаття</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
+      <sc-for list="{{ loreList }}" as="item" hint-placeholder-count="3">
+        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:background 0.15s;">
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:0.88rem;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.title }}</p>
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ item.category }}</p>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button data-section="lore" data-index="{{ item._index }}" onClick="{{ startEdit }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;transition:all 0.15s;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
+            <button data-section="lore" data-index="{{ item._index }}" onClick="{{ deleteItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;transition:all 0.15s;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ showLoreForm }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:22px;">
+        <p style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:18px;">{{ editLabel }}</p>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label>Заголовок</label><input value="{{ formTitle }}" onChange="{{ handleInput }}" data-field="title" /></div>
+          <div><label>Категорія</label><input value="{{ formCategory }}" onChange="{{ handleInput }}" data-field="category" /></div>
+        </div>
+        <div style="margin-bottom:14px;"><label>Уривок (для картки)</label><input value="{{ formExcerpt }}" onChange="{{ handleInput }}" data-field="excerpt" /></div>
+        <div style="margin-bottom:18px;"><label>Повний текст (підтримує абзаци через Enter)</label><textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:140px;"></textarea></div>
+        <div style="display:flex;gap:8px;">
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;transition:all 0.18s;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ═══ STORIES TAB ═══ -->
+<sc-if value="{{ showStories }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">⚔️ Сюжетні Арки</h2>
+      <button data-section="stories" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.18);">+ Нова арка</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
+      <sc-for list="{{ storiesList }}" as="arc" hint-placeholder-count="3">
+        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:background 0.15s;">
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:0.88rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ arc.title }}</p>
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ arc.statusLabel }}</p>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button data-section="stories" data-index="{{ arc._index }}" onClick="{{ startEdit }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
+            <button data-section="stories" data-index="{{ arc._index }}" onClick="{{ deleteItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ showStoriesForm }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:22px;">
+        <p style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:18px;">{{ editLabel }}</p>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label>Назва арки</label><input value="{{ formTitle }}" onChange="{{ handleInput }}" data-field="title" /></div>
+          <div>
+            <label>Статус</label>
+            <select value="{{ formStatus }}" onChange="{{ handleInput }}" data-field="status">
+              <option value="active">Активна</option>
+              <option value="completed">Завершена</option>
+              <option value="planned">Заплановано</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:18px;"><label>Опис</label><textarea value="{{ formDescription }}" onChange="{{ handleInput }}" data-field="description" style="min-height:90px;"></textarea></div>
+        <div style="display:flex;gap:8px;">
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ═══ CHARACTERS TAB ═══ -->
+<sc-if value="{{ showCharacters }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🎭 Персонажі</h2>
+      <button data-section="characters" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Новий персонаж</button>
+    </div>
+    <p style="font-size:0.76rem;color:rgba(255,255,255,0.3);margin-bottom:18px;">Telegraph URL — це посилання вигляду https://telegra.ph/назва-анкети</p>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
+      <sc-for list="{{ charList }}" as="char" hint-placeholder-count="4">
+        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);">
+          <div style="width:34px;height:34px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.78rem;color:rgba(255,215,0,0.5);flex-shrink:0;">{{ char.initials }}</div>
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:0.88rem;color:#fff;">{{ char.name }}</p>
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:1px;">{{ char.role }}</p>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button data-section="characters" data-index="{{ char._index }}" onClick="{{ startEdit }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
+            <button data-section="characters" data-index="{{ char._index }}" onClick="{{ deleteItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ showCharForm }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:22px;">
+        <p style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:18px;">{{ editLabel }}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label>Ім'я (повне)</label><input value="{{ formName }}" onChange="{{ handleInput }}" data-field="name" /></div>
+          <div><label>Псевдонім / прізвисько</label><input value="{{ formAlias }}" onChange="{{ handleInput }}" data-field="alias" /></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label>Роль / клас</label><input value="{{ formRole }}" onChange="{{ handleInput }}" data-field="role" /></div>
+          <div><label>URL зображення (фото/арт)</label><input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="https://..." /></div>
+        </div>
+        <div style="margin-bottom:18px;"><label>Telegraph URL (анкета)</label><input value="{{ formTelegraphUrl }}" onChange="{{ handleInput }}" data-field="telegraphUrl" placeholder="https://telegra.ph/..." /></div>
+        <div style="display:flex;gap:8px;">
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ═══ PANTHEON TAB ═══ -->
+<sc-if value="{{ showPantheon }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🐉 Пантеон</h2>
+      <button data-section="pantheon" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Новий бог</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
+      <sc-for list="{{ panList }}" as="god" hint-placeholder-count="5">
+        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);">
+          <div style="flex:1;">
+            <p style="font-size:0.88rem;color:#fff;">{{ god.name }}</p>
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:1px;">{{ god.domain }}</p>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button data-section="pantheon" data-index="{{ god._index }}" onClick="{{ startEdit }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
+            <button data-section="pantheon" data-index="{{ god._index }}" onClick="{{ deleteItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ showPanForm }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:22px;">
+        <p style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:18px;">{{ editLabel }}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label>Ім'я бога</label><input value="{{ formName }}" onChange="{{ handleInput }}" data-field="name" /></div>
+          <div><label>Домен (Світло і Життя...)</label><input value="{{ formDomain }}" onChange="{{ handleInput }}" data-field="domain" /></div>
+          <div>
+            <label>Акцент-колір (god)</label>
+            <select value="{{ formGod }}" onChange="{{ handleInput }}" data-field="god">
+              <option value="light">light (золото)</option>
+              <option value="dark">dark (індиго)</option>
+              <option value="fate">fate (бордо)</option>
+              <option value="nature">nature (бірюза)</option>
+              <option value="magic">magic (срібло)</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:18px;"><label>Опис</label><textarea value="{{ formDescription }}" onChange="{{ handleInput }}" data-field="description" style="min-height:90px;"></textarea></div>
+        <div style="display:flex;gap:8px;">
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ═══ CONTACTS TAB ═══ -->
+<sc-if value="{{ showContacts }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">✉️ Посилання / Контакти</h2>
+      <button data-section="contacts" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нове посилання</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
+      <sc-for list="{{ contactList }}" as="link" hint-placeholder-count="2">
+        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);">
+          <span style="font-size:1.1rem;flex-shrink:0;">{{ link.icon }}</span>
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:0.88rem;color:#fff;">{{ link.label }}</p>
+            <p style="font-size:0.74rem;color:rgba(100,149,237,0.7);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ link.url }}</p>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button data-section="contacts" data-index="{{ link._index }}" onClick="{{ startEdit }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
+            <button data-section="contacts" data-index="{{ link._index }}" onClick="{{ deleteItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ showContactForm }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:22px;">
+        <p style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:18px;">{{ editLabel }}</p>
+        <div style="display:grid;grid-template-columns:80px 1fr 2fr;gap:14px;margin-bottom:18px;">
+          <div><label>Іконка</label><input value="{{ formIcon }}" onChange="{{ handleInput }}" data-field="icon" placeholder="📬" /></div>
+          <div><label>Підпис</label><input value="{{ formLabel }}" onChange="{{ handleInput }}" data-field="label" /></div>
+          <div><label>URL</label><input value="{{ formUrl }}" onChange="{{ handleInput }}" data-field="url" placeholder="https://..." /></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ═══ TOAST ═══ -->
+<sc-if value="{{ showToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:24px;right:24px;background:#222;border:1px solid rgba(255,215,0,0.35);border-radius:8px;padding:12px 20px;font-size:0.85rem;color:#ffd700;z-index:300;animation:toastIn 0.25s ease;box-shadow:0 4px 16px rgba(0,0,0,0.5);">{{ toastMsg }}</div>
+</sc-if>
+
+<!-- ═══ IMPORT MODAL ═══ -->
+<sc-if value="{{ showImportModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeImport }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;">
+    <div onClick="{{ stopImportProp }}" style="background:#1e1e1e;border:1px solid rgba(255,255,255,0.14);border-radius:12px;max-width:640px;width:100%;padding:28px;">
+      <h3 style="font-family:'Cinzel',serif;font-size:1rem;color:#fff;letter-spacing:0.06em;margin-bottom:8px;">↑ Імпорт даних (JSON)</h3>
+      <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-bottom:16px;">Вставте JSON, отриманий через «↓ JSON», або скопійований з файлу aurelion-data.json</p>
+      <textarea value="{{ importText }}" onChange="{{ handleImportText }}" style="min-height:200px;font-family:monospace;font-size:0.8rem;background:rgba(0,0,0,0.3);border-color:rgba(255,255,255,0.1);" placeholder='{"site":{"title":"AURELION"},...}'></textarea>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button onClick="{{ doImport }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:9px 22px;font-weight:700;font-size:0.85rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Імпортувати</button>
+        <button onClick="{{ closeImport }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:9px 18px;font-size:0.85rem;">Скасувати</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const STATUS_LABELS_ADMIN = { active: 'Активна', completed: 'Завершена', planned: 'Заплановано' };
+
+class Component extends DCLogic {
+  state = {
+    tab: 'site',
+    data: this._loadData(),
+    editing: null,   // { section, index }  index=-1 → new
+    form: {},
+    toast: '',
+    showImportModal: false,
+    importText: '',
+  };
+
+  _loadData() {
+    try {
+      const s = localStorage.getItem('aurelion-data');
+      if (s) return JSON.parse(s);
+    } catch (e) {}
+    return { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [] };
+  }
+
+  _persist(data) {
+    try { localStorage.setItem('aurelion-data', JSON.stringify(data)); } catch (e) {}
+  }
+
+  _toast(msg) {
+    this.setState({ toast: msg });
+    setTimeout(() => this.setState({ toast: '' }), 3000);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const data = s.data;
+    const tab = s.tab;
+    const editing = s.editing;
+    const form = s.form;
+
+    const editLabel = editing ? (editing.index === -1 ? '✦ Новий запис' : '✦ Редагування') : '';
+
+    const mkList = (arr) => (arr || []).map((it, i) => ({ ...it, _index: i }));
+    const loreList    = mkList(data.lore);
+    const storiesList = mkList(data.stories).map(a => ({ ...a, statusLabel: STATUS_LABELS_ADMIN[a.status] || a.status }));
+    const charList    = mkList(data.characters).map(ch => {
+      const parts = (ch.name || '').trim().split(/\s+/);
+      return { ...ch, initials: parts.slice(0,2).map(p=>(p[0]||'')).join('').toUpperCase()||'?' };
+    });
+    const panList     = mkList(data.pantheon);
+    const contactList = mkList(data.contacts);
+
+    const showFor = (section) => editing && editing.section === section;
+
+    return {
+      tabs: [
+        { id: 'site',       label: '⚙ Сайт',        active: tab === 'site' },
+        { id: 'lore',       label: '📜 Лор',          active: tab === 'lore' },
+        { id: 'stories',    label: '⚔️ Сюжети',       active: tab === 'stories' },
+        { id: 'characters', label: '🎭 Персонажі',    active: tab === 'characters' },
+        { id: 'pantheon',   label: '🐉 Пантеон',      active: tab === 'pantheon' },
+        { id: 'contacts',   label: '✉️ Контакти',     active: tab === 'contacts' },
+      ],
+      setTab: (e) => {
+        const id = e.currentTarget.dataset.tab;
+        if (id) this.setState({ tab: id, editing: null, form: {} });
+      },
+
+      showSite:       tab === 'site',
+      showLore:       tab === 'lore',
+      showStories:    tab === 'stories',
+      showCharacters: tab === 'characters',
+      showPantheon:   tab === 'pantheon',
+      showContacts:   tab === 'contacts',
+
+      // Site fields
+      siteTitle:    data.site?.title    || '',
+      siteSubtitle: data.site?.subtitle || '',
+      siteWelcome:  data.site?.welcome  || '',
+      siteAbout:    data.site?.contactsAbout || '',
+      handleSiteInput: (e) => {
+        const field = e.target.dataset.field, value = e.target.value;
+        this.setState(st => {
+          const newData = { ...st.data, site: { ...(st.data.site||{}), [field]: value } };
+          return { data: newData };
+        });
+      },
+
+      // Lists
+      loreList, storiesList, charList, panList, contactList,
+
+      // Form flags per tab
+      showLoreForm:    showFor('lore'),
+      showStoriesForm: showFor('stories'),
+      showCharForm:    showFor('characters'),
+      showPanForm:     showFor('pantheon'),
+      showContactForm: showFor('contacts'),
+      editLabel,
+
+      // Form values
+      formTitle:        form.title        || '',
+      formCategory:     form.category     || '',
+      formExcerpt:      form.excerpt       || '',
+      formContent:      form.content       || '',
+      formStatus:       form.status        || 'active',
+      formDescription:  form.description  || '',
+      formName:         form.name          || '',
+      formAlias:        form.alias         || '',
+      formRole:         form.role          || '',
+      formImage:        form.image         || '',
+      formTelegraphUrl: form.telegraphUrl  || '',
+      formDomain:       form.domain        || '',
+      formGod:          form.god           || 'light',
+      formIcon:         form.icon          || '',
+      formLabel:        form.label         || '',
+      formUrl:          form.url           || '',
+
+      handleInput: (e) => {
+        const field = e.target.dataset.field, value = e.target.value;
+        this.setState(st => ({ form: { ...st.form, [field]: value } }));
+      },
+
+      startAdd: (e) => {
+        const section = e.currentTarget.dataset.section;
+        this.setState({ editing: { section, index: -1 }, form: {} });
+      },
+
+      startEdit: (e) => {
+        const section = e.currentTarget.dataset.section;
+        const index = parseInt(e.currentTarget.dataset.index);
+        const item = (this.state.data[section] || [])[index] || {};
+        this.setState({ editing: { section, index }, form: { ...item } });
+      },
+
+      cancelEdit: () => this.setState({ editing: null, form: {} }),
+
+      saveItem: () => {
+        const { section, index } = s.editing;
+        this.setState(st => {
+          const items = [...(st.data[section] || [])];
+          if (index === -1) {
+            items.push({ ...st.form, id: Date.now().toString() });
+          } else {
+            items[index] = { ...(items[index] || {}), ...st.form };
+          }
+          const newData = { ...st.data, [section]: items };
+          this._persist(newData);
+          return { data: newData, editing: null, form: {} };
+        });
+        this._toast('✓ Збережено!');
+      },
+
+      deleteItem: (e) => {
+        const section = e.currentTarget.dataset.section;
+        const index = parseInt(e.currentTarget.dataset.index);
+        if (!window.confirm('Видалити цей запис?')) return;
+        this.setState(st => {
+          const items = [...(st.data[section] || [])];
+          items.splice(index, 1);
+          const newData = { ...st.data, [section]: items };
+          this._persist(newData);
+          return { data: newData };
+        });
+        this._toast('✓ Видалено');
+      },
+
+      saveAll: () => {
+        this._persist(s.data);
+        this._toast('✓ Збережено!');
+      },
+
+      exportData: () => {
+        const json = JSON.stringify(s.data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'aurelion-data.json'; a.click();
+        URL.revokeObjectURL(url);
+        this._toast('✓ JSON завантажено');
+      },
+
+      showToast: !!(s.toast),
+      toastMsg: s.toast,
+
+      showImportModal: s.showImportModal,
+      importText: s.importText || '',
+      openImport: () => this.setState({ showImportModal: true }),
+      closeImport: () => this.setState({ showImportModal: false }),
+      handleImportText: (e) => this.setState({ importText: e.target.value }),
+      stopImportProp: (e) => e.stopPropagation(),
+      doImport: () => {
+        try {
+          const parsed = JSON.parse(s.importText);
+          this._persist(parsed);
+          this.setState({ data: parsed, showImportModal: false, importText: '' });
+          this._toast('✓ Дані імпортовано!');
+        } catch (err) {
+          this._toast('✗ Помилка: перевірте формат JSON');
+        }
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#161616}::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.3);border-radius:3px}
+::selection{background:rgba(255,215,0,0.18);color:#fff}
+
+@keyframes goldPulse{0%,100%{text-shadow:0 0 20px rgba(255,215,0,0.4),0 0 60px rgba(255,215,0,0.1)}50%{text-shadow:0 0 50px rgba(255,215,0,0.9),0 0 90px rgba(255,215,0,0.3)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes diceRollAnim{0%{transform:rotate(0deg) scale(1)}30%{transform:rotate(200deg) scale(0.85)}65%{transform:rotate(390deg) scale(1.1)}100%{transform:rotate(540deg) scale(1)}}
+@keyframes numFlash{0%,100%{opacity:1}50%{opacity:0.15}}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.au-page{animation:fadeUp 0.42s ease both}
+
+nav a[data-active="true"]{color:#fff!important}
+nav a[data-active="false"]{color:rgba(255,255,255,0.58)}
+nav a[data-active="false"]:hover{color:#fff;transition:color 0.18s}
+
+.glass{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;transition:background 0.28s ease,transform 0.28s ease,box-shadow 0.28s ease}
+.glass:hover{background:rgba(255,255,255,0.11);transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,0.55)}
+.char-card:hover{transform:scale(1.04)!important;box-shadow:0 10px 28px rgba(0,0,0,0.6)!important}
+.char-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,26,0.95) 0%,rgba(26,26,26,0.25) 60%,transparent 100%)}
+
+[data-rolling="true"] .die-display{animation:diceRollAnim 0.48s linear infinite}
+[data-rolling="true"] .die-number{animation:numFlash 0.12s linear infinite}
+[data-crit="true"] .die-number{color:#ffd700!important;text-shadow:0 0 32px rgba(255,215,0,0.9),0 0 64px rgba(255,215,0,0.4)!important}
+[data-fumble="true"] .die-number{color:#ff4d4d!important;text-shadow:0 0 32px rgba(255,77,77,0.9)!important}
+
+button.die-btn[data-active="true"]{background:rgba(255,215,0,0.14)!important;border-color:rgba(255,215,0,0.6)!important;color:#ffd700!important}
+button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!important;border-color:rgba(255,255,255,0.28)!important}
+
+[data-god="light"] .god-accent{color:#ffd76b}[data-god="light"]{border-color:rgba(255,215,107,0.35)!important}
+[data-god="dark"] .god-accent{color:#8b8fd0}[data-god="dark"]{border-color:rgba(107,111,174,0.35)!important}
+[data-god="fate"] .god-accent{color:#c07882}[data-god="fate"]{border-color:rgba(156,79,99,0.35)!important}
+[data-god="nature"] .god-accent{color:#6ec0b0}[data-god="nature"]{border-color:rgba(94,154,143,0.35)!important}
+[data-god="magic"] .god-accent{color:#c8ccd8}[data-god="magic"]{border-color:rgba(184,188,200,0.35)!important}
+
+[data-status="active"] .status-tag{background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.3)}
+[data-status="completed"] .status-tag{background:rgba(111,207,142,0.14);color:#6fcf8e;border:1px solid rgba(111,207,142,0.3)}
+[data-status="planned"] .status-tag{background:rgba(100,149,237,0.14);color:#6495ed;border:1px solid rgba(100,149,237,0.3)}
+</style>
+</helmet>
+
+<!-- ═══ NAV ═══ -->
+<nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);">
+  <div style="max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;padding:0 24px;gap:0;">
+    <a href="#home" style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;">✦ AURELION</a>
+    <div style="display:flex;align-items:center;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="7">
+        <a href="#{{ item.id }}" data-active="{{ item.active }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
+      </sc-for>
+    </div>
+    <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
+  </div>
+</nav>
+
+<!-- ═══ HOME ═══ -->
+<sc-if value="{{ showHome }}" hint-placeholder-val="{{ true }}">
+  <main class="au-page" style="min-height:100vh;background:#1a1a1a;">
+    <!-- Hero -->
+    <section style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 56px;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 44%,rgba(255,215,0,0.05) 0%,transparent 68%);pointer-events:none;"></div>
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:18px;">✦ Темне фентезі · Україна</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.8rem,9vw,6.5rem);font-weight:900;color:#ffd700;letter-spacing:0.12em;line-height:1;margin-bottom:18px;animation:goldPulse 4.5s ease infinite;">{{ siteTitle }}</h1>
+      <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(0.8rem,2.2vw,1.2rem);color:rgba(255,255,255,0.42);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:36px;">{{ siteSubtitle }}</p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:clamp(1rem,1.8vw,1.15rem);line-height:1.88;color:rgba(255,255,255,0.62);max-width:620px;margin-bottom:56px;">{{ siteWelcome }}</p>
+      <a href="#lore" style="display:inline-flex;align-items:center;gap:10px;background:rgba(255,215,0,0.09);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:999px;padding:12px 34px;font-size:0.875rem;letter-spacing:0.07em;text-decoration:none;transition:all 0.22s;" style-hover="background:rgba(255,215,0,0.17);box-shadow:0 0 22px rgba(255,215,0,0.22);">Досліджувати ↓</a>
+    </section>
+    <!-- Tiles -->
+    <section style="max-width:1200px;margin:0 auto;padding:20px 24px 100px;">
+      <p style="text-align:center;font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-bottom:40px;">— Розділи —</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px;">
+        <sc-for list="{{ homeTiles }}" as="tile" hint-placeholder-count="6">
+          <a href="#{{ tile.id }}" class="glass" style="display:block;padding:28px;text-decoration:none;color:inherit;border-radius:10px;">
+            <div style="font-size:1.8rem;margin-bottom:14px;line-height:1;">{{ tile.icon }}</div>
+            <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;font-weight:700;color:#fff;letter-spacing:0.06em;margin-bottom:8px;">{{ tile.title }}</h3>
+            <p style="font-size:0.83rem;color:rgba(255,255,255,0.4);line-height:1.5;">{{ tile.desc }}</p>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+  </main>
+</sc-if>
+
+<!-- ═══ ЛОР ═══ -->
+<sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
+    <header style="text-align:center;margin-bottom:52px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Знання</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Світобудова</h1>
+    </header>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px;">
+      <sc-for list="{{ loreItems }}" as="item" hint-placeholder-count="3">
+        <article data-id="{{ item.id }}" onClick="{{ openLore }}" class="glass" style="cursor:pointer;overflow:hidden;">
+          <div style="padding:24px 24px 14px;">
+            <span style="display:inline-block;background:rgba(255,215,0,0.09);color:rgba(255,215,0,0.85);border:1px solid rgba(255,215,0,0.2);border-radius:4px;font-size:0.67rem;letter-spacing:0.14em;text-transform:uppercase;padding:3px 10px;margin-bottom:14px;">{{ item.category }}</span>
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.12rem;color:#fff;letter-spacing:0.04em;margin-bottom:10px;line-height:1.35;">{{ item.title }}</h2>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.5);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">{{ item.excerpt }}</p>
+          </div>
+          <div style="padding:10px 24px 18px;font-size:0.78rem;color:#6495ed;">Читати далі →</div>
+        </article>
+      </sc-for>
+    </div>
+    <sc-if value="{{ loreEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
+        <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
+        <p>Лор ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+      </div>
+    </sc-if>
+  </main>
+</sc-if>
+
+<!-- ═══ СЮЖЕТИ ═══ -->
+<sc-if value="{{ showStories }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:860px;margin:0 auto;">
+    <header style="text-align:center;margin-bottom:52px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Хроніка</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Сюжетні Арки</h1>
+    </header>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <sc-for list="{{ storyItems }}" as="arc" hint-placeholder-count="3">
+        <article data-status="{{ arc.status }}" class="glass" style="padding:26px 28px;display:flex;gap:20px;align-items:flex-start;">
+          <div style="flex-shrink:0;width:50px;height:50px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.16);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-weight:700;color:rgba(255,215,0,0.55);font-size:0.95rem;">{{ arc.number }}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.08rem;color:#fff;letter-spacing:0.04em;">{{ arc.title }}</h2>
+              <span class="status-tag" style="font-size:0.66rem;letter-spacing:0.08em;padding:3px 10px;border-radius:999px;font-weight:600;text-transform:uppercase;">{{ arc.statusLabel }}</span>
+            </div>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.56);line-height:1.68;">{{ arc.description }}</p>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+    <sc-if value="{{ storiesEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
+        <p>Сюжети ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+      </div>
+    </sc-if>
+  </main>
+</sc-if>
+
+<!-- ═══ ПЕРСОНАЖІ ═══ -->
+<sc-if value="{{ showCharacters }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;">
+    <div style="max-width:1200px;margin:0 auto;">
+      <header style="text-align:center;margin-bottom:52px;">
+        <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Так-так, вони ваші</p>
+        <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Персонажі</h1>
+      </header>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;">
+        <sc-for list="{{ characterItems }}" as="char" hint-placeholder-count="6">
+          <div data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
+            <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
+              <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ false }}">
+                <img src="{{ char.image }}" alt="{{ char.name }}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s ease;" />
+              </sc-if>
+              <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);">
+                  <span style="font-family:'Cinzel',serif;font-size:2.6rem;color:rgba(255,215,0,0.2);font-weight:700;">{{ char.initials }}</span>
+                </div>
+              </sc-if>
+            </div>
+            <div style="padding:13px 15px;">
+              <p style="font-size:0.66rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:4px;">{{ char.role }}</p>
+              <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.88rem;color:#fff;letter-spacing:0.03em;line-height:1.3;">{{ char.name }}</h3>
+              <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.76rem;color:rgba(255,255,255,0.32);margin-top:3px;">«{{ char.alias }}»</p>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ charactersEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
+          <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
+          <p>Персонажів ще не додано.</p>
+          <p style="margin-top:8px;font-size:0.88rem;"><a href="admin.dc.html" style="color:#6495ed;">Відкрийте адмін-панель →</a></p>
+        </div>
+      </sc-if>
+    </div>
+  </main>
+</sc-if>
+
+<!-- ═══ ПАНТЕОН ═══ -->
+<sc-if value="{{ showPantheon }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
+    <header style="text-align:center;margin-bottom:52px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ П'ятеро</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Пантеон</h1>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;color:rgba(255,255,255,0.4);margin-top:12px;">П'ять богів, що тримають рівновагу цього світу</p>
+    </header>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:22px;">
+      <sc-for list="{{ pantheonItems }}" as="god" hint-placeholder-count="5">
+        <article data-god="{{ god.god }}" class="glass" style="padding:30px 28px;border-width:2px;border-radius:14px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:1px;background:currentColor;opacity:0.25;"></div>
+          <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:10px;">🐉 Бог</p>
+          <h2 class="god-accent" style="font-family:'Cinzel',Georgia,serif;font-size:1.85rem;font-weight:700;letter-spacing:0.06em;margin-bottom:6px;">{{ god.name }}</h2>
+          <p style="font-size:0.76rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.34);margin-bottom:18px;">{{ god.domain }}</p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:rgba(255,255,255,0.6);line-height:1.76;">{{ god.description }}</p>
+        </article>
+      </sc-for>
+    </div>
+  </main>
+</sc-if>
+
+<!-- ═══ ДАЙС ═══ -->
+<sc-if value="{{ showDice }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
+    <header style="text-align:center;margin-bottom:44px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Воля богів</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Дайс-роллер</h1>
+    </header>
+
+    <!-- Selector -->
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:44px;">
+      <sc-for list="{{ diceTypes }}" as="die" hint-placeholder-count="6">
+        <button data-dice="{{ die.n }}" data-active="{{ die.active }}" onClick="{{ selectDice }}" class="die-btn" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;cursor:pointer;width:88px;height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(255,255,255,0.55);transition:all 0.2s ease;padding:0;flex-shrink:0;">
+          <svg viewBox="0 0 100 100" style="width:42px;height:42px;pointer-events:none;" aria-hidden="true">
+            <polygon points="{{ die.points }}" style="fill:rgba(255,215,0,0.07);stroke:rgba(255,215,0,0.48);stroke-width:2.5;stroke-linejoin:round;"></polygon>
+            <text x="50" y="58" text-anchor="middle" style="fill:rgba(255,255,255,0.75);font-size:28px;font-family:'Cinzel',serif;font-weight:700;pointer-events:none;">{{ die.n }}</text>
+          </svg>
+          <span style="font-family:'Cinzel',serif;font-size:0.74rem;font-weight:700;pointer-events:none;letter-spacing:0.04em;">{{ die.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <!-- Roll display -->
+    <div data-rolling="{{ isRolling }}" data-crit="{{ isCrit }}" data-fumble="{{ isFumble }}" style="text-align:center;margin-bottom:36px;">
+      <div class="die-display" style="display:inline-flex;align-items:center;justify-content:center;width:196px;height:196px;position:relative;margin-bottom:14px;">
+        <svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%;" aria-hidden="true">
+          <polygon points="{{ activeDiePoints }}" style="fill:rgba(255,215,0,0.06);stroke:rgba(255,215,0,0.32);stroke-width:1.5;stroke-linejoin:round;"></polygon>
+        </svg>
+        <span class="die-number" style="font-family:'Cinzel',Georgia,serif;font-size:4.2rem;font-weight:900;color:#fff;position:relative;z-index:1;line-height:1;letter-spacing:-0.02em;">{{ diceDisplay }}</span>
+      </div>
+      <p style="font-size:0.76rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);min-height:1.3em;">{{ rollLabel }}</p>
+    </div>
+
+    <!-- Roll button -->
+    <div style="text-align:center;margin-bottom:48px;">
+      <button onClick="{{ roll }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:15px 58px;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(255,215,0,0.22);" style-hover="transform:scale(1.05);box-shadow:0 6px 32px rgba(255,215,0,0.44);">Кинути {{ diceTypeName }}</button>
+    </div>
+
+    <!-- History -->
+    <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:18px 22px;">
+        <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.24);margin-bottom:13px;">— Останні кидки —</p>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          <sc-for list="{{ rollHistory }}" as="roll" hint-placeholder-count="0">
+            <span style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px;">
+              <span style="font-size:0.68rem;color:rgba(255,255,255,0.32);">{{ roll.diceLabel }}</span>
+              <span style="font-family:'Cinzel',serif;font-weight:700;color:#fff;font-size:0.88rem;">{{ roll.resultStr }}</span>
+            </span>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+</sc-if>
+
+<!-- ═══ КОНТАКТИ ═══ -->
+<sc-if value="{{ showContacts }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:860px;margin:0 auto;">
+    <header style="text-align:center;margin-bottom:52px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Те чим воно є</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Про Проєкт</h1>
+    </header>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:36px;">
+      <div class="glass" style="padding:30px;">
+        <h2 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:16px;">✦ Aurelion UA</h2>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.04rem;color:rgba(255,255,255,0.64);line-height:1.78;">{{ contactsAbout }}</p>
+      </div>
+      <div class="glass" style="padding:30px;">
+        <h2 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:18px;">✦ Зв'язок</h2>
+        <div style="display:flex;flex-direction:column;">
+          <sc-for list="{{ contactLinks }}" as="link" hint-placeholder-count="2">
+            <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.62);font-size:0.93rem;text-decoration:none;transition:color 0.18s;" style-hover="color:#fff;">
+              <span style="font-size:1.1rem;flex-shrink:0;">{{ link.icon }}</span>
+              <span style="flex:1;">{{ link.label }}</span>
+              <span style="color:rgba(255,255,255,0.2);font-size:0.78rem;">↗</span>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <p style="font-size:0.82rem;color:rgba(255,255,255,0.22);margin-bottom:12px;">Адміністрування контенту:</p>
+      <a href="admin.dc.html" style="display:inline-flex;align-items:center;gap:8px;background:rgba(100,149,237,0.09);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:999px;padding:10px 26px;font-size:0.855rem;text-decoration:none;transition:all 0.2s;" style-hover="background:rgba(100,149,237,0.17);">⚙ Адмін-панель</a>
+    </div>
+  </main>
+</sc-if>
+
+<!-- ═══ MODAL: ПЕРСОНАЖ ═══ -->
+<sc-if value="{{ showCharModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeCharModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:76px 16px 24px;overflow-y:auto;">
+    <div onClick="{{ stopProp }}" style="background:#1d1d1d;border:1px solid rgba(255,255,255,0.14);border-radius:14px;max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;">
+      <div style="padding:22px 26px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div>
+          <p style="font-size:0.66rem;letter-spacing:0.13em;text-transform:uppercase;color:#ffd700;margin-bottom:4px;">{{ charModalRole }}</p>
+          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.35rem;color:#fff;letter-spacing:0.04em;">{{ charModalName }}</h2>
+          <sc-if value="{{ charModalHasAlias }}" hint-placeholder-val="{{ false }}">
+            <p style="color:rgba(255,255,255,0.38);font-size:0.86rem;margin-top:3px;">«{{ charModalAlias }}»</p>
+          </sc-if>
+        </div>
+        <button onClick="{{ closeCharModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:34px;height:34px;color:rgba(255,255,255,0.7);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;">
+        <sc-if value="{{ charModalHasTelegraph }}" hint-placeholder-val="{{ false }}">
+          <iframe src="{{ charModalUrl }}" style="width:100%;height:580px;border:none;display:block;" title="Анкета персонажа"></iframe>
+        </sc-if>
+        <sc-if value="{{ charModalNoTelegraph }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:56px 28px;text-align:center;color:rgba(255,255,255,0.3);">
+            <p style="font-size:1.4rem;margin-bottom:10px;">✦</p>
+            <p>Анкету ще не прикріплено.</p>
+            <p style="margin-top:8px;font-size:0.84rem;color:rgba(255,255,255,0.22);">Додайте Telegraph-посилання через адмін-панель.</p>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding:12px 22px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:flex-end;gap:9px;flex-shrink:0;">
+        <sc-if value="{{ charModalHasTelegraph }}" hint-placeholder-val="{{ false }}">
+          <a href="{{ charModalUrl }}" target="_blank" rel="noopener noreferrer" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:999px;padding:7px 18px;font-size:0.82rem;text-decoration:none;transition:background 0.18s;" style-hover="background:rgba(100,149,237,0.2);">↗ Telegraph</a>
+        </sc-if>
+        <button onClick="{{ closeCharModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);color:#fff;border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;">Закрити</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ═══ MODAL: ЛОР ═══ -->
+<sc-if value="{{ showLoreModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeLoreModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:76px 16px 24px;overflow-y:auto;">
+    <div onClick="{{ stopLoreProp }}" style="background:#1d1d1d;border:1px solid rgba(255,255,255,0.14);border-radius:14px;max-width:780px;width:100%;max-height:90vh;display:flex;flex-direction:column;">
+      <div style="padding:22px 26px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-shrink:0;">
+        <div>
+          <span style="display:inline-block;background:rgba(255,215,0,0.09);color:rgba(255,215,0,0.85);border:1px solid rgba(255,215,0,0.2);border-radius:4px;font-size:0.67rem;letter-spacing:0.14em;text-transform:uppercase;padding:3px 10px;margin-bottom:10px;">{{ loreModalCategory }}</span>
+          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.45rem;color:#fff;letter-spacing:0.04em;">{{ loreModalTitle }}</h2>
+        </div>
+        <button onClick="{{ closeLoreModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:34px;height:34px;color:rgba(255,255,255,0.7);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+      </div>
+      <div style="padding:28px 30px;overflow-y:auto;">
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;line-height:1.88;color:rgba(255,255,255,0.72);white-space:pre-wrap;text-align:justify;">{{ loreModalContent }}</p>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const DEFAULT_DATA = {
+  site: {
+    title: 'AURELION',
+    subtitle: 'Темне фентезі. Живі легенди.',
+    welcome: 'Ласкаво просимо до Ауреліону — світу, де боги мовчать, а герої платять власною кров\'ю за кожне рішення. Тут живуть легенди вашого авторства.',
+    contactsAbout: 'Aurelion UA — українська настільна рольова гра у жанрі темного фентезі. Живий світ, де кожне рішення має вагу, а доля не прощає слабкості. Спільнота гравців, що будують свою хроніку вже кілька арок поспіль.',
+  },
+  contacts: [
+    { id: '1', icon: '📬', label: 'Telegram-спільнота', url: '#' },
+    { id: '2', icon: '📝', label: 'Telegraph (анкети)', url: 'https://telegra.ph/' },
+  ],
+  lore: [
+    {
+      id: '1', title: 'Початок Ауреліону', category: 'Космологія',
+      excerpt: 'На зорі часів п\'ять богів поділили між собою основи буття — і світ набув форми...',
+      content: 'На зорі часів п\'ять богів поділили між собою основи буття. Леста взяла світло і дала першим народам вогонь. Нокта вкрила рівну пітьму між зірками — там, де кінчається день і починається вічне. Конкорфату розплів першу долю, пов\'язавши живих і мертвих невидимою ниткою. Флоріана наповнила порожні землі зеленню і диханням. Арканія ж вклала в серця смертних допитливість — і вони почали задавати питання.\n\nВід того часу боги мовчать. Але їхній слід лишився скрізь — у вогні свічки, у шелесті листя, у тихому кроці смерті, у рунах на камені. Той, хто вміє читати цей слід, знає: боги не зникли. Вони спостерігають.',
+    },
+    {
+      id: '2', title: 'Географія та Народи', category: 'Географія',
+      excerpt: 'Ауреліон — материк на перехресті морів, де кожна земля має свій характер і свою ціну...',
+      content: 'Ауреліон — це материк, оточений безкрайнім Сірим морем. На півночі тягнуться Крижані гори, куди не ходять люди і навіть боги дивляться з осторогою. На півдні — Спалені рівнини, де земля пам\'ятає давні битви.\n\nСерце материка займає Вільний Ліс Флоріани — величезний, без країв, де дерева ростуть товщі за вежі і живуть довше за держави. Найбільше місто — Терра-Нокс, на перехресті трьох торгових шляхів. Саме тут починається більшість історій.',
+    },
+    {
+      id: '3', title: 'Магія і її Ціна', category: 'Магія',
+      excerpt: 'Арканія дала смертним знання рун, але не безкоштовно — кожне заклинання бере щось від того, хто його творить...',
+      content: 'Магія в Ауреліоні має ціну. Арканія дала людям знання рун, але попередила: кожне заклинання бере дрібку від того, хто його творить. Маги живуть довше — і водночас швидше пустіють.\n\nЄ три школи: Руни (запис і зберігання сили), Голос (слово як заклинання) і Кров (найдавніша і найнебезпечніша — ціна пряма). Четверта школа, Тінь, офіційно заборонена. Але заборони не зупиняють тих, хто вже нічого не боїться.',
+    },
+  ],
+  stories: [
+    { id: '1', title: 'Пробудження', status: 'completed', description: 'Перша арка. Герої опинилися в Терра-Ноксі після загадкових смертей у ночі місячного затемнення. Місто приховувало таємницю роками. Кожен персонаж знайшов тут щось своє — і щось своє залишив.' },
+    { id: '2', title: 'Тіні Нокти', status: 'active', description: 'Поточна арка. Давній культ виходить із підземель Терра-Нокса. Хтось із знайомих знає більше, ніж зізнається. Рівновага між богами хитається — і кожне рішення гравців схиляє терезі.' },
+    { id: '3', title: 'Серце Лісу', status: 'planned', description: 'Майбутня арка. Флоріана мовчить третій місяць. Ліс рухається не туди, куди завжди. Щось прокидається в корінні дерев — і це щось голодне.' },
+  ],
+  characters: [],
+  pantheon: [
+    { id: '1', name: 'Леста', domain: 'Світло і Життя', god: 'light', description: 'Богиня сонця і першого вогню. Її жриці носять золоте та біле. Леста рідко відповідає на молитви — каже, що хто достатньо старається, той і сам знайде світло.' },
+    { id: '2', name: 'Нокта', domain: 'Темрява і Смерть', god: 'dark', description: 'Богиня ночі і тихого кінця. Не злий бог — байдужий. Смерть однакова для всіх. Її культ росте в містах, де люди втомились боятися темряви і навчились у ній жити.' },
+    { id: '3', name: 'Конкорфату', domain: 'Доля і Гармонія', god: 'fate', description: 'Бог долі. Не змінює її — лише спостерігає. Говорять, що він знає всіх по імені ще до народження. Його жерці не пророкують — вони фіксують.' },
+    { id: '4', name: 'Флоріана', domain: 'Природа і Ріст', god: 'nature', description: 'Богиня лісів, полів і всього живого. Щира і трохи стихійна. Любить людей — але її любов буває надмірною. Ліс Флоріани не відпускає тих, хто зайшов без поваги.' },
+    { id: '5', name: 'Арканія', domain: 'Мудрість і Магія', god: 'magic', description: 'Богиня знань і магічних мистецтв. Перша навчила смертних читати зорі. Сувора, точна, без зайвих слів. Її послідовники знають: незнання — не виправдання.' },
+  ],
+};
+
+const DICE_SHAPES = {
+  4:  '50,10 90,88 10,88',
+  6:  '10,10 90,10 90,90 10,90',
+  8:  '50,8 92,50 50,92 8,50',
+  10: '50,8 90,40 76,90 24,90 10,40',
+  12: '50,6 88,28 90,70 50,94 10,70 12,28',
+  20: '50,5 88,26 93,68 68,94 32,94 7,68 12,26',
+};
+const STATUS_LABELS = { active: 'Активна', completed: 'Завершена', planned: 'Заплановано' };
+
+class Component extends DCLogic {
+  state = {
+    page: this._getPage(),
+    data: this._loadData(),
+    diceType: 20,
+    diceResult: null,
+    diceRollingNum: null,
+    rolling: false,
+    rollHistory: [],
+    selectedChar: null,
+    selectedLore: null,
+  };
+
+  _getPage() {
+    return (window.location.hash || '').replace('#', '') || 'home';
+  }
+
+  _loadData() {
+    try {
+      const s = localStorage.getItem('aurelion-data');
+      if (s) return JSON.parse(s);
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+
+  _rollTimer = null;
+
+  componentDidMount() {
+    window.addEventListener('hashchange', () => {
+      this.setState({ page: this._getPage(), selectedChar: null, selectedLore: null });
+      window.scrollTo({ top: 0 });
+    });
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'aurelion-data') this.setState({ data: this._loadData() });
+    });
+  }
+
+  componentWillUnmount() {
+    if (this._rollTimer) clearInterval(this._rollTimer);
+  }
+
+  rollDice() {
+    if (this.state.rolling) return;
+    const sides = this.state.diceType;
+    const result = Math.floor(Math.random() * sides) + 1;
+    this.setState({ rolling: true, diceResult: null, diceRollingNum: Math.floor(Math.random() * sides) + 1 });
+    let count = 0;
+    this._rollTimer = setInterval(() => {
+      count++;
+      this.setState({ diceRollingNum: Math.floor(Math.random() * sides) + 1 });
+      if (count >= 13) {
+        clearInterval(this._rollTimer);
+        this.setState(s => ({
+          rolling: false, diceResult: result, diceRollingNum: null,
+          rollHistory: [{ type: sides, result, diceLabel: 'd' + sides, resultStr: String(result) }, ...s.rollHistory].slice(0, 12),
+        }));
+      }
+    }, 60);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const data = s.data;
+    const page = s.page;
+    const isCrit = !s.rolling && s.diceResult !== null && s.diceResult === s.diceType;
+    const isFumble = !s.rolling && s.diceResult !== null && s.diceResult === 1;
+    const diceDisplay = s.rolling
+      ? (s.diceRollingNum !== null ? String(s.diceRollingNum) : '?')
+      : (s.diceResult !== null ? String(s.diceResult) : '—');
+
+    const sc = s.selectedChar;
+    const sl = s.selectedLore;
+
+    return {
+      showHome: page === 'home',
+      showLore: page === 'lore',
+      showStories: page === 'stories',
+      showCharacters: page === 'characters',
+      showPantheon: page === 'pantheon',
+      showDice: page === 'dice',
+      showContacts: page === 'contacts',
+
+      navItems: [
+        { id: 'home',       label: 'Головна',    active: page === 'home' },
+        { id: 'lore',       label: 'Лор',         active: page === 'lore' },
+        { id: 'stories',    label: 'Сюжети',      active: page === 'stories' },
+        { id: 'characters', label: 'Персонажі',   active: page === 'characters' },
+        { id: 'pantheon',   label: 'Пантеон',     active: page === 'pantheon' },
+        { id: 'dice',       label: '⚄ Дайс',     active: page === 'dice' },
+        { id: 'contacts',   label: 'Контакти',    active: page === 'contacts' },
+      ],
+
+      siteTitle: data.site?.title || 'AURELION',
+      siteSubtitle: data.site?.subtitle || 'Темне фентезі. Живі легенди.',
+      siteWelcome: data.site?.welcome || '',
+      homeTiles: [
+        { id: 'lore',       icon: '📜', title: 'Світобудова',   desc: 'Лор, географія, магія і закони' },
+        { id: 'stories',    icon: '⚔️', title: 'Сюжетні Арки',  desc: 'Хроніка активних і завершених кампаній' },
+        { id: 'characters', icon: '🎭', title: 'Персонажі',     desc: 'Галерея гравецьких та ключових героїв' },
+        { id: 'pantheon',   icon: '🐉', title: 'Пантеон',       desc: 'П\'ятеро богів, що тримають рівновагу' },
+        { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',   desc: 'Воля богів у ваших руках — d4 до d20' },
+        { id: 'contacts',   icon: '✉️', title: 'Про Проєкт',   desc: 'Контакти та інформація про спільноту' },
+      ],
+
+      loreItems: (data.lore || []).map(it => ({ ...it, excerpt: it.excerpt || (it.content || '').slice(0, 180) + '...' })),
+      loreEmpty: !(data.lore || []).length,
+
+      storyItems: (data.stories || []).map((arc, i) => ({ ...arc, number: String(i + 1).padStart(2, '0'), statusLabel: STATUS_LABELS[arc.status] || arc.status })),
+      storiesEmpty: !(data.stories || []).length,
+
+      characterItems: (data.characters || []).map(ch => {
+        const parts = (ch.name || '').trim().split(/\s+/);
+        return { ...ch, initials: parts.slice(0, 2).map(p => (p[0] || '')).join('').toUpperCase() || '?', hasImage: !!(ch.image), noImage: !(ch.image), hasAlias: !!(ch.alias) };
+      }),
+      charactersEmpty: !(data.characters || []).length,
+
+      pantheonItems: data.pantheon || [],
+
+      contactsAbout: data.site?.contactsAbout || '',
+      contactLinks: data.contacts || [],
+
+      diceTypes: [4, 6, 8, 10, 12, 20].map(n => ({ n, label: 'd' + n, points: DICE_SHAPES[n], active: s.diceType === n })),
+      activeDiePoints: DICE_SHAPES[s.diceType] || DICE_SHAPES[20],
+      diceTypeName: 'd' + s.diceType,
+      diceDisplay,
+      isRolling: s.rolling,
+      isCrit,
+      isFumble,
+      rollLabel: isCrit ? '✦ Критичний успіх!' : (isFumble ? '✦ Провал!' : (s.diceResult !== null && !s.rolling ? ('✦ Кинуто d' + s.diceType) : '')),
+      hasHistory: s.rollHistory.length > 0,
+      rollHistory: s.rollHistory,
+
+      selectDice: (e) => { const n = parseInt(e.currentTarget.dataset.dice); if (n) this.setState({ diceType: n, diceResult: null, rolling: false }); },
+      roll: () => this.rollDice(),
+
+      showCharModal: !!sc,
+      charModalName: sc ? sc.name || '' : '',
+      charModalRole: sc ? sc.role || '' : '',
+      charModalAlias: sc ? sc.alias || '' : '',
+      charModalHasAlias: sc ? !!(sc.alias) : false,
+      charModalHasTelegraph: sc ? !!(sc.telegraphUrl) : false,
+      charModalNoTelegraph: sc ? !(sc.telegraphUrl) : false,
+      charModalUrl: sc ? sc.telegraphUrl || '' : '',
+      openCharacter: (e) => { const id = e.currentTarget.dataset.id; const ch = (data.characters || []).find(c => c.id === id); if (ch) this.setState({ selectedChar: ch }); },
+      closeCharModal: () => this.setState({ selectedChar: null }),
+      stopProp: (e) => e.stopPropagation(),
+
+      showLoreModal: !!sl,
+      loreModalTitle: sl ? sl.title || '' : '',
+      loreModalCategory: sl ? sl.category || '' : '',
+      loreModalContent: sl ? sl.content || '' : '',
+      openLore: (e) => { const id = e.currentTarget.dataset.id; const it = (data.lore || []).find(l => l.id === id); if (it) this.setState({ selectedLore: it }); },
+      closeLoreModal: () => this.setState({ selectedLore: null }),
+      stopLoreProp: (e) => e.stopPropagation(),
+    };
+  }
+}
+</script>
+</body>
+</html>
