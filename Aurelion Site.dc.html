@@ -570,7 +570,7 @@ class Component extends DCLogic {
       charModalHasAlias:   !!(sc?.alias),
       charModalHasImage:   !!(sc?.image),
       charModalImage:      sc?.image || '',
-      charModalBgStyle:    sc?.image ? 'width:100%;height:100%;background-size:cover;background-position:center top;background-repeat:no-repeat;background-image:url(' + JSON.stringify(sc.image) + ')' : '',
+      charModalBgStyle:    sc?.image ? 'background-size:cover;background-position:center top;background-repeat:no-repeat;background-image:url(' + JSON.stringify(sc.image) + ')' : '',
       charModalAge:        sc?.age    || '',
       charModalHeight:     sc?.height || '',
       charModalWeight:     sc?.weight || '',
