@@ -213,7 +213,16 @@ button{font-family:inherit;cursor:pointer}
           <div><label>Ім'я (повне)</label><input value="{{ formName }}" onChange="{{ handleInput }}" data-field="name" /></div>
           <div><label>Псевдонім / прізвисько</label><input value="{{ formAlias }}" onChange="{{ handleInput }}" data-field="alias" /></div>
         </div>
-        <div style="margin-bottom:14px;"><label>Роль / клас</label><input value="{{ formRole }}" onChange="{{ handleInput }}" data-field="role" /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label>Роль / клас</label><input value="{{ formRole }}" onChange="{{ handleInput }}" data-field="role" /></div>
+          <div>
+            <label>Тип персонажа</label>
+            <select value="{{ formCharacterType }}" onChange="{{ handleInput }}" data-field="character_type">
+              <option value="player">🎭 Гравецький</option>
+              <option value="npc">👤 НПЦ</option>
+            </select>
+          </div>
+        </div>
         <!-- Дос'є -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
           <div><label>Вік</label><input value="{{ formAge }}" onChange="{{ handleInput }}" data-field="age" placeholder="26 років" /></div>
@@ -608,6 +617,10 @@ class Component extends DCLogic {
       const { section, index } = s.editing;
       const body = { ...s.form };
       ['_index','id','created_at'].forEach(k => delete body[k]);
+      // Прибираємо порожні рядки — Supabase не приймає '' для int/bool полів
+      Object.keys(body).forEach(k => {
+        if (body[k] === '' || body[k] === undefined) delete body[k];
+      });
       this.setState({ saving: true });
       try {
         if (index === -1) {
@@ -714,8 +727,9 @@ class Component extends DCLogic {
       formAlias:        form.alias          || '',
       formRole:         form.role           || '',
       formImage:        form.image          || '',
-      formBio:          form.bio             || '',
-      formTelegraphUrl: form.telegraph_url  || '',
+      formBio:           form.bio             || '',
+      formCharacterType: form.character_type || 'player',
+      formTelegraphUrl:  form.telegraph_url  || '',
       formAge:          form.age            || '',
       formHeight:       form.height         || '',
       formWeight:       form.weight         || '',
