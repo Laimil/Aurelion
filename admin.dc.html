@@ -487,7 +487,12 @@ class Component extends DCLogic {
       headers: { ...this._authHJ(), 'Prefer': 'return=representation' },
       body: JSON.stringify(body),
     });
-    if (!r.ok) throw new Error(await r.text());
+    if (!r.ok) {
+      const txt = await r.text();
+      let msg = txt;
+      try { msg = JSON.parse(txt).message || JSON.parse(txt).hint || txt; } catch(e) {}
+      throw new Error(msg);
+    }
     return r.json();
   }
 
@@ -497,7 +502,12 @@ class Component extends DCLogic {
       headers: { ...this._authHJ(), 'Prefer': 'return=representation' },
       body: JSON.stringify(body),
     });
-    if (!r.ok) throw new Error(await r.text());
+    if (!r.ok) {
+      const txt = await r.text();
+      let msg = txt;
+      try { msg = JSON.parse(txt).message || JSON.parse(txt).hint || txt; } catch(e) {}
+      throw new Error(msg);
+    }
     return r.json();
   }
 
@@ -635,7 +645,8 @@ class Component extends DCLogic {
         this._toast('✓ Збережено!');
       } catch(e) {
         this.setState({ saving: false });
-        this._toast('✗ Помилка збереження');
+        this._toast('✗ ' + (e.message || 'Помилка збереження'));
+        console.error('saveItem error:', e);
       }
     };
 
