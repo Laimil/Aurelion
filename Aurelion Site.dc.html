@@ -289,6 +289,133 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
+<!-- ═══ ЗВ'ЯЗКИ ═══ -->
+<sc-if value="{{ showConnections }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:80px 0 48px;">
+
+    <div style="text-align:center;padding:16px 24px 12px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Рукостискання</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Зв'язки</h1>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);margin-top:8px;">Клікни на персонажа · золото = прямі знайомства · синє = знайомства знайомих</p>
+    </div>
+
+    <!-- Перемикач виду -->
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:18px;">
+      <button data-view="board" onClick="{{ setBoardView }}" data-active="{{ showBoardView }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:7px 20px;font-family:'Cinzel',serif;font-size:0.78rem;cursor:pointer;color:rgba(255,255,255,0.5);transition:all 0.2s;" style-hover="color:#fff;">🕸 Дошка</button>
+      <button data-view="cloud" onClick="{{ setBoardView }}" data-active="{{ showCloudView }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:7px 20px;font-family:'Cinzel',serif;font-size:0.78rem;cursor:pointer;color:rgba(255,255,255,0.5);transition:all 0.2s;" style-hover="color:#fff;">★ Хаб</button>
+    </div>
+
+    <!-- ── ДОШКА ── -->
+    <sc-if value="{{ showBoardView }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ boardEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);">
+          <p>Персонажів ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін →</a></p>
+        </div>
+      </sc-if>
+      <sc-if value="{{ hasNoConnections }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:40px 24px;color:rgba(255,255,255,0.3);">
+          <p style="font-size:1.2rem;margin-bottom:10px;">🕸</p>
+          <p>Зв'язки ще не вказано. Відкрий адмін → Персонаж → Знайомства.</p>
+          <p style="margin-top:8px;font-size:0.84rem;"><a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+        </div>
+      </sc-if>
+      <div style="overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 260px);">
+        <div style="position:relative;width:1200px;height:840px;margin:0 auto;">
+          {{ connectionLines }}
+          <sc-for list="{{ boardChars }}" as="char" hint-placeholder-count="0">
+            <div data-id="{{ char.id }}" onClick="{{ setBoardChar }}"
+                 style="position:absolute;left:{{ char.leftPx }};top:{{ char.topPx }};width:80px;cursor:pointer;z-index:1;transition:opacity 0.22s,transform 0.22s;opacity:{{ char.cardOpacity }};transform:{{ char.cardScale }};">
+              <div style="width:80px;height:107px;border-radius:8px;overflow:hidden;border:{{ char.cardBorder }};box-shadow:{{ char.cardGlow }};transition:all 0.22s;background:#111;">
+                <sc-if value="{{ char.hasImg }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ char.imgBg }}width:100%;height:100%;"></div>
+                </sc-if>
+                <sc-if value="{{ char.noImg }}" hint-placeholder-val="{{ true }}">
+                  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.07) 0%,transparent 70%);">
+                    <span style="font-family:'Cinzel',serif;font-size:1.5rem;color:rgba(255,215,0,0.22);font-weight:700;">{{ char.initials }}</span>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="margin-top:5px;text-align:center;padding:0 2px;">
+                <p style="font-family:'Cinzel',serif;font-size:0.56rem;color:#fff;letter-spacing:0.02em;line-height:1.2;text-shadow:0 1px 5px rgba(0,0,0,0.9);word-break:break-word;">{{ char.name }}</p>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <!-- Панель вибраного -->
+      <sc-if value="{{ hasBoardSel }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:700px;margin:0 auto;padding:16px 24px;">
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:18px 20px;">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+              <sc-if value="{{ selCharHasImg }}" hint-placeholder-val="{{ false }}">
+                <div style="{{ selCharImgBg }}width:48px;height:64px;border-radius:7px;flex-shrink:0;border:1px solid rgba(255,215,0,0.3);"></div>
+              </sc-if>
+              <div style="flex:1;">
+                <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.7);">{{ selCharRole }}</p>
+                <h3 style="font-family:'Cinzel',serif;font-size:1.1rem;color:#fff;letter-spacing:0.04em;">{{ selCharName }}</h3>
+                <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ directConnsCount }} прямих знайомств</p>
+              </div>
+              <button onClick="{{ clearBoardSel }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:30px;height:30px;color:rgba(255,255,255,0.5);cursor:pointer;flex-shrink:0;font-size:0.8rem;">✕</button>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              <sc-for list="{{ directConns }}" as="conn" hint-placeholder-count="0">
+                <div data-id="{{ conn.id }}" onClick="{{ jumpToChar }}" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(100,149,237,0.25);border-radius:8px;padding:7px 11px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(100,149,237,0.12);border-color:rgba(100,149,237,0.5);">
+                  <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ conn.imgBg }}width:28px;height:28px;border-radius:4px;flex-shrink:0;"></div>
+                  </sc-if>
+                  <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ true }}">
+                    <div style="width:28px;height:28px;border-radius:4px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.6rem;color:rgba(255,255,255,0.3);flex-shrink:0;">{{ conn.initials }}</div>
+                  </sc-if>
+                  <div>
+                    <p style="font-size:0.8rem;color:#fff;white-space:nowrap;">{{ conn.name }}</p>
+                    <p style="font-size:0.66rem;color:rgba(255,255,255,0.32);">{{ conn.role }}</p>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    <!-- ── ХАБ ── -->
+    <sc-if value="{{ showCloudView }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:860px;margin:0 auto;padding:20px 32px 40px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:center;min-height:320px;">
+        <sc-for list="{{ cloudChars }}" as="char" hint-placeholder-count="0">
+          <button data-id="{{ char.id }}" onClick="{{ setBoardChar }}"
+            style="font-family:'Cinzel',Georgia,serif;font-size:{{ char.fontSize }};color:#fff;background:none;border:none;cursor:pointer;letter-spacing:0.04em;line-height:1.1;padding:4px 6px;transition:all 0.2s;opacity:{{ char.opacity }};text-shadow:0 0 18px rgba(255,215,0,0.2);" style-hover="opacity:1;color:#ffd700;text-shadow:0 0 28px rgba(255,215,0,0.5);">
+            {{ char.name }}<sup style="font-size:0.45em;opacity:0.4;margin-left:3px;">{{ char.count }}</sup>
+          </button>
+        </sc-for>
+        <sc-if value="{{ hasNoConnections }}" hint-placeholder-val="{{ false }}">
+          <p style="color:rgba(255,255,255,0.3);">Зв'язки ще не вказано.</p>
+        </sc-if>
+      </div>
+      <sc-if value="{{ hasBoardSel }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:700px;margin:0 auto;padding:0 24px 40px;">
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:18px 20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div>
+                <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.7);">{{ selCharRole }}</p>
+                <h3 style="font-family:'Cinzel',serif;font-size:1.1rem;color:#fff;">{{ selCharName }} <span style="font-size:0.75rem;color:rgba(255,255,255,0.35);">— {{ directConnsCount }} знайомств</span></h3>
+              </div>
+              <button onClick="{{ clearBoardSel }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:30px;height:30px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.8rem;">✕</button>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:7px;">
+              <sc-for list="{{ directConns }}" as="conn" hint-placeholder-count="0">
+                <div data-id="{{ conn.id }}" onClick="{{ jumpToChar }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(100,149,237,0.25);border-radius:999px;padding:5px 14px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(100,149,237,0.12);border-color:rgba(100,149,237,0.5);">
+                  <p style="font-size:0.8rem;color:#fff;">{{ conn.name }}</p>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </sc-if>
+
+  </main>
+</sc-if>
+
 <!-- ═══ ДАЙС ═══ -->
 <sc-if value="{{ showDice }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
@@ -470,9 +597,36 @@ class Component extends DCLogic {
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
     rollHistory: [], selectedChar: null, selectedLore: null,
     charTab: 'player', charSearch: '',
+    selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
   };
 
   _rollTimer = null;
+
+  _parseTags(ch) {
+    return (ch.tags || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  }
+
+  _tagColors(chars) {
+    const palette = ['#ffd700','#6495ed','#c07882','#6ec0b0','#c8ccd8','#e8a87c','#9b8dd6','#7dcfa5','#e07474','#88bbdd','#d4a843','#a8d87c'];
+    const tags = new Set(); chars.forEach(ch => this._parseTags(ch).forEach(t => tags.add(t)));
+    const map = {};
+    [...tags].forEach((t, i) => { map[t] = palette[i % palette.length]; });
+    return map;
+  }
+
+  _boardLayout(chars) {
+    const n = chars.length; if (!n) return [];
+    const cx = 600, cy = 420;
+    const pos = [];
+    const ring = (list, r) => list.forEach((ch, i) => {
+      const a = (i / list.length) * Math.PI * 2 - Math.PI / 2;
+      pos.push({ ...ch, bx: cx + r * Math.cos(a), by: cy + r * Math.sin(a) });
+    });
+    if (n <= 10)      { ring(chars, 260); }
+    else if (n <= 20) { ring(chars.slice(0, Math.round(n*.45)), 180); ring(chars.slice(Math.round(n*.45)), 340); }
+    else              { const n1=Math.min(8,Math.round(n*.22)), n2=Math.min(14,Math.round(n*.38)); ring(chars.slice(0,n1),155); ring(chars.slice(n1,n1+n2),285); ring(chars.slice(n1+n2),420); }
+    return pos;
+  }
 
   _getPage() {
     return (window.location.hash || '').replace('#', '') || 'home';
@@ -561,22 +715,24 @@ class Component extends DCLogic {
     return {
       loading: s.loading,
 
-      showHome:       page === 'home',
-      showLore:       page === 'lore',
-      showStories:    page === 'stories',
-      showCharacters: page === 'characters',
-      showPantheon:   page === 'pantheon',
-      showDice:       page === 'dice',
-      showContacts:   page === 'contacts',
+      showHome:        page === 'home',
+      showLore:        page === 'lore',
+      showStories:     page === 'stories',
+      showCharacters:  page === 'characters',
+      showPantheon:    page === 'pantheon',
+      showDice:        page === 'dice',
+      showContacts:    page === 'contacts',
+      showConnections: page === 'connections',
 
       navItems: [
-        { id: 'home',       label: 'Головна',   active: page === 'home' },
-        { id: 'lore',       label: 'Лор',        active: page === 'lore' },
-        { id: 'stories',    label: 'Сюжети',     active: page === 'stories' },
-        { id: 'characters', label: 'Персонажі',  active: page === 'characters' },
-        { id: 'pantheon',   label: 'Пантеон',    active: page === 'pantheon' },
-        { id: 'dice',       label: '⚄ Дайс',    active: page === 'dice' },
-        { id: 'contacts',   label: 'Контакти',   active: page === 'contacts' },
+        { id: 'home',        label: 'Головна',    active: page === 'home' },
+        { id: 'lore',        label: 'Лор',         active: page === 'lore' },
+        { id: 'stories',     label: 'Сюжети',      active: page === 'stories' },
+        { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
+        { id: 'connections', label: '🕸 Зв\'язки', active: page === 'connections' },
+        { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
+        { id: 'dice',        label: '⚄ Дайс',     active: page === 'dice' },
+        { id: 'contacts',    label: 'Контакти',    active: page === 'contacts' },
       ],
 
       siteTitle:    data.site?.title    || 'AURELION',
@@ -688,6 +844,154 @@ class Component extends DCLogic {
         : (s.diceResult !== null && !s.rolling ? '✦ Кинуто d' + s.diceType : ''),
       hasHistory:  s.rollHistory.length > 0,
       rollHistory: s.rollHistory,
+      // ── Дошка зв'язків ──────────────────────────────────────
+      ...((() => {
+        const allChars = data.characters || [];
+        const selId    = s.selectedBoardChar;
+        const bView    = s.boardView || 'board';
+        const placed   = this._boardLayout(allChars);
+
+        // Build edges from explicit connections
+        const edgeSet = new Set(), edges = [];
+        const charMap = {};
+        allChars.forEach(ch => { charMap[ch.id] = ch; });
+        allChars.forEach(ch => {
+          (ch.connections||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(toId => {
+            const key = [ch.id,toId].sort().join('|');
+            if (!edgeSet.has(key) && charMap[toId]) { edgeSet.add(key); edges.push({ fromId:ch.id, toId }); }
+          });
+        });
+
+        // Degree map from selected char
+        const deg = {};
+        if (selId) {
+          deg[selId] = 0;
+          edges.forEach(e => {
+            if (e.fromId===selId && deg[e.toId]===undefined) deg[e.toId]=1;
+            if (e.toId===selId && deg[e.fromId]===undefined) deg[e.fromId]=1;
+          });
+          edges.forEach(e => {
+            if (deg[e.fromId]===1 && deg[e.toId]===undefined) deg[e.toId]=2;
+            if (deg[e.toId]===1 && deg[e.fromId]===undefined) deg[e.fromId]=2;
+          });
+        }
+
+        // Position map
+        const posMap = {};
+        placed.forEach(p => { posMap[p.id] = { bx:p.bx, by:p.by }; });
+
+        // SVG lines
+        const connectionLines = React.createElement('svg', {
+          key:'svgl2',
+          style:{ position:'absolute',left:0,top:0,width:'1200px',height:'840px',pointerEvents:'none',overflow:'visible',zIndex:0 },
+        },[
+          React.createElement('defs',{key:'d'},
+            React.createElement('radialGradient',{key:'rg',id:'brdGrad3',cx:'50%',cy:'50%',r:'50%'},[
+              React.createElement('stop',{key:'s1',offset:'0%',stopColor:'rgba(255,215,0,0.04)'}),
+              React.createElement('stop',{key:'s2',offset:'100%',stopColor:'rgba(0,0,0,0)'}),
+            ])
+          ),
+          React.createElement('ellipse',{key:'el',cx:600,cy:420,rx:460,ry:380,fill:'url(#brdGrad3)'}),
+          ...edges.map((e,idx) => {
+            const p1=posMap[e.fromId], p2=posMap[e.toId];
+            if (!p1||!p2) return null;
+            const isDirect = selId && (e.fromId===selId||e.toId===selId);
+            const is2nd    = selId && !isDirect && (deg[e.fromId]===1&&deg[e.toId]!==undefined || deg[e.toId]===1&&deg[e.fromId]!==undefined);
+            const isFaded  = selId && !isDirect && !is2nd;
+            const mx=(p1.bx+p2.bx)/2, my=(p1.by+p2.by)/2;
+            const bcx=mx+(600-mx)*0.28, bcy=my+(420-my)*0.28;
+            return React.createElement('path',{key:idx,
+              d:`M ${p1.bx} ${p1.by} Q ${bcx} ${bcy} ${p2.bx} ${p2.by}`,
+              stroke: isDirect ? '#ffd700' : (is2nd ? '#6495ed' : 'rgba(255,255,255,0.4)'),
+              strokeWidth: isDirect ? 2.5 : (is2nd ? 1.2 : (isFaded ? 0.3 : 0.8)),
+              strokeOpacity: isDirect ? 0.8 : (is2nd ? 0.45 : (isFaded ? 0.06 : 0.25)),
+              fill:'none', strokeLinecap:'round',
+            });
+          }).filter(Boolean),
+        ]);
+
+        // Board chars
+        const boardChars = placed.map(ch => {
+          const parts=(ch.name||'').trim().split(/\s+/);
+          const imgUrl=ch.image?'url('+JSON.stringify(ch.image)+')':'';
+          const isSelected=ch.id===selId;
+          const d=deg[ch.id];
+          let opacity='1', border='2px solid rgba(255,255,255,0.12)', glow='none', scale='scale(1)';
+          if (selId) {
+            if (isSelected)  { border='2px solid rgba(255,215,0,0.9)'; glow='0 0 18px rgba(255,215,0,0.5)'; scale='scale(1.1)'; }
+            else if (d===1)  { border='2px solid rgba(100,149,237,0.6)'; }
+            else if (d===2)  { opacity='0.38'; }
+            else             { opacity='0.1'; }
+          }
+          return {
+            ...ch,
+            leftPx:(ch.bx-40)+'px', topPx:(ch.by-60)+'px',
+            imgBg:imgUrl?'background-image:'+imgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
+            hasImg:!!(ch.image), noImg:!(ch.image),
+            initials:parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
+            cardOpacity:opacity, cardBorder:border, cardGlow:glow, cardScale:scale,
+          };
+        });
+
+        // Direct connections panel
+        const directConns = selId ? edges
+          .filter(e=>e.fromId===selId||e.toId===selId)
+          .map(e => {
+            const otherId=e.fromId===selId?e.toId:e.fromId;
+            const other=charMap[otherId]; if(!other) return null;
+            const parts=(other.name||'').trim().split(/\s+/);
+            const imgUrl=other.image?'url('+JSON.stringify(other.image)+')':'';
+            return { id:other.id, name:other.name||'', role:other.role||'',
+              hasImg:!!(other.image),
+              imgBg:imgUrl?'background-image:'+imgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
+              initials:parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
+            };
+          }).filter(Boolean) : [];
+
+        // Cloud — chars sorted by connection count
+        const connCount={};
+        allChars.forEach(ch=>{connCount[ch.id]=0;});
+        edges.forEach(e=>{if(connCount[e.fromId]!==undefined)connCount[e.fromId]++;if(connCount[e.toId]!==undefined)connCount[e.toId]++;});
+        const maxConn=Math.max(1,...Object.values(connCount));
+        const cloudChars=allChars.filter(ch=>connCount[ch.id]>0).sort((a,b)=>connCount[b.id]-connCount[a.id]).map(ch=>{
+          const cnt=connCount[ch.id];
+          const parts=(ch.name||'').trim().split(/\s+/);
+          const imgUrl=ch.image?'url('+JSON.stringify(ch.image)+')':'';
+          return { id:ch.id, name:ch.name||'', role:ch.role||'', count:String(cnt),
+            fontSize:Math.round(14+(cnt/maxConn)*30)+'px',
+            opacity:String(0.45+(cnt/maxConn)*0.55),
+            hasImg:!!(ch.image),
+            imgBg:imgUrl?'background-image:'+imgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
+            initials:parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
+          };
+        });
+
+        const selChar = selId ? (charMap[selId]||{}) : {};
+        const selImgUrl = selChar.image?'url('+JSON.stringify(selChar.image)+')':'';
+
+        return {
+          connectionLines, boardChars, directConns, cloudChars,
+          boardView: bView,
+          showBoardView: bView==='board',
+          showCloudView: bView==='cloud',
+          boardEmpty: !allChars.length,
+          hasNoConnections: edges.length===0,
+          hasBoardSel: !!(selId),
+          selCharName: selChar.name||'',
+          selCharRole: selChar.role||'',
+          selCharHasImg: !!(selChar.image),
+          selCharImgBg: selImgUrl?'background-image:'+selImgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
+          directConnsCount: String(directConns.length),
+          setBoardView: (e)=>this.setState({boardView:e.currentTarget.dataset.view}),
+          setBoardChar: (e)=>{
+            const id=e.currentTarget.dataset.id;
+            this.setState(st=>({selectedBoardChar:st.selectedBoardChar===id?null:id}));
+          },
+          jumpToChar: (e)=>this.setState({selectedBoardChar:e.currentTarget.dataset.id}),
+          clearBoardSel: ()=>this.setState({selectedBoardChar:null}),
+        };
+      })()),
+
       selectDice: (e) => {
         const n = parseInt(e.currentTarget.dataset.dice);
         if (n) this.setState({ diceType: n, diceResult: null, rolling: false });

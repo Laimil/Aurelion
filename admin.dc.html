@@ -264,6 +264,38 @@ button{font-family:inherit;cursor:pointer}
           </div>
           <input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
         </div>
+        <!-- Теги -->
+        <div style="margin-bottom:14px;">
+          <label>Теги (через кому)</label>
+          <input value="{{ formTags }}" onChange="{{ handleInput }}" data-field="tags" placeholder="маг, зрадник, аристократ, гільдія…" />
+          <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:5px;">Використовуються для показу зв'язків між персонажами на дошці детектива</p>
+        </div>
+        <!-- Знайомства / Зв'язки -->
+        <div style="margin-bottom:14px;">
+          <label>Знайомства ({{ connectedCount }} вибрано)</label>
+          <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
+            <div style="padding:8px 8px 4px;">
+              <input value="{{ connSearch }}" onChange="{{ handleConnSearch }}" placeholder="Пошук персонажа…" style="font-size:0.78rem;padding:6px 10px;border-radius:6px;" />
+            </div>
+            <div style="max-height:180px;overflow-y:auto;padding:4px 6px 8px;">
+              <sc-for list="{{ availableConnections }}" as="conn" hint-placeholder-count="0">
+                <div data-id="{{ conn.id }}" onClick="{{ toggleConn }}" style="display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:6px;cursor:pointer;margin-bottom:2px;background:{{ conn.rowBg }};transition:background 0.15s;">
+                  <div style="width:18px;height:18px;border-radius:4px;border:1px solid {{ conn.checkBorder }};background:{{ conn.checkBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#ffd700;font-weight:700;transition:all 0.15s;">{{ conn.checkMark }}</div>
+                  <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ conn.imgBg }}width:28px;height:28px;border-radius:4px;flex-shrink:0;"></div>
+                  </sc-if>
+                  <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ true }}">
+                    <div style="width:28px;height:28px;border-radius:4px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.1);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.6rem;color:rgba(255,215,0,0.4);">{{ conn.initials }}</div>
+                  </sc-if>
+                  <div style="min-width:0;flex:1;">
+                    <p style="font-size:0.83rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ conn.name }}</p>
+                    <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);">{{ conn.role }}</p>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
         <!-- Коротке дос'є -->
         <div style="margin-bottom:14px;">
           <label>Коротке дос'є (показується на картці і в модалі)</label>
@@ -408,7 +440,7 @@ const STATUS_LABELS_ADMIN = { active: 'Активна', completed: 'Заверш
 const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'content'],
   stories:    ['title', 'status', 'description', 'sort_order'],
-  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'character_type'],
+  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'character_type', 'tags', 'connections'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
 };
@@ -426,6 +458,7 @@ class Component extends DCLogic {
     authed: false, authChecking: true,
     uploadingImage: false,
     charSearch: '',
+    connSearch: '',
     loginEmail: '', loginPassword: '', loginError: '', loginLoading: false,
     userEmail: '',
     // admin
@@ -766,6 +799,43 @@ class Component extends DCLogic {
 
       loreList, storiesList, charList, panList, contactList,
       charSearch: s.charSearch || '',
+
+      // ── Connections multi-select ──────────────────────────
+      connSearch: s.connSearch || '',
+      handleConnSearch: (e) => this.setState({ connSearch: e.target.value }),
+      clearConnSearch: () => this.setState({ connSearch: '' }),
+      toggleConn: (e) => {
+        const id = e.currentTarget.dataset.id;
+        const cur = new Set((this.state.form.connections||'').split(',').map(x=>x.trim()).filter(Boolean));
+        if (cur.has(id)) cur.delete(id); else cur.add(id);
+        this.setState(st => ({ form: { ...st.form, connections: [...cur].join(',') } }));
+      },
+      ...((() => {
+        if (!(tab === 'characters' && ed && ed.section === 'characters')) return { availableConnections: [], connectedCount: 0 };
+        const editingId = ed.index >= 0 ? ((s.data.characters||[])[ed.index]||{}).id : null;
+        const connSet = new Set((s.form.connections||'').split(',').map(x=>x.trim()).filter(Boolean));
+        const q = (s.connSearch||'').toLowerCase().trim();
+        const available = (s.data.characters||[])
+          .filter(ch => ch.id && ch.id !== editingId)
+          .filter(ch => !q || (ch.name||'').toLowerCase().includes(q) || (ch.role||'').toLowerCase().includes(q))
+          .map(ch => {
+            const checked = connSet.has(ch.id);
+            const parts = (ch.name||'').trim().split(/\s+/);
+            const imgUrl = ch.image ? 'url('+JSON.stringify(ch.image)+')' : '';
+            return {
+              id: ch.id, name: ch.name||'—', role: ch.role||'',
+              checked,
+              rowBg: checked ? 'rgba(255,215,0,0.07)' : 'transparent',
+              checkBg: checked ? 'rgba(255,215,0,0.22)' : 'transparent',
+              checkBorder: checked ? 'rgba(255,215,0,0.7)' : 'rgba(255,255,255,0.18)',
+              checkMark: checked ? '✓' : '',
+              hasImg: !!(ch.image),
+              imgBg: imgUrl ? 'background-image:'+imgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
+              initials: parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
+            };
+          });
+        return { availableConnections: available, connectedCount: connSet.size };
+      })()),
       charSearchCount: charList.length,
       charTotalCount: (data.characters || []).length,
       handleCharSearch: (e) => this.setState({ charSearch: e.target.value }),
@@ -787,6 +857,7 @@ class Component extends DCLogic {
       formRole:         form.role           || '',
       formImage:        form.image          || '',
       formBio:           form.bio             || '',
+      formTags:          form.tags            || '',
       formCharacterType: form.character_type || 'player',
       formTelegraphUrl:  form.telegraph_url  || '',
       formAge:          form.age            || '',
