@@ -162,11 +162,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <sc-for list="{{ characterItems }}" as="char" hint-placeholder-count="6">
           <div data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
             <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
-              <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ false }}">
-                <img src="{{ char.image }}" alt="{{ char.name }}" style="width:100%;height:100%;object-fit:cover;display:block;" />
-              </sc-if>
+              <div style="{{ char.bgStyle }}"></div>
               <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
-                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);">
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);">
                   <span style="font-family:'Cinzel',serif;font-size:2.6rem;color:rgba(255,215,0,0.2);font-weight:700;">{{ char.initials }}</span>
                 </div>
               </sc-if>
@@ -308,21 +306,25 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </div>
         <button onClick="{{ closeCharModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:34px;height:34px;color:rgba(255,255,255,0.7);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
       </div>
-      <div style="flex:1;overflow-y:auto;">
+      <div style="flex:1;overflow-y:auto;padding:32px 28px;">
+        <sc-if value="{{ charModalHasImage }}" hint-placeholder-val="{{ false }}">
+          <div style="width:120px;height:160px;border-radius:10px;overflow:hidden;margin:0 auto 24px;border:1px solid rgba(255,255,255,0.1);{{ charModalBgStyle }}"></div>
+        </sc-if>
         <sc-if value="{{ charModalHasTelegraph }}" hint-placeholder-val="{{ false }}">
-          <iframe src="{{ charModalUrl }}" style="width:100%;height:580px;border:none;display:block;" title="Анкета персонажа"></iframe>
+          <div style="text-align:center;padding:16px 0 8px;">
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.45);margin-bottom:24px;line-height:1.6;">Повна анкета персонажа знаходиться на Telegraph.<br>Відкрий у новій вкладці — там весь лор, характеристики і передісторія.</p>
+            <a href="{{ charModalUrl }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:10px;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px 36px;font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;letter-spacing:0.06em;text-decoration:none;transition:all 0.2s;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.4);">↗ Відкрити анкету</a>
+          </div>
         </sc-if>
         <sc-if value="{{ charModalNoTelegraph }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:56px 28px;text-align:center;color:rgba(255,255,255,0.3);">
+          <div style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.3);">
             <p style="font-size:1.4rem;margin-bottom:10px;">✦</p>
             <p>Анкету ще не прикріплено.</p>
+            <p style="margin-top:8px;font-size:0.82rem;color:rgba(255,255,255,0.2);">Додайте Telegraph-посилання через адмін-панель.</p>
           </div>
         </sc-if>
       </div>
-      <div style="padding:12px 22px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:flex-end;gap:9px;flex-shrink:0;">
-        <sc-if value="{{ charModalHasTelegraph }}" hint-placeholder-val="{{ false }}">
-          <a href="{{ charModalUrl }}" target="_blank" rel="noopener noreferrer" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:999px;padding:7px 18px;font-size:0.82rem;text-decoration:none;">↗ Telegraph</a>
-        </sc-if>
+      <div style="padding:12px 22px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:flex-end;flex-shrink:0;">
         <button onClick="{{ closeCharModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);color:#fff;border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;">Закрити</button>
       </div>
     </div>
@@ -507,12 +509,14 @@ class Component extends DCLogic {
 
       characterItems: (data.characters || []).map(ch => {
         const parts = (ch.name || '').trim().split(/\s+/);
+        const imgUrl = ch.image ? 'url(' + JSON.stringify(ch.image) + ')' : '';
         return {
           ...ch,
           initials:  parts.slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '?',
           hasImage:  !!(ch.image),
           noImage:   !(ch.image),
           hasAlias:  !!(ch.alias),
+          bgStyle:   'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;' + (imgUrl ? 'background-image:' + imgUrl : ''),
         };
       }),
       charactersEmpty: !(data.characters || []).length,
@@ -542,6 +546,9 @@ class Component extends DCLogic {
       charModalRole:       sc?.role       || '',
       charModalAlias:      sc?.alias      || '',
       charModalHasAlias:   !!(sc?.alias),
+      charModalHasImage:   !!(sc?.image),
+      charModalImage:      sc?.image || '',
+      charModalBgStyle:    sc?.image ? 'width:100%;height:100%;background-size:cover;background-position:center top;background-repeat:no-repeat;background-image:url(' + JSON.stringify(sc.image) + ')' : '',
       charModalHasTelegraph: !!(sc?.telegraph_url),
       charModalNoTelegraph:  !(sc?.telegraph_url),
       charModalUrl:        sc?.telegraph_url || '',
