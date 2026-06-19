@@ -1,0 +1,43 @@
+/* Aurelion — Typography tokens
+   Three voices:
+   • Display  — Cinzel: engraved Roman caps for titles, deity names, hero marks.
+   • Lore     — EB Garamond / Georgia: long-form worldbuilding & character bios.
+   • UI       — system sans (the site's Arial), for navigation, buttons, labels. */
+
+:root {
+  /* ---- Families ---- */
+  --font-display: 'Cinzel', 'Georgia', 'Times New Roman', serif;
+  --font-lore: 'EB Garamond', 'Georgia', 'Times New Roman', serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  /* ---- Type scale (rem, 16px root) ---- */
+  --fs-display-xl: 4rem;     /* 64 — hero wordmark */
+  --fs-display-lg: 3rem;     /* 48 */
+  --fs-display-md: 2.5rem;   /* 40 — page <h1> (site used 2.5em) */
+  --fs-display-sm: 1.8rem;   /* 29 — section heads */
+  --fs-title: 1.5rem;        /* 24 — card / panel titles */
+  --fs-lg: 1.25rem;          /* 20 */
+  --fs-body: 1.0625rem;      /* 17 — lore body */
+  --fs-ui: 1rem;             /* 16 — inputs / buttons */
+  --fs-sm: 0.875rem;         /* 14 — nav / meta */
+  --fs-xs: 0.75rem;          /* 12 — overline / tags */
+
+  /* ---- Weights ---- */
+  --fw-regular: 400; /* @kind other */
+  --fw-medium: 500; /* @kind other */
+  --fw-semibold: 600; /* @kind other */
+  --fw-bold: 700; /* @kind other */
+  --fw-black: 900; /* @kind other */
+
+  /* ---- Line heights ---- */
+  --lh-tight: 1.1; /* @kind other */
+  --lh-snug: 1.3; /* @kind other */
+  --lh-body: 1.7; /* @kind other */
+  --lh-relaxed: 1.85; /* @kind other */
+
+  /* ---- Letter spacing ---- */
+  --ls-display: 0.06em; /* @kind other */
+  --ls-overline: 0.22em; /* @kind other */
+  --ls-ui: 0.01em; /* @kind other */
+}

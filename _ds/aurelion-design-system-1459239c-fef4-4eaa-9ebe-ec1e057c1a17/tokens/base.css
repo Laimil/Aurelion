@@ -1,0 +1,56 @@
+/* Aurelion — base resets & primitive helpers.
+   Minimal, token-driven. Components style themselves; this just sets the stage. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background-color: var(--bg-page);
+  color: var(--text-body);
+  font-family: var(--font-ui);
+  font-size: var(--fs-ui);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display headings default to Cinzel caps */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  color: var(--text-heading);
+  letter-spacing: var(--ls-display);
+  line-height: var(--lh-tight);
+  font-weight: var(--fw-bold);
+  margin: 0;
+}
+
+/* Lore / long-form prose uses the Garamond serif */
+.au-lore {
+  font-family: var(--font-lore);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-body);
+}
+
+/* Spaced overline / kicker */
+.au-overline {
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-overline);
+  text-transform: uppercase;
+  color: var(--gold-500);
+}
+
+a { color: var(--azure-300); text-decoration: none; }
+a:hover { color: var(--white); }
+
+::selection { background: var(--gold-glass); color: var(--white); }
+
+/* A faithful ornament used as a section marker on the live site (༺࿅ིཽ༼⛩️). */
+.au-ornament::before {
+  content: '✦';
+  color: var(--gold-500);
+  margin-right: 0.5em;
+  font-size: 0.8em;
+  vertical-align: middle;
+}

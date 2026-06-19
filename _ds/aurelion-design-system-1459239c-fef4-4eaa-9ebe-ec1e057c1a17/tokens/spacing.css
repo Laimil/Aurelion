@@ -1,0 +1,51 @@
+/* Aurelion — Spacing, radii, shadows, motion
+   A 4px base grid. Radii and shadows mirror the soft, rounded glass cards and
+   layered drop-shadows seen across the live site. */
+
+:root {
+  /* ---- Spacing (4px base) ---- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ---- Radii ---- */
+  --radius-sm: 5px;      /* tags, small chips (site .character) */
+  --radius-md: 8px;      /* images, inputs */
+  --radius-lg: 10px;     /* default card */
+  --radius-xl: 15px;     /* feature cards (site .script-card) */
+  --radius-pill: 999px;  /* search fields, status pills, buttons */
+
+  /* ---- Layout ---- */
+  --container: 1200px;
+  --container-read: 900px;  /* lore / profile reading column */
+  --bar-h: 60px;            /* fixed top menu height */
+
+  /* ---- Elevation (warm dark shadows) ---- */
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.50);
+  --shadow-bar: 0 4px 10px rgba(0, 0, 0, 0.30);
+  --glow-gold: 0 0 24px rgba(255, 215, 0, 0.30);
+  --glow-azure: 0 0 24px rgba(100, 149, 237, 0.30);
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --dur-fast: 0.15s; /* @kind other */
+  --dur: 0.3s; /* @kind other */
+  --dur-slow: 0.5s; /* @kind other */
+  --hover-scale: 1.05; /* @kind other */
+  --hover-lift: -5px; /* @kind other */
+
+  /* ---- Glass blur ---- */
+  --blur: 10px;
+}

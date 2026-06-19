@@ -1,0 +1,82 @@
+/* Aurelion — Color tokens
+   A dark-fantasy palette pulled from the live site: near-black grounds (#1a1a1a),
+   luminous gold (#ffd700), cornflower azure (#6495ed), and translucent white glass.
+   Base values first; semantic aliases below. */
+
+:root {
+  /* ---- Ink / ground scale (the dark canvas) ---- */
+  --ink-900: #0f0f10;   /* deepest void — full-bleed hero grounds */
+  --ink-800: #161616;
+  --ink-700: #1a1a1a;   /* canonical page background */
+  --ink-600: #222222;   /* raised bars / top menu (was rgba(34,34,34)) */
+  --ink-500: #2a2a2a;
+  --ink-400: #383838;
+
+  /* ---- Luminous glass (white at low alpha — the card/surface system) ---- */
+  --glass-04: rgba(255, 255, 255, 0.04);
+  --glass-06: rgba(255, 255, 255, 0.06);
+  --glass-10: rgba(255, 255, 255, 0.10);  /* default card fill */
+  --glass-15: rgba(255, 255, 255, 0.15);  /* hover / focus fill */
+  --glass-20: rgba(255, 255, 255, 0.20);  /* solid-ish chips */
+
+  /* ---- Hairlines / borders ---- */
+  --line-soft: rgba(255, 255, 255, 0.10);
+  --line: rgba(255, 255, 255, 0.20);
+  --line-strong: rgba(255, 255, 255, 0.35);
+
+  /* ---- Text on dark ---- */
+  --white: #ffffff;
+  --text-100: #ffffff;                      /* headings / high emphasis */
+  --text-80: rgba(255, 255, 255, 0.80);     /* body */
+  --text-70: rgba(255, 255, 255, 0.70);     /* labels / stat keys */
+  --text-50: rgba(255, 255, 255, 0.50);     /* muted / placeholder */
+  --text-35: rgba(255, 255, 255, 0.35);     /* disabled */
+
+  /* ---- Gold (primary accent — divinity, the "main" status) ---- */
+  --gold-300: #ffe98a;
+  --gold-400: #ffe066;
+  --gold-500: #ffd700;   /* canonical brand gold */
+  --gold-600: #e0b54a;   /* aged / muted gold for large fills */
+  --gold-700: #b8902f;
+  --gold-glass: rgba(255, 215, 0, 0.18);   /* gold status pill fill */
+
+  /* ---- Azure (secondary accent — "secondary" status, edit actions) ---- */
+  --azure-300: #a9c4f5;
+  --azure-500: #6495ed;  /* cornflower blue, as used */
+  --azure-600: #4a78c8;
+  --azure-glass: rgba(100, 149, 237, 0.22);
+
+  /* ---- Semantic feedback ---- */
+  --danger-500: #ff4d4d;
+  --danger-glass: rgba(255, 77, 77, 0.16);
+  --success-500: #6fcf8e;
+  --success-glass: rgba(111, 207, 142, 0.16);
+
+  /* ---- Lore accents (the five gods of the pantheon) ---- */
+  --god-light: #ffd76b;   /* Леста — light & life (gold) */
+  --god-dark: #6b6fae;    /* Нокта — dark & death (indigo) */
+  --god-fate: #9c4f63;    /* Конкорфату — fate & harmony (bordeaux) */
+  --god-nature: #5e9a8f;  /* Флоріана — nature (teal-green) */
+  --god-magic: #b8bcc8;   /* Арканія — wisdom & magic (silver) */
+
+  /* ================= SEMANTIC ALIASES ================= */
+  --bg-page: var(--ink-700);
+  --bg-void: var(--ink-900);
+  --bg-bar: rgba(34, 34, 34, 0.92);     /* fixed top menu, with blur */
+  --surface-card: var(--glass-10);
+  --surface-card-hover: var(--glass-15);
+  --surface-input: var(--glass-10);
+
+  --border-card: var(--line);
+  --border-input: var(--line);
+  --border-focus: var(--line-strong);
+
+  --text-heading: var(--text-100);
+  --text-body: var(--text-80);
+  --text-label: var(--text-70);
+  --text-muted: var(--text-50);
+
+  --accent: var(--gold-500);
+  --accent-ink: #1a1a1a;                /* text sitting on a gold fill */
+  --accent-2: var(--azure-500);
+}
