@@ -168,7 +168,7 @@ button{font-family:inherit;cursor:pointer}
             </div>
           </div>
           <sc-if value="{{ showLoreTextarea }}" hint-placeholder-val="{{ true }}">
-            <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:160px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.62;"></textarea>
+            <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:300px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.62;resize:vertical;"></textarea>
             <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, # Заголовок, &gt; цитата, --- розділювач, [[Посилання]]</p>
           </sc-if>
           <sc-if value="{{ showLorePreview }}" hint-placeholder-val="{{ false }}">
