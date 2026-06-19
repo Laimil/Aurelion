@@ -160,6 +160,15 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Персонажі</h1>
       </header>
 
+      <!-- Пошук -->
+      <div style="max-width:420px;margin:0 auto 28px;position:relative;">
+        <input value="{{ charSearch }}" onChange="{{ handleCharSearch }}" placeholder="Пошук персонажа…" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:11px 40px 11px 42px;font-size:0.9rem;color:#fff;outline:none;transition:border-color 0.18s;" />
+        <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1rem;opacity:0.4;pointer-events:none;">🔍</span>
+        <sc-if value="{{ hasCharSearch }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ clearCharSearch }}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.85rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
+        </sc-if>
+      </div>
+
       <!-- Таб-перемикач -->
       <div style="display:flex;justify-content:center;gap:8px;margin-bottom:44px;">
         <button data-tab="player" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ playerTabActive }}">🎭 Гравці</button>
@@ -460,7 +469,7 @@ class Component extends DCLogic {
     loading: true,
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
     rollHistory: [], selectedChar: null, selectedLore: null,
-    charTab: 'player',
+    charTab: 'player', charSearch: '',
   };
 
   _rollTimer = null;
@@ -612,13 +621,22 @@ class Component extends DCLogic {
         };
       }),
       charactersEmpty: !(data.characters || []).length,
-      charTab:         s.charTab,
-      showPlayerTab:   s.charTab === 'player',
-      showNpcTab:      s.charTab === 'npc',
-      playerTabActive: s.charTab === 'player',
-      npcTabActive:    s.charTab === 'npc',
-      setCharTab:      (e) => this.setState({ charTab: e.currentTarget.dataset.tab }),
-      playerItems: (data.characters || []).filter(ch => !ch.character_type || ch.character_type === 'player').map(ch => {
+      charTab:          s.charTab,
+      charSearch:       s.charSearch || '',
+      showPlayerTab:    s.charTab === 'player',
+      showNpcTab:       s.charTab === 'npc',
+      playerTabActive:  s.charTab === 'player',
+      npcTabActive:     s.charTab === 'npc',
+      hasCharSearch:    !!(s.charSearch),
+      setCharTab:       (e) => this.setState({ charTab: e.currentTarget.dataset.tab }),
+      handleCharSearch: (e) => this.setState({ charSearch: e.target.value }),
+      clearCharSearch:  () => this.setState({ charSearch: '' }),
+      playerItems: (data.characters || []).filter(ch => {
+        const q = (s.charSearch || '').toLowerCase().trim();
+        if (!q) return !ch.character_type || ch.character_type === 'player';
+        const match = (ch.name||'').toLowerCase().includes(q) || (ch.alias||'').toLowerCase().includes(q) || (ch.role||'').toLowerCase().includes(q);
+        return match && (!ch.character_type || ch.character_type === 'player');
+      }).map(ch => {
         const parts = (ch.name || '').trim().split(/\s+/);
         const imgUrl = ch.image ? 'url(' + JSON.stringify(ch.image) + ')' : '';
         return {
@@ -629,7 +647,12 @@ class Component extends DCLogic {
           hasBio: !!(ch.bio), bio: ch.bio||'',
         };
       }),
-      npcItems: (data.characters || []).filter(ch => ch.character_type === 'npc').map(ch => {
+      npcItems: (data.characters || []).filter(ch => {
+        const q = (s.charSearch || '').toLowerCase().trim();
+        if (!q) return ch.character_type === 'npc';
+        const match = (ch.name||'').toLowerCase().includes(q) || (ch.alias||'').toLowerCase().includes(q) || (ch.role||'').toLowerCase().includes(q);
+        return match && ch.character_type === 'npc';
+      }).map(ch => {
         const parts = (ch.name || '').trim().split(/\s+/);
         const imgUrl = ch.image ? 'url(' + JSON.stringify(ch.image) + ')' : '';
         return {
