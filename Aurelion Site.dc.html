@@ -59,6 +59,14 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .lore-md li::before{content:'✦';position:absolute;left:0;color:rgba(255,215,0,0.45);font-size:0.58em;top:0.45em;}
 .lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.28);cursor:default;}
 .lore-md code{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:0.88em;color:rgba(255,215,0,0.8);}
+.lore-toc{background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.14);border-radius:8px;padding:14px 18px 12px;margin-bottom:24px;display:inline-block;min-width:180px;max-width:100%;}
+.lore-toc-title{font-family:'Cinzel',Georgia,serif;font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;}
+.lore-toc-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px;}
+.lore-toc-list li[data-level="2"]{padding-left:0;}
+.lore-toc-list li[data-level="3"]{padding-left:14px;}
+.lore-toc-list li[data-level="4"]{padding-left:28px;}
+.lore-toc-list a{font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;color:rgba(255,255,255,0.52);text-decoration:none;border-bottom:1px solid transparent;transition:color 0.18s,border-color 0.18s;line-height:1.35;cursor:pointer;}
+.lore-toc-list a:hover{color:#ffd700;border-bottom-color:rgba(255,215,0,0.28);}
 </style>
 </helmet>
 
@@ -594,7 +602,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </div>
         <button onClick="{{ closeLoreModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:34px;height:34px;color:rgba(255,255,255,0.7);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
       </div>
-      <div style="padding:28px 30px;overflow-y:auto;">
+      <div class="lore-scroll-body" style="padding:28px 30px;overflow-y:auto;">
         {{ loreModalContentEl }}
       </div>
     </div>
@@ -616,7 +624,7 @@ function _mdInl(t){
 }
 function parseMarkdown(raw){
   if(!raw) return '';
-  const lines=raw.split('\n'),out=[];let lb=[],pb=[];
+  const lines=raw.split('\n'),out=[];let lb=[],pb=[],hc=0;
   const fl=()=>{if(!lb.length)return;out.push('<ul>'+lb.map(l=>'<li>'+l+'</li>').join('')+'</ul>');lb=[];};
   const fp=()=>{if(!pb.length)return;out.push('<p>'+pb.join('<br>')+'</p>');pb=[];};
   for(const line of lines){
@@ -624,7 +632,7 @@ function parseMarkdown(raw){
     if(!t){fl();fp();continue;}
     if(/^-{3,}$/.test(t)){fl();fp();out.push('<hr>');continue;}
     const hm=t.match(/^(#{1,4})\s+(.+)/);
-    if(hm){fl();fp();const lv=Math.min(hm[1].length+1,5);out.push('<h'+lv+'>'+_mdInl(hm[2])+'</h'+lv+'>');continue;}
+    if(hm){fl();fp();const lv=Math.min(hm[1].length+1,5);const hid='lh'+(hc++);out.push('<h'+lv+' data-hid="'+hid+'">'+_mdInl(hm[2])+'</h'+lv+'>');continue;}
     if(t.startsWith('> ')){fl();fp();out.push('<blockquote>'+_mdInl(t.slice(2))+'</blockquote>');continue;}
     const li=t.match(/^[-*+]\s+(.+)/);
     if(li){fp();lb.push(_mdInl(li[1]));continue;}
@@ -639,6 +647,20 @@ function stripMarkdown(raw){
     .replace(/\*\*\*([^*]+)\*\*\*/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
     .replace(/\[\[([^\]]+)\]\]/g,'$1').replace(/^#{1,4}\s+/gm,'').replace(/^>\s+/gm,'')
     .replace(/^[-*+]\s+/gm,'').replace(/^-{3,}$/gm,'').replace(/`([^`]+)`/g,'$1').trim();
+}
+function extractToc(raw){
+  if(!raw) return [];
+  const lines=raw.split('\n'),result=[];let hc=0;
+  for(const line of lines){
+    const t=line.trim();
+    const hm=t.match(/^(#{1,4})\s+(.+)/);
+    if(hm){
+      const id='lh'+(hc++);
+      const text=hm[2].replace(/\*\*\*([^*]+)\*\*\*/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/\[\[([^\]]+)\]\]/g,'$1');
+      result.push({level:hm[1].length,text,id});
+    }
+  }
+  return result;
 }
 const DICE_SHAPES = {
   4:  '50,10 90,88 10,88',
@@ -1122,7 +1144,32 @@ class Component extends DCLogic {
       loreModalTitle:    sl?.title    || '',
       loreModalCategory: sl?.category || '',
       loreModalContent:  sl?.content  || '',
-      loreModalContentEl: React.createElement('div', { className: 'lore-md', dangerouslySetInnerHTML: { __html: parseMarkdown(sl?.content || '') } }),
+      loreModalContentEl: (() => {
+        const raw = sl?.content || '';
+        const toc = extractToc(raw);
+        const body = React.createElement('div', { key: 'body', className: 'lore-md', dangerouslySetInnerHTML: { __html: parseMarkdown(raw) } });
+        if (toc.length < 2) return body;
+        const onTocClick = (e) => {
+          e.preventDefault();
+          const id = e.currentTarget.getAttribute('data-tocid');
+          const target = document.querySelector('[data-hid="' + id + '"]');
+          const container = document.querySelector('.lore-scroll-body');
+          if (target && container) {
+            container.scrollTop = target.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop - 20;
+          }
+        };
+        return React.createElement('div', null,
+          React.createElement('nav', { key: 'toc', className: 'lore-toc' },
+            React.createElement('p', { className: 'lore-toc-title' }, '\u2726 \u0417\u043c\u0456\u0441\u0442'),
+            React.createElement('ol', { className: 'lore-toc-list' },
+              toc.map((h, i) => React.createElement('li', { key: i, 'data-level': String(h.level) },
+                React.createElement('a', { href: '#', 'data-tocid': h.id, onClick: onTocClick }, h.text)
+              ))
+            )
+          ),
+          body
+        );
+      })(),
       openLore: (e) => {
         const id = e.currentTarget.dataset.id;
         const it = (data.lore || []).find(l => l.id === id);
