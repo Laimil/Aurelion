@@ -319,8 +319,8 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           <p style="margin-top:8px;font-size:0.84rem;"><a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
         </div>
       </sc-if>
-      <div style="overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 260px);">
-        <div style="position:relative;width:1200px;height:840px;margin:0 auto;">
+      <div style="overflow:hidden;display:flex;align-items:center;justify-content:center;height:{{ boardScaledH }};">
+        <div style="position:relative;width:1200px;height:840px;transform:scale({{ boardScale }});transform-origin:center center;flex-shrink:0;">
           {{ connectionLines }}
           <sc-for list="{{ boardChars }}" as="char" hint-placeholder-count="0">
             <div data-id="{{ char.id }}" onClick="{{ setBoardChar }}"
@@ -612,6 +612,7 @@ class Component extends DCLogic {
     rollHistory: [], selectedChar: null, selectedLore: null,
     charTab: 'player', charSearch: '',
     selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
+    boardScale: 1,
   };
 
   _rollTimer = null;
@@ -678,8 +679,18 @@ class Component extends DCLogic {
     });
   }
 
+  _updateBoardScale() {
+    // Available space: viewport minus nav (60px) + title/controls (~200px)
+    const avH = window.innerHeight - 260;
+    const avW = window.innerWidth - 48;
+    const scale = Math.min(1, avH / 840, avW / 1200);
+    this.setState({ boardScale: Math.max(0.35, scale) });
+  }
+
   componentDidMount() {
     this._loadAll();
+    this._updateBoardScale();
+    window.addEventListener('resize', () => this._updateBoardScale());
     window.addEventListener('hashchange', () => {
       this.setState({ page: this._getPage(), selectedChar: null, selectedLore: null });
       window.scrollTo({ top: 0 });
@@ -999,10 +1010,13 @@ class Component extends DCLogic {
           hasBadge: (connCountMap[ch.id] || 0) > 0,
         }));
 
+        const sc2 = s.boardScale || 1;
         return {
           connectionLines,
           boardChars: boardCharsWithBadge,
           directConns, cloudChars,
+          boardScale: sc2,
+          boardScaledH: Math.round(840 * sc2) + 'px',
           boardView: bView,
           showBoardView: bView==='board',
           showCloudView: bView==='cloud',
