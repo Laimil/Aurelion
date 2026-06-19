@@ -335,8 +335,11 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
                   </div>
                 </sc-if>
               </div>
-              <div style="margin-top:5px;text-align:center;padding:0 2px;">
+              <div style="margin-top:5px;text-align:center;padding:0 2px;position:relative;">
                 <p style="font-family:'Cinzel',serif;font-size:0.56rem;color:#fff;letter-spacing:0.02em;line-height:1.2;text-shadow:0 1px 5px rgba(0,0,0,0.9);word-break:break-word;">{{ char.name }}</p>
+                <sc-if value="{{ char.hasBadge }}" hint-placeholder-val="{{ false }}">
+                  <span style="display:inline-block;background:rgba(255,215,0,0.18);border:1px solid rgba(255,215,0,0.35);border-radius:999px;padding:0px 5px;font-size:0.5rem;color:rgba(255,215,0,0.85);margin-top:2px;font-family:sans-serif;">{{ char.connBadge }}</span>
+                </sc-if>
               </div>
             </div>
           </sc-for>
@@ -353,7 +356,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
               <div style="flex:1;">
                 <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.7);">{{ selCharRole }}</p>
                 <h3 style="font-family:'Cinzel',serif;font-size:1.1rem;color:#fff;letter-spacing:0.04em;">{{ selCharName }}</h3>
-                <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ directConnsCount }} прямих знайомств</p>
+                <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ directConnsCount }} прямих · <span style="color:rgba(100,149,237,0.7);">{{ indirectConnsCount }} через знайомих</span></p>
               </div>
               <button onClick="{{ clearBoardSel }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:30px;height:30px;color:rgba(255,255,255,0.5);cursor:pointer;flex-shrink:0;font-size:0.8rem;">✕</button>
             </div>
@@ -380,37 +383,48 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 
     <!-- ── ХАБ ── -->
     <sc-if value="{{ showCloudView }}" hint-placeholder-val="{{ false }}">
-      <div style="max-width:860px;margin:0 auto;padding:20px 32px 40px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:center;min-height:320px;">
-        <sc-for list="{{ cloudChars }}" as="char" hint-placeholder-count="0">
-          <button data-id="{{ char.id }}" onClick="{{ setBoardChar }}"
-            style="font-family:'Cinzel',Georgia,serif;font-size:{{ char.fontSize }};color:#fff;background:none;border:none;cursor:pointer;letter-spacing:0.04em;line-height:1.1;padding:4px 6px;transition:all 0.2s;opacity:{{ char.opacity }};text-shadow:0 0 18px rgba(255,215,0,0.2);" style-hover="opacity:1;color:#ffd700;text-shadow:0 0 28px rgba(255,215,0,0.5);">
-            {{ char.name }}<sup style="font-size:0.45em;opacity:0.4;margin-left:3px;">{{ char.count }}</sup>
-          </button>
-        </sc-for>
-        <sc-if value="{{ hasNoConnections }}" hint-placeholder-val="{{ false }}">
-          <p style="color:rgba(255,255,255,0.3);">Зв'язки ще не вказано.</p>
-        </sc-if>
-      </div>
-      <sc-if value="{{ hasBoardSel }}" hint-placeholder-val="{{ false }}">
-        <div style="max-width:700px;margin:0 auto;padding:0 24px 40px;">
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:18px 20px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-              <div>
-                <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.7);">{{ selCharRole }}</p>
-                <h3 style="font-family:'Cinzel',serif;font-size:1.1rem;color:#fff;">{{ selCharName }} <span style="font-size:0.75rem;color:rgba(255,255,255,0.35);">— {{ directConnsCount }} знайомств</span></h3>
-              </div>
-              <button onClick="{{ clearBoardSel }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:30px;height:30px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.8rem;">✕</button>
-            </div>
-            <div style="display:flex;flex-wrap:wrap;gap:7px;">
-              <sc-for list="{{ directConns }}" as="conn" hint-placeholder-count="0">
-                <div data-id="{{ conn.id }}" onClick="{{ jumpToChar }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(100,149,237,0.25);border-radius:999px;padding:5px 14px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(100,149,237,0.12);border-color:rgba(100,149,237,0.5);">
-                  <p style="font-size:0.8rem;color:#fff;">{{ conn.name }}</p>
+      <div style="max-width:1100px;margin:0 auto;padding:12px 24px 48px;display:flex;gap:28px;align-items:flex-start;">
+        <!-- Хмарка імен -->
+        <div style="flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:center;padding:12px 0;min-height:260px;">
+          <sc-for list="{{ cloudChars }}" as="char" hint-placeholder-count="0">
+            <button data-id="{{ char.id }}" onClick="{{ setBoardChar }}"
+              style="font-family:'Cinzel',Georgia,serif;font-size:{{ char.fontSize }};color:#fff;background:none;border:none;cursor:pointer;letter-spacing:0.04em;line-height:1.1;padding:4px 6px;transition:all 0.2s;opacity:{{ char.opacity }};text-shadow:0 0 18px rgba(255,215,0,0.2);" style-hover="opacity:1;color:#ffd700;text-shadow:0 0 28px rgba(255,215,0,0.5);">
+              {{ char.name }}<sup style="font-size:0.45em;opacity:0.4;margin-left:3px;">{{ char.count }}</sup>
+            </button>
+          </sc-for>
+          <sc-if value="{{ hasNoConnections }}" hint-placeholder-val="{{ false }}">
+            <p style="color:rgba(255,255,255,0.3);">Зв'язки ще не вказано.</p>
+          </sc-if>
+        </div>
+        <!-- Панель вибраного (справа) -->
+        <sc-if value="{{ hasBoardSel }}" hint-placeholder-val="{{ false }}">
+          <div style="width:280px;flex-shrink:0;position:sticky;top:80px;">
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:18px 18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <div style="min-width:0;">
+                  <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:3px;">{{ selCharRole }}</p>
+                  <h3 style="font-family:'Cinzel',serif;font-size:1rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ selCharName }}</h3>
+                  <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:3px;">{{ directConnsCount }} прямих · <span style="color:rgba(100,149,237,0.65);">{{ indirectConnsCount }} через знайомих</span></p>
                 </div>
-              </sc-for>
+                <button onClick="{{ clearBoardSel }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:28px;height:28px;color:rgba(255,255,255,0.5);cursor:pointer;flex-shrink:0;font-size:0.78rem;margin-left:8px;">✕</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:5px;max-height:420px;overflow-y:auto;">
+                <sc-for list="{{ directConns }}" as="conn" hint-placeholder-count="0">
+                  <div data-id="{{ conn.id }}" onClick="{{ jumpToChar }}" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(100,149,237,0.2);border-radius:7px;padding:6px 10px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(100,149,237,0.1);border-color:rgba(100,149,237,0.45);">
+                    <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ false }}">
+                      <div style="{{ conn.imgBg }}width:26px;height:26px;border-radius:4px;flex-shrink:0;"></div>
+                    </sc-if>
+                    <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ true }}">
+                      <div style="width:26px;height:26px;border-radius:4px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.55rem;color:rgba(255,255,255,0.3);flex-shrink:0;">{{ conn.initials }}</div>
+                    </sc-if>
+                    <p style="font-size:0.78rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ conn.name }}</p>
+                  </div>
+                </sc-for>
+              </div>
             </div>
           </div>
-        </div>
-      </sc-if>
+        </sc-if>
+      </div>
     </sc-if>
 
   </main>
@@ -969,8 +983,26 @@ class Component extends DCLogic {
         const selChar = selId ? (charMap[selId]||{}) : {};
         const selImgUrl = selChar.image?'url('+JSON.stringify(selChar.image)+')':'';
 
+        // Indirect count (2nd degree, not direct)
+        const indirectCount = selId ? allChars.filter(ch => deg[ch.id] === 2).length : 0;
+
+        // Connection count per char (for badges)
+        const connCountMap = {};
+        allChars.forEach(ch => { connCountMap[ch.id] = 0; });
+        edges.forEach(e => {
+          if (connCountMap[e.fromId] !== undefined) connCountMap[e.fromId]++;
+          if (connCountMap[e.toId]   !== undefined) connCountMap[e.toId]++;
+        });
+        const boardCharsWithBadge = boardChars.map(ch => ({
+          ...ch,
+          connBadge: String(connCountMap[ch.id] || 0),
+          hasBadge: (connCountMap[ch.id] || 0) > 0,
+        }));
+
         return {
-          connectionLines, boardChars, directConns, cloudChars,
+          connectionLines,
+          boardChars: boardCharsWithBadge,
+          directConns, cloudChars,
           boardView: bView,
           showBoardView: bView==='board',
           showCloudView: bView==='cloud',
@@ -982,6 +1014,8 @@ class Component extends DCLogic {
           selCharHasImg: !!(selChar.image),
           selCharImgBg: selImgUrl?'background-image:'+selImgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
           directConnsCount: String(directConns.length),
+          indirectConnsCount: String(indirectCount),
+          hasIndirect: indirectCount > 0,
           setBoardView: (e)=>this.setState({boardView:e.currentTarget.dataset.view}),
           setBoardChar: (e)=>{
             const id=e.currentTarget.dataset.id;
