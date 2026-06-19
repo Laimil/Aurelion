@@ -44,6 +44,21 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 [data-status="active"] .status-tag{background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.3)}
 [data-status="completed"] .status-tag{background:rgba(111,207,142,0.14);color:#6fcf8e;border:1px solid rgba(111,207,142,0.3)}
 [data-status="planned"] .status-tag{background:rgba(100,149,237,0.14);color:#6495ed;border:1px solid rgba(100,149,237,0.3)}
+.lore-md{font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;line-height:1.88;color:rgba(255,255,255,0.72);}
+.lore-md p{margin-bottom:1.2em;text-align:justify;}
+.lore-md h2{font-family:'Cinzel',Georgia,serif;font-size:1.45rem;font-weight:700;color:#ffd700;letter-spacing:0.06em;margin:1.9em 0 0.65em;line-height:1.2;}
+.lore-md h3{font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:600;color:rgba(255,215,0,0.82);letter-spacing:0.05em;margin:1.6em 0 0.55em;}
+.lore-md h4{font-family:'Cinzel',Georgia,serif;font-size:1rem;font-weight:600;color:rgba(255,255,255,0.68);letter-spacing:0.04em;margin:1.2em 0 0.45em;}
+.lore-md blockquote{border-left:2px solid rgba(255,215,0,0.38);margin:1.3em 0;padding:0.75em 1.3em;color:rgba(255,215,0,0.72);font-style:italic;background:rgba(255,215,0,0.04);border-radius:0 7px 7px 0;}
+.lore-md hr{border:none;text-align:center;margin:1.9em 0;height:1.2em;line-height:1.2em;}
+.lore-md hr::after{content:'✦  ✦  ✦';font-size:0.72rem;letter-spacing:0.5em;color:rgba(255,215,0,0.3);}
+.lore-md strong{color:rgba(255,255,255,0.94);font-weight:600;}
+.lore-md em{font-style:italic;}
+.lore-md ul{margin:0.85em 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0.38em;}
+.lore-md li{padding-left:1.5em;position:relative;}
+.lore-md li::before{content:'✦';position:absolute;left:0;color:rgba(255,215,0,0.45);font-size:0.58em;top:0.45em;}
+.lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.28);cursor:default;}
+.lore-md code{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:0.88em;color:rgba(255,215,0,0.8);}
 </style>
 </helmet>
 
@@ -580,7 +595,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <button onClick="{{ closeLoreModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:34px;height:34px;color:rgba(255,255,255,0.7);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
       </div>
       <div style="padding:28px 30px;overflow-y:auto;">
-        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;line-height:1.88;color:rgba(255,255,255,0.72);white-space:pre-wrap;text-align:justify;">{{ loreModalContent }}</p>
+        {{ loreModalContentEl }}
       </div>
     </div>
   </div>
@@ -591,6 +606,40 @@ const SUPA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
 const SUPA_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 const SUPA_H   = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` };
 
+function _mdInl(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\[\[([^\]]+)\]\]/g,'<span class="md-wiki">$1</span>')
+    .replace(/\*\*\*([^*\n]+)\*\*\*/g,'<strong><em>$1</em></strong>')
+    .replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>');
+}
+function parseMarkdown(raw){
+  if(!raw) return '';
+  const lines=raw.split('\n'),out=[];let lb=[],pb=[];
+  const fl=()=>{if(!lb.length)return;out.push('<ul>'+lb.map(l=>'<li>'+l+'</li>').join('')+'</ul>');lb=[];};
+  const fp=()=>{if(!pb.length)return;out.push('<p>'+pb.join('<br>')+'</p>');pb=[];};
+  for(const line of lines){
+    const t=line.trim();
+    if(!t){fl();fp();continue;}
+    if(/^-{3,}$/.test(t)){fl();fp();out.push('<hr>');continue;}
+    const hm=t.match(/^(#{1,4})\s+(.+)/);
+    if(hm){fl();fp();const lv=Math.min(hm[1].length+1,5);out.push('<h'+lv+'>'+_mdInl(hm[2])+'</h'+lv+'>');continue;}
+    if(t.startsWith('> ')){fl();fp();out.push('<blockquote>'+_mdInl(t.slice(2))+'</blockquote>');continue;}
+    const li=t.match(/^[-*+]\s+(.+)/);
+    if(li){fp();lb.push(_mdInl(li[1]));continue;}
+    fl();pb.push(_mdInl(t));
+  }
+  fl();fp();
+  return out.join('\n');
+}
+function stripMarkdown(raw){
+  if(!raw) return '';
+  return raw
+    .replace(/\*\*\*([^*]+)\*\*\*/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
+    .replace(/\[\[([^\]]+)\]\]/g,'$1').replace(/^#{1,4}\s+/gm,'').replace(/^>\s+/gm,'')
+    .replace(/^[-*+]\s+/gm,'').replace(/^-{3,}$/gm,'').replace(/`([^`]+)`/g,'$1').trim();
+}
 const DICE_SHAPES = {
   4:  '50,10 90,88 10,88',
   6:  '10,10 90,10 90,90 10,90',
@@ -774,7 +823,7 @@ class Component extends DCLogic {
       ],
 
       loreItems: (data.lore || []).map(it => ({
-        ...it, excerpt: it.excerpt || (it.content || '').slice(0, 180) + '…',
+        ...it, excerpt: it.excerpt || (stripMarkdown(it.content || '').slice(0, 180) + '…'),
       })),
       loreEmpty: !(data.lore || []).length,
 
@@ -1073,6 +1122,7 @@ class Component extends DCLogic {
       loreModalTitle:    sl?.title    || '',
       loreModalCategory: sl?.category || '',
       loreModalContent:  sl?.content  || '',
+      loreModalContentEl: React.createElement('div', { className: 'lore-md', dangerouslySetInnerHTML: { __html: parseMarkdown(sl?.content || '') } }),
       openLore: (e) => {
         const id = e.currentTarget.dataset.id;
         const it = (data.lore || []).find(l => l.id === id);

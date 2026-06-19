@@ -31,6 +31,25 @@ button{font-family:inherit;cursor:pointer}
 .drop-zone{border:2px dashed rgba(255,255,255,0.14);border-radius:10px;transition:all 0.2s;cursor:pointer;}
 .drop-zone:hover{border-color:rgba(255,215,0,0.35);background:rgba(255,215,0,0.03);}
 .drop-zone[data-over="true"]{border-color:rgba(255,215,0,0.9)!important;background:rgba(255,215,0,0.07)!important;animation:dropPulse 0.7s ease infinite;}
+.lore-md{font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.78;color:rgba(255,255,255,0.72);}
+.lore-md p{margin-bottom:1em;text-align:justify;}
+.lore-md h2{font-family:'Cinzel',Georgia,serif;font-size:1.22rem;font-weight:700;color:#ffd700;letter-spacing:0.05em;margin:1.5em 0 0.5em;}
+.lore-md h3{font-family:'Cinzel',Georgia,serif;font-size:1.05rem;font-weight:600;color:rgba(255,215,0,0.8);letter-spacing:0.04em;margin:1.2em 0 0.45em;}
+.lore-md h4{font-family:'Cinzel',Georgia,serif;font-size:0.94rem;color:rgba(255,255,255,0.62);letter-spacing:0.03em;margin:1em 0 0.4em;}
+.lore-md blockquote{border-left:2px solid rgba(255,215,0,0.35);margin:1em 0;padding:0.6em 1em;color:rgba(255,215,0,0.68);font-style:italic;background:rgba(255,215,0,0.04);border-radius:0 5px 5px 0;}
+.lore-md hr{border:none;text-align:center;margin:1.5em 0;height:1.1em;line-height:1.1em;}
+.lore-md hr::after{content:'✦  ✦  ✦';font-size:0.68rem;letter-spacing:0.4em;color:rgba(255,215,0,0.28);}
+.lore-md strong{color:rgba(255,255,255,0.9);font-weight:600;}
+.lore-md em{font-style:italic;}
+.lore-md ul{margin:0.7em 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0.3em;}
+.lore-md li{padding-left:1.3em;position:relative;}
+.lore-md li::before{content:'✦';position:absolute;left:0;color:rgba(255,215,0,0.4);font-size:0.58em;top:0.4em;}
+.lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.25);}
+.lore-md code{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:3px;padding:1px 5px;font-family:monospace;font-size:0.86em;color:rgba(255,215,0,0.75);}
+.lore-preview-box{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:18px 20px;min-height:140px;}
+.md-tb{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:3px 7px;font-size:0.72rem;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.15s;line-height:1.6;font-family:inherit;}
+.md-tb:hover{background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.22);}
+.md-tb[data-active="true"]{background:rgba(255,215,0,0.1)!important;border-color:rgba(255,215,0,0.35)!important;color:#ffd700!important;}
 </style>
 </helmet>
 
@@ -131,7 +150,31 @@ button{font-family:inherit;cursor:pointer}
           <div><label>Категорія</label><input value="{{ formCategory }}" onChange="{{ handleInput }}" data-field="category" /></div>
         </div>
         <div style="margin-bottom:14px;"><label>Уривок (для картки)</label><input value="{{ formExcerpt }}" onChange="{{ handleInput }}" data-field="excerpt" /></div>
-        <div style="margin-bottom:18px;"><label>Повний текст</label><textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:140px;"></textarea></div>
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <label style="margin-bottom:0;">Повний текст</label>
+            <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">
+              <button type="button" class="md-tb" onClick="{{ mdBold }}" title="**жирний**" style="font-weight:700;">Ж</button>
+              <button type="button" class="md-tb" onClick="{{ mdItalic }}" title="*курсив*"><em>К</em></button>
+              <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
+              <button type="button" class="md-tb" onClick="{{ mdH2 }}" title="## Заголовок">H2</button>
+              <button type="button" class="md-tb" onClick="{{ mdH3 }}" title="### Підзаголовок">H3</button>
+              <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
+              <button type="button" class="md-tb" onClick="{{ mdQuote }}" title="цитата">❝</button>
+              <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
+              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Посилання]]">[[]]</button>
+              <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
+              <button type="button" class="md-tb" data-active="{{ lorePreviewActive }}" onClick="{{ toggleLorePreview }}">{{ lorePreviewLabel }}</button>
+            </div>
+          </div>
+          <sc-if value="{{ showLoreTextarea }}" hint-placeholder-val="{{ true }}">
+            <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:160px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.62;"></textarea>
+            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, # Заголовок, &gt; цитата, --- розділювач, [[Посилання]]</p>
+          </sc-if>
+          <sc-if value="{{ showLorePreview }}" hint-placeholder-val="{{ false }}">
+            {{ lorePreviewEl }}
+          </sc-if>
+        </div>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
@@ -437,6 +480,33 @@ const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 const BASE_H  = { 'apikey': SUPA_KEY };
 const STATUS_LABELS_ADMIN = { active: 'Активна', completed: 'Завершена', planned: 'Заплановано' };
 
+function _mdInl(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\[\[([^\]]+)\]\]/g,'<span class="md-wiki">$1</span>')
+    .replace(/\*\*\*([^*\n]+)\*\*\*/g,'<strong><em>$1</em></strong>')
+    .replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>');
+}
+function parseMarkdown(raw){
+  if(!raw) return '';
+  const lines=raw.split('\n'),out=[];let lb=[],pb=[];
+  const fl=()=>{if(!lb.length)return;out.push('<ul>'+lb.map(l=>'<li>'+l+'</li>').join('')+'</ul>');lb=[];};
+  const fp=()=>{if(!pb.length)return;out.push('<p>'+pb.join('<br>')+'</p>');pb=[];};
+  for(const line of lines){
+    const t=line.trim();
+    if(!t){fl();fp();continue;}
+    if(/^-{3,}$/.test(t)){fl();fp();out.push('<hr>');continue;}
+    const hm=t.match(/^(#{1,4})\s+(.+)/);
+    if(hm){fl();fp();const lv=Math.min(hm[1].length+1,5);out.push('<h'+lv+'>'+_mdInl(hm[2])+'</h'+lv+'>');continue;}
+    if(t.startsWith('> ')){fl();fp();out.push('<blockquote>'+_mdInl(t.slice(2))+'</blockquote>');continue;}
+    const li=t.match(/^[-*+]\s+(.+)/);
+    if(li){fp();lb.push(_mdInl(li[1]));continue;}
+    fl();pb.push(_mdInl(t));
+  }
+  fl();fp();
+  return out.join('\n');
+}
 const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'content'],
   stories:    ['title', 'status', 'description', 'sort_order'],
@@ -467,6 +537,7 @@ class Component extends DCLogic {
     loading: false, saving: false,
     editing: null, form: {},
     toast: '',
+    lorePreview: false,
   };
 
   // ── Auth token helpers ─────────────────────────────────────
@@ -651,6 +722,32 @@ class Component extends DCLogic {
     this._toastTimer = setTimeout(() => this.setState({ toast: '' }), 3200);
   }
 
+  _mdWrap(prefix, suffix) {
+    const el = document.querySelector('[data-field="content"]'); if (!el) return;
+    const s = el.selectionStart, e = el.selectionEnd;
+    const cur = this.state.form.content || '';
+    const sel = cur.slice(s, e) || 'текст';
+    const next = cur.slice(0, s) + prefix + sel + suffix + cur.slice(e);
+    this.setState(st => ({ form: { ...st.form, content: next } }));
+    setTimeout(() => { el.focus(); el.setSelectionRange(s + prefix.length, s + prefix.length + sel.length); }, 0);
+  }
+  _mdPrefix(prefix) {
+    const el = document.querySelector('[data-field="content"]'); if (!el) return;
+    const s = el.selectionStart;
+    const cur = this.state.form.content || '';
+    const lineStart = cur.lastIndexOf('\n', s - 1) + 1;
+    const next = cur.slice(0, lineStart) + prefix + cur.slice(lineStart);
+    this.setState(st => ({ form: { ...st.form, content: next } }));
+    setTimeout(() => { el.focus(); el.setSelectionRange(s + prefix.length, s + prefix.length); }, 0);
+  }
+  _mdInsert(text) {
+    const el = document.querySelector('[data-field="content"]'); if (!el) return;
+    const s = el.selectionStart;
+    const cur = this.state.form.content || '';
+    const next = cur.slice(0, s) + text + cur.slice(s);
+    this.setState(st => ({ form: { ...st.form, content: next } }));
+    setTimeout(() => { el.focus(); el.setSelectionRange(s + text.length, s + text.length); }, 0);
+  }
   componentDidMount() { this._checkSession(); }
 
   // ── Render ─────────────────────────────────────────────────
@@ -716,7 +813,7 @@ class Component extends DCLogic {
           if (id) await this._patch(section, id, body);
         }
         await this._refreshTable(section);
-        this.setState({ editing: null, form: {}, saving: false });
+        this.setState({ editing: null, form: {}, saving: false, lorePreview: false });
         localStorage.setItem('aurelion-refresh', Date.now().toString());
         this._toast('✓ Збережено!');
       } catch(e) {
@@ -942,10 +1039,26 @@ class Component extends DCLogic {
         const item    = (this.state.data[section] || [])[index] || {};
         this.setState({ editing: { section, index }, form: { ...item } });
       },
-      cancelEdit: () => this.setState({ editing: null, form: {} }),
+      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false }),
       saveItem,
       deleteItem,
 
+      showLorePreview:  s.lorePreview,
+      showLoreTextarea: !s.lorePreview,
+      lorePreviewActive: s.lorePreview,
+      lorePreviewLabel: s.lorePreview ? '✎ Ред.' : '👁 Перегляд',
+      lorePreviewEl: React.createElement('div', {
+        className: 'lore-md lore-preview-box',
+        dangerouslySetInnerHTML: { __html: parseMarkdown(s.form.content || '') },
+      }),
+      mdBold:   () => this._mdWrap('**', '**'),
+      mdItalic: () => this._mdWrap('*', '*'),
+      mdH2:     () => this._mdPrefix('## '),
+      mdH3:     () => this._mdPrefix('### '),
+      mdQuote:  () => this._mdPrefix('> '),
+      mdHr:     () => this._mdInsert('\n\n---\n\n'),
+      mdWiki:   () => this._mdWrap('[[', ']]'),
+      toggleLorePreview: () => this.setState(st => ({ lorePreview: !st.lorePreview })),
       showToast: !!(s.toast),
       toastMsg:  s.toast,
     };
