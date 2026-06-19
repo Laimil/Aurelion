@@ -13,46 +13,46 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#161616}::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.3);border-radius:3px}
 ::selection{background:rgba(255,215,0,0.18);color:#fff}
-
 @keyframes goldPulse{0%,100%{text-shadow:0 0 20px rgba(255,215,0,0.4),0 0 60px rgba(255,215,0,0.1)}50%{text-shadow:0 0 50px rgba(255,215,0,0.9),0 0 90px rgba(255,215,0,0.3)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
 @keyframes diceRollAnim{0%{transform:rotate(0deg) scale(1)}30%{transform:rotate(200deg) scale(0.85)}65%{transform:rotate(390deg) scale(1.1)}100%{transform:rotate(540deg) scale(1)}}
 @keyframes numFlash{0%,100%{opacity:1}50%{opacity:0.15}}
-@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .au-page{animation:fadeUp 0.42s ease both}
-
 nav a[data-active="true"]{color:#fff!important}
 nav a[data-active="false"]{color:rgba(255,255,255,0.58)}
 nav a[data-active="false"]:hover{color:#fff;transition:color 0.18s}
-
 .glass{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;transition:background 0.28s ease,transform 0.28s ease,box-shadow 0.28s ease}
 .glass:hover{background:rgba(255,255,255,0.11);transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,0.55)}
 .char-card:hover{transform:scale(1.04)!important;box-shadow:0 10px 28px rgba(0,0,0,0.6)!important}
 .char-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,26,0.95) 0%,rgba(26,26,26,0.25) 60%,transparent 100%)}
-
 [data-rolling="true"] .die-display{animation:diceRollAnim 0.48s linear infinite}
 [data-rolling="true"] .die-number{animation:numFlash 0.12s linear infinite}
 [data-crit="true"] .die-number{color:#ffd700!important;text-shadow:0 0 32px rgba(255,215,0,0.9),0 0 64px rgba(255,215,0,0.4)!important}
 [data-fumble="true"] .die-number{color:#ff4d4d!important;text-shadow:0 0 32px rgba(255,77,77,0.9)!important}
-
 button.die-btn[data-active="true"]{background:rgba(255,215,0,0.14)!important;border-color:rgba(255,215,0,0.6)!important;color:#ffd700!important}
 button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!important;border-color:rgba(255,255,255,0.28)!important}
-
 [data-god="light"] .god-accent{color:#ffd76b}[data-god="light"]{border-color:rgba(255,215,107,0.35)!important}
 [data-god="dark"] .god-accent{color:#8b8fd0}[data-god="dark"]{border-color:rgba(107,111,174,0.35)!important}
 [data-god="fate"] .god-accent{color:#c07882}[data-god="fate"]{border-color:rgba(156,79,99,0.35)!important}
 [data-god="nature"] .god-accent{color:#6ec0b0}[data-god="nature"]{border-color:rgba(94,154,143,0.35)!important}
 [data-god="magic"] .god-accent{color:#c8ccd8}[data-god="magic"]{border-color:rgba(184,188,200,0.35)!important}
-
 [data-status="active"] .status-tag{background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.3)}
 [data-status="completed"] .status-tag{background:rgba(111,207,142,0.14);color:#6fcf8e;border:1px solid rgba(111,207,142,0.3)}
 [data-status="planned"] .status-tag{background:rgba(100,149,237,0.14);color:#6495ed;border:1px solid rgba(100,149,237,0.3)}
 </style>
 </helmet>
+
+<!-- Loading -->
+<sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+  <div style="position:fixed;inset:0;background:#1a1a1a;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;">
+    <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:#ffd700;letter-spacing:0.14em;animation:goldPulse 2s ease infinite;">✦ AURELION</p>
+    <p style="font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.3);">Завантаження…</p>
+  </div>
+</sc-if>
 
 <!-- ═══ NAV ═══ -->
 <nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);">
@@ -70,7 +70,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 <!-- ═══ HOME ═══ -->
 <sc-if value="{{ showHome }}" hint-placeholder-val="{{ true }}">
   <main class="au-page" style="min-height:100vh;background:#1a1a1a;">
-    <!-- Hero -->
     <section style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 56px;position:relative;overflow:hidden;">
       <div style="position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 44%,rgba(255,215,0,0.05) 0%,transparent 68%);pointer-events:none;"></div>
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:18px;">✦ Темне фентезі · Україна</p>
@@ -79,7 +78,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <p style="font-family:'EB Garamond',Georgia,serif;font-size:clamp(1rem,1.8vw,1.15rem);line-height:1.88;color:rgba(255,255,255,0.62);max-width:620px;margin-bottom:56px;">{{ siteWelcome }}</p>
       <a href="#lore" style="display:inline-flex;align-items:center;gap:10px;background:rgba(255,215,0,0.09);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:999px;padding:12px 34px;font-size:0.875rem;letter-spacing:0.07em;text-decoration:none;transition:all 0.22s;" style-hover="background:rgba(255,215,0,0.17);box-shadow:0 0 22px rgba(255,215,0,0.22);">Досліджувати ↓</a>
     </section>
-    <!-- Tiles -->
     <section style="max-width:1200px;margin:0 auto;padding:20px 24px 100px;">
       <p style="text-align:center;font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-bottom:40px;">— Розділи —</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px;">
@@ -165,7 +163,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           <div data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
             <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
               <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ false }}">
-                <img src="{{ char.image }}" alt="{{ char.name }}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s ease;" />
+                <img src="{{ char.image }}" alt="{{ char.name }}" style="width:100%;height:100%;object-fit:cover;display:block;" />
               </sc-if>
               <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
                 <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);">
@@ -186,8 +184,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <sc-if value="{{ charactersEmpty }}" hint-placeholder-val="{{ false }}">
         <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
           <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
-          <p>Персонажів ще не додано.</p>
-          <p style="margin-top:8px;font-size:0.88rem;"><a href="admin.dc.html" style="color:#6495ed;">Відкрийте адмін-панель →</a></p>
+          <p>Персонажів ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
         </div>
       </sc-if>
     </div>
@@ -205,7 +202,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:22px;">
       <sc-for list="{{ pantheonItems }}" as="god" hint-placeholder-count="5">
         <article data-god="{{ god.god }}" class="glass" style="padding:30px 28px;border-width:2px;border-radius:14px;position:relative;overflow:hidden;">
-          <div style="position:absolute;top:0;left:0;right:0;height:1px;background:currentColor;opacity:0.25;"></div>
           <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:10px;">🐉 Бог</p>
           <h2 class="god-accent" style="font-family:'Cinzel',Georgia,serif;font-size:1.85rem;font-weight:700;letter-spacing:0.06em;margin-bottom:6px;">{{ god.name }}</h2>
           <p style="font-size:0.76rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.34);margin-bottom:18px;">{{ god.domain }}</p>
@@ -213,6 +209,11 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </article>
       </sc-for>
     </div>
+    <sc-if value="{{ pantheonEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
+        <p>Пантеон ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+      </div>
+    </sc-if>
   </main>
 </sc-if>
 
@@ -223,8 +224,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Воля богів</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Дайс-роллер</h1>
     </header>
-
-    <!-- Selector -->
     <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:44px;">
       <sc-for list="{{ diceTypes }}" as="die" hint-placeholder-count="6">
         <button data-dice="{{ die.n }}" data-active="{{ die.active }}" onClick="{{ selectDice }}" class="die-btn" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;cursor:pointer;width:88px;height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(255,255,255,0.55);transition:all 0.2s ease;padding:0;flex-shrink:0;">
@@ -236,8 +235,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </button>
       </sc-for>
     </div>
-
-    <!-- Roll display -->
     <div data-rolling="{{ isRolling }}" data-crit="{{ isCrit }}" data-fumble="{{ isFumble }}" style="text-align:center;margin-bottom:36px;">
       <div class="die-display" style="display:inline-flex;align-items:center;justify-content:center;width:196px;height:196px;position:relative;margin-bottom:14px;">
         <svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%;" aria-hidden="true">
@@ -247,13 +244,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       </div>
       <p style="font-size:0.76rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);min-height:1.3em;">{{ rollLabel }}</p>
     </div>
-
-    <!-- Roll button -->
     <div style="text-align:center;margin-bottom:48px;">
       <button onClick="{{ roll }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:15px 58px;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(255,215,0,0.22);" style-hover="transform:scale(1.05);box-shadow:0 6px 32px rgba(255,215,0,0.44);">Кинути {{ diceTypeName }}</button>
     </div>
-
-    <!-- History -->
     <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ false }}">
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:18px 22px;">
         <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.24);margin-bottom:13px;">— Останні кидки —</p>
@@ -296,7 +289,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       </div>
     </div>
     <div style="text-align:center;">
-      <p style="font-size:0.82rem;color:rgba(255,255,255,0.22);margin-bottom:12px;">Адміністрування контенту:</p>
       <a href="admin.dc.html" style="display:inline-flex;align-items:center;gap:8px;background:rgba(100,149,237,0.09);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:999px;padding:10px 26px;font-size:0.855rem;text-decoration:none;transition:all 0.2s;" style-hover="background:rgba(100,149,237,0.17);">⚙ Адмін-панель</a>
     </div>
   </main>
@@ -324,13 +316,12 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           <div style="padding:56px 28px;text-align:center;color:rgba(255,255,255,0.3);">
             <p style="font-size:1.4rem;margin-bottom:10px;">✦</p>
             <p>Анкету ще не прикріплено.</p>
-            <p style="margin-top:8px;font-size:0.84rem;color:rgba(255,255,255,0.22);">Додайте Telegraph-посилання через адмін-панель.</p>
           </div>
         </sc-if>
       </div>
       <div style="padding:12px 22px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:flex-end;gap:9px;flex-shrink:0;">
         <sc-if value="{{ charModalHasTelegraph }}" hint-placeholder-val="{{ false }}">
-          <a href="{{ charModalUrl }}" target="_blank" rel="noopener noreferrer" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:999px;padding:7px 18px;font-size:0.82rem;text-decoration:none;transition:background 0.18s;" style-hover="background:rgba(100,149,237,0.2);">↗ Telegraph</a>
+          <a href="{{ charModalUrl }}" target="_blank" rel="noopener noreferrer" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:999px;padding:7px 18px;font-size:0.82rem;text-decoration:none;">↗ Telegraph</a>
         </sc-if>
         <button onClick="{{ closeCharModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);color:#fff;border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;">Закрити</button>
       </div>
@@ -357,48 +348,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
-const DEFAULT_DATA = {
-  site: {
-    title: 'AURELION',
-    subtitle: 'Темне фентезі. Живі легенди.',
-    welcome: 'Ласкаво просимо до Ауреліону — світу, де боги мовчать, а герої платять власною кров\'ю за кожне рішення. Тут живуть легенди вашого авторства.',
-    contactsAbout: 'Aurelion UA — українська настільна рольова гра у жанрі темного фентезі. Живий світ, де кожне рішення має вагу, а доля не прощає слабкості. Спільнота гравців, що будують свою хроніку вже кілька арок поспіль.',
-  },
-  contacts: [
-    { id: '1', icon: '📬', label: 'Telegram-спільнота', url: '#' },
-    { id: '2', icon: '📝', label: 'Telegraph (анкети)', url: 'https://telegra.ph/' },
-  ],
-  lore: [
-    {
-      id: '1', title: 'Початок Ауреліону', category: 'Космологія',
-      excerpt: 'На зорі часів п\'ять богів поділили між собою основи буття — і світ набув форми...',
-      content: 'На зорі часів п\'ять богів поділили між собою основи буття. Леста взяла світло і дала першим народам вогонь. Нокта вкрила рівну пітьму між зірками — там, де кінчається день і починається вічне. Конкорфату розплів першу долю, пов\'язавши живих і мертвих невидимою ниткою. Флоріана наповнила порожні землі зеленню і диханням. Арканія ж вклала в серця смертних допитливість — і вони почали задавати питання.\n\nВід того часу боги мовчать. Але їхній слід лишився скрізь — у вогні свічки, у шелесті листя, у тихому кроці смерті, у рунах на камені. Той, хто вміє читати цей слід, знає: боги не зникли. Вони спостерігають.',
-    },
-    {
-      id: '2', title: 'Географія та Народи', category: 'Географія',
-      excerpt: 'Ауреліон — материк на перехресті морів, де кожна земля має свій характер і свою ціну...',
-      content: 'Ауреліон — це материк, оточений безкрайнім Сірим морем. На півночі тягнуться Крижані гори, куди не ходять люди і навіть боги дивляться з осторогою. На півдні — Спалені рівнини, де земля пам\'ятає давні битви.\n\nСерце материка займає Вільний Ліс Флоріани — величезний, без країв, де дерева ростуть товщі за вежі і живуть довше за держави. Найбільше місто — Терра-Нокс, на перехресті трьох торгових шляхів. Саме тут починається більшість історій.',
-    },
-    {
-      id: '3', title: 'Магія і її Ціна', category: 'Магія',
-      excerpt: 'Арканія дала смертним знання рун, але не безкоштовно — кожне заклинання бере щось від того, хто його творить...',
-      content: 'Магія в Ауреліоні має ціну. Арканія дала людям знання рун, але попередила: кожне заклинання бере дрібку від того, хто його творить. Маги живуть довше — і водночас швидше пустіють.\n\nЄ три школи: Руни (запис і зберігання сили), Голос (слово як заклинання) і Кров (найдавніша і найнебезпечніша — ціна пряма). Четверта школа, Тінь, офіційно заборонена. Але заборони не зупиняють тих, хто вже нічого не боїться.',
-    },
-  ],
-  stories: [
-    { id: '1', title: 'Пробудження', status: 'completed', description: 'Перша арка. Герої опинилися в Терра-Ноксі після загадкових смертей у ночі місячного затемнення. Місто приховувало таємницю роками. Кожен персонаж знайшов тут щось своє — і щось своє залишив.' },
-    { id: '2', title: 'Тіні Нокти', status: 'active', description: 'Поточна арка. Давній культ виходить із підземель Терра-Нокса. Хтось із знайомих знає більше, ніж зізнається. Рівновага між богами хитається — і кожне рішення гравців схиляє терезі.' },
-    { id: '3', title: 'Серце Лісу', status: 'planned', description: 'Майбутня арка. Флоріана мовчить третій місяць. Ліс рухається не туди, куди завжди. Щось прокидається в корінні дерев — і це щось голодне.' },
-  ],
-  characters: [],
-  pantheon: [
-    { id: '1', name: 'Леста', domain: 'Світло і Життя', god: 'light', description: 'Богиня сонця і першого вогню. Її жриці носять золоте та біле. Леста рідко відповідає на молитви — каже, що хто достатньо старається, той і сам знайде світло.' },
-    { id: '2', name: 'Нокта', domain: 'Темрява і Смерть', god: 'dark', description: 'Богиня ночі і тихого кінця. Не злий бог — байдужий. Смерть однакова для всіх. Її культ росте в містах, де люди втомились боятися темряви і навчились у ній жити.' },
-    { id: '3', name: 'Конкорфату', domain: 'Доля і Гармонія', god: 'fate', description: 'Бог долі. Не змінює її — лише спостерігає. Говорять, що він знає всіх по імені ще до народження. Його жерці не пророкують — вони фіксують.' },
-    { id: '4', name: 'Флоріана', domain: 'Природа і Ріст', god: 'nature', description: 'Богиня лісів, полів і всього живого. Щира і трохи стихійна. Любить людей — але її любов буває надмірною. Ліс Флоріани не відпускає тих, хто зайшов без поваги.' },
-    { id: '5', name: 'Арканія', domain: 'Мудрість і Магія', god: 'magic', description: 'Богиня знань і магічних мистецтв. Перша навчила смертних читати зорі. Сувора, точна, без зайвих слів. Її послідовники знають: незнання — не виправдання.' },
-  ],
-};
+const SUPA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const SUPA_H   = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` };
 
 const DICE_SHAPES = {
   4:  '50,10 90,88 10,88',
@@ -413,37 +365,58 @@ const STATUS_LABELS = { active: 'Активна', completed: 'Завершена
 class Component extends DCLogic {
   state = {
     page: this._getPage(),
-    data: this._loadData(),
-    diceType: 20,
-    diceResult: null,
-    diceRollingNum: null,
-    rolling: false,
-    rollHistory: [],
-    selectedChar: null,
-    selectedLore: null,
+    data: { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [] },
+    loading: true,
+    diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
+    rollHistory: [], selectedChar: null, selectedLore: null,
   };
+
+  _rollTimer = null;
 
   _getPage() {
     return (window.location.hash || '').replace('#', '') || 'home';
   }
 
-  _loadData() {
+  async _get(path) {
     try {
-      const s = localStorage.getItem('aurelion-data');
-      if (s) return JSON.parse(s);
-    } catch (e) {}
-    return JSON.parse(JSON.stringify(DEFAULT_DATA));
+      const r = await fetch(`${SUPA_URL}/${path}`, { headers: SUPA_H });
+      return r.ok ? r.json() : [];
+    } catch(e) { return []; }
   }
 
-  _rollTimer = null;
+  async _loadAll() {
+    this.setState({ loading: true });
+    const [lore, stories, characters, pantheon, contacts, settings] = await Promise.all([
+      this._get('lore?select=*&order=created_at.asc'),
+      this._get('stories?select=*&order=sort_order.asc,created_at.asc'),
+      this._get('characters?select=*&order=created_at.asc'),
+      this._get('pantheon?select=*&order=sort_order.asc'),
+      this._get('contacts?select=*&order=sort_order.asc'),
+      this._get('site_settings?select=*'),
+    ]);
+    const site = {};
+    (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
+    this.setState({
+      loading: false,
+      data: {
+        site,
+        lore:       Array.isArray(lore)       ? lore       : [],
+        stories:    Array.isArray(stories)    ? stories    : [],
+        characters: Array.isArray(characters) ? characters : [],
+        pantheon:   Array.isArray(pantheon)   ? pantheon   : [],
+        contacts:   Array.isArray(contacts)   ? contacts   : [],
+      },
+    });
+  }
 
   componentDidMount() {
+    this._loadAll();
     window.addEventListener('hashchange', () => {
       this.setState({ page: this._getPage(), selectedChar: null, selectedLore: null });
       window.scrollTo({ top: 0 });
     });
     window.addEventListener('storage', (e) => {
-      if (e.key === 'aurelion-data') this.setState({ data: this._loadData() });
+      if (e.key === 'aurelion-refresh') this._loadAll();
     });
   }
 
@@ -462,9 +435,12 @@ class Component extends DCLogic {
       this.setState({ diceRollingNum: Math.floor(Math.random() * sides) + 1 });
       if (count >= 13) {
         clearInterval(this._rollTimer);
-        this.setState(s => ({
+        this.setState(st => ({
           rolling: false, diceResult: result, diceRollingNum: null,
-          rollHistory: [{ type: sides, result, diceLabel: 'd' + sides, resultStr: String(result) }, ...s.rollHistory].slice(0, 12),
+          rollHistory: [
+            { diceLabel: 'd' + sides, resultStr: String(result) },
+            ...st.rollHistory,
+          ].slice(0, 12),
         }));
       }
     }, 60);
@@ -472,98 +448,122 @@ class Component extends DCLogic {
 
   renderVals() {
     const s = this.state;
-    const data = s.data;
-    const page = s.page;
-    const isCrit = !s.rolling && s.diceResult !== null && s.diceResult === s.diceType;
+    const { data, page } = s;
+    const isCrit   = !s.rolling && s.diceResult !== null && s.diceResult === s.diceType;
     const isFumble = !s.rolling && s.diceResult !== null && s.diceResult === 1;
     const diceDisplay = s.rolling
-      ? (s.diceRollingNum !== null ? String(s.diceRollingNum) : '?')
+      ? String(s.diceRollingNum ?? '?')
       : (s.diceResult !== null ? String(s.diceResult) : '—');
-
     const sc = s.selectedChar;
     const sl = s.selectedLore;
 
     return {
-      showHome: page === 'home',
-      showLore: page === 'lore',
-      showStories: page === 'stories',
+      loading: s.loading,
+
+      showHome:       page === 'home',
+      showLore:       page === 'lore',
+      showStories:    page === 'stories',
       showCharacters: page === 'characters',
-      showPantheon: page === 'pantheon',
-      showDice: page === 'dice',
-      showContacts: page === 'contacts',
+      showPantheon:   page === 'pantheon',
+      showDice:       page === 'dice',
+      showContacts:   page === 'contacts',
 
       navItems: [
-        { id: 'home',       label: 'Головна',    active: page === 'home' },
-        { id: 'lore',       label: 'Лор',         active: page === 'lore' },
-        { id: 'stories',    label: 'Сюжети',      active: page === 'stories' },
-        { id: 'characters', label: 'Персонажі',   active: page === 'characters' },
-        { id: 'pantheon',   label: 'Пантеон',     active: page === 'pantheon' },
-        { id: 'dice',       label: '⚄ Дайс',     active: page === 'dice' },
-        { id: 'contacts',   label: 'Контакти',    active: page === 'contacts' },
+        { id: 'home',       label: 'Головна',   active: page === 'home' },
+        { id: 'lore',       label: 'Лор',        active: page === 'lore' },
+        { id: 'stories',    label: 'Сюжети',     active: page === 'stories' },
+        { id: 'characters', label: 'Персонажі',  active: page === 'characters' },
+        { id: 'pantheon',   label: 'Пантеон',    active: page === 'pantheon' },
+        { id: 'dice',       label: '⚄ Дайс',    active: page === 'dice' },
+        { id: 'contacts',   label: 'Контакти',   active: page === 'contacts' },
       ],
 
-      siteTitle: data.site?.title || 'AURELION',
+      siteTitle:    data.site?.title    || 'AURELION',
       siteSubtitle: data.site?.subtitle || 'Темне фентезі. Живі легенди.',
-      siteWelcome: data.site?.welcome || '',
+      siteWelcome:  data.site?.welcome  || 'Ласкаво просимо до Ауреліону.',
+      contactsAbout: data.site?.contactsAbout || '',
+      contactLinks:  data.contacts || [],
+
       homeTiles: [
-        { id: 'lore',       icon: '📜', title: 'Світобудова',   desc: 'Лор, географія, магія і закони' },
-        { id: 'stories',    icon: '⚔️', title: 'Сюжетні Арки',  desc: 'Хроніка активних і завершених кампаній' },
-        { id: 'characters', icon: '🎭', title: 'Персонажі',     desc: 'Галерея гравецьких та ключових героїв' },
-        { id: 'pantheon',   icon: '🐉', title: 'Пантеон',       desc: 'П\'ятеро богів, що тримають рівновагу' },
-        { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',   desc: 'Воля богів у ваших руках — d4 до d20' },
-        { id: 'contacts',   icon: '✉️', title: 'Про Проєкт',   desc: 'Контакти та інформація про спільноту' },
+        { id: 'lore',       icon: '📜', title: 'Світобудова',  desc: 'Лор, географія, магія і закони' },
+        { id: 'stories',    icon: '⚔️', title: 'Сюжетні Арки', desc: 'Хроніка активних і завершених кампаній' },
+        { id: 'characters', icon: '🎭', title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв' },
+        { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу' },
+        { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20' },
+        { id: 'contacts',   icon: '✉️', title: 'Про Проєкт',  desc: 'Контакти та інформація про спільноту' },
       ],
 
-      loreItems: (data.lore || []).map(it => ({ ...it, excerpt: it.excerpt || (it.content || '').slice(0, 180) + '...' })),
+      loreItems: (data.lore || []).map(it => ({
+        ...it, excerpt: it.excerpt || (it.content || '').slice(0, 180) + '…',
+      })),
       loreEmpty: !(data.lore || []).length,
 
-      storyItems: (data.stories || []).map((arc, i) => ({ ...arc, number: String(i + 1).padStart(2, '0'), statusLabel: STATUS_LABELS[arc.status] || arc.status })),
+      storyItems: (data.stories || []).map((arc, i) => ({
+        ...arc,
+        number:      String(i + 1).padStart(2, '0'),
+        statusLabel: STATUS_LABELS[arc.status] || arc.status,
+      })),
       storiesEmpty: !(data.stories || []).length,
 
       characterItems: (data.characters || []).map(ch => {
         const parts = (ch.name || '').trim().split(/\s+/);
-        return { ...ch, initials: parts.slice(0, 2).map(p => (p[0] || '')).join('').toUpperCase() || '?', hasImage: !!(ch.image), noImage: !(ch.image), hasAlias: !!(ch.alias) };
+        return {
+          ...ch,
+          initials:  parts.slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '?',
+          hasImage:  !!(ch.image),
+          noImage:   !(ch.image),
+          hasAlias:  !!(ch.alias),
+        };
       }),
       charactersEmpty: !(data.characters || []).length,
 
       pantheonItems: data.pantheon || [],
+      pantheonEmpty: !(data.pantheon || []).length,
 
-      contactsAbout: data.site?.contactsAbout || '',
-      contactLinks: data.contacts || [],
-
-      diceTypes: [4, 6, 8, 10, 12, 20].map(n => ({ n, label: 'd' + n, points: DICE_SHAPES[n], active: s.diceType === n })),
+      diceTypes: [4, 6, 8, 10, 12, 20].map(n => ({
+        n, label: 'd' + n, points: DICE_SHAPES[n], active: s.diceType === n,
+      })),
       activeDiePoints: DICE_SHAPES[s.diceType] || DICE_SHAPES[20],
-      diceTypeName: 'd' + s.diceType,
-      diceDisplay,
-      isRolling: s.rolling,
-      isCrit,
-      isFumble,
-      rollLabel: isCrit ? '✦ Критичний успіх!' : (isFumble ? '✦ Провал!' : (s.diceResult !== null && !s.rolling ? ('✦ Кинуто d' + s.diceType) : '')),
-      hasHistory: s.rollHistory.length > 0,
+      diceTypeName:    'd' + s.diceType,
+      diceDisplay, isRolling: s.rolling, isCrit, isFumble,
+      rollLabel: isCrit ? '✦ Критичний успіх!'
+        : isFumble ? '✦ Провал!'
+        : (s.diceResult !== null && !s.rolling ? '✦ Кинуто d' + s.diceType : ''),
+      hasHistory:  s.rollHistory.length > 0,
       rollHistory: s.rollHistory,
-
-      selectDice: (e) => { const n = parseInt(e.currentTarget.dataset.dice); if (n) this.setState({ diceType: n, diceResult: null, rolling: false }); },
+      selectDice: (e) => {
+        const n = parseInt(e.currentTarget.dataset.dice);
+        if (n) this.setState({ diceType: n, diceResult: null, rolling: false });
+      },
       roll: () => this.rollDice(),
 
-      showCharModal: !!sc,
-      charModalName: sc ? sc.name || '' : '',
-      charModalRole: sc ? sc.role || '' : '',
-      charModalAlias: sc ? sc.alias || '' : '',
-      charModalHasAlias: sc ? !!(sc.alias) : false,
-      charModalHasTelegraph: sc ? !!(sc.telegraphUrl) : false,
-      charModalNoTelegraph: sc ? !(sc.telegraphUrl) : false,
-      charModalUrl: sc ? sc.telegraphUrl || '' : '',
-      openCharacter: (e) => { const id = e.currentTarget.dataset.id; const ch = (data.characters || []).find(c => c.id === id); if (ch) this.setState({ selectedChar: ch }); },
+      showCharModal:       !!sc,
+      charModalName:       sc?.name       || '',
+      charModalRole:       sc?.role       || '',
+      charModalAlias:      sc?.alias      || '',
+      charModalHasAlias:   !!(sc?.alias),
+      charModalHasTelegraph: !!(sc?.telegraph_url),
+      charModalNoTelegraph:  !(sc?.telegraph_url),
+      charModalUrl:        sc?.telegraph_url || '',
+      openCharacter: (e) => {
+        const id = e.currentTarget.dataset.id;
+        const ch = (data.characters || []).find(c => c.id === id);
+        if (ch) this.setState({ selectedChar: ch });
+      },
       closeCharModal: () => this.setState({ selectedChar: null }),
       stopProp: (e) => e.stopPropagation(),
 
-      showLoreModal: !!sl,
-      loreModalTitle: sl ? sl.title || '' : '',
-      loreModalCategory: sl ? sl.category || '' : '',
-      loreModalContent: sl ? sl.content || '' : '',
-      openLore: (e) => { const id = e.currentTarget.dataset.id; const it = (data.lore || []).find(l => l.id === id); if (it) this.setState({ selectedLore: it }); },
+      showLoreModal:     !!sl,
+      loreModalTitle:    sl?.title    || '',
+      loreModalCategory: sl?.category || '',
+      loreModalContent:  sl?.content  || '',
+      openLore: (e) => {
+        const id = e.currentTarget.dataset.id;
+        const it = (data.lore || []).find(l => l.id === id);
+        if (it) this.setState({ selectedLore: it });
+      },
       closeLoreModal: () => this.setState({ selectedLore: null }),
-      stopLoreProp: (e) => e.stopPropagation(),
+      stopLoreProp:   (e) => e.stopPropagation(),
     };
   }
 }
