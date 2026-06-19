@@ -27,6 +27,10 @@ button{font-family:inherit;cursor:pointer}
 .tab-btn[data-active="true"]{background:rgba(255,215,0,0.12)!important;border-color:rgba(255,215,0,0.4)!important;color:#ffd700!important}
 .tab-btn[data-active="false"]:hover{background:rgba(255,255,255,0.07)!important;color:#fff!important}
 .item-row:hover{background:rgba(255,255,255,0.06)!important}
+@keyframes dropPulse{0%,100%{border-color:rgba(255,215,0,0.5)}50%{border-color:rgba(255,215,0,1)}}
+.drop-zone{border:2px dashed rgba(255,255,255,0.14);border-radius:10px;transition:all 0.2s;cursor:pointer;}
+.drop-zone:hover{border-color:rgba(255,215,0,0.35);background:rgba(255,215,0,0.03);}
+.drop-zone[data-over="true"]{border-color:rgba(255,215,0,0.9)!important;background:rgba(255,215,0,0.07)!important;animation:dropPulse 0.7s ease infinite;}
 </style>
 </helmet>
 
@@ -232,17 +236,25 @@ button{font-family:inherit;cursor:pointer}
         <!-- Зображення -->
         <div style="margin-bottom:14px;">
           <label>Зображення персонажа</label>
-          <div style="display:flex;gap:10px;align-items:center;margin-top:2px;">
-            <input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="https://... або завантаж з комп'ютера →" style="flex:1;" />
-            <input type="file" accept="image/*" onChange="{{ handleFileUpload }}" data-imgpick="1" style="display:none;" />
-            <button onClick="{{ triggerFilePick }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:9px 14px;font-size:0.8rem;white-space:nowrap;flex-shrink:0;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.18);">{{ uploadBtnLabel }}</button>
+          <input type="file" accept="image/*" onChange="{{ handleFileUpload }}" data-imgpick="1" style="display:none;" />
+          <div class="drop-zone" data-over="{{ dropOver }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" onClick="{{ triggerFilePick }}" style="padding:16px;min-height:88px;display:flex;align-items:center;justify-content:center;">
+            <sc-if value="{{ currentImage }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:12px;width:100%;">
+                <div style="{{ currentImageBg }}width:48px;height:64px;border-radius:6px;flex-shrink:0;"></div>
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:0.7rem;color:rgba(255,255,255,0.28);word-break:break-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ currentImage }}</p>
+                  <p style="font-size:0.68rem;color:rgba(255,215,0,0.5);margin-top:4px;">Перетягни нове або клікни щоб змінити</p>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noCurrentImage }}" hint-placeholder-val="{{ true }}">
+              <div style="text-align:center;">
+                <p style="font-size:1.6rem;margin-bottom:6px;">🖼</p>
+                <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">Перетягни або <span style="color:#ffd700;">клікни</span> щоб вибрати</p>
+              </div>
+            </sc-if>
           </div>
-          <sc-if value="{{ currentImage }}" hint-placeholder-val="{{ false }}">
-            <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
-              <div style="width:40px;height:54px;border-radius:5px;border:1px solid rgba(255,255,255,0.1);flex-shrink:0;background-size:cover;background-position:center;"></div>
-              <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);word-break:break-all;overflow:hidden;">{{ currentImage }}</p>
-            </div>
-          </sc-if>
+          <input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
         </div>
         <!-- Коротке дос'є -->
         <div style="margin-bottom:14px;">
@@ -302,19 +314,25 @@ button{font-family:inherit;cursor:pointer}
         <!-- Зображення бога -->
         <div style="margin-bottom:18px;">
           <label>Зображення</label>
-          <div style="display:flex;gap:10px;align-items:center;margin-top:2px;">
-            <input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="https://... або завантаж з комп'ютера →" style="flex:1;" />
-            <input type="file" accept="image/*" onChange="{{ handlePanFileUpload }}" data-imgpick="pan" style="display:none;" />
-            <button onClick="{{ triggerFilePickPan }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:9px 14px;font-size:0.8rem;white-space:nowrap;flex-shrink:0;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.18);">{{ uploadBtnLabel }}</button>
-          </div>
-          <sc-if value="{{ currentImage }}" hint-placeholder-val="{{ false }}">
-            <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
-              <div style="width:54px;height:54px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);flex-shrink:0;overflow:hidden;">
-                <div style="{{ currentImageBg }}"></div>
+          <input type="file" accept="image/*" onChange="{{ handleFileUpload }}" data-imgpick="1" style="display:none;" />
+          <div class="drop-zone" data-over="{{ dropOver }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" onClick="{{ triggerFilePick }}" style="padding:16px;min-height:88px;display:flex;align-items:center;justify-content:center;">
+            <sc-if value="{{ currentImage }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:12px;width:100%;">
+                <div style="{{ currentImageBg }}width:54px;height:54px;border-radius:6px;flex-shrink:0;"></div>
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:0.7rem;color:rgba(255,255,255,0.28);word-break:break-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ currentImage }}</p>
+                  <p style="font-size:0.68rem;color:rgba(255,215,0,0.5);margin-top:4px;">Перетягни нове або клікни щоб змінити</p>
+                </div>
               </div>
-              <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);word-break:break-all;overflow:hidden;">{{ currentImage }}</p>
-            </div>
-          </sc-if>
+            </sc-if>
+            <sc-if value="{{ noCurrentImage }}" hint-placeholder-val="{{ true }}">
+              <div style="text-align:center;">
+                <p style="font-size:1.6rem;margin-bottom:6px;">🖼</p>
+                <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">Перетягни або <span style="color:#ffd700;">клікни</span> щоб вибрати</p>
+              </div>
+            </sc-if>
+          </div>
+          <input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
         </div>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
@@ -755,8 +773,27 @@ class Component extends DCLogic {
       formWeight:       form.weight         || '',
       uploadingImage:   s.uploadingImage,
       uploadBtnLabel:   s.uploadingImage ? 'Завантаження…' : '📎 З комп\'ютера',
-      currentImage:     form.image          || '',
-      currentImageBg:   form.image ? 'background-image:url(' + JSON.stringify(form.image) + ');background-size:cover;background-position:center;width:40px;height:54px;border-radius:5px;border:1px solid rgba(255,255,255,0.1);flex-shrink:0;' : '',
+      currentImage:    form.image || '',
+      noCurrentImage:  !form.image,
+      currentImageBg:  form.image ? 'background-image:url(' + JSON.stringify(form.image) + ');background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
+      dropOver: s.dropOver || false,
+      onDragOver: (e) => { e.preventDefault(); e.stopPropagation(); this.setState({ dropOver: true }); },
+      onDragLeave: (e) => { e.preventDefault(); this.setState({ dropOver: false }); },
+      onDrop: async (e) => {
+        e.preventDefault(); e.stopPropagation();
+        this.setState({ dropOver: false });
+        const file = e.dataTransfer?.files?.[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        this.setState({ uploadingImage: true });
+        try {
+          const url = await this._uploadImage(file);
+          this.setState(st => ({ form: { ...st.form, image: url }, uploadingImage: false }));
+          this._toast('✓ Зображення завантажено!');
+        } catch(err) {
+          this.setState({ uploadingImage: false });
+          this._toast('✗ ' + (err.message || 'Помилка завантаження'));
+        }
+      },
       handleFileUpload: async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
