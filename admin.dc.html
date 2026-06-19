@@ -235,6 +235,11 @@ button{font-family:inherit;cursor:pointer}
             </div>
           </sc-if>
         </div>
+        <!-- Коротке дос'є -->
+        <div style="margin-bottom:14px;">
+          <label>Коротке дос'є (показується на картці і в модалі)</label>
+          <textarea value="{{ formBio }}" onChange="{{ handleInput }}" data-field="bio" placeholder="Кілька речень про персонажа — хто він, звідки, чим відомий…" style="min-height:80px;"></textarea>
+        </div>
         <!-- Telegraph -->
         <div style="margin-bottom:18px;"><label>Telegraph URL (повна анкета)</label><input value="{{ formTelegraphUrl }}" onChange="{{ handleInput }}" data-field="telegraph_url" placeholder="https://telegra.ph/..." /></div>
         <div style="display:flex;gap:8px;">
@@ -692,6 +697,7 @@ class Component extends DCLogic {
       formAlias:        form.alias          || '',
       formRole:         form.role           || '',
       formImage:        form.image          || '',
+      formBio:          form.bio             || '',
       formTelegraphUrl: form.telegraph_url  || '',
       formAge:          form.age            || '',
       formHeight:       form.height         || '',

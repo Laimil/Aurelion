@@ -175,6 +175,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
               <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}">
                 <p style="font-size:0.76rem;color:rgba(255,255,255,0.32);margin-top:3px;">«{{ char.alias }}»</p>
               </sc-if>
+              <sc-if value="{{ char.hasBio }}" hint-placeholder-val="{{ false }}">
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;color:rgba(255,255,255,0.42);margin-top:6px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p>
+              </sc-if>
             </div>
           </div>
         </sc-for>
@@ -336,8 +339,10 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
                 </sc-if>
               </div>
             </sc-if>
+            <sc-if value="{{ charModalHasBio }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.65);line-height:1.78;margin-bottom:20px;text-align:justify;">{{ charModalBio }}</p>
+            </sc-if>
             <sc-if value="{{ charModalHasTelegraph }}" hint-placeholder-val="{{ false }}">
-              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;color:rgba(255,255,255,0.4);margin-bottom:16px;line-height:1.6;">Повна анкета — на Telegraph.</p>
               <a href="{{ charModalUrl }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;background:#ffd700;color:#1a1a1a;border-radius:999px;padding:11px 28px;font-family:'Cinzel',serif;font-size:0.88rem;font-weight:700;letter-spacing:0.06em;text-decoration:none;transition:all 0.2s;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.4);">↗ Відкрити анкету</a>
             </sc-if>
             <sc-if value="{{ charModalNoTelegraph }}" hint-placeholder-val="{{ false }}">
@@ -538,6 +543,8 @@ class Component extends DCLogic {
           hasImage:  !!(ch.image),
           noImage:   !(ch.image),
           hasAlias:  !!(ch.alias),
+          hasBio:    !!(ch.bio),
+          bio:       ch.bio || '',
           bgStyle:   'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;' + (imgUrl ? 'background-image:' + imgUrl : ''),
         };
       }),
@@ -575,6 +582,8 @@ class Component extends DCLogic {
       charModalHeight:     sc?.height || '',
       charModalWeight:     sc?.weight || '',
       charModalHasStats:   !!(sc?.age || sc?.height || sc?.weight),
+      charModalBio:        sc?.bio || '',
+      charModalHasBio:     !!(sc?.bio),
       charModalHasTelegraph: !!(sc?.telegraph_url),
       charModalNoTelegraph:  !(sc?.telegraph_url),
       charModalUrl:        sc?.telegraph_url || '',
