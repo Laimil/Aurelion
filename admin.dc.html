@@ -22,11 +22,44 @@ select option{background:#222;color:#fff}
 label{display:block;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.38);margin-bottom:5px}
 button{font-family:inherit;cursor:pointer}
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes goldPulse{0%,100%{text-shadow:0 0 20px rgba(255,215,0,0.4)}50%{text-shadow:0 0 50px rgba(255,215,0,0.9)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .tab-btn[data-active="true"]{background:rgba(255,215,0,0.12)!important;border-color:rgba(255,215,0,0.4)!important;color:#ffd700!important}
 .tab-btn[data-active="false"]:hover{background:rgba(255,255,255,0.07)!important;color:#fff!important}
 .item-row:hover{background:rgba(255,255,255,0.06)!important}
 </style>
 </helmet>
+
+<!-- ══════════ LOGIN SCREEN ══════════ -->
+<sc-if value="{{ showLogin }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh;background:#141414;display:flex;align-items:center;justify-content:center;padding:24px;">
+    <div style="animation:fadeUp 0.35s ease;width:100%;max-width:400px;">
+      <div style="text-align:center;margin-bottom:36px;">
+        <p style="font-size:0.68rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Тільки для своїх</p>
+        <h1 style="font-family:'Cinzel',Georgia,serif;font-size:2rem;font-weight:700;color:#ffd700;letter-spacing:0.12em;animation:goldPulse 3s ease infinite;">ADMIN</h1>
+        <p style="font-size:0.78rem;color:rgba(255,255,255,0.28);margin-top:8px;letter-spacing:0.04em;">Aurelion UA TRPG</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;">
+        <div style="margin-bottom:16px;">
+          <label>Email</label>
+          <input type="email" value="{{ loginEmail }}" onChange="{{ handleLoginEmail }}" placeholder="admin@example.com" onKeyDown="{{ loginOnEnter }}" />
+        </div>
+        <div style="margin-bottom:22px;">
+          <label>Пароль</label>
+          <input type="password" value="{{ loginPassword }}" onChange="{{ handleLoginPassword }}" placeholder="••••••••" onKeyDown="{{ loginOnEnter }}" />
+        </div>
+        <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+          <div style="background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.25);border-radius:7px;padding:9px 14px;margin-bottom:16px;font-size:0.82rem;color:#ff7070;">{{ loginError }}</div>
+        </sc-if>
+        <button onClick="{{ doLogin }}" style="width:100%;background:#ffd700;color:#1a1a1a;border:none;border-radius:8px;padding:12px;font-family:'Cinzel',serif;font-size:0.95rem;font-weight:700;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.4);">{{ loginBtnLabel }}</button>
+      </div>
+      <p style="text-align:center;margin-top:18px;font-size:0.72rem;color:rgba(255,255,255,0.2);">Акаунт створюється в Supabase Dashboard → Authentication → Users</p>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ══════════ ADMIN PANEL ══════════ -->
+<sc-if value="{{ showAdmin }}" hint-placeholder-val="{{ false }}">
 
 <!-- TOP BAR -->
 <div style="position:sticky;top:0;z-index:50;background:rgba(22,22,22,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.09);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
@@ -34,12 +67,13 @@ button{font-family:inherit;cursor:pointer}
     <a href="Aurelion Site.dc.html" style="font-size:0.78rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.18s;" style-hover="color:#fff;">← Сайт</a>
     <span style="color:rgba(255,255,255,0.15);">|</span>
     <span style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.1em;">✦ ADMIN</span>
-    <span style="font-size:0.72rem;color:rgba(100,149,237,0.7);letter-spacing:0.04em;">↔ Supabase</span>
+    <span style="font-size:0.68rem;color:rgba(100,149,237,0.55);border:1px solid rgba(100,149,237,0.18);border-radius:4px;padding:2px 8px;">{{ adminEmail }}</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
-    <button onClick="{{ refreshData }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.55);border-radius:6px;padding:6px 14px;font-size:0.78rem;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);" title="Оновити дані з Supabase">↺ Оновити</button>
+    <button onClick="{{ refreshData }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.55);border-radius:6px;padding:6px 14px;font-size:0.78rem;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">↺ Оновити</button>
     <button onClick="{{ exportData }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.55);border-radius:6px;padding:6px 14px;font-size:0.78rem;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">↓ JSON</button>
     <button onClick="{{ saveAll }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:6px 18px;font-size:0.82rem;font-weight:700;font-family:'Cinzel',serif;letter-spacing:0.05em;transition:all 0.18s;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.4);">{{ saveLabel }}</button>
+    <button onClick="{{ doLogout }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.65);border-radius:6px;padding:6px 13px;font-size:0.78rem;transition:all 0.18s;" style-hover="background:rgba(255,77,77,0.16);color:#ff7070;">Вийти</button>
   </div>
 </div>
 
@@ -56,11 +90,11 @@ button{font-family:inherit;cursor:pointer}
     <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:24px;">⚙ Налаштування сайту</h2>
     <div style="display:flex;flex-direction:column;gap:18px;">
       <div><label>Назва (заголовок)</label><input value="{{ siteTitle }}" onChange="{{ handleSiteInput }}" data-field="title" placeholder="AURELION" /></div>
-      <div><label>Підзаголовок</label><input value="{{ siteSubtitle }}" onChange="{{ handleSiteInput }}" data-field="subtitle" placeholder="Темне фентезі. Живі легенди." /></div>
+      <div><label>Підзаголовок</label><input value="{{ siteSubtitle }}" onChange="{{ handleSiteInput }}" data-field="subtitle" /></div>
       <div><label>Вітальний текст (головна)</label><textarea value="{{ siteWelcome }}" onChange="{{ handleSiteInput }}" data-field="welcome" style="min-height:80px;"></textarea></div>
       <div><label>Текст «Про проєкт»</label><textarea value="{{ siteAbout }}" onChange="{{ handleSiteInput }}" data-field="contactsAbout" style="min-height:80px;"></textarea></div>
     </div>
-    <p style="margin-top:20px;font-size:0.75rem;color:rgba(255,255,255,0.22);">Натисни «Зберегти» у верхній панелі, щоб зберегти до Supabase.</p>
+    <p style="margin-top:20px;font-size:0.75rem;color:rgba(255,255,255,0.22);">Натисни «Зберегти» у верхній панелі.</p>
   </div>
 </sc-if>
 
@@ -69,13 +103,13 @@ button{font-family:inherit;cursor:pointer}
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">📜 Лор-статті</h2>
-      <button data-section="lore" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.18);">+ Нова стаття</button>
+      <button data-section="lore" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова стаття</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
       <sc-for list="{{ loreList }}" as="item" hint-placeholder-count="3">
         <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:background 0.15s;">
           <div style="flex:1;min-width:0;">
-            <p style="font-size:0.88rem;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.title }}</p>
+            <p style="font-size:0.88rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.title }}</p>
             <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ item.category }}</p>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
@@ -176,11 +210,11 @@ button{font-family:inherit;cursor:pointer}
         <p style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:18px;">{{ editLabel }}</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
           <div><label>Ім'я (повне)</label><input value="{{ formName }}" onChange="{{ handleInput }}" data-field="name" /></div>
-          <div><label>Псевдонім / прізвисько</label><input value="{{ formAlias }}" onChange="{{ handleInput }}" data-field="alias" /></div>
+          <div><label>Псевдонім</label><input value="{{ formAlias }}" onChange="{{ handleInput }}" data-field="alias" /></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
           <div><label>Роль / клас</label><input value="{{ formRole }}" onChange="{{ handleInput }}" data-field="role" /></div>
-          <div><label>URL зображення (арт/фото)</label><input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="https://..." /></div>
+          <div><label>URL зображення (арт)</label><input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="https://..." /></div>
         </div>
         <div style="margin-bottom:18px;"><label>Telegraph URL (анкета)</label><input value="{{ formTelegraphUrl }}" onChange="{{ handleInput }}" data-field="telegraph_url" placeholder="https://telegra.ph/..." /></div>
         <div style="display:flex;gap:8px;">
@@ -279,19 +313,20 @@ button{font-family:inherit;cursor:pointer}
   </div>
 </sc-if>
 
+</sc-if><!-- end showAdmin -->
+
 <!-- TOAST -->
 <sc-if value="{{ showToast }}" hint-placeholder-val="{{ false }}">
   <div style="position:fixed;bottom:24px;right:24px;background:#1e1e1e;border:1px solid rgba(255,215,0,0.35);border-radius:8px;padding:12px 20px;font-size:0.85rem;color:#ffd700;z-index:300;animation:toastIn 0.25s ease;box-shadow:0 4px 16px rgba(0,0,0,0.5);">{{ toastMsg }}</div>
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
-const SUPA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
-const SUPA_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
-const SUPA_H   = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` };
-const SUPA_HJ  = { ...SUPA_H, 'Content-Type': 'application/json' };
+const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 
+const BASE_H  = { 'apikey': SUPA_KEY };
 const STATUS_LABELS_ADMIN = { active: 'Активна', completed: 'Завершена', planned: 'Заплановано' };
-
 const TABLE_QUERIES = {
   lore:       'lore?select=*&order=created_at.asc',
   stories:    'stories?select=*&order=sort_order.asc,created_at.asc',
@@ -302,19 +337,94 @@ const TABLE_QUERIES = {
 
 class Component extends DCLogic {
   state = {
+    // auth
+    authed: false, authChecking: true,
+    loginEmail: '', loginPassword: '', loginError: '', loginLoading: false,
+    userEmail: '',
+    // admin
     tab: 'site',
     data: { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [] },
-    loading: true,
-    saving: false,
-    editing: null,
-    form: {},
+    loading: false, saving: false,
+    editing: null, form: {},
     toast: '',
   };
 
-  // ── API helpers ────────────────────────────────────────────
+  // ── Auth token helpers ─────────────────────────────────────
+  _getToken()         { return localStorage.getItem('aur-admin-token') || ''; }
+  _setToken(t, email) {
+    localStorage.setItem('aur-admin-token', t);
+    localStorage.setItem('aur-admin-email', email || '');
+  }
+  _clearToken() {
+    localStorage.removeItem('aur-admin-token');
+    localStorage.removeItem('aur-admin-email');
+  }
+
+  _authH() {
+    const t = this._getToken();
+    return { ...BASE_H, 'Authorization': `Bearer ${t || SUPA_KEY}` };
+  }
+  _authHJ() { return { ...this._authH(), 'Content-Type': 'application/json' }; }
+
+  // ── Auth API ───────────────────────────────────────────────
+  async _checkSession() {
+    const token = this._getToken();
+    if (!token) { this.setState({ authChecking: false }); return; }
+    try {
+      const r = await fetch(`${SUPA_AUTH}/user`, {
+        headers: { ...BASE_H, 'Authorization': `Bearer ${token}` },
+      });
+      if (r.ok) {
+        const u = await r.json();
+        this.setState({ authed: true, authChecking: false, userEmail: u.email || localStorage.getItem('aur-admin-email') || '' });
+        this._loadAll();
+      } else {
+        this._clearToken();
+        this.setState({ authChecking: false });
+      }
+    } catch(e) { this.setState({ authChecking: false }); }
+  }
+
+  async _login(email, password) {
+    this.setState({ loginLoading: true, loginError: '' });
+    try {
+      const r = await fetch(`${SUPA_AUTH}/token?grant_type=password`, {
+        method: 'POST',
+        headers: { ...BASE_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const d = await r.json();
+      if (d.access_token) {
+        this._setToken(d.access_token, email);
+        this.setState({ authed: true, loginLoading: false, userEmail: email });
+        this._loadAll();
+      } else {
+        const msg = d.error_description || d.msg || 'Невірний email або пароль';
+        this.setState({ loginError: msg, loginLoading: false });
+      }
+    } catch(e) {
+      this.setState({ loginError: 'Помилка підключення', loginLoading: false });
+    }
+  }
+
+  async _logout() {
+    try {
+      await fetch(`${SUPA_AUTH}/logout`, {
+        method: 'POST',
+        headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken()}` },
+      });
+    } catch(e) {}
+    this._clearToken();
+    this.setState({
+      authed: false, userEmail: '', loginEmail: '', loginPassword: '',
+      data: { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [] },
+    });
+  }
+
+  // ── DB helpers ─────────────────────────────────────────────
   async _get(path) {
     try {
-      const r = await fetch(`${SUPA_URL}/${path}`, { headers: SUPA_H });
+      const r = await fetch(`${SUPA_URL}/${path}`, { headers: this._authH() });
       return r.ok ? r.json() : [];
     } catch(e) { return []; }
   }
@@ -322,33 +432,37 @@ class Component extends DCLogic {
   async _insert(table, body) {
     const r = await fetch(`${SUPA_URL}/${table}`, {
       method: 'POST',
-      headers: { ...SUPA_HJ, 'Prefer': 'return=representation' },
+      headers: { ...this._authHJ(), 'Prefer': 'return=representation' },
       body: JSON.stringify(body),
     });
-    return r.ok ? r.json() : null;
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
   }
 
   async _patch(table, id, body) {
     const r = await fetch(`${SUPA_URL}/${table}?id=eq.${id}`, {
       method: 'PATCH',
-      headers: { ...SUPA_HJ, 'Prefer': 'return=representation' },
+      headers: { ...this._authHJ(), 'Prefer': 'return=representation' },
       body: JSON.stringify(body),
     });
-    return r.ok ? r.json() : null;
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
   }
 
   async _remove(table, id) {
-    await fetch(`${SUPA_URL}/${table}?id=eq.${id}`, {
-      method: 'DELETE', headers: SUPA_H,
+    const r = await fetch(`${SUPA_URL}/${table}?id=eq.${id}`, {
+      method: 'DELETE', headers: this._authH(),
     });
+    if (!r.ok) throw new Error(await r.text());
   }
 
   async _upsertSetting(key, value) {
-    await fetch(`${SUPA_URL}/site_settings`, {
+    const r = await fetch(`${SUPA_URL}/site_settings`, {
       method: 'POST',
-      headers: { ...SUPA_HJ, 'Prefer': 'resolution=merge-duplicates' },
+      headers: { ...this._authHJ(), 'Prefer': 'resolution=merge-duplicates' },
       body: JSON.stringify({ key, value }),
     });
+    if (!r.ok) throw new Error(await r.text());
   }
 
   // ── Data loading ───────────────────────────────────────────
@@ -376,15 +490,11 @@ class Component extends DCLogic {
           contacts:   Array.isArray(contacts)   ? contacts   : [],
         },
       });
-    } catch(e) {
-      this.setState({ loading: false });
-      this._toast('✗ Помилка підключення до Supabase');
-    }
+    } catch(e) { this.setState({ loading: false }); }
   }
 
   async _refreshTable(table) {
-    const q = TABLE_QUERIES[table];
-    if (!q) return;
+    const q = TABLE_QUERIES[table]; if (!q) return;
     const items = await this._get(q);
     this.setState(st => ({ data: { ...st.data, [table]: Array.isArray(items) ? items : [] } }));
   }
@@ -397,7 +507,7 @@ class Component extends DCLogic {
     this._toastTimer = setTimeout(() => this.setState({ toast: '' }), 3200);
   }
 
-  componentDidMount() { this._loadAll(); }
+  componentDidMount() { this._checkSession(); }
 
   // ── Render ─────────────────────────────────────────────────
   renderVals() {
@@ -407,10 +517,12 @@ class Component extends DCLogic {
     const ed   = s.editing;
     const form = s.form;
 
+    const showLogin = !s.authChecking && !s.authed;
+    const showAdmin = !s.authChecking && s.authed;
+
     const editLabel = ed ? (ed.index === -1 ? '✦ Новий запис' : '✦ Редагування') : '';
     const showFor   = (sec) => !!(ed && ed.section === sec);
-
-    const mkList = (arr) => (arr || []).map((it, i) => ({ ...it, _index: i }));
+    const mkList    = (arr) => (arr || []).map((it, i) => ({ ...it, _index: i }));
 
     const loreList    = mkList(data.lore);
     const storiesList = mkList(data.stories).map(a => ({ ...a, statusLabel: STATUS_LABELS_ADMIN[a.status] || a.status }));
@@ -421,7 +533,7 @@ class Component extends DCLogic {
     const panList     = mkList(data.pantheon);
     const contactList = mkList(data.contacts);
 
-    // ── handlers ──
+    // ── save handlers ──────────────────────────────────────
     const saveAll = async () => {
       this.setState({ saving: true });
       try {
@@ -430,7 +542,7 @@ class Component extends DCLogic {
           .map(k => this._upsertSetting(k, site[k] || '')));
         localStorage.setItem('aurelion-refresh', Date.now().toString());
         this._toast('✓ Налаштування збережено!');
-      } catch(e) { this._toast('✗ Помилка'); }
+      } catch(e) { this._toast('✗ Помилка — можливо, потрібно перелогінитись'); }
       this.setState({ saving: false });
     };
 
@@ -472,8 +584,22 @@ class Component extends DCLogic {
     };
 
     return {
-      saving: s.saving,
-      saveLabel: s.saving ? 'Збереження…' : 'Зберегти',
+      // auth
+      showLogin,
+      showAdmin,
+      loginEmail:    s.loginEmail,
+      loginPassword: s.loginPassword,
+      loginError:    s.loginError,
+      loginBtnLabel: s.loginLoading ? 'Вхід…' : 'Увійти',
+      adminEmail:    s.userEmail,
+
+      handleLoginEmail:    (e) => this.setState({ loginEmail: e.target.value }),
+      handleLoginPassword: (e) => this.setState({ loginPassword: e.target.value }),
+      loginOnEnter: (e) => { if (e.key === 'Enter') this._login(this.state.loginEmail, this.state.loginPassword); },
+      doLogin:  () => this._login(s.loginEmail, s.loginPassword),
+      doLogout: () => this._logout(),
+
+      saving: s.saving, saveLabel: s.saving ? 'Збереження…' : 'Зберегти',
 
       tabs: [
         { id: 'site',       label: '⚙ Сайт',       active: tab === 'site' },
@@ -504,7 +630,6 @@ class Component extends DCLogic {
         const field = e.target.dataset.field, value = e.target.value;
         this.setState(st => ({ data: { ...st.data, site: { ...(st.data.site||{}), [field]: value } } }));
       },
-
       saveAll,
       refreshData: () => this._loadAll(),
       exportData: () => {
@@ -517,11 +642,8 @@ class Component extends DCLogic {
       },
 
       loreList, storiesList, charList, panList, contactList,
-
-      showLoreForm:    showFor('lore'),
-      showStoriesForm: showFor('stories'),
-      showCharForm:    showFor('characters'),
-      showPanForm:     showFor('pantheon'),
+      showLoreForm: showFor('lore'), showStoriesForm: showFor('stories'),
+      showCharForm: showFor('characters'), showPanForm: showFor('pantheon'),
       showContactForm: showFor('contacts'),
       editLabel,
 
