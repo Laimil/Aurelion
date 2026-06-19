@@ -310,7 +310,7 @@ button{font-family:inherit;cursor:pointer}
           <sc-if value="{{ currentImage }}" hint-placeholder-val="{{ false }}">
             <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
               <div style="width:54px;height:54px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);flex-shrink:0;overflow:hidden;">
-                <img src="{{ currentImage }}" style="width:100%;height:100%;object-fit:cover;display:block;" />
+                <div style="{{ currentImageBg }}"></div>
               </div>
               <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);word-break:break-all;overflow:hidden;">{{ currentImage }}</p>
             </div>
@@ -378,6 +378,14 @@ const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 
 const BASE_H  = { 'apikey': SUPA_KEY };
 const STATUS_LABELS_ADMIN = { active: 'Активна', completed: 'Завершена', planned: 'Заплановано' };
+
+const SECTION_FIELDS = {
+  lore:       ['title', 'category', 'excerpt', 'content'],
+  stories:    ['title', 'status', 'description', 'sort_order'],
+  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'character_type'],
+  pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
+  contacts:   ['icon', 'label', 'url', 'sort_order'],
+};
 const TABLE_QUERIES = {
   lore:       'lore?select=*&order=created_at.asc',
   stories:    'stories?select=*&order=sort_order.asc,created_at.asc',
@@ -625,11 +633,12 @@ class Component extends DCLogic {
     const saveItem = async () => {
       if (!s.editing) return;
       const { section, index } = s.editing;
-      const body = { ...s.form };
-      ['_index','id','created_at'].forEach(k => delete body[k]);
-      // Прибираємо порожні рядки — Supabase не приймає '' для int/bool полів
-      Object.keys(body).forEach(k => {
-        if (body[k] === '' || body[k] === undefined) delete body[k];
+      // Лише дозволені поля для цієї таблиці
+      const allowed = SECTION_FIELDS[section] || [];
+      const body = {};
+      allowed.forEach(k => {
+        const v = s.form[k];
+        if (v !== '' && v !== undefined && v !== null) body[k] = v;
       });
       this.setState({ saving: true });
       try {
@@ -747,6 +756,7 @@ class Component extends DCLogic {
       uploadingImage:   s.uploadingImage,
       uploadBtnLabel:   s.uploadingImage ? 'Завантаження…' : '📎 З комп\'ютера',
       currentImage:     form.image          || '',
+      currentImageBg:   form.image ? 'background-image:url(' + JSON.stringify(form.image) + ');background-size:cover;background-position:center;width:40px;height:54px;border-radius:5px;border:1px solid rgba(255,255,255,0.1);flex-shrink:0;' : '',
       handleFileUpload: async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
