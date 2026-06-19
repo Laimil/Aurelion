@@ -704,7 +704,8 @@ class Component extends DCLogic {
       const body = {};
       allowed.forEach(k => {
         const v = s.form[k];
-        if (v !== '' && v !== undefined && v !== null) body[k] = v;
+        // connections може бути порожнім рядком (всі знайомства знято) — надсилаємо завжди
+        if (k === 'connections' || (v !== '' && v !== undefined && v !== null)) body[k] = v;
       });
       this.setState({ saving: true });
       try {
