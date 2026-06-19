@@ -247,11 +247,29 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     </header>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:22px;">
       <sc-for list="{{ pantheonItems }}" as="god" hint-placeholder-count="5">
-        <article data-god="{{ god.god }}" class="glass" style="padding:30px 28px;border-width:2px;border-radius:14px;position:relative;overflow:hidden;">
-          <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:10px;">🐉 Бог</p>
-          <h2 class="god-accent" style="font-family:'Cinzel',Georgia,serif;font-size:1.85rem;font-weight:700;letter-spacing:0.06em;margin-bottom:6px;">{{ god.name }}</h2>
-          <p style="font-size:0.76rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.34);margin-bottom:18px;">{{ god.domain }}</p>
-          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:rgba(255,255,255,0.6);line-height:1.76;">{{ god.description }}</p>
+        <article data-god="{{ god.god }}" class="glass" style="border-width:2px;border-radius:14px;overflow:hidden;">
+          <!-- З зображенням -->
+          <sc-if value="{{ god.hasImage }}" hint-placeholder-val="{{ false }}">
+            <div style="height:200px;position:relative;overflow:hidden;">
+              <div style="position:absolute;inset:0;{{ god.imgBg }}"></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,26,1) 0%,rgba(26,26,26,0.2) 65%,transparent 100%);"></div>
+            </div>
+            <div style="padding:0 28px 28px;margin-top:-36px;position:relative;">
+              <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:8px;">🐉 Бог</p>
+              <h2 class="god-accent" style="font-family:'Cinzel',Georgia,serif;font-size:1.75rem;font-weight:700;letter-spacing:0.06em;margin-bottom:5px;">{{ god.name }}</h2>
+              <p style="font-size:0.76rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.34);margin-bottom:16px;">{{ god.domain }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.6);line-height:1.76;">{{ god.description }}</p>
+            </div>
+          </sc-if>
+          <!-- Без зображення -->
+          <sc-if value="{{ god.noImage }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:30px 28px;">
+              <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:10px;">🐉 Бог</p>
+              <h2 class="god-accent" style="font-family:'Cinzel',Georgia,serif;font-size:1.85rem;font-weight:700;letter-spacing:0.06em;margin-bottom:6px;">{{ god.name }}</h2>
+              <p style="font-size:0.76rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.34);margin-bottom:18px;">{{ god.domain }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:rgba(255,255,255,0.6);line-height:1.76;">{{ god.description }}</p>
+            </div>
+          </sc-if>
         </article>
       </sc-for>
     </div>
@@ -626,7 +644,15 @@ class Component extends DCLogic {
       playersEmpty: !(data.characters||[]).filter(ch=>!ch.character_type||ch.character_type==='player').length,
       npcsEmpty:    !(data.characters||[]).filter(ch=>ch.character_type==='npc').length,
 
-      pantheonItems: data.pantheon || [],
+      pantheonItems: (data.pantheon || []).map(g => {
+        const imgUrl = g.image ? 'url(' + JSON.stringify(g.image) + ')' : '';
+        return {
+          ...g,
+          hasImage: !!(g.image),
+          noImage:  !(g.image),
+          imgBg: imgUrl ? 'background-image:' + imgUrl + ';background-size:cover;background-position:center top;' : '',
+        };
+      }),
       pantheonEmpty: !(data.pantheon || []).length,
 
       diceTypes: [4, 6, 8, 10, 12, 20].map(n => ({
