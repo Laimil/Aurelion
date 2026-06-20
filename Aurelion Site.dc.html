@@ -598,7 +598,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           {{ historyModalContentEl }}
         </div>
       </sc-if>
-      <sc-if value="{{ historyModalHasContent }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ historyModalNoContent }}" hint-placeholder-val="{{ false }}">
         <div style="padding:40px 30px;text-align:center;color:rgba(255,255,255,0.28);">
           <p style="font-size:1.2rem;margin-bottom:10px;">✦</p>
           <p style="font-size:0.9rem;">Текст статті ще не додано в адміні.</p>
@@ -1331,6 +1331,7 @@ class Component extends DCLogic {
       historyModalHasTelegraph: !!(s.selectedHistory && s.selectedHistory.telegraph_url),
       historyModalTelegraphUrl: s.selectedHistory ? (s.selectedHistory.telegraph_url || '') : '',
       historyModalHasContent:   !!(s.selectedHistory && s.selectedHistory.content),
+      historyModalNoContent:    !(s.selectedHistory && s.selectedHistory.content),
       historyModalContentEl: (() => {
         const raw = s.selectedHistory ? (s.selectedHistory.content || '') : '';
         if (!raw) return null;
