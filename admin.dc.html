@@ -36,7 +36,7 @@ button{font-family:inherit;cursor:pointer}
 .lore-md h2{font-family:'Cinzel',Georgia,serif;font-size:1.22rem;font-weight:700;color:#ffd700;letter-spacing:0.05em;margin:1.5em 0 0.5em;}
 .lore-md h3{font-family:'Cinzel',Georgia,serif;font-size:1.05rem;font-weight:600;color:rgba(255,215,0,0.8);letter-spacing:0.04em;margin:1.2em 0 0.45em;}
 .lore-md h4{font-family:'Cinzel',Georgia,serif;font-size:0.94rem;color:rgba(255,255,255,0.62);letter-spacing:0.03em;margin:1em 0 0.4em;}
-.lore-md blockquote{border-left:2px solid rgba(255,215,0,0.35);margin:1em 0;padding:0.6em 1em;color:rgba(238, 230, 183, 0.68);font-style:italic;background:rgba(255,215,0,0.04);border-radius:0 5px 5px 0;}
+.lore-md blockquote{border-left:2px solid rgba(255,215,0,0.35);margin:1em 0;padding:0.6em 1em;color:rgba(255,215,0,0.68);font-style:italic;background:rgba(255,215,0,0.04);border-radius:0 5px 5px 0;}
 .lore-md hr{border:none;text-align:center;margin:1.5em 0;height:1.1em;line-height:1.1em;}
 .lore-md hr::after{content:'✦  ✦  ✦';font-size:0.68rem;letter-spacing:0.4em;color:rgba(255,215,0,0.28);}
 .lore-md strong{color:rgba(255,255,255,0.9);font-weight:600;}
@@ -50,6 +50,12 @@ button{font-family:inherit;cursor:pointer}
 .md-tb{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:3px 7px;font-size:0.72rem;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.15s;line-height:1.6;font-family:inherit;}
 .md-tb:hover{background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.22);}
 .md-tb[data-active="true"]{background:rgba(255,215,0,0.1)!important;border-color:rgba(255,215,0,0.35)!important;color:#ffd700!important;}
+.drag-handle{cursor:grab;color:rgba(255,255,255,0.15);font-size:0.82rem;padding:0 6px;user-select:none;flex-shrink:0;line-height:1;transition:color 0.15s;letter-spacing:0.05em;}
+.drag-handle:hover{color:rgba(255,215,0,0.55);}
+.drag-target{outline:2px solid rgba(255,215,0,0.5)!important;background:rgba(255,215,0,0.07)!important;}
+.sort-chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.sort-chip{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:3px 10px;font-size:0.7rem;color:rgba(255,255,255,0.38);cursor:pointer;transition:all 0.15s;font-family:inherit;}
+.sort-chip:hover{background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.22);}
 </style>
 </helmet>
 
@@ -124,13 +130,27 @@ button{font-family:inherit;cursor:pointer}
 <!-- LORE TAB -->
 <sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">📜 Лор-статті</h2>
       <button data-section="lore" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова стаття</button>
     </div>
+    <div class="sort-chips">
+      <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
+      <button class="sort-chip" data-section="lore" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
+      <button class="sort-chip" data-section="lore" data-sort="za" onClick="{{ quickSort }}">Я → A</button>
+    </div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
       <sc-for list="{{ loreList }}" as="item" hint-placeholder-count="3">
-        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:background 0.15s;">
+        <div class="item-row {{ item.dragTargetClass }}"
+             draggable="{{ true }}"
+             data-section="lore"
+             data-index="{{ item._index }}"
+             onDragStart="{{ handleDragStart }}"
+             onDragOver="{{ handleDragOver }}"
+             onDrop="{{ handleDrop }}"
+             onDragEnd="{{ handleDragEnd }}"
+             style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:all 0.15s;cursor:default;">
+          <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
           <div style="flex:1;min-width:0;">
             <p style="font-size:0.88rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.title }}</p>
             <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ item.category }}</p>
@@ -187,13 +207,27 @@ button{font-family:inherit;cursor:pointer}
 <!-- STORIES TAB -->
 <sc-if value="{{ showStories }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">⚔️ Сюжетні Арки</h2>
       <button data-section="stories" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова арка</button>
     </div>
+    <div class="sort-chips">
+      <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
+      <button class="sort-chip" data-section="stories" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
+      <button class="sort-chip" data-section="stories" data-sort="za" onClick="{{ quickSort }}">Я → A</button>
+    </div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
       <sc-for list="{{ storiesList }}" as="arc" hint-placeholder-count="3">
-        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);">
+        <div class="item-row {{ arc.dragTargetClass }}"
+             draggable="{{ true }}"
+             data-section="stories"
+             data-index="{{ arc._index }}"
+             onDragStart="{{ handleDragStart }}"
+             onDragOver="{{ handleDragOver }}"
+             onDrop="{{ handleDrop }}"
+             onDragEnd="{{ handleDragEnd }}"
+             style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:all 0.15s;cursor:default;">
+          <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
           <div style="flex:1;min-width:0;">
             <p style="font-size:0.88rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ arc.title }}</p>
             <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ arc.statusLabel }}</p>
@@ -244,10 +278,27 @@ button{font-family:inherit;cursor:pointer}
         <button onClick="{{ clearCharSearch }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.9rem;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
       </sc-if>
     </div>
-    <p style="font-size:0.73rem;color:rgba(255,255,255,0.25);margin-bottom:12px;">{{ charSearchCount }} з {{ charTotalCount }} персонажів · Telegraph: https://telegra.ph/назва-анкети</p>
+    <p style="font-size:0.73rem;color:rgba(255,255,255,0.25);margin-bottom:10px;">{{ charSearchCount }} з {{ charTotalCount }} персонажів · Telegraph: https://telegra.ph/назва-анкети</p>
+    <div class="sort-chips">
+      <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
+      <button class="sort-chip" data-section="characters" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
+      <button class="sort-chip" data-section="characters" data-sort="za" onClick="{{ quickSort }}">Я → A</button>
+      <sc-if value="{{ hasCharSearch }}" hint-placeholder-val="{{ false }}">
+        <span style="font-size:0.66rem;color:rgba(255,255,255,0.18);margin-left:2px;">↑ очисти пошук для ручного порядку</span>
+      </sc-if>
+    </div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
       <sc-for list="{{ charList }}" as="char" hint-placeholder-count="4">
-        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);">
+        <div class="item-row {{ char.dragTargetClass }}"
+             draggable="{{ true }}"
+             data-section="characters"
+             data-index="{{ char._index }}"
+             onDragStart="{{ handleDragStart }}"
+             onDragOver="{{ handleDragOver }}"
+             onDrop="{{ handleDrop }}"
+             onDragEnd="{{ handleDragEnd }}"
+             style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:all 0.15s;cursor:default;">
+          <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
           <div style="width:34px;height:34px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.78rem;color:rgba(255,215,0,0.5);flex-shrink:0;">{{ char.initials }}</div>
           <div style="flex:1;min-width:0;">
             <p style="font-size:0.88rem;color:#fff;">{{ char.name }}</p>
@@ -358,13 +409,27 @@ button{font-family:inherit;cursor:pointer}
 <!-- PANTHEON TAB -->
 <sc-if value="{{ showPantheon }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🐉 Пантеон</h2>
       <button data-section="pantheon" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Новий бог</button>
     </div>
+    <div class="sort-chips">
+      <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
+      <button class="sort-chip" data-section="pantheon" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
+      <button class="sort-chip" data-section="pantheon" data-sort="za" onClick="{{ quickSort }}">Я → A</button>
+    </div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
       <sc-for list="{{ panList }}" as="god" hint-placeholder-count="5">
-        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);">
+        <div class="item-row {{ god.dragTargetClass }}"
+             draggable="{{ true }}"
+             data-section="pantheon"
+             data-index="{{ god._index }}"
+             onDragStart="{{ handleDragStart }}"
+             onDragOver="{{ handleDragOver }}"
+             onDrop="{{ handleDrop }}"
+             onDragEnd="{{ handleDragEnd }}"
+             style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:all 0.15s;cursor:default;">
+          <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
           <div style="flex:1;">
             <p style="font-size:0.88rem;color:#fff;">{{ god.name }}</p>
             <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:1px;">{{ god.domain }}</p>
@@ -433,9 +498,23 @@ button{font-family:inherit;cursor:pointer}
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">✉️ Посилання / Контакти</h2>
       <button data-section="contacts" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нове посилання</button>
     </div>
+    <div class="sort-chips">
+      <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
+      <button class="sort-chip" data-section="contacts" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
+      <button class="sort-chip" data-section="contacts" data-sort="za" onClick="{{ quickSort }}">Я → A</button>
+    </div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
       <sc-for list="{{ contactList }}" as="link" hint-placeholder-count="2">
-        <div class="item-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);">
+        <div class="item-row {{ link.dragTargetClass }}"
+             draggable="{{ true }}"
+             data-section="contacts"
+             data-index="{{ link._index }}"
+             onDragStart="{{ handleDragStart }}"
+             onDragOver="{{ handleDragOver }}"
+             onDrop="{{ handleDrop }}"
+             onDragEnd="{{ handleDragEnd }}"
+             style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:all 0.15s;cursor:default;">
+          <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
           <span style="font-size:1.1rem;flex-shrink:0;">{{ link.icon }}</span>
           <div style="flex:1;min-width:0;">
             <p style="font-size:0.88rem;color:#fff;">{{ link.label }}</p>
@@ -538,6 +617,7 @@ class Component extends DCLogic {
     editing: null, form: {},
     toast: '',
     lorePreview: false,
+    dragState: null,
   };
 
   // ── Auth token helpers ─────────────────────────────────────
@@ -765,8 +845,12 @@ class Component extends DCLogic {
     const showFor   = (sec) => !!(ed && ed.section === sec);
     const mkList    = (arr) => (arr || []).map((it, i) => ({ ...it, _index: i }));
 
-    const loreList    = mkList(data.lore);
-    const storiesList = mkList(data.stories).map(a => ({ ...a, statusLabel: STATUS_LABELS_ADMIN[a.status] || a.status }));
+    // Drag helpers
+    const ds  = s.dragState;
+    const dtc = (section, idx) => (ds && ds.section === section && ds.overIdx === idx) ? 'drag-target' : '';
+
+    const loreList    = mkList(data.lore).map((it, i) => ({ ...it, dragTargetClass: dtc('lore', i) }));
+    const storiesList = mkList(data.stories).map((a, i) => ({ ...a, statusLabel: STATUS_LABELS_ADMIN[a.status] || a.status, dragTargetClass: dtc('stories', i) }));
     const charSearch = (s.charSearch || '').toLowerCase().trim();
     const charList   = mkList(data.characters)
       .filter(ch => !charSearch
@@ -775,10 +859,10 @@ class Component extends DCLogic {
         || (ch.role || '').toLowerCase().includes(charSearch))
       .map(ch => {
         const p = (ch.name || '').trim().split(/\s+/);
-        return { ...ch, initials: p.slice(0,2).map(x=>x[0]||'').join('').toUpperCase() || '?' };
+        return { ...ch, initials: p.slice(0,2).map(x=>x[0]||'').join('').toUpperCase() || '?', dragTargetClass: !charSearch ? dtc('characters', ch._index) : '' };
       });
-    const panList     = mkList(data.pantheon);
-    const contactList = mkList(data.contacts);
+    const panList     = mkList(data.pantheon).map((it, i) => ({ ...it, dragTargetClass: dtc('pantheon', i) }));
+    const contactList = mkList(data.contacts).map((it, i) => ({ ...it, dragTargetClass: dtc('contacts', i) }));
 
     // ── save handlers ──────────────────────────────────────
     const saveAll = async () => {
@@ -1042,6 +1126,69 @@ class Component extends DCLogic {
       cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false }),
       saveItem,
       deleteItem,
+
+      handleDragStart: (e) => {
+        const section = e.currentTarget.dataset.section;
+        if (section === 'characters' && this.state.charSearch) return;
+        const fromIdx = parseInt(e.currentTarget.dataset.index);
+        if (isNaN(fromIdx)) return;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', fromIdx.toString());
+        this.setState({ dragState: { section, fromIdx, overIdx: fromIdx } });
+      },
+      handleDragOver: (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const idx = parseInt(e.currentTarget.dataset.index);
+        const sec = e.currentTarget.dataset.section;
+        const ds  = this.state.dragState;
+        if (ds && ds.section === sec && !isNaN(idx) && ds.overIdx !== idx) {
+          this.setState({ dragState: { ...ds, overIdx: idx } });
+        }
+      },
+      handleDrop: async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const ds = this.state.dragState;
+        if (!ds) return;
+        const { section, fromIdx, overIdx } = ds;
+        this.setState({ dragState: null });
+        if (fromIdx === overIdx) return;
+        const arr = [...(this.state.data[section] || [])];
+        const [moved] = arr.splice(fromIdx, 1);
+        arr.splice(overIdx, 0, moved);
+        this.setState(st => ({ data: { ...st.data, [section]: arr } }));
+        try {
+          await Promise.all(arr.map((item, i) =>
+            item.id ? this._patch(section, item.id, { sort_order: i }) : Promise.resolve()
+          ));
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast('\u2713 Порядок збережено');
+        } catch(ex) {
+          this._toast('\u2717 Додайте колонку sort_order до таблиці ' + section + ' у Supabase');
+        }
+      },
+      handleDragEnd: () => this.setState({ dragState: null }),
+      quickSort: async (e) => {
+        const section = e.currentTarget.dataset.section;
+        const dir     = e.currentTarget.dataset.sort;
+        const nameKey = { lore:'title', stories:'title', characters:'name', pantheon:'name', contacts:'label' }[section] || 'title';
+        const arr = [...(this.state.data[section] || [])];
+        arr.sort((a, b) => {
+          const cmp = (a[nameKey]||'').localeCompare(b[nameKey]||'', 'uk', { sensitivity:'base' });
+          return dir === 'za' ? -cmp : cmp;
+        });
+        this.setState(st => ({ data: { ...st.data, [section]: arr } }));
+        try {
+          await Promise.all(arr.map((item, i) =>
+            item.id ? this._patch(section, item.id, { sort_order: i }) : Promise.resolve()
+          ));
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast('\u2713 Відсортовано та збережено');
+        } catch(ex) {
+          this._toast('\u2717 Помилка: додайте sort_order до таблиці ' + section);
+        }
+      },
 
       showLorePreview:  s.lorePreview,
       showLoreTextarea: !s.lorePreview,
