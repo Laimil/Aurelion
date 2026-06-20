@@ -256,12 +256,42 @@ button{font-family:inherit;cursor:pointer}
         </div>
         <div style="margin-bottom:14px;">
           <label>Розділи / Частини (кожен з нового рядка)</label>
-          <textarea value="{{ formChapters }}" onChange="{{ handleInput }}" data-field="chapters" style="min-height:100px;font-family:ui-monospace,Consolas,monospace;font-size:0.82rem;line-height:1.55;" placeholder="Розділ I. Назва&#10;Розділ II. Назва&#10;Розділ III. Назва"></textarea>
+          <textarea value="{{ formChapters }}" onChange="{{ handleInput }}" data-field="chapters" style="min-height:80px;font-family:ui-monospace,Consolas,monospace;font-size:0.82rem;line-height:1.55;" placeholder="Розділ I. Назва&#10;Розділ II. Назва&#10;Розділ III. Назва"></textarea>
           <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Якщо матеріал один — залиш порожнім</p>
         </div>
-        <div style="margin-bottom:18px;">
+        <div style="margin-bottom:14px;">
+          <label>Теги (через кому)</label>
+          <input value="{{ formStoryTags }}" onChange="{{ handleInput }}" data-field="tags" placeholder="головний сюжет, Сумрак, аристократія, активний…" />
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Для фільтрації на сайті</p>
+        </div>
+        <div style="margin-bottom:14px;">
           <label>Telegraph URL (посилання на матеріал)</label>
           <input value="{{ formTelegraphUrl }}" onChange="{{ handleInput }}" data-field="telegraph_url" placeholder="https://telegra.ph/..." />
+        </div>
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <label style="margin-bottom:0;">Повний текст статті</label>
+            <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">
+              <button type="button" class="md-tb" onClick="{{ mdBold }}" title="**жирний**" style="font-weight:700;">Ж</button>
+              <button type="button" class="md-tb" onClick="{{ mdItalic }}" title="*курсив*"><em>К</em></button>
+              <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
+              <button type="button" class="md-tb" onClick="{{ mdH2 }}" title="## Заголовок">H2</button>
+              <button type="button" class="md-tb" onClick="{{ mdH3 }}" title="### Підзаголовок">H3</button>
+              <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
+              <button type="button" class="md-tb" onClick="{{ mdQuote }}" title="цитата">❝</button>
+              <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
+              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Посилання]]">[[]]</button>
+              <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
+              <button type="button" class="md-tb" data-active="{{ storiesPreviewActive }}" onClick="{{ toggleStoriesPreview }}">{{ storiesPreviewLabel }}</button>
+            </div>
+          </div>
+          <sc-if value="{{ showStoriesTextarea }}" hint-placeholder-val="{{ true }}">
+            <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:420px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.62;resize:vertical;"></textarea>
+            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, ## Заголовок, &gt; цитата, --- розділювач, [[Посилання]]</p>
+          </sc-if>
+          <sc-if value="{{ showStoriesPreview }}" hint-placeholder-val="{{ false }}">
+            {{ storiesPreviewEl }}
+          </sc-if>
         </div>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
@@ -597,7 +627,7 @@ function parseMarkdown(raw){
 }
 const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'content'],
-  stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'sort_order'],
+  stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order'],
   characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'character_type', 'tags', 'connections'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
@@ -627,6 +657,7 @@ class Component extends DCLogic {
     toast: '',
     lorePreview: false,
     dragState: null,
+    storiesPreview: false,
   };
 
   // ── Auth token helpers ─────────────────────────────────────
@@ -1041,6 +1072,7 @@ class Component extends DCLogic {
       formCategory:     form.category      || '',
       formExcerpt:      form.excerpt        || '',
       formContent:      form.content        || '',
+      formStoryTags:       form.tags            || '',
       formAuthorName:     form.author_name     || '',
       formAuthorTelegram: form.author_telegram || '',
       formChapters:       form.chapters        || '',
@@ -1135,7 +1167,7 @@ class Component extends DCLogic {
         const item    = (this.state.data[section] || [])[index] || {};
         this.setState({ editing: { section, index }, form: { ...item } });
       },
-      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false }),
+      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false }),
       saveItem,
       deleteItem,
 
@@ -1202,6 +1234,15 @@ class Component extends DCLogic {
         }
       },
 
+      showStoriesPreview:  s.storiesPreview,
+      showStoriesTextarea: !s.storiesPreview,
+      storiesPreviewActive: s.storiesPreview,
+      storiesPreviewLabel: s.storiesPreview ? '\u270e \u0420\u0435\u0434.' : '\ud83d\udc41 \u041f\u0435\u0440\u0435\u0433\u043b\u044f\u0434',
+      storiesPreviewEl: React.createElement('div', {
+        className: 'lore-md lore-preview-box',
+        dangerouslySetInnerHTML: { __html: parseMarkdown(s.form.content || '') },
+      }),
+      toggleStoriesPreview: () => this.setState(st => ({ storiesPreview: !st.storiesPreview })),
       showLorePreview:  s.lorePreview,
       showLoreTextarea: !s.lorePreview,
       lorePreviewActive: s.lorePreview,
