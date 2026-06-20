@@ -117,7 +117,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
-<!-- ═══ Путівник ═══ -->
+<!-- ═══ ПУТІВНИК ═══ -->
 <sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
     <header style="text-align:center;margin-bottom:32px;">
@@ -160,12 +160,12 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
-<!-- ═══ СЮЖЕТИ ═══ -->
+<!-- ═══ ІСТОРІЇ ═══ -->
 <sc-if value="{{ showStories }}" hint-placeholder-val="{{ false }}">
-  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:860px;margin:0 auto;">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1100px;margin:0 auto;">
     <header style="text-align:center;margin-bottom:28px;">
-      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Хроніка</p>
-      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Сюжетні Арки</h1>
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Авторські матеріали</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Історії</h1>
     </header>
     <!-- Сортування -->
     <div style="display:flex;gap:6px;justify-content:center;margin-bottom:26px;">
@@ -173,23 +173,34 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <button data-sort="{{ opt.value }}" onClick="{{ setStoriesSort }}" data-active="{{ opt.active }}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 14px;font-size:0.73rem;color:rgba(255,255,255,0.36);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">{{ opt.label }}</button>
       </sc-for>
     </div>
-    <div style="display:flex;flex-direction:column;gap:14px;">
+    <!-- Картки -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;">
       <sc-for list="{{ storyItems }}" as="arc" hint-placeholder-count="3">
-        <article data-status="{{ arc.status }}" class="glass" style="padding:26px 28px;display:flex;gap:20px;align-items:flex-start;">
-          <div style="flex-shrink:0;width:50px;height:50px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.16);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-weight:700;color:rgba(255,215,0,0.55);font-size:0.95rem;">{{ arc.number }}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
-              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.08rem;color:#fff;letter-spacing:0.04em;">{{ arc.title }}</h2>
-              <span class="status-tag" style="font-size:0.66rem;letter-spacing:0.08em;padding:3px 10px;border-radius:999px;font-weight:600;text-transform:uppercase;">{{ arc.statusLabel }}</span>
-            </div>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.56);line-height:1.68;">{{ arc.description }}</p>
+        <article class="glass" style="display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:22px 24px 16px;flex:1;display:flex;flex-direction:column;gap:10px;">
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.08rem;color:#fff;letter-spacing:0.04em;line-height:1.35;">{{ arc.title }}</h2>
+            <sc-if value="{{ arc.hasAuthor }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ arc.authorUrl }}" target="_blank" rel="noopener" style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(100,149,237,0.8);text-decoration:none;transition:color 0.18s;" style-hover="color:#6495ed;">авторка {{ arc.authorName }}</a>
+            </sc-if>
+            <sc-if value="{{ arc.hasDescription }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.48);line-height:1.65;">{{ arc.description }}</p>
+            </sc-if>
+            <sc-if value="{{ arc.hasChapters }}" hint-placeholder-val="{{ false }}">
+              {{ arc.chaptersEl }}
+            </sc-if>
           </div>
+          <sc-if value="{{ arc.hasTelegraph }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:10px 24px 16px;border-top:1px solid rgba(255,255,255,0.06);">
+              <a href="{{ arc.telegraphUrl }}" target="_blank" rel="noopener" style="font-size:0.78rem;color:#6495ed;text-decoration:none;" style-hover="opacity:0.75;">Читати далі →</a>
+            </div>
+          </sc-if>
         </article>
       </sc-for>
     </div>
     <sc-if value="{{ storiesEmpty }}" hint-placeholder-val="{{ false }}">
       <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
-        <p>Сюжети ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+        <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
+        <p>Матеріали ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
       </div>
     </sc-if>
   </main>
@@ -880,8 +891,8 @@ class Component extends DCLogic {
 
       navItems: [
         { id: 'home',        label: 'Головна',    active: page === 'home' },
-        { id: 'lore',        label: 'Путівник',         active: page === 'lore' },
-        { id: 'stories',     label: 'Сюжети',      active: page === 'stories' },
+        { id: 'lore',        label: 'Путівник',        active: page === 'lore' },
+        { id: 'stories',     label: 'Історії',      active: page === 'stories' },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'connections', label: '🕸 Зв\'язки', active: page === 'connections' },
         { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
@@ -896,8 +907,8 @@ class Component extends DCLogic {
       contactLinks:  data.contacts || [],
 
       homeTiles: [
-        { id: 'lore',       icon: '📜', title: 'Світобудова',  desc: 'Лор, географія, магія і закони' },
-        { id: 'stories',    icon: '⚔️', title: 'Сюжетні Арки', desc: 'Хроніка активних і завершених кампаній' },
+        { id: 'lore',       icon: '📜', title: 'Путівник',  desc: 'Лор, географія, магія і закони' },
+        { id: 'stories',    icon: '📖', title: 'Історії', desc: 'Авторські статті та серії від гравців спільноти' },
         { id: 'characters', icon: '🎭', title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв' },
         { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу' },
         { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20' },
@@ -909,11 +920,35 @@ class Component extends DCLogic {
       })),
       loreEmpty: !sortedLoreData.length,
 
-      storyItems: sortedStoriesData.map((arc, i) => ({
-        ...arc,
-        number:      String(i + 1).padStart(2, '0'),
-        statusLabel: STATUS_LABELS[arc.status] || arc.status,
-      })),
+      storyItems: sortedStoriesData.map((arc) => {
+        const chapterLines = (arc.chapters || '').split('\n').map(s => s.trim()).filter(Boolean);
+        const authorHandle = (arc.author_telegram || '').replace('@','').trim();
+        const chaptersEl = chapterLines.length > 0
+          ? React.createElement('ol', {
+              style: { listStyle:'none', margin:'0', padding:'0', display:'flex', flexDirection:'column', gap:'5px' }
+            }, chapterLines.map((ch, j) =>
+              React.createElement('li', { key: j,
+                style: { display:'flex', gap:'8px', fontFamily:"'EB Garamond',Georgia,serif", fontSize:'0.88rem', color:'rgba(255,255,255,0.55)', lineHeight:'1.45' }
+              },
+                React.createElement('span', { style: { flexShrink:0, fontFamily:"'Cinzel',serif", fontSize:'0.68rem', color:'rgba(255,215,0,0.45)', paddingTop:'2px', minWidth:'20px' } }, String(j+1)+'.'),
+                React.createElement('span', {}, ch)
+              )
+            ))
+          : null;
+        return {
+          ...arc,
+          statusLabel: STATUS_LABELS[arc.status] || arc.status,
+          authorName: arc.author_name || '',
+          hasAuthor: !!(arc.author_name),
+          authorHandle,
+          authorUrl: authorHandle ? 'https://t.me/' + authorHandle : '#',
+          hasDescription: !!(arc.description),
+          hasChapters: chapterLines.length > 0,
+          chaptersEl,
+          hasTelegraph: !!(arc.telegraph_url),
+          telegraphUrl: arc.telegraph_url || '#',
+        };
+      }),
       storiesEmpty: !(data.stories || []).length,
 
       characterItems: (data.characters || []).map(ch => {
@@ -1237,9 +1272,8 @@ class Component extends DCLogic {
         { value: 'za',    label: 'Я → A',     active: loreSortBy === 'za' },
       ],
       storiesSortOptions: [
-        { value: 'order',  label: '✦ Порядок',  active: storiesSortBy === 'order' },
-        { value: 'status', label: 'За статусом', active: storiesSortBy === 'status' },
-        { value: 'az',     label: 'A → Я',       active: storiesSortBy === 'az' },
+        { value: 'order', label: '✦ Порядок', active: storiesSortBy === 'order' },
+        { value: 'az',    label: 'A → Я',      active: storiesSortBy === 'az' },
       ],
       charSortOptions: [
         { value: 'order', label: '✦ Порядок', active: charSortBy === 'order' },

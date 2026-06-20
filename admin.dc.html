@@ -208,8 +208,8 @@ button{font-family:inherit;cursor:pointer}
 <sc-if value="{{ showStories }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">⚔️ Сюжетні Арки</h2>
-      <button data-section="stories" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова арка</button>
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">📖 Історії</h2>
+      <button data-section="stories" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова стаття</button>
     </div>
     <div class="sort-chips">
       <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
@@ -230,7 +230,7 @@ button{font-family:inherit;cursor:pointer}
           <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
           <div style="flex:1;min-width:0;">
             <p style="font-size:0.88rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ arc.title }}</p>
-            <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ arc.statusLabel }}</p>
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ arc.authorDisplay }}</p>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
             <button data-section="stories" data-index="{{ arc._index }}" onClick="{{ startEdit }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
@@ -242,18 +242,27 @@ button{font-family:inherit;cursor:pointer}
     <sc-if value="{{ showStoriesForm }}" hint-placeholder-val="{{ false }}">
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:22px;">
         <p style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:18px;">{{ editLabel }}</p>
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;">
-          <div><label>Назва арки</label><input value="{{ formTitle }}" onChange="{{ handleInput }}" data-field="title" /></div>
-          <div>
-            <label>Статус</label>
-            <select value="{{ formStatus }}" onChange="{{ handleInput }}" data-field="status">
-              <option value="active">Активна</option>
-              <option value="completed">Завершена</option>
-              <option value="planned">Заплановано</option>
-            </select>
-          </div>
+        <div style="margin-bottom:14px;">
+          <label>Назва статті / серії</label>
+          <input value="{{ formTitle }}" onChange="{{ handleInput }}" data-field="title" />
         </div>
-        <div style="margin-bottom:18px;"><label>Опис</label><textarea value="{{ formDescription }}" onChange="{{ handleInput }}" data-field="description" style="min-height:90px;"></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label>Авторка / Автор</label><input value="{{ formAuthorName }}" onChange="{{ handleInput }}" data-field="author_name" placeholder="Серцевинка" /></div>
+          <div><label>Telegram (@нік)</label><input value="{{ formAuthorTelegram }}" onChange="{{ handleInput }}" data-field="author_telegram" placeholder="@a_tame_hh" /></div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Короткий опис (необов'язково)</label>
+          <textarea value="{{ formDescription }}" onChange="{{ handleInput }}" data-field="description" style="min-height:60px;"></textarea>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Розділи / Частини (кожен з нового рядка)</label>
+          <textarea value="{{ formChapters }}" onChange="{{ handleInput }}" data-field="chapters" style="min-height:100px;font-family:ui-monospace,Consolas,monospace;font-size:0.82rem;line-height:1.55;" placeholder="Розділ I. Назва&#10;Розділ II. Назва&#10;Розділ III. Назва"></textarea>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Якщо матеріал один — залиш порожнім</p>
+        </div>
+        <div style="margin-bottom:18px;">
+          <label>Telegraph URL (посилання на матеріал)</label>
+          <input value="{{ formTelegraphUrl }}" onChange="{{ handleInput }}" data-field="telegraph_url" placeholder="https://telegra.ph/..." />
+        </div>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
@@ -588,7 +597,7 @@ function parseMarkdown(raw){
 }
 const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'content'],
-  stories:    ['title', 'status', 'description', 'sort_order'],
+  stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'sort_order'],
   characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'character_type', 'tags', 'connections'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
@@ -850,7 +859,7 @@ class Component extends DCLogic {
     const dtc = (section, idx) => (ds && ds.section === section && ds.overIdx === idx) ? 'drag-target' : '';
 
     const loreList    = mkList(data.lore).map((it, i) => ({ ...it, dragTargetClass: dtc('lore', i) }));
-    const storiesList = mkList(data.stories).map((a, i) => ({ ...a, statusLabel: STATUS_LABELS_ADMIN[a.status] || a.status, dragTargetClass: dtc('stories', i) }));
+    const storiesList = mkList(data.stories).map((a, i) => ({ ...a, statusLabel: STATUS_LABELS_ADMIN[a.status] || a.status, dragTargetClass: dtc('stories', i), authorDisplay: a.author_name ? (a.author_name + (a.author_telegram ? ' ' + a.author_telegram : '')) : '—' }));
     const charSearch = (s.charSearch || '').toLowerCase().trim();
     const charList   = mkList(data.characters)
       .filter(ch => !charSearch
@@ -941,8 +950,8 @@ class Component extends DCLogic {
 
       tabs: [
         { id: 'site',       label: '⚙ Сайт',       active: tab === 'site' },
-        { id: 'lore',       label: '📜 Путівник',         active: tab === 'lore' },
-        { id: 'stories',    label: '⚔️ Сюжети',      active: tab === 'stories' },
+        { id: 'lore',       label: '📜 Путівник',    active: tab === 'lore' },
+        { id: 'stories',    label: '📖 Історії',      active: tab === 'stories' },
         { id: 'characters', label: '🎭 Персонажі',   active: tab === 'characters' },
         { id: 'pantheon',   label: '🐉 Пантеон',     active: tab === 'pantheon' },
         { id: 'contacts',   label: '✉️ Контакти',    active: tab === 'contacts' },
@@ -1032,6 +1041,9 @@ class Component extends DCLogic {
       formCategory:     form.category      || '',
       formExcerpt:      form.excerpt        || '',
       formContent:      form.content        || '',
+      formAuthorName:     form.author_name     || '',
+      formAuthorTelegram: form.author_telegram || '',
+      formChapters:       form.chapters        || '',
       formStatus:       form.status         || 'active',
       formDescription:  form.description   || '',
       formName:         form.name           || '',
