@@ -117,7 +117,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
-<!-- ═══ ЛОР ═══ -->
+<!-- ═══ Путівник ═══ -->
 <sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
     <header style="text-align:center;margin-bottom:32px;">
@@ -880,7 +880,7 @@ class Component extends DCLogic {
 
       navItems: [
         { id: 'home',        label: 'Головна',    active: page === 'home' },
-        { id: 'lore',        label: 'Лор',         active: page === 'lore' },
+        { id: 'lore',        label: 'Путівник',         active: page === 'lore' },
         { id: 'stories',     label: 'Сюжети',      active: page === 'stories' },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'connections', label: '🕸 Зв\'язки', active: page === 'connections' },
