@@ -624,12 +624,15 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <p style="font-size:0.58rem;letter-spacing:0.1em;color:rgba(255,255,255,0.18);">Scroll — zoom · Drag — pan · ✦ — локація</p>
     </div>
     <!-- Pan/Zoom stage -->
-    <div style="position:absolute;inset:0;cursor:{{ mapCursor }};"
+    <div style="position:absolute;inset:0;cursor:{{ mapCursor }};touch-action:none;"
          onMouseDown="{{ handleMapMouseDown }}"
          onMouseMove="{{ handleMapMouseMove }}"
          onMouseUp="{{ handleMapMouseUp }}"
          onMouseLeave="{{ handleMapMouseLeave }}"
-         onClick="{{ handleMapClick }}">
+         onClick="{{ handleMapClick }}"
+         onTouchStart="{{ handleMapTouchStart }}"
+         onTouchMove="{{ handleMapTouchMove }}"
+         onTouchEnd="{{ handleMapTouchEnd }}">
       <div style="position:absolute;top:0;left:0;transform:{{ mapTransform }};transform-origin:0 0;will-change:transform;user-select:none;">
         {{ mapImageEl }}
         <!-- Pins -->
@@ -872,6 +875,8 @@ class Component extends DCLogic {
     mapScale: 1, mapPanX: 0, mapPanY: 0,
     mapDragging: false, mapDragStartX: 0, mapDragStartY: 0, mapPanStartX: 0, mapPanStartY: 0,
     mapBaseW: 900, mapActivePin: null, mapPinPopupX: 100, mapPinPopupY: 100,
+    mapTouchCount: 0, mapTouchStartDist: 0, mapTouchStartScale: 1,
+    mapTouchStartPanX: 0, mapTouchStartPanY: 0, mapTouchStartMidX: 0, mapTouchStartMidY: 0,
   };
 
   _rollTimer = null;
@@ -1569,6 +1574,48 @@ class Component extends DCLogic {
           initials: (c.name || '?').slice(0, 1).toUpperCase(),
         }));
       })(),
+      handleMapTouchStart: (e) => {
+        const t = e.touches;
+        if (t.length === 1) {
+          this.setState({ mapDragging: true, mapTouchCount: 1,
+            mapDragStartX: t[0].clientX, mapDragStartY: t[0].clientY,
+            mapPanStartX: this.state.mapPanX, mapPanStartY: this.state.mapPanY });
+        } else if (t.length === 2) {
+          const dx = t[1].clientX - t[0].clientX, dy = t[1].clientY - t[0].clientY;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          const midX = (t[0].clientX + t[1].clientX) / 2;
+          const midY = (t[0].clientY + t[1].clientY) / 2;
+          this.setState({ mapDragging: false, mapTouchCount: 2,
+            mapTouchStartDist: dist, mapTouchStartScale: this.state.mapScale,
+            mapTouchStartPanX: this.state.mapPanX, mapTouchStartPanY: this.state.mapPanY,
+            mapTouchStartMidX: midX, mapTouchStartMidY: midY });
+        }
+      },
+      handleMapTouchMove: (e) => {
+        const t = e.touches, st = this.state;
+        if (t.length === 1 && st.mapDragging) {
+          this.setState({ mapPanX: st.mapPanStartX + (t[0].clientX - st.mapDragStartX), mapPanY: st.mapPanStartY + (t[0].clientY - st.mapDragStartY) });
+        } else if (t.length === 2 && st.mapTouchCount === 2) {
+          const dx = t[1].clientX - t[0].clientX, dy = t[1].clientY - t[0].clientY;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          const scale = Math.max(0.3, Math.min(6, st.mapTouchStartScale * (dist / (st.mapTouchStartDist || 1))));
+          const ratio = scale / st.mapTouchStartScale;
+          const cx = st.mapTouchStartMidX, cy = st.mapTouchStartMidY;
+          this.setState({ mapScale: scale,
+            mapPanX: cx - (cx - st.mapTouchStartPanX) * ratio,
+            mapPanY: cy - (cy - st.mapTouchStartPanY) * ratio });
+        }
+      },
+      handleMapTouchEnd: (e) => {
+        const remaining = e.touches.length;
+        if (remaining === 0) {
+          this.setState({ mapDragging: false, mapTouchCount: 0 });
+        } else if (remaining === 1) {
+          this.setState({ mapDragging: true, mapTouchCount: 1,
+            mapDragStartX: e.touches[0].clientX, mapDragStartY: e.touches[0].clientY,
+            mapPanStartX: this.state.mapPanX, mapPanStartY: this.state.mapPanY });
+        }
+      },
       handleMapMouseDown: (e) => {
         if (e.button !== 0) return;
         this.setState({ mapDragging: true, mapDragStartX: e.clientX, mapDragStartY: e.clientY, mapPanStartX: this.state.mapPanX, mapPanStartY: this.state.mapPanY });
