@@ -605,6 +605,77 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
+<!-- ═══ КАРТА ═══ -->
+<sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="position:fixed;inset:0;overflow:hidden;background:#090810;">
+    <!-- Overlay title -->
+    <div style="position:absolute;top:70px;left:22px;z-index:20;pointer-events:none;">
+      <p style="font-size:0.6rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">✦ Карта Світу</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;font-weight:700;color:rgba(255,255,255,0.75);letter-spacing:0.1em;">AURELION</h1>
+    </div>
+    <!-- Zoom controls -->
+    <div style="position:absolute;bottom:28px;right:24px;z-index:20;display:flex;flex-direction:column;gap:5px;">
+      <button onClick="{{ mapZoomIn }}" style="width:36px;height:36px;background:rgba(15,13,10,0.88);border:1px solid rgba(255,255,255,0.15);border-radius:7px;color:rgba(255,255,255,0.75);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.18s;" style-hover="border-color:rgba(255,215,0,0.5);color:#ffd700;">+</button>
+      <button onClick="{{ mapZoomOut }}" style="width:36px;height:36px;background:rgba(15,13,10,0.88);border:1px solid rgba(255,255,255,0.15);border-radius:7px;color:rgba(255,255,255,0.75);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.18s;" style-hover="border-color:rgba(255,215,0,0.5);color:#ffd700;">−</button>
+      <button onClick="{{ mapZoomReset }}" style="width:36px;height:36px;background:rgba(15,13,10,0.7);border:1px solid rgba(255,255,255,0.09);border-radius:7px;color:rgba(255,255,255,0.38);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.22);">↺</button>
+    </div>
+    <!-- Hint -->
+    <div style="position:absolute;bottom:28px;left:22px;z-index:20;pointer-events:none;">
+      <p style="font-size:0.58rem;letter-spacing:0.1em;color:rgba(255,255,255,0.18);">Scroll — zoom · Drag — pan · ✦ — локація</p>
+    </div>
+    <!-- Pan/Zoom stage -->
+    <div style="position:absolute;inset:0;cursor:{{ mapCursor }};"
+         onMouseDown="{{ handleMapMouseDown }}"
+         onMouseMove="{{ handleMapMouseMove }}"
+         onMouseUp="{{ handleMapMouseUp }}"
+         onMouseLeave="{{ handleMapMouseLeave }}"
+         onClick="{{ handleMapClick }}">
+      <div style="position:absolute;top:0;left:0;transform:{{ mapTransform }};transform-origin:0 0;will-change:transform;user-select:none;">
+        <img src="uploads/aurelion-map-orig.jpg" style="display:block;width:{{ mapImgWidth }}px;height:auto;pointer-events:none;" draggable="false" />
+        <!-- Pins -->
+        <sc-for list="{{ mapPins }}" as="pin" hint-placeholder-count="0">
+          <div data-id="{{ pin.id }}"
+               onClick="{{ openMapPin }}"
+               style="position:absolute;left:{{ pin.x_percent }}%;top:{{ pin.y_percent }}%;transform:translate(-50%,-100%);cursor:pointer;z-index:10;pointer-events:auto;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+              <div style="width:11px;height:11px;background:#ffd700;transform:rotate(45deg);border-radius:2px;border:1.5px solid rgba(255,255,255,0.5);box-shadow:0 0 8px rgba(255,215,0,0.9),0 0 18px rgba(255,215,0,0.4);"></div>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:0.5rem;color:#fff;white-space:nowrap;letter-spacing:0.07em;text-shadow:0 1px 6px rgba(0,0,0,1),0 0 12px rgba(0,0,0,0.9);font-weight:600;background:rgba(0,0,0,0.65);padding:1px 4px;border-radius:2px;">{{ pin.name }}</p>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <!-- Pin popup -->
+    <sc-if value="{{ showMapPopup }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;z-index:150;pointer-events:none;">
+        <div onClick="{{ stopMapProp }}" style="position:absolute;left:{{ mapPopupX }}px;top:{{ mapPopupY }}px;width:278px;background:rgba(14,12,9,0.97);border:1px solid rgba(255,215,0,0.22);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.88),0 0 24px rgba(255,215,0,0.06);padding:18px 20px;pointer-events:auto;">
+          <button onClick="{{ closeMapPopup }}" style="position:absolute;top:10px;right:12px;background:none;border:none;color:rgba(255,255,255,0.32);cursor:pointer;font-size:0.85rem;padding:4px;" style-hover="color:#fff;">✕</button>
+          <p style="font-size:0.57rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.58);margin-bottom:5px;">✦ Локація</p>
+          <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1rem;color:#fff;letter-spacing:0.05em;line-height:1.3;padding-right:20px;margin-bottom:10px;">{{ mapPopupName }}</h3>
+          <sc-if value="{{ mapPopupHasDesc }}" hint-placeholder-val="{{ false }}">
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.93rem;color:rgba(255,255,255,0.54);line-height:1.65;margin-bottom:10px;">{{ mapPopupDesc }}</p>
+          </sc-if>
+          <sc-if value="{{ mapPopupHasChars }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:10px;margin-top:2px;">
+              <p style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.26);margin-bottom:9px;">Персонажі</p>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                <sc-for list="{{ mapPopupChars }}" as="ch" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:6px;padding:4px 8px 4px 5px;">
+                    <div style="width:20px;height:20px;border-radius:50%;background:rgba(255,215,0,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(255,215,0,0.22);">
+                      <span style="font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,215,0,0.75);font-weight:700;">{{ ch.initials }}</span>
+                    </div>
+                    <span style="font-family:'Cinzel',Georgia,serif;font-size:0.72rem;color:rgba(255,255,255,0.76);white-space:nowrap;">{{ ch.name }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+</sc-if>
+
 <!-- ═══ MODAL: ІСТОРІЯ ═══ -->
 <sc-if value="{{ showHistoryModal }}" hint-placeholder-val="{{ false }}">
   <div onClick="{{ closeHistoryModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:76px 16px 24px;overflow-y:auto;">
@@ -786,7 +857,7 @@ const STATUS_LABELS = { active: 'Активна', completed: 'Завершена
 class Component extends DCLogic {
   state = {
     page: this._getPage(),
-    data: { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [] },
+    data: { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
     loading: true,
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
     rollHistory: [], selectedChar: null, selectedLore: null, selectedHistory: null,
@@ -798,6 +869,9 @@ class Component extends DCLogic {
     storiesSortBy: 'order',
     histTagFilter: null,
     hoveredStoryId: null,
+    mapScale: 1, mapPanX: 0, mapPanY: 0,
+    mapDragging: false, mapDragStartX: 0, mapDragStartY: 0, mapPanStartX: 0, mapPanStartY: 0,
+    mapBaseW: 900, mapActivePin: null, mapPinPopupX: 100, mapPinPopupY: 100,
   };
 
   _rollTimer = null;
@@ -841,13 +915,14 @@ class Component extends DCLogic {
 
   async _loadAll() {
     this.setState({ loading: true });
-    const [lore, stories, characters, pantheon, contacts, settings] = await Promise.all([
+    const [lore, stories, characters, pantheon, contacts, settings, mapLocs] = await Promise.all([
       this._get('lore?select=*&order=created_at.asc'),
       this._get('stories?select=*&order=sort_order.asc,created_at.asc'),
       this._get('characters?select=*&order=created_at.asc'),
       this._get('pantheon?select=*&order=sort_order.asc'),
       this._get('contacts?select=*&order=sort_order.asc'),
       this._get('site_settings?select=*'),
+      this._get('map_locations?select=*&order=sort_order.asc,created_at.asc'),
     ]);
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
@@ -855,13 +930,20 @@ class Component extends DCLogic {
       loading: false,
       data: {
         site,
-        lore:       Array.isArray(lore)       ? lore       : [],
-        stories:    Array.isArray(stories)    ? stories    : [],
-        characters: Array.isArray(characters) ? characters : [],
-        pantheon:   Array.isArray(pantheon)   ? pantheon   : [],
-        contacts:   Array.isArray(contacts)   ? contacts   : [],
+        lore:          Array.isArray(lore)       ? lore       : [],
+        stories:       Array.isArray(stories)    ? stories    : [],
+        characters:    Array.isArray(characters) ? characters : [],
+        pantheon:      Array.isArray(pantheon)   ? pantheon   : [],
+        contacts:      Array.isArray(contacts)   ? contacts   : [],
+        map_locations: Array.isArray(mapLocs)    ? mapLocs    : [],
       },
     });
+  }
+
+  _updateMapBase() {
+    const vw = window.innerWidth, vh = window.innerHeight - 60;
+    const baseW = Math.min(vw, vh * (4 / 3));
+    this.setState({ mapBaseW: baseW, mapPanX: (vw - baseW) / 2, mapPanY: 60 + (vh - baseW * 0.75) / 2, mapScale: 1 });
   }
 
   _updateBoardScale() {
@@ -875,18 +957,30 @@ class Component extends DCLogic {
   componentDidMount() {
     this._loadAll();
     this._updateBoardScale();
-    window.addEventListener('resize', () => this._updateBoardScale());
+    this._updateMapBase();
+    window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
     window.addEventListener('hashchange', () => {
-      this.setState({ page: this._getPage(), selectedChar: null, selectedLore: null });
+      this.setState({ page: this._getPage(), selectedChar: null, selectedLore: null, mapActivePin: null });
       window.scrollTo({ top: 0 });
     });
     window.addEventListener('storage', (e) => {
       if (e.key === 'aurelion-refresh') this._loadAll();
     });
+    this._mapWheelHandler = (e) => {
+      if (this.state.page !== 'map') return;
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.15 : 0.87;
+      const st = this.state;
+      const newScale = Math.max(0.3, Math.min(6, st.mapScale * factor));
+      const ratio = newScale / st.mapScale;
+      this.setState({ mapScale: newScale, mapPanX: e.clientX - (e.clientX - st.mapPanX) * ratio, mapPanY: e.clientY - (e.clientY - st.mapPanY) * ratio, mapActivePin: null });
+    };
+    window.addEventListener('wheel', this._mapWheelHandler, { passive: false });
   }
 
   componentWillUnmount() {
     if (this._rollTimer) clearInterval(this._rollTimer);
+    if (this._mapWheelHandler) window.removeEventListener('wheel', this._mapWheelHandler);
   }
 
   rollDice() {
@@ -974,6 +1068,7 @@ class Component extends DCLogic {
       showDice:        page === 'dice',
       showContacts:    page === 'contacts',
       showConnections: page === 'connections',
+      showMap:         page === 'map',
 
       navItems: [
         { id: 'home',        label: 'Головна',    active: page === 'home' },
@@ -983,6 +1078,7 @@ class Component extends DCLogic {
         { id: 'connections', label: '🕸 Зв\'язки', active: page === 'connections' },
         { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
         { id: 'dice',        label: '⚄ Дайс',     active: page === 'dice' },
+        { id: 'map',         label: '🗺 Карта',    active: page === 'map' },
         { id: 'contacts',    label: 'Контакти',    active: page === 'contacts' },
       ],
 
@@ -998,6 +1094,7 @@ class Component extends DCLogic {
         { id: 'characters', icon: '🎭', title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв' },
         { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу' },
         { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20' },
+        { id: 'map',        icon: '🗺', title: 'Карта',        desc: 'Інтерактивна карта світу Ауреліону' },
         { id: 'contacts',   icon: '✉️', title: 'Про Проєкт',  desc: 'Контакти та інформація про спільноту' },
       ],
 
@@ -1446,6 +1543,61 @@ class Component extends DCLogic {
         const it = (data.lore || []).find(l => l.id === id);
         if (it) this.setState({ selectedLore: it });
       },
+      // ── Карта ─────────────────────────────────────────────
+      mapTransform: `translate(${s.mapPanX}px,${s.mapPanY}px) scale(${s.mapScale})`,
+      mapCursor: s.mapDragging ? 'grabbing' : 'grab',
+      mapImgWidth: String(Math.round(s.mapBaseW || 900)),
+      mapPins: (data.map_locations || []).map(loc => ({ ...loc })),
+      showMapPopup: !!(s.mapActivePin),
+      mapPopupX: s.mapPinPopupX,
+      mapPopupY: s.mapPinPopupY,
+      mapPopupName: s.mapActivePin ? (s.mapActivePin.name || '') : '',
+      mapPopupDesc: s.mapActivePin ? (s.mapActivePin.description || '') : '',
+      mapPopupHasDesc: !!(s.mapActivePin && s.mapActivePin.description),
+      mapPopupHasChars: !!(s.mapActivePin && (s.mapActivePin.character_ids || '').trim()),
+      mapPopupChars: (() => {
+        if (!s.mapActivePin) return [];
+        const ids = (s.mapActivePin.character_ids || '').split(',').map(x => x.trim()).filter(Boolean);
+        return ids.map(id => (data.characters || []).find(c => c.id === id)).filter(Boolean).map(c => ({
+          ...c, hasImage: !!(c.image_url), noImage: !(c.image_url),
+          initials: (c.name || '?').slice(0, 1).toUpperCase(),
+        }));
+      })(),
+      handleMapMouseDown: (e) => {
+        if (e.button !== 0) return;
+        this.setState({ mapDragging: true, mapDragStartX: e.clientX, mapDragStartY: e.clientY, mapPanStartX: this.state.mapPanX, mapPanStartY: this.state.mapPanY });
+      },
+      handleMapMouseMove: (e) => {
+        if (!this.state.mapDragging) return;
+        this.setState({ mapPanX: this.state.mapPanStartX + (e.clientX - this.state.mapDragStartX), mapPanY: this.state.mapPanStartY + (e.clientY - this.state.mapDragStartY) });
+      },
+      handleMapMouseUp:    () => this.setState({ mapDragging: false }),
+      handleMapMouseLeave: () => this.setState({ mapDragging: false }),
+      handleMapClick:      () => { if (!this.state.mapDragging) this.setState({ mapActivePin: null }); },
+      mapZoomIn: () => {
+        const st = this.state, cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+        const newScale = Math.min(6, st.mapScale * 1.3), ratio = newScale / st.mapScale;
+        this.setState({ mapScale: newScale, mapPanX: cx - (cx - st.mapPanX) * ratio, mapPanY: cy - (cy - st.mapPanY) * ratio });
+      },
+      mapZoomOut: () => {
+        const st = this.state, cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+        const newScale = Math.max(0.3, st.mapScale * 0.77), ratio = newScale / st.mapScale;
+        this.setState({ mapScale: newScale, mapPanX: cx - (cx - st.mapPanX) * ratio, mapPanY: cy - (cy - st.mapPanY) * ratio });
+      },
+      mapZoomReset: () => this._updateMapBase(),
+      openMapPin: (e) => {
+        e.stopPropagation();
+        const id = e.currentTarget.dataset.id;
+        const pin = (data.map_locations || []).find(p => p.id === id);
+        if (!pin) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const px = Math.max(8, Math.min(window.innerWidth - 296, rect.left - 130));
+        const py = Math.max(70, Math.min(window.innerHeight - 300, rect.top - 240));
+        this.setState({ mapActivePin: pin, mapPinPopupX: px, mapPinPopupY: py });
+      },
+      closeMapPopup: () => this.setState({ mapActivePin: null }),
+      stopMapProp:   (e) => e.stopPropagation(),
+
       closeLoreModal: () => this.setState({ selectedLore: null }),
       stopLoreProp:   (e) => e.stopPropagation(),
     };

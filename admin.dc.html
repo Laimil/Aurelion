@@ -583,6 +583,90 @@ button{font-family:inherit;cursor:pointer}
   </div>
 </sc-if>
 
+
+<!-- MAP TAB -->
+<sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:1100px;margin:0 auto;padding:28px 24px 80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🗺 Локації на карті</h2>
+      <button onClick="{{ startAddMapPin }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.18);">+ Нова локація</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:start;">
+      <!-- Map preview -->
+      <div>
+        <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:8px;">Натисни на карту для встановлення координат</p>
+        <div style="position:relative;border-radius:8px;overflow:hidden;cursor:crosshair;border:1px solid rgba(255,255,255,0.09);" onClick="{{ handleAdminMapClick }}">
+          <img src="uploads/aurelion-map-orig.jpg" style="width:100%;display:block;pointer-events:none;" />
+          <sc-for list="{{ adminMapPinList }}" as="pin" hint-placeholder-count="0">
+            <div data-id="{{ pin.id }}" onClick="{{ selectAdminMapPin }}"
+                 style="position:absolute;left:{{ pin.x_percent }}%;top:{{ pin.y_percent }}%;transform:translate(-50%,-100%);cursor:pointer;z-index:5;pointer-events:auto;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+                <div style="width:8px;height:8px;background:{{ pin.dotColor }};transform:rotate(45deg);border-radius:1px;box-shadow:0 0 5px {{ pin.dotColor }};border:1px solid rgba(255,255,255,0.5);"></div>
+                <p style="font-size:0.36rem;color:#fff;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,1);background:rgba(0,0,0,0.7);padding:0 2px;border-radius:1px;font-family:'Cinzel',serif;">{{ pin.name }}</p>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ adminMapIsPlacing }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:{{ adminMapNewX }}%;top:{{ adminMapNewY }}%;transform:translate(-50%,-100%);z-index:10;pointer-events:none;">
+              <div style="width:10px;height:10px;background:#6495ed;transform:rotate(45deg);border-radius:2px;box-shadow:0 0 10px rgba(100,149,237,0.9);border:1.5px solid rgba(255,255,255,0.7);"></div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+      <!-- Form panel -->
+      <div>
+        <sc-if value="{{ showAdminMapForm }}" hint-placeholder-val="{{ false }}">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:20px;animation:fadeUp 0.2s ease;">
+            <p style="font-size:0.73rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:16px;">{{ adminMapFormLabel }}</p>
+            <div style="margin-bottom:12px;"><label>Назва локації</label><input value="{{ adminMapFormName }}" onChange="{{ handleAdminMapField }}" data-field="name" placeholder="Наприклад: Арконікс" /></div>
+            <div style="margin-bottom:12px;"><label>Опис</label><textarea value="{{ adminMapFormDesc }}" onChange="{{ handleAdminMapField }}" data-field="description" style="min-height:70px;" placeholder="Коротко про місце…"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+              <div><label>X % (ліво→право)</label><input type="number" value="{{ adminMapFormX }}" onChange="{{ handleAdminMapField }}" data-field="x_percent" min="0" max="100" step="0.1" /></div>
+              <div><label>Y % (верх→низ)</label><input type="number" value="{{ adminMapFormY }}" onChange="{{ handleAdminMapField }}" data-field="y_percent" min="0" max="100" step="0.1" /></div>
+            </div>
+            <div style="margin-bottom:18px;"><label>UUID персонажів (через кому)</label><input value="{{ adminMapFormCharIds }}" onChange="{{ handleAdminMapField }}" data-field="character_ids" placeholder="Залиш порожнім або вкажи ID" /></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button onClick="{{ saveAdminMapPin }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 18px;font-size:0.82rem;font-weight:700;font-family:'Cinzel',serif;cursor:pointer;transition:all 0.18s;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.4);">{{ adminMapSaveLabel }}</button>
+              <button onClick="{{ cancelAdminMapForm }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:6px;padding:8px 14px;font-size:0.82rem;cursor:pointer;" style-hover="color:#fff;">Скасувати</button>
+              <sc-if value="{{ adminMapIsEditing }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ deleteAdminMapPin }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.65);border-radius:6px;padding:8px 14px;font-size:0.82rem;cursor:pointer;" style-hover="background:rgba(255,77,77,0.18);color:#ff7070;">Видалити</button>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ adminMapFormEmpty }}" hint-placeholder-val="{{ true }}">
+          <div style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.22);border:1px dashed rgba(255,255,255,0.1);border-radius:10px;">
+            <p style="font-size:1.2rem;margin-bottom:10px;">✦</p>
+            <p style="font-size:0.82rem;line-height:1.6;">Натисни на карту щоб задати координати<br/>або обери локацію зі списку нижче</p>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <!-- Pin list -->
+    <sc-if value="{{ adminMapHasPins }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:28px;">
+        <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.26);margin-bottom:10px;">Всі локації ({{ adminMapPinCount }})</p>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <sc-for list="{{ adminMapPinList }}" as="pin" hint-placeholder-count="0">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:7px;transition:background 0.15s;" style-hover="background:rgba(255,255,255,0.06);">
+              <div style="width:8px;height:8px;background:#ffd700;transform:rotate(45deg);border-radius:1px;box-shadow:0 0 4px rgba(255,215,0,0.7);flex-shrink:0;"></div>
+              <p style="flex:1;font-size:0.88rem;color:#fff;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ pin.name }}</p>
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.26);flex-shrink:0;font-family:monospace;">{{ pin.coordsLabel }}</p>
+              <button data-id="{{ pin.id }}" onClick="{{ selectAdminMapPin }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:3px 10px;font-size:0.74rem;flex-shrink:0;cursor:pointer;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ adminMapNoPins }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:60px 24px;color:rgba(255,255,255,0.22);">
+        <p style="font-size:1.5rem;margin-bottom:12px;">🗺</p>
+        <p>Локацій ще немає — натисни «+ Нова локація» або клікни на карту</p>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
 </sc-if><!-- end showAdmin -->
 
 <!-- TOAST -->
@@ -637,7 +721,8 @@ const TABLE_QUERIES = {
   stories:    'stories?select=*&order=sort_order.asc,created_at.asc',
   characters: 'characters?select=*&order=created_at.asc',
   pantheon:   'pantheon?select=*&order=sort_order.asc',
-  contacts:   'contacts?select=*&order=sort_order.asc',
+  contacts:      'contacts?select=*&order=sort_order.asc',
+  map_locations: 'map_locations?select=*&order=sort_order.asc,created_at.asc',
 };
 
 class Component extends DCLogic {
@@ -651,13 +736,15 @@ class Component extends DCLogic {
     userEmail: '',
     // admin
     tab: 'site',
-    data: { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [] },
+    data: { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
     loading: false, saving: false,
     editing: null, form: {},
     toast: '',
     lorePreview: false,
     dragState: null,
     storiesPreview: false,
+    mapAdminForm: {}, mapAdminSelectedId: null, mapAdminPlacing: false,
+    mapAdminNewX: 50, mapAdminNewY: 50,
   };
 
   // ── Auth token helpers ─────────────────────────────────────
@@ -790,13 +877,14 @@ class Component extends DCLogic {
   async _loadAll() {
     this.setState({ loading: true });
     try {
-      const [lore, stories, characters, pantheon, contacts, settings] = await Promise.all([
+      const [lore, stories, characters, pantheon, contacts, settings, mapLocs] = await Promise.all([
         this._get(TABLE_QUERIES.lore),
         this._get(TABLE_QUERIES.stories),
         this._get(TABLE_QUERIES.characters),
         this._get(TABLE_QUERIES.pantheon),
         this._get(TABLE_QUERIES.contacts),
         this._get('site_settings?select=*'),
+        this._get(TABLE_QUERIES.map_locations),
       ]);
       const site = {};
       (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
@@ -804,11 +892,12 @@ class Component extends DCLogic {
         loading: false,
         data: {
           site,
-          lore:       Array.isArray(lore)       ? lore       : [],
-          stories:    Array.isArray(stories)    ? stories    : [],
-          characters: Array.isArray(characters) ? characters : [],
-          pantheon:   Array.isArray(pantheon)   ? pantheon   : [],
-          contacts:   Array.isArray(contacts)   ? contacts   : [],
+          lore:          Array.isArray(lore)       ? lore       : [],
+          stories:       Array.isArray(stories)    ? stories    : [],
+          characters:    Array.isArray(characters) ? characters : [],
+          pantheon:      Array.isArray(pantheon)   ? pantheon   : [],
+          contacts:      Array.isArray(contacts)   ? contacts   : [],
+          map_locations: Array.isArray(mapLocs)    ? mapLocs    : [],
         },
       });
     } catch(e) { this.setState({ loading: false }); }
@@ -985,6 +1074,7 @@ class Component extends DCLogic {
         { id: 'stories',    label: '📖 Історії',      active: tab === 'stories' },
         { id: 'characters', label: '🎭 Персонажі',   active: tab === 'characters' },
         { id: 'pantheon',   label: '🐉 Пантеон',     active: tab === 'pantheon' },
+        { id: 'map',        label: '🗺 Карта',        active: tab === 'map' },
         { id: 'contacts',   label: '✉️ Контакти',    active: tab === 'contacts' },
       ],
       setTab: (e) => {
@@ -998,6 +1088,7 @@ class Component extends DCLogic {
       showCharacters: tab === 'characters',
       showPantheon:   tab === 'pantheon',
       showContacts:   tab === 'contacts',
+      showMap:        tab === 'map',
 
       siteTitle:    data.site?.title         || '',
       siteSubtitle: data.site?.subtitle      || '',
@@ -1259,6 +1350,74 @@ class Component extends DCLogic {
       mdHr:     () => this._mdInsert('\n\n---\n\n'),
       mdWiki:   () => this._mdWrap('[[', ']]'),
       toggleLorePreview: () => this.setState(st => ({ lorePreview: !st.lorePreview })),
+      // ── Карта (Admin) ──────────────────────────────────────
+      adminMapPinList: (s.data.map_locations || []).map(loc => ({
+        ...loc,
+        dotColor: (s.mapAdminSelectedId === loc.id) ? '#6495ed' : '#ffd700',
+        coordsLabel: `${parseFloat(loc.x_percent||0).toFixed(1)}%, ${parseFloat(loc.y_percent||0).toFixed(1)}%`,
+      })),
+      adminMapHasPins: !!(s.data.map_locations || []).length,
+      adminMapNoPins:  !(s.data.map_locations || []).length,
+      adminMapPinCount: (s.data.map_locations || []).length,
+      adminMapIsPlacing:  s.mapAdminPlacing,
+      adminMapNewX: s.mapAdminNewX || 50,
+      adminMapNewY: s.mapAdminNewY || 50,
+      showAdminMapForm:  !!(s.mapAdminPlacing || s.mapAdminSelectedId),
+      adminMapFormEmpty: !(s.mapAdminPlacing || s.mapAdminSelectedId),
+      adminMapIsEditing: !!(s.mapAdminSelectedId),
+      adminMapFormLabel: s.mapAdminSelectedId ? '✎ Редагування локації' : '+ Нова локація',
+      adminMapSaveLabel: s.saving ? 'Збереження…' : (s.mapAdminSelectedId ? 'Зберегти зміни' : 'Додати локацію'),
+      adminMapFormName:    s.mapAdminForm.name || '',
+      adminMapFormDesc:    s.mapAdminForm.description || '',
+      adminMapFormX:       String(s.mapAdminForm.x_percent ?? ''),
+      adminMapFormY:       String(s.mapAdminForm.y_percent ?? ''),
+      adminMapFormCharIds: s.mapAdminForm.character_ids || '',
+      startAddMapPin: () => this.setState({ mapAdminPlacing: true, mapAdminSelectedId: null, mapAdminForm: { x_percent: 50, y_percent: 50 } }),
+      handleAdminMapClick: (e) => {
+        if (!this.state.mapAdminPlacing && !this.state.mapAdminSelectedId) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = parseFloat(((e.clientX - rect.left) / rect.width * 100).toFixed(2));
+        const y = parseFloat(((e.clientY - rect.top) / rect.height * 100).toFixed(2));
+        this.setState(st => ({ mapAdminNewX: x, mapAdminNewY: y, mapAdminForm: { ...st.mapAdminForm, x_percent: x, y_percent: y } }));
+      },
+      selectAdminMapPin: (e) => {
+        e.stopPropagation();
+        const id = e.currentTarget.dataset.id;
+        const pin = (s.data.map_locations || []).find(p => p.id === id);
+        if (!pin) return;
+        this.setState({ mapAdminSelectedId: id, mapAdminPlacing: false, mapAdminForm: { ...pin }, mapAdminNewX: pin.x_percent, mapAdminNewY: pin.y_percent });
+      },
+      handleAdminMapField: (e) => {
+        const field = e.currentTarget.dataset.field, val = e.currentTarget.value;
+        this.setState(st => ({ mapAdminForm: { ...st.mapAdminForm, [field]: val } }));
+      },
+      saveAdminMapPin: async () => {
+        const f = s.mapAdminForm;
+        if (!(f.name || '').trim()) { this._toast('✗ Вкажи назву локації'); return; }
+        this.setState({ saving: true });
+        try {
+          const body = { name: (f.name||'').trim(), description: (f.description||'').trim(), x_percent: parseFloat(f.x_percent)||50, y_percent: parseFloat(f.y_percent)||50, character_ids: (f.character_ids||'').trim() };
+          if (s.mapAdminSelectedId) { await this._patch('map_locations', s.mapAdminSelectedId, body); }
+          else { await this._post('map_locations', body); }
+          await this._refreshTable('map_locations');
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast('✓ Локацію збережено!');
+          this.setState({ saving: false, mapAdminSelectedId: null, mapAdminPlacing: false, mapAdminForm: {} });
+        } catch(e) { this.setState({ saving: false }); this._toast('✗ ' + (e.message || 'Помилка')); }
+      },
+      deleteAdminMapPin: async () => {
+        if (!s.mapAdminSelectedId) return;
+        if (!window.confirm('Видалити цю локацію?')) return;
+        try {
+          await this._remove('map_locations', s.mapAdminSelectedId);
+          await this._refreshTable('map_locations');
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast('✓ Видалено');
+          this.setState({ mapAdminSelectedId: null, mapAdminPlacing: false, mapAdminForm: {} });
+        } catch(e) { this._toast('✗ Помилка видалення'); }
+      },
+      cancelAdminMapForm: () => this.setState({ mapAdminSelectedId: null, mapAdminPlacing: false, mapAdminForm: {} }),
+
       showToast: !!(s.toast),
       toastMsg:  s.toast,
     };
