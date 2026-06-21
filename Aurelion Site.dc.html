@@ -631,7 +631,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
          onMouseLeave="{{ handleMapMouseLeave }}"
          onClick="{{ handleMapClick }}">
       <div style="position:absolute;top:0;left:0;transform:{{ mapTransform }};transform-origin:0 0;will-change:transform;user-select:none;">
-        <img src="uploads/aurelion-map-orig.jpg" style="display:block;width:{{ mapImgWidth }}px;height:auto;pointer-events:none;" draggable="false" />
+        {{ mapImageEl }}
         <!-- Pins -->
         <sc-for list="{{ mapPins }}" as="pin" hint-placeholder-count="0">
           <div data-id="{{ pin.id }}"
@@ -1544,6 +1544,12 @@ class Component extends DCLogic {
         if (it) this.setState({ selectedLore: it });
       },
       // ── Карта ─────────────────────────────────────────────
+      mapImageEl: React.createElement('img', {
+        key: 'map-img',
+        src: data.site?.map_image_url || 'uploads/aurelion-map-orig.jpg',
+        style: { display: 'block', width: `${Math.round(s.mapBaseW || 900)}px`, height: 'auto', pointerEvents: 'none' },
+        draggable: 'false',
+      }),
       mapTransform: `translate(${s.mapPanX}px,${s.mapPanY}px) scale(${s.mapScale})`,
       mapCursor: s.mapDragging ? 'grabbing' : 'grab',
       mapImgWidth: String(Math.round(s.mapBaseW || 900)),

@@ -591,12 +591,24 @@ button{font-family:inherit;cursor:pointer}
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🗺 Локації на карті</h2>
       <button onClick="{{ startAddMapPin }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.18);">+ Нова локація</button>
     </div>
+    <!-- Завантаження карти -->
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:180px;">
+        <p style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.36);margin-bottom:4px;">Зображення карти</p>
+        <p style="font-size:0.84rem;color:rgba(255,255,255,0.58);">{{ adminMapImgStatus }}</p>
+      </div>
+      <label style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 18px;font-size:0.8rem;cursor:pointer;white-space:nowrap;transition:background 0.18s;" style-hover="background:rgba(255,215,0,0.18);">
+        {{ adminMapUploadLabel }}
+        <input type="file" accept="image/*" onChange="{{ uploadMapImage }}" style="display:none;" />
+      </label>
+    </div>
+
     <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:start;">
       <!-- Map preview -->
       <div>
         <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:8px;">Натисни на карту для встановлення координат</p>
         <div style="position:relative;border-radius:8px;overflow:hidden;cursor:crosshair;border:1px solid rgba(255,255,255,0.09);" onClick="{{ handleAdminMapClick }}">
-          <img src="uploads/aurelion-map-orig.jpg" style="width:100%;display:block;pointer-events:none;" />
+          <img src="{{ adminMapImgSrc }}" style="width:100%;display:block;pointer-events:none;" />
           <sc-for list="{{ adminMapPinList }}" as="pin" hint-placeholder-count="0">
             <div data-id="{{ pin.id }}" onClick="{{ selectAdminMapPin }}"
                  style="position:absolute;left:{{ pin.x_percent }}%;top:{{ pin.y_percent }}%;transform:translate(-50%,-100%);cursor:pointer;z-index:5;pointer-events:auto;">
@@ -1372,6 +1384,24 @@ class Component extends DCLogic {
       adminMapFormX:       String(s.mapAdminForm.x_percent ?? ''),
       adminMapFormY:       String(s.mapAdminForm.y_percent ?? ''),
       adminMapFormCharIds: s.mapAdminForm.character_ids || '',
+      adminMapImgSrc:     s.data.site?.map_image_url || 'uploads/aurelion-map-orig.jpg',
+      adminMapImgStatus:   s.uploadingImage ? 'Завантаження…' : (s.data.site?.map_image_url ? 'Завантажено ✓' : 'Не завантажено — обері файл карти'),
+      adminMapUploadLabel: s.uploadingImage ? '…' : '📁 Завантажити карту',
+      uploadMapImage: async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        this.setState({ uploadingImage: true });
+        try {
+          const url = await this._uploadImage(file, 'map-images');
+          await this._upsertSetting('map_image_url', url);
+          this.setState(st => ({ data: { ...st.data, site: { ...st.data.site, map_image_url: url } }, uploadingImage: false }));
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast('✓ Карту завантажено!');
+        } catch(err) {
+          this.setState({ uploadingImage: false });
+          this._toast('✗ ' + (err.message || 'Помилка завантаження'));
+        }
+      },
       startAddMapPin: () => this.setState({ mapAdminPlacing: true, mapAdminSelectedId: null, mapAdminForm: { x_percent: 50, y_percent: 50 } }),
       handleAdminMapClick: (e) => {
         if (!this.state.mapAdminPlacing && !this.state.mapAdminSelectedId) return;
