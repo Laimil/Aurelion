@@ -636,7 +636,31 @@ button{font-family:inherit;cursor:pointer}
               <div><label>X % (ліво→право)</label><input type="number" value="{{ adminMapFormX }}" onChange="{{ handleAdminMapField }}" data-field="x_percent" min="0" max="100" step="0.1" /></div>
               <div><label>Y % (верх→низ)</label><input type="number" value="{{ adminMapFormY }}" onChange="{{ handleAdminMapField }}" data-field="y_percent" min="0" max="100" step="0.1" /></div>
             </div>
-            <div style="margin-bottom:18px;"><label>UUID персонажів (через кому)</label><input value="{{ adminMapFormCharIds }}" onChange="{{ handleAdminMapField }}" data-field="character_ids" placeholder="Залиш порожнім або вкажи ID" /></div>
+            <div style="margin-bottom:18px;">
+              <label>Персонажі в локації ({{ mapSelectedCharCount }})</label>
+              <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
+                <div style="padding:8px 8px 4px;">
+                  <input value="{{ mapCharSearch }}" onChange="{{ handleMapCharSearch }}" placeholder="Пошук персонажа…" style="font-size:0.78rem;padding:6px 10px;border-radius:6px;" />
+                </div>
+                <div style="max-height:180px;overflow-y:auto;padding:4px 6px 8px;">
+                  <sc-for list="{{ mapAvailableChars }}" as="conn" hint-placeholder-count="0">
+                    <div data-id="{{ conn.id }}" onClick="{{ toggleMapChar }}" style="display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:6px;cursor:pointer;margin-bottom:2px;background:{{ conn.rowBg }};transition:background 0.15s;">
+                      <div style="width:18px;height:18px;border-radius:4px;border:1px solid {{ conn.checkBorder }};background:{{ conn.checkBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#ffd700;font-weight:700;transition:all 0.15s;">{{ conn.checkMark }}</div>
+                      <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ false }}">
+                        <div style="{{ conn.imgBg }}width:28px;height:28px;border-radius:4px;flex-shrink:0;"></div>
+                      </sc-if>
+                      <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ true }}">
+                        <div style="width:28px;height:28px;border-radius:4px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.1);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.6rem;color:rgba(255,215,0,0.4);">{{ conn.initials }}</div>
+                      </sc-if>
+                      <div style="min-width:0;flex:1;">
+                        <p style="font-size:0.83rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ conn.name }}</p>
+                        <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);">{{ conn.role }}</p>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <button onClick="{{ saveAdminMapPin }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 18px;font-size:0.82rem;font-weight:700;font-family:'Cinzel',serif;cursor:pointer;transition:all 0.18s;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.4);">{{ adminMapSaveLabel }}</button>
               <button onClick="{{ cancelAdminMapForm }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:6px;padding:8px 14px;font-size:0.82rem;cursor:pointer;" style-hover="color:#fff;">Скасувати</button>
@@ -757,6 +781,7 @@ class Component extends DCLogic {
     storiesPreview: false,
     mapAdminForm: {}, mapAdminSelectedId: null, mapAdminPlacing: false,
     mapAdminNewX: 50, mapAdminNewY: 50,
+    mapCharSearch: '',
   };
 
   // ── Auth token helpers ─────────────────────────────────────
@@ -1428,7 +1453,7 @@ class Component extends DCLogic {
         try {
           const body = { name: (f.name||'').trim(), description: (f.description||'').trim(), x_percent: parseFloat(f.x_percent)||50, y_percent: parseFloat(f.y_percent)||50, character_ids: (f.character_ids||'').trim() };
           if (s.mapAdminSelectedId) { await this._patch('map_locations', s.mapAdminSelectedId, body); }
-          else { await this._post('map_locations', body); }
+          else { await this._insert('map_locations', body); }
           await this._refreshTable('map_locations');
           localStorage.setItem('aurelion-refresh', Date.now().toString());
           this._toast('✓ Локацію збережено!');
@@ -1446,7 +1471,35 @@ class Component extends DCLogic {
           this.setState({ mapAdminSelectedId: null, mapAdminPlacing: false, mapAdminForm: {} });
         } catch(e) { this._toast('✗ Помилка видалення'); }
       },
-      cancelAdminMapForm: () => this.setState({ mapAdminSelectedId: null, mapAdminPlacing: false, mapAdminForm: {} }),
+      cancelAdminMapForm: () => this.setState({ mapAdminSelectedId: null, mapAdminPlacing: false, mapAdminForm: {}, mapCharSearch: '' }),
+
+      mapCharSearch: s.mapCharSearch || '',
+      handleMapCharSearch: (e) => this.setState({ mapCharSearch: e.target.value }),
+      mapSelectedCharCount: (s.mapAdminForm.character_ids || '').split(',').map(x => x.trim()).filter(Boolean).length,
+      mapAvailableChars: (() => {
+        const selSet = new Set((s.mapAdminForm.character_ids || '').split(',').map(x => x.trim()).filter(Boolean));
+        const q = (s.mapCharSearch || '').toLowerCase().trim();
+        return (s.data.characters || [])
+          .filter(ch => !q || (ch.name || '').toLowerCase().includes(q) || (ch.alias || '').toLowerCase().includes(q))
+          .map(ch => {
+            const checked = selSet.has(ch.id);
+            return { ...ch, checked,
+              checkMark: checked ? '✓' : '',
+              checkBg: checked ? 'rgba(255,215,0,0.18)' : 'transparent',
+              checkBorder: checked ? 'rgba(255,215,0,0.6)' : 'rgba(255,255,255,0.2)',
+              rowBg: checked ? 'rgba(255,215,0,0.06)' : 'transparent',
+              initials: (ch.name || '?').slice(0, 1).toUpperCase(),
+              hasImg: !!(ch.image_url),
+              imgBg: ch.image_url ? `background:url('${ch.image_url}') center/cover no-repeat;` : '',
+            };
+          });
+      })(),
+      toggleMapChar: (e) => {
+        const id = e.currentTarget.dataset.id;
+        const cur = new Set((this.state.mapAdminForm.character_ids || '').split(',').map(x => x.trim()).filter(Boolean));
+        if (cur.has(id)) cur.delete(id); else cur.add(id);
+        this.setState(st => ({ mapAdminForm: { ...st.mapAdminForm, character_ids: [...cur].join(',') } }));
+      },
 
       showToast: !!(s.toast),
       toastMsg:  s.toast,
