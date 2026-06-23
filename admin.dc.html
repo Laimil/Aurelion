@@ -302,6 +302,125 @@ button{font-family:inherit;cursor:pointer}
   </div>
 </sc-if>
 
+<!-- CHRONICLES TAB -->
+<sc-if value="{{ showChronicles }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🪶 Хроніки</h2>
+      <button data-section="chronicles" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова хроніка</button>
+    </div>
+    <div class="sort-chips">
+      <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
+      <button class="sort-chip" data-section="chronicles" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
+      <button class="sort-chip" data-section="chronicles" data-sort="za" onClick="{{ quickSort }}">Я → A</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
+      <sc-for list="{{ chronList }}" as="c" hint-placeholder-count="3">
+        <div class="item-row {{ c.dragTargetClass }}"
+             draggable="{{ true }}"
+             data-section="chronicles"
+             data-index="{{ c._index }}"
+             onDragStart="{{ handleDragStart }}"
+             onDragOver="{{ handleDragOver }}"
+             onDrop="{{ handleDrop }}"
+             onDragEnd="{{ handleDragEnd }}"
+             style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:all 0.15s;cursor:default;">
+          <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:0.88rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.title }}</p>
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.metaDisplay }}</p>
+          </div>
+          <span style="font-size:0.68rem;color:rgba(255,215,0,0.6);flex-shrink:0;">{{ c.statusLabel }}</span>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button data-section="chronicles" data-index="{{ c._index }}" onClick="{{ startEdit }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
+            <button data-section="chronicles" data-index="{{ c._index }}" onClick="{{ deleteItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ showChronForm }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:22px;">
+        <p style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:18px;">{{ editLabel }}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label>Назва (персонаж / арка)</label><input value="{{ formTitle }}" onChange="{{ handleInput }}" data-field="title" placeholder="Мей Лінь (Акане)" /></div>
+          <div><label>Підзаголовок</label><input value="{{ formSubtitle }}" onChange="{{ handleInput }}" data-field="subtitle" placeholder="хроніка персонажа" /></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div>
+            <label>Період</label>
+            <input value="{{ formPeriod }}" onChange="{{ handleInput }}" data-field="period" placeholder="14 травня 2025 — 21 червня 2026" />
+          </div>
+          <div>
+            <label>Ведучий / ведуча</label>
+            <input value="{{ formGm }}" onChange="{{ handleInput }}" data-field="gm" placeholder="Skyline" />
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div>
+            <label>Статус</label>
+            <select value="{{ formStatus }}" onChange="{{ handleInput }}" data-field="status">
+              <option value="active">Активна</option>
+              <option value="completed">Завершена</option>
+              <option value="planned">Заплановано</option>
+            </select>
+          </div>
+          <div>
+            <label>Персонаж (необов'язково)</label>
+            <select value="{{ formCharacterId }}" onChange="{{ handleInput }}" data-field="character_id">
+              <option value="">— не прив'язувати —</option>
+              <sc-for list="{{ chronCharOptions }}" as="opt" hint-placeholder-count="0">
+                <option value="{{ opt.id }}">{{ opt.name }}</option>
+              </sc-for>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Обкладинка (URL, необов'язково)</label>
+          <input value="{{ formCover }}" onChange="{{ handleInput }}" data-field="cover" placeholder="https://…/cover.jpg" />
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Короткий опис (для картки)</label>
+          <textarea value="{{ formSummary }}" onChange="{{ handleInput }}" data-field="summary" style="min-height:64px;" placeholder="Зведений літопис подорожі Акане з некромантом Еймоном…"></textarea>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Теги (через кому)</label>
+          <input value="{{ formStoryTags }}" onChange="{{ handleInput }}" data-field="tags" placeholder="Акане, Еймон, романтика, активна…" />
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Для фільтрації у галереї хронік</p>
+        </div>
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <label style="margin-bottom:0;">Повний текст хроніки</label>
+            <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">
+              <button type="button" class="md-tb" onClick="{{ mdBold }}" title="**жирний**" style="font-weight:700;">Ж</button>
+              <button type="button" class="md-tb" onClick="{{ mdItalic }}" title="*курсив*"><em>К</em></button>
+              <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
+              <button type="button" class="md-tb" onClick="{{ mdH2 }}" title="## Заголовок">H2</button>
+              <button type="button" class="md-tb" onClick="{{ mdH3 }}" title="### Підзаголовок">H3</button>
+              <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
+              <button type="button" class="md-tb" onClick="{{ mdQuote }}" title="цитата">❝</button>
+              <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
+              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Посилання]]">[[]]</button>
+              <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
+              <button type="button" class="md-tb" data-active="{{ storiesPreviewActive }}" onClick="{{ toggleStoriesPreview }}">{{ storiesPreviewLabel }}</button>
+            </div>
+          </div>
+          <sc-if value="{{ showStoriesTextarea }}" hint-placeholder-val="{{ true }}">
+            <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:460px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.62;resize:vertical;" placeholder="# Назва&#10;&#10;*Вступна примітка курсивом…*&#10;&#10;## Хто вона&#10;&#10;Текст…&#10;&#10;## Частина I. …"></textarea>
+            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, ## Заголовок (→ Зміст), &gt; цитата, --- розділювач, [[Посилання]]. Заголовки ## та ### формують зміст збоку.</p>
+          </sc-if>
+          <sc-if value="{{ showStoriesPreview }}" hint-placeholder-val="{{ false }}">
+            {{ storiesPreviewEl }}
+          </sc-if>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
 <!-- CHARACTERS TAB -->
 <sc-if value="{{ showCharacters }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
@@ -748,6 +867,7 @@ function parseMarkdown(raw){
 const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'content'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order'],
+  chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
   characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'character_type', 'tags', 'connections'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
@@ -755,6 +875,7 @@ const SECTION_FIELDS = {
 const TABLE_QUERIES = {
   lore:       'lore?select=*&order=created_at.asc',
   stories:    'stories?select=*&order=sort_order.asc,created_at.asc',
+  chronicles: 'chronicles?select=*&order=sort_order.asc,created_at.asc',
   characters: 'characters?select=*&order=created_at.asc',
   pantheon:   'pantheon?select=*&order=sort_order.asc',
   contacts:      'contacts?select=*&order=sort_order.asc',
@@ -772,7 +893,7 @@ class Component extends DCLogic {
     userEmail: '',
     // admin
     tab: 'site',
-    data: { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
+    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
     loading: false, saving: false,
     editing: null, form: {},
     toast: '',
@@ -914,9 +1035,10 @@ class Component extends DCLogic {
   async _loadAll() {
     this.setState({ loading: true });
     try {
-      const [lore, stories, characters, pantheon, contacts, settings, mapLocs] = await Promise.all([
+      const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs] = await Promise.all([
         this._get(TABLE_QUERIES.lore),
         this._get(TABLE_QUERIES.stories),
+        this._get(TABLE_QUERIES.chronicles),
         this._get(TABLE_QUERIES.characters),
         this._get(TABLE_QUERIES.pantheon),
         this._get(TABLE_QUERIES.contacts),
@@ -931,6 +1053,7 @@ class Component extends DCLogic {
           site,
           lore:          Array.isArray(lore)       ? lore       : [],
           stories:       Array.isArray(stories)    ? stories    : [],
+          chronicles:    Array.isArray(chronicles) ? chronicles : [],
           characters:    Array.isArray(characters) ? characters : [],
           pantheon:      Array.isArray(pantheon)   ? pantheon   : [],
           contacts:      Array.isArray(contacts)   ? contacts   : [],
@@ -1017,6 +1140,7 @@ class Component extends DCLogic {
 
     const loreList    = mkList(data.lore).map((it, i) => ({ ...it, dragTargetClass: dtc('lore', i) }));
     const storiesList = mkList(data.stories).map((a, i) => ({ ...a, statusLabel: STATUS_LABELS_ADMIN[a.status] || a.status, dragTargetClass: dtc('stories', i), authorDisplay: a.author_name ? (a.author_name + (a.author_telegram ? ' ' + a.author_telegram : '')) : '—' }));
+    const chronList   = mkList(data.chronicles).map((c, i) => ({ ...c, statusLabel: STATUS_LABELS_ADMIN[c.status] || c.status, dragTargetClass: dtc('chronicles', i), metaDisplay: [c.period, c.gm ? ('вед. ' + c.gm) : ''].filter(Boolean).join(' · ') || '—' }));
     const charSearch = (s.charSearch || '').toLowerCase().trim();
     const charList   = mkList(data.characters)
       .filter(ch => !charSearch
@@ -1109,6 +1233,7 @@ class Component extends DCLogic {
         { id: 'site',       label: '⚙ Сайт',       active: tab === 'site' },
         { id: 'lore',       label: '📜 Путівник',    active: tab === 'lore' },
         { id: 'stories',    label: '📖 Історії',      active: tab === 'stories' },
+        { id: 'chronicles', label: '🪶 Хроніки',     active: tab === 'chronicles' },
         { id: 'characters', label: '🎭 Персонажі',   active: tab === 'characters' },
         { id: 'pantheon',   label: '🐉 Пантеон',     active: tab === 'pantheon' },
         { id: 'map',        label: '🗺 Карта',        active: tab === 'map' },
@@ -1122,6 +1247,7 @@ class Component extends DCLogic {
       showSite:       tab === 'site',
       showLore:       tab === 'lore',
       showStories:    tab === 'stories',
+      showChronicles: tab === 'chronicles',
       showCharacters: tab === 'characters',
       showPantheon:   tab === 'pantheon',
       showContacts:   tab === 'contacts',
@@ -1148,6 +1274,8 @@ class Component extends DCLogic {
       },
 
       loreList, storiesList, charList, panList, contactList,
+      chronList,
+      chronCharOptions: (data.characters || []).map(ch => ({ id: ch.id, name: ch.name || '—', selected: form.character_id === ch.id })),
       charSearch: s.charSearch || '',
 
       // ── Connections multi-select ──────────────────────────
@@ -1201,6 +1329,13 @@ class Component extends DCLogic {
       formExcerpt:      form.excerpt        || '',
       formContent:      form.content        || '',
       formStoryTags:       form.tags            || '',
+      formSubtitle:        form.subtitle         || '',
+      formPeriod:          form.period           || '',
+      formGm:              form.gm               || '',
+      formCover:           form.cover            || '',
+      formSummary:         form.summary          || '',
+      formCharacterId:     form.character_id     || '',
+      showChronForm:       showFor('chronicles'),
       formAuthorName:     form.author_name     || '',
       formAuthorTelegram: form.author_telegram || '',
       formChapters:       form.chapters        || '',

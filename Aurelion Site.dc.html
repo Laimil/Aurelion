@@ -88,6 +88,15 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .book-face{position:absolute;left:calc(100% + 2px);top:0;width:200px;min-height:100%;background:linear-gradient(140deg,#1e1a10 0%,#141210 100%);border:1px solid rgba(255,215,0,0.16);border-left:2px solid var(--sc);border-radius:0 8px 8px 0;box-shadow:8px 0 32px rgba(0,0,0,0.85);padding:16px 14px;opacity:0;transform:translateX(-10px);transition:opacity 0.22s ease,transform 0.22s ease;pointer-events:none;z-index:30;display:flex;flex-direction:column;gap:8px;}
 .book-spine:hover .book-face{opacity:1;transform:translateX(0);pointer-events:auto;}
 .book-spine:hover .sp-title,.book-spine:hover .sp-ornament,.book-spine:hover .sp-author{opacity:0.28;transition:opacity 0.2s;}
+/* ── Хроніки ── */
+.chron-card{transition:transform 0.28s ease,box-shadow 0.28s ease,background 0.28s ease}
+.chron-card:hover{transform:translateY(-5px)!important;box-shadow:0 14px 36px rgba(0,0,0,0.6)!important}
+.chron-card-cover{transition:transform 0.5s cubic-bezier(.22,.68,0,1)}
+.chron-card:hover .chron-card-cover{transform:scale(1.06)}
+.chron-reader-grid{display:grid;grid-template-columns:228px 1fr;gap:46px;align-items:start;max-width:1060px;margin:0 auto;}
+.chron-toc-sticky{position:sticky;top:84px;max-height:calc(100vh - 108px);overflow-y:auto;}
+.chron-toc-sticky .lore-toc{display:block;width:100%;margin-bottom:0;}
+@media(max-width:880px){.chron-reader-grid{grid-template-columns:1fr;gap:24px;}.chron-toc-sticky{position:static;max-height:none;}}
 </style>
 </helmet>
 
@@ -241,6 +250,153 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <p>Матеріали ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
       </div>
     </sc-if>
+  </main>
+</sc-if>
+
+<!-- ═══ ХРОНІКИ ═══ -->
+<sc-if value="{{ showChronicles }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;">
+
+    <!-- ── ГАЛЕРЕЯ ── -->
+    <sc-if value="{{ showChronGallery }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:96px 24px 140px;max-width:1180px;margin:0 auto;">
+        <header style="text-align:center;margin-bottom:34px;">
+          <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Літопис відіграшів</p>
+          <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Хроніки</h1>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.4);margin:10px auto 0;max-width:580px;line-height:1.6;">Зведені літописи персонажів та арок — те, що сталося за столом, зібране в один запис.</p>
+        </header>
+
+        <!-- Теги -->
+        <sc-if value="{{ hasChronTags }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;">
+            <button data-tag="" onClick="{{ setChronTag }}" data-active="{{ chronTagAll }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:6px 18px;font-size:0.78rem;cursor:pointer;color:rgba(255,255,255,0.5);transition:all 0.2s;" style-hover="color:#fff;background:rgba(255,255,255,0.11);">Всі</button>
+            <sc-for list="{{ chronTags }}" as="tag" hint-placeholder-count="0">
+              <button data-tag="{{ tag.value }}" onClick="{{ setChronTag }}" data-active="{{ tag.active }}" style="background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.18);border-radius:999px;padding:6px 18px;font-size:0.78rem;cursor:pointer;color:rgba(255,215,0,0.65);transition:all 0.2s;" style-hover="color:#ffd700;border-color:rgba(255,215,0,0.5);background:rgba(255,215,0,0.1);">{{ tag.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <!-- Сортування -->
+        <div style="display:flex;gap:6px;justify-content:center;margin-bottom:30px;">
+          <sc-for list="{{ chronSortOptions }}" as="opt" hint-placeholder-count="3">
+            <button data-sort="{{ opt.value }}" onClick="{{ setChronSort }}" data-active="{{ opt.active }}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 14px;font-size:0.73rem;color:rgba(255,255,255,0.36);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">{{ opt.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;">
+          <sc-for list="{{ chronicleItems }}" as="c" hint-placeholder-count="3">
+            <article data-id="{{ c.id }}" data-status="{{ c.status }}" onClick="{{ openChronicle }}" class="glass chron-card" style="cursor:pointer;overflow:hidden;border-radius:14px;display:flex;flex-direction:column;">
+              <!-- Обкладинка -->
+              <div style="position:relative;aspect-ratio:16/9;overflow:hidden;background:#111;flex-shrink:0;">
+                <sc-if value="{{ c.hasCover }}" hint-placeholder-val="{{ false }}">
+                  <div class="chron-card-cover" style="position:absolute;inset:0;{{ c.coverBg }}"></div>
+                </sc-if>
+                <sc-if value="{{ c.noCover }}" hint-placeholder-val="{{ true }}">
+                  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,rgba(255,215,0,0.07) 0%,transparent 68%);">
+                    <span style="font-family:'Cinzel',serif;font-size:3rem;color:rgba(255,215,0,0.18);font-weight:700;letter-spacing:0.06em;">{{ c.initials }}</span>
+                  </div>
+                </sc-if>
+                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(20,18,14,0.92) 0%,rgba(20,18,14,0.1) 55%,transparent 100%);"></div>
+                <span class="status-tag" style="position:absolute;top:12px;right:12px;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;border-radius:999px;padding:3px 11px;backdrop-filter:blur(4px);">{{ c.statusLabel }}</span>
+                <sc-if value="{{ c.hasPeriod }}" hint-placeholder-val="{{ false }}">
+                  <p style="position:absolute;left:16px;bottom:11px;right:16px;font-size:0.7rem;letter-spacing:0.04em;color:rgba(255,255,255,0.62);text-shadow:0 1px 6px rgba(0,0,0,0.9);">{{ c.period }}</p>
+                </sc-if>
+              </div>
+              <!-- Тіло -->
+              <div style="padding:17px 19px 18px;display:flex;flex-direction:column;flex:1;">
+                <p style="font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.68);margin-bottom:6px;">{{ c.subtitleText }}</p>
+                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.12rem;color:#fff;letter-spacing:0.03em;line-height:1.28;margin-bottom:9px;">{{ c.title }}</h3>
+                <sc-if value="{{ c.hasSummary }}" hint-placeholder-val="{{ true }}">
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;color:rgba(255,255,255,0.48);line-height:1.62;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:13px;">{{ c.summary }}</p>
+                </sc-if>
+                <div style="margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:11px;border-top:1px solid rgba(255,255,255,0.07);">
+                  <sc-if value="{{ c.hasGm }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:0.72rem;color:rgba(255,255,255,0.34);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.gmLabel }}</span>
+                  </sc-if>
+                  <span style="font-size:0.76rem;color:#6495ed;flex-shrink:0;white-space:nowrap;">Читати →</span>
+                </div>
+              </div>
+            </article>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ chroniclesEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
+            <p style="font-size:1.5rem;margin-bottom:12px;">🪶</p>
+            <p>Хронік ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ── ЧИТАЛКА ── -->
+    <sc-if value="{{ showChronReader }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:78px 24px 120px;">
+        <div style="max-width:1060px;margin:0 auto 16px;">
+          <button onClick="{{ closeChronicle }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">← Усі хроніки</button>
+        </div>
+
+        <header data-status="{{ chronStatus }}" style="max-width:1060px;margin:0 auto 42px;position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);{{ chronHeaderMinH }}">
+          <sc-if value="{{ chronHasCover }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;inset:0;{{ chronCoverBg }}"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(24,22,17,0.97) 8%,rgba(24,22,17,0.72) 52%,rgba(24,22,17,0.5) 100%);"></div>
+          </sc-if>
+          <div style="position:relative;padding:44px 40px 34px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+              <span class="status-tag" style="font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;border-radius:999px;padding:4px 14px;">{{ chronStatusLabel }}</span>
+              <sc-if value="{{ chronHasPeriod }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:0.78rem;letter-spacing:0.04em;color:rgba(255,255,255,0.55);">{{ chronPeriod }}</span>
+              </sc-if>
+            </div>
+            <p style="font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin-bottom:8px;">{{ chronSubtitle }}</p>
+            <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,4.5vw,2.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;line-height:1.12;">{{ chronTitle }}</h1>
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px;">
+              <sc-if value="{{ chronHasGm }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:0.82rem;color:rgba(255,255,255,0.5);">✦ Ведучий — <span style="color:rgba(255,255,255,0.8);">{{ chronGm }}</span></span>
+              </sc-if>
+              <sc-if value="{{ chronHasChar }}" hint-placeholder-val="{{ false }}">
+                <button data-id="{{ chronCharId }}" onClick="{{ openCharacter }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.28);color:#6495ed;border-radius:999px;padding:5px 15px;font-size:0.78rem;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(100,149,237,0.2);">↗ Анкета: {{ chronCharName }}</button>
+              </sc-if>
+            </div>
+            <sc-if value="{{ chronHasTags }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:15px;">
+                <sc-for list="{{ chronTagList }}" as="t" hint-placeholder-count="0">
+                  <span style="background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.2);color:rgba(255,215,0,0.7);border-radius:999px;padding:3px 12px;font-size:0.7rem;">{{ t }}</span>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </header>
+
+        <div class="chron-reader-grid">
+          <div>
+            <sc-if value="{{ chronHasToc }}" hint-placeholder-val="{{ false }}">
+              <div class="chron-toc-sticky">
+                <nav class="lore-toc">
+                  <p class="lore-toc-title">✦ Зміст</p>
+                  <ol class="lore-toc-list">
+                    <sc-for list="{{ chronToc }}" as="h" hint-placeholder-count="5">
+                      <li data-level="{{ h.level }}"><a data-tocid="{{ h.id }}" onClick="{{ scrollChronToc }}">{{ h.text }}</a></li>
+                    </sc-for>
+                  </ol>
+                </nav>
+              </div>
+            </sc-if>
+          </div>
+          <article style="min-width:0;">
+            <sc-if value="{{ chronHasContent }}" hint-placeholder-val="{{ true }}">
+              {{ chronBodyEl }}
+            </sc-if>
+            <sc-if value="{{ chronNoContent }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:60px 24px;color:rgba(255,255,255,0.28);">
+                <p style="font-size:1.4rem;margin-bottom:10px;">✦</p>
+                <p>Текст хроніки ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін →</a></p>
+              </div>
+            </sc-if>
+          </article>
+        </div>
+      </div>
+    </sc-if>
+
   </main>
 </sc-if>
 
@@ -455,8 +611,8 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <div style="position:relative;width:1200px;height:840px;transform:scale({{ boardScale }});transform-origin:center center;flex-shrink:0;">
           {{ connectionLines }}
           <sc-for list="{{ boardChars }}" as="char" hint-placeholder-count="0">
-            <div data-id="{{ char.id }}" onClick="{{ setBoardChar }}"
-                 style="position:absolute;left:{{ char.leftPx }};top:{{ char.topPx }};width:80px;cursor:pointer;z-index:1;transition:opacity 0.22s,transform 0.22s;opacity:{{ char.cardOpacity }};transform:{{ char.cardScale }};">
+            <div data-id="{{ char.id }}" onClick="{{ setBoardChar }}" onMouseEnter="{{ char.onHover }}" onMouseLeave="{{ clearBoardHover }}"
+                 style="position:absolute;left:{{ char.leftPx }};top:{{ char.topPx }};width:80px;cursor:pointer;z-index:{{ char.cardZ }};transition:opacity 0.22s,transform 0.32s cubic-bezier(.22,.68,0,1.2);opacity:{{ char.cardOpacity }};transform:{{ char.cardScale }};">
               <div style="width:80px;height:107px;border-radius:8px;overflow:hidden;border:{{ char.cardBorder }};box-shadow:{{ char.cardGlow }};transition:all 0.22s;background:#111;">
                 <sc-if value="{{ char.hasImg }}" hint-placeholder-val="{{ false }}">
                   <div style="{{ char.imgBg }}width:100%;height:100%;"></div>
@@ -860,17 +1016,19 @@ const STATUS_LABELS = { active: 'Активна', completed: 'Завершена
 class Component extends DCLogic {
   state = {
     page: this._getPage(),
-    data: { site: {}, lore: [], stories: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
+    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
     loading: true,
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
     rollHistory: [], selectedChar: null, selectedLore: null, selectedHistory: null,
     charTab: 'player', charSearch: '',
     selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
+    boardHoverId: null,
     boardScale: 1,
     loreTagFilter: null, loreSortBy: 'order',
     charSortBy: 'order',
     storiesSortBy: 'order',
     histTagFilter: null,
+    selectedChronicle: null, chronSortBy: 'order', chronTagFilter: null,
     hoveredStoryId: null,
     mapScale: 1, mapPanX: 0, mapPanY: 0,
     mapDragging: false, mapDragStartX: 0, mapDragStartY: 0, mapPanStartX: 0, mapPanStartY: 0,
@@ -920,9 +1078,10 @@ class Component extends DCLogic {
 
   async _loadAll() {
     this.setState({ loading: true });
-    const [lore, stories, characters, pantheon, contacts, settings, mapLocs] = await Promise.all([
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs] = await Promise.all([
       this._get('lore?select=*&order=created_at.asc'),
       this._get('stories?select=*&order=sort_order.asc,created_at.asc'),
+      this._get('chronicles?select=*&order=sort_order.asc,created_at.asc'),
       this._get('characters?select=*&order=created_at.asc'),
       this._get('pantheon?select=*&order=sort_order.asc'),
       this._get('contacts?select=*&order=sort_order.asc'),
@@ -937,6 +1096,7 @@ class Component extends DCLogic {
         site,
         lore:          Array.isArray(lore)       ? lore       : [],
         stories:       Array.isArray(stories)    ? stories    : [],
+        chronicles:    Array.isArray(chronicles) ? chronicles : [],
         characters:    Array.isArray(characters) ? characters : [],
         pantheon:      Array.isArray(pantheon)   ? pantheon   : [],
         contacts:      Array.isArray(contacts)   ? contacts   : [],
@@ -968,7 +1128,7 @@ class Component extends DCLogic {
     this._updateMapBase();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
     window.addEventListener('hashchange', () => {
-      this.setState({ page: this._getPage(), selectedChar: null, selectedLore: null, mapActivePin: null });
+      this.setState({ page: this._getPage(), selectedChar: null, selectedLore: null, selectedChronicle: null, mapActivePin: null });
       window.scrollTo({ top: 0 });
     });
     window.addEventListener('storage', (e) => {
@@ -1058,6 +1218,21 @@ class Component extends DCLogic {
       ? sortedStoriesData.filter(arc => (arc.tags||'').split(',').map(t=>t.trim().toLowerCase()).includes(histTagFilter))
       : sortedStoriesData;
 
+    // ── Хроніки: сорт + теги
+    const chronSortBy = s.chronSortBy || 'order';
+    const chronStatusOrder = { active:0, planned:1, completed:2 };
+    const sortedChronData = chronSortBy === 'status'
+      ? [...(data.chronicles||[])].sort((a,b)=>(chronStatusOrder[a.status]??3)-(chronStatusOrder[b.status]??3))
+      : chronSortBy === 'az'
+      ? [...(data.chronicles||[])].sort((a,b)=>(a.title||'').localeCompare(b.title||'','uk',{sensitivity:'base'}))
+      : (data.chronicles||[]);
+    const chronTagFilter = s.chronTagFilter || null;
+    const allChronTags = [...new Set((data.chronicles||[]).flatMap(c => (c.tags||'').split(',').map(t=>t.trim().toLowerCase()).filter(Boolean)))].sort();
+    const chronTags = allChronTags.map(t => ({ value:t, label:t, active: chronTagFilter===t }));
+    const filteredChronData = chronTagFilter
+      ? sortedChronData.filter(c => (c.tags||'').split(',').map(t=>t.trim().toLowerCase()).includes(chronTagFilter))
+      : sortedChronData;
+
     // ── Сорт Персонажів
     const charSortBy = s.charSortBy || 'order';
     const sortChars  = (arr) => {
@@ -1072,6 +1247,9 @@ class Component extends DCLogic {
       showHome:        page === 'home',
       showLore:        page === 'lore',
       showStories:     page === 'stories',
+      showChronicles:   page === 'chronicles',
+      showChronGallery: page === 'chronicles' && !s.selectedChronicle,
+      showChronReader:  page === 'chronicles' && !!s.selectedChronicle,
       showCharacters:  page === 'characters',
       showPantheon:    page === 'pantheon',
       showDice:        page === 'dice',
@@ -1083,6 +1261,7 @@ class Component extends DCLogic {
         { id: 'home',        label: 'Головна',    active: page === 'home' },
         { id: 'lore',        label: 'Путівник',        active: page === 'lore' },
         { id: 'stories',     label: 'Історії',      active: page === 'stories' },
+        { id: 'chronicles',  label: 'Хроніки',     active: page === 'chronicles' },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'connections', label: '🕸 Зв\'язки', active: page === 'connections' },
         { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
@@ -1100,6 +1279,7 @@ class Component extends DCLogic {
       homeTiles: [
         { id: 'lore',       icon: '📜', title: 'Путівник',  desc: 'Лор, географія, магія і закони' },
         { id: 'stories',    icon: '📖', title: 'Історії', desc: 'Авторські статті та серії від гравців спільноти' },
+        { id: 'chronicles', icon: '🪶', title: 'Хроніки', desc: 'Літописи відіграшів — зведені хроніки персонажів та арок' },
         { id: 'characters', icon: '🎭', title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв' },
         { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу' },
         { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20' },
@@ -1318,11 +1498,25 @@ class Component extends DCLogic {
           }).filter(Boolean),
         ]);
 
+        // Board hover repulsion
+        const boardHoverId = s.boardHoverId;
+        const REPEL_R = 170, REPEL_F = 85;
+        const hoverPlaced = boardHoverId ? placed.find(p => p.id === boardHoverId) : null;
+        const getRepel = (pos) => {
+          if (!hoverPlaced) return '';
+          const dx = pos.bx - hoverPlaced.bx, dy = pos.by - hoverPlaced.by;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist === 0 || dist >= REPEL_R) return '';
+          const force = REPEL_F * Math.pow(1 - dist/REPEL_R, 1.4);
+          return `translate(${((dx/dist)*force).toFixed(1)}px,${((dy/dist)*force).toFixed(1)}px) `;
+        };
+
         // Board chars
         const boardChars = placed.map(ch => {
           const parts=(ch.name||'').trim().split(/\s+/);
           const imgUrl=ch.image?'url('+JSON.stringify(ch.image)+')':'';
           const isSelected=ch.id===selId;
+          const isHovered=ch.id===boardHoverId;
           const d=deg[ch.id];
           let opacity='1', border='2px solid rgba(255,255,255,0.12)', glow='none', scale='scale(1)';
           if (selId) {
@@ -1331,13 +1525,18 @@ class Component extends DCLogic {
             else if (d===2)  { opacity='0.38'; }
             else             { opacity='0.1'; }
           }
+          const repelStr = isHovered ? '' : getRepel(ch);
+          const scaleStr = isHovered ? 'scale(1.06)' : scale;
           return {
             ...ch,
             leftPx:(ch.bx-40)+'px', topPx:(ch.by-60)+'px',
             imgBg:imgUrl?'background-image:'+imgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
             hasImg:!!(ch.image), noImg:!(ch.image),
             initials:parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
-            cardOpacity:opacity, cardBorder:border, cardGlow:glow, cardScale:scale,
+            cardOpacity:opacity, cardBorder:border, cardGlow:glow,
+            cardScale: repelStr + scaleStr,
+            cardZ: isHovered ? '20' : isSelected ? '10' : '1',
+            onHover: () => this.setState({ boardHoverId: ch.id }),
           };
         });
 
@@ -1413,6 +1612,7 @@ class Component extends DCLogic {
           directConnsCount: String(directConns.length),
           indirectConnsCount: String(indirectCount),
           hasIndirect: indirectCount > 0,
+          clearBoardHover: ()=>this.setState({boardHoverId:null}),
           setBoardView: (e)=>this.setState({boardView:e.currentTarget.dataset.view}),
           setBoardChar: (e)=>{
             const id=e.currentTarget.dataset.id;
@@ -1528,6 +1728,77 @@ class Component extends DCLogic {
       },
       closeHistoryModal: () => this.setState({ selectedHistory: null }),
       stopHistoryProp:   (e) => e.stopPropagation(),
+
+      // ──────────── ХРОНІКИ ────────────
+      chronicleItems: filteredChronData.map(c => {
+        const tagsArr = (c.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+        return {
+          ...c,
+          statusLabel:  STATUS_LABELS[c.status] || '',
+          hasCover:     !!c.cover,
+          noCover:      !c.cover,
+          coverBg:      c.cover ? ('background-image:url(' + JSON.stringify(c.cover) + ');background-size:cover;background-position:center;') : '',
+          initials:     (c.title||'?').trim().slice(0,1).toUpperCase(),
+          subtitleText: c.subtitle || 'хроніка',
+          hasPeriod:    !!c.period,
+          period:       c.period || '',
+          hasGm:        !!c.gm,
+          gmLabel:      c.gm ? ('Ведучий: ' + c.gm) : '',
+          hasSummary:   !!c.summary,
+          summary:      c.summary || '',
+        };
+      }),
+      chroniclesEmpty: !filteredChronData.length,
+      chronTags, hasChronTags: chronTags.length > 0, chronTagAll: !chronTagFilter,
+      setChronTag:  (e) => this.setState({ chronTagFilter: e.currentTarget.dataset.tag || null }),
+      chronSortOptions: [
+        { value:'order',  label:'✦ Порядок',   active: chronSortBy==='order' },
+        { value:'status', label:'За статусом', active: chronSortBy==='status' },
+        { value:'az',     label:'A → Я',      active: chronSortBy==='az' },
+      ],
+      setChronSort: (e) => this.setState({ chronSortBy: e.currentTarget.dataset.sort }),
+      openChronicle: (e) => {
+        const id = e.currentTarget.dataset.id;
+        const it = (data.chronicles||[]).find(x => x.id === id);
+        if (it) { this.setState({ selectedChronicle: it }); window.scrollTo({ top: 0 }); }
+      },
+      closeChronicle: () => { this.setState({ selectedChronicle: null }); window.scrollTo({ top: 0 }); },
+      ...(() => {
+        const c = s.selectedChronicle;
+        const raw = c ? (c.content || '') : '';
+        const toc = c ? extractToc(raw) : [];
+        const linkedChar = c && c.character_id ? (data.characters||[]).find(x => x.id === c.character_id) : null;
+        const tagsArr = c ? (c.tags||'').split(',').map(t=>t.trim()).filter(Boolean) : [];
+        return {
+          chronStatus:      c ? (c.status || 'active') : 'active',
+          chronStatusLabel: c ? (STATUS_LABELS[c.status] || '') : '',
+          chronSubtitle:    c ? (c.subtitle || 'Хроніка') : '',
+          chronTitle:       c ? (c.title || '') : '',
+          chronPeriod:      c ? (c.period || '') : '',
+          chronHasPeriod:   !!(c && c.period),
+          chronGm:          c ? (c.gm || '') : '',
+          chronHasGm:       !!(c && c.gm),
+          chronHasCover:    !!(c && c.cover),
+          chronCoverBg:     (c && c.cover) ? ('background-image:url(' + JSON.stringify(c.cover) + ');background-size:cover;background-position:center;') : '',
+          chronHeaderMinH:  (c && c.cover) ? 'min-height:280px;' : '',
+          chronHasChar:     !!linkedChar,
+          chronCharId:      linkedChar ? linkedChar.id : '',
+          chronCharName:    linkedChar ? (linkedChar.name || '') : '',
+          chronHasTags:     tagsArr.length > 0,
+          chronTagList:     tagsArr,
+          chronToc:         toc.map(h => ({ level: String(h.level), text: h.text, id: h.id })),
+          chronHasToc:      toc.length >= 2,
+          chronHasContent:  !!raw,
+          chronNoContent:   !!(c && !raw),
+          chronBodyEl:      raw ? React.createElement('div', { className:'lore-md', dangerouslySetInnerHTML:{ __html: parseMarkdown(raw) } }) : null,
+          scrollChronToc: (e) => {
+            e.preventDefault();
+            const id = e.currentTarget.getAttribute('data-tocid');
+            const target = document.querySelector('[data-hid="' + id + '"]');
+            if (target) { const y = target.getBoundingClientRect().top + window.scrollY - 80; window.scrollTo({ top: y, behavior: 'smooth' }); }
+          },
+        };
+      })(),
       loreTags, hasLoreTags: loreTags.length > 0, loreTagAll: !loreTagFilter,
       loreSortOptions: [
         { value: 'order', label: '✦ Порядок', active: loreSortBy === 'order' },
