@@ -97,6 +97,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .chron-toc-sticky{position:sticky;top:84px;max-height:calc(100vh - 108px);overflow-y:auto;}
 .chron-toc-sticky .lore-toc{display:block;width:100%;margin-bottom:0;}
 @media(max-width:880px){.chron-reader-grid{grid-template-columns:1fr;gap:24px;}.chron-toc-sticky{position:static;max-height:none;}}
+/* ── Пульс спільноти ── */
 </style>
 </helmet>
 
@@ -144,9 +145,80 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </sc-for>
       </div>
     </section>
+
+    <!-- ═══ ПУЛЬС СПІЛЬНОТИ ═══ -->
+    <sc-if value="{{ showPulse }}" hint-placeholder-val="{{ false }}">
+    <section ref="{{ pulseRef }}" style="max-width:1080px;margin:0 auto;padding:0 24px 120px;">
+      <p style="text-align:center;font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.62);margin-bottom:12px;">✦ Пульс Ауреліону</p>
+      <h2 style="text-align:center;font-family:'Cinzel',Georgia,serif;font-size:clamp(1.5rem,3.4vw,2.15rem);font-weight:700;color:#fff;letter-spacing:0.05em;margin-bottom:8px;">Живий літопис спільноти</h2>
+      <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.46);margin-bottom:36px;">Дописів за місяць — від серпня 2024 року й донині</p>
+
+      <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:32px;">
+        <div class="glass" style="padding:20px 34px;border-radius:12px;text-align:center;min-width:158px;">
+          <div style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#ffd700;line-height:1;text-shadow:0 0 26px rgba(255,215,0,0.4);">{{ pulseTotalDisp }}</div>
+          <div style="font-size:0.72rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.42);margin-top:9px;">Дописів усього</div>
+        </div>
+        <div class="glass" style="padding:20px 34px;border-radius:12px;text-align:center;min-width:158px;">
+          <div style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#fff;line-height:1;">{{ pulseDaysDisp }}</div>
+          <div style="font-size:0.72rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.42);margin-top:9px;">Активних днів</div>
+        </div>
+        <div class="glass" style="padding:20px 34px;border-radius:12px;text-align:center;min-width:158px;">
+          <div style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#6495ed;line-height:1;text-shadow:0 0 22px rgba(100,149,237,0.35);">{{ pulsePeakDayDisp }}</div>
+          <div style="font-size:0.72rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.42);margin-top:9px;">Рекорд за день</div>
+        </div>
+      </div>
+
+      <div class="glass" style="padding:22px 22px 14px;border-radius:16px;">
+        <div onMouseMove="{{ pulseHoverMove }}" onMouseLeave="{{ pulseHoverLeave }}" style="position:relative;">
+          <svg class="pulse-svg" viewBox="0 0 1000 240" preserveAspectRatio="none" style="width:100%;height:clamp(190px,27vw,260px);display:block;overflow:visible;">
+            <defs>
+              <linearGradient id="pulseFillGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(255,215,0,0.34)"></stop>
+                <stop offset="100%" stop-color="rgba(255,215,0,0)"></stop>
+              </linearGradient>
+              <linearGradient id="pulseStrokeGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#ffb347"></stop>
+                <stop offset="55%" stop-color="#ffd700"></stop>
+                <stop offset="100%" stop-color="#fff1a8"></stop>
+              </linearGradient>
+            </defs>
+            <sc-for list="{{ pulseGrid }}" as="g" hint-placeholder-count="0">
+              <line x1="0" y1="{{ g.y }}" x2="1000" y2="{{ g.y }}" stroke="rgba(255,255,255,0.07)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+            </sc-for>
+            <path class="pulse-area" d="{{ pulseArea }}" fill="url(#pulseFillGrad)" opacity="{{ pulseAreaOpacity }}"></path>
+            <path class="pulse-line" pathLength="1" stroke-dasharray="1" stroke-dashoffset="{{ pulseDash }}" d="{{ pulseLine }}" fill="none" stroke="url(#pulseStrokeGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" style="filter:drop-shadow(0 0 5px rgba(255,215,0,0.55));"></path>
+            <circle class="pulse-peak" cx="{{ pulsePeakX }}" cy="{{ pulsePeakY }}" r="4.5" fill="#fff" style="{{ pulsePeakStyle }}"></circle>
+            <sc-if value="{{ pulseHoverActive }}" hint-placeholder-val="{{ false }}">
+              <line x1="{{ pulseHoverX }}" y1="12" x2="{{ pulseHoverX }}" y2="240" stroke="rgba(255,215,0,0.4)" stroke-width="1" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"></line>
+              <circle cx="{{ pulseHoverX }}" cy="{{ pulseHoverDotY }}" r="5" fill="#fff" style="filter:drop-shadow(0 0 7px rgba(255,215,0,0.95));"></circle>
+            </sc-if>
+          </svg>
+          <sc-for list="{{ pulseGrid }}" as="g" hint-placeholder-count="0">
+            <span style="position:absolute;left:1px;top:{{ g.topPct }};transform:translateY(-50%);font-size:0.6rem;color:rgba(255,255,255,0.3);pointer-events:none;text-shadow:0 0 4px #1a1a1a,0 0 4px #1a1a1a;">{{ g.label }}</span>
+          </sc-for>
+          <sc-if value="{{ pulseHoverActive }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:{{ pulseTipLeft }};top:{{ pulseTipTop }};transform:translate(-50%,-122%);background:rgba(20,18,12,0.97);border:1px solid rgba(255,215,0,0.38);border-radius:8px;padding:6px 12px;pointer-events:none;white-space:nowrap;box-shadow:0 6px 22px rgba(0,0,0,0.65);z-index:5;">
+              <div style="font-family:'Cinzel',Georgia,serif;font-size:0.72rem;color:#fff;letter-spacing:0.03em;">{{ pulseHoverLabel }}</div>
+              <div style="font-size:0.82rem;color:#ffd700;margin-top:2px;">≈ {{ pulseHoverValue }}</div>
+            </div>
+          </sc-if>
+        </div>
+        <div style="position:relative;height:15px;margin-top:7px;">
+          <sc-for list="{{ pulseMonthMarks }}" as="mm" hint-placeholder-count="0">
+            <span style="position:absolute;top:0;transform:translateX(-50%);font-size:0.56rem;letter-spacing:0.01em;left:{{ mm.pct }};color:{{ mm.color }};">{{ mm.mon }}</span>
+          </sc-for>
+        </div>
+        <div style="position:relative;height:15px;margin-top:1px;">
+          <sc-for list="{{ pulseYearMarks }}" as="ym" hint-placeholder-count="3">
+            <span style="position:absolute;top:0;transform:translateX(-50%);font-family:'Cinzel',Georgia,serif;font-size:0.68rem;font-weight:600;letter-spacing:0.1em;color:rgba(255,215,0,0.55);left:{{ ym.pct }};">{{ ym.label }}</span>
+          </sc-for>
+        </div>
+      </div>
+      <p class="pulse-caption" style="text-align:center;font-size:0.8rem;letter-spacing:0.04em;color:rgba(255,215,0,0.62);margin-top:16px;opacity:{{ pulseCapOpacity }};">{{ pulsePeakCaption }}</p>
+    </section>
+    </sc-if>
   </main>
 </sc-if>
-
 <!-- ═══ ПУТІВНИК ═══ -->
 <sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
@@ -1013,6 +1085,11 @@ const DICE_SHAPES = {
 };
 const STATUS_LABELS = { active: 'Активна', completed: 'Завершена', planned: 'Заплановано' };
 
+// ── Пульс: назви місяців для підписів графіка активності ──
+const UK_MON_FULL = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+const UK_MON_ABBR = ['Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
+const ease0 = (t)=>{ t = Math.max(0, Math.min(1, t)); return 1 - Math.pow(1 - t, 3); };
+
 class Component extends DCLogic {
   state = {
     page: this._getPage(),
@@ -1078,7 +1155,7 @@ class Component extends DCLogic {
 
   async _loadAll() {
     this.setState({ loading: true });
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs] = await Promise.all([
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity] = await Promise.all([
       this._get('lore?select=*&order=created_at.asc'),
       this._get('stories?select=*&order=sort_order.asc,created_at.asc'),
       this._get('chronicles?select=*&order=sort_order.asc,created_at.asc'),
@@ -1087,6 +1164,7 @@ class Component extends DCLogic {
       this._get('contacts?select=*&order=sort_order.asc'),
       this._get('site_settings?select=*'),
       this._get('map_locations?select=*&order=sort_order.asc,created_at.asc'),
+      this._get('post_activity?select=day,posts&order=day.asc'),
     ]);
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
@@ -1101,6 +1179,7 @@ class Component extends DCLogic {
         pantheon:      Array.isArray(pantheon)   ? pantheon   : [],
         contacts:      Array.isArray(contacts)   ? contacts   : [],
         map_locations: Array.isArray(mapLocs)    ? mapLocs    : [],
+        post_activity: Array.isArray(postActivity) ? postActivity : [],
       },
     });
   }
@@ -1122,7 +1201,64 @@ class Component extends DCLogic {
     this.setState({ boardScale: Math.max(0.35, scale) });
   }
 
+  _pulseRef = (node) => {
+    this._pulseEl = node || null;
+    if (node) requestAnimationFrame(() => this._pulseCheck());
+  };
+
+  _pulseCheck = () => {
+    if (this.state.pulseStarted || !this._pulseEl) return;
+    const r = this._pulseEl.getBoundingClientRect();
+    if (r.top < window.innerHeight * 0.82 && r.bottom > 0) this._startPulse();
+  };
+
+  _pulseHoverMove = (e) => {
+    const svg = e.currentTarget.querySelector('.pulse-svg');
+    if (!svg) return;
+    const r = svg.getBoundingClientRect();
+    const n = this._pulseN || 1;
+    const rel = (e.clientX - r.left) / r.width;
+    let idx = Math.round(rel * (n - 1));
+    idx = Math.max(0, Math.min(n - 1, idx));
+    if (this.state.pulseHover !== idx) this.setState({ pulseHover: idx });
+  };
+
+  _pulseHoverLeave = () => {
+    if (this.state.pulseHover != null) this.setState({ pulseHover: null });
+  };
+
+  _runDraw() {
+    const dur = 1900, t0 = performance.now();
+    this.setState({ pulseDrawProg: 0 });
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / dur);
+      this.setState({ pulseDrawProg: p });
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  _startPulse() {
+    if (this.state.pulseStarted) return;
+    this.setState({ pulseStarted: true });
+    this._runDraw();
+    // Лічильники — один раз
+    const dur = 1700, t0 = performance.now();
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / dur);
+      this.setState({ pulseCountProg: p });
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    // Пульсує знову кожні ~10 секунд (лише на головній)
+    clearInterval(this._pulseTimer);
+    this._pulseTimer = setInterval(() => {
+      if (this.state.page === 'home' && document.visibilityState !== 'hidden') this._runDraw();
+    }, 10000);
+  }
+
   componentDidMount() {
+    window.addEventListener('scroll', this._pulseCheck, { passive: true });
     this._loadAll();
     this._updateBoardScale();
     this._updateMapBase();
@@ -1291,6 +1427,105 @@ class Component extends DCLogic {
         ...it, excerpt: it.excerpt || (stripMarkdown(it.content || '').slice(0, 180) + '…'),
       })),
       loreEmpty: !sortedLoreData.length,
+
+      // ── Пульс спільноти (анімований графік дописів за місяць, дані з БД) ──
+      ...(()=>{
+        // Агрегуємо денну активність (post_activity) у місяці
+        const pa = Array.isArray(data.post_activity) ? data.post_activity : [];
+        const monthMap = {};
+        let total = 0, peakDay = 0;
+        for (const r of pa) {
+          const v = +r.posts || 0; total += v;
+          if (v > peakDay) peakDay = v;
+          const m = (r.day || '').slice(0, 7);
+          if (m) monthMap[m] = (monthMap[m] || 0) + v;
+        }
+        const pm = Object.keys(monthMap).sort().map(m => ({ m, v: monthMap[m] }));
+        const activeDays = pa.length;
+        if (pm.length < 2) return { showPulse: false };
+
+        const cProg = ease0(s.pulseCountProg ?? 0);
+        const dProg = ease0(s.pulseStarted ? (s.pulseDrawProg ?? 0) : 0);
+        const n = pm.length;
+        const mx = Math.max(...pm.map(o=>o.v));
+        const W = 1000, base = 232, top = 26, usable = base - top;
+        const xOf = i => n>1 ? (i/(n-1))*W : W/2;
+        const yOf = v => base - (v/mx)*usable;
+        const pts = pm.map((o,i)=>({ x:xOf(i), y:yOf(o.v), o, i }));
+        const smooth = (P)=>{
+          if(!P.length) return '';
+          let d='M'+P[0].x.toFixed(1)+','+P[0].y.toFixed(1);
+          for(let i=0;i<P.length-1;i++){
+            const p0=P[i-1]||P[i], p1=P[i], p2=P[i+1], p3=P[i+2]||p2;
+            const c1x=p1.x+(p2.x-p0.x)/6, c1y=p1.y+(p2.y-p0.y)/6;
+            const c2x=p2.x-(p3.x-p1.x)/6, c2y=p2.y-(p3.y-p1.y)/6;
+            d+='C'+c1x.toFixed(1)+','+c1y.toFixed(1)+' '+c2x.toFixed(1)+','+c2y.toFixed(1)+' '+p2.x.toFixed(1)+','+p2.y.toFixed(1);
+          }
+          return d;
+        };
+        const line = smooth(pts);
+        const peak = pts.reduce((a,b)=> b.o.v>a.o.v ? b : a);
+        const mLabel = (m)=> UK_MON_FULL[(+m.slice(5))-1] + ' ' + m.slice(0,4);
+        const clamp = (t)=> Math.max(0, Math.min(1, t));
+        const lineProg = dProg;
+        const cSub     = ease0(clamp((s.pulseCountProg ?? 0) / 0.62));
+        const areaOp   = clamp((cProg - 0.12) / 0.5);
+        const peakOn   = clamp((cProg - 0.55) / 0.35);
+        const capOn    = clamp((cProg - 0.7) / 0.3);
+        this._pulseN = n;
+
+        // Горизонтальні лінії сітки з приблизними значеннями
+        const gsteps = [5,10,20,25,50,100,150,200,250,500,1000];
+        const gstep = gsteps.find(st => mx / st <= 5) || 1000;
+        const grid = [];
+        for (let v = gstep; v <= mx + 0.5; v += gstep) {
+          const gy = yOf(v);
+          grid.push({ y: gy.toFixed(1), topPct: (gy/240*100).toFixed(2)+'%', label: String(v) });
+        }
+
+        // Підписи місяців (та роки на січні / старті)
+        const monthMarks = pts.map(p => {
+          const mi = (+p.o.m.slice(5)) - 1;
+          const isJan = p.o.m.slice(5) === '01' || p.i === 0;
+          return { pct: (p.x/W*100).toFixed(2)+'%', mon: UK_MON_ABBR[mi],
+                   color: isJan ? 'rgba(255,215,0,0.6)' : 'rgba(255,255,255,0.34)' };
+        });
+
+        // Наведення мишкою
+        const hi = s.pulseHover;
+        const hoverOK = (typeof hi === 'number') && hi >= 0 && hi < pts.length;
+        const hp = hoverOK ? pts[hi] : null;
+        const tipLeft = hp ? Math.max(7, Math.min(93, hp.x/10)) : 0;
+
+        return {
+          showPulse: true,
+          pulseLine: line,
+          pulseArea: line + ' L'+W+',240 L0,240 Z',
+          pulsePeakX: peak.x, pulsePeakY: peak.y,
+          pulseGrid: grid,
+          pulseMonthMarks: monthMarks,
+          pulseHoverActive: hoverOK,
+          pulseHoverX: hp ? hp.x.toFixed(1) : 0,
+          pulseHoverDotY: hp ? hp.y.toFixed(1) : 0,
+          pulseHoverLabel: hp ? mLabel(hp.o.m) : '',
+          pulseHoverValue: hp ? (hp.o.v + ' дописів') : '',
+          pulseTipLeft: tipLeft.toFixed(2)+'%',
+          pulseTipTop: hp ? (hp.y/240*100).toFixed(2)+'%' : '0%',
+          pulseHoverMove: this._pulseHoverMove,
+          pulseHoverLeave: this._pulseHoverLeave,
+          pulseYearMarks: pts.filter(p=> p.i===0 || p.o.m.slice(5)==='01')
+                             .map(p=>({ pct: (p.x/W*100).toFixed(2)+'%', label: p.o.m.slice(0,4) })),
+          pulsePeakCaption: 'Пік — ' + mLabel(peak.o.m) + ' · ' + peak.o.v + ' дописів',
+          pulseDash: (1 - lineProg).toFixed(4),
+          pulseAreaOpacity: areaOp.toFixed(3),
+          pulseCapOpacity: capOn.toFixed(3),
+          pulsePeakStyle: 'opacity:'+peakOn.toFixed(3)+';transform:scale('+peakOn.toFixed(3)+');transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 8px rgba(255,215,0,0.95));',
+          pulseTotalDisp:   Math.round(total      * cSub).toLocaleString('uk-UA'),
+          pulseDaysDisp:    Math.round(activeDays * cSub).toLocaleString('uk-UA'),
+          pulsePeakDayDisp: Math.round(peakDay    * cSub).toLocaleString('uk-UA'),
+          pulseRef: this._pulseRef,
+        };
+      })(),
 
       // ── Бібліотека: mapping + shelves
       ...(()=>{
