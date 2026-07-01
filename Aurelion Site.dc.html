@@ -21,6 +21,7 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 @keyframes diceRollAnim{0%{transform:rotate(0deg) scale(1)}30%{transform:rotate(200deg) scale(0.85)}65%{transform:rotate(390deg) scale(1.1)}100%{transform:rotate(540deg) scale(1)}}
 @keyframes numFlash{0%,100%{opacity:1}50%{opacity:0.15}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes auCharIn{from{opacity:0;transform:translateY(16px) scale(0.975)}to{opacity:1;transform:translateY(0) scale(1)}}
 .au-page{animation:fadeUp 0.42s ease both}
 nav a[data-active="true"]{color:#fff!important}
 nav a[data-active="false"]{color:rgba(255,255,255,0.58)}
@@ -944,7 +945,10 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 <!-- ═══ MODAL: ПЕРСОНАЖ ═══ -->
 <sc-if value="{{ showCharModal }}" hint-placeholder-val="{{ false }}">
   <div onClick="{{ closeCharModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:76px 16px 24px;overflow-y:auto;">
-    <div onClick="{{ stopProp }}" style="background:#1d1d1d;border:1px solid rgba(255,255,255,0.14);border-radius:14px;max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;">
+    <div onClick="{{ stopProp }}" style="position:relative;overflow:hidden;background:#1d1d1d;border:1px solid rgba(255,255,255,0.14);border-radius:14px;max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;animation:auCharIn 0.42s cubic-bezier(0.2,0.8,0.25,1) both;">
+      <sc-if value="{{ showCharFx }}" hint-placeholder-val="{{ false }}">
+        <x-import component-from-global-scope="aurelion-fx" from="./aurelion-fx.js" effect="{{ charFxEffect }}" intensity="{{ charFxIntensity }}" duration-ms="{{ charFxDurationMs }}" seed="{{ charFxSeed }}" respect-reduced-motion="{{ charFxRespectRM }}" accent="{{ charFxAccent }}" style="position:absolute;inset:0;z-index:6;pointer-events:none;border-radius:14px;" hint-size="100%,100%"></x-import>
+      </sc-if>
       <div style="padding:22px 26px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
         <div>
           <p style="font-size:0.66rem;letter-spacing:0.13em;text-transform:uppercase;color:#ffd700;margin-bottom:4px;">{{ charModalRole }}</p>
@@ -1320,6 +1324,12 @@ class Component extends DCLogic {
       : (s.diceResult !== null ? String(s.diceResult) : '—');
     const sc = s.selectedChar;
     const sl = s.selectedLore;
+
+    const charOpenEffect = (() => {
+      const per = sc && sc.open_effect;
+      if (per && per !== 'default' && per !== '') return per;
+      return (data.site && data.site.char_open_effect_default) || 'sparks';
+    })();
 
     // ── Фільтр/сорт Лор
     const loreTagFilter  = s.loreTagFilter || null;
@@ -1888,6 +1898,15 @@ class Component extends DCLogic {
       },
       closeCharModal: () => this.setState({ selectedChar: null }),
       stopProp: (e) => e.stopPropagation(),
+
+      // ── Ефект відкриття анкети ─────────────────────────────
+      charFxEffect:      sc ? charOpenEffect : 'sparks',
+      charFxIntensity:   String(parseInt(data.site?.char_fx_intensity, 10) || 6),
+      charFxDurationMs:  String(({ fast: 420, medium: 820, dramatic: 1350 })[data.site?.char_fx_duration] || 820),
+      charFxSeed:        sc ? (sc.id + '|' + charOpenEffect) : '',
+      charFxRespectRM:   (data.site?.char_fx_reduce_motion === 'off') ? '0' : '1',
+      charFxAccent:      '#ffd700',
+      showCharFx:        !!sc && charOpenEffect !== 'none',
 
       showLoreModal:     !!sl,
       loreModalTitle:    sl?.title    || '',
