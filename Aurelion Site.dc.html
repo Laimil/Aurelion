@@ -230,7 +230,10 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 </sc-if>
 <!-- ═══ ПУТІВНИК ═══ -->
 <sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
-  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
+  <main class="au-page" style="min-height:100vh;">
+    <!-- ── ГАЛЕРЕЯ ── -->
+    <sc-if value="{{ showLoreGallery }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
     <header style="text-align:center;margin-bottom:32px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Знання</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Довідник Мандрівника</h1>
@@ -333,6 +336,59 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
         <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
         <p>Лор ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+      </div>
+    </sc-if>
+    </div>
+    </sc-if>
+
+    <!-- ── ЧИТАЛКА ── -->
+    <sc-if value="{{ showLoreReader }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:78px 24px 120px;">
+        <div style="max-width:1060px;margin:0 auto 16px;">
+          <button onClick="{{ closeLore }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">← Довідник Мандрівника</button>
+        </div>
+
+        <header style="max-width:1060px;margin:0 auto 42px;position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);{{ loreReaderHeaderMinH }}">
+          <div style="position:absolute;inset:0;{{ loreReaderCoverBg }}"></div>
+          <sc-if value="{{ loreReaderNoCover }}" hint-placeholder-val="{{ true }}">
+            <div style="position:absolute;right:6%;top:50%;transform:translateY(-50%);font-family:'Cinzel',serif;font-size:9rem;line-height:1;color:rgba(255,255,255,0.05);pointer-events:none;">✦</div>
+          </sc-if>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(24,22,17,0.97) 8%,rgba(24,22,17,0.72) 52%,rgba(24,22,17,0.5) 100%);"></div>
+          <div style="position:relative;padding:44px 40px 34px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;">
+            <sc-if value="{{ loreReaderHasCategory }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin-bottom:10px;">✦ {{ loreReaderCategory }}</p>
+            </sc-if>
+            <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,4.5vw,2.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;line-height:1.12;">{{ loreReaderTitle }}</h1>
+          </div>
+        </header>
+
+        <div class="chron-reader-grid">
+          <div>
+            <sc-if value="{{ loreReaderHasToc }}" hint-placeholder-val="{{ false }}">
+              <div class="chron-toc-sticky">
+                <nav class="lore-toc">
+                  <p class="lore-toc-title">✦ Зміст</p>
+                  <ol class="lore-toc-list">
+                    <sc-for list="{{ loreReaderToc }}" as="h" hint-placeholder-count="5">
+                      <li data-level="{{ h.level }}"><a data-tocid="{{ h.id }}" onClick="{{ scrollLoreToc }}">{{ h.text }}</a></li>
+                    </sc-for>
+                  </ol>
+                </nav>
+              </div>
+            </sc-if>
+          </div>
+          <article style="min-width:0;">
+            <sc-if value="{{ loreReaderHasContent }}" hint-placeholder-val="{{ true }}">
+              {{ loreReaderBodyEl }}
+            </sc-if>
+            <sc-if value="{{ loreReaderNoContent }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:60px 24px;color:rgba(255,255,255,0.28);">
+                <p style="font-size:1.4rem;margin-bottom:10px;">✦</p>
+                <p>Текст ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін →</a></p>
+              </div>
+            </sc-if>
+          </article>
+        </div>
       </div>
     </sc-if>
   </main>
@@ -1083,24 +1139,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </div>
 </sc-if>
 
-<!-- ═══ MODAL: ЛОР ═══ -->
-<sc-if value="{{ showLoreModal }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ closeLoreModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:76px 16px 24px;overflow-y:auto;">
-    <div onClick="{{ stopLoreProp }}" style="background:#1d1d1d;border:1px solid rgba(255,255,255,0.14);border-radius:14px;max-width:780px;width:100%;max-height:90vh;display:flex;flex-direction:column;">
-      <div style="padding:22px 26px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-shrink:0;">
-        <div>
-          <span style="display:inline-block;background:rgba(255,215,0,0.09);color:rgba(255,215,0,0.85);border:1px solid rgba(255,215,0,0.2);border-radius:4px;font-size:0.67rem;letter-spacing:0.14em;text-transform:uppercase;padding:3px 10px;margin-bottom:10px;">{{ loreModalCategory }}</span>
-          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.45rem;color:#fff;letter-spacing:0.04em;">{{ loreModalTitle }}</h2>
-        </div>
-        <button onClick="{{ closeLoreModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:34px;height:34px;color:rgba(255,255,255,0.7);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
-      </div>
-      <div class="lore-scroll-body" style="padding:28px 30px;overflow-y:auto;">
-        {{ loreModalContentEl }}
-      </div>
-    </div>
-  </div>
-</sc-if>
-
 <sc-if value="{{ showToTop }}" hint-placeholder-val="{{ false }}">
   <button onClick="{{ scrollToTop }}" title="Нагору" aria-label="Нагору" style="position:fixed;right:22px;bottom:22px;z-index:9999;width:48px;height:48px;border-radius:999px;border:1px solid rgba(255,215,0,0.4);background:rgba(26,24,20,0.82);backdrop-filter:blur(10px);color:#ffd700;font-size:1.3rem;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.8);box-shadow:0 0 22px rgba(255,215,0,0.35);transform:translateY(-3px);">↑</button>
 </sc-if>
@@ -1480,6 +1518,8 @@ class Component extends DCLogic {
 
       showHome:        page === 'home',
       showLore:        page === 'lore',
+      showLoreGallery: page === 'lore' && !s.selectedLore,
+      showLoreReader:  page === 'lore' && !!s.selectedLore,
       showStories:     page === 'stories',
       showChronicles:   page === 'chronicles',
       showChronGallery: page === 'chronicles' && !s.selectedChronicle,
@@ -2029,35 +2069,44 @@ class Component extends DCLogic {
       charFxAccent:      '#ffd700',
       showCharFx:        !!sc && charOpenEffect !== 'none',
 
-      showLoreModal:     !!sl,
-      loreModalTitle:    sl?.title    || '',
-      loreModalCategory: sl?.category || '',
-      loreModalContent:  sl?.content  || '',
-      loreModalContentEl: (() => {
+      // ── ЧИТАЛКА: Довідник (лор) ──
+      ...(() => {
         const raw = sl?.content || '';
         const toc = extractToc(raw);
-        const body = React.createElement('div', { key: 'body', className: 'lore-md', dangerouslySetInnerHTML: { __html: parseMarkdown(raw) } });
-        if (toc.length < 2) return body;
-        const onTocClick = (e) => {
-          e.preventDefault();
-          const id = e.currentTarget.getAttribute('data-tocid');
-          const target = document.querySelector('[data-hid="' + id + '"]');
-          const container = document.querySelector('.lore-scroll-body');
-          if (target && container) {
-            container.scrollTop = target.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop - 20;
-          }
+        const hasCover = !!(sl && sl.cover);
+        const LGRAD = [
+          'radial-gradient(ellipse at 30% 22%,rgba(255,215,0,0.16),transparent 62%),linear-gradient(150deg,#251e10,#161310 72%)',
+          'radial-gradient(ellipse at 68% 24%,rgba(100,149,237,0.18),transparent 62%),linear-gradient(150deg,#122039,#141414 72%)',
+          'radial-gradient(ellipse at 34% 24%,rgba(95,191,176,0.17),transparent 62%),linear-gradient(150deg,#0f2521,#141414 72%)',
+          'radial-gradient(ellipse at 66% 22%,rgba(150,110,220,0.18),transparent 62%),linear-gradient(150deg,#1e1630,#141414 72%)',
+          'radial-gradient(ellipse at 32% 24%,rgba(200,80,110,0.18),transparent 62%),linear-gradient(150deg,#2a1220,#141414 72%)',
+          'radial-gradient(ellipse at 68% 22%,rgba(200,205,215,0.13),transparent 62%),linear-gradient(150deg,#1c1e24,#141414 72%)',
+        ];
+        const key = sl ? (sl.category || sl.title || 'x') : 'x';
+        let hh = 0; for (let i = 0; i < key.length; i++) hh = (hh * 31 + key.charCodeAt(i)) >>> 0;
+        const grad = LGRAD[hh % LGRAD.length];
+        return {
+          loreReaderTitle:       sl?.title    || '',
+          loreReaderCategory:    sl?.category || '',
+          loreReaderHasCategory: !!(sl && sl.category),
+          loreReaderHasCover:    hasCover,
+          loreReaderNoCover:     !hasCover,
+          loreReaderCoverBg:     hasCover
+            ? ('background-image:url(' + JSON.stringify(sl.cover) + ');background-size:cover;background-position:center;')
+            : ('background:' + grad + ';'),
+          loreReaderHeaderMinH:  hasCover ? 'min-height:280px;' : 'min-height:210px;',
+          loreReaderToc:         toc.map(x => ({ level: String(x.level), text: x.text, id: x.id })),
+          loreReaderHasToc:      toc.length >= 2,
+          loreReaderHasContent:  !!raw,
+          loreReaderNoContent:   !!(sl && !raw),
+          loreReaderBodyEl:      raw ? React.createElement('div', { className:'lore-md', dangerouslySetInnerHTML:{ __html: parseMarkdown(raw) } }) : null,
+          scrollLoreToc: (e) => {
+            e.preventDefault();
+            const id = e.currentTarget.getAttribute('data-tocid');
+            const target = document.querySelector('[data-hid="' + id + '"]');
+            if (target) { const y = target.getBoundingClientRect().top + window.scrollY - 80; window.scrollTo({ top: y, behavior: 'smooth' }); }
+          },
         };
-        return React.createElement('div', null,
-          React.createElement('nav', { key: 'toc', className: 'lore-toc' },
-            React.createElement('p', { className: 'lore-toc-title' }, '\u2726 \u0417\u043c\u0456\u0441\u0442'),
-            React.createElement('ol', { className: 'lore-toc-list' },
-              toc.map((h, i) => React.createElement('li', { key: i, 'data-level': String(h.level) },
-                React.createElement('a', { href: '#', 'data-tocid': h.id, onClick: onTocClick }, h.text)
-              ))
-            )
-          ),
-          body
-        );
       })(),
       histTags, hasHistTags, histTagAll,
       setHistTag: (e) => this.setState({ histTagFilter: e.currentTarget.dataset.tag || null }),
@@ -2205,8 +2254,9 @@ class Component extends DCLogic {
       openLore: (e) => {
         const id = e.currentTarget.dataset.id;
         const it = (data.lore || []).find(l => l.id === id);
-        if (it) this.setState({ selectedLore: it });
+        if (it) { this.setState({ selectedLore: it }); window.scrollTo({ top: 0 }); }
       },
+      closeLore: () => { this.setState({ selectedLore: null }); window.scrollTo({ top: 0 }); },
       // ── Карта ─────────────────────────────────────────────
       mapImageEl: React.createElement('img', {
         key: 'map-img',
