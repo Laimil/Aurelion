@@ -1164,8 +1164,27 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           </div>
         </div>
       </div>
-      <div style="padding:12px 22px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:flex-end;flex-shrink:0;">
-        <button onClick="{{ closeCharModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);color:#fff;border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;">Закрити</button>
+      <div style="padding:12px 22px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button onClick="{{ saveCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,215,0,0.32);border-radius:999px;padding:8px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Картка PNG
+          </button>
+          <button onClick="{{ copyCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:8px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Копіювати
+          </button>
+          <sc-if value="{{ canNativeShare }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ shareCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:8px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              Поділитися
+            </button>
+          </sc-if>
+          <sc-if value="{{ hasCharShareMsg }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:0.8rem;letter-spacing:0.03em;color:rgba(255,215,0,0.85);font-family:'EB Garamond',Georgia,serif;">{{ charShareMsg }}</span>
+          </sc-if>
+        </div>
+        <button onClick="{{ closeCharModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);color:#fff;border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;flex-shrink:0;">Закрити</button>
       </div>
     </div>
   </div>
@@ -1305,6 +1324,7 @@ class Component extends DCLogic {
     loading: true,
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
     rolledAt: null, shareMsg: '', sharing: false, diceQuote: '',
+    charSharing: false, charShareMsg: '',
     diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
     rollHistory: [], selectedChar: null, selectedLore: null, selectedHistory: null,
     charTab: 'player', charSearch: '',
@@ -1816,6 +1836,248 @@ class Component extends DCLogic {
       this._flashShareMsg('Поділитися недоступно тут');
     }
     this.setState({ sharing: false });
+  }
+
+  // ════════ КАРТКА ПЕРСОНАЖА ════════
+
+  _loadImageSafe(url) {
+    return new Promise((resolve) => {
+      if (!url) { resolve(null); return; }
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+  }
+
+  _drawCover(ctx, img, x, y, w, h, focusY) {
+    const ir = img.width / img.height, br = w / h;
+    let sw, sh, sx, sy;
+    if (ir > br) { sh = img.height; sw = sh * br; sx = (img.width - sw) / 2; sy = 0; }
+    else { sw = img.width; sh = sw / br; sx = 0; sy = (img.height - sh) * (focusY == null ? 0 : focusY); }
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+  }
+
+  _renderCharCanvas(ch, img) {
+    const W = 900, H = 1200, dpr = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    // Ground
+    ctx.fillStyle = '#161514';
+    ctx.fillRect(0, 0, W, H);
+
+    // ── Portrait panel ──
+    const px = 66, py = 66, pw = W - 132, ph = 650;
+    ctx.save();
+    this._roundRect(ctx, px, py, pw, ph, 14);
+    ctx.clip();
+    if (img) {
+      this._drawCover(ctx, img, px, py, pw, ph, 0);
+    } else {
+      const gg = ctx.createLinearGradient(px, py, px, py + ph);
+      gg.addColorStop(0, 'rgba(255,255,255,0.07)');
+      gg.addColorStop(1, 'rgba(255,215,0,0.05)');
+      ctx.fillStyle = gg; ctx.fillRect(px, py, pw, ph);
+      const initials = ((ch.name || '?').trim()[0] || '?').toUpperCase();
+      ctx.fillStyle = 'rgba(255,215,0,0.5)';
+      ctx.font = '900 230px "Cinzel", Georgia, serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(initials, px + pw / 2, py + ph / 2 - 20);
+      ctx.textBaseline = 'alphabetic';
+    }
+    // Fade the portrait bottom seamlessly into the ground
+    const fade = ctx.createLinearGradient(0, py + ph - 220, 0, py + ph);
+    fade.addColorStop(0, 'rgba(22,21,20,0)');
+    fade.addColorStop(1, 'rgba(22,21,20,1)');
+    ctx.fillStyle = fade; ctx.fillRect(px, py + ph - 220, pw, 220);
+    ctx.restore();
+
+    // Type tag pill (top-left over portrait)
+    const typeLabel = ch.character_type === 'npc' ? 'NPC' : 'ГРАВЕЦЬКИЙ';
+    ctx.font = '700 14px "Cinzel", Georgia, serif';
+    const chars = [...typeLabel];
+    let tw = 0; chars.forEach(c => tw += ctx.measureText(c).width); tw += 3 * (chars.length - 1);
+    const pillW = tw + 30, pillH = 30;
+    ctx.fillStyle = 'rgba(18,17,16,0.72)';
+    this._roundRect(ctx, px + 16, py + 16, pillW, pillH, 15); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,215,0,0.4)'; ctx.lineWidth = 1;
+    this._roundRect(ctx, px + 16, py + 16, pillW, pillH, 15); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,215,0,0.9)';
+    this._trackedText(ctx, typeLabel, px + 16 + pillW / 2, py + 16 + 20, 3);
+
+    // ── Content zone ──
+    ctx.textAlign = 'center';
+    let y = 762;
+
+    const role = (ch.role || '').trim();
+    if (role) {
+      ctx.fillStyle = 'rgba(255,215,0,0.82)';
+      ctx.font = '600 19px "Cinzel", Georgia, serif';
+      this._trackedText(ctx, role.toUpperCase(), W / 2, y, 3);
+      y += 46;
+    }
+
+    // Name (up to 2 lines)
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 50px "Cinzel", Georgia, serif';
+    const nameLines = this._wrapLines(ctx, (ch.name || '').trim(), pw - 60).slice(0, 2);
+    nameLines.forEach((ln, i) => ctx.fillText(ln, W / 2, y + i * 56));
+    y += (nameLines.length - 1) * 56 + 20;
+
+    // Alias
+    const alias = (ch.alias || '').trim();
+    if (alias) {
+      y += 30;
+      ctx.fillStyle = 'rgba(255,215,0,0.85)';
+      ctx.font = 'italic 400 29px "EB Garamond", Georgia, serif';
+      const aliasLines = this._wrapLines(ctx, '«' + alias + '»', pw - 80).slice(0, 1);
+      ctx.fillText(aliasLines[0], W / 2, y);
+    }
+
+    // Stat chips (Вік / Зріст / Вага)
+    const stats = [];
+    if ((ch.age || '').toString().trim())    stats.push({ k: 'ВІК',   v: String(ch.age).trim() });
+    if ((ch.height || '').toString().trim()) stats.push({ k: 'ЗРІСТ', v: String(ch.height).trim() });
+    if ((ch.weight || '').toString().trim()) stats.push({ k: 'ВАГА',  v: String(ch.weight).trim() });
+    if (stats.length) {
+      y += 52;
+      const chipH = 60, gap = 12, padX = 20;
+      const dims = stats.map(st => {
+        ctx.font = '600 20px "Cinzel", Georgia, serif';
+        const vw = ctx.measureText(st.v).width;
+        ctx.font = '600 12px "Cinzel", Georgia, serif';
+        const kw = ctx.measureText(st.k).width + 2 * (st.k.length - 1);
+        return { w: Math.max(vw, kw) + padX * 2, ...st };
+      });
+      const totalW = dims.reduce((a, d) => a + d.w, 0) + gap * (dims.length - 1);
+      let cx = W / 2 - totalW / 2;
+      dims.forEach(d => {
+        ctx.fillStyle = 'rgba(255,255,255,0.05)';
+        this._roundRect(ctx, cx, y, d.w, chipH, 10); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+        this._roundRect(ctx, cx, y, d.w, chipH, 10); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,215,0,0.6)';
+        ctx.font = '600 12px "Cinzel", Georgia, serif';
+        this._trackedText(ctx, d.k, cx + d.w / 2, y + 24, 2);
+        ctx.fillStyle = '#fff';
+        ctx.font = '600 20px "Cinzel", Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(d.v, cx + d.w / 2, y + 47);
+        cx += d.w + gap;
+      });
+      y += chipH;
+    }
+
+    // Bio excerpt (up to 3 lines)
+    const bioRaw = (typeof stripMarkdown === 'function' ? stripMarkdown(ch.bio || '') : (ch.bio || '')).replace(/\s+/g, ' ').trim();
+    if (bioRaw) {
+      y += 56;
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = '400 25px "EB Garamond", Georgia, serif';
+      ctx.textAlign = 'center';
+      let lines = this._wrapLines(ctx, bioRaw, pw - 40);
+      if (lines.length > 3) { lines = lines.slice(0, 3); lines[2] = lines[2].replace(/[.,;:!?»]*$/, '') + '…'; }
+      lines.forEach((ln, i) => ctx.fillText(ln, W / 2, y + i * 36));
+    }
+
+    // ── Footer wordmark (pinned) ──
+    ctx.strokeStyle = 'rgba(255,215,0,0.22)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 92, H - 116); ctx.lineTo(W / 2 - 28, H - 116);
+    ctx.moveTo(W / 2 + 28, H - 116); ctx.lineTo(W / 2 + 92, H - 116);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,215,0,0.55)';
+    ctx.font = '15px "Cinzel", serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('✦', W / 2, H - 110);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,215,0,0.4)';
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = '#ffd700';
+    ctx.font = '700 30px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, 'AURELION', W / 2, H - 66, 8);
+    ctx.restore();
+
+    // Gold hairline frame (drawn last, on top)
+    ctx.strokeStyle = 'rgba(255,215,0,0.34)';
+    ctx.lineWidth = 1.5;
+    this._roundRect(ctx, 34, 34, W - 68, H - 68, 22);
+    ctx.stroke();
+
+    return canvas;
+  }
+
+  async _charCardBlob(ch) {
+    await this._ensureCardFonts();
+    const img = await this._loadImageSafe(ch.image);
+    const canvas = this._renderCharCanvas(ch, img);
+    return await new Promise(res => canvas.toBlob(res, 'image/png'));
+  }
+
+  _charCardFileName(ch) {
+    const slug = (ch.name || 'character').toString().toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'character';
+    return 'aurelion-' + slug + '.png';
+  }
+
+  _flashCharShareMsg(msg) {
+    this.setState({ charShareMsg: msg });
+    clearTimeout(this._charShareMsgTimer);
+    this._charShareMsgTimer = setTimeout(() => this.setState({ charShareMsg: '' }), 2600);
+  }
+
+  async saveCharCard() {
+    const ch = this.state.selectedChar;
+    if (!ch || this.state.charSharing) return;
+    this.setState({ charSharing: true });
+    try {
+      const blob = await this._charCardBlob(ch);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = this._charCardFileName(ch);
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      this._flashCharShareMsg('Картку збережено');
+    } catch (e) { this._flashCharShareMsg('Не вдалося зберегти'); }
+    this.setState({ charSharing: false });
+  }
+
+  async copyCharCard() {
+    const ch = this.state.selectedChar;
+    if (!ch || this.state.charSharing) return;
+    this.setState({ charSharing: true });
+    try {
+      const blob = await this._charCardBlob(ch);
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        this._flashCharShareMsg('Скопійовано в буфер');
+      } else { throw new Error('no-clipboard'); }
+    } catch (e) { this._flashCharShareMsg('Буфер недоступний — збережіть картку'); }
+    this.setState({ charSharing: false });
+  }
+
+  async shareCharCard() {
+    const ch = this.state.selectedChar;
+    if (!ch || this.state.charSharing) return;
+    this.setState({ charSharing: true });
+    try {
+      const blob = await this._charCardBlob(ch);
+      const file = new File([blob], this._charCardFileName(ch), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Ауреліон · ' + (ch.name || 'Персонаж') });
+        this._flashCharShareMsg('');
+      } else { throw new Error('no-share'); }
+    } catch (e) {
+      if (e && e.name === 'AbortError') { this.setState({ charSharing: false }); return; }
+      this._flashCharShareMsg('Поділитися недоступно тут');
+    }
+    this.setState({ charSharing: false });
   }
 
   renderVals() {
@@ -2452,6 +2714,12 @@ class Component extends DCLogic {
       },
       closeCharModal: () => this.setState({ selectedChar: null }),
       stopProp: (e) => e.stopPropagation(),
+      saveCharCard:  () => this.saveCharCard(),
+      copyCharCard:  () => this.copyCharCard(),
+      shareCharCard: () => this.shareCharCard(),
+      charShareBusy: s.charSharing,
+      charShareMsg:  s.charShareMsg,
+      hasCharShareMsg: !!s.charShareMsg,
 
       // ── Ефект відкриття анкети ─────────────────────────────
       charFxEffect:      sc ? charOpenEffect : 'sparks',
