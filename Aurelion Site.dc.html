@@ -916,6 +916,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <span class="die-number" style="font-family:'Cinzel',Georgia,serif;font-size:4.2rem;font-weight:900;color:#fff;position:relative;z-index:1;line-height:1;letter-spacing:-0.02em;">{{ diceDisplay }}</span>
       </div>
       <p style="font-size:0.76rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);min-height:1.3em;">{{ rollLabel }}</p>
+      <sc-if value="{{ hasRollQuote }}" hint-placeholder-val="{{ false }}">
+        <p style="max-width:420px;margin:12px auto 0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.12rem;line-height:1.5;color:rgba(255,215,0,0.82);text-wrap:pretty;">«{{ rollQuote }}»</p>
+      </sc-if>
     </div>
     <div style="max-width:320px;margin:0 auto 20px;">
       <input value="{{ diceName }}" onInput="{{ setDiceName }}" placeholder="Ім'я персонажа або гравця (для картки)" maxlength="40" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:11px 20px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;text-align:center;outline:none;transition:all 0.2s ease;" style-focus="border-color:rgba(255,215,0,0.5);background:rgba(255,255,255,0.08);" />
@@ -1240,13 +1243,66 @@ const ease0 = (t)=>{ t = Math.max(0, Math.min(1, t)); return 1 - Math.pow(1 - t,
 
 const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице, ти ж не хочеш померти одразу ж вийшовши за межі міста? Думаю, що ні. Тому я тут. Спробуй довірити своє життя моїм знанням, адже можливо, саме я стану найвірнішим, найчеснішим супутником на твоєму шляху.\n\nПравило перше: Не довіряй людям. Повір, твої шанси на виживання зростуть на двадцять пунктів вверх…»';
 
+const DEFAULT_DICE_QUOTES = {
+  crit: [
+    'Боги усміхнулися до тебе.',
+    'Кістки лягли ідеально — доля на твоєму боці.',
+    'Такий кидок оспівають у тавернах.',
+    'Сама Леста торкнулась твоєї руки.',
+    'Зорі зійшлися саме для тебе.',
+    'Це не удача — це народжується легенда.',
+    'Критичний! Хай тремтять вороги.',
+    'Пантеон аплодує стоячи.',
+    'Доля прошепотіла: «так».',
+    'Максимум. Більше й бути не може.',
+    'Кубик знав, що робить.',
+    'Твоє ім\u2019я впишуть у хроніки.',
+    'Богиня удачі підморгнула тобі.',
+    'Навіть майстер підняв брову.',
+  ],
+  fumble: [
+    'Нокта забрала свою данину.',
+    'Ну... принаймні кубик цілий.',
+    'Одиниця. Боги відвернулися.',
+    'Це буде смішна історія... колись потім.',
+    'Навіть глядачі скривились.',
+    'Доля сьогодні не в гуморі.',
+    'Провал, гідний окремого розділу хронік.',
+    'Кубик зрадив у найгірший момент.',
+    'Тінь усміхнулась — але не тобі.',
+    'Майстер уже готує наслідки.',
+    'Іноді герої теж спотикаються.',
+    'Це не твій день, мандрівнику.',
+    'Схоже, боги пили, коли кидали за тебе.',
+    'Один. Тільки один. На жаль.',
+  ],
+  normal: [
+    'Кубик кинуто — доля вирішує.',
+    'Подивимось, що скажуть боги.',
+    'Кістки впали. Що далі?',
+    'Доля зробила свій хід.',
+    'Не крит, але й не ганьба.',
+    'Достатньо, щоб рухатись далі.',
+    'Пантеон спостерігає мовчки.',
+    'Звичайний кидок для незвичайного шляху.',
+    'Колесо долі обертається.',
+    'І так буває — рівно, без драми.',
+    'Боги стенули плечима.',
+    'Результат є — інтрига лишається.',
+    'Кубик своє сказав.',
+    'Ще один крок у твоїй сазі.',
+    'Доля тримає баланс.',
+    'Нехай ведуть тебе ці числа.',
+  ],
+};
+
 class Component extends DCLogic {
   state = {
     page: this._getPage(),
     data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
     loading: true,
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
-    rolledAt: null, shareMsg: '', sharing: false,
+    rolledAt: null, shareMsg: '', sharing: false, diceQuote: '',
     diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
     rollHistory: [], selectedChar: null, selectedLore: null, selectedHistory: null,
     charTab: 'player', charSearch: '',
@@ -1447,6 +1503,24 @@ class Component extends DCLogic {
     if (show !== !!this.state.showToTop) this.setState({ showToTop: show });
   };
 
+  // ── Дайс: випадкова цитата за типом результату ──
+  _diceQuotesFor(kind) {
+    const site = (this.state.data && this.state.data.site) || {};
+    const key = kind === 'crit' ? 'dice_quotes_crit'
+      : kind === 'fumble' ? 'dice_quotes_fumble' : 'dice_quotes_normal';
+    const raw = site[key];
+    const list = (raw != null && String(raw).trim() !== '')
+      ? String(raw).split('\n').map(x => x.trim()).filter(Boolean)
+      : DEFAULT_DICE_QUOTES[kind];
+    return (list && list.length) ? list : DEFAULT_DICE_QUOTES[kind];
+  }
+
+  _pickQuote(result, sides) {
+    const kind = result === sides ? 'crit' : result === 1 ? 'fumble' : 'normal';
+    const list = this._diceQuotesFor(kind);
+    return list[Math.floor(Math.random() * list.length)] || '';
+  }
+
   rollDice() {
     if (this.state.rolling) return;
     const sides = this.state.diceType;
@@ -1460,7 +1534,7 @@ class Component extends DCLogic {
         clearInterval(this._rollTimer);
         this.setState(st => ({
           rolling: false, diceResult: result, diceRollingNum: null,
-          rolledAt: Date.now(), shareMsg: '',
+          rolledAt: Date.now(), shareMsg: '', diceQuote: this._pickQuote(result, sides),
           rollHistory: [
             { diceLabel: 'd' + sides, resultStr: String(result) },
             ...st.rollHistory,
@@ -1484,6 +1558,7 @@ class Component extends DCLogic {
         document.fonts.load('700 90px "Cinzel"'),
         document.fonts.load('900 200px "Cinzel"'),
         document.fonts.load('400 26px "EB Garamond"'),
+        document.fonts.load('italic 400 30px "EB Garamond"'),
       ]);
       await document.fonts.ready;
     } catch (e) {}
@@ -1499,6 +1574,18 @@ class Component extends DCLogic {
     ctx.textAlign = 'left';
     chars.forEach((ch, i) => { ctx.fillText(ch, x, y); x += widths[i] + spacing; });
     ctx.textAlign = prevAlign;
+  }
+
+  _wrapLines(ctx, text, maxWidth) {
+    const words = String(text).split(' ');
+    const lines = []; let cur = '';
+    for (const w of words) {
+      const test = cur ? cur + ' ' + w : w;
+      if (ctx.measureText(test).width > maxWidth && cur) { lines.push(cur); cur = w; }
+      else cur = test;
+    }
+    if (cur) lines.push(cur);
+    return lines;
   }
 
   _roundRect(ctx, x, y, w, h, r) {
@@ -1568,7 +1655,7 @@ class Component extends DCLogic {
 
     // Die polygon
     const pts = (DICE_SHAPES[type] || DICE_SHAPES[20]).trim().split(/\s+/).map(p => p.split(',').map(Number));
-    const size = 380, ox = W / 2 - size / 2, oy = 370;
+    const size = 360, ox = W / 2 - size / 2, oy = 340;
     ctx.save();
     ctx.beginPath();
     pts.forEach(([px, py], i) => {
@@ -1600,13 +1687,26 @@ class Component extends DCLogic {
     // Dice type chip label
     ctx.fillStyle = 'rgba(255,255,255,0.34)';
     ctx.font = '700 22px "Cinzel", Georgia, serif';
-    this._trackedText(ctx, 'd' + type, W / 2, oy + size + 66, 3);
+    this._trackedText(ctx, 'd' + type, W / 2, oy + size + 54, 3);
 
-    // Result label
-    ctx.fillStyle = isCrit ? '#ffd700' : isFumble ? '#ff8f8f' : 'rgba(255,255,255,0.72)';
-    ctx.font = '400 30px "EB Garamond", Georgia, serif';
-    const label = isCrit ? 'Критичний успіх!' : isFumble ? 'Провал!' : 'Воля богів кинута';
-    this._trackedText(ctx, label, W / 2, oy + size + 118, 2);
+    // Status word (лише крит / провал)
+    let quoteY = oy + size + 100;
+    if (isCrit || isFumble) {
+      ctx.fillStyle = isCrit ? '#ffd700' : '#ff8f8f';
+      ctx.font = '700 26px "Cinzel", Georgia, serif';
+      this._trackedText(ctx, isCrit ? 'КРИТИЧНИЙ УСПІХ' : 'ПРОВАЛ', W / 2, quoteY, 3);
+      quoteY += 46;
+    }
+
+    // Цитата (випадкова фраза за результатом)
+    const quote = (s.diceQuote || '').trim();
+    if (quote) {
+      ctx.fillStyle = isCrit ? 'rgba(255,215,0,0.9)' : isFumble ? 'rgba(255,143,143,0.9)' : 'rgba(255,255,255,0.78)';
+      ctx.font = 'italic 400 30px "EB Garamond", Georgia, serif';
+      ctx.textAlign = 'center';
+      const lines = this._wrapLines(ctx, '«' + quote + '»', 640);
+      lines.forEach((ln, i) => ctx.fillText(ln, W / 2, quoteY + i * 40));
+    }
 
     // Divider
     ctx.strokeStyle = 'rgba(255,215,0,0.22)';
@@ -2110,6 +2210,8 @@ class Component extends DCLogic {
       diceTypeName:    'd' + s.diceType,
       diceDisplay, isRolling: s.rolling, isCrit, isFumble,
       canShareCard: s.diceResult !== null && !s.rolling,
+      rollQuote: s.diceQuote,
+      hasRollQuote: !!s.diceQuote && s.diceResult !== null && !s.rolling,
       shareBusy: s.sharing,
       shareMsg: s.shareMsg,
       diceName: s.diceName,
@@ -2312,7 +2414,7 @@ class Component extends DCLogic {
 
       selectDice: (e) => {
         const n = parseInt(e.currentTarget.dataset.dice);
-        if (n) this.setState({ diceType: n, diceResult: null, rolling: false });
+        if (n) this.setState({ diceType: n, diceResult: null, rolling: false, diceQuote: '', shareMsg: '' });
       },
       roll: () => this.rollDice(),
       setDiceName: (e) => {

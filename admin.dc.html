@@ -186,6 +186,51 @@ button{font-family:inherit;cursor:pointer}
   </div>
 </sc-if>
 
+<!-- DICE TAB -->
+<sc-if value="{{ showDice }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:720px;margin:0 auto;padding:32px 24px 80px;">
+    <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:8px;">🎲 Дайс-роллер</h2>
+    <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:26px;line-height:1.55;">Фрази-цитати, що з’являються під результатом кидка (і на картці для шерингу). Одна фраза — один рядок. Після кидка обирається випадкова фраза з відповідного списку — тож що більше фраз, то різноманітніше.</p>
+
+    <div style="display:flex;flex-direction:column;gap:26px;">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <label style="margin:0;color:#ffd700;">✦ Критичний успіх <span style="color:rgba(255,255,255,0.3);font-weight:400;">(максимум на кубику)</span></label>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);">{{ diceCritCount }}</span>
+            <button data-bucket="crit" onClick="{{ resetDiceQuotes }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:999px;padding:4px 12px;font-size:0.7rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.2);">↺ Стандартні</button>
+          </div>
+        </div>
+        <textarea value="{{ diceCritQuotes }}" onChange="{{ handleSiteInput }}" data-field="dice_quotes_crit" style="min-height:180px;font-family:'EB Garamond',Georgia,serif;line-height:1.6;"></textarea>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <label style="margin:0;color:#ff8f8f;">✦ Провал <span style="color:rgba(255,255,255,0.3);font-weight:400;">(одиниця)</span></label>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);">{{ diceFumbleCount }}</span>
+            <button data-bucket="fumble" onClick="{{ resetDiceQuotes }}" style="background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.28);color:#ff8f8f;border-radius:999px;padding:4px 12px;font-size:0.7rem;cursor:pointer;" style-hover="background:rgba(255,77,77,0.2);">↺ Стандартні</button>
+          </div>
+        </div>
+        <textarea value="{{ diceFumbleQuotes }}" onChange="{{ handleSiteInput }}" data-field="dice_quotes_fumble" style="min-height:180px;font-family:'EB Garamond',Georgia,serif;line-height:1.6;"></textarea>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <label style="margin:0;">✦ Звичайний кидок <span style="color:rgba(255,255,255,0.3);font-weight:400;">(усі інші результати)</span></label>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);">{{ diceNormalCount }}</span>
+            <button data-bucket="normal" onClick="{{ resetDiceQuotes }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.7);border-radius:999px;padding:4px 12px;font-size:0.7rem;cursor:pointer;" style-hover="background:rgba(255,255,255,0.12);">↺ Стандартні</button>
+          </div>
+        </div>
+        <textarea value="{{ diceNormalQuotes }}" onChange="{{ handleSiteInput }}" data-field="dice_quotes_normal" style="min-height:200px;font-family:'EB Garamond',Georgia,serif;line-height:1.6;"></textarea>
+      </div>
+    </div>
+
+    <p style="margin-top:24px;font-size:0.75rem;color:rgba(255,255,255,0.22);">Натисни «Зберегти» у верхній панелі.</p>
+  </div>
+</sc-if>
+
 <!-- LORE TAB -->
 <sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
@@ -1002,6 +1047,59 @@ const TABLE_QUERIES = {
 
 const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице, ти ж не хочеш померти одразу ж вийшовши за межі міста? Думаю, що ні. Тому я тут. Спробуй довірити своє життя моїм знанням, адже можливо, саме я стану найвірнішим, найчеснішим супутником на твоєму шляху.\n\nПравило перше: Не довіряй людям. Повір, твої шанси на виживання зростуть на двадцять пунктів вверх…»';
 
+const DEFAULT_DICE_QUOTES = {
+  crit: [
+    'Боги усміхнулися до тебе.',
+    'Кістки лягли ідеально — доля на твоєму боці.',
+    'Такий кидок оспівають у тавернах.',
+    'Сама Леста торкнулась твоєї руки.',
+    'Зорі зійшлися саме для тебе.',
+    'Це не удача — це народжується легенда.',
+    'Критичний! Хай тремтять вороги.',
+    'Пантеон аплодує стоячи.',
+    'Доля прошепотіла: «так».',
+    'Максимум. Більше й бути не може.',
+    'Кубик знав, що робить.',
+    'Твоє ім\u2019я впишуть у хроніки.',
+    'Богиня удачі підморгнула тобі.',
+    'Навіть майстер підняв брову.',
+  ],
+  fumble: [
+    'Нокта забрала свою данину.',
+    'Ну... принаймні кубик цілий.',
+    'Одиниця. Боги відвернулися.',
+    'Це буде смішна історія... колись потім.',
+    'Навіть глядачі скривились.',
+    'Доля сьогодні не в гуморі.',
+    'Провал, гідний окремого розділу хронік.',
+    'Кубик зрадив у найгірший момент.',
+    'Тінь усміхнулась — але не тобі.',
+    'Майстер уже готує наслідки.',
+    'Іноді герої теж спотикаються.',
+    'Це не твій день, мандрівнику.',
+    'Схоже, боги пили, коли кидали за тебе.',
+    'Один. Тільки один. На жаль.',
+  ],
+  normal: [
+    'Кубик кинуто — доля вирішує.',
+    'Подивимось, що скажуть боги.',
+    'Кістки впали. Що далі?',
+    'Доля зробила свій хід.',
+    'Не крит, але й не ганьба.',
+    'Достатньо, щоб рухатись далі.',
+    'Пантеон спостерігає мовчки.',
+    'Звичайний кидок для незвичайного шляху.',
+    'Колесо долі обертається.',
+    'І так буває — рівно, без драми.',
+    'Боги стенули плечима.',
+    'Результат є — інтрига лишається.',
+    'Кубик своє сказав.',
+    'Ще один крок у твоїй сазі.',
+    'Доля тримає баланс.',
+    'Нехай ведуть тебе ці числа.',
+  ],
+};
+
 class Component extends DCLogic {
   state = {
     // auth
@@ -1302,8 +1400,14 @@ class Component extends DCLogic {
       this.setState({ saving: true });
       try {
         const site = s.data.site || {};
-        await Promise.all(['title','subtitle','welcome','contactsAbout','lore_intro_quote','char_open_effect_default','char_fx_duration','char_fx_intensity','char_fx_reduce_motion']
-          .map(k => this._upsertSetting(k, site[k] || '')));
+        const diceVal = (k, arr) => (site[k] != null && String(site[k]).trim() !== '') ? site[k] : arr.join('\n');
+        await Promise.all([
+          ...['title','subtitle','welcome','contactsAbout','lore_intro_quote','char_open_effect_default','char_fx_duration','char_fx_intensity','char_fx_reduce_motion']
+            .map(k => this._upsertSetting(k, site[k] || '')),
+          this._upsertSetting('dice_quotes_crit',   diceVal('dice_quotes_crit',   DEFAULT_DICE_QUOTES.crit)),
+          this._upsertSetting('dice_quotes_fumble', diceVal('dice_quotes_fumble', DEFAULT_DICE_QUOTES.fumble)),
+          this._upsertSetting('dice_quotes_normal', diceVal('dice_quotes_normal', DEFAULT_DICE_QUOTES.normal)),
+        ]);
         localStorage.setItem('aurelion-refresh', Date.now().toString());
         this._toast('✓ Налаштування збережено!');
       } catch(e) { this._toast('✗ Помилка — можливо, потрібно перелогінитись'); }
@@ -1380,6 +1484,7 @@ class Component extends DCLogic {
         { id: 'characters', label: '🎭 Персонажі',   active: tab === 'characters' },
         { id: 'pantheon',   label: '🐉 Пантеон',     active: tab === 'pantheon' },
         { id: 'map',        label: '🗺 Карта',        active: tab === 'map' },
+        { id: 'dice',       label: '🎲 Дайс',        active: tab === 'dice' },
         { id: 'contacts',   label: '✉️ Контакти',    active: tab === 'contacts' },
       ],
       setTab: (e) => {
@@ -1395,7 +1500,14 @@ class Component extends DCLogic {
       showPantheon:   tab === 'pantheon',
       showContacts:   tab === 'contacts',
       showMap:        tab === 'map',
+      showDice:       tab === 'dice',
 
+      diceCritQuotes:   (data.site && data.site.dice_quotes_crit   != null && data.site.dice_quotes_crit   !== '') ? data.site.dice_quotes_crit   : DEFAULT_DICE_QUOTES.crit.join('\n'),
+      diceFumbleQuotes: (data.site && data.site.dice_quotes_fumble != null && data.site.dice_quotes_fumble !== '') ? data.site.dice_quotes_fumble : DEFAULT_DICE_QUOTES.fumble.join('\n'),
+      diceNormalQuotes: (data.site && data.site.dice_quotes_normal != null && data.site.dice_quotes_normal !== '') ? data.site.dice_quotes_normal : DEFAULT_DICE_QUOTES.normal.join('\n'),
+      diceCritCount:   (((data.site && data.site.dice_quotes_crit)   || DEFAULT_DICE_QUOTES.crit.join('\n')).split('\n').filter(x => x.trim()).length) + ' фраз',
+      diceFumbleCount: (((data.site && data.site.dice_quotes_fumble) || DEFAULT_DICE_QUOTES.fumble.join('\n')).split('\n').filter(x => x.trim()).length) + ' фраз',
+      diceNormalCount: (((data.site && data.site.dice_quotes_normal) || DEFAULT_DICE_QUOTES.normal.join('\n')).split('\n').filter(x => x.trim()).length) + ' фраз',
       siteTitle:    data.site?.title         || '',
       siteSubtitle: data.site?.subtitle      || '',
       siteWelcome:  data.site?.welcome       || '',
@@ -1426,6 +1538,12 @@ class Component extends DCLogic {
       handleSiteInput: (e) => {
         const field = e.target.dataset.field, value = e.target.value;
         this.setState(st => ({ data: { ...st.data, site: { ...(st.data.site||{}), [field]: value } } }));
+      },
+      resetDiceQuotes: (e) => {
+        const which = e.currentTarget.dataset.bucket;
+        const map = { crit: 'dice_quotes_crit', fumble: 'dice_quotes_fumble', normal: 'dice_quotes_normal' };
+        const key = map[which]; if (!key) return;
+        this.setState(st => ({ data: { ...st.data, site: { ...(st.data.site||{}), [key]: DEFAULT_DICE_QUOTES[which].join('\n') } } }));
       },
       saveAll,
       refreshData: () => this._loadAll(),
