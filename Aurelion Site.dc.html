@@ -244,12 +244,17 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </sc-for>
       </div>
     </sc-if>
-    <!-- Сортування -->
-    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:26px;">
+    <!-- Сортування + вигляд -->
+    <div style="position:relative;display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:26px;">
       <sc-for list="{{ loreSortOptions }}" as="opt" hint-placeholder-count="0">
         <button data-sort="{{ opt.value }}" onClick="{{ setLoreSort }}" data-active="{{ opt.active }}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 14px;font-size:0.73rem;color:rgba(255,255,255,0.36);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">{{ opt.label }}</button>
       </sc-for>
+      <div style="display:inline-flex;gap:4px;margin-left:6px;padding-left:12px;border-left:1px solid rgba(255,255,255,0.1);">
+        <button data-view="grid" onClick="{{ setLoreView }}" data-active="{{ loreViewIsGrid }}" title="Плиткою" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 11px;font-size:0.92rem;line-height:1;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">▦</button>
+        <button data-view="list" onClick="{{ setLoreView }}" data-active="{{ loreViewIsList }}" title="Списком" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 11px;font-size:0.92rem;line-height:1;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">☰</button>
+      </div>
     </div>
+    <sc-if value="{{ loreViewGrid }}" hint-placeholder-val="{{ true }}">
     <!-- ✦ Обране -->
     <sc-if value="{{ loreHasFeatured }}" hint-placeholder-val="{{ false }}">
       <article data-id="{{ loreFeatured.id }}" onClick="{{ openLore }}" class="lore-card lore-feature" style="position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);cursor:pointer;margin-bottom:22px;min-height:340px;display:flex;box-shadow:0 12px 32px rgba(0,0,0,0.5);">
@@ -296,6 +301,31 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </article>
       </sc-for>
     </div>
+    </sc-if>
+    <!-- Список -->
+    <sc-if value="{{ loreViewList }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:900px;margin:0 auto;">
+        <sc-for list="{{ loreAllItems }}" as="item" hint-placeholder-count="6">
+          <article data-id="{{ item.id }}" onClick="{{ openLore }}" class="lore-card glass" style="cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:112px;">
+            <div style="position:relative;width:150px;flex-shrink:0;overflow:hidden;background:#111;">
+              <div class="lore-cover" style="position:absolute;inset:0;{{ item.coverStyle }}"></div>
+              <sc-if value="{{ item.noCover }}" hint-placeholder-val="{{ true }}">
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;"><span style="font-family:'Cinzel',serif;font-size:2rem;color:rgba(255,255,255,0.12);">✦</span></div>
+              </sc-if>
+              <div style="position:absolute;inset:0;background:linear-gradient(to right,transparent 52%,rgba(20,18,14,0.55) 100%);"></div>
+            </div>
+            <div style="padding:15px 20px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:5px;">
+              <sc-if value="{{ item.hasCategory }}" hint-placeholder-val="{{ false }}">
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:{{ item.accent }};"><span style="width:5px;height:5px;border-radius:50%;background:{{ item.accent }};"></span>{{ item.category }}</span>
+              </sc-if>
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.14rem;color:#fff;letter-spacing:0.03em;line-height:1.25;">{{ item.title }}</h2>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;color:rgba(255,255,255,0.48);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ item.excerpt }}</p>
+            </div>
+            <div style="align-self:center;padding:0 22px;color:#6495ed;font-size:1.1rem;flex-shrink:0;">→</div>
+          </article>
+        </sc-for>
+      </div>
+    </sc-if>
     <sc-if value="{{ loreEmpty }}" hint-placeholder-val="{{ false }}">
       <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
         <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
@@ -1505,6 +1535,7 @@ class Component extends DCLogic {
           loreFeatured:    feat ? en[0] : null,
           loreHasFeatured: feat,
           loreGridItems:   feat ? en.slice(1) : en,
+          loreAllItems:    en,
         };
       })(),
       loreEmpty: !sortedLoreData.length,
@@ -2130,6 +2161,10 @@ class Component extends DCLogic {
         { value: 'az',    label: 'A → Я',     active: loreSortBy === 'az' },
         { value: 'za',    label: 'Я → A',     active: loreSortBy === 'za' },
       ],
+      loreViewGrid: (s.loreView || 'grid') === 'grid',
+      loreViewList: (s.loreView || 'grid') === 'list',
+      loreViewIsGrid: (s.loreView || 'grid') === 'grid',
+      loreViewIsList: (s.loreView || 'grid') === 'list',
       storiesSortOptions: [
         { value: 'order', label: '✦ Порядок', active: storiesSortBy === 'order' },
         { value: 'az',    label: 'A → Я',      active: storiesSortBy === 'az' },
@@ -2141,6 +2176,7 @@ class Component extends DCLogic {
       ],
       setLoreTag:    (e) => this.setState({ loreTagFilter: e.currentTarget.dataset.tag || null }),
       setLoreSort:   (e) => this.setState({ loreSortBy: e.currentTarget.dataset.sort }),
+      setLoreView:   (e) => this.setState({ loreView: e.currentTarget.dataset.view }),
       setStoriesSort:(e) => this.setState({ storiesSortBy: e.currentTarget.dataset.sort }),
       setCharSort:   (e) => this.setState({ charSortBy: e.currentTarget.dataset.sort }),
       openLore: (e) => {
