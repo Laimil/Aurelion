@@ -34,6 +34,8 @@ nav a[data-active="false"]:hover{color:#fff;transition:color 0.18s}
 [data-rolling="true"] .die-number{animation:numFlash 0.12s linear infinite}
 [data-crit="true"] .die-number{color:#ffd700!important;text-shadow:0 0 32px rgba(255,215,0,0.9),0 0 64px rgba(255,215,0,0.4)!important}
 [data-fumble="true"] .die-number{color:#ff4d4d!important;text-shadow:0 0 32px rgba(255,77,77,0.9)!important}
+    .share-btn:hover{background:rgba(255,255,255,0.11)!important;transform:translateY(-2px)}
+    .share-btn[data-busy="true"]{opacity:0.5;pointer-events:none}
 button.die-btn[data-active="true"]{background:rgba(255,215,0,0.14)!important;border-color:rgba(255,215,0,0.6)!important;color:#ffd700!important}
 button[data-active="true"]:not(.die-btn){background:rgba(255,215,0,0.12)!important;border-color:rgba(255,215,0,0.4)!important;color:#ffd700!important}
 button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!important;border-color:rgba(255,255,255,0.28)!important}
@@ -915,9 +917,34 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       </div>
       <p style="font-size:0.76rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);min-height:1.3em;">{{ rollLabel }}</p>
     </div>
-    <div style="text-align:center;margin-bottom:48px;">
+    <div style="max-width:320px;margin:0 auto 20px;">
+      <input value="{{ diceName }}" onInput="{{ setDiceName }}" placeholder="Ім'я персонажа або гравця (для картки)" maxlength="40" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:11px 20px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;text-align:center;outline:none;transition:all 0.2s ease;" style-focus="border-color:rgba(255,215,0,0.5);background:rgba(255,255,255,0.08);" />
+    </div>
+    <div style="text-align:center;margin-bottom:28px;">
       <button onClick="{{ roll }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:15px 58px;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(255,215,0,0.22);" style-hover="transform:scale(1.05);box-shadow:0 6px 32px rgba(255,215,0,0.44);">Кинути {{ diceTypeName }}</button>
     </div>
+    <sc-if value="{{ canShareCard }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;margin-bottom:40px;">
+        <p style="font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.26);margin-bottom:14px;">— Поділитися кидком —</p>
+        <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:10px;">
+          <button onClick="{{ saveDiceCard }}" data-busy="{{ shareBusy }}" class="share-btn" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,215,0,0.32);border-radius:999px;padding:11px 22px;color:#fff;font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Зберегти PNG
+          </button>
+          <button onClick="{{ copyDiceCard }}" data-busy="{{ shareBusy }}" class="share-btn" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:11px 22px;color:#fff;font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Копіювати
+          </button>
+          <sc-if value="{{ canNativeShare }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ shareDiceCard }}" data-busy="{{ shareBusy }}" class="share-btn" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:11px 22px;color:#fff;font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              Поділитися
+            </button>
+          </sc-if>
+        </div>
+        <p style="min-height:1.2em;margin-top:14px;font-size:0.8rem;letter-spacing:0.04em;color:rgba(255,215,0,0.85);font-family:'EB Garamond',Georgia,serif;">{{ shareMsg }}</p>
+      </div>
+    </sc-if>
     <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ false }}">
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:18px 22px;">
         <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.24);margin-bottom:13px;">— Останні кидки —</p>
@@ -1219,6 +1246,8 @@ class Component extends DCLogic {
     data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
     loading: true,
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
+    rolledAt: null, shareMsg: '', sharing: false,
+    diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
     rollHistory: [], selectedChar: null, selectedLore: null, selectedHistory: null,
     charTab: 'player', charSearch: '',
     selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
@@ -1431,6 +1460,7 @@ class Component extends DCLogic {
         clearInterval(this._rollTimer);
         this.setState(st => ({
           rolling: false, diceResult: result, diceRollingNum: null,
+          rolledAt: Date.now(), shareMsg: '',
           rollHistory: [
             { diceLabel: 'd' + sides, resultStr: String(result) },
             ...st.rollHistory,
@@ -1438,6 +1468,252 @@ class Component extends DCLogic {
         }));
       }
     }, 60);
+  }
+
+  // ── Дайс: картка-результат для шерингу ──
+  _diceLabelText(type, result) {
+    if (result === type) return '✦ Критичний успіх';
+    if (result === 1) return '✦ Провал';
+    return '✦ Кинуто d' + type;
+  }
+
+  async _ensureCardFonts() {
+    if (!document.fonts || !document.fonts.load) return;
+    try {
+      await Promise.all([
+        document.fonts.load('700 90px "Cinzel"'),
+        document.fonts.load('900 200px "Cinzel"'),
+        document.fonts.load('400 26px "EB Garamond"'),
+      ]);
+      await document.fonts.ready;
+    } catch (e) {}
+  }
+
+  _trackedText(ctx, text, cx, y, spacing) {
+    const chars = [...text];
+    let total = 0;
+    const widths = chars.map(ch => { const w = ctx.measureText(ch).width; total += w; return w; });
+    total += spacing * (chars.length - 1);
+    let x = cx - total / 2;
+    const prevAlign = ctx.textAlign;
+    ctx.textAlign = 'left';
+    chars.forEach((ch, i) => { ctx.fillText(ch, x, y); x += widths[i] + spacing; });
+    ctx.textAlign = prevAlign;
+  }
+
+  _roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  _renderDiceCanvas() {
+    const s = this.state;
+    const type   = s.diceType;
+    const result = s.diceResult;
+    const isCrit   = result === type;
+    const isFumble = result === 1;
+    const accent = isCrit ? '#ffd700' : isFumble ? '#ff4d4d' : '#ffffff';
+
+    const W = 900, H = 1200, dpr = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    // Ground
+    ctx.fillStyle = '#161514';
+    ctx.fillRect(0, 0, W, H);
+    // Radial glow behind die
+    const glowColor = isFumble ? 'rgba(255,77,77,0.20)' : 'rgba(255,215,0,0.20)';
+    const g = ctx.createRadialGradient(W / 2, 560, 40, W / 2, 560, 460);
+    g.addColorStop(0, glowColor);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    // Vignette bottom
+    const vg = ctx.createLinearGradient(0, H - 380, 0, H);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, H - 380, W, 380);
+
+    // Gold hairline frame
+    ctx.strokeStyle = 'rgba(255,215,0,0.34)';
+    ctx.lineWidth = 1.5;
+    this._roundRect(ctx, 34, 34, W - 68, H - 68, 22);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    this._roundRect(ctx, 44, 44, W - 88, H - 88, 16);
+    ctx.stroke();
+
+    // Ornament + wordmark
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = 'rgba(255,215,0,0.78)';
+    ctx.font = '600 20px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, '✦ ВОЛЯ БОГІВ', W / 2, 138, 5);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,215,0,0.55)';
+    ctx.shadowBlur = 32;
+    ctx.fillStyle = '#ffd700';
+    ctx.font = '700 62px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, 'AURELION', W / 2, 214, 10);
+    ctx.restore();
+
+    // Die polygon
+    const pts = (DICE_SHAPES[type] || DICE_SHAPES[20]).trim().split(/\s+/).map(p => p.split(',').map(Number));
+    const size = 380, ox = W / 2 - size / 2, oy = 370;
+    ctx.save();
+    ctx.beginPath();
+    pts.forEach(([px, py], i) => {
+      const X = ox + (px / 100) * size, Y = oy + (py / 100) * size;
+      if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = isFumble ? 'rgba(255,77,77,0.06)' : 'rgba(255,215,0,0.07)';
+    ctx.fill();
+    ctx.strokeStyle = isFumble ? 'rgba(255,77,77,0.4)' : 'rgba(255,215,0,0.42)';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    ctx.restore();
+
+    // Big number
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 210px "Cinzel", Georgia, serif';
+    if (isCrit || isFumble) {
+      ctx.shadowColor = isCrit ? 'rgba(255,215,0,0.8)' : 'rgba(255,77,77,0.8)';
+      ctx.shadowBlur = 48;
+    }
+    ctx.fillStyle = accent;
+    ctx.fillText(String(result), W / 2, oy + size / 2 + 6);
+    ctx.restore();
+
+    // Dice type chip label
+    ctx.fillStyle = 'rgba(255,255,255,0.34)';
+    ctx.font = '700 22px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, 'd' + type, W / 2, oy + size + 66, 3);
+
+    // Result label
+    ctx.fillStyle = isCrit ? '#ffd700' : isFumble ? '#ff8f8f' : 'rgba(255,255,255,0.72)';
+    ctx.font = '400 30px "EB Garamond", Georgia, serif';
+    const label = isCrit ? 'Критичний успіх!' : isFumble ? 'Провал!' : 'Воля богів кинута';
+    this._trackedText(ctx, label, W / 2, oy + size + 118, 2);
+
+    // Divider
+    ctx.strokeStyle = 'rgba(255,215,0,0.22)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 90, H - 214); ctx.lineTo(W / 2 - 26, H - 214);
+    ctx.moveTo(W / 2 + 26, H - 214); ctx.lineTo(W / 2 + 90, H - 214);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,215,0,0.55)';
+    ctx.font = '16px "Cinzel", serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('✦', W / 2, H - 208);
+
+    // Name (optional)
+    const name = (s.diceName || '').trim();
+    let by = H - 148;
+    if (name) {
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.font = '400 34px "EB Garamond", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(name, W / 2, by);
+      by += 42;
+    } else {
+      by += 6;
+    }
+
+    // Date / time
+    let when = '';
+    try {
+      when = new Date(s.rolledAt || Date.now()).toLocaleString('uk-UA', {
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+      });
+    } catch (e) { when = new Date(s.rolledAt || Date.now()).toLocaleString(); }
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '600 17px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, when, W / 2, by, 1.5);
+
+    return canvas;
+  }
+
+  async _diceCardBlob() {
+    await this._ensureCardFonts();
+    const canvas = this._renderDiceCanvas();
+    return await new Promise(res => canvas.toBlob(res, 'image/png'));
+  }
+
+  _flashShareMsg(msg) {
+    this.setState({ shareMsg: msg });
+    clearTimeout(this._shareMsgTimer);
+    this._shareMsgTimer = setTimeout(() => this.setState({ shareMsg: '' }), 2400);
+  }
+
+  _cardFileName() {
+    const s = this.state;
+    return 'aurelion-d' + s.diceType + '-' + s.diceResult + '.png';
+  }
+
+  async saveDiceCard() {
+    if (this.state.diceResult === null || this.state.sharing) return;
+    this.setState({ sharing: true });
+    try {
+      const blob = await this._diceCardBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = this._cardFileName();
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      this._flashShareMsg('Картку збережено');
+    } catch (e) { this._flashShareMsg('Не вдалося зберегти'); }
+    this.setState({ sharing: false });
+  }
+
+  async copyDiceCard() {
+    if (this.state.diceResult === null || this.state.sharing) return;
+    this.setState({ sharing: true });
+    try {
+      const blob = await this._diceCardBlob();
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        this._flashShareMsg('Скопійовано в буфер');
+      } else {
+        throw new Error('no-clipboard');
+      }
+    } catch (e) { this._flashShareMsg('Буфер недоступний — збережіть картку'); }
+    this.setState({ sharing: false });
+  }
+
+  async shareDiceCard() {
+    if (this.state.diceResult === null || this.state.sharing) return;
+    this.setState({ sharing: true });
+    try {
+      const blob = await this._diceCardBlob();
+      const file = new File([blob], this._cardFileName(), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Ауреліон · d' + this.state.diceType + ' → ' + this.state.diceResult,
+        });
+        this._flashShareMsg('');
+      } else {
+        throw new Error('no-share');
+      }
+    } catch (e) {
+      if (e && e.name === 'AbortError') { this.setState({ sharing: false }); return; }
+      this._flashShareMsg('Поділитися недоступно тут');
+    }
+    this.setState({ sharing: false });
   }
 
   renderVals() {
@@ -1833,6 +2109,11 @@ class Component extends DCLogic {
       activeDiePoints: DICE_SHAPES[s.diceType] || DICE_SHAPES[20],
       diceTypeName:    'd' + s.diceType,
       diceDisplay, isRolling: s.rolling, isCrit, isFumble,
+      canShareCard: s.diceResult !== null && !s.rolling,
+      shareBusy: s.sharing,
+      shareMsg: s.shareMsg,
+      diceName: s.diceName,
+      canNativeShare: typeof navigator !== 'undefined' && !!navigator.canShare,
       rollLabel: isCrit ? '✦ Критичний успіх!'
         : isFumble ? '✦ Провал!'
         : (s.diceResult !== null && !s.rolling ? '✦ Кинуто d' + s.diceType : ''),
@@ -2034,6 +2315,14 @@ class Component extends DCLogic {
         if (n) this.setState({ diceType: n, diceResult: null, rolling: false });
       },
       roll: () => this.rollDice(),
+      setDiceName: (e) => {
+        const v = e.currentTarget.value.slice(0, 40);
+        this.setState({ diceName: v });
+        try { localStorage.setItem('au_dice_name', v); } catch (err) {}
+      },
+      saveDiceCard:  () => this.saveDiceCard(),
+      copyDiceCard:  () => this.copyDiceCard(),
+      shareDiceCard: () => this.shareDiceCard(),
 
       showCharModal:       !!sc,
       charModalName:       sc?.name       || '',
