@@ -1546,11 +1546,14 @@ class Component extends DCLogic {
           };
         };
         const en = sortedLoreData.map(enrich);
+        const featId = data.site && data.site.lore_featured_id;
+        let featIdx = featId ? en.findIndex(x => String(x.id) === String(featId)) : -1;
+        if (featIdx < 0) featIdx = 0;
         const feat = en.length >= 3;
         return {
-          loreFeatured:    feat ? en[0] : null,
+          loreFeatured:    feat ? en[featIdx] : null,
           loreHasFeatured: feat,
-          loreGridItems:   feat ? en.slice(1) : en,
+          loreGridItems:   feat ? en.filter((_, i) => i !== featIdx) : en,
           loreAllItems:    en,
         };
       })(),

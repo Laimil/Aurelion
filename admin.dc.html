@@ -193,6 +193,7 @@ button{font-family:inherit;cursor:pointer}
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">📜 Лор-статті</h2>
       <button data-section="lore" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова стаття</button>
     </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.32);margin-bottom:12px;line-height:1.5;">★ — познач картку як «Обране» (велика картка вгорі Довідника). Обрати можна лише одну; повторний клік прибирає.</p>
     <div class="sort-chips">
       <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
       <button class="sort-chip" data-section="lore" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
@@ -215,6 +216,7 @@ button{font-family:inherit;cursor:pointer}
             <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ item.category }}</p>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button data-id="{{ item.id }}" onClick="{{ setLoreFeatured }}" title="{{ item.featTitle }}" style="border-radius:5px;padding:4px 10px;font-size:0.82rem;line-height:1;cursor:pointer;{{ item.featStyle }}" style-hover="filter:brightness(1.2);">★</button>
             <button data-section="lore" data-index="{{ item._index }}" onClick="{{ startEdit }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
             <button data-section="lore" data-index="{{ item._index }}" onClick="{{ deleteItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
           </div>
@@ -1271,7 +1273,15 @@ class Component extends DCLogic {
     const ds  = s.dragState;
     const dtc = (section, idx) => (ds && ds.section === section && ds.overIdx === idx) ? 'drag-target' : '';
 
-    const loreList    = mkList(data.lore).map((it, i) => ({ ...it, dragTargetClass: dtc('lore', i) }));
+    const featuredLoreId = data.site && data.site.lore_featured_id;
+    const loreList    = mkList(data.lore).map((it, i) => {
+      const isFeat = String(it.id) === String(featuredLoreId);
+      return { ...it, dragTargetClass: dtc('lore', i),
+        featTitle: isFeat ? 'Прибрати з «Обране»' : 'Зробити «Обраною» карткою',
+        featStyle: isFeat
+          ? 'background:rgba(255,215,0,0.16);border:1px solid rgba(255,215,0,0.55);color:#ffd700;'
+          : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.3);' };
+    });
     const storiesList = mkList(data.stories).map((a, i) => ({ ...a, statusLabel: STATUS_LABELS_ADMIN[a.status] || a.status, dragTargetClass: dtc('stories', i), authorDisplay: a.author_name ? (a.author_name + (a.author_telegram ? ' ' + a.author_telegram : '')) : '—' }));
     const chronList   = mkList(data.chronicles).map((c, i) => ({ ...c, statusLabel: STATUS_LABELS_ADMIN[c.status] || c.status, dragTargetClass: dtc('chronicles', i), metaDisplay: [c.period, c.gm ? ('вед. ' + c.gm) : ''].filter(Boolean).join(' · ') || '—' }));
     const charSearch = (s.charSearch || '').toLowerCase().trim();
@@ -1429,6 +1439,17 @@ class Component extends DCLogic {
       },
 
       loreList, storiesList, charList, panList, contactList,
+      setLoreFeatured: async (e) => {
+        const id = e.currentTarget.dataset.id;
+        const cur = this.state.data && this.state.data.site && this.state.data.site.lore_featured_id;
+        const next = (String(cur) === String(id)) ? '' : id;
+        this.setState(st => ({ data: { ...st.data, site: { ...st.data.site, lore_featured_id: next } } }));
+        try {
+          await this._upsertSetting('lore_featured_id', next);
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast(next ? '✓ Обрана картка оновлена' : '✓ «Обране» очищено');
+        } catch (err) { this._toast('✕ Помилка збереження'); }
+      },
       chronList,
       chronCharOptions: (data.characters || []).map(ch => ({ id: ch.id, name: ch.name || '—', selected: form.character_id === ch.id })),
       charSearch: s.charSearch || '',
