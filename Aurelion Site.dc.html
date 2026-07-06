@@ -108,6 +108,8 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .chron-toc-sticky{position:sticky;top:84px;max-height:calc(100vh - 108px);overflow-y:auto;}
 .chron-toc-sticky .lore-toc{display:block;width:100%;margin-bottom:0;}
 @media(max-width:880px){.chron-reader-grid{grid-template-columns:1fr;gap:24px;}.chron-toc-sticky{position:static;max-height:none;}}
+/* ── Мобільна навігація: від «✦ AURELION» лишається тільки зірочка ── */
+@media(max-width:640px){.au-wm-full{display:none}.au-brand{margin-right:16px!important}}
 /* ── Пульс спільноти ── */
 </style>
 </helmet>
@@ -123,7 +125,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 <!-- ═══ NAV ═══ -->
 <nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);">
   <div style="max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;padding:0 24px;gap:0;">
-    <a href="#home" style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;">✦ AURELION</a>
+    <a href="#home" class="au-brand" style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;">✦<span class="au-wm-full"> AURELION</span></a>
     <div style="display:flex;align-items:center;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;">
       <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="7">
         <a href="#{{ item.id }}" data-active="{{ item.active }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
