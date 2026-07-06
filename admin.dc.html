@@ -228,6 +228,7 @@ button{font-family:inherit;cursor:pointer}
           <div><label>Категорія</label><input value="{{ formCategory }}" onChange="{{ handleInput }}" data-field="category" /></div>
         </div>
         <div style="margin-bottom:14px;"><label>Уривок (для картки)</label><input value="{{ formExcerpt }}" onChange="{{ handleInput }}" data-field="excerpt" /></div>
+        <div style="margin-bottom:14px;"><label>Обкладинка (URL, необов'язково)</label><input value="{{ formCover }}" onChange="{{ handleInput }}" data-field="cover" placeholder="https://…/cover.jpg" /><p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Зображення для картки у Путівнику. Без нього картка отримає тематичний градієнт за категорією.</p></div>
         <div style="margin-bottom:18px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
             <label style="margin-bottom:0;">Повний текст</label>
@@ -939,7 +940,7 @@ function parseMarkdown(raw){
   return out.join('\n');
 }
 const SECTION_FIELDS = {
-  lore:       ['title', 'category', 'excerpt', 'content'],
+  lore:       ['title', 'category', 'excerpt', 'cover', 'content'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
   characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'character_type', 'tags', 'connections', 'open_effect'],
