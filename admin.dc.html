@@ -228,7 +228,29 @@ button{font-family:inherit;cursor:pointer}
           <div><label>Категорія</label><input value="{{ formCategory }}" onChange="{{ handleInput }}" data-field="category" /></div>
         </div>
         <div style="margin-bottom:14px;"><label>Уривок (для картки)</label><input value="{{ formExcerpt }}" onChange="{{ handleInput }}" data-field="excerpt" /></div>
-        <div style="margin-bottom:14px;"><label>Обкладинка (URL, необов'язково)</label><input value="{{ formCover }}" onChange="{{ handleInput }}" data-field="cover" placeholder="https://…/cover.jpg" /><p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Зображення для картки у Путівнику. Без нього картка отримає тематичний градієнт за категорією.</p></div>
+        <div style="margin-bottom:14px;">
+          <label>Обкладинка (необов'язково)</label>
+          <input type="file" accept="image/*" onChange="{{ handleCoverUpload }}" data-coverpick="1" style="display:none;" />
+          <div class="drop-zone" data-over="{{ coverDropOver }}" onDragOver="{{ onCoverDragOver }}" onDragLeave="{{ onCoverDragLeave }}" onDrop="{{ onCoverDrop }}" onClick="{{ triggerCoverPick }}" style="padding:14px;min-height:80px;display:flex;align-items:center;justify-content:center;">
+            <sc-if value="{{ currentCover }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:12px;width:100%;">
+                <div style="{{ currentCoverBg }}width:96px;height:54px;border-radius:6px;flex-shrink:0;"></div>
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:0.7rem;color:rgba(255,255,255,0.28);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ currentCover }}</p>
+                  <p style="font-size:0.68rem;color:rgba(255,215,0,0.5);margin-top:4px;">Перетягни нову або клікни щоб змінити</p>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noCurrentCover }}" hint-placeholder-val="{{ true }}">
+              <div style="text-align:center;">
+                <p style="font-size:1.5rem;margin-bottom:6px;">🖼</p>
+                <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">Перетягни або <span style="color:#ffd700;">клікни</span> щоб завантажити з комп'ютера</p>
+              </div>
+            </sc-if>
+          </div>
+          <input value="{{ formCover }}" onChange="{{ handleInput }}" data-field="cover" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Зображення для картки у Путівнику. Без нього картка отримає тематичний градієнт за категорією.</p>
+        </div>
         <div style="margin-bottom:18px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
             <label style="margin-bottom:0;">Повний текст</label>
@@ -434,8 +456,26 @@ button{font-family:inherit;cursor:pointer}
           </div>
         </div>
         <div style="margin-bottom:14px;">
-          <label>Обкладинка (URL, необов'язково)</label>
-          <input value="{{ formCover }}" onChange="{{ handleInput }}" data-field="cover" placeholder="https://…/cover.jpg" />
+          <label>Обкладинка (необов'язково)</label>
+          <input type="file" accept="image/*" onChange="{{ handleCoverUpload }}" data-coverpick="1" style="display:none;" />
+          <div class="drop-zone" data-over="{{ coverDropOver }}" onDragOver="{{ onCoverDragOver }}" onDragLeave="{{ onCoverDragLeave }}" onDrop="{{ onCoverDrop }}" onClick="{{ triggerCoverPick }}" style="padding:14px;min-height:80px;display:flex;align-items:center;justify-content:center;">
+            <sc-if value="{{ currentCover }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:12px;width:100%;">
+                <div style="{{ currentCoverBg }}width:96px;height:54px;border-radius:6px;flex-shrink:0;"></div>
+                <div style="flex:1;min-width:0;">
+                  <p style="font-size:0.7rem;color:rgba(255,255,255,0.28);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ currentCover }}</p>
+                  <p style="font-size:0.68rem;color:rgba(255,215,0,0.5);margin-top:4px;">Перетягни нову або клікни щоб змінити</p>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noCurrentCover }}" hint-placeholder-val="{{ true }}">
+              <div style="text-align:center;">
+                <p style="font-size:1.5rem;margin-bottom:6px;">🖼</p>
+                <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">Перетягни або <span style="color:#ffd700;">клікни</span> щоб завантажити з комп'ютера</p>
+              </div>
+            </sc-if>
+          </div>
+          <input value="{{ formCover }}" onChange="{{ handleInput }}" data-field="cover" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
         </div>
         <div style="margin-bottom:14px;">
           <label>Короткий опис (для картки)</label>
@@ -1469,6 +1509,10 @@ class Component extends DCLogic {
       currentImage:    form.image || '',
       noCurrentImage:  !form.image,
       currentImageBg:  form.image ? 'background-image:url(' + JSON.stringify(form.image) + ');background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
+      currentCover:    form.cover || '',
+      noCurrentCover:  !form.cover,
+      currentCoverBg:  form.cover ? 'background-image:url(' + JSON.stringify(form.cover) + ');background-size:cover;background-position:center;background-repeat:no-repeat;' : '',
+      coverDropOver:   s.coverDropOver || false,
       dropOver: s.dropOver || false,
       onDragOver: (e) => { e.preventDefault(); e.stopPropagation(); this.setState({ dropOver: true }); },
       onDragLeave: (e) => { e.preventDefault(); this.setState({ dropOver: false }); },
@@ -1503,6 +1547,40 @@ class Component extends DCLogic {
       triggerFilePick: () => {
         const el = document.querySelector('[data-imgpick="1"]');
         if (el) el.click();
+      },
+      triggerCoverPick: () => {
+        const el = document.querySelector('[data-coverpick="1"]');
+        if (el) el.click();
+      },
+      handleCoverUpload: async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        this.setState({ uploadingImage: true });
+        try {
+          const url = await this._uploadImage(file, 'character-images');
+          this.setState(st => ({ form: { ...st.form, cover: url }, uploadingImage: false }));
+          this._toast('✓ Обкладинку завантажено!');
+        } catch(err) {
+          this.setState({ uploadingImage: false });
+          this._toast('✗ Помилка: ' + (err.message || 'спробуй ще'));
+        }
+      },
+      onCoverDragOver:  (e) => { e.preventDefault(); e.stopPropagation(); this.setState({ coverDropOver: true }); },
+      onCoverDragLeave: (e) => { e.preventDefault(); this.setState({ coverDropOver: false }); },
+      onCoverDrop: async (e) => {
+        e.preventDefault(); e.stopPropagation();
+        this.setState({ coverDropOver: false });
+        const file = e.dataTransfer?.files?.[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        this.setState({ uploadingImage: true });
+        try {
+          const url = await this._uploadImage(file, 'character-images');
+          this.setState(st => ({ form: { ...st.form, cover: url }, uploadingImage: false }));
+          this._toast('✓ Обкладинку завантажено!');
+        } catch(err) {
+          this.setState({ uploadingImage: false });
+          this._toast('✗ ' + (err.message || 'Помилка завантаження'));
+        }
       },
       triggerFilePickPan: () => {
         const el = document.querySelector('[data-imgpick="pan"]');
