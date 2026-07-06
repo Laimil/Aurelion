@@ -122,6 +122,7 @@ button{font-family:inherit;cursor:pointer}
       <div><label>Підзаголовок</label><input value="{{ siteSubtitle }}" onChange="{{ handleSiteInput }}" data-field="subtitle" /></div>
       <div><label>Вітальний текст (головна)</label><textarea value="{{ siteWelcome }}" onChange="{{ handleSiteInput }}" data-field="welcome" style="min-height:80px;"></textarea></div>
       <div><label>Текст «Про проєкт»</label><textarea value="{{ siteAbout }}" onChange="{{ handleSiteInput }}" data-field="contactsAbout" style="min-height:80px;"></textarea></div>
+      <div><label>Цитата в Довіднику Мандрівника</label><textarea value="{{ siteLoreQuote }}" onChange="{{ handleSiteInput }}" data-field="lore_intro_quote" style="min-height:150px;font-family:Georgia,serif;font-style:italic;"></textarea><p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.4;">Показується під заголовком сторінки Довідника. Порожнє поле — цитата ховається.</p></div>
     </div>
 
     <!-- ── Анімація відкриття анкети ── -->
@@ -249,7 +250,7 @@ button{font-family:inherit;cursor:pointer}
             </sc-if>
           </div>
           <input value="{{ formCover }}" onChange="{{ handleInput }}" data-field="cover" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
-          <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Зображення для картки у Путівнику. Без нього картка отримає тематичний градієнт за категорією.</p>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Зображення для картки у Довіднику. Без нього картка отримає тематичний градієнт за категорією.</p>
         </div>
         <div style="margin-bottom:18px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -997,6 +998,8 @@ const TABLE_QUERIES = {
   map_locations: 'map_locations?select=*&order=sort_order.asc,created_at.asc',
 };
 
+const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице, ти ж не хочеш померти одразу ж вийшовши за межі міста? Думаю, що ні. Тому я тут. Спробуй довірити своє життя моїм знанням, адже можливо, саме я стану найвірнішим, найчеснішим супутником на твоєму шляху.\n\nПравило перше: Не довіряй людям. Повір, твої шанси на виживання зростуть на двадцять пунктів вверх…»';
+
 class Component extends DCLogic {
   state = {
     // auth
@@ -1289,7 +1292,7 @@ class Component extends DCLogic {
       this.setState({ saving: true });
       try {
         const site = s.data.site || {};
-        await Promise.all(['title','subtitle','welcome','contactsAbout','char_open_effect_default','char_fx_duration','char_fx_intensity','char_fx_reduce_motion']
+        await Promise.all(['title','subtitle','welcome','contactsAbout','lore_intro_quote','char_open_effect_default','char_fx_duration','char_fx_intensity','char_fx_reduce_motion']
           .map(k => this._upsertSetting(k, site[k] || '')));
         localStorage.setItem('aurelion-refresh', Date.now().toString());
         this._toast('✓ Налаштування збережено!');
@@ -1361,7 +1364,7 @@ class Component extends DCLogic {
 
       tabs: [
         { id: 'site',       label: '⚙ Сайт',       active: tab === 'site' },
-        { id: 'lore',       label: '📜 Путівник',    active: tab === 'lore' },
+        { id: 'lore',       label: '📜 Довідник',    active: tab === 'lore' },
         { id: 'stories',    label: '📖 Історії',      active: tab === 'stories' },
         { id: 'chronicles', label: '🪶 Хроніки',     active: tab === 'chronicles' },
         { id: 'characters', label: '🎭 Персонажі',   active: tab === 'characters' },
@@ -1387,6 +1390,7 @@ class Component extends DCLogic {
       siteSubtitle: data.site?.subtitle      || '',
       siteWelcome:  data.site?.welcome       || '',
       siteAbout:    data.site?.contactsAbout || '',
+      siteLoreQuote: (data.site && data.site.lore_intro_quote != null) ? data.site.lore_intro_quote : DEFAULT_LORE_QUOTE,
 
       // ── Ефект відкриття анкети ─────────────────────────────
       siteCharEffect:      data.site?.char_open_effect_default || 'sparks',
