@@ -108,6 +108,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .chron-toc-sticky{position:sticky;top:84px;max-height:calc(100vh - 108px);overflow-y:auto;}
 .chron-toc-sticky .lore-toc{display:block;width:100%;margin-bottom:0;}
 @media(max-width:880px){.chron-reader-grid{grid-template-columns:1fr;gap:24px;}.chron-toc-sticky{position:static;max-height:none;}}
+.char-reader-grid{display:grid;grid-template-columns:300px 1fr;gap:44px;align-items:start;max-width:1060px;margin:0 auto;}
+.char-reader-aside{position:sticky;top:84px;}
+@media(max-width:820px){.char-reader-grid{grid-template-columns:1fr;gap:26px;}.char-reader-aside{position:static;max-width:340px;margin:0 auto;}}
 /* ── Мобільна навігація: від «✦ AURELION» лишається тільки зірочка ── */
 @media(max-width:640px){.au-wm-full{display:none}.au-brand{margin-right:16px!important}}
 /* ── Пульс спільноти ── */
@@ -416,7 +419,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 
 <!-- ═══ ІСТОРІЇ ═══ -->
 <sc-if value="{{ showStories }}" hint-placeholder-val="{{ false }}">
-  <main class="au-page" style="min-height:100vh;padding:96px 24px 140px;">
+  <main class="au-page" style="min-height:100vh;">
+    <sc-if value="{{ showStoryGallery }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:96px 24px 140px;">
     <header style="text-align:center;margin-bottom:40px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Авторські матеріали</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Бібліотека</h1>
@@ -472,6 +477,59 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
         <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
         <p>Матеріали ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+      </div>
+    </sc-if>
+    </div>
+    </sc-if>
+
+    <!-- ── ЧИТАЛКА: ІСТОРІЯ ── -->
+    <sc-if value="{{ showStoryReader }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:78px 24px 120px;">
+        <div style="max-width:1060px;margin:0 auto 16px;">
+          <button onClick="{{ closeStory }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">← Бібліотека</button>
+        </div>
+        <header style="max-width:1060px;margin:0 auto 42px;position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);min-height:210px;{{ storyReaderHeaderBg }}">
+          <div style="position:absolute;right:6%;top:50%;transform:translateY(-50%);font-family:'Cinzel',serif;font-size:9rem;line-height:1;color:rgba(255,255,255,0.05);pointer-events:none;">✦</div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(24,22,17,0.97) 8%,rgba(24,22,17,0.72) 52%,rgba(24,22,17,0.5) 100%);"></div>
+          <div style="position:relative;padding:44px 40px 34px;min-height:210px;display:flex;flex-direction:column;justify-content:flex-end;">
+            <sc-if value="{{ storyReaderHasAuthor }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:#6495ed;margin-bottom:10px;">{{ storyReaderAuthor }}</p>
+            </sc-if>
+            <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,4.5vw,2.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;line-height:1.12;">{{ storyReaderTitle }}</h1>
+            <sc-if value="{{ storyReaderHasTelegraph }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:18px;">
+                <a href="{{ storyReaderTelegraphUrl }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;background:#ffd700;color:#1a1a1a;border-radius:999px;padding:9px 22px;font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;text-decoration:none;transition:all 0.2s;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.4);">↗ Відкрити на Telegraph</a>
+              </div>
+            </sc-if>
+          </div>
+        </header>
+        <div class="chron-reader-grid">
+          <div>
+            <sc-if value="{{ storyReaderHasToc }}" hint-placeholder-val="{{ false }}">
+              <div class="chron-toc-sticky">
+                <nav class="lore-toc">
+                  <p class="lore-toc-title">✦ Зміст</p>
+                  <ol class="lore-toc-list">
+                    <sc-for list="{{ storyReaderToc }}" as="h" hint-placeholder-count="5">
+                      <li data-level="{{ h.level }}"><a data-tocid="{{ h.id }}" onClick="{{ scrollStoryToc }}">{{ h.text }}</a></li>
+                    </sc-for>
+                  </ol>
+                </nav>
+              </div>
+            </sc-if>
+          </div>
+          <article style="min-width:0;">
+            <sc-if value="{{ storyReaderHasContent }}" hint-placeholder-val="{{ true }}">
+              {{ storyReaderBodyEl }}
+            </sc-if>
+            <sc-if value="{{ storyReaderNoContent }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:60px 24px;color:rgba(255,255,255,0.3);">
+                <p style="font-size:1.4rem;margin-bottom:10px;">✦</p>
+                <p>Текст статті ще не додано.</p>
+              </div>
+            </sc-if>
+          </article>
+        </div>
       </div>
     </sc-if>
   </main>
@@ -578,7 +636,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
                 <span style="font-size:0.82rem;color:rgba(255,255,255,0.5);">✦ Ведучий — <span style="color:rgba(255,255,255,0.8);">{{ chronGm }}</span></span>
               </sc-if>
               <sc-if value="{{ chronHasChar }}" hint-placeholder-val="{{ false }}">
-                <button data-id="{{ chronCharId }}" onClick="{{ openCharacter }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.28);color:#6495ed;border-radius:999px;padding:5px 15px;font-size:0.78rem;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(100,149,237,0.2);">↗ Анкета: {{ chronCharName }}</button>
+                <button data-id="{{ chronCharId }}" onClick="{{ peekCharacter }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.28);color:#6495ed;border-radius:999px;padding:5px 15px;font-size:0.78rem;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(100,149,237,0.2);">↗ Анкета: {{ chronCharName }}</button>
               </sc-if>
             </div>
             <sc-if value="{{ chronHasTags }}" hint-placeholder-val="{{ false }}">
@@ -626,8 +684,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 
 <!-- ═══ ПЕРСОНАЖІ ═══ -->
 <sc-if value="{{ showCharacters }}" hint-placeholder-val="{{ false }}">
-  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;">
-    <div style="max-width:1200px;margin:0 auto;">
+  <main class="au-page" style="min-height:100vh;">
+    <sc-if value="{{ showCharGallery }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:1200px;margin:0 auto;padding:96px 24px 80px;">
       <header style="text-align:center;margin-bottom:36px;">
         <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Так-так, вони ваші</p>
         <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Персонажі</h1>
@@ -723,6 +782,94 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </sc-if>
       </sc-if>
     </div>
+    </sc-if>
+
+    <!-- ── ЧИТАЛКА: ПЕРСОНАЖ ── -->
+    <sc-if value="{{ showCharReader }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:78px 24px 120px;">
+        <div style="max-width:1060px;margin:0 auto 16px;">
+          <button onClick="{{ closeCharPage }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">← Персонажі</button>
+        </div>
+        <div class="char-reader-grid">
+          <aside class="char-reader-aside">
+            <div style="position:relative;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);aspect-ratio:3/4;background:#111;box-shadow:0 14px 36px rgba(0,0,0,0.55);">
+              <sc-if value="{{ charReaderHasImage }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;{{ charReaderBgStyle }}"></div>
+              </sc-if>
+              <sc-if value="{{ charReaderNoImage }}" hint-placeholder-val="{{ true }}">
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.06) 0%,transparent 70%);">
+                  <span style="font-family:'Cinzel',serif;font-size:3.6rem;color:rgba(255,215,0,0.2);font-weight:700;">{{ charReaderInitials }}</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ showCharReaderFx }}" hint-placeholder-val="{{ false }}">
+                <x-import component-from-global-scope="aurelion-fx" from="./aurelion-fx.js" effect="{{ charReaderFxEffect }}" intensity="{{ charFxIntensity }}" duration-ms="{{ charFxDurationMs }}" seed="{{ charReaderFxSeed }}" respect-reduced-motion="{{ charFxRespectRM }}" accent="{{ charFxAccent }}" style="position:absolute;inset:0;z-index:6;pointer-events:none;" hint-size="100%,100%"></x-import>
+              </sc-if>
+            </div>
+            <sc-if value="{{ charReaderHasTelegraph }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ charReaderUrl }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;background:#ffd700;color:#1a1a1a;border-radius:999px;padding:11px 22px;font-family:'Cinzel',serif;font-size:0.85rem;font-weight:700;letter-spacing:0.05em;text-decoration:none;transition:all 0.2s;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.4);">↗ Відкрити анкету</a>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+              <button onClick="{{ saveCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,215,0,0.32);border-radius:999px;padding:9px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Картка PNG
+              </button>
+              <button onClick="{{ copyCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:9px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Копіювати
+              </button>
+              <sc-if value="{{ canNativeShare }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ shareCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:9px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                  Поділитися
+                </button>
+              </sc-if>
+              <sc-if value="{{ hasCharShareMsg }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:0.82rem;letter-spacing:0.03em;color:rgba(255,215,0,0.85);font-family:'EB Garamond',Georgia,serif;text-align:center;">{{ charShareMsg }}</span>
+              </sc-if>
+            </div>
+          </aside>
+          <article style="min-width:0;">
+            <p style="font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin-bottom:10px;">✦ {{ charReaderRole }}</p>
+            <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,4.5vw,2.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;line-height:1.12;">{{ charReaderName }}</h1>
+            <sc-if value="{{ charReaderHasAlias }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.1rem;color:rgba(255,255,255,0.42);margin-top:8px;">«{{ charReaderAlias }}»</p>
+            </sc-if>
+            <sc-if value="{{ charReaderHasStats }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 6px;">
+                <sc-if value="{{ charReaderAge }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 16px;">
+                    <p style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">Вік</p>
+                    <p style="font-family:'Cinzel',serif;font-size:0.95rem;color:#fff;font-weight:600;">{{ charReaderAge }}</p>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ charReaderHeight }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 16px;">
+                    <p style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">Зріст</p>
+                    <p style="font-family:'Cinzel',serif;font-size:0.95rem;color:#fff;font-weight:600;">{{ charReaderHeight }}</p>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ charReaderWeight }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 16px;">
+                    <p style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">Вага</p>
+                    <p style="font-family:'Cinzel',serif;font-size:0.95rem;color:#fff;font-weight:600;">{{ charReaderWeight }}</p>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+            <div style="height:1px;background:rgba(255,255,255,0.09);margin:24px 0;"></div>
+            <sc-if value="{{ charReaderHasBio }}" hint-placeholder-val="{{ true }}">
+              {{ charReaderBioEl }}
+            </sc-if>
+            <sc-if value="{{ charReaderNoBio }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:50px 24px;color:rgba(255,255,255,0.28);">
+                <p style="font-size:1.4rem;margin-bottom:10px;">✦</p>
+                <p>Дос'є ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін →</a></p>
+              </div>
+            </sc-if>
+          </article>
+        </div>
+      </div>
+    </sc-if>
   </main>
 </sc-if>
 
@@ -1018,7 +1165,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   <main class="au-page" style="position:fixed;inset:0;overflow:hidden;background:#090810;">
     <!-- Overlay title -->
     <div style="position:absolute;top:70px;left:22px;z-index:20;pointer-events:none;">
-      <p style="font-size:0.6rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">✦ Карта Світу</p>
+      <p style="font-size:0.6rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">✦ Мапа Світу</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;font-weight:700;color:rgba(255,255,255,0.75);letter-spacing:0.1em;">AURELION</h1>
     </div>
     <!-- Zoom controls -->
@@ -1087,41 +1234,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
-<!-- ═══ MODAL: ІСТОРІЯ ═══ -->
-<sc-if value="{{ showHistoryModal }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ closeHistoryModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:76px 16px 24px;overflow-y:auto;">
-    <div onClick="{{ stopHistoryProp }}" style="background:#1d1d1d;border:1px solid rgba(255,255,255,0.14);border-radius:14px;max-width:820px;width:100%;max-height:90vh;display:flex;flex-direction:column;">
-      <div style="padding:22px 26px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-shrink:0;">
-        <div>
-          <sc-if value="{{ historyModalHasAuthor }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:0.66rem;letter-spacing:0.13em;text-transform:uppercase;color:#6495ed;margin-bottom:6px;">{{ historyModalAuthor }}</p>
-          </sc-if>
-          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.45rem;color:#fff;letter-spacing:0.04em;">{{ historyModalTitle }}</h2>
-          <sc-if value="{{ historyModalHasTelegraph }}" hint-placeholder-val="{{ false }}">
-            <a href="{{ historyModalTelegraphUrl }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#ffd700;color:#1a1a1a;border-radius:999px;padding:8px 20px;font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;text-decoration:none;transition:all 0.2s;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.4);">↗ Відкрити на Telegraph</a>
-          </sc-if>
-        </div>
-        <button onClick="{{ closeHistoryModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:34px;height:34px;color:rgba(255,255,255,0.7);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
-      </div>
-      <sc-if value="{{ historyModalHasContent }}" hint-placeholder-val="{{ false }}">
-        <div class="hist-scroll-body" style="padding:28px 30px;overflow-y:auto;">
-          {{ historyModalContentEl }}
-        </div>
-      </sc-if>
-      <sc-if value="{{ historyModalNoContent }}" hint-placeholder-val="{{ false }}">
-        <div style="padding:40px 30px;text-align:center;color:rgba(255,255,255,0.28);">
-          <p style="font-size:1.2rem;margin-bottom:10px;">✦</p>
-          <p style="font-size:0.9rem;">Текст статті ще не додано в адміні.</p>
-        </div>
-      </sc-if>
-      <div style="padding:12px 22px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:flex-end;flex-shrink:0;">
-        <button onClick="{{ closeHistoryModal }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);color:#fff;border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;">Закрити</button>
-      </div>
-    </div>
-  </div>
-</sc-if>
+<!-- Історія тепер відкривається як стаття-читалка (див. розділ ІСТОРІЇ) -->
 
-<!-- ═══ MODAL: ПЕРСОНАЖ ═══ -->
+<!-- ═══ MODAL: ПЕРСОНАЖ (пік з Хронік) ═══ -->
 <sc-if value="{{ showCharModal }}" hint-placeholder-val="{{ false }}">
   <div onClick="{{ closeCharModal }}" style="position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:76px 16px 24px;overflow-y:auto;">
     <div onClick="{{ stopProp }}" style="position:relative;overflow:hidden;background:#1d1d1d;border:1px solid rgba(255,255,255,0.14);border-radius:14px;max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;animation:auCharIn 0.42s cubic-bezier(0.2,0.8,0.25,1) both;">
@@ -1354,7 +1469,7 @@ class Component extends DCLogic {
     rolledAt: null, shareMsg: '', sharing: false, diceQuote: '',
     charSharing: false, charShareMsg: '',
     diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
-    rollHistory: [], selectedChar: null, selectedLore: null, selectedHistory: null,
+    rollHistory: [], selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null,
     charTab: 'player', charSearch: '',
     selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
     boardHoverId: null,
@@ -1540,7 +1655,7 @@ class Component extends DCLogic {
     this._updateMapBase();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
     window.addEventListener('hashchange', () => {
-      this.setState({ page: this._getPage(), selectedChar: null, selectedLore: null, selectedChronicle: null, mapActivePin: null });
+      this.setState({ page: this._getPage(), selectedChar: null, peekChar: null, selectedHistory: null, selectedLore: null, selectedChronicle: null, mapActivePin: null });
       window.scrollTo({ top: 0 });
     });
     window.addEventListener('storage', (e) => {
@@ -2078,7 +2193,7 @@ class Component extends DCLogic {
   }
 
   async saveCharCard() {
-    const ch = this.state.selectedChar;
+    const ch = this.state.selectedChar || this.state.peekChar;
     if (!ch || this.state.charSharing) return;
     this.setState({ charSharing: true });
     try {
@@ -2094,7 +2209,7 @@ class Component extends DCLogic {
   }
 
   async copyCharCard() {
-    const ch = this.state.selectedChar;
+    const ch = this.state.selectedChar || this.state.peekChar;
     if (!ch || this.state.charSharing) return;
     this.setState({ charSharing: true });
     try {
@@ -2108,7 +2223,7 @@ class Component extends DCLogic {
   }
 
   async shareCharCard() {
-    const ch = this.state.selectedChar;
+    const ch = this.state.selectedChar || this.state.peekChar;
     if (!ch || this.state.charSharing) return;
     this.setState({ charSharing: true });
     try {
@@ -2134,13 +2249,16 @@ class Component extends DCLogic {
       ? String(s.diceRollingNum ?? '?')
       : (s.diceResult !== null ? String(s.diceResult) : '—');
     const sc = s.selectedChar;
+    const pc = s.peekChar;
     const sl = s.selectedLore;
 
-    const charOpenEffect = (() => {
-      const per = sc && sc.open_effect;
+    const effectFor = (ch) => {
+      const per = ch && ch.open_effect;
       if (per && per !== 'default' && per !== '') return per;
       return (data.site && data.site.char_open_effect_default) || 'sparks';
-    })();
+    };
+    const charOpenEffect   = effectFor(pc);
+    const readerOpenEffect = effectFor(sc);
 
     // ── Фільтр/сорт Лор
     const loreTagFilter  = s.loreTagFilter || null;
@@ -2228,7 +2346,7 @@ class Component extends DCLogic {
         { id: 'connections', label: '🕸 Зв\'язки', active: page === 'connections' },
         { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
         { id: 'dice',        label: '⚄ Дайс',     active: page === 'dice' },
-        { id: 'map',         label: '🗺 Карта',    active: page === 'map' },
+        { id: 'map',         label: '🗺 Мапа',    active: page === 'map' },
         { id: 'contacts',    label: 'Контакти',    active: page === 'contacts' },
       ],
 
@@ -2245,7 +2363,7 @@ class Component extends DCLogic {
         { id: 'characters', icon: '🎭', title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв' },
         { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу' },
         { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20' },
-        { id: 'map',        icon: '🗺', title: 'Карта',        desc: 'Інтерактивна карта світу Ауреліону' },
+        { id: 'map',        icon: '🗺', title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону' },
         { id: 'contacts',   icon: '✉️', title: 'Про Проєкт',  desc: 'Контакти та інформація про спільноту' },
       ],
 
@@ -2738,29 +2856,36 @@ class Component extends DCLogic {
       copyDiceCard:  () => this.copyDiceCard(),
       shareDiceCard: () => this.shareDiceCard(),
 
-      showCharModal:       !!sc,
-      charModalName:       sc?.name       || '',
-      charModalRole:       sc?.role       || '',
-      charModalAlias:      sc?.alias      || '',
-      charModalHasAlias:   !!(sc?.alias),
-      charModalHasImage:   !!(sc?.image),
-      charModalImage:      sc?.image || '',
-      charModalBgStyle:    sc?.image ? 'background-size:cover;background-position:center top;background-repeat:no-repeat;background-image:url(' + JSON.stringify(sc.image) + ')' : '',
-      charModalAge:        sc?.age    || '',
-      charModalHeight:     sc?.height || '',
-      charModalWeight:     sc?.weight || '',
-      charModalHasStats:   !!(sc?.age || sc?.height || sc?.weight),
-      charModalBio:        sc?.bio || '',
-      charModalHasBio:     !!(sc?.bio),
-      charModalHasTelegraph: !!(sc?.telegraph_url),
-      charModalNoTelegraph:  !(sc?.telegraph_url),
-      charModalUrl:        sc?.telegraph_url || '',
+      // ── МОДАЛКА-ПІК: персонаж (з Хронік) ──
+      showCharModal:       !!pc,
+      charModalName:       pc?.name       || '',
+      charModalRole:       pc?.role       || '',
+      charModalAlias:      pc?.alias      || '',
+      charModalHasAlias:   !!(pc?.alias),
+      charModalHasImage:   !!(pc?.image),
+      charModalImage:      pc?.image || '',
+      charModalBgStyle:    pc?.image ? 'background-size:cover;background-position:center top;background-repeat:no-repeat;background-image:url(' + JSON.stringify(pc.image) + ')' : '',
+      charModalAge:        pc?.age    || '',
+      charModalHeight:     pc?.height || '',
+      charModalWeight:     pc?.weight || '',
+      charModalHasStats:   !!(pc?.age || pc?.height || pc?.weight),
+      charModalBio:        pc?.bio || '',
+      charModalHasBio:     !!(pc?.bio),
+      charModalHasTelegraph: !!(pc?.telegraph_url),
+      charModalNoTelegraph:  !(pc?.telegraph_url),
+      charModalUrl:        pc?.telegraph_url || '',
       openCharacter: (e) => {
         const id = e.currentTarget.dataset.id;
         const ch = (data.characters || []).find(c => c.id === id);
-        if (ch) this.setState({ selectedChar: ch });
+        if (ch) { this.setState({ selectedChar: ch }); window.scrollTo({ top: 0 }); }
       },
-      closeCharModal: () => this.setState({ selectedChar: null }),
+      peekCharacter: (e) => {
+        const id = e.currentTarget.dataset.id;
+        const ch = (data.characters || []).find(c => c.id === id);
+        if (ch) this.setState({ peekChar: ch });
+      },
+      closeCharModal: () => this.setState({ peekChar: null }),
+      closeCharPage: () => { this.setState({ selectedChar: null }); window.scrollTo({ top: 0 }); },
       stopProp: (e) => e.stopPropagation(),
       saveCharCard:  () => this.saveCharCard(),
       copyCharCard:  () => this.copyCharCard(),
@@ -2769,14 +2894,39 @@ class Component extends DCLogic {
       charShareMsg:  s.charShareMsg,
       hasCharShareMsg: !!s.charShareMsg,
 
+      // ── ЧИТАЛКА: персонаж (сторінка-стаття) ──
+      showCharGallery:     page === 'characters' && !sc,
+      showCharReader:      page === 'characters' && !!sc,
+      charReaderName:      sc?.name  || '',
+      charReaderRole:      sc?.role  || '',
+      charReaderAlias:     sc?.alias || '',
+      charReaderHasAlias:  !!(sc?.alias),
+      charReaderInitials:  sc ? (sc.name || '?').trim().charAt(0).toUpperCase() : '',
+      charReaderHasImage:  !!(sc?.image),
+      charReaderNoImage:   !(sc?.image),
+      charReaderBgStyle:   sc?.image ? 'background-size:cover;background-position:center top;background-repeat:no-repeat;background-image:url(' + JSON.stringify(sc.image) + ')' : '',
+      charReaderAge:       sc?.age    || '',
+      charReaderHeight:    sc?.height || '',
+      charReaderWeight:    sc?.weight || '',
+      charReaderHasStats:  !!(sc?.age || sc?.height || sc?.weight),
+      charReaderHasBio:    !!(sc?.bio),
+      charReaderNoBio:     !!(sc && !sc.bio),
+      charReaderBioEl:     sc && sc.bio ? React.createElement('div', { className: 'lore-md' }, String(sc.bio).split(/\n{2,}/).map((para, i) => React.createElement('p', { key: i }, para))) : null,
+      charReaderHasTelegraph: !!(sc?.telegraph_url),
+      charReaderNoTelegraph:  !!(sc && !sc.telegraph_url),
+      charReaderUrl:       sc?.telegraph_url || '',
+
       // ── Ефект відкриття анкети ─────────────────────────────
-      charFxEffect:      sc ? charOpenEffect : 'sparks',
+      charFxEffect:      pc ? charOpenEffect : 'sparks',
       charFxIntensity:   String(parseInt(data.site?.char_fx_intensity, 10) || 6),
       charFxDurationMs:  String(({ fast: 420, medium: 820, dramatic: 1350 })[data.site?.char_fx_duration] || 820),
-      charFxSeed:        sc ? (sc.id + '|' + charOpenEffect) : '',
+      charFxSeed:        pc ? (pc.id + '|' + charOpenEffect) : '',
       charFxRespectRM:   (data.site?.char_fx_reduce_motion === 'off') ? '0' : '1',
       charFxAccent:      '#ffd700',
-      showCharFx:        !!sc && charOpenEffect !== 'none',
+      showCharFx:        !!pc && charOpenEffect !== 'none',
+      charReaderFxEffect: sc ? readerOpenEffect : 'sparks',
+      charReaderFxSeed:   sc ? (sc.id + '|r|' + readerOpenEffect) : '',
+      showCharReaderFx:   !!sc && readerOpenEffect !== 'none',
 
       // ── ЧИТАЛКА: Довідник (лор) ──
       ...(() => {
@@ -2819,48 +2969,49 @@ class Component extends DCLogic {
       })(),
       histTags, hasHistTags, histTagAll,
       setHistTag: (e) => this.setState({ histTagFilter: e.currentTarget.dataset.tag || null }),
-      showHistoryModal: !!(s.selectedHistory),
-      historyModalTitle:  s.selectedHistory ? (s.selectedHistory.title || '') : '',
-      historyModalAuthor: s.selectedHistory && s.selectedHistory.author_name ? 'авторка ' + s.selectedHistory.author_name : '',
-      historyModalHasAuthor:    !!(s.selectedHistory && s.selectedHistory.author_name),
-      historyModalHasTelegraph: !!(s.selectedHistory && s.selectedHistory.telegraph_url),
-      historyModalTelegraphUrl: s.selectedHistory ? (s.selectedHistory.telegraph_url || '') : '',
-      historyModalHasContent:   !!(s.selectedHistory && s.selectedHistory.content),
-      historyModalNoContent:    !(s.selectedHistory && s.selectedHistory.content),
-      historyModalContentEl: (() => {
-        const raw = s.selectedHistory ? (s.selectedHistory.content || '') : '';
-        if (!raw) return null;
+      // ── ЧИТАЛКА: Історія (сторінка-стаття) ──
+      ...(() => {
+        const sh = s.selectedHistory;
+        const raw = sh ? (sh.content || '') : '';
         const toc = extractToc(raw);
-        const body = React.createElement('div', { key:'body', className:'lore-md', dangerouslySetInnerHTML:{ __html: parseMarkdown(raw) } });
-        if (toc.length < 2) return body;
-        const onTocClick = (e) => {
-          e.preventDefault();
-          const id = e.currentTarget.getAttribute('data-tocid');
-          const target = document.querySelector('[data-hid="'+id+'"]');
-          const container = document.querySelector('.hist-scroll-body');
-          if (target && container) {
-            container.scrollTop = target.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop - 20;
-          }
+        const SGRAD = [
+          'radial-gradient(ellipse at 34% 24%,rgba(150,110,220,0.20),transparent 62%),linear-gradient(150deg,#241a34,#141414 72%)',
+          'radial-gradient(ellipse at 66% 22%,rgba(100,149,237,0.20),transparent 62%),linear-gradient(150deg,#122039,#141414 72%)',
+          'radial-gradient(ellipse at 32% 24%,rgba(200,80,110,0.20),transparent 62%),linear-gradient(150deg,#2a1220,#141414 72%)',
+          'radial-gradient(ellipse at 34% 24%,rgba(95,191,176,0.19),transparent 62%),linear-gradient(150deg,#0f2521,#141414 72%)',
+          'radial-gradient(ellipse at 30% 22%,rgba(255,215,0,0.17),transparent 62%),linear-gradient(150deg,#251e10,#161310 72%)',
+          'radial-gradient(ellipse at 68% 22%,rgba(139,143,208,0.18),transparent 62%),linear-gradient(150deg,#1a1a2e,#141414 72%)',
+        ];
+        const key = sh ? (sh.title || sh.id || 'x') : 'x';
+        let hh = 0; for (let i = 0; i < key.length; i++) hh = (hh * 31 + key.charCodeAt(i)) >>> 0;
+        return {
+          showStoryReader:  page === 'stories' && !!sh,
+          showStoryGallery: page === 'stories' && !sh,
+          storyReaderTitle:        sh ? (sh.title || '') : '',
+          storyReaderAuthor:       sh && sh.author_name ? 'авторка ' + sh.author_name : '',
+          storyReaderHasAuthor:    !!(sh && sh.author_name),
+          storyReaderHasTelegraph: !!(sh && sh.telegraph_url),
+          storyReaderTelegraphUrl: sh ? (sh.telegraph_url || '') : '',
+          storyReaderHasContent:   !!raw,
+          storyReaderNoContent:    !!(sh && !raw),
+          storyReaderHeaderBg:     'background:' + SGRAD[hh % SGRAD.length] + ';',
+          storyReaderToc:          toc.map(x => ({ level: String(x.level), text: x.text, id: x.id })),
+          storyReaderHasToc:       toc.length >= 2,
+          storyReaderBodyEl:       raw ? React.createElement('div', { className: 'lore-md', dangerouslySetInnerHTML: { __html: parseMarkdown(raw) } }) : null,
+          scrollStoryToc: (e) => {
+            e.preventDefault();
+            const id = e.currentTarget.getAttribute('data-tocid');
+            const target = document.querySelector('[data-hid="' + id + '"]');
+            if (target) { const y = target.getBoundingClientRect().top + window.scrollY - 80; window.scrollTo({ top: y, behavior: 'smooth' }); }
+          },
         };
-        return React.createElement('div', null,
-          React.createElement('nav', { key:'toc', className:'lore-toc' },
-            React.createElement('p', { className:'lore-toc-title' }, '✦ Зміст'),
-            React.createElement('ol', { className:'lore-toc-list' },
-              toc.map((h, i) => React.createElement('li', { key:i, 'data-level':String(h.level) },
-                React.createElement('a', { href:'#', 'data-tocid':h.id, onClick:onTocClick }, h.text)
-              ))
-            )
-          ),
-          body
-        );
       })(),
       openHistory: (e) => {
         const id = e.currentTarget.dataset.id;
         const it = (data.stories||[]).find(x => x.id === id);
-        if (it) this.setState({ selectedHistory: it });
+        if (it) { this.setState({ selectedHistory: it }); window.scrollTo({ top: 0 }); }
       },
-      closeHistoryModal: () => this.setState({ selectedHistory: null }),
-      stopHistoryProp:   (e) => e.stopPropagation(),
+      closeStory: () => { this.setState({ selectedHistory: null }); window.scrollTo({ top: 0 }); },
 
       // ──────────── ХРОНІКИ ────────────
       chronicleItems: filteredChronData.map(c => {
