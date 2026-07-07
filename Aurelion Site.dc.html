@@ -937,6 +937,78 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
             </sc-if>
           </article>
         </div>
+
+        <!-- ── Деревце зв'язків ── -->
+        <sc-if value="{{ relHasConns }}" hint-placeholder-val="{{ false }}">
+          <div style="max-width:1060px;margin:58px auto 0;">
+            <div style="height:1px;background:rgba(255,255,255,0.09);margin-bottom:34px;"></div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px;">
+              <div>
+                <p style="font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin:0 0 5px;">✦ Рукостискання</p>
+                <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.5rem,3vw,1.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;margin:0;">Мережа зв'язків</h2>
+              </div>
+              <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin:0;">{{ relDirectCount }} прямих · <span style="color:rgba(100,149,237,0.7);">{{ relSecondCount }} через знайомих{{ relHiddenNote }}</span></p>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;overflow:visible;height:{{ relOuterH }};">
+              <div style="position:relative;width:{{ relCW }};height:{{ relCH }};transform:scale({{ relScale }});transform-origin:center center;flex-shrink:0;">
+                <svg viewBox="{{ relViewBox }}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
+                  <sc-for list="{{ relLines }}" as="ln" hint-placeholder-count="0">
+                    <line x1="{{ ln.x1 }}" y1="{{ ln.y1 }}" x2="{{ ln.x2 }}" y2="{{ ln.y2 }}" stroke="{{ ln.stroke }}" stroke-width="{{ ln.w }}" stroke-dasharray="{{ ln.dash }}" stroke-linecap="round"></line>
+                  </sc-for>
+                </svg>
+                <sc-for list="{{ relNodes }}" as="n" hint-placeholder-count="0">
+                  <div data-id="{{ n.id }}" onMouseEnter="{{ relEnter }}" onMouseMove="{{ relMove }}" onMouseLeave="{{ relLeave }}" onClick="{{ relClick }}" style="{{ n.wrapStyle }}" style-hover="transform:scale(1.09);z-index:60;">
+                    <div style="{{ n.portraitStyle }}">
+                      <sc-if value="{{ n.noImg }}" hint-placeholder-val="{{ true }}">
+                        <span style="font-family:'Cinzel',serif;font-weight:700;color:rgba(255,255,255,0.92);line-height:1;font-size:{{ n.initSize }};">{{ n.initials }}</span>
+                      </sc-if>
+                    </div>
+                    <p style="position:absolute;top:calc(100% + 5px);left:50%;transform:translateX(-50%);width:104px;text-align:center;font-family:'Cinzel',serif;font-size:{{ n.nameSize }};color:{{ n.nameColor }};letter-spacing:0.02em;line-height:1.15;text-shadow:0 1px 6px rgba(0,0,0,0.9);pointer-events:none;margin:0;">{{ n.name }}</p>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:14px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+              <sc-for list="{{ relLegend }}" as="lg" hint-placeholder-count="0">
+                <div style="display:flex;align-items:center;gap:7px;">
+                  <span style="width:11px;height:11px;border-radius:50%;background:{{ lg.color }};box-shadow:0 0 8px {{ lg.glow }};"></span>
+                  <span style="font-size:0.76rem;color:rgba(255,255,255,0.55);letter-spacing:0.03em;">{{ lg.name }}</span>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;gap:7px;margin-left:6px;">
+                <span style="width:20px;border-top:1.6px dashed rgba(255,255,255,0.4);align-self:center;"></span>
+                <span style="font-size:0.76rem;color:rgba(255,255,255,0.4);">через знайомих</span>
+              </div>
+            </div>
+            <p style="text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.25);margin-top:12px;">Наведи або клікни на портрет</p>
+          </div>
+
+          <!-- прев'ю / підказка -->
+          <sc-if value="{{ relTipVisible }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ relTipStyle }}">
+              <div style="background:rgba(22,22,22,0.98);border:1px solid {{ relTipColor }};border-radius:12px;padding:13px 15px;box-shadow:0 14px 40px rgba(0,0,0,0.7);backdrop-filter:blur(8px);">
+                <div style="display:flex;align-items:center;gap:11px;">
+                  <div style="width:42px;height:44px;border-radius:7px;border:1.5px solid {{ relTipColor }};background:{{ relTipPortrait }};background-size:cover;background-position:center top;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+                    <sc-if value="{{ relTipNoImg }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Cinzel',serif;font-weight:700;font-size:0.95rem;color:#fff;">{{ relTipInitials }}</span></sc-if>
+                  </div>
+                  <div style="min-width:0;">
+                    <p style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ relTipColor }};margin:0 0 2px;">{{ relTipFaction }}</p>
+                    <h4 style="font-family:'Cinzel',serif;font-size:1rem;color:#fff;letter-spacing:0.02em;margin:0;">{{ relTipName }}</h4>
+                    <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);margin:1px 0 0;">{{ relTipRole }}</p>
+                  </div>
+                </div>
+                <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 0 9px;"></div>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.92rem;color:rgba(255,215,0,0.82);line-height:1.4;margin:0;">{{ relTipRelation }}</p>
+                <sc-if value="{{ relTipCanOpen }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ relOpenChar }}" style="margin-top:11px;width:100%;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:8px 16px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;">↗ Відкрити сторінку</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ relTipPinned }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ relClosePin }}" style="position:fixed;inset:0;z-index:9990;"></div>
+          </sc-if>
+        </sc-if>
       </div>
     </sc-if>
   </main>
@@ -1514,6 +1586,7 @@ class Component extends DCLogic {
     charSharing: false, charShareMsg: '',
     diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
     rollHistory: [], selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null,
+    relHoverId: null, relPinId: null, relMx: 0, relMy: 0,
     charTab: 'player', charSearch: '',
     charMode: this._initMode(),
     selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
@@ -1545,6 +1618,151 @@ class Component extends DCLogic {
     const map = {};
     [...tags].forEach((t, i) => { map[t] = palette[i % palette.length]; });
     return map;
+  }
+
+  _rgba(hex, a) {
+    const h = (hex || '#c8ccd8').replace('#', '');
+    const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  // ── Радіальне деревце зв'язків для сторінки персонажа ──
+  _relTree(sc, allChars) {
+    if (!sc) return { relHasConns: false };
+    const s = this.state;
+    const rgba = (hex, a) => this._rgba(hex, a);
+
+    // edges
+    const charMap = {}; allChars.forEach(ch => charMap[ch.id] = ch);
+    const edgeSet = new Set(), edges = [];
+    allChars.forEach(ch => {
+      (ch.connections || '').split(',').map(x => x.trim()).filter(Boolean).forEach(toId => {
+        const key = [ch.id, toId].sort().join('|');
+        if (!edgeSet.has(key) && charMap[toId]) { edgeSet.add(key); edges.push({ fromId: ch.id, toId }); }
+      });
+    });
+    const neighbors = (id) => { const out = []; edges.forEach(e => { if (e.fromId === id) out.push(e.toId); else if (e.toId === id) out.push(e.fromId); }); return [...new Set(out)]; };
+
+    const directIds = neighbors(sc.id).filter(id => charMap[id]);
+    if (!directIds.length) return { relHasConns: false };
+
+    const tagColors = this._tagColors(allChars);
+    const colorOf = (ch) => { const t = this._parseTags(ch); return t.length ? (tagColors[t[0]] || '#c8ccd8') : '#c8ccd8'; };
+    const cap = (str) => str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+    const initialsOf = (name) => { const p = (name || '').trim().split(/\s+/); return p.slice(0, 2).map(x => x[0] || '').join('').toUpperCase() || '?'; };
+
+    // second degree (deduped, capped per direct)
+    const directSet = new Set(directIds); directSet.add(sc.id);
+    const CAP = 4;
+    const secByVia = {}, secSeen = new Set(), allSec = new Set();
+    directIds.forEach(did => {
+      const ns = neighbors(did).filter(id => !directSet.has(id) && charMap[id]);
+      ns.forEach(id => allSec.add(id));
+      const shown = ns.filter(id => !secSeen.has(id)).slice(0, CAP);
+      shown.forEach(id => secSeen.add(id));
+      secByVia[did] = shown;
+    });
+    const shownSecCount = Object.values(secByVia).reduce((a, b) => a + b.length, 0);
+    const hidden = allSec.size - shownSecCount;
+
+    // geometry (scales with connection count)
+    const N = directIds.length;
+    const R1 = 150 + Math.max(0, N - 6) * 12;
+    const centerSize = 94, dirSize = N > 10 ? 52 : 62, secSize = 40;
+    const R2 = R1 + 110;
+    const maxR = R2 + 40;
+    const CW = Math.round(2 * maxR), CH = Math.round(2 * maxR);
+    const cx = CW / 2, cy = CH / 2;
+
+    const mkNode = (ch, kind, x, y, size) => {
+      const col = colorOf(ch);
+      const isSec = kind === 'second', isCtr = kind === 'center';
+      const bw = isCtr ? 3 : (isSec ? 1.5 : 2);
+      const bstyle = isSec ? 'dashed' : 'solid';
+      const glow = isCtr ? `0 0 26px ${rgba(col, 0.5)}` : (isSec ? 'none' : `0 0 14px ${rgba(col, 0.32)}`);
+      const op = isSec ? 0.55 : 1;
+      const z = isCtr ? 30 : (isSec ? 5 : 20);
+      const imgUrl = ch.image ? `url(${JSON.stringify(ch.image)})` : '';
+      const bg = ch.image ? `rgba(20,20,20,0.35) ${imgUrl} center top/cover` : `radial-gradient(ellipse at center,${rgba(col, 0.18)} 0%,rgba(20,20,20,0.92) 72%)`;
+      return {
+        id: ch.id, name: ch.name || '', initials: initialsOf(ch.name), noImg: !ch.image,
+        wrapStyle: `position:absolute;left:${(x - size / 2).toFixed(1)}px;top:${(y - size / 2).toFixed(1)}px;width:${size}px;height:${size}px;opacity:${op};z-index:${z};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.2s;`,
+        portraitStyle: `width:100%;height:100%;border-radius:50%;border:${bw}px ${bstyle} ${rgba(col, isSec ? 0.6 : 0.85)};background:${bg};box-shadow:${glow};display:flex;align-items:center;justify-content:center;overflow:hidden;`,
+        initSize: isCtr ? '1.5rem' : (isSec ? '0.66rem' : '0.98rem'),
+        nameSize: isCtr ? '0.82rem' : (isSec ? '0.6rem' : '0.7rem'),
+        nameColor: isSec ? 'rgba(255,255,255,0.5)' : '#fff',
+      };
+    };
+
+    const nodes = [], lines = [];
+    nodes.push(mkNode(sc, 'center', cx, cy, centerSize));
+    directIds.forEach((did, i) => {
+      const ang = -Math.PI / 2 + i * (2 * Math.PI / N);
+      const x = cx + R1 * Math.cos(ang), y = cy + R1 * Math.sin(ang);
+      const dch = charMap[did];
+      lines.push({ x1: cx.toFixed(1), y1: cy.toFixed(1), x2: x.toFixed(1), y2: y.toFixed(1), stroke: rgba(colorOf(dch), 0.5), w: '2', dash: '' });
+      nodes.push(mkNode(dch, 'direct', x, y, dirSize));
+      const secs = secByVia[did] || [], k = secs.length;
+      secs.forEach((sid, j) => {
+        const step = 0.30, a2 = ang + (k > 1 ? (j - (k - 1) / 2) * step : 0);
+        const x2 = cx + R2 * Math.cos(a2), y2 = cy + R2 * Math.sin(a2);
+        const sch = charMap[sid];
+        lines.push({ x1: x.toFixed(1), y1: y.toFixed(1), x2: x2.toFixed(1), y2: y2.toFixed(1), stroke: rgba(colorOf(sch), 0.3), w: '1.4', dash: '4 5' });
+        nodes.push(mkNode(sch, 'second', x2, y2, secSize));
+      });
+    });
+
+    const scale = Math.min(1, 980 / CW, 600 / CH);
+
+    // legend
+    const legMap = {}; let hasTagless = false;
+    const shownChars = [sc, ...directIds.map(id => charMap[id]), ...Object.values(secByVia).flat().map(id => charMap[id])];
+    shownChars.forEach(ch => { const t = this._parseTags(ch); if (t.length) { if (!legMap[t[0]]) legMap[t[0]] = tagColors[t[0]] || '#c8ccd8'; } else hasTagless = true; });
+    const relLegend = Object.keys(legMap).map(name => ({ name: cap(name), color: legMap[name], glow: rgba(legMap[name], 0.5) }));
+    if (hasTagless) relLegend.push({ name: 'Без фракції', color: '#c8ccd8', glow: rgba('#c8ccd8', 0.5) });
+
+    // tooltip / preview
+    const dName = {}; directIds.forEach(id => dName[id] = charMap[id].name || '');
+    const tipMap = {};
+    const addTip = (ch, relation) => {
+      const col = colorOf(ch), t = this._parseTags(ch);
+      const imgUrl = ch.image ? `url(${JSON.stringify(ch.image)})` : '';
+      tipMap[ch.id] = { name: ch.name || '', role: ch.role || '', initials: initialsOf(ch.name), faction: t.length ? cap(t[0]) : '—', color: col, portrait: ch.image ? `rgba(20,20,20,0.35) ${imgUrl} center top/cover` : `radial-gradient(ellipse at center,${rgba(col, 0.2)} 0%,rgba(20,20,20,0.92) 72%)`, noImg: !ch.image, relation };
+    };
+    addTip(sc, 'Ця сторінка');
+    directIds.forEach(id => addTip(charMap[id], 'Прямий зв\'язок'));
+    Object.keys(secByVia).forEach(did => secByVia[did].forEach(sid => addTip(charMap[sid], 'Через ' + dName[did])));
+
+    const activeId = s.relPinId || s.relHoverId;
+    const t = activeId ? tipMap[activeId] : null;
+    let relTipStyle = 'display:none;';
+    if (t) {
+      const off = 18, w = 250;
+      let L = (s.relMx || 0) + off, T = (s.relMy || 0) + off;
+      if (typeof window !== 'undefined') {
+        if (L + w > window.innerWidth - 8) L = (s.relMx || 0) - off - w;
+        if (T + 220 > window.innerHeight - 8) T = Math.max(8, window.innerHeight - 230);
+      }
+      relTipStyle = `position:fixed;left:${L}px;top:${T}px;width:${w}px;z-index:9995;pointer-events:${s.relPinId ? 'auto' : 'none'};`;
+    }
+
+    return {
+      relHasConns: true,
+      relNodes: nodes, relLines: lines, relLegend,
+      relCW: CW + 'px', relCH: CH + 'px', relScale: scale.toFixed(3), relViewBox: `0 0 ${CW} ${CH}`, relOuterH: Math.round(CH * scale + 20) + 'px',
+      relDirectCount: String(N), relSecondCount: String(shownSecCount), relHiddenNote: hidden > 0 ? (' · +' + hidden + ' ще') : '',
+      relEnter: (e) => this.setState({ relHoverId: e.currentTarget.dataset.id, relMx: e.clientX, relMy: e.clientY }),
+      relMove: (e) => { if (this.state.relPinId) return; this.setState({ relMx: e.clientX, relMy: e.clientY }); },
+      relLeave: () => { if (!this.state.relPinId) this.setState({ relHoverId: null }); },
+      relClick: (e) => { e.stopPropagation(); this.setState({ relPinId: e.currentTarget.dataset.id, relHoverId: e.currentTarget.dataset.id, relMx: e.clientX, relMy: e.clientY }); },
+      relClosePin: () => this.setState({ relPinId: null, relHoverId: null }),
+      relOpenChar: () => { const id = this.state.relPinId; const ch = allChars.find(c => c.id === id); if (ch) { this.setState({ selectedChar: ch, relPinId: null, relHoverId: null }); window.scrollTo({ top: 0 }); } },
+      relTipVisible: !!t, relTipPinned: !!s.relPinId, relTipStyle,
+      relTipName: t ? t.name : '', relTipRole: t ? t.role : '', relTipFaction: t ? t.faction : '',
+      relTipColor: t ? t.color : '#ffd700', relTipPortrait: t ? t.portrait : '', relTipNoImg: t ? t.noImg : true,
+      relTipInitials: t ? t.initials : '', relTipRelation: t ? t.relation : '',
+      relTipCanOpen: !!(s.relPinId && s.relPinId !== sc.id),
+    };
   }
 
   _boardLayout(chars) {
@@ -2923,6 +3141,9 @@ class Component extends DCLogic {
           clearBoardSel: ()=>this.setState({selectedBoardChar:null, boardIsolate:false}),
         };
       })()),
+
+      // ── Деревце зв'язків на сторінці персонажа ──
+      ...this._relTree(s.selectedChar, data.characters || []),
 
       selectDice: (e) => {
         const n = parseInt(e.currentTarget.dataset.dice);
