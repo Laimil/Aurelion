@@ -691,6 +691,12 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <header style="text-align:center;margin-bottom:36px;">
         <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Так-так, вони ваші</p>
         <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Персонажі</h1>
+        <div style="display:flex;justify-content:center;margin-top:18px;">
+          <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+            <button data-conn="off" onClick="{{ setCharConnMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;">🎭 Галерея</button>
+            <button data-conn="on" onClick="{{ setCharConnMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
+          </div>
+        </div>
       </header>
 
       <!-- Пошук -->
@@ -708,15 +714,20 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           <button data-tab="player" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ playerTabActive }}">🎭 Гравці</button>
           <button data-tab="npc" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ npcTabActive }}">👤 НПЦ</button>
         </div>
-        <div style="display:flex;gap:6px;">
+        <div style="display:flex;gap:6px;align-items:center;">
           <sc-for list="{{ charSortOptions }}" as="opt" hint-placeholder-count="0">
             <button data-sort="{{ opt.value }}" onClick="{{ setCharSort }}" data-active="{{ opt.active }}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 12px;font-size:0.72rem;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">{{ opt.label }}</button>
           </sc-for>
+          <div style="display:inline-flex;gap:4px;margin-left:6px;padding-left:12px;border-left:1px solid rgba(255,255,255,0.1);">
+            <button data-view="grid" onClick="{{ setCharView }}" data-active="{{ charViewIsGrid }}" title="Плиткою" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 11px;font-size:0.92rem;line-height:1;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">▦</button>
+            <button data-view="list" onClick="{{ setCharView }}" data-active="{{ charViewIsList }}" title="Списком" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 11px;font-size:0.92rem;line-height:1;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">☰</button>
+          </div>
         </div>
       </div>
 
       <!-- Гравці -->
       <sc-if value="{{ showPlayerTab }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ charViewGrid }}" hint-placeholder-val="{{ true }}">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;">
           <sc-for list="{{ playerItems }}" as="char" hint-placeholder-count="6">
             <div data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
@@ -741,6 +752,30 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
             </div>
           </sc-for>
         </div>
+        </sc-if>
+        <sc-if value="{{ charViewList }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;max-width:820px;margin:0 auto;">
+            <sc-for list="{{ playerItems }}" as="char" hint-placeholder-count="6">
+              <article data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
+                <div style="position:relative;width:82px;flex-shrink:0;overflow:hidden;background:#111;">
+                  <div style="{{ char.bgStyle }}"></div>
+                  <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
+                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);"><span style="font-family:'Cinzel',serif;font-size:1.7rem;color:rgba(255,215,0,0.22);font-weight:700;">{{ char.initials }}</span></div>
+                  </sc-if>
+                </div>
+                <div style="padding:12px 20px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;">
+                  <p style="font-size:0.6rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,215,0,0.7);">{{ char.role }}</p>
+                  <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;">
+                    <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.03em;line-height:1.2;">{{ char.name }}</h3>
+                    <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.8rem;color:rgba(255,255,255,0.32);">«{{ char.alias }}»</span></sc-if>
+                  </div>
+                  <sc-if value="{{ char.hasBio }}" hint-placeholder-val="{{ false }}"><p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.46);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p></sc-if>
+                </div>
+                <div style="align-self:center;padding:0 22px;color:#6495ed;font-size:1.1rem;flex-shrink:0;">→</div>
+              </article>
+            </sc-for>
+          </div>
+        </sc-if>
         <sc-if value="{{ playersEmpty }}" hint-placeholder-val="{{ false }}">
           <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
             <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
@@ -751,6 +786,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 
       <!-- НПЦ -->
       <sc-if value="{{ showNpcTab }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ charViewGrid }}" hint-placeholder-val="{{ true }}">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;">
           <sc-for list="{{ npcItems }}" as="char" hint-placeholder-count="4">
             <div data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
@@ -775,6 +811,30 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
             </div>
           </sc-for>
         </div>
+        </sc-if>
+        <sc-if value="{{ charViewList }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;max-width:820px;margin:0 auto;">
+            <sc-for list="{{ npcItems }}" as="char" hint-placeholder-count="4">
+              <article data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
+                <div style="position:relative;width:82px;flex-shrink:0;overflow:hidden;background:#111;">
+                  <div style="{{ char.bgStyle }}"></div>
+                  <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
+                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(110,192,176,0.05) 0%,transparent 70%);"><span style="font-family:'Cinzel',serif;font-size:1.7rem;color:rgba(110,192,176,0.22);font-weight:700;">{{ char.initials }}</span></div>
+                  </sc-if>
+                </div>
+                <div style="padding:12px 20px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;">
+                  <p style="font-size:0.6rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(110,192,176,0.8);">{{ char.role }}</p>
+                  <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;">
+                    <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.03em;line-height:1.2;">{{ char.name }}</h3>
+                    <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.8rem;color:rgba(255,255,255,0.32);">«{{ char.alias }}»</span></sc-if>
+                  </div>
+                  <sc-if value="{{ char.hasBio }}" hint-placeholder-val="{{ false }}"><p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.46);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p></sc-if>
+                </div>
+                <div style="align-self:center;padding:0 22px;color:#6495ed;font-size:1.1rem;flex-shrink:0;">→</div>
+              </article>
+            </sc-for>
+          </div>
+        </sc-if>
         <sc-if value="{{ npcsEmpty }}" hint-placeholder-val="{{ false }}">
           <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
             <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
@@ -917,9 +977,16 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
-<!-- ═══ ЗВ'ЯЗКИ ═══ -->
-<sc-if value="{{ showConnections }}" hint-placeholder-val="{{ false }}">
+<!-- ═══ ЗВ'ЯЗКИ (режим на сторінці Персонажі) ═══ -->
+<sc-if value="{{ showCharConnections }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:80px 0 48px;">
+
+    <div style="display:flex;justify-content:center;margin-bottom:8px;padding:0 24px;">
+      <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+        <button data-conn="off" onClick="{{ setCharConnMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
+        <button data-conn="on" onClick="{{ setCharConnMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;">🕸 Зв'язки</button>
+      </div>
+    </div>
 
     <!-- Заголовок · підказка · перемикач · панель вибраного -->
     <div style="display:flex;align-items:flex-start;gap:20px;padding:10px 32px 14px;position:relative;z-index:10;">
@@ -1472,6 +1539,7 @@ class Component extends DCLogic {
     diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
     rollHistory: [], selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null,
     charTab: 'player', charSearch: '',
+    charConnMode: false,
     selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
     boardHoverId: null,
     boardScale: 1,
@@ -1656,7 +1724,7 @@ class Component extends DCLogic {
     this._updateMapBase();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
     window.addEventListener('hashchange', () => {
-      this.setState({ page: this._getPage(), selectedChar: null, peekChar: null, selectedHistory: null, selectedLore: null, selectedChronicle: null, mapActivePin: null });
+      this.setState({ page: this._getPage(), selectedChar: null, peekChar: null, selectedHistory: null, selectedLore: null, selectedChronicle: null, mapActivePin: null, charConnMode: false });
       window.scrollTo({ top: 0 });
     });
     window.addEventListener('storage', (e) => {
@@ -2331,11 +2399,10 @@ class Component extends DCLogic {
       showChronicles:   page === 'chronicles',
       showChronGallery: page === 'chronicles' && !s.selectedChronicle,
       showChronReader:  page === 'chronicles' && !!s.selectedChronicle,
-      showCharacters:  page === 'characters',
+      showCharacters:  page === 'characters' && !s.charConnMode,
       showPantheon:    page === 'pantheon',
       showDice:        page === 'dice',
       showContacts:    page === 'contacts',
-      showConnections: page === 'connections',
       showMap:         page === 'map',
 
       navItems: [
@@ -2344,7 +2411,6 @@ class Component extends DCLogic {
         { id: 'stories',     label: 'Історії',      active: page === 'stories' },
         { id: 'chronicles',  label: 'Хроніки',     active: page === 'chronicles' },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
-        { id: 'connections', label: '🕸 Зв\'язки', active: page === 'connections' },
         { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
         { id: 'dice',        label: '⚄ Дайс',     active: page === 'dice' },
         { id: 'map',         label: '🗺 Мапа',    active: page === 'map' },
@@ -2887,6 +2953,7 @@ class Component extends DCLogic {
       },
       closeCharModal: () => this.setState({ peekChar: null }),
       closeCharPage: () => { this.setState({ selectedChar: null }); window.scrollTo({ top: 0 }); },
+      setCharConnMode: (e) => { this.setState({ charConnMode: e.currentTarget.dataset.conn === 'on' }); window.scrollTo({ top: 0 }); },
       stopProp: (e) => e.stopPropagation(),
       saveCharCard:  () => this.saveCharCard(),
       copyCharCard:  () => this.copyCharCard(),
@@ -2896,7 +2963,8 @@ class Component extends DCLogic {
       hasCharShareMsg: !!s.charShareMsg,
 
       // ── ЧИТАЛКА: персонаж (сторінка-стаття) ──
-      showCharGallery:     page === 'characters' && !sc,
+      showCharGallery:     page === 'characters' && !sc && !s.charConnMode,
+      showCharConnections: page === 'characters' && !sc && s.charConnMode,
       showCharReader:      page === 'characters' && !!sc,
       charReaderName:      sc?.name  || '',
       charReaderRole:      sc?.role  || '',
@@ -3107,11 +3175,16 @@ class Component extends DCLogic {
         { value: 'az',    label: 'A → Я',     active: charSortBy === 'az' },
         { value: 'za',    label: 'Я → A',     active: charSortBy === 'za' },
       ],
+      charViewGrid:   (s.charView || 'grid') === 'grid',
+      charViewList:   (s.charView || 'grid') === 'list',
+      charViewIsGrid: (s.charView || 'grid') === 'grid',
+      charViewIsList: (s.charView || 'grid') === 'list',
       setLoreTag:    (e) => this.setState({ loreTagFilter: e.currentTarget.dataset.tag || null }),
       setLoreSort:   (e) => this.setState({ loreSortBy: e.currentTarget.dataset.sort }),
       setLoreView:   (e) => this.setState({ loreView: e.currentTarget.dataset.view }),
       setStoriesSort:(e) => this.setState({ storiesSortBy: e.currentTarget.dataset.sort }),
       setCharSort:   (e) => this.setState({ charSortBy: e.currentTarget.dataset.sort }),
+      setCharView:   (e) => this.setState({ charView: e.currentTarget.dataset.view }),
       openLore: (e) => {
         const id = e.currentTarget.dataset.id;
         const it = (data.lore || []).find(l => l.id === id);
