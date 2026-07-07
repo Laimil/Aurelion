@@ -536,8 +536,8 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
-<!-- ═══ ХРОНІКИ ═══ -->
-<sc-if value="{{ showChronicles }}" hint-placeholder-val="{{ false }}">
+<!-- ═══ ХРОНІКИ (режим на сторінці Персонажі) ═══ -->
+<sc-if value="{{ showCharChron }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;">
 
     <!-- ── ГАЛЕРЕЯ ── -->
@@ -547,6 +547,13 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Літопис відіграшів</p>
           <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Хроніки</h1>
           <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.4);margin:10px auto 0;max-width:580px;line-height:1.6;">Зведені літописи персонажів та арок — те, що сталося за столом, зібране в один запис.</p>
+          <div style="display:flex;justify-content:center;margin-top:20px;">
+            <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+              <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
+              <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
+              <button data-mode="chron" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🪶 Хроніки</button>
+            </div>
+          </div>
         </header>
 
         <!-- Теги -->
@@ -693,8 +700,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Персонажі</h1>
         <div style="display:flex;justify-content:center;margin-top:18px;">
           <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
-            <button data-conn="off" onClick="{{ setCharConnMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;">🎭 Галерея</button>
-            <button data-conn="on" onClick="{{ setCharConnMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
+            <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🎭 Галерея</button>
+            <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
+            <button data-mode="chron" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🪶 Хроніки</button>
           </div>
         </div>
       </header>
@@ -983,26 +991,40 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 
     <div style="display:flex;justify-content:center;margin-bottom:8px;padding:0 24px;">
       <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
-        <button data-conn="off" onClick="{{ setCharConnMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
-        <button data-conn="on" onClick="{{ setCharConnMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;">🕸 Зв'язки</button>
+        <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
+        <button data-mode="conn" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🕸 Зв'язки</button>
+        <button data-mode="chron" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🪶 Хроніки</button>
       </div>
     </div>
 
     <!-- Заголовок · підказка · перемикач · панель вибраного -->
-    <div style="display:flex;align-items:flex-start;gap:20px;padding:10px 32px 14px;position:relative;z-index:10;">
+    <div style="display:grid;grid-template-columns:260px minmax(0,360px) 260px;justify-content:center;align-items:start;gap:20px;padding:10px 32px 14px;position:relative;z-index:10;">
       <!-- Ліво: заголовок + підказка про кольори -->
       <div style="flex-shrink:0;">
         <p style="font-size:0.6rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.65);margin-bottom:3px;">✦ Рукостискання</p>
         <h1 style="font-family:'Cinzel',Georgia,serif;font-size:1.45rem;font-weight:700;color:#fff;letter-spacing:0.07em;line-height:1;">Зв'язки</h1>
         <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:6px;line-height:1.5;"><span style="color:rgba(255,215,0,0.5);">золото</span> = прямі · <span style="color:rgba(100,149,237,0.6);">синє</span> = знайомі знайомих</p>
       </div>
-      <div style="flex:1;"></div>
-      <!-- Право: кнопки + панель вибраного під ними -->
-      <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:10px;min-width:260px;position:relative;">
-        <div style="display:flex;gap:10px;">
-          <button data-view="board" onClick="{{ setBoardView }}" data-active="{{ showBoardView }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:7px 20px;font-family:'Cinzel',serif;font-size:0.78rem;cursor:pointer;color:rgba(255,255,255,0.5);transition:all 0.2s;" style-hover="color:#fff;">🕸 Дошка</button>
-          <button data-view="cloud" onClick="{{ setBoardView }}" data-active="{{ showCloudView }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:7px 20px;font-family:'Cinzel',serif;font-size:0.78rem;cursor:pointer;color:rgba(255,255,255,0.5);transition:all 0.2s;" style-hover="color:#fff;">★ Хаб</button>
+      <!-- Центр: пошук на дошці -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:2px;">
+        <div style="position:relative;width:100%;max-width:340px;">
+          <input value="{{ boardSearch }}" onInput="{{ setBoardSearch }}" placeholder="Пошук персонажа на дошці…" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:8px 34px;font-size:0.82rem;color:#fff;outline:none;transition:border-color 0.18s;" style-focus="border-color:rgba(255,215,0,0.5);" />
+          <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:0.85rem;opacity:0.4;pointer-events:none;">🔍</span>
+          <sc-if value="{{ hasBoardSearch }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ clearBoardSearch }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.8rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
+          </sc-if>
         </div>
+        <sc-if value="{{ hasSearchResults }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.66rem;letter-spacing:0.06em;color:rgba(255,215,0,0.6);">Знайдено: {{ searchCount }} · клікніть, щоб сфокусувати</p>
+        </sc-if>
+        <sc-if value="{{ searchNoResults }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.66rem;color:rgba(255,255,255,0.3);">Нічого не знайдено</p>
+        </sc-if>
+        <sc-if value="{{ hasBoardSel }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ toggleIsolate }}" data-active="{{ boardIsolate }}" style="margin-top:2px;background:{{ isolateBtnBg }};border:1px solid rgba(255,215,0,0.4);color:{{ isolateBtnColor }};border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;box-shadow:{{ isolateBtnShadow }};" style-hover="border-color:rgba(255,215,0,0.7);">{{ isolateLabel }}</button>
+        </sc-if>
+      </div>
+      <div style="justify-self:end;display:flex;flex-direction:column;align-items:flex-end;gap:10px;width:260px;position:relative;">
         <!-- Панель вибраного персонажа — абсолютна, не зсуває дошку -->
         <sc-if value="{{ hasBoardSel }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute;top:calc(100% + 6px);right:0;width:260px;background:rgba(22,22,22,0.97);border:1px solid rgba(255,215,0,0.22);border-radius:12px;padding:14px 16px;backdrop-filter:blur(8px);z-index:20;">
@@ -1051,7 +1073,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           {{ connectionLines }}
           <sc-for list="{{ boardChars }}" as="char" hint-placeholder-count="0">
             <div data-id="{{ char.id }}" onClick="{{ setBoardChar }}" onMouseEnter="{{ char.onHover }}" onMouseLeave="{{ clearBoardHover }}"
-                 style="position:absolute;left:{{ char.leftPx }};top:{{ char.topPx }};width:80px;cursor:pointer;z-index:{{ char.cardZ }};transition:opacity 0.22s,transform 0.32s cubic-bezier(.22,.68,0,1.2);opacity:{{ char.cardOpacity }};transform:{{ char.cardScale }};">
+                 style="position:absolute;left:{{ char.leftPx }};top:{{ char.topPx }};width:80px;cursor:pointer;pointer-events:{{ char.cardPointer }};z-index:{{ char.cardZ }};transition:opacity 0.22s,transform 0.32s cubic-bezier(.22,.68,0,1.2);opacity:{{ char.cardOpacity }};transform:{{ char.cardScale }};">
               <div style="width:80px;height:107px;border-radius:8px;overflow:hidden;border:{{ char.cardBorder }};box-shadow:{{ char.cardGlow }};transition:all 0.22s;background:#111;">
                 <sc-if value="{{ char.hasImg }}" hint-placeholder-val="{{ false }}">
                   <div style="{{ char.imgBg }}width:100%;height:100%;"></div>
@@ -1071,52 +1093,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
             </div>
           </sc-for>
         </div>
-      </div>
-    </sc-if>
-
-    <!-- ── ХАБ ── -->
-    <sc-if value="{{ showCloudView }}" hint-placeholder-val="{{ false }}">
-      <div style="max-width:1100px;margin:0 auto;padding:12px 24px 48px;display:flex;gap:28px;align-items:flex-start;">
-        <!-- Хмарка імен -->
-        <div style="flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:center;padding:12px 0;min-height:260px;">
-          <sc-for list="{{ cloudChars }}" as="char" hint-placeholder-count="0">
-            <button data-id="{{ char.id }}" onClick="{{ setBoardChar }}"
-              style="font-family:'Cinzel',Georgia,serif;font-size:{{ char.fontSize }};color:#fff;background:none;border:none;cursor:pointer;letter-spacing:0.04em;line-height:1.1;padding:4px 6px;transition:all 0.2s;opacity:{{ char.opacity }};text-shadow:0 0 18px rgba(255,215,0,0.2);" style-hover="opacity:1;color:#ffd700;text-shadow:0 0 28px rgba(255,215,0,0.5);">
-              {{ char.name }}<sup style="font-size:0.45em;opacity:0.4;margin-left:3px;">{{ char.count }}</sup>
-            </button>
-          </sc-for>
-          <sc-if value="{{ hasNoConnections }}" hint-placeholder-val="{{ false }}">
-            <p style="color:rgba(255,255,255,0.3);">Зв'язки ще не вказано.</p>
-          </sc-if>
-        </div>
-        <!-- Панель вибраного (справа) -->
-        <sc-if value="{{ hasBoardSel }}" hint-placeholder-val="{{ false }}">
-          <div style="width:280px;flex-shrink:0;position:sticky;top:80px;">
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:18px 18px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                <div style="min-width:0;">
-                  <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:3px;">{{ selCharRole }}</p>
-                  <h3 style="font-family:'Cinzel',serif;font-size:1rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ selCharName }}</h3>
-                  <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:3px;">{{ directConnsCount }} прямих · <span style="color:rgba(100,149,237,0.65);">{{ indirectConnsCount }} через знайомих</span></p>
-                </div>
-                <button onClick="{{ clearBoardSel }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:50%;width:28px;height:28px;color:rgba(255,255,255,0.5);cursor:pointer;flex-shrink:0;font-size:0.78rem;margin-left:8px;">✕</button>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:5px;max-height:420px;overflow-y:auto;">
-                <sc-for list="{{ directConns }}" as="conn" hint-placeholder-count="0">
-                  <div data-id="{{ conn.id }}" onClick="{{ jumpToChar }}" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(100,149,237,0.2);border-radius:7px;padding:6px 10px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(100,149,237,0.1);border-color:rgba(100,149,237,0.45);">
-                    <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ false }}">
-                      <div style="{{ conn.imgBg }}width:26px;height:26px;border-radius:4px;flex-shrink:0;"></div>
-                    </sc-if>
-                    <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ true }}">
-                      <div style="width:26px;height:26px;border-radius:4px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.55rem;color:rgba(255,255,255,0.3);flex-shrink:0;">{{ conn.initials }}</div>
-                    </sc-if>
-                    <p style="font-size:0.78rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ conn.name }}</p>
-                  </div>
-                </sc-for>
-              </div>
-            </div>
-          </div>
-        </sc-if>
       </div>
     </sc-if>
 
@@ -1539,8 +1515,9 @@ class Component extends DCLogic {
     diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
     rollHistory: [], selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null,
     charTab: 'player', charSearch: '',
-    charConnMode: false,
+    charMode: this._initMode(),
     selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
+    boardSearch: '', boardIsolate: false,
     boardHoverId: null,
     boardScale: 1,
     loreTagFilter: null, loreSortBy: 'order',
@@ -1585,7 +1562,16 @@ class Component extends DCLogic {
   }
 
   _getPage() {
-    return (window.location.hash || '').replace('#', '') || 'home';
+    const h = (window.location.hash || '').replace('#', '') || 'home';
+    if (h === 'chronicles' || h === 'connections') return 'characters';
+    return h;
+  }
+
+  _initMode() {
+    const h = (window.location.hash || '').replace('#', '');
+    if (h === 'chronicles') return 'chron';
+    if (h === 'connections') return 'conn';
+    return 'gallery';
   }
 
   async _get(path) {
@@ -1724,7 +1710,7 @@ class Component extends DCLogic {
     this._updateMapBase();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
     window.addEventListener('hashchange', () => {
-      this.setState({ page: this._getPage(), selectedChar: null, peekChar: null, selectedHistory: null, selectedLore: null, selectedChronicle: null, mapActivePin: null, charConnMode: false });
+      this.setState({ page: this._getPage(), charMode: this._initMode(), selectedChar: null, peekChar: null, selectedHistory: null, selectedLore: null, selectedChronicle: null, mapActivePin: null });
       window.scrollTo({ top: 0 });
     });
     window.addEventListener('storage', (e) => {
@@ -2396,10 +2382,10 @@ class Component extends DCLogic {
       showLoreGallery: page === 'lore' && !s.selectedLore,
       showLoreReader:  page === 'lore' && !!s.selectedLore,
       showStories:     page === 'stories',
-      showChronicles:   page === 'chronicles',
-      showChronGallery: page === 'chronicles' && !s.selectedChronicle,
-      showChronReader:  page === 'chronicles' && !!s.selectedChronicle,
-      showCharacters:  page === 'characters' && !s.charConnMode,
+      showChronGallery: page === 'characters' && !sc && s.charMode === 'chron' && !s.selectedChronicle,
+      showChronReader:  page === 'characters' && !sc && s.charMode === 'chron' && !!s.selectedChronicle,
+      showCharChron:    page === 'characters' && !sc && s.charMode === 'chron',
+      showCharacters:  page === 'characters' && (!!sc || s.charMode === 'gallery'),
       showPantheon:    page === 'pantheon',
       showDice:        page === 'dice',
       showContacts:    page === 'contacts',
@@ -2409,7 +2395,6 @@ class Component extends DCLogic {
         { id: 'home',        label: 'Головна',    active: page === 'home' },
         { id: 'lore',        label: 'Довідник',        active: page === 'lore' },
         { id: 'stories',     label: 'Історії',      active: page === 'stories' },
-        { id: 'chronicles',  label: 'Хроніки',     active: page === 'chronicles' },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
         { id: 'dice',        label: '⚄ Дайс',     active: page === 'dice' },
@@ -2723,7 +2708,19 @@ class Component extends DCLogic {
         const allChars = data.characters || [];
         const selId    = s.selectedBoardChar;
         const bView    = s.boardView || 'board';
+        const q        = (s.boardSearch || '').trim().toLowerCase();
+        const isolate  = !!s.boardIsolate;
         const placed   = this._boardLayout(allChars);
+
+        // Search matches (name / alias / role)
+        const matchIds = new Set();
+        if (q) {
+          allChars.forEach(ch => {
+            const hay = ((ch.name||'') + ' ' + (ch.alias||'') + ' ' + (ch.role||'')).toLowerCase();
+            if (hay.includes(q)) matchIds.add(ch.id);
+          });
+        }
+        const searchActive = !!q && !selId;
 
         // Build edges from explicit connections
         const edgeSet = new Set(), edges = [];
@@ -2774,11 +2771,15 @@ class Component extends DCLogic {
             const isFaded  = selId && !isDirect && !is2nd;
             const mx=(p1.bx+p2.bx)/2, my=(p1.by+p2.by)/2;
             const bcx=mx+(600-mx)*0.28, bcy=my+(420-my)*0.28;
+            let sOp = isDirect ? 0.8 : (is2nd ? 0.45 : (isFaded ? 0.06 : 0.25));
+            let sW  = isDirect ? 2.5 : (is2nd ? 1.2 : (isFaded ? 0.3 : 0.8));
+            if (isolate && selId && isFaded) sOp = 0;
+            if (searchActive) { sOp = 0.05; sW = 0.6; }
             return React.createElement('path',{key:idx,
               d:`M ${p1.bx} ${p1.by} Q ${bcx} ${bcy} ${p2.bx} ${p2.by}`,
               stroke: isDirect ? '#ffd700' : (is2nd ? '#6495ed' : 'rgba(255,255,255,0.4)'),
-              strokeWidth: isDirect ? 2.5 : (is2nd ? 1.2 : (isFaded ? 0.3 : 0.8)),
-              strokeOpacity: isDirect ? 0.8 : (is2nd ? 0.45 : (isFaded ? 0.06 : 0.25)),
+              strokeWidth: sW,
+              strokeOpacity: sOp,
               fill:'none', strokeLinecap:'round',
             });
           }).filter(Boolean),
@@ -2804,12 +2805,15 @@ class Component extends DCLogic {
           const isSelected=ch.id===selId;
           const isHovered=ch.id===boardHoverId;
           const d=deg[ch.id];
-          let opacity='1', border='2px solid rgba(255,255,255,0.12)', glow='none', scale='scale(1)';
+          let opacity='1', border='2px solid rgba(255,255,255,0.12)', glow='none', scale='scale(1)', pointer='auto';
           if (selId) {
             if (isSelected)  { border='2px solid rgba(255,215,0,0.9)'; glow='0 0 18px rgba(255,215,0,0.5)'; scale='scale(1.1)'; }
             else if (d===1)  { border='2px solid rgba(100,149,237,0.6)'; }
             else if (d===2)  { opacity='0.38'; }
-            else             { opacity='0.1'; }
+            else             { opacity='0.1'; if (isolate) { opacity='0'; pointer='none'; } }
+          } else if (searchActive) {
+            if (matchIds.has(ch.id)) { border='2px solid rgba(255,215,0,0.85)'; glow='0 0 16px rgba(255,215,0,0.45)'; scale='scale(1.05)'; }
+            else { opacity='0.14'; }
           }
           const repelStr = isHovered ? '' : getRepel(ch);
           const scaleStr = isHovered ? 'scale(1.06)' : scale;
@@ -2822,6 +2826,7 @@ class Component extends DCLogic {
             cardOpacity:opacity, cardBorder:border, cardGlow:glow,
             cardScale: repelStr + scaleStr,
             cardZ: isHovered ? '20' : isSelected ? '10' : '1',
+            cardPointer: pointer,
             onHover: () => this.setState({ boardHoverId: ch.id }),
           };
         });
@@ -2882,15 +2887,23 @@ class Component extends DCLogic {
         return {
           connectionLines,
           boardChars: boardCharsWithBadge,
-          directConns, cloudChars,
+          directConns,
           boardScale: sc2,
           boardScaledH: Math.round(840 * sc2 + 24) + 'px',
-          boardView: bView,
-          showBoardView: bView==='board',
-          showCloudView: bView==='cloud',
+          showBoardView: true,
           boardEmpty: !allChars.length,
           hasNoConnections: edges.length===0,
           hasBoardSel: !!(selId),
+          boardSearch: s.boardSearch || '',
+          hasBoardSearch: !!q,
+          searchCount: String(matchIds.size),
+          hasSearchResults: !!q && matchIds.size > 0,
+          searchNoResults: !!q && matchIds.size === 0,
+          boardIsolate: isolate,
+          isolateLabel: isolate ? '◉ Лише мережу' : '◎ Лише мережу',
+          isolateBtnBg: isolate ? 'rgba(255,215,0,0.18)' : 'rgba(255,255,255,0.05)',
+          isolateBtnColor: isolate ? '#ffd700' : 'rgba(255,215,0,0.85)',
+          isolateBtnShadow: isolate ? '0 0 16px rgba(255,215,0,0.25)' : 'none',
           selCharName: selChar.name||'',
           selCharRole: selChar.role||'',
           selCharHasImg: !!(selChar.image),
@@ -2899,13 +2912,15 @@ class Component extends DCLogic {
           indirectConnsCount: String(indirectCount),
           hasIndirect: indirectCount > 0,
           clearBoardHover: ()=>this.setState({boardHoverId:null}),
-          setBoardView: (e)=>this.setState({boardView:e.currentTarget.dataset.view}),
+          setBoardSearch: (e)=>this.setState({boardSearch:e.currentTarget.value}),
+          clearBoardSearch: ()=>this.setState({boardSearch:''}),
+          toggleIsolate: ()=>this.setState(st=>({boardIsolate:!st.boardIsolate})),
           setBoardChar: (e)=>{
             const id=e.currentTarget.dataset.id;
             this.setState(st=>({selectedBoardChar:st.selectedBoardChar===id?null:id}));
           },
           jumpToChar: (e)=>this.setState({selectedBoardChar:e.currentTarget.dataset.id}),
-          clearBoardSel: ()=>this.setState({selectedBoardChar:null}),
+          clearBoardSel: ()=>this.setState({selectedBoardChar:null, boardIsolate:false}),
         };
       })()),
 
@@ -2953,7 +2968,7 @@ class Component extends DCLogic {
       },
       closeCharModal: () => this.setState({ peekChar: null }),
       closeCharPage: () => { this.setState({ selectedChar: null }); window.scrollTo({ top: 0 }); },
-      setCharConnMode: (e) => { this.setState({ charConnMode: e.currentTarget.dataset.conn === 'on' }); window.scrollTo({ top: 0 }); },
+      setCharMode: (e) => { this.setState({ charMode: e.currentTarget.dataset.mode, selectedChronicle: null }); window.scrollTo({ top: 0 }); },
       stopProp: (e) => e.stopPropagation(),
       saveCharCard:  () => this.saveCharCard(),
       copyCharCard:  () => this.copyCharCard(),
@@ -2963,8 +2978,8 @@ class Component extends DCLogic {
       hasCharShareMsg: !!s.charShareMsg,
 
       // ── ЧИТАЛКА: персонаж (сторінка-стаття) ──
-      showCharGallery:     page === 'characters' && !sc && !s.charConnMode,
-      showCharConnections: page === 'characters' && !sc && s.charConnMode,
+      showCharGallery:     page === 'characters' && !sc && s.charMode === 'gallery',
+      showCharConnections: page === 'characters' && !sc && s.charMode === 'conn',
       showCharReader:      page === 'characters' && !!sc,
       charReaderName:      sc?.name  || '',
       charReaderRole:      sc?.role  || '',
