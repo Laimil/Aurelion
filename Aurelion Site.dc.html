@@ -949,7 +949,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
               </div>
               <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin:0;">{{ relDirectCount }} прямих · <span style="color:rgba(100,149,237,0.7);">{{ relSecondCount }} через знайомих{{ relHiddenNote }}</span></p>
             </div>
-            <div style="display:flex;align-items:center;justify-content:center;overflow:visible;height:{{ relOuterH }};">
+            <div style="display:flex;align-items:center;justify-content:center;overflow:visible;position:relative;height:{{ relOuterH }};">
               <div style="position:relative;width:{{ relCW }};height:{{ relCH }};transform:scale({{ relScale }});transform-origin:center center;flex-shrink:0;">
                 <svg viewBox="{{ relViewBox }}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
                   <sc-for list="{{ relLines }}" as="ln" hint-placeholder-count="0">
@@ -957,7 +957,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
                   </sc-for>
                 </svg>
                 <sc-for list="{{ relNodes }}" as="n" hint-placeholder-count="0">
-                  <div data-id="{{ n.id }}" onMouseEnter="{{ relEnter }}" onMouseMove="{{ relMove }}" onMouseLeave="{{ relLeave }}" onClick="{{ relClick }}" style="{{ n.wrapStyle }}" style-hover="transform:scale(1.09);z-index:60;">
+                  <div data-id="{{ n.id }}" onMouseEnter="{{ relEnter }}" onMouseLeave="{{ relLeave }}" onClick="{{ relClick }}" style="{{ n.wrapStyle }}" style-hover="transform:scale(1.09);z-index:60;">
                     <div style="{{ n.portraitStyle }}">
                       <sc-if value="{{ n.noImg }}" hint-placeholder-val="{{ true }}">
                         <span style="font-family:'Cinzel',serif;font-weight:700;color:rgba(255,255,255,0.92);line-height:1;font-size:{{ n.initSize }};">{{ n.initials }}</span>
@@ -967,6 +967,30 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
                   </div>
                 </sc-for>
               </div>
+              <sc-if value="{{ relTipVisible }}" hint-placeholder-val="{{ false }}">
+                <div style="{{ relTipStyle }}">
+                  <div style="position:relative;background:rgba(22,22,22,0.98);border:1px solid {{ relTipColor }};border-radius:12px;padding:13px 15px;box-shadow:0 14px 40px rgba(0,0,0,0.7);backdrop-filter:blur(8px);">
+                    <sc-if value="{{ relTipShowClose }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ relClosePin }}" style="position:absolute;top:8px;right:9px;background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.85rem;cursor:pointer;line-height:1;padding:2px;" style-hover="color:#fff;">✕</button>
+                    </sc-if>
+                    <div style="display:flex;align-items:center;gap:11px;">
+                      <div style="width:42px;height:44px;border-radius:7px;border:1.5px solid {{ relTipColor }};background:{{ relTipPortrait }};background-size:cover;background-position:center top;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+                        <sc-if value="{{ relTipNoImg }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Cinzel',serif;font-weight:700;font-size:0.95rem;color:#fff;">{{ relTipInitials }}</span></sc-if>
+                      </div>
+                      <div style="min-width:0;padding-right:14px;">
+                        <p style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ relTipColor }};margin:0 0 2px;">{{ relTipFaction }}</p>
+                        <h4 style="font-family:'Cinzel',serif;font-size:1rem;color:#fff;letter-spacing:0.02em;margin:0;">{{ relTipName }}</h4>
+                        <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);margin:1px 0 0;">{{ relTipRole }}</p>
+                      </div>
+                    </div>
+                    <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 0 9px;"></div>
+                    <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.92rem;color:rgba(255,215,0,0.82);line-height:1.4;margin:0;">{{ relTipRelation }}</p>
+                    <sc-if value="{{ relTipCanOpen }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ relOpenChar }}" style="margin-top:11px;width:100%;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:8px 16px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;">↗ Відкрити сторінку</button>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-if>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:14px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
               <sc-for list="{{ relLegend }}" as="lg" hint-placeholder-count="0">
@@ -982,32 +1006,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
             </div>
             <p style="text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.25);margin-top:12px;">Наведи або клікни на портрет</p>
           </div>
-
-          <!-- прев'ю / підказка -->
-          <sc-if value="{{ relTipVisible }}" hint-placeholder-val="{{ false }}">
-            <div style="{{ relTipStyle }}">
-              <div style="background:rgba(22,22,22,0.98);border:1px solid {{ relTipColor }};border-radius:12px;padding:13px 15px;box-shadow:0 14px 40px rgba(0,0,0,0.7);backdrop-filter:blur(8px);">
-                <div style="display:flex;align-items:center;gap:11px;">
-                  <div style="width:42px;height:44px;border-radius:7px;border:1.5px solid {{ relTipColor }};background:{{ relTipPortrait }};background-size:cover;background-position:center top;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
-                    <sc-if value="{{ relTipNoImg }}" hint-placeholder-val="{{ true }}"><span style="font-family:'Cinzel',serif;font-weight:700;font-size:0.95rem;color:#fff;">{{ relTipInitials }}</span></sc-if>
-                  </div>
-                  <div style="min-width:0;">
-                    <p style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ relTipColor }};margin:0 0 2px;">{{ relTipFaction }}</p>
-                    <h4 style="font-family:'Cinzel',serif;font-size:1rem;color:#fff;letter-spacing:0.02em;margin:0;">{{ relTipName }}</h4>
-                    <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);margin:1px 0 0;">{{ relTipRole }}</p>
-                  </div>
-                </div>
-                <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 0 9px;"></div>
-                <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.92rem;color:rgba(255,215,0,0.82);line-height:1.4;margin:0;">{{ relTipRelation }}</p>
-                <sc-if value="{{ relTipCanOpen }}" hint-placeholder-val="{{ false }}">
-                  <button onClick="{{ relOpenChar }}" style="margin-top:11px;width:100%;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:8px 16px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;">↗ Відкрити сторінку</button>
-                </sc-if>
-              </div>
-            </div>
-          </sc-if>
-          <sc-if value="{{ relTipPinned }}" hint-placeholder-val="{{ false }}">
-            <div onClick="{{ relClosePin }}" style="position:fixed;inset:0;z-index:9990;"></div>
-          </sc-if>
         </sc-if>
       </div>
     </sc-if>
@@ -1686,6 +1684,7 @@ class Component extends DCLogic {
       const bg = ch.image ? `rgba(20,20,20,0.35) ${imgUrl} center top/cover` : `radial-gradient(ellipse at center,${rgba(col, 0.18)} 0%,rgba(20,20,20,0.92) 72%)`;
       return {
         id: ch.id, name: ch.name || '', initials: initialsOf(ch.name), noImg: !ch.image,
+        cx: x, cy: y, r: size / 2,
         wrapStyle: `position:absolute;left:${(x - size / 2).toFixed(1)}px;top:${(y - size / 2).toFixed(1)}px;width:${size}px;height:${size}px;opacity:${op};z-index:${z};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.2s;`,
         portraitStyle: `width:100%;height:100%;border-radius:50%;border:${bw}px ${bstyle} ${rgba(col, isSec ? 0.6 : 0.85)};background:${bg};box-shadow:${glow};display:flex;align-items:center;justify-content:center;overflow:hidden;`,
         initSize: isCtr ? '1.5rem' : (isSec ? '0.66rem' : '0.98rem'),
@@ -1713,6 +1712,8 @@ class Component extends DCLogic {
     });
 
     const scale = Math.min(1, 980 / CW, 600 / CH);
+    const outerH = Math.round(CH * scale + 20);
+    const nodePos = {}; nodes.forEach(nn => { nodePos[nn.id] = { nx: nn.cx, ny: nn.cy, r: nn.r }; });
 
     // legend
     const legMap = {}; let hasTagless = false;
@@ -1735,29 +1736,29 @@ class Component extends DCLogic {
 
     const activeId = s.relPinId || s.relHoverId;
     const t = activeId ? tipMap[activeId] : null;
+    const ap = activeId ? nodePos[activeId] : null;
     let relTipStyle = 'display:none;';
-    if (t) {
-      const off = 18, w = 250;
-      let L = (s.relMx || 0) + off, T = (s.relMy || 0) + off;
-      if (typeof window !== 'undefined') {
-        if (L + w > window.innerWidth - 8) L = (s.relMx || 0) - off - w;
-        if (T + 220 > window.innerHeight - 8) T = Math.max(8, window.innerHeight - 230);
-      }
-      relTipStyle = `position:fixed;left:${L}px;top:${T}px;width:${w}px;z-index:9995;pointer-events:${s.relPinId ? 'auto' : 'none'};`;
+    if (t && ap) {
+      const dx = (ap.nx - CW / 2) * scale;
+      const cyv = outerH / 2 + (ap.ny - CH / 2) * scale;
+      const rr = ap.r * scale, gap = 12;
+      const above = cyv > 210;
+      const top = above ? (cyv - rr - gap) : (cyv + rr + gap);
+      const tf = above ? 'translate(-50%,-100%)' : 'translate(-50%,0)';
+      relTipStyle = `position:absolute;left:calc(50% + ${dx.toFixed(1)}px);top:${top.toFixed(1)}px;transform:${tf};width:250px;z-index:70;pointer-events:${s.relPinId ? 'auto' : 'none'};`;
     }
 
     return {
       relHasConns: true,
       relNodes: nodes, relLines: lines, relLegend,
-      relCW: CW + 'px', relCH: CH + 'px', relScale: scale.toFixed(3), relViewBox: `0 0 ${CW} ${CH}`, relOuterH: Math.round(CH * scale + 20) + 'px',
+      relCW: CW + 'px', relCH: CH + 'px', relScale: scale.toFixed(3), relViewBox: `0 0 ${CW} ${CH}`, relOuterH: outerH + 'px',
       relDirectCount: String(N), relSecondCount: String(shownSecCount), relHiddenNote: hidden > 0 ? (' · +' + hidden + ' ще') : '',
-      relEnter: (e) => this.setState({ relHoverId: e.currentTarget.dataset.id, relMx: e.clientX, relMy: e.clientY }),
-      relMove: (e) => { if (this.state.relPinId) return; this.setState({ relMx: e.clientX, relMy: e.clientY }); },
+      relEnter: (e) => { const id = e.currentTarget.dataset.id; if (!this.state.relPinId) this.setState({ relHoverId: id }); },
       relLeave: () => { if (!this.state.relPinId) this.setState({ relHoverId: null }); },
-      relClick: (e) => { e.stopPropagation(); this.setState({ relPinId: e.currentTarget.dataset.id, relHoverId: e.currentTarget.dataset.id, relMx: e.clientX, relMy: e.clientY }); },
+      relClick: (e) => { e.stopPropagation(); const id = e.currentTarget.dataset.id; this.setState(st => ({ relPinId: st.relPinId === id ? null : id, relHoverId: id })); },
       relClosePin: () => this.setState({ relPinId: null, relHoverId: null }),
       relOpenChar: () => { const id = this.state.relPinId; const ch = allChars.find(c => c.id === id); if (ch) { this.setState({ selectedChar: ch, relPinId: null, relHoverId: null }); window.scrollTo({ top: 0 }); } },
-      relTipVisible: !!t, relTipPinned: !!s.relPinId, relTipStyle,
+      relTipVisible: !!t, relTipPinned: !!s.relPinId, relTipShowClose: !!s.relPinId, relTipStyle,
       relTipName: t ? t.name : '', relTipRole: t ? t.role : '', relTipFaction: t ? t.faction : '',
       relTipColor: t ? t.color : '#ffd700', relTipPortrait: t ? t.portrait : '', relTipNoImg: t ? t.noImg : true,
       relTipInitials: t ? t.initials : '', relTipRelation: t ? t.relation : '',
