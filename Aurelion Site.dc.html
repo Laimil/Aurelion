@@ -122,6 +122,22 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </div>
 </sc-if>
 
+<!-- Load error -->
+<sc-if value="{{ loadError }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:#1a1a1a;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;padding:32px;text-align:center;">
+    <p style="font-family:'Cinzel',Georgia,serif;font-size:2.4rem;color:rgba(255,215,0,0.85);line-height:1;">✦</p>
+    <div style="max-width:460px;">
+      <p style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;letter-spacing:0.06em;color:#fff;margin-bottom:12px;">Щось пішло не так</p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.25rem;line-height:1.5;color:rgba(255,215,0,0.82);text-wrap:pretty;">«{{ loadErrorQuote }}»</p>
+      <p style="font-size:0.82rem;line-height:1.6;color:rgba(255,255,255,0.4);margin-top:14px;">Не вдалося дотягнутися до архіву. Перевірте з’єднання і спробуйте ще раз.</p>
+    </div>
+    <button onClick="{{ retryLoad }}" style="display:inline-flex;align-items:center;gap:9px;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px 34px;font-family:'Cinzel',serif;font-size:0.9rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:box-shadow 0.3s ease,transform 0.3s ease;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.45);transform:translateY(-2px);">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+      Спробувати ще раз
+    </button>
+  </div>
+</sc-if>
+
 <!-- ═══ NAV ═══ -->
 <nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);">
   <div style="max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;padding:0 24px;gap:0;">
@@ -1264,6 +1280,17 @@ const ease0 = (t)=>{ t = Math.max(0, Math.min(1, t)); return 1 - Math.pow(1 - t,
 
 const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице, ти ж не хочеш померти одразу ж вийшовши за межі міста? Думаю, що ні. Тому я тут. Спробуй довірити своє життя моїм знанням, адже можливо, саме я стану найвірнішим, найчеснішим супутником на твоєму шляху.\n\nПравило перше: Не довіряй людям. Повір, твої шанси на виживання зростуть на двадцять пунктів вверх…»';
 
+const LOAD_ERROR_QUOTES = [
+  'Схоже, боги не беруть слухавку.',
+  'Зв\u2019язок із пантеоном обірвався.',
+  'Оракул мовчить. Спробуйте покликати ще раз.',
+  'Хроніки замкнено на важкий засув.',
+  'Портал до архіву заклинило.',
+  'Ворон із листом заблукав у тумані.',
+  'Боги радяться за зачиненими дверима.',
+  'Нитка долі десь заплуталась.',
+];
+
 const DEFAULT_DICE_QUOTES = {
   crit: [
     'Боги усміхнулися до тебе.',
@@ -1322,6 +1349,7 @@ class Component extends DCLogic {
     page: this._getPage(),
     data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
     loading: true,
+    loadError: false, loadErrorQuote: LOAD_ERROR_QUOTES[0],
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
     rolledAt: null, shareMsg: '', sharing: false, diceQuote: '',
     charSharing: false, charShareMsg: '',
@@ -1378,28 +1406,45 @@ class Component extends DCLogic {
 
   async _get(path) {
     try {
-      const r = await fetch(`${SUPA_URL}/${path}`, { headers: SUPA_H });
-      return r.ok ? r.json() : [];
-    } catch(e) { return []; }
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
+      let r;
+      try { r = await fetch(`${SUPA_URL}/${path}`, { headers: SUPA_H, signal: ctrl.signal }); }
+      finally { clearTimeout(timer); }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    } catch(e) { throw e; }
   }
 
   async _loadAll() {
-    this.setState({ loading: true });
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity] = await Promise.all([
-      this._get('lore?select=*&order=created_at.asc'),
-      this._get('stories?select=*&order=sort_order.asc,created_at.asc'),
-      this._get('chronicles?select=*&order=sort_order.asc,created_at.asc'),
-      this._get('characters?select=*&order=created_at.asc'),
-      this._get('pantheon?select=*&order=sort_order.asc'),
-      this._get('contacts?select=*&order=sort_order.asc'),
-      this._get('site_settings?select=*'),
-      this._get('map_locations?select=*&order=sort_order.asc,created_at.asc'),
-      this._get('post_activity?select=day,posts&order=day.asc'),
-    ]);
+    this.setState({ loading: true, loadError: false });
+    let res;
+    try {
+      res = await Promise.all([
+        this._get('lore?select=*&order=created_at.asc'),
+        this._get('stories?select=*&order=sort_order.asc,created_at.asc'),
+        this._get('chronicles?select=*&order=sort_order.asc,created_at.asc'),
+        this._get('characters?select=*&order=created_at.asc'),
+        this._get('pantheon?select=*&order=sort_order.asc'),
+        this._get('contacts?select=*&order=sort_order.asc'),
+        this._get('site_settings?select=*'),
+        this._get('map_locations?select=*&order=sort_order.asc,created_at.asc'),
+        this._get('post_activity?select=day,posts&order=day.asc'),
+      ]);
+    } catch (e) {
+      this.setState({
+        loading: false,
+        loadError: true,
+        loadErrorQuote: LOAD_ERROR_QUOTES[Math.floor(Math.random() * LOAD_ERROR_QUOTES.length)],
+      });
+      return;
+    }
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity] = res;
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
     this.setState({
       loading: false,
+      loadError: false,
       data: {
         site,
         lore:          Array.isArray(lore)       ? lore       : [],
@@ -2155,6 +2200,9 @@ class Component extends DCLogic {
 
     return {
       loading: s.loading,
+      loadError: s.loadError,
+      loadErrorQuote: s.loadErrorQuote,
+      retryLoad: () => this._loadAll(),
 
       showHome:        page === 'home',
       showLore:        page === 'lore',
