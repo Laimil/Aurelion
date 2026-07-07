@@ -1536,10 +1536,10 @@ class Component extends DCLogic {
     let res;
     try {
       res = await Promise.all([
-        this._get('lore?select=*&order=created_at.asc'),
+        this._get('lore?select=*&order=sort_order.asc,created_at.asc'),
         this._get('stories?select=*&order=sort_order.asc,created_at.asc'),
         this._get('chronicles?select=*&order=sort_order.asc,created_at.asc'),
-        this._get('characters?select=*&order=created_at.asc'),
+        this._get('characters?select=*&order=sort_order.asc,created_at.asc'),
         this._get('pantheon?select=*&order=sort_order.asc'),
         this._get('contacts?select=*&order=sort_order.asc'),
         this._get('site_settings?select=*'),

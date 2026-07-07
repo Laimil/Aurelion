@@ -1034,18 +1034,18 @@ function parseMarkdown(raw){
   return out.join('\n');
 }
 const SECTION_FIELDS = {
-  lore:       ['title', 'category', 'excerpt', 'cover', 'content'],
+  lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
-  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'card_caption', 'character_type', 'tags', 'connections', 'open_effect'],
+  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'card_caption', 'character_type', 'tags', 'connections', 'open_effect', 'sort_order'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
 };
 const TABLE_QUERIES = {
-  lore:       'lore?select=*&order=created_at.asc',
+  lore:       'lore?select=*&order=sort_order.asc,created_at.asc',
   stories:    'stories?select=*&order=sort_order.asc,created_at.asc',
   chronicles: 'chronicles?select=*&order=sort_order.asc,created_at.asc',
-  characters: 'characters?select=*&order=created_at.asc',
+  characters: 'characters?select=*&order=sort_order.asc,created_at.asc',
   pantheon:   'pantheon?select=*&order=sort_order.asc',
   contacts:      'contacts?select=*&order=sort_order.asc',
   map_locations: 'map_locations?select=*&order=sort_order.asc,created_at.asc',
