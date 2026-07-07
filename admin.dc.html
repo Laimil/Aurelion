@@ -697,8 +697,14 @@ button{font-family:inherit;cursor:pointer}
         </div>
         <!-- Коротке дос'є -->
         <div style="margin-bottom:14px;">
-          <label>Коротке дос'є (показується на картці і в модалі)</label>
+          <label>Коротке дос'є (показується в модалі персонажа)</label>
           <textarea value="{{ formBio }}" onChange="{{ handleInput }}" data-field="bio" placeholder="Кілька речень про персонажа — хто він, звідки, чим відомий…" style="min-height:80px;"></textarea>
+        </div>
+        <!-- Підпис для картки шерингу -->
+        <div style="margin-bottom:14px;">
+          <label>Підпис на картці шерингу <span style="color:rgba(255,255,255,0.3);font-weight:400;">(необов'язково)</span></label>
+          <textarea value="{{ formCardCaption }}" onChange="{{ handleInput }}" data-field="card_caption" placeholder="Короткий рядок-девіз для PNG-картки. Якщо лишити порожнім — картка буде без підпису." style="min-height:60px;"></textarea>
+          <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:5px;">З'являється внизу PNG-картки персонажа. 1–2 короткі речення / цитата.</p>
         </div>
         <!-- Ефект відкриття -->
         <div style="margin-bottom:14px;">
@@ -1031,7 +1037,7 @@ const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
-  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'character_type', 'tags', 'connections', 'open_effect'],
+  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'card_caption', 'character_type', 'tags', 'connections', 'open_effect'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
 };
@@ -1640,6 +1646,7 @@ class Component extends DCLogic {
       formRole:         form.role           || '',
       formImage:        form.image          || '',
       formBio:           form.bio             || '',
+      formCardCaption:   form.card_caption    || '',
       formTags:          form.tags            || '',
       formCharacterType: form.character_type || 'player',
       formOpenEffect:    form.open_effect    || 'default',

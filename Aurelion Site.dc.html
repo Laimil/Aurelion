@@ -1972,14 +1972,14 @@ class Component extends DCLogic {
       y += chipH;
     }
 
-    // Bio excerpt (up to 3 lines)
-    const bioRaw = (typeof stripMarkdown === 'function' ? stripMarkdown(ch.bio || '') : (ch.bio || '')).replace(/\s+/g, ' ').trim();
-    if (bioRaw) {
+    // Optional card caption (руками з адмінки; порожньо → нічого)
+    const caption = (ch.card_caption || '').replace(/\s+/g, ' ').trim();
+    if (caption) {
       y += 56;
-      ctx.fillStyle = 'rgba(255,255,255,0.6)';
-      ctx.font = '400 25px "EB Garamond", Georgia, serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.62)';
+      ctx.font = 'italic 400 26px "EB Garamond", Georgia, serif';
       ctx.textAlign = 'center';
-      let lines = this._wrapLines(ctx, bioRaw, pw - 40);
+      let lines = this._wrapLines(ctx, caption, pw - 40);
       if (lines.length > 3) { lines = lines.slice(0, 3); lines[2] = lines[2].replace(/[.,;:!?»]*$/, '') + '…'; }
       lines.forEach((ln, i) => ctx.fillText(ln, W / 2, y + i * 36));
     }
