@@ -159,6 +159,29 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <a href="#{{ item.id }}" data-active="{{ item.active }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
       </sc-for>
     </div>
+    <sc-if value="{{ showNavSearch }}" hint-placeholder-val="{{ false }}">
+      <div style="position:relative;flex-shrink:0;margin-left:12px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+        <input value="{{ homeSearchVal }}" onInput="{{ setHomeSearch }}" onKeyDown="{{ homeSearchKey }}" placeholder="Пошук…" style="width:140px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:7px 12px 7px 33px;font-size:0.8rem;color:#fff;outline:none;transition:all 0.25s;" style-focus="width:220px;border-color:rgba(255,215,0,0.45);background:rgba(255,255,255,0.09);">
+        <sc-if value="{{ homeSearchActive }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:calc(100% + 14px);right:0;width:min(420px,calc(100vw - 32px));background:rgba(22,20,15,0.97);border:1px solid rgba(255,215,0,0.22);border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,0.6);max-height:70vh;overflow-y:auto;padding:6px;text-align:left;">
+            <sc-for list="{{ homeSearchResults }}" as="r" hint-placeholder-count="0">
+              <button data-type="{{ r.type }}" data-id="{{ r.id }}" onClick="{{ openSearchResult }}" style="display:flex;align-items:center;gap:14px;width:100%;background:none;border:none;border-radius:10px;padding:11px 14px;cursor:pointer;text-align:left;transition:background 0.15s;" style-hover="background:rgba(255,255,255,0.07);">
+                <span style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;width:92px;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ r.accent }};"><span style="width:5px;height:5px;border-radius:50%;background:{{ r.accent }};flex-shrink:0;"></span>{{ r.typeLabel }}</span>
+                <span style="min-width:0;flex:1;">
+                  <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;color:#fff;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.title }}</span>
+                  <span style="display:block;font-size:0.74rem;color:rgba(255,255,255,0.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.sub }}</span>
+                </span>
+                <span style="flex-shrink:0;color:rgba(255,255,255,0.25);font-size:0.85rem;">→</span>
+              </button>
+            </sc-for>
+            <sc-if value="{{ homeSearchEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:26px 20px;color:rgba(255,255,255,0.32);font-size:0.85rem;">✦ Нічого не знайдено</div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
     <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
   </div>
 </nav>
@@ -2015,7 +2038,7 @@ class Component extends DCLogic {
     this._updateMapBase();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
     window.addEventListener('hashchange', () => {
-      this.setState({ page: this._getPage(), charMode: this._initMode(), selectedChar: null, peekChar: null, selectedHistory: null, selectedLore: null, selectedChronicle: null, mapActivePin: null });
+      this.setState({ page: this._getPage(), charMode: this._initMode(), selectedChar: null, peekChar: null, selectedHistory: null, selectedLore: null, selectedChronicle: null, mapActivePin: null, homeSearch: '' });
       window.scrollTo({ top: 0 });
     });
     window.addEventListener('storage', (e) => {
@@ -2734,6 +2757,7 @@ class Component extends DCLogic {
       })(),
 
       ...this._homeSearch(data),
+      showNavSearch: page !== 'home',
 
       ...(() => {
         const PAL = [
