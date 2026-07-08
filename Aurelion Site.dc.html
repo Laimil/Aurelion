@@ -62,6 +62,14 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .lore-md li::before{content:'✦';position:absolute;left:0;color:rgba(255,215,0,0.45);font-size:0.58em;top:0.45em;}
 .lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.28);cursor:default;}
 .lore-md code{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:0.88em;color:rgba(255,215,0,0.8);}
+.home-welcome{font-family:'EB Garamond',Georgia,serif;font-size:clamp(1rem,1.8vw,1.15rem);line-height:1.88;color:rgba(255,255,255,0.55);text-wrap:pretty;}
+.home-welcome p{margin:0 0 0.9em;}
+.home-welcome p:last-child{margin-bottom:0;}
+.home-welcome strong{color:rgba(255,255,255,0.9);font-weight:600;}
+.home-welcome em{font-style:italic;color:rgba(255,215,0,0.72);}
+.home-welcome hr{border:none;text-align:center;margin:1.1em 0;height:1em;line-height:1em;}
+.home-welcome hr::after{content:'✦  ✦  ✦';font-size:0.66rem;letter-spacing:0.5em;color:rgba(255,215,0,0.3);}
+.home-welcome h2,.home-welcome h3{font-family:'Cinzel',Georgia,serif;color:rgba(255,215,0,0.85);font-size:1.05rem;letter-spacing:0.08em;margin:1.2em 0 0.5em;}
 .lore-toc{background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.14);border-radius:8px;padding:14px 18px 12px;margin-bottom:24px;display:inline-block;min-width:180px;max-width:100%;}
 .lore-toc-title{font-family:'Cinzel',Georgia,serif;font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;}
 .lore-toc-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px;}
@@ -160,18 +168,48 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   <main class="au-page" style="min-height:100vh;background:#1a1a1a;">
     <section style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 56px;position:relative;overflow:hidden;">
       <div style="position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 44%,rgba(255,215,0,0.05) 0%,transparent 68%);pointer-events:none;"></div>
-      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:18px;">✦ Темне фентезі · Україна</p>
-      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.8rem,9vw,6.5rem);font-weight:900;color:#ffd700;letter-spacing:0.12em;line-height:1;margin-bottom:18px;animation:goldPulse 4.5s ease infinite;">{{ siteTitle }}</h1>
-      <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(0.8rem,2.2vw,1.2rem);color:rgba(255,255,255,0.42);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:36px;">{{ siteSubtitle }}</p>
-      <p style="font-family:'EB Garamond',Georgia,serif;font-size:clamp(1rem,1.8vw,1.15rem);line-height:1.88;color:rgba(255,255,255,0.62);max-width:620px;margin-bottom:56px;">{{ siteWelcome }}</p>
-      <a href="#lore" style="display:inline-flex;align-items:center;gap:10px;background:rgba(255,215,0,0.09);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:999px;padding:12px 34px;font-size:0.875rem;letter-spacing:0.07em;text-decoration:none;transition:all 0.22s;" style-hover="background:rgba(255,215,0,0.17);box-shadow:0 0 22px rgba(255,215,0,0.22);">Досліджувати ↓</a>
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:18px;animation:fadeUp 0.5s ease both;">✦ Темне фентезі · Україна</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.8rem,9vw,6.5rem);font-weight:900;color:#ffd700;letter-spacing:0.12em;line-height:1;margin-bottom:18px;animation:fadeUp 0.55s ease 0.06s both,goldPulse 4.5s ease infinite;">{{ siteTitle }}</h1>
+      <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(0.8rem,2.2vw,1.2rem);color:rgba(255,255,255,0.42);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:36px;animation:fadeUp 0.55s ease 0.12s both;">{{ siteSubtitle }}</p>
+      <div style="position:relative;z-index:40;width:100%;max-width:540px;margin:0 auto 44px;text-align:left;animation:fadeUp 0.55s ease 0.18s both;">
+        <div style="position:relative;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:18px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+          <input value="{{ homeSearchVal }}" onInput="{{ setHomeSearch }}" onKeyDown="{{ homeSearchKey }}" placeholder="Шукати персонажів, лор, історії…" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:13px 46px 13px 46px;font-size:0.92rem;color:#fff;outline:none;transition:all 0.25s;" style-focus="border-color:rgba(255,215,0,0.45);background:rgba(255,255,255,0.09);box-shadow:0 0 24px rgba(255,215,0,0.12);">
+          <sc-if value="{{ homeSearchHasQuery }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ clearHomeSearch }}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.95rem;cursor:pointer;padding:4px;line-height:1;" style-hover="color:#fff;">✕</button>
+          </sc-if>
+        </div>
+        <sc-if value="{{ homeSearchActive }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:calc(100% + 10px);left:0;right:0;background:rgba(22,20,15,0.97);border:1px solid rgba(255,215,0,0.22);border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,0.6);z-index:30;max-height:380px;overflow-y:auto;padding:6px;">
+            <sc-for list="{{ homeSearchResults }}" as="r" hint-placeholder-count="0">
+              <button data-type="{{ r.type }}" data-id="{{ r.id }}" onClick="{{ openSearchResult }}" style="display:flex;align-items:center;gap:14px;width:100%;background:none;border:none;border-radius:10px;padding:11px 14px;cursor:pointer;text-align:left;transition:background 0.15s;" style-hover="background:rgba(255,255,255,0.07);">
+                <span style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;width:92px;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ r.accent }};"><span style="width:5px;height:5px;border-radius:50%;background:{{ r.accent }};flex-shrink:0;"></span>{{ r.typeLabel }}</span>
+                <span style="min-width:0;flex:1;">
+                  <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;color:#fff;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.title }}</span>
+                  <span style="display:block;font-size:0.74rem;color:rgba(255,255,255,0.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.sub }}</span>
+                </span>
+                <span style="flex-shrink:0;color:rgba(255,255,255,0.25);font-size:0.85rem;">→</span>
+              </button>
+            </sc-for>
+            <sc-if value="{{ homeSearchEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:26px 20px;color:rgba(255,255,255,0.32);font-size:0.85rem;">✦ Нічого не знайдено</div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+      <div style="max-width:620px;animation:fadeUp 0.55s ease 0.26s both;">{{ homeWelcomeEl }}</div>
     </section>
     <section style="max-width:1200px;margin:0 auto;padding:20px 24px 100px;">
       <p style="text-align:center;font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-bottom:40px;">— Розділи —</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px;">
         <sc-for list="{{ homeTiles }}" as="tile" hint-placeholder-count="6">
           <a href="#{{ tile.id }}" class="glass" style="display:block;padding:28px;text-decoration:none;color:inherit;border-radius:10px;">
-            <div style="font-size:1.8rem;margin-bottom:14px;line-height:1;">{{ tile.icon }}</div>
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;">
+              <div style="font-size:1.8rem;line-height:1;">{{ tile.icon }}</div>
+              <sc-if value="{{ tile.hasCount }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:0.66rem;letter-spacing:0.07em;color:rgba(255,215,0,0.6);background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.18);border-radius:999px;padding:3px 11px;white-space:nowrap;">{{ tile.countLabel }}</span>
+              </sc-if>
+            </div>
             <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;font-weight:700;color:#fff;letter-spacing:0.06em;margin-bottom:8px;">{{ tile.title }}</h3>
             <p style="font-size:0.83rem;color:rgba(255,255,255,0.4);line-height:1.5;">{{ tile.desc }}</p>
           </a>
@@ -1585,7 +1623,7 @@ class Component extends DCLogic {
     diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
     rollHistory: [], selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null,
     relHoverId: null, relPinId: null, relMx: 0, relMy: 0,
-    charTab: 'player', charSearch: '',
+    charTab: 'player', charSearch: '', homeSearch: '',
     charMode: this._initMode(),
     selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
     boardSearch: '', boardIsolate: false,
@@ -1605,6 +1643,52 @@ class Component extends DCLogic {
   };
 
   _rollTimer = null;
+
+  // ── Глобальний пошук з Головної ──
+  _openSearchTarget(type, id) {
+    const d = this.state.data;
+    const base = { selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null, selectedChronicle: null, homeSearch: '' };
+    const go = (hash, extra) => {
+      try { history.replaceState(null, '', '#' + hash); } catch (err) {}
+      this.setState({ ...base, page: this._getPage(), charMode: this._initMode(), ...extra });
+      window.scrollTo({ top: 0 });
+    };
+    if (type === 'char') { const ch = (d.characters || []).find(x => String(x.id) === String(id)); if (ch) go('characters', { selectedChar: ch }); }
+    else if (type === 'lore') { const it = (d.lore || []).find(x => String(x.id) === String(id)); if (it) go('lore', { selectedLore: it }); }
+    else if (type === 'story') { const it = (d.stories || []).find(x => String(x.id) === String(id)); if (it) go('stories', { selectedHistory: it }); }
+    else if (type === 'chron') { const it = (d.chronicles || []).find(x => String(x.id) === String(id)); if (it) go('chronicles', { selectedChronicle: it }); }
+  }
+
+  _homeSearch(data) {
+    const raw = this.state.homeSearch || '';
+    const q = raw.trim().toLowerCase();
+    const active = q.length >= 2;
+    const res = [];
+    if (active) {
+      const push = (type, typeLabel, accent, it, title, sub, hay) => {
+        if (res.length >= 9 || !title) return;
+        if (hay.some(h => (h || '').toLowerCase().includes(q))) res.push({ key: type + '-' + it.id, type, id: String(it.id), typeLabel, accent, title, sub: sub || '' });
+      };
+      (data.characters || []).forEach(ch => push('char', 'Персонаж', '#e587a4', ch, ch.name, ch.role, [ch.name, ch.alias, ch.role, ch.tags]));
+      (data.lore || []).forEach(it => push('lore', 'Довідник', '#ffd76b', it, it.title, it.category, [it.title, it.category, it.excerpt, it.content]));
+      (data.stories || []).forEach(it => push('story', 'Історія', '#7aa8f5', it, it.title, it.author_name ? 'авторка ' + it.author_name : '', [it.title, it.author_name, it.content]));
+      (data.chronicles || []).forEach(it => push('chron', 'Хроніка', '#6fcfbf', it, it.title, it.subtitle, [it.title, it.subtitle, it.tags]));
+    }
+    return {
+      homeSearchVal: raw,
+      homeSearchActive: active,
+      homeSearchEmpty: active && res.length === 0,
+      homeSearchResults: res,
+      homeSearchHasQuery: raw.length > 0,
+      setHomeSearch: (e) => this.setState({ homeSearch: e.target.value }),
+      clearHomeSearch: () => this.setState({ homeSearch: '' }),
+      homeSearchKey: (e) => {
+        if (e.key === 'Escape') this.setState({ homeSearch: '' });
+        else if (e.key === 'Enter' && res.length) this._openSearchTarget(res[0].type, res[0].id);
+      },
+      openSearchResult: (e) => this._openSearchTarget(e.currentTarget.dataset.type, e.currentTarget.dataset.id),
+    };
+  }
 
   _parseTags(ch) {
     return (ch.tags || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
@@ -2626,19 +2710,30 @@ class Component extends DCLogic {
       siteTitle:    data.site?.title    || 'AURELION',
       siteSubtitle: data.site?.subtitle || 'Темне фентезі. Живі легенди.',
       siteWelcome:  data.site?.welcome  || 'Ласкаво просимо до Ауреліону.',
+      homeWelcomeEl: React.createElement('div', { className: 'home-welcome', dangerouslySetInnerHTML: { __html: parseMarkdown(data.site?.welcome || 'Ласкаво просимо до Ауреліону.') } }),
       contactsAbout: data.site?.contactsAbout || '',
       contactLinks:  data.contacts || [],
 
-      homeTiles: [
-        { id: 'lore',       icon: '📜', title: 'Довідник',  desc: 'Лор, географія, магія і закони' },
-        { id: 'stories',    icon: '📖', title: 'Історії', desc: 'Авторські статті та серії від гравців спільноти' },
-        { id: 'chronicles', icon: '🪶', title: 'Хроніки', desc: 'Літописи відіграшів — зведені хроніки персонажів та арок' },
-        { id: 'characters', icon: '🎭', title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв' },
-        { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу' },
-        { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20' },
-        { id: 'map',        icon: '🗺', title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону' },
-        { id: 'contacts',   icon: '✉️', title: 'Про Проєкт',  desc: 'Контакти та інформація про спільноту' },
-      ],
+      ...(() => {
+        const pl = (n, one, few, many) => {
+          const m10 = n % 10, m100 = n % 100;
+          const w = (m10 === 1 && m100 !== 11) ? one : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) ? few : many;
+          return n + ' ' + w;
+        };
+        const mk = (n, one, few, many) => n > 0 ? { hasCount: true, countLabel: pl(n, one, few, many) } : { hasCount: false, countLabel: '' };
+        return { homeTiles: [
+          { id: 'lore',       icon: '📜', title: 'Довідник',  desc: 'Лор, географія, магія і закони', ...mk((data.lore||[]).length, 'запис', 'записи', 'записів') },
+          { id: 'stories',    icon: '📖', title: 'Історії', desc: 'Авторські статті та серії від гравців спільноти', ...mk((data.stories||[]).length, 'історія', 'історії', 'історій') },
+          { id: 'chronicles', icon: '🪶', title: 'Хроніки', desc: 'Літописи відіграшів — зведені хроніки персонажів та арок', ...mk((data.chronicles||[]).length, 'хроніка', 'хроніки', 'хронік') },
+          { id: 'characters', icon: '🎭', title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв', ...mk((data.characters||[]).length, 'персонаж', 'персонажі', 'персонажів') },
+          { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу', ...mk((data.pantheon||[]).length, 'бог', 'боги', 'богів') },
+          { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20', hasCount: false, countLabel: '' },
+          { id: 'map',        icon: '🗺', title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону', ...mk((data.map_locations||[]).length, 'локація', 'локації', 'локацій') },
+          { id: 'contacts',   icon: '✉️', title: 'Про Проєкт',  desc: 'Контакти та інформація про спільноту', hasCount: false, countLabel: '' },
+        ]};
+      })(),
+
+      ...this._homeSearch(data),
 
       ...(() => {
         const PAL = [
