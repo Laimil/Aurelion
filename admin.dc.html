@@ -470,8 +470,15 @@ button{font-family:inherit;cursor:pointer}
           <label>Назва статті / серії</label>
           <input value="{{ formTitle }}" onChange="{{ handleInput }}" data-field="title" />
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-          <div><label>Авторка / Автор</label><input value="{{ formAuthorName }}" onChange="{{ handleInput }}" data-field="author_name" placeholder="Серцевинка" /></div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label>Ім'я</label><input value="{{ formAuthorName }}" onChange="{{ handleInput }}" data-field="author_name" placeholder="Серцевинка" /></div>
+          <div>
+            <label>Підпис</label>
+            <select value="{{ formAuthorLabel }}" onChange="{{ handleInput }}" data-field="author_label">
+              <option value="авторка">авторка</option>
+              <option value="автор">автор</option>
+            </select>
+          </div>
           <div><label>Telegram (@нік)</label><input value="{{ formAuthorTelegram }}" onChange="{{ handleInput }}" data-field="author_telegram" placeholder="@a_tame_hh" /></div>
         </div>
         <div style="margin-bottom:14px;">
@@ -1194,7 +1201,7 @@ function parseMarkdown(raw){
 }
 const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
-  stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order', 'status_label', 'status_color', 'cover_color', 'cover_ornament', 'cover_icon'],
+  stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order', 'status_label', 'status_color', 'cover_color', 'cover_ornament', 'cover_icon', 'author_label'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
   characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'card_caption', 'character_type', 'tags', 'connections', 'open_effect', 'sort_order'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
@@ -1892,6 +1899,7 @@ class Component extends DCLogic {
       formChapters:       form.chapters        || '',
       formStatus:       form.status         || 'active',
       formStatusLabel:  form.status_label   || '',
+      formAuthorLabel:  form.author_label   || 'авторка',
       ...(() => {
         const curSC  = form.status_color || STORY_STATUS_COLORS[0];
         const curCC  = form.cover_color  || '';

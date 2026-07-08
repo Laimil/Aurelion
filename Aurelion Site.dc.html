@@ -1664,7 +1664,7 @@ class Component extends DCLogic {
       };
       (data.characters || []).forEach(ch => push('char', 'Персонаж', '#e587a4', ch, ch.name, ch.role, [ch.name, ch.alias, ch.role, ch.tags]));
       (data.lore || []).forEach(it => push('lore', 'Довідник', '#ffd76b', it, it.title, it.category, [it.title, it.category, it.excerpt, it.content]));
-      (data.stories || []).forEach(it => push('story', 'Історія', '#7aa8f5', it, it.title, it.author_name ? 'авторка ' + it.author_name : '', [it.title, it.author_name, it.content]));
+      (data.stories || []).forEach(it => push('story', 'Історія', '#7aa8f5', it, it.title, it.author_name ? (it.author_label || 'авторка') + ' ' + it.author_name : '', [it.title, it.author_name, it.content]));
       (data.chronicles || []).forEach(it => push('chron', 'Хроніка', '#6fcfbf', it, it.title, it.subtitle, [it.title, it.subtitle, it.tags]));
     }
     return {
@@ -3450,7 +3450,7 @@ class Component extends DCLogic {
           showStoryReader:  page === 'stories' && !!sh,
           showStoryGallery: page === 'stories' && !sh,
           storyReaderTitle:        sh ? (sh.title || '') : '',
-          storyReaderAuthor:       sh && sh.author_name ? 'авторка ' + sh.author_name : '',
+          storyReaderAuthor:       sh && sh.author_name ? (sh.author_label || 'авторка') + ' ' + sh.author_name : '',
           storyReaderHasAuthor:    !!(sh && sh.author_name),
           storyReaderHasTelegraph: !!(sh && sh.telegraph_url),
           storyReaderTelegraphUrl: sh ? (sh.telegraph_url || '') : '',
