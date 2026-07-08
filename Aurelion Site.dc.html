@@ -1711,7 +1711,9 @@ class Component extends DCLogic {
       });
     });
 
-    const scale = Math.min(1, 980 / CW, 600 / CH);
+    const vw = this.state.relViewW || (typeof window !== 'undefined' ? window.innerWidth : 1024);
+    const availW = Math.min(1060, vw) - 48;
+    const scale = Math.min(1, availW / CW, 600 / CH);
     const outerH = Math.round(CH * scale + 20);
     const nodePos = {}; nodes.forEach(nn => { nodePos[nn.id] = { nx: nn.cx, ny: nn.cy, r: nn.r }; });
 
@@ -1862,7 +1864,7 @@ class Component extends DCLogic {
     const avH = window.innerHeight - 180;
     const avW = window.innerWidth - 48;
     const scale = Math.min(1, avH / 840, avW / 1200);
-    this.setState({ boardScale: Math.max(0.35, scale) });
+    this.setState({ boardScale: Math.max(0.35, scale), relViewW: window.innerWidth });
   }
 
   _pulseRef = (node) => {
