@@ -1194,7 +1194,7 @@ function parseMarkdown(raw){
 }
 const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
-  stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order'],
+  stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order', 'status_label', 'status_color', 'cover_color', 'cover_ornament', 'cover_icon'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
   characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'card_caption', 'character_type', 'tags', 'connections', 'open_effect', 'sort_order'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
@@ -1675,7 +1675,8 @@ class Component extends DCLogic {
       allowed.forEach(k => {
         const v = s.form[k];
         // connections може бути порожнім рядком (всі знайомства знято) — надсилаємо завжди
-        if (k === 'connections' || (v !== '' && v !== undefined && v !== null)) body[k] = v;
+        const alwaysSend = k === 'connections' || k === 'status_label' || k === 'status_color' || k === 'cover_color' || k === 'cover_ornament' || k === 'cover_icon';
+        if (alwaysSend ? (v !== undefined) : (v !== '' && v !== undefined && v !== null)) body[k] = v === null ? '' : v;
       });
       this.setState({ saving: true });
       try {
@@ -1890,6 +1891,25 @@ class Component extends DCLogic {
       formAuthorTelegram: form.author_telegram || '',
       formChapters:       form.chapters        || '',
       formStatus:       form.status         || 'active',
+      formStatusLabel:  form.status_label   || '',
+      ...(() => {
+        const curSC  = form.status_color || STORY_STATUS_COLORS[0];
+        const curCC  = form.cover_color  || '';
+        const curOrn = form.cover_ornament || STORY_ORNAMENTS[0];
+        const curIc  = form.cover_icon || '';
+        return {
+          storyStatusColorOptions: STORY_STATUS_COLORS.map(c => ({ value: c, active: curSC === c })),
+          storyCoverColorOptions:  STORY_COVER_COLORS.map(c => ({ value: c, active: curCC === c })),
+          storyCoverAutoActive:    curCC === '',
+          storyOrnamentOptions:    STORY_ORNAMENTS.map(o => ({ value: o, label: o, active: curOrn === o })),
+          storyIconOptions:        Object.entries(STORY_ICONS).map(([k, v]) => ({ value: k, title: v.t, path: v.d, active: curIc === k })),
+          storyIconNoneActive:     curIc === '',
+          setFormVal: (e) => {
+            const field = e.currentTarget.dataset.field, value = e.currentTarget.dataset.value;
+            this.setState(st => ({ form: { ...st.form, [field]: value } }));
+          },
+        };
+      })(),
       formDescription:  form.description   || '',
       formName:         form.name           || '',
       formAlias:        form.alias          || '',
