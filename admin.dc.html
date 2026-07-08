@@ -26,6 +26,8 @@ button{font-family:inherit;cursor:pointer}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .tab-btn[data-active="true"]{background:rgba(255,215,0,0.12)!important;border-color:rgba(255,215,0,0.4)!important;color:#ffd700!important}
 .tab-btn[data-active="false"]:hover{background:rgba(255,255,255,0.07)!important;color:#fff!important}
+.stat-seg[data-active="true"]{background:rgba(255,215,0,0.12)!important;border-color:rgba(255,215,0,0.4)!important;color:#ffd700!important}
+.stat-seg[data-active="false"]:hover{color:#fff!important;background:rgba(255,255,255,0.07)!important}
 .item-row:hover{background:rgba(255,255,255,0.06)!important}
 @keyframes dropPulse{0%,100%{border-color:rgba(255,215,0,0.5)}50%{border-color:rgba(255,215,0,1)}}
 .drop-zone{border:2px dashed rgba(255,255,255,0.14);border-radius:10px;transition:all 0.2s;cursor:pointer;}
@@ -183,6 +185,90 @@ button{font-family:inherit;cursor:pointer}
     </div>
 
     <p style="margin-top:24px;font-size:0.75rem;color:rgba(255,255,255,0.22);">Натисни «Зберегти» у верхній панелі.</p>
+  </div>
+</sc-if>
+
+<!-- STATS TAB -->
+<sc-if value="{{ showStats }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">📊 Пульс сайту</h2>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <sc-for list="{{ statsPeriods }}" as="prd" hint-placeholder-count="3">
+          <button class="stat-seg" data-period="{{ prd.id }}" data-active="{{ prd.active }}" onClick="{{ setStatsPeriod }}" style="background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:5px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;">{{ prd.label }}</button>
+        </sc-for>
+        <button onClick="{{ reloadStats }}" title="Оновити" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;width:28px;height:28px;font-size:0.8rem;cursor:pointer;flex-shrink:0;" style-hover="color:#fff;background:rgba(255,255,255,0.1);">↻</button>
+      </div>
+    </div>
+
+    <sc-if value="{{ statsLoading }}" hint-placeholder-val="{{ false }}">
+      <p style="text-align:center;padding:60px 0;color:rgba(255,255,255,0.35);font-size:0.85rem;">Читаю хроніки відвідувань…</p>
+    </sc-if>
+
+    <sc-if value="{{ statsEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:52px 24px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.14);border-radius:12px;">
+        <p style="font-family:'Cinzel',serif;color:rgba(255,215,0,0.7);font-size:1rem;margin-bottom:10px;">✦ Поки що тихо</p>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.6;max-width:440px;margin:0 auto;">Жодного запису переглядів. Виконай міграцію <code style="color:#ffd700;">supabase_analytics_migration.sql</code> у Supabase SQL Editor — і сайт почне рахувати відвідування.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ statsReady }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;">
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
+          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Перегляди</p>
+          <p style="font-family:'Cinzel',serif;font-size:1.6rem;color:#ffd700;">{{ statsTotal }}</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
+          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Відвідувачі</p>
+          <p style="font-family:'Cinzel',serif;font-size:1.6rem;color:#fff;">{{ statsUniq }}</p>
+          <p style="font-size:0.66rem;color:rgba(255,255,255,0.28);margin-top:4px;">приблизно, за пристроями</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
+          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Топ розділ</p>
+          <p style="font-family:'Cinzel',serif;font-size:1.15rem;color:#fff;margin-top:6px;">{{ statsTopSection }}</p>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:18px 18px 12px;margin-bottom:18px;">
+        <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px;">Активність по днях</p>
+        <div style="display:flex;align-items:flex-end;gap:3px;height:110px;">
+          <sc-for list="{{ statsDays }}" as="day" hint-placeholder-count="7">
+            <div title="{{ day.tip }}" style="flex:1;height:{{ day.pct }}%;min-height:2px;min-width:0;background:linear-gradient(180deg,rgba(255,215,0,0.8),rgba(255,215,0,0.18));border-radius:3px 3px 0 0;"></div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:3px;margin-top:6px;">
+          <sc-for list="{{ statsDays }}" as="day" hint-placeholder-count="7">
+            <span style="flex:1;text-align:center;font-size:0.58rem;color:rgba(255,255,255,0.3);white-space:nowrap;min-width:0;overflow:visible;">{{ day.label }}</span>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
+          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">✦ Розділи</p>
+          <sc-for list="{{ statsSections }}" as="sec" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+              <span style="width:92px;flex-shrink:0;font-size:0.78rem;color:rgba(255,255,255,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ sec.label }}</span>
+              <div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div style="width:{{ sec.pct }}%;height:100%;background:linear-gradient(90deg,rgba(255,215,0,0.7),rgba(255,215,0,0.3));border-radius:999px;"></div></div>
+              <span style="width:42px;text-align:right;font-size:0.78rem;color:#ffd700;flex-shrink:0;">{{ sec.count }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
+          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">✦ Топ матеріалів</p>
+          <sc-if value="{{ statsNoItems }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.78rem;color:rgba(255,255,255,0.3);padding:8px 0;">Ще ніхто не відкривав анкет чи історій.</p>
+          </sc-if>
+          <sc-for list="{{ statsItems }}" as="it" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+              <span style="font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:{{ it.accent }};width:72px;flex-shrink:0;">{{ it.typeLabel }}</span>
+              <span style="flex:1;font-size:0.82rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{{ it.title }}</span>
+              <span style="font-size:0.78rem;color:#ffd700;flex-shrink:0;">{{ it.count }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
   </div>
 </sc-if>
 
@@ -1127,6 +1213,8 @@ class Component extends DCLogic {
     mapAdminForm: {}, mapAdminSelectedId: null, mapAdminPlacing: false,
     mapAdminNewX: 50, mapAdminNewY: 50,
     mapCharSearch: '',
+    // analytics
+    statsPeriod: 7, statsRows: [], statsLoading: false, statsLoaded: false,
   };
 
   // ── Auth token helpers ─────────────────────────────────────
@@ -1359,6 +1447,91 @@ class Component extends DCLogic {
   componentDidMount() { this._checkSession(); }
 
   // ── Render ─────────────────────────────────────────────────
+  // ── Аналітика ─────────────────────────────────────────────
+  async _loadStats() {
+    if (this.state.statsLoading) return;
+    this.setState({ statsLoading: true });
+    const out = [];
+    try {
+      for (let i = 0; i < 10; i++) {
+        const from = i * 1000;
+        const r = await fetch(`${SUPA_URL}/page_views?select=created_at,page,item_type,item_id,item_title,visitor&order=created_at.desc`, {
+          headers: { ...this._authH(), 'Range': `${from}-${from + 999}` },
+        });
+        if (!r.ok) break;
+        const rows = await r.json();
+        if (!Array.isArray(rows) || !rows.length) break;
+        out.push(...rows);
+        if (rows.length < 1000) break;
+      }
+    } catch (e) {}
+    this.setState({ statsRows: out, statsLoading: false, statsLoaded: true });
+  }
+
+  _statsVals() {
+    const s = this.state;
+    const period = s.statsPeriod;
+    const base = {
+      statsPeriods: [
+        { id: '7',  label: '7 днів',   active: period === 7 },
+        { id: '30', label: '30 днів',  active: period === 30 },
+        { id: '0',  label: 'Весь час', active: period === 0 },
+      ],
+      setStatsPeriod: (e) => this.setState({ statsPeriod: Number(e.currentTarget.dataset.period) }),
+      reloadStats: () => this._loadStats(),
+      statsLoading: s.statsLoading,
+      statsEmpty: !s.statsLoading && s.statsLoaded && !(s.statsRows || []).length,
+      statsReady: !s.statsLoading && s.statsLoaded && (s.statsRows || []).length > 0,
+    };
+    if (s.tab !== 'stats' || !base.statsReady) return { ...base, statsDays: [], statsSections: [], statsItems: [], statsNoItems: true };
+    const now = Date.now();
+    const cutoff = period ? now - period * 86400000 : 0;
+    const rows = (s.statsRows || []).filter(r => !cutoff || new Date(r.created_at).getTime() >= cutoff);
+    const PAGE_LABELS = { home: 'Головна', lore: 'Довідник', stories: 'Історії', characters: 'Персонажі', chronicles: 'Хроніки', connections: 'Зв\u2019язки', pantheon: 'Пантеон', dice: 'Дайс', contacts: 'Контакти', map: 'Мапа' };
+    const TYPE_LABELS = { char: { t: 'Персонаж', c: '#e587a4' }, lore: { t: 'Довідник', c: '#ffd76b' }, story: { t: 'Історія', c: '#7aa8f5' }, chron: { t: 'Хроніка', c: '#6fcfbf' } };
+    const byPage = {};
+    rows.forEach(r => { byPage[r.page] = (byPage[r.page] || 0) + 1; });
+    const pagesSorted = Object.entries(byPage).sort((a, b) => b[1] - a[1]);
+    const maxPage = pagesSorted.length ? pagesSorted[0][1] : 1;
+    const byItem = {};
+    rows.forEach(r => {
+      if (!r.item_type) return;
+      const k = r.item_type + '|' + r.item_id;
+      if (!byItem[k]) byItem[k] = { type: r.item_type, title: r.item_title || '(без назви)', count: 0 };
+      byItem[k].count++;
+      if (r.item_title) byItem[k].title = r.item_title;
+    });
+    const itemsSorted = Object.values(byItem).sort((a, b) => b.count - a.count).slice(0, 10);
+    const nDays = period === 0 ? 30 : period;
+    const dayCounts = {};
+    rows.forEach(r => { const d = new Date(r.created_at); const k = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); dayCounts[k] = (dayCounts[k] || 0) + 1; });
+    let maxDay = 1;
+    const days = [];
+    for (let i = nDays - 1; i >= 0; i--) {
+      const d = new Date(now - i * 86400000);
+      const c = dayCounts[d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()] || 0;
+      if (c > maxDay) maxDay = c;
+      days.push({ d, c });
+    }
+    const every = nDays > 14 ? 5 : 1;
+    const fmt = (d) => d.getDate() + '.' + String(d.getMonth() + 1).padStart(2, '0');
+    return {
+      ...base,
+      statsTotal: rows.length,
+      statsUniq: new Set(rows.map(r => r.visitor || 'anon')).size,
+      statsTopSection: pagesSorted.length ? (PAGE_LABELS[pagesSorted[0][0]] || pagesSorted[0][0]) : '—',
+      statsDays: days.map((x, idx) => ({
+        count: x.c,
+        pct: Math.max(2, Math.round(x.c / maxDay * 100)),
+        label: (idx % every === 0 || idx === days.length - 1) ? fmt(x.d) : '',
+        tip: fmt(x.d) + ' — ' + x.c,
+      })),
+      statsSections: pagesSorted.map(([pg, c]) => ({ label: PAGE_LABELS[pg] || pg, count: c, pct: Math.max(4, Math.round(c / maxPage * 100)) })),
+      statsItems: itemsSorted.map(it => ({ title: it.title, count: it.count, typeLabel: (TYPE_LABELS[it.type] || { t: it.type }).t, accent: (TYPE_LABELS[it.type] || { c: '#ccc' }).c })),
+      statsNoItems: itemsSorted.length === 0,
+    };
+  }
+
   renderVals() {
     const s    = this.state;
     const data = s.data;
@@ -1484,6 +1657,7 @@ class Component extends DCLogic {
 
       tabs: [
         { id: 'site',       label: '⚙ Сайт',       active: tab === 'site' },
+        { id: 'stats',      label: '📊 Пульс',      active: tab === 'stats' },
         { id: 'lore',       label: '📜 Довідник',    active: tab === 'lore' },
         { id: 'stories',    label: '📖 Історії',      active: tab === 'stories' },
         { id: 'chronicles', label: '🪶 Хроніки',     active: tab === 'chronicles' },
@@ -1496,6 +1670,7 @@ class Component extends DCLogic {
       setTab: (e) => {
         const id = e.currentTarget.dataset.tab;
         if (id) this.setState({ tab: id, editing: null, form: {} });
+        if (id === 'stats' && !this.state.statsLoaded) this._loadStats();
       },
 
       showSite:       tab === 'site',
@@ -1507,6 +1682,8 @@ class Component extends DCLogic {
       showContacts:   tab === 'contacts',
       showMap:        tab === 'map',
       showDice:       tab === 'dice',
+      showStats:      tab === 'stats',
+      ...this._statsVals(),
 
       diceCritQuotes:   (data.site && data.site.dice_quotes_crit   != null && data.site.dice_quotes_crit   !== '') ? data.site.dice_quotes_crit   : DEFAULT_DICE_QUOTES.crit.join('\n'),
       diceFumbleQuotes: (data.site && data.site.dice_quotes_fumble != null && data.site.dice_quotes_fumble !== '') ? data.site.dice_quotes_fumble : DEFAULT_DICE_QUOTES.fumble.join('\n'),

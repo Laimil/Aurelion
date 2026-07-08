@@ -2030,10 +2030,57 @@ class Component extends DCLogic {
     }, 10000);
   }
 
+  // ── Аналітика: пишемо перегляди в Supabase (fire-and-forget) ──
+  _visitorId() {
+    try {
+      let v = localStorage.getItem('au_visitor');
+      if (!v) { v = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); localStorage.setItem('au_visitor', v); }
+      return v;
+    } catch (e) { return 'anon'; }
+  }
+
+  _track(page, itemType, itemId, itemTitle) {
+    try {
+      if (!page) return;
+      const key = page + '|' + (itemType || '') + '|' + (itemId || '');
+      this._trackedViews = this._trackedViews || new Set();
+      if (this._trackedViews.has(key)) return;
+      this._trackedViews.add(key);
+      fetch(SUPA_URL + '/page_views', {
+        method: 'POST',
+        headers: { ...SUPA_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          page,
+          item_type: itemType || null,
+          item_id: itemId != null ? String(itemId) : null,
+          item_title: itemTitle || null,
+          visitor: this._visitorId(),
+        }),
+      }).catch(() => {});
+    } catch (e) {}
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevState) return;
+    const s = this.state, p = prevState;
+    if (s.page !== p.page) this._track(s.page);
+    const watch = [
+      ['selectedChar', 'char', 'name'],
+      ['selectedLore', 'lore', 'title'],
+      ['selectedHistory', 'story', 'title'],
+      ['selectedChronicle', 'chron', 'title'],
+    ];
+    for (const [k, type, titleKey] of watch) {
+      const cur = s[k], prev = p[k];
+      if (cur && (!prev || String(cur.id) !== String(prev.id))) this._track(s.page, type, cur.id, cur[titleKey]);
+    }
+  }
+
   componentDidMount() {
     window.addEventListener('scroll', this._pulseCheck, { passive: true });
     window.addEventListener('scroll', this._toTopWatch, { passive: true });
     this._loadAll();
+    this._track(this.state.page);
     this._updateBoardScale();
     this._updateMapBase();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
