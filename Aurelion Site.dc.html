@@ -26,6 +26,11 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 nav a[data-active="true"]{color:#fff!important}
 nav a[data-active="false"]{color:rgba(255,255,255,0.58)}
 nav a[data-active="false"]:hover{color:#fff;transition:color 0.18s}
+nav a[data-cta="true"]{color:#ffd700!important;position:relative;text-shadow:0 0 16px rgba(255,215,0,0.45);transition:text-shadow 0.25s ease,color 0.25s ease}
+nav a[data-cta="true"]::before{content:'\2726';margin-right:6px;color:#ffd700}
+nav a[data-cta="true"]::after{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:78%;height:11px;background:radial-gradient(ellipse at center,rgba(255,215,0,0.6) 0%,rgba(255,215,0,0) 70%);filter:blur(5px);opacity:0.7;pointer-events:none;transition:opacity 0.25s ease}
+nav a[data-cta="true"]:hover{text-shadow:0 0 24px rgba(255,215,0,0.85)}
+nav a[data-cta="true"]:hover::after{opacity:1}
 .glass{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;transition:background 0.28s ease,transform 0.28s ease,box-shadow 0.28s ease}
 .glass:hover{background:rgba(255,255,255,0.11);transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,0.55)}
 .char-card:hover{transform:scale(1.04)!important;box-shadow:0 10px 28px rgba(0,0,0,0.6)!important}
@@ -157,7 +162,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     <a href="#home" class="au-brand" style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;">✦<span class="au-wm-full"> AURELION</span></a>
     <div style="display:flex;align-items:center;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;">
       <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="7">
-        <a href="#{{ item.id }}" data-active="{{ item.active }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
+        <a href="#{{ item.id }}" data-active="{{ item.active }}" data-cta="{{ item.cta }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
       </sc-for>
     </div>
     <sc-if value="{{ showNavSearch }}" hint-placeholder-val="{{ false }}">
@@ -2816,7 +2821,7 @@ class Component extends DCLogic {
         { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
         { id: 'dice',        label: '⚄ Дайс',     active: page === 'dice' },
         { id: 'map',         label: '🗺 Мапа',    active: page === 'map' },
-        { id: 'contacts',    label: 'Долучитися',   active: page === 'contacts' },
+        { id: 'contacts',    label: 'Долучитися',   active: page === 'contacts', cta: true },
       ],
 
       siteTitle:    data.site?.title    || 'AURELION',
