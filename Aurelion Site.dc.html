@@ -44,6 +44,28 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 [data-god="fate"] .god-accent{color:#c07882}[data-god="fate"]{border-color:rgba(156,79,99,0.35)!important}
 [data-god="nature"] .god-accent{color:#6ec0b0}[data-god="nature"]{border-color:rgba(94,154,143,0.35)!important}
 [data-god="magic"] .god-accent{color:#c8ccd8}[data-god="magic"]{border-color:rgba(184,188,200,0.35)!important}
+.altar-row{display:flex;height:460px;border-radius:12px;overflow:hidden;background:#141414;border:1px solid rgba(255,255,255,0.08);}
+.altar-panel{position:relative;flex:1;min-width:66px;overflow:hidden;cursor:pointer;transition:flex 0.5s cubic-bezier(.22,.68,0,1);border-right:1px solid rgba(255,255,255,0.07)}
+.altar-panel:last-child{border-right:none}
+.altar-panel:hover{flex:3.1}
+.altar-bg{position:absolute;inset:0;background-size:cover;background-position:center 15%;background-repeat:no-repeat;}
+.altar-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,20,20,0.1) 0%,#141414 82%);}
+[data-god="light"] .altar-bg.altar-noimg{background:linear-gradient(180deg,rgba(255,215,107,0.16) 0%,#141414 70%);}
+[data-god="dark"] .altar-bg.altar-noimg{background:linear-gradient(180deg,rgba(107,111,174,0.16) 0%,#141414 70%);}
+[data-god="fate"] .altar-bg.altar-noimg{background:linear-gradient(180deg,rgba(156,79,99,0.2) 0%,#141414 70%);}
+[data-god="nature"] .altar-bg.altar-noimg{background:linear-gradient(180deg,rgba(94,154,143,0.16) 0%,#141414 70%);}
+[data-god="magic"] .altar-bg.altar-noimg{background:linear-gradient(180deg,rgba(184,188,200,0.16) 0%,#141414 70%);}
+.altar-content{position:absolute;inset:0;display:flex;align-items:flex-end;width:460px;padding:26px 22px}
+.altar-vert{writing-mode:vertical-rl;transform:rotate(180deg);font-family:'Cinzel',Georgia,serif;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;flex-shrink:0;font-size:1rem;align-self:flex-end;max-height:340px}
+.altar-lore{margin-left:20px;max-width:260px}
+@media(max-width:760px){
+  .altar-row{flex-direction:column;height:auto;}
+  .altar-panel{flex:none!important;border-right:none;border-bottom:1px solid rgba(255,255,255,0.07);}
+  .altar-panel:last-child{border-bottom:none;}
+  .altar-content{position:relative;width:100%;height:auto;align-items:flex-start;flex-direction:column;padding:20px 22px;}
+  .altar-vert{writing-mode:horizontal-tb;transform:none;max-height:none;font-size:1.25rem;align-self:flex-start;margin-bottom:10px;}
+  .altar-lore{margin-left:0;max-width:none;}
+}
 [data-status="active"] .status-tag{background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.3)}
 [data-status="completed"] .status-tag{background:rgba(111,207,142,0.14);color:#6fcf8e;border:1px solid rgba(111,207,142,0.3)}
 [data-status="planned"] .status-tag{background:rgba(100,149,237,0.14);color:#6495ed;border:1px solid rgba(100,149,237,0.3)}
@@ -1051,33 +1073,28 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Пантеон</h1>
       <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;color:rgba(255,255,255,0.4);margin-top:12px;">П'ять богів, що тримають рівновагу цього світу</p>
     </header>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:22px;">
+    <div class="altar-row">
       <sc-for list="{{ pantheonItems }}" as="god" hint-placeholder-count="5">
-        <article data-god="{{ god.god }}" class="glass" style="border-width:2px;border-radius:14px;overflow:hidden;">
-          <!-- З зображенням -->
+        <article data-god="{{ god.god }}" class="altar-panel">
           <sc-if value="{{ god.hasImage }}" hint-placeholder-val="{{ false }}">
-            <div style="aspect-ratio:3/4;overflow:hidden;">
-              <div style="{{ god.imgBg }}width:100%;height:100%;background-size:cover;background-position:center center;background-repeat:no-repeat;"></div>
-            </div>
-            <div style="padding:22px 26px 26px;">
-              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:7px;">🐉 Бог</p>
-              <h2 class="god-accent" style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">{{ god.name }}</h2>
-              <p style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:14px;">{{ god.domain }}</p>
-              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.6);line-height:1.72;">{{ god.description }}</p>
-            </div>
+            <div class="altar-bg" style="{{ god.imgBg }}"></div>
           </sc-if>
-          <!-- Без зображення -->
           <sc-if value="{{ god.noImage }}" hint-placeholder-val="{{ true }}">
-            <div style="padding:30px 28px;">
-              <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:10px;">🐉 Бог</p>
-              <h2 class="god-accent" style="font-family:'Cinzel',Georgia,serif;font-size:1.85rem;font-weight:700;letter-spacing:0.06em;margin-bottom:6px;">{{ god.name }}</h2>
-              <p style="font-size:0.76rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.34);margin-bottom:18px;">{{ god.domain }}</p>
-              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:rgba(255,255,255,0.6);line-height:1.76;">{{ god.description }}</p>
-            </div>
+            <div class="altar-bg altar-noimg"></div>
           </sc-if>
+          <div class="altar-content">
+            <span class="altar-vert god-accent">{{ god.name }}</span>
+            <div class="altar-lore">
+              <p class="god-accent" style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;opacity:0.72;margin-bottom:8px;">{{ god.domain }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.68);line-height:1.62;">{{ god.description }}</p>
+            </div>
+          </div>
         </article>
       </sc-for>
     </div>
+    <sc-if value="{{ pantheonHasItems }}" hint-placeholder-val="{{ true }}">
+      <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.28);margin-top:18px;font-family:'EB Garamond',Georgia,serif;">Наведіть курсор на бога — вівтар розгортається</p>
+    </sc-if>
     <sc-if value="{{ pantheonEmpty }}" hint-placeholder-val="{{ false }}">
       <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
         <p>Пантеон ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
@@ -3059,6 +3076,7 @@ class Component extends DCLogic {
         };
       }),
       pantheonEmpty: !(data.pantheon || []).length,
+      pantheonHasItems: !!(data.pantheon || []).length,
 
       diceTypes: [4, 6, 8, 10, 12, 20].map(n => ({
         n, label: 'd' + n, points: DICE_SHAPES[n], active: s.diceType === n,
