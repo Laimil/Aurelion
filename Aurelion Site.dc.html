@@ -1291,32 +1291,86 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
-<!-- ═══ КОНТАКТИ ═══ -->
+<!-- ═══ ДОЛУЧИТИСЯ ═══ -->
 <sc-if value="{{ showContacts }}" hint-placeholder-val="{{ false }}">
-  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:860px;margin:0 auto;">
-    <header style="text-align:center;margin-bottom:52px;">
-      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Те чим воно є</p>
-      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Про Проєкт</h1>
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 96px;max-width:900px;margin:0 auto;">
+    <header style="text-align:center;margin-bottom:16px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Стати частиною</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Долучитися</h1>
     </header>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:36px;">
-      <div class="glass" style="padding:30px;">
-        <h2 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:16px;">✦ Aurelion UA</h2>
-        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.04rem;color:rgba(255,255,255,0.64);line-height:1.78;">{{ contactsAbout }}</p>
+    <sc-if value="{{ joinHasIntro }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:640px;margin:0 auto 46px;text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;color:rgba(255,255,255,0.58);line-height:1.78;">{{ joinIntroEl }}</div>
+    </sc-if>
+
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- 1 · Правила спільноти -->
+      <div class="glass" style="padding:32px 34px;">
+        <div style="display:flex;align-items:center;gap:13px;margin-bottom:18px;">
+          <span style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,215,0,0.35);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;color:#ffd700;font-size:0.9rem;flex-shrink:0;">1</span>
+          <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.06em;">Правила спільноти</h2>
+        </div>
+        <sc-if value="{{ joinHasRules }}" hint-placeholder-val="{{ true }}">
+          <div style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.74);line-height:1.78;">{{ joinRulesEl }}</div>
+        </sc-if>
+        <sc-if value="{{ joinNoRules }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.3);font-style:italic;">Правила ще не додано — заповніть їх в адмін-панелі, вкладка «⚙ Сайт».</p>
+        </sc-if>
       </div>
-      <div class="glass" style="padding:30px;">
-        <h2 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:18px;">✦ Зв'язок</h2>
+
+      <!-- 2 · Шаблон анкети -->
+      <div class="glass" style="padding:32px 34px;">
+        <div style="display:flex;align-items:center;gap:13px;margin-bottom:18px;">
+          <span style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,215,0,0.35);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;color:#ffd700;font-size:0.9rem;flex-shrink:0;">2</span>
+          <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.06em;">Шаблон анкети</h2>
+        </div>
+        <sc-if value="{{ joinHasTemplate }}" hint-placeholder-val="{{ true }}">
+          <article class="lore-card" style="overflow:hidden;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);max-width:460px;">
+            <div onClick="{{ toggleJoinTemplate }}" style="position:relative;aspect-ratio:16/8;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,rgba(255,215,0,0.1),#101010 72%);cursor:pointer;">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;"><span style="font-family:'Cinzel',serif;font-size:3.6rem;color:rgba(255,215,0,0.17);">✦</span></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(18,16,12,0.95) 0%,rgba(18,16,12,0.25) 55%,rgba(18,16,12,0.02) 100%);"></div>
+              <div style="position:absolute;left:18px;right:18px;bottom:14px;">
+                <span style="display:block;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.82);margin-bottom:6px;">✦ Для нових гравців</span>
+                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.22rem;color:#fff;letter-spacing:0.03em;text-shadow:0 1px 10px rgba(0,0,0,0.7);">Анкета персонажа</h3>
+              </div>
+            </div>
+            <div style="padding:15px 18px 18px;display:flex;gap:10px;flex-wrap:wrap;">
+              <button onClick="{{ toggleJoinTemplate }}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.75);border-radius:999px;padding:8px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;background:rgba(255,255,255,0.1);">{{ joinTemplateToggleLabel }}</button>
+              <button onClick="{{ downloadJoinTemplate }}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:999px;padding:8px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.2s;" style-hover="background:rgba(255,215,0,0.22);">⬇ Завантажити файл</button>
+              <button onClick="{{ copyJoinTemplate }}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.75);border-radius:999px;padding:8px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;background:rgba(255,255,255,0.1);">⧉ {{ joinCopyLabel }}</button>
+            </div>
+          </article>
+          <sc-if value="{{ joinTemplateOpen }}" hint-placeholder-val="{{ false }}">
+            <pre style="white-space:pre-wrap;word-break:break-word;font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:rgba(255,255,255,0.76);line-height:1.72;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:22px 24px;margin:18px 0 0;">{{ joinTemplateRaw }}</pre>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ joinNoTemplate }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.3);font-style:italic;">Шаблон анкети ще не додано — заповніть його в адмін-панелі, вкладка «⚙ Сайт».</p>
+        </sc-if>
+      </div>
+
+      <!-- 3 · Контакти -->
+      <div class="glass" style="padding:32px 34px;">
+        <div style="display:flex;align-items:center;gap:13px;margin-bottom:18px;">
+          <span style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,215,0,0.35);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;color:#ffd700;font-size:0.9rem;flex-shrink:0;">3</span>
+          <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.06em;">Контакти</h2>
+        </div>
+        <sc-if value="{{ joinHasSubmitNote }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.6);line-height:1.75;margin-bottom:20px;">{{ joinSubmitNote }}</p>
+        </sc-if>
         <div style="display:flex;flex-direction:column;">
           <sc-for list="{{ contactLinks }}" as="link" hint-placeholder-count="2">
-            <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.62);font-size:0.93rem;text-decoration:none;transition:color 0.18s;" style-hover="color:#fff;">
-              <span style="font-size:1.1rem;flex-shrink:0;">{{ link.icon }}</span>
+            <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.66);font-size:0.96rem;text-decoration:none;transition:color 0.18s;" style-hover="color:#fff;">
+              <span style="font-size:1.15rem;flex-shrink:0;">{{ link.icon }}</span>
               <span style="flex:1;">{{ link.label }}</span>
-              <span style="color:rgba(255,255,255,0.2);font-size:0.78rem;">↗</span>
+              <span style="color:rgba(255,255,255,0.22);font-size:0.78rem;">↗</span>
             </a>
           </sc-for>
         </div>
       </div>
     </div>
-    <div style="text-align:center;">
+
+    <div style="text-align:center;margin-top:34px;">
       <a href="admin.dc.html" style="display:inline-flex;align-items:center;gap:8px;background:rgba(100,149,237,0.09);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:999px;padding:10px 26px;font-size:0.855rem;text-decoration:none;transition:all 0.2s;" style-hover="background:rgba(100,149,237,0.17);">⚙ Адмін-панель</a>
     </div>
   </main>
@@ -1627,6 +1681,7 @@ class Component extends DCLogic {
     data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
     loading: true,
     loadError: false, loadErrorQuote: LOAD_ERROR_QUOTES[0],
+    joinCopied: false, joinTemplateOpen: false,
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
     rolledAt: null, shareMsg: '', sharing: false, diceQuote: '',
     charSharing: false, charShareMsg: '',
@@ -2761,7 +2816,7 @@ class Component extends DCLogic {
         { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
         { id: 'dice',        label: '⚄ Дайс',     active: page === 'dice' },
         { id: 'map',         label: '🗺 Мапа',    active: page === 'map' },
-        { id: 'contacts',    label: 'Контакти',    active: page === 'contacts' },
+        { id: 'contacts',    label: 'Долучитися',   active: page === 'contacts' },
       ],
 
       siteTitle:    data.site?.title    || 'AURELION',
@@ -2769,6 +2824,47 @@ class Component extends DCLogic {
       siteWelcome:  data.site?.welcome  || 'Ласкаво просимо до Ауреліону.',
       homeWelcomeEl: React.createElement('div', { className: 'home-welcome', dangerouslySetInnerHTML: { __html: parseMarkdown(data.site?.welcome || 'Ласкаво просимо до Ауреліону.') } }),
       contactsAbout: data.site?.contactsAbout || '',
+      joinHasIntro:  !!(data.site && data.site.contactsAbout && String(data.site.contactsAbout).trim()),
+      joinIntroEl:   (data.site && data.site.contactsAbout && String(data.site.contactsAbout).trim())
+        ? React.createElement('div', { className: 'home-welcome', dangerouslySetInnerHTML: { __html: parseMarkdown(data.site.contactsAbout) } })
+        : null,
+      joinHasRules:  !!(data.site && data.site.join_rules && String(data.site.join_rules).trim()),
+      joinNoRules:   !(data.site && data.site.join_rules && String(data.site.join_rules).trim()),
+      joinRulesEl:   (data.site && data.site.join_rules && String(data.site.join_rules).trim())
+        ? React.createElement('div', { className: 'lore-md', dangerouslySetInnerHTML: { __html: parseMarkdown(data.site.join_rules) } })
+        : null,
+      joinTemplateRaw:   (data.site && data.site.join_template) || '',
+      joinHasTemplate:   !!(data.site && data.site.join_template && String(data.site.join_template).trim()),
+      joinNoTemplate:    !(data.site && data.site.join_template && String(data.site.join_template).trim()),
+      joinSubmitNote:    (data.site && data.site.join_submit_note) || '',
+      joinHasSubmitNote: !!(data.site && data.site.join_submit_note && String(data.site.join_submit_note).trim()),
+      joinCopyLabel:     s.joinCopied ? '✓ Скопійовано' : 'Скопіювати шаблон',
+      copyJoinTemplate: () => {
+        const t = (this.state.data.site && this.state.data.site.join_template) || '';
+        const done = () => {
+          this.setState({ joinCopied: true });
+          clearTimeout(this._joinCopyT);
+          this._joinCopyT = setTimeout(() => this.setState({ joinCopied: false }), 1800);
+        };
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(done, done); }
+          else { done(); }
+        } catch (e) { done(); }
+      },
+      joinTemplateOpen:        !!s.joinTemplateOpen,
+      joinTemplateToggleLabel: s.joinTemplateOpen ? '▲ Згорнути' : '👁 Переглянути',
+      toggleJoinTemplate: () => this.setState(st => ({ joinTemplateOpen: !st.joinTemplateOpen })),
+      downloadJoinTemplate: () => {
+        const t = (this.state.data.site && this.state.data.site.join_template) || '';
+        try {
+          const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'anketa-aurelion.txt';
+          document.body.appendChild(a); a.click();
+          setTimeout(() => { try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch (e2) {} }, 100);
+        } catch (e) {}
+      },
       contactLinks:  data.contacts || [],
 
       ...(() => {
@@ -2786,7 +2882,7 @@ class Component extends DCLogic {
           { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу', ...mk((data.pantheon||[]).length, 'бог', 'боги', 'богів') },
           { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20', hasCount: false, countLabel: '' },
           { id: 'map',        icon: '🗺', title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону', ...mk((data.map_locations||[]).length, 'локація', 'локації', 'локацій') },
-          { id: 'contacts',   icon: '✉️', title: 'Про Проєкт',  desc: 'Контакти та інформація про спільноту', hasCount: false, countLabel: '' },
+          { id: 'contacts',   icon: '✍️', title: 'Долучитися',  desc: 'Правила, анкета — і як стати частиною світу', hasCount: false, countLabel: '' },
         ]};
       })(),
 
