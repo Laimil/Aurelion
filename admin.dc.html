@@ -765,7 +765,7 @@ button{font-family:inherit;cursor:pointer}
           <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
           <div style="width:34px;height:34px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.78rem;color:rgba(255,215,0,0.5);flex-shrink:0;">{{ char.initials }}</div>
           <div style="flex:1;min-width:0;">
-            <p style="font-size:0.88rem;color:#fff;">{{ char.name }}</p>
+            <p style="font-size:0.88rem;color:#fff;">{{ char.name }}<sc-if value="{{ char.inactive }}" hint-placeholder-val="{{ false }}"><span style="margin-left:8px;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:2px 8px;vertical-align:middle;">⊘ неактивний</span></sc-if></p>
             <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:1px;">{{ char.role }}</p>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
@@ -792,6 +792,15 @@ button{font-family:inherit;cursor:pointer}
               <option value="npc">👤 НПЦ</option>
             </select>
           </div>
+        </div>
+        <!-- Статус: активний / неактивний -->
+        <div style="margin-bottom:14px;">
+          <label>Статус на сайті</label>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="stat-seg" data-val="1" onClick="{{ setCharActive }}" data-active="{{ charActiveOn }}" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:9px 14px;font-size:0.82rem;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s;">✦ Активний</button>
+            <button type="button" class="stat-seg" data-val="0" onClick="{{ setCharActive }}" data-active="{{ charActiveOff }}" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:9px 14px;font-size:0.82rem;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s;">⊘ Неактивний</button>
+          </div>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:5px;line-height:1.5;">Неактивні персонажі приховані в галереї за замовчуванням (їх видно лише з фільтром «Усі»).</p>
         </div>
         <!-- Дос'є -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
@@ -1240,7 +1249,7 @@ const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order', 'status_label', 'status_color', 'cover_color', 'cover_ornament', 'cover_icon', 'author_label'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
-  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'content', 'card_caption', 'character_type', 'tags', 'connections', 'open_effect', 'sort_order'],
+  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'tags', 'connections', 'open_effect', 'sort_order'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
 };
@@ -1686,7 +1695,7 @@ class Component extends DCLogic {
         || (ch.role || '').toLowerCase().includes(charSearch))
       .map(ch => {
         const p = (ch.name || '').trim().split(/\s+/);
-        return { ...ch, initials: p.slice(0,2).map(x=>x[0]||'').join('').toUpperCase() || '?', dragTargetClass: !charSearch ? dtc('characters', ch._index) : '' };
+        return { ...ch, inactive: ch.is_active === false, initials: p.slice(0,2).map(x=>x[0]||'').join('').toUpperCase() || '?', dragTargetClass: !charSearch ? dtc('characters', ch._index) : '' };
       });
     const panList     = mkList(data.pantheon).map((it, i) => ({ ...it, dragTargetClass: dtc('pantheon', i) }));
     const contactList = mkList(data.contacts).map((it, i) => ({ ...it, dragTargetClass: dtc('contacts', i) }));
@@ -1967,6 +1976,12 @@ class Component extends DCLogic {
       formCardCaption:   form.card_caption    || '',
       formTags:          form.tags            || '',
       formCharacterType: form.character_type || 'player',
+      charActiveOn:  (form.is_active !== false),
+      charActiveOff: (form.is_active === false),
+      setCharActive: (e) => {
+        const v = e.currentTarget.dataset.val === '1';
+        this.setState(st => ({ form: { ...st.form, is_active: v } }));
+      },
       formOpenEffect:    form.open_effect    || 'default',
       formTelegraphUrl:  form.telegraph_url  || '',
       formAge:          form.age            || '',

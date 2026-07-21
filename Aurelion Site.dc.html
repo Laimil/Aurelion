@@ -780,6 +780,10 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           <button data-tab="player" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ playerTabActive }}">🎭 Гравці</button>
           <button data-tab="npc" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ npcTabActive }}">👤 НПЦ</button>
         </div>
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+          <button data-filter="active" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterActiveOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 16px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">✦ Активні</button>
+          <button data-filter="all" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterAllOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 16px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Усі</button>
+        </div>
         <div style="display:flex;gap:6px;align-items:center;">
           <sc-for list="{{ charSortOptions }}" as="opt" hint-placeholder-count="0">
             <button data-sort="{{ opt.value }}" onClick="{{ setCharSort }}" data-active="{{ opt.active }}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 12px;font-size:0.72rem;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">{{ opt.label }}</button>
@@ -1728,6 +1732,7 @@ class Component extends DCLogic {
     boardScale: 1,
     loreTagFilter: null, loreSortBy: 'order',
     charSortBy: 'order',
+    charActiveFilter: 'active',
     storiesSortBy: 'order',
     histTagFilter: null,
     selectedChronicle: null, chronSortBy: 'order', chronTagFilter: null,
@@ -3162,7 +3167,14 @@ class Component extends DCLogic {
       setCharTab:       (e) => this.setState({ charTab: e.currentTarget.dataset.tab }),
       handleCharSearch: (e) => this.setState({ charSearch: e.target.value }),
       clearCharSearch:  () => this.setState({ charSearch: '' }),
+      charActiveFilter: s.charActiveFilter || 'active',
+      charFilterActiveOn: (s.charActiveFilter || 'active') === 'active',
+      charFilterAllOn:    (s.charActiveFilter || 'active') === 'all',
+      setCharActiveFilter: (e) => this.setState({ charActiveFilter: e.currentTarget.dataset.filter }),
+      hiddenInactiveCount: (s.charActiveFilter || 'active') === 'active'
+        ? (data.characters || []).filter(ch => ch.is_active === false).length : 0,
       playerItems: sortChars((data.characters || []).filter(ch => {
+        if ((s.charActiveFilter || 'active') === 'active' && ch.is_active === false) return false;
         const q = (s.charSearch || '').toLowerCase().trim();
         if (!q) return !ch.character_type || ch.character_type === 'player';
         const match = (ch.name||'').toLowerCase().includes(q) || (ch.alias||'').toLowerCase().includes(q) || (ch.role||'').toLowerCase().includes(q);
@@ -3174,11 +3186,13 @@ class Component extends DCLogic {
           ...ch,
           initials: parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
           hasImage: !!(ch.image), noImage: !(ch.image), hasAlias: !!(ch.alias),
+          inactive: ch.is_active === false,
           bgStyle: 'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;'+(imgUrl?'background-image:'+imgUrl:''),
           hasBio: !!(ch.bio), bio: ch.bio||'',
         };
       }),
       npcItems: sortChars((data.characters || []).filter(ch => {
+        if ((s.charActiveFilter || 'active') === 'active' && ch.is_active === false) return false;
         const q = (s.charSearch || '').toLowerCase().trim();
         if (!q) return ch.character_type === 'npc';
         const match = (ch.name||'').toLowerCase().includes(q) || (ch.alias||'').toLowerCase().includes(q) || (ch.role||'').toLowerCase().includes(q);
@@ -3190,12 +3204,13 @@ class Component extends DCLogic {
           ...ch,
           initials: parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
           hasImage: !!(ch.image), noImage: !(ch.image), hasAlias: !!(ch.alias),
+          inactive: ch.is_active === false,
           bgStyle: 'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;'+(imgUrl?'background-image:'+imgUrl:''),
           hasBio: !!(ch.bio), bio: ch.bio||'',
         };
       }),
-      playersEmpty: !(data.characters||[]).filter(ch=>!ch.character_type||ch.character_type==='player').length,
-      npcsEmpty:    !(data.characters||[]).filter(ch=>ch.character_type==='npc').length,
+      playersEmpty: !(data.characters||[]).filter(ch=>(!ch.character_type||ch.character_type==='player') && ((s.charActiveFilter||'active')==='all' || ch.is_active!==false)).length,
+      npcsEmpty:    !(data.characters||[]).filter(ch=>ch.character_type==='npc' && ((s.charActiveFilter||'active')==='all' || ch.is_active!==false)).length,
 
       pantheonItems: (data.pantheon || []).map(g => {
         const imgUrl = g.image ? 'url(' + JSON.stringify(g.image) + ')' : '';
