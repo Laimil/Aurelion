@@ -782,6 +782,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </div>
         <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
           <button data-filter="active" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterActiveOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 16px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">✦ Активні</button>
+          <button data-filter="inactive" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterInactiveOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 16px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">⊘ Неактивні</button>
           <button data-filter="all" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterAllOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 16px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Усі</button>
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
@@ -3169,12 +3170,15 @@ class Component extends DCLogic {
       clearCharSearch:  () => this.setState({ charSearch: '' }),
       charActiveFilter: s.charActiveFilter || 'active',
       charFilterActiveOn: (s.charActiveFilter || 'active') === 'active',
+      charFilterInactiveOn: (s.charActiveFilter || 'active') === 'inactive',
       charFilterAllOn:    (s.charActiveFilter || 'active') === 'all',
       setCharActiveFilter: (e) => this.setState({ charActiveFilter: e.currentTarget.dataset.filter }),
       hiddenInactiveCount: (s.charActiveFilter || 'active') === 'active'
         ? (data.characters || []).filter(ch => ch.is_active === false).length : 0,
       playerItems: sortChars((data.characters || []).filter(ch => {
-        if ((s.charActiveFilter || 'active') === 'active' && ch.is_active === false) return false;
+        const f = (s.charActiveFilter || 'active');
+        if (f === 'active' && ch.is_active === false) return false;
+        if (f === 'inactive' && ch.is_active !== false) return false;
         const q = (s.charSearch || '').toLowerCase().trim();
         if (!q) return !ch.character_type || ch.character_type === 'player';
         const match = (ch.name||'').toLowerCase().includes(q) || (ch.alias||'').toLowerCase().includes(q) || (ch.role||'').toLowerCase().includes(q);
@@ -3192,7 +3196,9 @@ class Component extends DCLogic {
         };
       }),
       npcItems: sortChars((data.characters || []).filter(ch => {
-        if ((s.charActiveFilter || 'active') === 'active' && ch.is_active === false) return false;
+        const f = (s.charActiveFilter || 'active');
+        if (f === 'active' && ch.is_active === false) return false;
+        if (f === 'inactive' && ch.is_active !== false) return false;
         const q = (s.charSearch || '').toLowerCase().trim();
         if (!q) return ch.character_type === 'npc';
         const match = (ch.name||'').toLowerCase().includes(q) || (ch.alias||'').toLowerCase().includes(q) || (ch.role||'').toLowerCase().includes(q);
@@ -3209,8 +3215,8 @@ class Component extends DCLogic {
           hasBio: !!(ch.bio), bio: ch.bio||'',
         };
       }),
-      playersEmpty: !(data.characters||[]).filter(ch=>(!ch.character_type||ch.character_type==='player') && ((s.charActiveFilter||'active')==='all' || ch.is_active!==false)).length,
-      npcsEmpty:    !(data.characters||[]).filter(ch=>ch.character_type==='npc' && ((s.charActiveFilter||'active')==='all' || ch.is_active!==false)).length,
+      playersEmpty: !(data.characters||[]).filter(ch=>{ const t=(!ch.character_type||ch.character_type==='player'); const f=(s.charActiveFilter||'active'); return t && (f==='all' || (f==='inactive'?ch.is_active===false:ch.is_active!==false)); }).length,
+      npcsEmpty:    !(data.characters||[]).filter(ch=>{ const t=ch.character_type==='npc'; const f=(s.charActiveFilter||'active'); return t && (f==='all' || (f==='inactive'?ch.is_active===false:ch.is_active!==false)); }).length,
 
       pantheonItems: (data.pantheon || []).map(g => {
         const imgUrl = g.image ? 'url(' + JSON.stringify(g.image) + ')' : '';
