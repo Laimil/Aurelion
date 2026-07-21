@@ -987,7 +987,23 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
             <sc-if value="{{ charReaderHasBio }}" hint-placeholder-val="{{ true }}">
               {{ charReaderBioEl }}
             </sc-if>
-            <sc-if value="{{ charReaderNoBio }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ charReaderHasContent }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:14px;margin:40px 0 24px;">
+                <span style="flex:1;height:1px;background:rgba(255,215,0,0.14);"></span>
+                <span style="font-family:'Cinzel',Georgia,serif;font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);">✦ Історія</span>
+                <span style="flex:1;height:1px;background:rgba(255,215,0,0.14);"></span>
+              </div>
+              <sc-if value="{{ charReaderHasToc }}" hint-placeholder-val="{{ false }}">
+                <nav style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:14px 18px;margin-bottom:26px;">
+                  <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:8px;">Зміст</p>
+                  <sc-for list="{{ charReaderContentToc }}" as="t" hint-placeholder-count="0">
+                    <a href="#" data-tocid="{{ t.id }}" onClick="{{ scrollLoreToc }}" style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.55);text-decoration:none;padding:3px 0 3px {{ t.pad }};transition:color 0.18s;" style-hover="color:#ffd700;">{{ t.text }}</a>
+                  </sc-for>
+                </nav>
+              </sc-if>
+              {{ charReaderContentEl }}
+            </sc-if>
+            <sc-if value="{{ charReaderEmpty }}" hint-placeholder-val="{{ false }}">
               <div style="text-align:center;padding:50px 24px;color:rgba(255,255,255,0.28);">
                 <p style="font-size:1.4rem;margin-bottom:10px;">✦</p>
                 <p>Дос'є ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін →</a></p>
@@ -3501,6 +3517,17 @@ class Component extends DCLogic {
       charReaderHasBio:    !!(sc?.bio),
       charReaderNoBio:     !!(sc && !sc.bio),
       charReaderBioEl:     sc && sc.bio ? React.createElement('div', { className: 'lore-md' }, String(sc.bio).split(/\n{2,}/).map((para, i) => React.createElement('p', { key: i }, para))) : null,
+      ...(() => {
+        const raw = sc?.content || '';
+        const toc = raw ? extractToc(raw) : [];
+        return {
+          charReaderHasContent: !!raw,
+          charReaderContentEl:  raw ? React.createElement('div', { className:'lore-md', dangerouslySetInnerHTML:{ __html: parseMarkdown(raw) } }) : null,
+          charReaderContentToc: toc.map(x => ({ level:String(x.level), text:x.text, id:x.id, pad:((x.level-1)*14)+'px' })),
+          charReaderHasToc:     toc.length >= 2,
+        };
+      })(),
+      charReaderEmpty:     !!(sc && !sc.bio && !sc.content),
       charReaderHasTelegraph: !!(sc?.telegraph_url),
       charReaderNoTelegraph:  !!(sc && !sc.telegraph_url),
       charReaderUrl:       sc?.telegraph_url || '',
