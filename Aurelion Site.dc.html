@@ -936,6 +936,12 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
               <a href="{{ charReaderUrl }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;background:#ffd700;color:#1a1a1a;border-radius:999px;padding:11px 22px;font-family:'Cinzel',serif;font-size:0.85rem;font-weight:700;letter-spacing:0.05em;text-decoration:none;transition:all 0.2s;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.4);">↗ Відкрити анкету</a>
             </sc-if>
             <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+              <sc-if value="{{ relHasConns }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ scrollToConns }}" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.4);border-radius:999px;padding:9px 18px;color:#6495ed;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(100,149,237,0.18);box-shadow:0 0 18px rgba(100,149,237,0.3);">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#6495ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                  До зв'язків
+                </button>
+              </sc-if>
               <button onClick="{{ saveCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,215,0,0.32);border-radius:999px;padding:9px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Картка PNG
@@ -990,7 +996,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
             <sc-if value="{{ charReaderHasContent }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;align-items:center;gap:14px;margin:40px 0 24px;">
                 <span style="flex:1;height:1px;background:rgba(255,215,0,0.14);"></span>
-                <span style="font-family:'Cinzel',Georgia,serif;font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);">✦ Історія</span>
+                <span style="font-family:'Cinzel',Georgia,serif;font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);">✦ Анкета</span>
                 <span style="flex:1;height:1px;background:rgba(255,215,0,0.14);"></span>
               </div>
               <sc-if value="{{ charReaderHasToc }}" hint-placeholder-val="{{ false }}">
@@ -1014,7 +1020,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 
         <!-- ── Деревце зв'язків ── -->
         <sc-if value="{{ relHasConns }}" hint-placeholder-val="{{ false }}">
-          <div style="max-width:1060px;margin:58px auto 0;">
+          <div data-conns-anchor style="max-width:1060px;margin:58px auto 0;">
             <div style="height:1px;background:rgba(255,255,255,0.09);margin-bottom:34px;"></div>
             <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px;">
               <div>
@@ -3528,6 +3534,10 @@ class Component extends DCLogic {
         };
       })(),
       charReaderEmpty:     !!(sc && !sc.bio && !sc.content),
+      scrollToConns: () => {
+        const el = document.querySelector('[data-conns-anchor]');
+        if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 70; window.scrollTo({ top: y, behavior: 'smooth' }); }
+      },
       charReaderHasTelegraph: !!(sc?.telegraph_url),
       charReaderNoTelegraph:  !!(sc && !sc.telegraph_url),
       charReaderUrl:       sc?.telegraph_url || '',
