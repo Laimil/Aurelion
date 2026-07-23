@@ -1749,17 +1749,9 @@ class Component extends DCLogic {
 
   // ── Глобальний пошук з Головної ──
   _openSearchTarget(type, id) {
-    const d = this.state.data;
-    const base = { selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null, selectedChronicle: null, homeSearch: '' };
-    const go = (hash, extra) => {
-      try { history.replaceState(null, '', '#' + hash); } catch (err) {}
-      this.setState({ ...base, page: this._getPage(), charMode: this._initMode(), ...extra });
-      window.scrollTo({ top: 0 });
-    };
-    if (type === 'char') { const ch = (d.characters || []).find(x => String(x.id) === String(id)); if (ch) go('characters', { selectedChar: ch }); }
-    else if (type === 'lore') { const it = (d.lore || []).find(x => String(x.id) === String(id)); if (it) go('lore', { selectedLore: it }); }
-    else if (type === 'story') { const it = (d.stories || []).find(x => String(x.id) === String(id)); if (it) go('stories', { selectedHistory: it }); }
-    else if (type === 'chron') { const it = (d.chronicles || []).find(x => String(x.id) === String(id)); if (it) go('chronicles', { selectedChronicle: it }); }
+    const map = { char: 'characters', lore: 'lore', story: 'stories', chron: 'chronicles' };
+    const seg = map[type];
+    if (seg) this._nav(seg, id);
   }
 
   _homeSearch(data) {
@@ -1946,7 +1938,7 @@ class Component extends DCLogic {
       relLeave: () => { if (!this.state.relPinId) this.setState({ relHoverId: null }); },
       relClick: (e) => { e.stopPropagation(); const id = e.currentTarget.dataset.id; this.setState(st => ({ relPinId: st.relPinId === id ? null : id, relHoverId: id })); },
       relClosePin: () => this.setState({ relPinId: null, relHoverId: null }),
-      relOpenChar: () => { const id = this.state.relPinId; const ch = allChars.find(c => c.id === id); if (ch) { this.setState({ selectedChar: ch, relPinId: null, relHoverId: null }); window.scrollTo({ top: 0 }); } },
+      relOpenChar: () => { const id = this.state.relPinId; const ch = allChars.find(c => c.id === id); if (ch) { this.setState({ relPinId: null, relHoverId: null }); this._nav('characters', id); } },
       relTipVisible: !!t, relTipPinned: !!s.relPinId, relTipShowClose: !!s.relPinId, relTipStyle,
       relTipName: t ? t.name : '', relTipRole: t ? t.role : '', relTipFaction: t ? t.faction : '',
       relTipColor: t ? t.color : '#ffd700', relTipPortrait: t ? t.portrait : '', relTipNoImg: t ? t.noImg : true,
@@ -1969,17 +1961,59 @@ class Component extends DCLogic {
     return pos;
   }
 
+  // ── Маршрутизація за хешем (розділ + опційний id елемента) ──
+  _parseHash() {
+    const raw = (window.location.hash || '').replace(/^#/, '');
+    const slash = raw.indexOf('/');
+    const seg = (slash === -1 ? raw : raw.slice(0, slash)) || 'home';
+    let id = slash === -1 ? null : raw.slice(slash + 1);
+    if (id) { try { id = decodeURIComponent(id); } catch (e) {} }
+    return { seg, id: id || null };
+  }
+
   _getPage() {
-    const h = (window.location.hash || '').replace('#', '') || 'home';
-    if (h === 'chronicles' || h === 'connections') return 'characters';
-    return h;
+    const { seg } = this._parseHash();
+    if (seg === 'chronicles' || seg === 'connections') return 'characters';
+    return seg;
   }
 
   _initMode() {
-    const h = (window.location.hash || '').replace('#', '');
-    if (h === 'chronicles') return 'chron';
-    if (h === 'connections') return 'conn';
+    const { seg } = this._parseHash();
+    if (seg === 'chronicles') return 'chron';
+    if (seg === 'connections') return 'conn';
     return 'gallery';
+  }
+
+  // Повний стан сторінки, обчислений з хеша (розв'язує вибраний елемент по id).
+  _routePatch(data) {
+    data = data || (this.state && this.state.data) || {};
+    const { seg, id } = this._parseHash();
+    const patch = {
+      page: this._getPage(),
+      charMode: this._initMode(),
+      selectedChar: null, peekChar: null, selectedHistory: null,
+      selectedLore: null, selectedChronicle: null, mapActivePin: null, homeSearch: '',
+    };
+    if (id) {
+      const find = (arr) => (arr || []).find(x => String(x.id) === String(id)) || null;
+      if (seg === 'characters')      patch.selectedChar      = find(data.characters);
+      else if (seg === 'lore')       patch.selectedLore      = find(data.lore);
+      else if (seg === 'stories')    patch.selectedHistory   = find(data.stories);
+      else if (seg === 'chronicles') patch.selectedChronicle = find(data.chronicles);
+    }
+    return patch;
+  }
+
+  // Перехід за хешем (єдина точка зміни URL — hashchange застосує стан).
+  _nav(seg, id) {
+    const hash = id != null ? seg + '/' + encodeURIComponent(id) : seg;
+    if (('#' + hash) === (window.location.hash || '')) {
+      // Той самий хеш — hashchange не спрацює, застосуємо вручну.
+      this.setState(this._routePatch());
+      window.scrollTo({ top: 0 });
+    } else {
+      window.location.hash = hash;
+    }
   }
 
   async _get(path) {
@@ -2020,10 +2054,7 @@ class Component extends DCLogic {
     const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity] = res;
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
-    this.setState({
-      loading: false,
-      loadError: false,
-      data: {
+    const loadedData = {
         site,
         lore:          Array.isArray(lore)       ? lore       : [],
         stories:       Array.isArray(stories)    ? stories    : [],
@@ -2033,7 +2064,13 @@ class Component extends DCLogic {
         contacts:      Array.isArray(contacts)   ? contacts   : [],
         map_locations: Array.isArray(mapLocs)    ? mapLocs    : [],
         post_activity: Array.isArray(postActivity) ? postActivity : [],
-      },
+    };
+    // Розв'язуємо елемент з глибокого посилання (#characters/<id> тощо) щойно дані готові.
+    this.setState({
+      loading: false,
+      loadError: false,
+      data: loadedData,
+      ...this._routePatch(loadedData),
     });
   }
 
@@ -2165,7 +2202,7 @@ class Component extends DCLogic {
     this._updateMapBase();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
     window.addEventListener('hashchange', () => {
-      this.setState({ page: this._getPage(), charMode: this._initMode(), selectedChar: null, peekChar: null, selectedHistory: null, selectedLore: null, selectedChronicle: null, mapActivePin: null, homeSearch: '' });
+      this.setState(this._routePatch());
       window.scrollTo({ top: 0 });
     });
     window.addEventListener('storage', (e) => {
@@ -3506,8 +3543,7 @@ class Component extends DCLogic {
       charModalUrl:        pc?.telegraph_url || '',
       openCharacter: (e) => {
         const id = e.currentTarget.dataset.id;
-        const ch = (data.characters || []).find(c => c.id === id);
-        if (ch) { this.setState({ selectedChar: ch }); window.scrollTo({ top: 0 }); }
+        if ((data.characters || []).some(c => String(c.id) === String(id))) this._nav('characters', id);
       },
       peekCharacter: (e) => {
         const id = e.currentTarget.dataset.id;
@@ -3515,8 +3551,8 @@ class Component extends DCLogic {
         if (ch) this.setState({ peekChar: ch });
       },
       closeCharModal: () => this.setState({ peekChar: null }),
-      closeCharPage: () => { this.setState({ selectedChar: null }); window.scrollTo({ top: 0 }); },
-      setCharMode: (e) => { this.setState({ charMode: e.currentTarget.dataset.mode, selectedChronicle: null }); window.scrollTo({ top: 0 }); },
+      closeCharPage: () => this._nav('characters'),
+      setCharMode: (e) => { const m = e.currentTarget.dataset.mode; this._nav(m === 'chron' ? 'chronicles' : m === 'conn' ? 'connections' : 'characters'); },
       stopProp: (e) => e.stopPropagation(),
       saveCharCard:  () => this.saveCharCard(),
       copyCharCard:  () => this.copyCharCard(),
@@ -3655,10 +3691,9 @@ class Component extends DCLogic {
       })(),
       openHistory: (e) => {
         const id = e.currentTarget.dataset.id;
-        const it = (data.stories||[]).find(x => x.id === id);
-        if (it) { this.setState({ selectedHistory: it }); window.scrollTo({ top: 0 }); }
+        if ((data.stories || []).some(x => String(x.id) === String(id))) this._nav('stories', id);
       },
-      closeStory: () => { this.setState({ selectedHistory: null }); window.scrollTo({ top: 0 }); },
+      closeStory: () => this._nav('stories'),
 
       // ──────────── ХРОНІКИ ────────────
       chronicleItems: filteredChronData.map(c => {
@@ -3690,10 +3725,9 @@ class Component extends DCLogic {
       setChronSort: (e) => this.setState({ chronSortBy: e.currentTarget.dataset.sort }),
       openChronicle: (e) => {
         const id = e.currentTarget.dataset.id;
-        const it = (data.chronicles||[]).find(x => x.id === id);
-        if (it) { this.setState({ selectedChronicle: it }); window.scrollTo({ top: 0 }); }
+        if ((data.chronicles || []).some(x => String(x.id) === String(id))) this._nav('chronicles', id);
       },
-      closeChronicle: () => { this.setState({ selectedChronicle: null }); window.scrollTo({ top: 0 }); },
+      closeChronicle: () => this._nav('chronicles'),
       ...(() => {
         const c = s.selectedChronicle;
         const raw = c ? (c.content || '') : '';
@@ -3765,10 +3799,9 @@ class Component extends DCLogic {
       setCharView:   (e) => this.setState({ charView: e.currentTarget.dataset.view }),
       openLore: (e) => {
         const id = e.currentTarget.dataset.id;
-        const it = (data.lore || []).find(l => l.id === id);
-        if (it) { this.setState({ selectedLore: it }); window.scrollTo({ top: 0 }); }
+        if ((data.lore || []).some(l => String(l.id) === String(id))) this._nav('lore', id);
       },
-      closeLore: () => { this.setState({ selectedLore: null }); window.scrollTo({ top: 0 }); },
+      closeLore: () => this._nav('lore'),
       // ── Карта ─────────────────────────────────────────────
       mapImageEl: React.createElement('img', {
         key: 'map-img',
