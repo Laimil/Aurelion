@@ -793,6 +793,17 @@ button{font-family:inherit;cursor:pointer}
             </select>
           </div>
         </div>
+        <!-- Божество -->
+        <div style="margin-bottom:14px;">
+          <label>Божество <span style="color:rgba(255,255,255,0.3);font-weight:400;">(кому вірує персонаж)</span></label>
+          <select value="{{ formDeity }}" onChange="{{ handleInput }}" data-field="deity">
+            <option value="">— без божества —</option>
+            <sc-for list="{{ deityOptions }}" as="d" hint-placeholder-count="0">
+              <option value="{{ d.value }}">{{ d.label }}</option>
+            </sc-for>
+          </select>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:5px;line-height:1.5;">Список береться з розділу «Пантеон». На сторінці Пантеону поруч із кожним богом рахуються його віряни.</p>
+        </div>
         <!-- Статус: активний / неактивний -->
         <div style="margin-bottom:14px;">
           <label>Статус на сайті</label>
@@ -1249,7 +1260,7 @@ const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order', 'status_label', 'status_color', 'cover_color', 'cover_ornament', 'cover_icon', 'author_label'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
-  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'tags', 'connections', 'open_effect', 'sort_order'],
+  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'deity', 'tags', 'connections', 'open_effect', 'sort_order'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
 };
@@ -1976,6 +1987,11 @@ class Component extends DCLogic {
       formCardCaption:   form.card_caption    || '',
       formTags:          form.tags            || '',
       formCharacterType: form.character_type || 'player',
+      formDeity:         form.deity          || '',
+      deityOptions: (data.pantheon || []).map(g => ({
+        value: String(g.god || g.name || ''),
+        label: (g.name || '—') + (g.domain ? ' — ' + g.domain : ''),
+      })).filter(o => o.value),
       charActiveOn:  (form.is_active !== false),
       charActiveOff: (form.is_active === false),
       setCharActive: (e) => {

@@ -1026,6 +1026,12 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
                     <p style="font-family:'Cinzel',serif;font-size:0.95rem;color:#fff;font-weight:600;">{{ charReaderWeight }}</p>
                   </div>
                 </sc-if>
+                <sc-if value="{{ charReaderDeity }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 16px;">
+                    <p style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">Божество</p>
+                    <p style="font-family:'Cinzel',serif;font-size:0.95rem;color:#fff;font-weight:600;">{{ charReaderDeity }}</p>
+                  </div>
+                </sc-if>
               </div>
             </sc-if>
             <div style="height:1px;background:rgba(255,255,255,0.09);margin:24px 0;"></div>
@@ -1160,6 +1166,52 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     </div>
     <sc-if value="{{ pantheonHasItems }}" hint-placeholder-val="{{ true }}">
       <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.28);margin-top:18px;font-family:'EB Garamond',Georgia,serif;">Наведіть курсор на бога — вівтар розгортається</p>
+
+      <section style="margin-top:64px;">
+        <header style="text-align:center;margin-bottom:26px;">
+          <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Віра</p>
+          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.4rem,3.4vw,1.9rem);font-weight:700;color:#fff;letter-spacing:0.06em;">Хто кому вірує</h2>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.4);margin-top:10px;">{{ faithSummary }}</p>
+        </header>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:14px;">
+          <sc-for list="{{ faithItems }}" as="f" hint-placeholder-count="5">
+            <div data-god="{{ f.god }}" class="glass" style="border-radius:12px;overflow:hidden;align-self:start;">
+              <div data-gkey="{{ f.key }}" onClick="{{ toggleFaith }}" style="display:flex;align-items:center;gap:13px;padding:15px 16px;cursor:pointer;" style-hover="background:rgba(255,255,255,0.04);">
+                <div class="god-accent" style="width:46px;height:46px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:1.15rem;font-weight:700;flex-shrink:0;">{{ f.count }}</div>
+                <div style="flex:1;min-width:0;">
+                  <p class="god-accent" style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ f.name }}</p>
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.38);margin-top:2px;">{{ f.countLabel }} · {{ f.domain }}</p>
+                </div>
+                <span style="color:rgba(255,255,255,0.35);font-size:0.8rem;flex-shrink:0;">{{ f.arrow }}</span>
+              </div>
+              <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+                <div style="border-top:1px solid rgba(255,255,255,0.08);padding:8px;display:flex;flex-direction:column;gap:2px;max-height:300px;overflow-y:auto;">
+                  <sc-for list="{{ f.followers }}" as="fw" hint-placeholder-count="0">
+                    <div data-id="{{ fw.id }}" onClick="{{ openCharacter }}" style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;cursor:pointer;" style-hover="background:rgba(255,255,255,0.06);">
+                      <sc-if value="{{ fw.hasImage }}" hint-placeholder-val="{{ true }}">
+                        <img src="{{ fw.imgSrc }}" alt="{{ fw.name }}" loading="lazy" decoding="async" style="width:30px;height:40px;object-fit:cover;object-position:center top;border-radius:5px;flex-shrink:0;background:#111;" />
+                      </sc-if>
+                      <sc-if value="{{ fw.noImage }}" hint-placeholder-val="{{ false }}">
+                        <div style="width:30px;height:40px;border-radius:5px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.12);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,215,0,0.45);flex-shrink:0;">{{ fw.initials }}</div>
+                      </sc-if>
+                      <div style="min-width:0;flex:1;">
+                        <p style="font-family:'Cinzel',serif;font-size:0.82rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ fw.name }}</p>
+                        <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.8rem;color:rgba(255,255,255,0.32);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ fw.role }}</p>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ f.isEmpty }}" hint-placeholder-val="{{ false }}">
+                    <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.3);padding:10px 8px;">Вівтар порожній — ніхто ще не склав присяги.</p>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ faithHasNone }}" hint-placeholder-val="{{ false }}">
+          <p style="text-align:center;font-size:0.8rem;color:rgba(255,255,255,0.26);margin-top:16px;font-family:'EB Garamond',Georgia,serif;">{{ faithNoneLine }}</p>
+        </sc-if>
+      </section>
     </sc-if>
     <sc-if value="{{ pantheonEmpty }}" hint-placeholder-val="{{ false }}">
       <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
@@ -1749,6 +1801,12 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
                     <p style="font-family:'Cinzel',serif;font-size:0.92rem;color:#fff;font-weight:600;">{{ charModalWeight }}</p>
                   </div>
                 </sc-if>
+                <sc-if value="{{ charModalDeity }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 14px;">
+                    <p style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">Божество</p>
+                    <p style="font-family:'Cinzel',serif;font-size:0.92rem;color:#fff;font-weight:600;">{{ charModalDeity }}</p>
+                  </div>
+                </sc-if>
               </div>
             </sc-if>
             <sc-if value="{{ charModalHasBio }}" hint-placeholder-val="{{ false }}">
@@ -1806,11 +1864,11 @@ const LIST_SELECT = {
   lore:       'id,title,category,excerpt,cover,sort_order,created_at',
   stories:    'id,title,status,description,sort_order,created_at,author_name,author_telegram,telegraph_url,chapters,tags,status_label,status_color,cover_color,cover_ornament,cover_icon,author_label',
   chronicles: 'id,title,subtitle,character_id,cover,period,gm,status,summary,tags,sort_order,created_at',
-  characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,bio,character_type,connections,sort_order,open_effect,card_caption,is_active',
+  characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,bio,character_type,connections,sort_order,open_effect,card_caption,is_active,deity',
 };
 const HEAVY_TABLES = ['characters', 'lore', 'stories', 'chronicles'];
 const CACHE_KEY = 'au_cache_v1';
-const CACHE_VER = 1;
+const CACHE_VER = 2;
 const CACHE_MAX_AGE = 7 * 24 * 3600 * 1000;
 
 function _mdInl(t){
@@ -2281,6 +2339,15 @@ class Component extends DCLogic {
       if (!o || o.v !== CACHE_VER || !o.data || (Date.now() - o.t) > CACHE_MAX_AGE) return null;
       return o.data;
     } catch (e) { return null; }
+  }
+
+  _deityName(v) {
+    const key = String(v == null ? '' : v).trim();
+    if (!key) return '';
+    const k = key.toLowerCase();
+    const g = (this.state.data.pantheon || []).find(x =>
+      String(x.god || '').trim().toLowerCase() === k || String(x.name || '').trim().toLowerCase() === k);
+    return g ? (g.name || key) : key;
   }
 
   _writeCache(data) {
@@ -3921,6 +3988,52 @@ class Component extends DCLogic {
       pantheonEmpty: !(data.pantheon || []).length,
       pantheonHasItems: !!(data.pantheon || []).length,
 
+      ...(() => {
+        const norm = v => String(v == null ? '' : v).trim().toLowerCase();
+        const wordFollowers = n => {
+          const n10 = n % 10, n100 = n % 100;
+          if (n10 === 1 && n100 !== 11) return 'віруючий';
+          if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return 'віруючі';
+          return 'віруючих';
+        };
+        const chars = (data.characters || []).filter(c => c.is_active !== false);
+        const openKey = s.panFaithOpen || null;
+        let assigned = 0;
+        const faithItems = (data.pantheon || []).map(g => {
+          const keys = [norm(g.god), norm(g.name)].filter(Boolean);
+          const followers = chars.filter(c => c.deity && keys.includes(norm(c.deity)));
+          assigned += followers.length;
+          const key = String(g.god || g.name || g.id || '');
+          return {
+            key, god: g.god || '', name: g.name || '', domain: g.domain || '',
+            count: followers.length,
+            countLabel: wordFollowers(followers.length),
+            open: openKey === key,
+            arrow: openKey === key ? '▴' : '▾',
+            isEmpty: followers.length === 0,
+            followers: followers.map(c => {
+              const parts = String(c.name || '').trim().split(/\s+/);
+              return {
+                id: c.id, name: c.name || '', role: c.role || '',
+                hasImage: !!c.image, noImage: !c.image, imgSrc: c.image || '',
+                initials: parts.slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '?',
+              };
+            }),
+          };
+        }).sort((a, b) => b.count - a.count);
+        const none = chars.length - assigned;
+        return {
+          faithItems,
+          faithSummary: assigned + ' з ' + chars.length + ' персонажів обрали собі бога',
+          faithHasNone: none > 0,
+          faithNoneLine: none + ' ' + (none % 10 === 1 && none % 100 !== 11 ? 'персонаж' : (none % 10 >= 2 && none % 10 <= 4 && (none % 100 < 12 || none % 100 > 14) ? 'персонажі' : 'персонажів')) + ' поки без божества',
+          toggleFaith: (e) => {
+            const k = e.currentTarget.dataset.gkey;
+            this.setState(st => ({ panFaithOpen: st.panFaithOpen === k ? null : k }));
+          },
+        };
+      })(),
+
       diceTypes: [4, 6, 8, 10, 12, 20].map(n => ({
         n, label: 'd' + n, points: DICE_SHAPES[n], active: s.diceType === n,
       })),
@@ -4196,7 +4309,8 @@ class Component extends DCLogic {
       charModalAge:        pc?.age    || '',
       charModalHeight:     pc?.height || '',
       charModalWeight:     pc?.weight || '',
-      charModalHasStats:   !!(pc?.age || pc?.height || pc?.weight),
+      charModalDeity:      this._deityName(pc?.deity),
+      charModalHasStats:   !!(pc?.age || pc?.height || pc?.weight || this._deityName(pc?.deity)),
       charModalBio:        pc?.bio || '',
       charModalHasBio:     !!(pc?.bio),
       charModalHasTelegraph: !!(pc?.telegraph_url),
@@ -4237,7 +4351,8 @@ class Component extends DCLogic {
       charReaderAge:       sc?.age    || '',
       charReaderHeight:    sc?.height || '',
       charReaderWeight:    sc?.weight || '',
-      charReaderHasStats:  !!(sc?.age || sc?.height || sc?.weight),
+      charReaderDeity:     this._deityName(sc?.deity),
+      charReaderHasStats:  !!(sc?.age || sc?.height || sc?.weight || this._deityName(sc?.deity)),
       charReaderHasBio:    !!(sc?.bio),
       charReaderNoBio:     !!(sc && !sc.bio),
       charReaderBioEl:     sc && sc.bio ? React.createElement('div', { className: 'lore-md' }, String(sc.bio).split(/\n{2,}/).map((para, i) => React.createElement('p', { key: i }, para))) : null,
