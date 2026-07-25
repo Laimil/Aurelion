@@ -26,7 +26,7 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 /* Повний ряд розділів — тільки коли він справді вміщується. Нижче
    1180px він ховається, а розділи відкриваються панеллю з-під шапки. */
 .au-navburger{display:none}
-@media(max-width:1180px){
+@media(max-width:1280px){
   .au-navfull{display:none!important}
   .au-navburger{display:inline-flex!important}
 }
@@ -171,7 +171,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 <nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);">
   <div style="max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;padding:0 24px;gap:0;">
     <a href="#home" class="au-brand" style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;">✦<span class="au-wm-full"> AURELION</span></a>
-    <div class="au-navfull" style="display:flex;align-items:center;gap:2px;flex:1;min-width:0;">
+    <div class="au-navfull" style="display:flex;align-items:center;gap:2px;flex:0 0 auto;margin-right:auto;min-width:0;">
       <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
         <a href="#{{ item.id }}" data-active="{{ item.active }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
       </sc-for>
@@ -1456,6 +1456,21 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 
     <sc-if value="{{ pulseHasData }}" hint-placeholder-val="{{ true }}">
     <div style="max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+
+      <!-- Останні дні -->
+      <section class="glass" style="padding:24px 26px;border-radius:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:22px;align-items:start;">
+        <sc-for list="{{ recentCards }}" as="r" hint-placeholder-count="3">
+          <div>
+            <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);">{{ r.label }} · {{ r.when }}</p>
+            <p style="font-family:'Cinzel',Georgia,serif;font-size:1.75rem;font-weight:700;line-height:1;margin-top:8px;color:{{ r.color }};">{{ r.value }} <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:0.02em;">{{ r.word }}</span></p>
+          </div>
+        </sc-for>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:14px 16px;margin:-14px -16px;">
+          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);">За тиждень</p>
+          <p style="font-family:'Cinzel',Georgia,serif;font-size:1.75rem;font-weight:700;line-height:1;margin-top:8px;color:#fff;">{{ weekValue }} <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:0.02em;">{{ weekWord }}</span></p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.5;margin-top:7px;color:{{ weekColor }};">{{ weekNote }}</p>
+        </div>
+      </section>
 
       <!-- Великі числа -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px;">
@@ -3266,6 +3281,36 @@ class Component extends DCLogic {
         const firstDay = rows[0].iso;
         const spanDays = Math.round((new Date(rows[rows.length - 1].iso) - new Date(firstDay)) / 86400000) + 1;
 
+        // ── Останні дні. Доба київська — та сама, за якою рахує бот. ──
+        const kToday = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Kyiv' });
+        const shift = (isoDay, n) => {
+          const d = new Date(isoDay + 'T12:00:00Z');
+          d.setUTCDate(d.getUTCDate() + n);
+          return iso(d);
+        };
+        const sumRange = (from, to) => {
+          let acc = 0;
+          for (let i = from; i <= to; i++) acc += byDay.get(shift(kToday, -i)) || 0;
+          return acc;
+        };
+        const recentCards = ['Сьогодні', 'Вчора', 'Позавчора'].map((label, i) => {
+          const key = shift(kToday, -i);
+          const v = byDay.get(key) || 0;
+          const d = new Date(key + 'T00:00:00Z');
+          return {
+            label,
+            value: String(v),
+            quiet: v === 0,
+            color: v === 0 ? 'rgba(255,255,255,0.28)' : (i === 0 ? '#ffd700' : '#fff'),
+            word: v === 0 ? 'тиша' : plural(v, 'допис', 'дописи', 'дописів'),
+            when: d.getUTCDate() + ' ' + MON[d.getUTCMonth()],
+          };
+        });
+        const week = sumRange(0, 6), weekPrev = sumRange(7, 13);
+        const weekDelta = weekPrev
+          ? Math.round(((week - weekPrev) / weekPrev) * 100)
+          : null;
+
         // ── Люди (з бота; поки його немає — блок не показуємо) ──
         const pm = data.pulse_months || [];
         const pt = data.pulse_totals || null;
@@ -3284,6 +3329,15 @@ class Component extends DCLogic {
           pgAvg:        (total / Math.max(1, activeDays)).toFixed(1).replace('.', ','),
           pgSpan:       spanDays.toLocaleString('uk-UA'),
           pgSince:      (() => { const d = new Date(firstDay + 'T00:00:00Z'); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); })(),
+          recentCards,
+          weekValue:    week.toLocaleString('uk-UA'),
+          weekWord:     plural(week, 'допис', 'дописи', 'дописів'),
+          weekNote:     weekDelta === null
+            ? 'Перший тиждень літопису.'
+            : weekDelta === 0
+              ? 'Рівно стільки ж, скільки тижнем раніше.'
+              : (weekDelta > 0 ? 'На ' + weekDelta + '% гучніше' : 'На ' + Math.abs(weekDelta) + '% тихіше') + ', ніж тижнем раніше (' + weekPrev + ').',
+          weekColor:    weekDelta === null || weekDelta === 0 ? 'rgba(255,255,255,0.4)' : (weekDelta > 0 ? 'rgba(255,215,0,0.75)' : 'rgba(100,149,237,0.75)'),
           heatCells,
           heatFrom:     MONN[start.getUTCMonth()] + ' ' + start.getUTCFullYear(),
           heatTo:       MONN[end.getUTCMonth()] + ' ' + end.getUTCFullYear(),
