@@ -23,6 +23,14 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes auCharIn{from{opacity:0;transform:translateY(16px) scale(0.975)}to{opacity:1;transform:translateY(0) scale(1)}}
 .au-page{animation:fadeUp 0.42s ease both}
+/* Повний ряд розділів — тільки коли він справді вміщується. Нижче
+   1180px він ховається, а розділи відкриваються панеллю з-під шапки. */
+.au-navburger{display:none}
+@media(max-width:1180px){
+  .au-navfull{display:none!important}
+  .au-navburger{display:inline-flex!important}
+}
+.au-navpanel a:hover{background:rgba(255,255,255,0.07)}
 nav a[data-active="true"]{color:#fff!important}
 nav a[data-active="false"]{color:rgba(255,255,255,0.58)}
 nav a[data-active="false"]:hover{color:#fff;transition:color 0.18s}
@@ -129,6 +137,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 /* ── Мобільна навігація: від «✦ AURELION» лишається тільки зірочка ── */
 @media(max-width:640px){.au-wm-full{display:none}.au-brand{margin-right:16px!important}}
 /* ── Пульс спільноти ── */
+/* Лінію графіка малює CSS-перехід, а не setState на кожен кадр. */
+.pulse-line{transition:stroke-dashoffset 1.9s cubic-bezier(0.215,0.61,0.355,1);}
+@media(prefers-reduced-motion:reduce){.pulse-line{transition:none;}}
 </style>
 </helmet>
 
@@ -160,11 +171,13 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 <nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);">
   <div style="max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;padding:0 24px;gap:0;">
     <a href="#home" class="au-brand" style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;">✦<span class="au-wm-full"> AURELION</span></a>
-    <div style="display:flex;align-items:center;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;">
-      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="7">
-        <a href="#{{ item.id }}" data-active="{{ item.active }}" data-cta="{{ item.cta }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
+    <div class="au-navfull" style="display:flex;align-items:center;gap:2px;flex:1;min-width:0;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
+        <a href="#{{ item.id }}" data-active="{{ item.active }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
       </sc-for>
     </div>
+    <button class="au-navburger" onClick="{{ toggleNav }}" aria-label="Розділи" aria-expanded="{{ navOpen }}" style="margin-right:auto;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.72);border-radius:999px;padding:7px 16px;font-size:0.82rem;letter-spacing:0.02em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">{{ navBurgerLabel }}</button>
+    <a href="#contacts" data-active="{{ navJoinActive }}" data-cta="true" style="flex-shrink:0;margin-left:10px;padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;text-decoration:none;">Долучитися</a>
     <sc-if value="{{ showNavSearch }}" hint-placeholder-val="{{ false }}">
       <div style="position:relative;flex-shrink:0;margin-left:12px;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
@@ -190,6 +203,15 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     </sc-if>
     <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
   </div>
+  <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="au-navpanel" style="position:fixed;top:60px;left:0;right:0;background:rgba(22,20,15,0.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,0.2);box-shadow:0 18px 48px rgba(0,0,0,0.6);padding:12px 20px 18px;">
+      <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:4px;">
+        <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
+          <a href="#{{ item.id }}" onClick="{{ closeNav }}" data-active="{{ item.active }}" style="padding:12px 15px;border-radius:8px;font-size:0.94rem;letter-spacing:0.02em;text-decoration:none;transition:background 0.18s;">{{ item.label }}</a>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
 </nav>
 
 <!-- ═══ HOME ═══ -->
@@ -198,7 +220,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     <section style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 56px;position:relative;overflow:hidden;">
       <div style="position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 44%,rgba(255,215,0,0.05) 0%,transparent 68%);pointer-events:none;"></div>
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:18px;animation:fadeUp 0.5s ease both;">✦ Темне фентезі · Україна</p>
-      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.8rem,9vw,6.5rem);font-weight:900;color:#ffd700;letter-spacing:0.12em;line-height:1;margin-bottom:18px;animation:fadeUp 0.55s ease 0.06s both,goldPulse 4.5s ease infinite;">{{ siteTitle }}</h1>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,9vw,6.5rem);font-weight:900;color:#ffd700;letter-spacing:0.12em;max-width:100%;line-height:1;margin-bottom:18px;animation:fadeUp 0.55s ease 0.06s both,goldPulse 4.5s ease infinite;">{{ siteTitle }}</h1>
       <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(0.8rem,2.2vw,1.2rem);color:rgba(255,255,255,0.42);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:36px;animation:fadeUp 0.55s ease 0.12s both;">{{ siteSubtitle }}</p>
       <div style="position:relative;z-index:40;width:100%;max-width:540px;margin:0 auto 44px;text-align:left;animation:fadeUp 0.55s ease 0.18s both;">
         <div style="position:relative;">
@@ -315,6 +337,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </div>
       </div>
       <p class="pulse-caption" style="text-align:center;font-size:0.8rem;letter-spacing:0.04em;color:rgba(255,215,0,0.62);margin-top:16px;opacity:{{ pulseCapOpacity }};">{{ pulsePeakCaption }}</p>
+      <div style="display:flex;justify-content:center;margin-top:22px;">
+        <a href="#pulse" style="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.72);border-radius:999px;padding:10px 24px;font-size:0.84rem;letter-spacing:0.02em;text-decoration:none;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">Увесь літопис <span style="opacity:0.55;">→</span></a>
+      </div>
     </section>
     </sc-if>
   </main>
@@ -803,7 +828,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           <sc-for list="{{ playerItems }}" as="char" hint-placeholder-count="6">
             <div data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
               <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
-                <div style="{{ char.bgStyle }}"></div>
+                <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
                 <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
                   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);">
                     <span style="font-family:'Cinzel',serif;font-size:2.6rem;color:rgba(255,215,0,0.2);font-weight:700;">{{ char.initials }}</span>
@@ -829,7 +854,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
             <sc-for list="{{ playerItems }}" as="char" hint-placeholder-count="6">
               <article data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
                 <div style="position:relative;width:82px;flex-shrink:0;overflow:hidden;background:#111;">
-                  <div style="{{ char.bgStyle }}"></div>
+                  <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
                   <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
                     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);"><span style="font-family:'Cinzel',serif;font-size:1.7rem;color:rgba(255,215,0,0.22);font-weight:700;">{{ char.initials }}</span></div>
                   </sc-if>
@@ -862,7 +887,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           <sc-for list="{{ npcItems }}" as="char" hint-placeholder-count="4">
             <div data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
               <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
-                <div style="{{ char.bgStyle }}"></div>
+                <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
                 <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
                   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(110,192,176,0.05) 0%,transparent 70%);">
                     <span style="font-family:'Cinzel',serif;font-size:2.6rem;color:rgba(110,192,176,0.2);font-weight:700;">{{ char.initials }}</span>
@@ -888,7 +913,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
             <sc-for list="{{ npcItems }}" as="char" hint-placeholder-count="4">
               <article data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
                 <div style="position:relative;width:82px;flex-shrink:0;overflow:hidden;background:#111;">
-                  <div style="{{ char.bgStyle }}"></div>
+                  <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
                   <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
                     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(110,192,176,0.05) 0%,transparent 70%);"><span style="font-family:'Cinzel',serif;font-size:1.7rem;color:rgba(110,192,176,0.22);font-weight:700;">{{ char.initials }}</span></div>
                   </sc-if>
@@ -1413,6 +1438,140 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
+<!-- ═══ ПУЛЬС ═══ -->
+<sc-if value="{{ showPulsePage }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;background:#1a1a1a;padding:104px 24px 130px;">
+    <header style="max-width:1060px;margin:0 auto 46px;text-align:center;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Пульс Ауреліону</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Живий літопис</h1>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;line-height:1.7;color:rgba(255,255,255,0.4);margin:12px auto 0;max-width:620px;text-wrap:pretty;">Скільки нас, як часто ми пишемо і коли світ Ауреліону гуде найгучніше. Тільки числа — жодних імен.</p>
+    </header>
+
+    <sc-if value="{{ pulseNoData }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
+        <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
+        <p>Літопис ще порожній.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ pulseHasData }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+
+      <!-- Великі числа -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px;">
+        <div class="glass" style="padding:24px 26px;border-radius:12px;">
+          <p style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#ffd700;line-height:1;">{{ pgTotal }}</p>
+          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:10px;">Дописів усього</p>
+        </div>
+        <div class="glass" style="padding:24px 26px;border-radius:12px;">
+          <p style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#fff;line-height:1;">{{ pgDays }}</p>
+          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:10px;">Днів із життям</p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.32);margin-top:6px;">із {{ pgSpan }} днів від початку</p>
+        </div>
+        <div class="glass" style="padding:24px 26px;border-radius:12px;">
+          <p style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#6495ed;line-height:1;">{{ pgPeak }}</p>
+          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:10px;">Рекорд за день</p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.32);margin-top:6px;">{{ pgPeakWhen }}</p>
+        </div>
+        <div class="glass" style="padding:24px 26px;border-radius:12px;">
+          <p style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#fff;line-height:1;">{{ pgAvg }}</p>
+          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:10px;">У середньому за день</p>
+        </div>
+      </div>
+
+      <!-- Теплокарта -->
+      <section class="glass" style="padding:28px 30px 24px;border-radius:12px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+          <div>
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Рік одним поглядом</h2>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.38);margin-top:4px;">Кожен квадратик — день. Що яскравіше, то гучніше було.</p>
+          </div>
+          <p style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.6);white-space:nowrap;">{{ heatFrom }} → {{ heatTo }}</p>
+        </div>
+        <div style="overflow-x:auto;padding-bottom:4px;">
+          <div style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);grid-auto-columns:minmax(9px,1fr);gap:3px;min-width:620px;">
+            <sc-for list="{{ heatCells }}" as="c" hint-placeholder-count="371">
+              <div title="{{ c.tip }}" style="aspect-ratio:1;border-radius:2px;background:{{ c.bg }};"></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:16px;">
+          <span style="font-size:0.68rem;color:rgba(255,255,255,0.3);">тиша</span>
+          <sc-for list="{{ heatShades }}" as="s" hint-placeholder-count="5">
+            <span style="width:11px;height:11px;border-radius:2px;background:{{ s.bg }};"></span>
+          </sc-for>
+          <span style="font-size:0.68rem;color:rgba(255,255,255,0.3);">буря</span>
+        </div>
+      </section>
+
+      <!-- Дні тижня + серія -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;">
+        <section class="glass" style="padding:28px 30px;border-radius:12px;">
+          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Коли ми пишемо</h2>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.38);margin-top:4px;margin-bottom:20px;">{{ weekdayNote }}</p>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <sc-for list="{{ weekdayBars }}" as="w" hint-placeholder-count="7">
+              <div style="display:grid;grid-template-columns:92px 1fr auto;align-items:center;gap:12px;">
+                <span style="font-size:0.78rem;color:{{ w.color }};">{{ w.label }}</span>
+                <span style="height:8px;border-radius:999px;background:rgba(255,255,255,0.05);overflow:hidden;display:block;">
+                  <span style="display:block;height:100%;border-radius:999px;width:{{ w.pct }};background:{{ w.bg }};"></span>
+                </span>
+                <span style="font-size:0.74rem;color:rgba(255,255,255,0.35);min-width:44px;text-align:right;">{{ w.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <section class="glass" style="padding:28px 30px;border-radius:12px;">
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Найдовша варта</h2>
+            <p style="font-family:'Cinzel',Georgia,serif;font-size:2.4rem;font-weight:700;color:#ffd700;line-height:1;margin-top:14px;">{{ streakDays }} <span style="font-size:1rem;font-weight:400;color:rgba(255,255,255,0.45);letter-spacing:0.04em;">{{ streakWord }} поспіль</span></p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.42);margin-top:12px;">Стільки днів підряд у чаті не було жодної тиші. Остання така серія завершилася {{ streakEnd }}.</p>
+          </section>
+          <section class="glass" style="padding:28px 30px;border-radius:12px;">
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;margin-bottom:16px;">Гучно й тихо</h2>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:12px;">
+                <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,215,0,0.85);">{{ loudName }}</span>
+                <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ loudValue }} дописів</span>
+              </div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;">
+                <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);">{{ quietName }}</span>
+                <span style="font-size:0.8rem;color:rgba(255,255,255,0.3);white-space:nowrap;">{{ quietValue }} дописів</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Скільки нас -->
+      <sc-if value="{{ peopleOn }}" hint-placeholder-val="{{ false }}">
+        <section class="glass" style="padding:28px 30px;border-radius:12px;">
+          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Скільки нас</h2>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.38);margin-top:4px;margin-bottom:20px;">Рахуємо людей, не імена. Від {{ peopleSince }}.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;">
+            <div>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.9rem;font-weight:700;color:#ffd700;line-height:1;">{{ peopleAll }}</p>
+              <p style="font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">Голосів усього</p>
+            </div>
+            <div>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.9rem;font-weight:700;color:#fff;line-height:1;">{{ people30 }}</p>
+              <p style="font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">За останні 30 днів</p>
+            </div>
+            <div>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.9rem;font-weight:700;color:#6495ed;line-height:1;">{{ peopleMonth }}</p>
+              <p style="font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">Цього місяця</p>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.7;color:rgba(255,255,255,0.28);text-align:center;margin-top:8px;text-wrap:pretty;">Літопис ведеться від {{ pgSince }}. Ми рахуємо тільки кількість дописів — ні текстів, ні імен тут немає й не буде.</p>
+    </div>
+    </sc-if>
+  </main>
+</sc-if>
+
 <!-- ═══ КАРТА ═══ -->
 <sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="position:fixed;inset:0;overflow:hidden;background:#090810;">
@@ -1582,6 +1741,21 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 const SUPA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
 const SUPA_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 const SUPA_H   = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` };
+
+// ── Двофазне завантаження ────────────────────────────────────────────────
+// Фаза 1 — тільки поля, потрібні спискам і карткам (без важкого `content`).
+// Фаза 2 — тексти, у фоні. Якщо в таблицю додано нову колонку, її треба
+// дописати сюди, інакше сайт її не побачить.
+const LIST_SELECT = {
+  lore:       'id,title,category,excerpt,cover,sort_order,created_at',
+  stories:    'id,title,status,description,sort_order,created_at,author_name,author_telegram,telegraph_url,chapters,tags,status_label,status_color,cover_color,cover_ornament,cover_icon,author_label',
+  chronicles: 'id,title,subtitle,character_id,cover,period,gm,status,summary,tags,sort_order,created_at',
+  characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,bio,character_type,connections,sort_order,open_effect,card_caption,is_active',
+};
+const HEAVY_TABLES = ['characters', 'lore', 'stories', 'chronicles'];
+const CACHE_KEY = 'au_cache_v1';
+const CACHE_VER = 1;
+const CACHE_MAX_AGE = 7 * 24 * 3600 * 1000;
 
 function _mdInl(t){
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -2028,22 +2202,72 @@ class Component extends DCLogic {
     } catch(e) { throw e; }
   }
 
-  async _loadAll() {
-    this.setState({ loading: true, loadError: false });
+  // ── Кеш у localStorage: миттєвий рендер, оновлення у фоні ──
+  _readCache() {
+    try {
+      const o = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      if (!o || o.v !== CACHE_VER || !o.data || (Date.now() - o.t) > CACHE_MAX_AGE) return null;
+      return o.data;
+    } catch (e) { return null; }
+  }
+
+  _writeCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ v: CACHE_VER, t: Date.now(), data })); }
+    catch (e) { try { localStorage.removeItem(CACHE_KEY); } catch (_) {} }
+  }
+
+  // Після оновлення масивів перепризначаємо вибрані елементи на нові об'єкти.
+  _reselect(data) {
+    const patch = {};
+    const pick = (key, table) => {
+      const cur = this.state[key];
+      if (!cur) return;
+      const next = (data[table] || []).find(x => String(x.id) === String(cur.id));
+      if (next) patch[key] = next;
+    };
+    pick('selectedChar', 'characters');
+    pick('peekChar', 'characters');
+    pick('selectedLore', 'lore');
+    pick('selectedHistory', 'stories');
+    pick('selectedChronicle', 'chronicles');
+    return patch;
+  }
+
+  // Для необов'язкових джерел: якщо в'юхи ще немає в базі — просто порожньо,
+  // а не падіння всього завантаження.
+  async _getSoft(path) {
+    try { return await this._get(path); } catch (e) { return []; }
+  }
+
+  async _loadAll(opts) {
+    const silent = !!(opts && opts.silent);
+    if (!silent) {
+      const cached = this._readCache();
+      if (cached) {
+        // Малюємо з кешу без лоадера, свіжі дані підтягнемо у фоні.
+        this.setState({ loading: false, loadError: false, data: cached, ...this._routePatch(cached) });
+        this._loadAll({ silent: true });
+        return;
+      }
+      this.setState({ loading: true, loadError: false });
+    }
     let res;
     try {
       res = await Promise.all([
-        this._get('lore?select=*&order=sort_order.asc,created_at.asc'),
-        this._get('stories?select=*&order=sort_order.asc,created_at.asc'),
-        this._get('chronicles?select=*&order=sort_order.asc,created_at.asc'),
-        this._get('characters?select=*&order=sort_order.asc,created_at.asc'),
+        this._get(`lore?select=${LIST_SELECT.lore}&order=sort_order.asc,created_at.asc`),
+        this._get(`stories?select=${LIST_SELECT.stories}&order=sort_order.asc,created_at.asc`),
+        this._get(`chronicles?select=${LIST_SELECT.chronicles}&order=sort_order.asc,created_at.asc`),
+        this._get(`characters?select=${LIST_SELECT.characters}&order=sort_order.asc,created_at.asc`),
         this._get('pantheon?select=*&order=sort_order.asc'),
         this._get('contacts?select=*&order=sort_order.asc'),
         this._get('site_settings?select=*'),
         this._get('map_locations?select=*&order=sort_order.asc,created_at.asc'),
         this._get('post_activity?select=day,posts&order=day.asc'),
+        this._getSoft('community_pulse?select=*&order=month.asc'),
+        this._getSoft('community_pulse_totals?select=*'),
       ]);
     } catch (e) {
+      if (silent) return; // тихе оновлення — лишаємо те, що вже показано
       this.setState({
         loading: false,
         loadError: true,
@@ -2051,7 +2275,7 @@ class Component extends DCLogic {
       });
       return;
     }
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity] = res;
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals] = res;
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
     const loadedData = {
@@ -2064,14 +2288,64 @@ class Component extends DCLogic {
         contacts:      Array.isArray(contacts)   ? contacts   : [],
         map_locations: Array.isArray(mapLocs)    ? mapLocs    : [],
         post_activity: Array.isArray(postActivity) ? postActivity : [],
+        pulse_months:  Array.isArray(pulseMonths)  ? pulseMonths  : [],
+        pulse_totals:  (Array.isArray(pulseTotals) ? pulseTotals[0] : null) || null,
     };
+    // Тексти, які вже є в пам'яті/кеші, переносимо на свіжі записи.
+    const prev = this.state.data || {};
+    HEAVY_TABLES.forEach(t => {
+      const known = new Map((prev[t] || []).filter(r => r.content != null).map(r => [String(r.id), r.content]));
+      if (!known.size) return;
+      loadedData[t] = loadedData[t].map(r => known.has(String(r.id)) ? { ...r, content: known.get(String(r.id)) } : r);
+    });
     // Розв'язуємо елемент з глибокого посилання (#characters/<id> тощо) щойно дані готові.
     this.setState({
       loading: false,
       loadError: false,
       data: loadedData,
-      ...this._routePatch(loadedData),
+      ...(silent ? this._reselect(loadedData) : this._routePatch(loadedData)),
     });
+    this._writeCache(loadedData);
+    this._loadContent();
+  }
+
+  // Фаза 2: довгі тексти — після першого кадру, у простої браузера.
+  _loadContent() {
+    if (this._contentLoading) return;
+    this._contentLoading = true;
+    const run = async () => {
+      try {
+        const parts = await Promise.all(HEAVY_TABLES.map(t => this._get(t + '?select=id,content')));
+        const data = { ...(this.state.data || {}) };
+        HEAVY_TABLES.forEach((t, i) => {
+          const m = new Map((parts[i] || []).map(r => [String(r.id), r.content]));
+          data[t] = (data[t] || []).map(r => m.has(String(r.id)) ? { ...r, content: m.get(String(r.id)) } : r);
+        });
+        this.setState({ data, ...this._reselect(data) });
+        this._writeCache(data);
+      } catch (e) { /* тексти доберемо на вимогу */ }
+      finally { this._contentLoading = false; }
+    };
+    if (window.requestIdleCallback) window.requestIdleCallback(run, { timeout: 2000 });
+    else setTimeout(run, 250);
+  }
+
+  // Текст одного запису — якщо його відкрили раніше, ніж доїхала фаза 2.
+  _fetchOne(table, id) {
+    const k = table + ':' + id;
+    this._pendingOne = this._pendingOne || {};
+    if (this._pendingOne[k]) return;
+    this._pendingOne[k] = 1;
+    this._get(`${table}?select=id,content&id=eq.${encodeURIComponent(id)}`)
+      .then(rows => {
+        const row = (rows || [])[0];
+        if (!row) return;
+        const data = { ...(this.state.data || {}) };
+        data[table] = (data[table] || []).map(r => String(r.id) === String(id) ? { ...r, content: row.content } : r);
+        this.setState({ data, ...this._reselect(data) });
+      })
+      .catch(() => {})
+      .then(() => { delete this._pendingOne[k]; });
   }
 
   _updateMapBase() {
@@ -2117,29 +2391,28 @@ class Component extends DCLogic {
     if (this.state.pulseHover != null) this.setState({ pulseHover: null });
   };
 
+  // Два ререндери замість ~114: далі лінію тягне CSS-перехід.
   _runDraw() {
-    const dur = 1900, t0 = performance.now();
-    this.setState({ pulseDrawProg: 0 });
-    const tick = (now) => {
-      const p = Math.min(1, (now - t0) / dur);
-      this.setState({ pulseDrawProg: p });
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
+    this.setState({ pulseDrawOn: false });
+    clearTimeout(this._drawTimer);
+    this._drawTimer = setTimeout(() => this.setState({ pulseDrawOn: true }), 40);
   }
 
   _startPulse() {
     if (this.state.pulseStarted) return;
     this.setState({ pulseStarted: true });
     this._runDraw();
-    // Лічильники — один раз
+    // Лічильники — один раз. Через setInterval, а не rAF: у фоновій вкладці
+    // rAF зупиняється і числа назавжди застигають на нулі.
     const dur = 1700, t0 = performance.now();
-    const tick = (now) => {
-      const p = Math.min(1, (now - t0) / dur);
+    clearInterval(this._countTimer);
+    const step = () => {
+      const p = Math.min(1, (performance.now() - t0) / dur);
       this.setState({ pulseCountProg: p });
-      if (p < 1) requestAnimationFrame(tick);
+      if (p >= 1) clearInterval(this._countTimer);
     };
-    requestAnimationFrame(tick);
+    this._countTimer = setInterval(step, 33);
+    step();
     // Пульсує знову кожні ~10 секунд (лише на головній)
     clearInterval(this._pulseTimer);
     this._pulseTimer = setInterval(() => {
@@ -2191,22 +2464,36 @@ class Component extends DCLogic {
       const cur = s[k], prev = p[k];
       if (cur && (!prev || String(cur.id) !== String(prev.id))) this._track(s.page, type, cur.id, cur[titleKey]);
     }
+    // Відкрили запис, а текст ще не доїхав — тягнемо саме його.
+    const needs = [
+      ['selectedChar', 'characters'], ['selectedLore', 'lore'],
+      ['selectedHistory', 'stories'], ['selectedChronicle', 'chronicles'],
+    ];
+    for (const [k, table] of needs) {
+      const cur = s[k];
+      if (cur && cur.content == null) this._fetchOne(table, cur.id);
+    }
   }
 
   componentDidMount() {
     window.addEventListener('scroll', this._pulseCheck, { passive: true });
     window.addEventListener('scroll', this._toTopWatch, { passive: true });
     this._loadAll();
-    this._track(this.state.page);
+    // Аналітика не має конкурувати з даними за перше з'єднання.
+    const trackFirst = () => this._track(this.state.page);
+    if (window.requestIdleCallback) window.requestIdleCallback(trackFirst, { timeout: 3000 });
+    else setTimeout(trackFirst, 1200);
     this._updateBoardScale();
     this._updateMapBase();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
     window.addEventListener('hashchange', () => {
-      this.setState(this._routePatch());
+      this.setState({ ...this._routePatch(), navOpen: false });
       window.scrollTo({ top: 0 });
     });
     window.addEventListener('storage', (e) => {
-      if (e.key === 'aurelion-refresh') this._loadAll();
+      if (e.key !== 'aurelion-refresh') return;
+      try { localStorage.removeItem(CACHE_KEY); } catch (_) {}
+      this._loadAll({ silent: true });
     });
     this._mapWheelHandler = (e) => {
       if (this.state.page !== 'map') return;
@@ -2224,6 +2511,9 @@ class Component extends DCLogic {
   componentWillUnmount() {
     window.removeEventListener('scroll', this._toTopWatch);
     if (this._rollTimer) clearInterval(this._rollTimer);
+    clearInterval(this._countTimer);
+    clearInterval(this._pulseTimer);
+    clearTimeout(this._drawTimer);
     if (this._mapWheelHandler) window.removeEventListener('wheel', this._mapWheelHandler);
   }
 
@@ -2883,16 +3173,163 @@ class Component extends DCLogic {
       showContacts:    page === 'contacts',
       showMap:         page === 'map',
 
+      // ── Сторінка «Пульс»: усе рахується з денних сум, без імен ──
+      ...((() => {
+        if (page !== 'pulse') return { showPulsePage: false };
+        const rows = (data.post_activity || [])
+          .map(r => ({ iso: String(r.day).slice(0, 10), v: Number(r.posts) || 0 }))
+          .filter(r => r.iso.length === 10)
+          .sort((a, b) => a.iso < b.iso ? -1 : 1);
+        if (!rows.length) return { showPulsePage: true, pulseNoData: true, pulseHasData: false };
+
+        const byDay = new Map(rows.map(r => [r.iso, r.v]));
+        const iso = (d) => d.toISOString().slice(0, 10);
+        const MON = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
+        const MONN = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+        const plural = (n, one, few, many) => {
+          const m10 = n % 10, m100 = n % 100;
+          if (m10 === 1 && m100 !== 11) return one;
+          if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+          return many;
+        };
+
+        // ── Теплокарта: 53 тижні до сьогодні, колонка = тиждень ──
+        const now = new Date();
+        const end = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+        const start = new Date(end);
+        start.setUTCDate(end.getUTCDate() - 364);
+        start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7));
+        const cells = [];
+        let hMax = 0;
+        for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+          const key = iso(d);
+          const v = byDay.get(key) || 0;
+          if (v > hMax) hMax = v;
+          cells.push({ key, v, d: new Date(d) });
+        }
+        const SHADES = ['rgba(255,255,255,0.045)','rgba(255,215,0,0.16)','rgba(255,215,0,0.34)','rgba(255,215,0,0.58)','rgba(255,215,0,0.92)'];
+        const heatCells = cells.map((c) => {
+          const lvl = c.v === 0 ? 0 : Math.min(4, 1 + Math.floor((c.v / (hMax || 1)) * 3.999));
+          return {
+            key: c.key,
+            bg: SHADES[lvl],
+            tip: c.d.getUTCDate() + ' ' + MON[c.d.getUTCMonth()] + ' ' + c.d.getUTCFullYear() +
+                 ' — ' + (c.v ? c.v + ' ' + plural(c.v, 'допис', 'дописи', 'дописів') : 'тиша'),
+          };
+        });
+
+        // ── Дні тижня ──
+        const DOW = ['Понеділок','Вівторок','Середа','Четвер','П’ятниця','Субота','Неділя'];
+        const dowSum = [0,0,0,0,0,0,0];
+        rows.forEach(r => {
+          const d = new Date(r.iso + 'T00:00:00Z');
+          dowSum[(d.getUTCDay() + 6) % 7] += r.v;
+        });
+        const dowMax = Math.max(1, ...dowSum);
+        const dowTop = dowSum.indexOf(Math.max(...dowSum));
+        const weekdayBars = DOW.map((label, i) => ({
+          label,
+          value: dowSum[i].toLocaleString('uk-UA'),
+          pct: Math.max(1.5, (dowSum[i] / dowMax) * 100).toFixed(1) + '%',
+          bg: i === dowTop ? 'rgba(255,215,0,0.85)' : 'rgba(255,215,0,0.3)',
+          color: i === dowTop ? 'rgba(255,215,0,0.9)' : 'rgba(255,255,255,0.5)',
+        }));
+
+        // ── Найдовша серія днів поспіль ──
+        let best = 0, run = 0, bestEnd = null, prev = null;
+        rows.filter(r => r.v > 0).forEach(r => {
+          const d = new Date(r.iso + 'T00:00:00Z');
+          run = (prev && (d - prev) === 86400000) ? run + 1 : 1;
+          if (run > best) { best = run; bestEnd = d; }
+          prev = d;
+        });
+        const streakEnd = bestEnd
+          ? bestEnd.getUTCDate() + ' ' + MON[bestEnd.getUTCMonth()] + ' ' + bestEnd.getUTCFullYear()
+          : '';
+
+        // ── Місяці ──
+        const mAgg = new Map();
+        rows.forEach(r => {
+          const k = r.iso.slice(0, 7);
+          mAgg.set(k, (mAgg.get(k) || 0) + r.v);
+        });
+        const mList = [...mAgg.entries()].sort((a, b) => a[0] < b[0] ? -1 : 1);
+        const mName = (k) => MONN[+k.slice(5, 7) - 1] + ' ' + k.slice(0, 4);
+        const full = mList.slice(0, -1).length ? mList.slice(0, -1) : mList;
+        const loud = full.reduce((a, b) => b[1] > a[1] ? b : a, full[0]);
+        const quiet = full.reduce((a, b) => b[1] < a[1] ? b : a, full[0]);
+
+        // ── Загальні числа ──
+        const total = rows.reduce((a, r) => a + r.v, 0);
+        const activeDays = rows.filter(r => r.v > 0).length;
+        const peak = rows.reduce((a, r) => r.v > a.v ? r : a, rows[0]);
+        const firstDay = rows[0].iso;
+        const spanDays = Math.round((new Date(rows[rows.length - 1].iso) - new Date(firstDay)) / 86400000) + 1;
+
+        // ── Люди (з бота; поки його немає — блок не показуємо) ──
+        const pm = data.pulse_months || [];
+        const pt = data.pulse_totals || null;
+        const curKey = iso(end).slice(0, 7);
+        const curRow = pm.find(m => String(m.month).slice(0, 7) === curKey);
+        const peopleOn = !!(pt && pt.authors_all);
+
+        return {
+          showPulsePage: true,
+          pulseNoData: false,
+          pulseHasData: true,
+          pgTotal:      total.toLocaleString('uk-UA'),
+          pgDays:       activeDays.toLocaleString('uk-UA'),
+          pgPeak:       String(peak.v),
+          pgPeakWhen:   (() => { const d = new Date(peak.iso + 'T00:00:00Z'); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); })(),
+          pgAvg:        (total / Math.max(1, activeDays)).toFixed(1).replace('.', ','),
+          pgSpan:       spanDays.toLocaleString('uk-UA'),
+          pgSince:      (() => { const d = new Date(firstDay + 'T00:00:00Z'); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); })(),
+          heatCells,
+          heatFrom:     MONN[start.getUTCMonth()] + ' ' + start.getUTCFullYear(),
+          heatTo:       MONN[end.getUTCMonth()] + ' ' + end.getUTCFullYear(),
+          heatShades:   SHADES.map(bg => ({ bg })),
+          weekdayBars,
+          // Якщо дні майже рівні — чесніше сказати це, ніж вдавати лідера.
+          weekdayNote: (() => {
+            const avg = dowSum.reduce((a, b) => a + b, 0) / 7;
+            const spread = (Math.max(...dowSum) - Math.min(...dowSum)) / Math.max(1, avg);
+            return spread < 0.25
+              ? 'Різниця між днями майже непомітна — для Ауреліону тижня не існує.'
+              : 'Найгучніший день тижня — ' + DOW[dowTop] + '.';
+          })(),
+          streakDays:   String(best),
+          streakWord:   plural(best, 'день', 'дні', 'днів'),
+          streakEnd,
+          loudName:     loud ? mName(loud[0]) : '',
+          loudValue:    loud ? loud[1].toLocaleString('uk-UA') : '',
+          quietName:    quiet ? mName(quiet[0]) : '',
+          quietValue:   quiet ? quiet[1].toLocaleString('uk-UA') : '',
+          peopleOn,
+          peopleOff:    !peopleOn,
+          peopleAll:    peopleOn ? String(pt.authors_all) : '',
+          people30:     peopleOn ? String(pt.authors_30d || 0) : '',
+          peopleMonth:  curRow ? String(curRow.authors) : '—',
+          peopleSince:  peopleOn && pt.tracking_since
+            ? (() => { const d = new Date(String(pt.tracking_since).slice(0,10) + 'T00:00:00Z'); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); })()
+            : '',
+        };
+      })()),
+
       navItems: [
         { id: 'home',        label: 'Головна',    active: page === 'home' },
         { id: 'lore',        label: 'Довідник',        active: page === 'lore' },
         { id: 'stories',     label: 'Історії',      active: page === 'stories' },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
-        { id: 'dice',        label: '⚄ Дайс',     active: page === 'dice' },
-        { id: 'map',         label: '🗺 Мапа',    active: page === 'map' },
-        { id: 'contacts',    label: 'Долучитися',   active: page === 'contacts', cta: true },
+        { id: 'dice',        label: 'Дайс',       active: page === 'dice' },
+        { id: 'map',         label: 'Мапа',       active: page === 'map' },
+        { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
       ],
+      navJoinActive: page === 'contacts',
+      navOpen: !!s.navOpen,
+      navBurgerLabel: s.navOpen ? '✕ Закрити' : '☰ Розділи',
+      toggleNav: () => this.setState(st => ({ navOpen: !st.navOpen })),
+      closeNav: () => this.setState({ navOpen: false }),
 
       siteTitle:    data.site?.title    || 'AURELION',
       siteSubtitle: data.site?.subtitle || 'Темне фентезі. Живі легенди.',
@@ -2982,7 +3419,7 @@ class Component extends DCLogic {
           const hc = !!it.cover;
           return {
             ...it,
-            excerpt: it.excerpt || (stripMarkdown(it.content || '').slice(0, 180) + '…'),
+            excerpt: it.excerpt || (it.content ? stripMarkdown(it.content).slice(0, 180) + '…' : ''),
             hasCategory: !!it.category,
             accent: p.accent,
             hasCover: hc, noCover: !hc,
@@ -3022,7 +3459,7 @@ class Component extends DCLogic {
         if (pm.length < 2) return { showPulse: false };
 
         const cProg = ease0(s.pulseCountProg ?? 0);
-        const dProg = ease0(s.pulseStarted ? (s.pulseDrawProg ?? 0) : 0);
+        const dProg = (s.pulseStarted && s.pulseDrawOn) ? 1 : 0;
         const n = pm.length;
         const mx = Math.max(...pm.map(o=>o.v));
         const W = 1000, base = 232, top = 26, usable = base - top;
@@ -3187,6 +3624,7 @@ class Component extends DCLogic {
           ...ch,
           initials:  parts.slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '?',
           hasImage:  !!(ch.image),
+          imgSrc:    ch.image || '',
           noImage:   !(ch.image),
           hasAlias:  !!(ch.alias),
           hasBio:    !!(ch.bio),
@@ -3226,7 +3664,7 @@ class Component extends DCLogic {
         return {
           ...ch,
           initials: parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
-          hasImage: !!(ch.image), noImage: !(ch.image), hasAlias: !!(ch.alias),
+          hasImage: !!(ch.image), imgSrc: ch.image || '', noImage: !(ch.image), hasAlias: !!(ch.alias),
           inactive: ch.is_active === false,
           bgStyle: 'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;'+(imgUrl?'background-image:'+imgUrl:''),
           hasBio: !!(ch.bio), bio: ch.bio||'',
@@ -3246,7 +3684,7 @@ class Component extends DCLogic {
         return {
           ...ch,
           initials: parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
-          hasImage: !!(ch.image), noImage: !(ch.image), hasAlias: !!(ch.alias),
+          hasImage: !!(ch.image), imgSrc: ch.image || '', noImage: !(ch.image), hasAlias: !!(ch.alias),
           inactive: ch.is_active === false,
           bgStyle: 'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;'+(imgUrl?'background-image:'+imgUrl:''),
           hasBio: !!(ch.bio), bio: ch.bio||'',
@@ -3287,6 +3725,9 @@ class Component extends DCLogic {
       rollHistory: s.rollHistory,
       // ── Дошка зв'язків ──────────────────────────────────────
       ...((() => {
+        // Дошку зв'язків рахуємо тільки коли вона відкрита — інакше цей блок
+        // (розкладка + усі ребра) виконувався на кожен setState по всьому сайту.
+        if (!(page === 'characters' && s.charMode === 'conn')) return { showBoardView: false };
         const allChars = data.characters || [];
         const selId    = s.selectedBoardChar;
         const bView    = s.boardView || 'board';
