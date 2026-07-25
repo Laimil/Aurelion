@@ -47,6 +47,15 @@ nav a[data-cta="true"]:hover::after{opacity:1}
 [data-rolling="true"] .die-number{animation:numFlash 0.12s linear infinite}
 [data-crit="true"] .die-number{color:#ffd700!important;text-shadow:0 0 32px rgba(255,215,0,0.9),0 0 64px rgba(255,215,0,0.4)!important}
 [data-fumble="true"] .die-number{color:#ff4d4d!important;text-shadow:0 0 32px rgba(255,77,77,0.9)!important}
+.die-glow{position:absolute;inset:-46px;border-radius:50%;background:radial-gradient(circle at 50% 50%,rgba(255,215,0,0.14) 0%,rgba(255,215,0,0) 68%);pointer-events:none;transition:background 0.4s ease,opacity 0.4s ease}
+[data-rolling="true"] .die-glow{background:radial-gradient(circle at 50% 50%,rgba(255,215,0,0.22) 0%,rgba(255,215,0,0) 70%)}
+[data-crit="true"] .die-glow{background:radial-gradient(circle at 50% 50%,rgba(255,215,0,0.42) 0%,rgba(255,215,0,0) 72%)}
+[data-fumble="true"] .die-glow{background:radial-gradient(circle at 50% 50%,rgba(255,77,77,0.32) 0%,rgba(255,77,77,0) 72%)}
+.roll-chip[data-kind="crit"]{border-color:rgba(255,215,0,0.5)!important;background:rgba(255,215,0,0.12)!important}
+.roll-chip[data-kind="crit"] .roll-chip-num{color:#ffd700!important}
+.roll-chip[data-kind="fumble"]{border-color:rgba(255,77,77,0.42)!important;background:rgba(255,77,77,0.1)!important}
+.roll-chip[data-kind="fumble"] .roll-chip-num{color:#ff8f8f!important}
+.roll-btn:disabled{opacity:0.55;cursor:progress;transform:none!important}
     .share-btn:hover{background:rgba(255,255,255,0.11)!important;transform:translateY(-2px)}
     .share-btn[data-busy="true"]{opacity:0.5;pointer-events:none}
 button.die-btn[data-active="true"]{background:rgba(255,215,0,0.14)!important;border-color:rgba(255,215,0,0.6)!important;color:#ffd700!important}
@@ -1281,35 +1290,54 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Воля богів</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Дайс-роллер</h1>
     </header>
-    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:44px;">
+    <div style="display:grid;grid-template-columns:1fr 1px 1fr;align-items:center;max-width:430px;margin:0 auto 32px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.11);border-radius:15px;padding:20px 12px 16px;box-shadow:0 8px 26px rgba(0,0,0,0.4);">
+      <div style="text-align:center;">
+        <p style="font-family:'Cinzel',Georgia,serif;font-size:1.9rem;font-weight:700;color:#ffd700;line-height:1;text-shadow:0 0 26px rgba(255,215,0,0.32);">{{ diceTodayStr }}</p>
+        <p style="margin-top:8px;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.36);">Кидків сьогодні</p>
+      </div>
+      <div style="width:1px;height:46px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.16),transparent);"></div>
+      <div style="text-align:center;">
+        <p style="font-family:'Cinzel',Georgia,serif;font-size:1.9rem;font-weight:700;color:rgba(255,255,255,0.9);line-height:1;">{{ diceTotalStr }}</p>
+        <p style="margin-top:8px;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.36);">За весь час</p>
+      </div>
+      <p style="grid-column:1/-1;margin-top:15px;text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.84rem;color:rgba(255,255,255,0.26);">{{ diceStatsNote }}</p>
+    </div>
+
+    <section style="background:linear-gradient(180deg,rgba(255,255,255,0.055) 0%,rgba(255,255,255,0.022) 100%);border:1px solid rgba(255,255,255,0.13);border-radius:15px;padding:28px 22px 32px;box-shadow:0 16px 46px rgba(0,0,0,0.5);margin-bottom:30px;">
+    <p style="text-align:center;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.26);margin-bottom:16px;">— Обери кістку —</p>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin-bottom:32px;">
       <sc-for list="{{ diceTypes }}" as="die" hint-placeholder-count="6">
-        <button data-dice="{{ die.n }}" data-active="{{ die.active }}" onClick="{{ selectDice }}" class="die-btn" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;cursor:pointer;width:88px;height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(255,255,255,0.55);transition:all 0.2s ease;padding:0;flex-shrink:0;">
-          <svg viewBox="0 0 100 100" style="width:42px;height:42px;pointer-events:none;" aria-hidden="true">
+        <button data-dice="{{ die.n }}" data-active="{{ die.active }}" onClick="{{ selectDice }}" class="die-btn" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;cursor:pointer;width:80px;height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:rgba(255,255,255,0.55);transition:all 0.2s ease;padding:0;flex-shrink:0;">
+          <svg viewBox="0 0 100 100" style="width:40px;height:40px;pointer-events:none;" aria-hidden="true">
             <polygon points="{{ die.points }}" style="fill:rgba(255,215,0,0.07);stroke:rgba(255,215,0,0.48);stroke-width:2.5;stroke-linejoin:round;"></polygon>
             <text x="50" y="58" text-anchor="middle" style="fill:rgba(255,255,255,0.75);font-size:28px;font-family:'Cinzel',serif;font-weight:700;pointer-events:none;">{{ die.n }}</text>
           </svg>
-          <span style="font-family:'Cinzel',serif;font-size:0.74rem;font-weight:700;pointer-events:none;letter-spacing:0.04em;">{{ die.label }}</span>
+          <span style="font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;pointer-events:none;letter-spacing:0.04em;">{{ die.label }}</span>
         </button>
       </sc-for>
     </div>
-    <div data-rolling="{{ isRolling }}" data-crit="{{ isCrit }}" data-fumble="{{ isFumble }}" style="text-align:center;margin-bottom:36px;">
-      <div class="die-display" style="display:inline-flex;align-items:center;justify-content:center;width:196px;height:196px;position:relative;margin-bottom:14px;">
-        <svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%;" aria-hidden="true">
-          <polygon points="{{ activeDiePoints }}" style="fill:rgba(255,215,0,0.06);stroke:rgba(255,215,0,0.32);stroke-width:1.5;stroke-linejoin:round;"></polygon>
-        </svg>
-        <span class="die-number" style="font-family:'Cinzel',Georgia,serif;font-size:4.2rem;font-weight:900;color:#fff;position:relative;z-index:1;line-height:1;letter-spacing:-0.02em;">{{ diceDisplay }}</span>
+    <div data-rolling="{{ isRolling }}" data-crit="{{ isCrit }}" data-fumble="{{ isFumble }}" style="text-align:center;margin-bottom:30px;">
+      <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">
+        <span class="die-glow"></span>
+        <div class="die-display" style="display:inline-flex;align-items:center;justify-content:center;width:196px;height:196px;position:relative;">
+          <svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%;" aria-hidden="true">
+            <polygon points="{{ activeDiePoints }}" style="fill:rgba(255,215,0,0.06);stroke:rgba(255,215,0,0.32);stroke-width:1.5;stroke-linejoin:round;"></polygon>
+          </svg>
+          <span class="die-number" style="font-family:'Cinzel',Georgia,serif;font-size:4.2rem;font-weight:900;color:#fff;position:relative;z-index:1;line-height:1;letter-spacing:-0.02em;">{{ diceDisplay }}</span>
+        </div>
       </div>
       <p style="font-size:0.76rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);min-height:1.3em;">{{ rollLabel }}</p>
       <sc-if value="{{ hasRollQuote }}" hint-placeholder-val="{{ false }}">
         <p style="max-width:420px;margin:12px auto 0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.12rem;line-height:1.5;color:rgba(255,215,0,0.82);text-wrap:pretty;">«{{ rollQuote }}»</p>
       </sc-if>
     </div>
-    <div style="max-width:320px;margin:0 auto 20px;">
+    <div style="text-align:center;margin-bottom:18px;">
+      <button onClick="{{ roll }}" disabled="{{ isRolling }}" class="roll-btn" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:15px 58px;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(255,215,0,0.22);" style-hover="transform:scale(1.05);box-shadow:0 6px 32px rgba(255,215,0,0.44);">{{ rollBtnLabel }}</button>
+    </div>
+    <div style="max-width:330px;margin:0 auto;">
       <input value="{{ diceName }}" onInput="{{ setDiceName }}" placeholder="Ім'я персонажа або гравця (для картки)" maxlength="40" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:11px 20px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;text-align:center;outline:none;transition:all 0.2s ease;" style-focus="border-color:rgba(255,215,0,0.5);background:rgba(255,255,255,0.08);" />
     </div>
-    <div style="text-align:center;margin-bottom:28px;">
-      <button onClick="{{ roll }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:15px 58px;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(255,215,0,0.22);" style-hover="transform:scale(1.05);box-shadow:0 6px 32px rgba(255,215,0,0.44);">Кинути {{ diceTypeName }}</button>
-    </div>
+    </section>
     <sc-if value="{{ canShareCard }}" hint-placeholder-val="{{ false }}">
       <div style="text-align:center;margin-bottom:40px;">
         <p style="font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.26);margin-bottom:14px;">— Поділитися кидком —</p>
@@ -1337,9 +1365,9 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.24);margin-bottom:13px;">— Останні кидки —</p>
         <div style="display:flex;flex-wrap:wrap;gap:7px;">
           <sc-for list="{{ rollHistory }}" as="roll" hint-placeholder-count="0">
-            <span style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px;">
+            <span class="roll-chip" data-kind="{{ roll.kind }}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px;transition:all 0.2s ease;">
               <span style="font-size:0.68rem;color:rgba(255,255,255,0.32);">{{ roll.diceLabel }}</span>
-              <span style="font-family:'Cinzel',serif;font-weight:700;color:#fff;font-size:0.88rem;">{{ roll.resultStr }}</span>
+              <span class="roll-chip-num" style="font-family:'Cinzel',serif;font-weight:700;color:#fff;font-size:0.88rem;">{{ roll.resultStr }}</span>
             </span>
           </sc-for>
         </div>
@@ -1938,6 +1966,7 @@ class Component extends DCLogic {
     joinCopied: false, joinTemplateOpen: false,
     diceType: 20, diceResult: null, diceRollingNum: null, rolling: false,
     rolledAt: null, shareMsg: '', sharing: false, diceQuote: '',
+    diceToday: null, diceTotal: null,
     charSharing: false, charShareMsg: '',
     diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
     rollHistory: [], selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null,
@@ -2530,6 +2559,7 @@ class Component extends DCLogic {
     if (!prevState) return;
     const s = this.state, p = prevState;
     if (s.page !== p.page) this._track(s.page);
+    if (s.page === 'dice' && p.page !== 'dice') this._loadDiceStats();
     const watch = [
       ['selectedChar', 'char', 'name'],
       ['selectedLore', 'lore', 'title'],
@@ -2561,6 +2591,7 @@ class Component extends DCLogic {
     else setTimeout(trackFirst, 1200);
     this._updateBoardScale();
     this._updateMapBase();
+    if (this.state.page === 'dice') this._loadDiceStats();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
     window.addEventListener('hashchange', () => {
       this.setState({ ...this._routePatch(), navOpen: false });
@@ -2616,6 +2647,66 @@ class Component extends DCLogic {
     return list[Math.floor(Math.random() * list.length)] || '';
   }
 
+  // ── Дайс: лічильники кидків (спільнота) ──
+  _diceLocalStats(bump) {
+    // Локальний резерв: якщо Supabase недоступний, показуємо власні кидки.
+    const today = new Date().toISOString().slice(0, 10);
+    let st = { day: today, today: 0, total: 0 };
+    try {
+      const raw = JSON.parse(localStorage.getItem('au_dice_stats') || 'null');
+      if (raw && typeof raw.total === 'number') {
+        st.total = raw.total;
+        st.today = raw.day === today ? (raw.today || 0) : 0;
+      }
+    } catch (e) {}
+    if (bump) {
+      st.today += 1; st.total += 1;
+      try { localStorage.setItem('au_dice_stats', JSON.stringify(st)); } catch (e) {}
+    }
+    return st;
+  }
+
+  _diceRpc(fn) {
+    return fetch(SUPA_URL + '/rpc/' + fn, {
+      method: 'POST',
+      headers: { ...SUPA_H, 'Content-Type': 'application/json' },
+      body: '{}',
+    }).then(r => r.ok ? r.json() : null);
+  }
+
+  _loadDiceStats() {
+    if (this._diceStatsAsked) return;
+    this._diceStatsAsked = true;
+    // Спершу показуємо локальні числа, потім замінюємо серверними.
+    let local = { today: 0, total: 0 };
+    try { local = this._diceLocalStats(false); } catch (e) {}
+    this.setState({ diceToday: local.today, diceTotal: local.total });
+    try {
+      this._diceRpc('dice_stats')
+        .then(d => {
+          if (d && typeof d.total === 'number') {
+            this.setState({ diceToday: d.today || 0, diceTotal: d.total || 0, diceStatsLive: true });
+          }
+        })
+        .catch(() => {});
+    } catch (e) {}
+  }
+
+  _bumpDiceStats() {
+    let local = null;
+    try { local = this._diceLocalStats(true); } catch (e) {}
+    // Оптимістичний +1, потім синхронізуємо з сервером.
+    this.setState(st => ({
+      diceToday: st.diceToday == null ? (local ? local.today : 1) : st.diceToday + 1,
+      diceTotal: st.diceTotal == null ? (local ? local.total : 1) : st.diceTotal + 1,
+    }));
+    try {
+      this._diceRpc('dice_bump')
+        .then(d => { if (d && typeof d.total === 'number') this.setState({ diceToday: d.today || 0, diceTotal: d.total || 0, diceStatsLive: true }); })
+        .catch(() => {});
+    } catch (e) {}
+  }
+
   rollDice() {
     if (this.state.rolling) return;
     const sides = this.state.diceType;
@@ -2631,10 +2722,12 @@ class Component extends DCLogic {
           rolling: false, diceResult: result, diceRollingNum: null,
           rolledAt: Date.now(), shareMsg: '', diceQuote: this._pickQuote(result, sides),
           rollHistory: [
-            { diceLabel: 'd' + sides, resultStr: String(result) },
+            { diceLabel: 'd' + sides, resultStr: String(result),
+              kind: result === sides ? 'crit' : result === 1 ? 'fumble' : 'normal' },
             ...st.rollHistory,
           ].slice(0, 12),
         }));
+        setTimeout(() => { try { this._bumpDiceStats(); } catch (e) {} }, 0);
       }
     }, 60);
   }
@@ -3846,6 +3939,10 @@ class Component extends DCLogic {
         : (s.diceResult !== null && !s.rolling ? '✦ Кинуто d' + s.diceType : ''),
       hasHistory:  s.rollHistory.length > 0,
       rollHistory: s.rollHistory,
+      diceTodayStr: s.diceToday == null ? '···' : s.diceToday.toLocaleString('uk-UA'),
+      diceTotalStr: s.diceTotal == null ? '···' : s.diceTotal.toLocaleString('uk-UA'),
+      diceStatsNote: s.diceStatsLive ? 'Кидки всієї спільноти' : 'Твої кидки на цьому пристрої',
+      rollBtnLabel: s.rolling ? 'Кидаємо…' : 'Кинути d' + s.diceType,
       // ── Дошка зв'язків ──────────────────────────────────────
       ...((() => {
         // Дошку зв'язків рахуємо тільки коли вона відкрита — інакше цей блок
