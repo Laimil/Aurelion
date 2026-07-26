@@ -11,16 +11,16 @@
 <meta property="og:title" content="✦ AURELION">
 <meta property="og:description" content="Світ Ауреліону: персонажі гравців, довідник лору, пантеон п’яти богів, історії кампаній і мапа. Українська настільна рольова гра.">
 <meta property="og:url" content="https://laimil.github.io/Aurelion/Aurelion%20Site.dc.html">
-<meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-cover.png">
-<meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-cover.png">
-<meta property="og:image:type" content="image/png">
+<meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-cover.jpg">
+<meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-cover.jpg">
+<meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Мапа світу Ауреліон із золотим написом AURELION">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="✦ AURELION">
 <meta name="twitter:description" content="Світ Ауреліону: персонажі гравців, довідник лору, пантеон п’яти богів, історії кампаній і мапа.">
-<meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-cover.png">
+<meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-cover.jpg">
 <meta name="theme-color" content="#1a1a1a">
 <script src="./support.js"></script>
 </head>
@@ -164,6 +164,11 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 @media(max-width:820px){.char-reader-grid{grid-template-columns:1fr;gap:26px;}.char-reader-aside{position:static;max-width:340px;margin:0 auto;}}
 /* ── Мобільна навігація: від «✦ AURELION» лишається тільки зірочка ── */
 @media(max-width:640px){.au-wm-full{display:none}.au-brand{margin-right:16px!important}}
+/* Кнопка «поділитися» на вузьких екранах згортається до самої зірочки. */
+@media(max-width:700px){.au-share-label{display:none}.au-sharebtn{padding:5px 10px!important;margin-left:8px!important}
+  /* Поки висить статус — підпис повертається, щоб дотик мав видиму відповідь. */
+  .au-sharebtn[data-msg="true"] .au-share-label{display:inline!important}}
+@media(max-width:340px){.au-sharebtn{margin-left:2px!important;padding:5px 8px!important}.au-navburger{padding:7px 12px!important}}
 /* ── Пульс спільноти ── */
 /* Лінію графіка малює CSS-перехід, а не setState на кожен кадр. */
 .pulse-line{transition:stroke-dashoffset 1.9s cubic-bezier(0.215,0.61,0.355,1);}
@@ -229,6 +234,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </sc-if>
       </div>
     </sc-if>
+    <button onClick="{{ copyShareLink }}" class="au-sharebtn" title="Скопіювати посилання на цей розділ" aria-label="Скопіювати посилання" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.22);color:rgba(255,215,0,0.85);border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;cursor:pointer;transition:all 0.25s ease;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);" data-msg="{{ shareLinkBusy }}">{{ shareLinkGlyph }}<span class="au-share-label">{{ shareLinkLabel }}</span></button>
     <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
   </div>
   <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
@@ -2327,6 +2333,36 @@ class Component extends DCLogic {
     return patch;
   }
 
+  // Коротке посилання на поточний розділ (сторінки /s/*.html мають власні og-превʼю).
+  _shareLink() {
+    const SHAREABLE = ['characters', 'lore', 'stories', 'pantheon', 'dice', 'map', 'pulse', 'contacts', 'chronicles', 'connections'];
+    const { seg, id } = this._parseHash();
+    const dir = window.location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '');
+    if (!seg || seg === 'home') return dir;
+    if (SHAREABLE.indexOf(seg) === -1) return window.location.href;  // невідомий розділ — краще сира адреса, ніж 404
+    return dir + 's/' + seg + '.html' + (id ? '?id=' + encodeURIComponent(id) : '');
+  }
+
+  copyShareLink() {
+    const url = this._shareLink();
+    const done = (ok) => {
+      this.setState({ shareLinkLabel: ok ? 'Скопійовано' : 'Не вдалося', shareLinkStatus: ok ? 'ok' : 'fail' });
+      clearTimeout(this._shareLinkTimer);
+      this._shareLinkTimer = setTimeout(() => this.setState({ shareLinkLabel: '', shareLinkStatus: null }), 2200);
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => done(true), () => done(false));
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand('copy');
+        ta.remove(); done(ok);
+      }
+    } catch (e) { done(false); }
+  }
+
   // Перехід за хешем (єдина точка зміни URL — hashchange застосує стан).
   _nav(seg, id) {
     const hash = id != null ? seg + '/' + encodeURIComponent(id) : seg;
@@ -3628,6 +3664,11 @@ class Component extends DCLogic {
         { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
       ],
       navJoinActive: page === 'contacts',
+      copyShareLink: () => this.copyShareLink(),
+      shareLinkLabel: s.shareLinkLabel || 'Поділитися',
+      // Гліф несе статус сам по собі — на телефоні підпис сховано, а ✓/✕ видно завжди.
+      shareLinkGlyph: s.shareLinkStatus === 'ok' ? '✓' : s.shareLinkStatus === 'fail' ? '✕' : '✦',
+      shareLinkBusy: s.shareLinkStatus ? 'true' : 'false',
       navOpen: !!s.navOpen,
       navBurgerLabel: s.navOpen ? '✕ Закрити' : '☰ Розділи',
       toggleNav: () => this.setState(st => ({ navOpen: !st.navOpen })),
