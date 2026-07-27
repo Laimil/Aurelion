@@ -3563,7 +3563,7 @@ class Component extends DCLogic {
             numLabel: '№' + q.num,
             text: q.text,
             author: nameOf(q),
-            meta: [fmt(q.created_at), q.added_by ? 'записала: ' + q.added_by : ''].filter(Boolean).join(' · '),
+            meta: [fmt(q.created_at), q.added_by ? 'записано: ' + q.added_by : ''].filter(Boolean).join(' · '),
           })),
           quoteSpotShow: !!spot,
           quoteSpotText: spot ? spot.text : '',
