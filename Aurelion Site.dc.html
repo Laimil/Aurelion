@@ -178,6 +178,8 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .q-chip:hover{background:rgba(255,255,255,0.1);color:#fff}
 .q-chip[data-active="true"]{background:rgba(255,215,0,0.13);border-color:rgba(255,215,0,0.45);color:#ffd700}
 .q-card:hover{background:rgba(255,255,255,0.09)}
+.q-author span:first-of-type{transition:color 0.2s ease}
+.q-author:hover span{color:#fff!important;border-color:rgba(255,215,0,0.45)!important}
 </style>
 </helmet>
 
@@ -1470,7 +1472,18 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     <sc-if value="{{ quoteSpotShow }}" hint-placeholder-val="{{ false }}">
       <div style="background:linear-gradient(180deg,rgba(255,215,0,0.07) 0%,rgba(255,255,255,0.02) 100%);border:1px solid rgba(255,215,0,0.28);border-radius:15px;padding:34px 30px 28px;margin-bottom:22px;text-align:center;box-shadow:0 16px 46px rgba(0,0,0,0.45);">
         <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:clamp(1.15rem,2.6vw,1.5rem);line-height:1.6;color:rgba(255,255,255,0.9);text-wrap:pretty;">«{{ quoteSpotText }}»</p>
-        <p style="margin-top:18px;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;letter-spacing:0.06em;color:#ffd700;">— {{ quoteSpotAuthor }}</p>
+        <sc-if value="{{ quoteSpotHasChar }}" hint-placeholder-val="{{ false }}">
+          <a class="q-author" href="{{ quoteSpotHref }}" style="margin-top:18px;display:inline-flex;align-items:center;gap:10px;text-decoration:none;">
+            <sc-if value="{{ quoteSpotHasImg }}" hint-placeholder-val="{{ false }}">
+              <div style="{{ quoteSpotImgBg }}"></div>
+            </sc-if>
+            <span style="font-family:'Cinzel',Georgia,serif;font-size:0.9rem;letter-spacing:0.06em;color:#ffd700;">— {{ quoteSpotAuthor }}</span>
+            <span style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.32);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:3px 9px;">до профілю ↗</span>
+          </a>
+        </sc-if>
+        <sc-if value="{{ quoteSpotPlain }}" hint-placeholder-val="{{ true }}">
+          <p style="margin-top:18px;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;letter-spacing:0.06em;color:#ffd700;">— {{ quoteSpotAuthor }}</p>
+        </sc-if>
         <p style="margin-top:6px;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.26);">{{ quoteSpotNum }}</p>
       </div>
     </sc-if>
@@ -1501,7 +1514,18 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         <article class="glass q-card" style="padding:22px 26px 20px;border-radius:12px;">
           <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.12rem;font-style:italic;line-height:1.66;color:rgba(255,255,255,0.82);text-wrap:pretty;">«{{ q.text }}»</p>
           <div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07);">
-            <span style="font-family:'Cinzel',Georgia,serif;font-size:0.82rem;letter-spacing:0.05em;color:rgba(255,215,0,0.82);">— {{ q.author }}</span>
+            <sc-if value="{{ q.hasChar }}" hint-placeholder-val="{{ false }}">
+              <a class="q-author" href="{{ q.charHref }}" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;">
+                <sc-if value="{{ q.hasCharImg }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ q.charImgBg }}"></div>
+                </sc-if>
+                <span style="font-family:'Cinzel',Georgia,serif;font-size:0.82rem;letter-spacing:0.05em;color:rgba(255,215,0,0.82);">— {{ q.author }}</span>
+                <span style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.28);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:2px 8px;">у картотеці ↗</span>
+              </a>
+            </sc-if>
+            <sc-if value="{{ q.plainAuthor }}" hint-placeholder-val="{{ true }}">
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:0.82rem;letter-spacing:0.05em;color:rgba(255,215,0,0.82);">— {{ q.author }}</span>
+            </sc-if>
             <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.26);">{{ q.numLabel }} · {{ q.meta }}</span>
           </div>
         </article>
@@ -3531,6 +3555,57 @@ class Component extends DCLogic {
       ...(() => {
         const all = (data.quotes || []).filter(q => q && q.text);
         const nameOf = (q) => ((q.author || '').trim() || 'без підпису');
+        // Підпис під цитатою — часто імʼя персонажа. Якщо він є в картотеці,
+        // робимо з підпису живе посилання (мʼяке зведення написань, як у Марти).
+        const foldName = (x) => (x || '').toLowerCase()
+          .replace(/[ʼ'’`´ь]/g, '').replace(/[іїий]/g, 'и').replace(/[еє]/g, 'е')
+          .replace(/ґ/g, 'г').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+        const chars = data.characters || [];
+        const byLabel = new Map();
+        chars.forEach(c => [c.name, c.alias].forEach(n => {
+          const k = foldName(n);
+          if (k && !byLabel.has(k)) byLabel.set(k, c);
+        }));
+        const labelToks = (c) => [c.name, c.alias]
+          .filter(Boolean).map(foldName).join(' ').split(' ').filter(Boolean);
+        const charFor = (author) => {
+          const k = foldName(author);
+          if (!k) return null;
+          if (byLabel.has(k)) return byLabel.get(k);          // «Мей Лінь», «Акане»
+          const one = (arr) => (arr.length === 1 ? arr[0] : null);
+          // будь-який токен імені або аліаса: «Шінджі» → «Куроширо Шінджі»
+          const exact = chars.filter(c => labelToks(c).indexOf(k) !== -1);
+          if (exact.length) return one(exact);
+          // унікальний префікс: «Каз» → «Казимир»
+          if (k.indexOf(' ') === -1) {
+            return k.length >= 3
+              ? one(chars.filter(c => labelToks(c).some(t => t.startsWith(k))))
+              : null;
+          }
+          // відмінки: «Северина Гравена» → «Северин Гравен» (усі слова мають зійтися)
+          const qs = k.split(' ');
+          // усі слова мусять зійтися — інакше «Пан Роман» причепиться до «Романівни»
+          if (qs.some(w => w.length < 3)) return null;
+          return one(chars.filter(c => {
+            const ts = labelToks(c);
+            return qs.every(w => ts.some(t => t.startsWith(w) || w.startsWith(t)));
+          }));
+        };
+        const charBits = (author) => {
+          const c = charFor(author);
+          return {
+            hasChar: !!c,
+            plainAuthor: !c,
+            charHref: c ? '#characters/' + encodeURIComponent(c.id) : '',
+            hasCharImg: !!(c && c.image),
+            charImgBg: c && c.image
+              ? 'width:26px;height:26px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,215,0,0.4);background-size:cover;background-position:center;background-image:url("' + String(c.image).replace(/"/g, '%22') + '")'
+              : '',
+            charImgBgLg: c && c.image
+              ? 'width:34px;height:34px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,215,0,0.45);background-size:cover;background-position:center;background-image:url("' + String(c.image).replace(/"/g, '%22') + '")'
+              : '',
+          };
+        };
         const counts = new Map();
         all.forEach(q => { const n = nameOf(q); counts.set(n, (counts.get(n) || 0) + 1); });
         const chosen = s.quotesAuthor && counts.has(s.quotesAuthor) ? s.quotesAuthor : null;
@@ -3559,12 +3634,20 @@ class Component extends DCLogic {
               counts.size + ' ' + uaPlural(counts.size, 'голос', 'голоси', 'голосів')
             : 'Поки що чисті сторінки',
           quotesList: list.map(q => ({
+            ...charBits(q.author),
             num: q.num,
             numLabel: '№' + q.num,
             text: q.text,
             author: nameOf(q),
             meta: [fmt(q.created_at), q.added_by ? 'записано: ' + q.added_by : ''].filter(Boolean).join(' · '),
           })),
+          ...(() => {
+            const b = charBits(spot ? spot.author : '');
+            return {
+              quoteSpotHasChar: b.hasChar, quoteSpotPlain: !b.hasChar,
+              quoteSpotHref: b.charHref, quoteSpotImgBg: b.charImgBgLg, quoteSpotHasImg: b.hasCharImg,
+            };
+          })(),
           quoteSpotShow: !!spot,
           quoteSpotText: spot ? spot.text : '',
           quoteSpotAuthor: spot ? nameOf(spot) : '',
