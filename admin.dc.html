@@ -221,6 +221,18 @@ button{font-family:inherit;cursor:pointer}
       </div>
     </div>
 
+    <div style="background:rgba(255,215,0,0.045);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:16px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+      <div style="min-width:220px;flex:1;">
+        <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#ffd700;letter-spacing:0.05em;margin-bottom:6px;">✉ Зведена від Марти</p>
+        <p style="font-size:0.76rem;line-height:1.55;color:rgba(255,255,255,0.45);">{{ martaMsg }}</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button data-period="day" onClick="{{ sendMarta }}" disabled="{{ martaBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.16);border-color:rgba(255,215,0,0.55);">За добу</button>
+        <button data-period="week" onClick="{{ sendMarta }}" disabled="{{ martaBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.16);border-color:rgba(255,215,0,0.55);">За тиждень</button>
+        <button data-period="month" onClick="{{ sendMarta }}" disabled="{{ martaBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.16);border-color:rgba(255,215,0,0.55);">За місяць</button>
+      </div>
+    </div>
+
     <sc-if value="{{ statsLoading }}" hint-placeholder-val="{{ false }}">
       <p style="text-align:center;padding:60px 0;color:rgba(255,255,255,0.35);font-size:0.85rem;">Читаю хроніки відвідувань…</p>
     </sc-if>
@@ -1207,6 +1219,7 @@ button{font-family:inherit;cursor:pointer}
 const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
 const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
 const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const SUPA_FUNCS = 'https://ztltzghfkppuwixhylng.supabase.co/functions/v1';
 
 const BASE_H  = { 'apikey': SUPA_KEY };
 const STATUS_LABELS_ADMIN = { active: 'Активна', completed: 'Завершена', planned: 'Заплановано' };
@@ -1337,6 +1350,7 @@ class Component extends DCLogic {
     charSearch: '',
     connSearch: '',
     loginEmail: '', loginPassword: '', loginError: '', loginLoading: false,
+    martaBusy: false, martaMsg: '',
     userEmail: '',
     // admin
     tab: 'site',
@@ -1370,6 +1384,30 @@ class Component extends DCLogic {
     return { ...BASE_H, 'Authorization': `Bearer ${t || SUPA_KEY}` };
   }
   _authHJ() { return { ...this._authH(), 'Content-Type': 'application/json' }; }
+
+  // ── Марта: ручна зведена ──────────────────────────────────
+  // Функція telegram-report пускає або за секретом (розклад), або за
+  // токеном залогіненого адміна — тому секрет тут світити не треба.
+  async _sendMarta(kind) {
+    const label = { day: 'за добу', week: 'за тиждень', month: 'за місяць' }[kind] || '';
+    this.setState({ martaBusy: true, martaMsg: `Марта друкує бланк ${label}…` });
+    try {
+      const r = await fetch(`${SUPA_FUNCS}/telegram-report?period=${kind}`, {
+        method: 'POST',
+        headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken() || ''}` },
+      });
+      const t = (await r.text()).trim();
+      const ok = r.ok && t === 'ok';
+      this.setState({
+        martaBusy: false,
+        martaMsg: ok
+          ? `✦ Зведена ${label} пішла в чат звітів.`
+          : `Не вийшло: ${t.slice(0, 140) || r.status}`,
+      });
+    } catch (err) {
+      this.setState({ martaBusy: false, martaMsg: 'Не вийшло: ' + err.message });
+    }
+  }
 
   // ── Auth API ───────────────────────────────────────────────
   async _checkSession() {
@@ -1616,6 +1654,9 @@ class Component extends DCLogic {
       ],
       setStatsPeriod: (e) => this.setState({ statsPeriod: Number(e.currentTarget.dataset.period) }),
       reloadStats: () => this._loadStats(),
+      martaBusy: !!s.martaBusy,
+      martaMsg: s.martaMsg || 'Надіслати бланк у чат звітів просто зараз, не чекаючи розкладу.',
+      sendMarta: (e) => this._sendMarta(e.currentTarget.dataset.period),
       statsLoading: s.statsLoading,
       statsEmpty: !s.statsLoading && s.statsLoaded && !(s.statsRows || []).length,
       statsReady: !s.statsLoading && s.statsLoaded && (s.statsRows || []).length > 0,
