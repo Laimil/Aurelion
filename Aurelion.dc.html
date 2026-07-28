@@ -2823,6 +2823,44 @@ class Component extends DCLogic {
     } catch (e) { return 'anon'; }
   }
 
+  // Один візит = одна сесія (30 хв бездіяльності → нова).
+  _sessionId() {
+    try {
+      const now = Date.now();
+      const raw = sessionStorage.getItem('au_session');
+      if (raw) {
+        const o = JSON.parse(raw);
+        if (o && o.id && now - o.t < 1800000) {
+          sessionStorage.setItem('au_session', JSON.stringify({ id: o.id, t: now }));
+          return o.id;
+        }
+      }
+      const id = Math.random().toString(36).slice(2, 10) + now.toString(36);
+      sessionStorage.setItem('au_session', JSON.stringify({ id, t: now }));
+      return id;
+    } catch (e) { return 'anon'; }
+  }
+
+  _device() {
+    try {
+      const w = Math.min(window.screen.width || window.innerWidth, window.innerWidth || 9999);
+      if (w <= 640) return 'mobile';
+      if (w <= 1024) return 'tablet';
+      return 'desktop';
+    } catch (e) { return 'desktop'; }
+  }
+
+  // Звідки прийшли: чистий домен або «Прямий перехід».
+  _referrer() {
+    try {
+      const r = document.referrer || '';
+      if (!r) return 'direct';
+      const h = new URL(r).hostname.replace(/^www\./, '');
+      if (h === location.hostname) return '';
+      return h;
+    } catch (e) { return ''; }
+  }
+
   _track(page, itemType, itemId, itemTitle) {
     try {
       if (!page) return;
@@ -2830,6 +2868,7 @@ class Component extends DCLogic {
       this._trackedViews = this._trackedViews || new Set();
       if (this._trackedViews.has(key)) return;
       this._trackedViews.add(key);
+      const ref = this._referrer();
       fetch(SUPA_URL + '/page_views', {
         method: 'POST',
         headers: { ...SUPA_H, 'Content-Type': 'application/json' },
@@ -2839,6 +2878,9 @@ class Component extends DCLogic {
           item_id: itemId != null ? String(itemId) : null,
           item_title: itemTitle || null,
           visitor: this._visitorId(),
+          session: this._sessionId(),
+          device: this._device(),
+          referrer: ref || null,
         }),
       }).catch(() => {});
     } catch (e) {}
@@ -2851,13 +2893,21 @@ class Component extends DCLogic {
     if (s.page === 'dice' && p.page !== 'dice') this._loadDiceStats();
     const watch = [
       ['selectedChar', 'char', 'name'],
+      ['peekChar', 'char', 'name'],
+      ['selectedBoardChar', 'char', 'name'],
       ['selectedLore', 'lore', 'title'],
       ['selectedHistory', 'story', 'title'],
       ['selectedChronicle', 'chron', 'title'],
+      ['mapActivePin', 'map', 'name'],
     ];
     for (const [k, type, titleKey] of watch) {
       const cur = s[k], prev = p[k];
-      if (cur && (!prev || String(cur.id) !== String(prev.id))) this._track(s.page, type, cur.id, cur[titleKey]);
+      if (cur && (!prev || String(cur.id) !== String(prev.id))) {
+        this._track(s.page, type, cur.id, cur[titleKey] || cur.title || cur.label);
+      }
+    }
+    if (s.quotesAuthor && s.quotesAuthor !== p.quotesAuthor) {
+      this._track(s.page, 'quotes', s.quotesAuthor, s.quotesAuthor);
     }
     // Відкрили запис, а текст ще не доїхав — тягнемо саме його.
     const needs = [

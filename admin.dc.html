@@ -234,24 +234,50 @@ button{font-family:inherit;cursor:pointer}
     <sc-if value="{{ statsEmpty }}" hint-placeholder-val="{{ false }}">
       <div style="text-align:center;padding:52px 24px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.14);border-radius:12px;">
         <p style="font-family:'Cinzel',serif;color:rgba(255,215,0,0.7);font-size:1rem;margin-bottom:10px;">✦ Поки що тихо</p>
-        <p style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.6;max-width:440px;margin:0 auto;">Жодного запису переглядів. Виконай міграцію <code style="color:#ffd700;">supabase_analytics_migration.sql</code> у Supabase SQL Editor — і сайт почне рахувати відвідування.</p>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.6;max-width:440px;margin:0 auto;">Жодного запису переглядів. Виконай міграцію <code style="color:#ffd700;">supabase_analytics_v2_migration.sql</code> у Supabase SQL Editor — вона додає політику запису, без якої сайт не може рахувати відвідування.</p>
       </div>
     </sc-if>
 
     <sc-if value="{{ statsReady }}" hint-placeholder-val="{{ false }}">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;">
-        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
-          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Перегляди</p>
-          <p style="font-family:'Cinzel',serif;font-size:1.6rem;color:#ffd700;">{{ statsTotal }}</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px;">
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
+          <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;">Перегляди</p>
+          <p style="font-family:'Cinzel',serif;font-size:1.5rem;color:#ffd700;">{{ statsTotal }}</p>
+          <p style="font-size:0.62rem;color:{{ statsTotalTrendColor }};margin-top:4px;">{{ statsTotalTrend }}</p>
         </div>
-        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
-          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Відвідувачі</p>
-          <p style="font-family:'Cinzel',serif;font-size:1.6rem;color:#fff;">{{ statsUniq }}</p>
-          <p style="font-size:0.66rem;color:rgba(255,255,255,0.28);margin-top:4px;">приблизно, за пристроями</p>
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
+          <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;">Відвідувачі</p>
+          <p style="font-family:'Cinzel',serif;font-size:1.5rem;color:#fff;">{{ statsUniq }}</p>
+          <p style="font-size:0.62rem;color:{{ statsUniqTrendColor }};margin-top:4px;">{{ statsUniqTrend }}</p>
         </div>
-        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
-          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Топ розділ</p>
-          <p style="font-family:'Cinzel',serif;font-size:1.15rem;color:#fff;margin-top:6px;">{{ statsTopSection }}</p>
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
+          <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;">Візити</p>
+          <p style="font-family:'Cinzel',serif;font-size:1.5rem;color:#fff;">{{ statsVisits }}</p>
+          <p style="font-size:0.62rem;color:rgba(255,255,255,0.28);margin-top:4px;">{{ statsDepth }} сторінок за візит</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
+          <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;">Пік активності</p>
+          <p style="font-family:'Cinzel',serif;font-size:1.15rem;color:#fff;margin-top:8px;">{{ statsPeak }}</p>
+          <p style="font-size:0.62rem;color:rgba(255,255,255,0.28);margin-top:4px;">{{ statsSince }}</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
+          <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">Нові та знайомі</p>
+          <div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,0.06);margin-bottom:10px;">
+            <div style="width:{{ statsNewPct }}%;background:rgba(255,215,0,0.75);"></div>
+            <div style="width:{{ statsReturnPct }}%;background:rgba(100,149,237,0.65);"></div>
+          </div>
+          <div style="display:flex;gap:18px;">
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.6);">✦ Уперше <span style="color:#ffd700;">{{ statsNew }}</span></p>
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.6);">✦ Повернулися <span style="color:#6495ed;">{{ statsReturning }}</span></p>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
+          <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">Топ розділ</p>
+          <p style="font-family:'Cinzel',serif;font-size:1.15rem;color:#fff;">{{ statsTopSection }}</p>
+          <p style="font-size:0.66rem;color:rgba(255,255,255,0.28);margin-top:6px;">відвідувачі рахуються за пристроями</p>
         </div>
       </div>
 
@@ -269,30 +295,100 @@ button{font-family:inherit;cursor:pointer}
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+      <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:18px 18px 12px;margin-bottom:18px;">
+        <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px;">Коли заходять · за годинами доби</p>
+        <div style="display:flex;align-items:flex-end;gap:3px;height:70px;">
+          <sc-for list="{{ statsHours }}" as="hr" hint-placeholder-count="24">
+            <div title="{{ hr.tip }}" style="flex:1;height:{{ hr.pct }}%;min-height:2px;min-width:0;background:{{ hr.bg }};border-radius:3px 3px 0 0;"></div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:3px;margin-top:6px;">
+          <sc-for list="{{ statsHours }}" as="hr" hint-placeholder-count="24">
+            <span style="flex:1;text-align:center;font-size:0.58rem;color:rgba(255,255,255,0.3);white-space:nowrap;min-width:0;">{{ hr.label }}</span>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-bottom:16px;">
         <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
           <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">✦ Розділи</p>
           <sc-for list="{{ statsSections }}" as="sec" hint-placeholder-count="5">
             <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
-              <span style="width:92px;flex-shrink:0;font-size:0.78rem;color:rgba(255,255,255,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ sec.label }}</span>
+              <span style="width:88px;flex-shrink:0;font-size:0.78rem;color:rgba(255,255,255,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ sec.label }}</span>
               <div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div style="width:{{ sec.pct }}%;height:100%;background:linear-gradient(90deg,rgba(255,215,0,0.7),rgba(255,215,0,0.3));border-radius:999px;"></div></div>
-              <span style="width:42px;text-align:right;font-size:0.78rem;color:#ffd700;flex-shrink:0;">{{ sec.count }}</span>
+              <span style="width:36px;text-align:right;font-size:0.78rem;color:#ffd700;flex-shrink:0;">{{ sec.count }}</span>
+              <span style="width:34px;text-align:right;font-size:0.66rem;color:rgba(255,255,255,0.3);flex-shrink:0;">{{ sec.share }}</span>
             </div>
           </sc-for>
         </div>
-        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
-          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">✦ Топ матеріалів</p>
-          <sc-if value="{{ statsNoItems }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:0.78rem;color:rgba(255,255,255,0.3);padding:8px 0;">Ще ніхто не відкривав анкет чи історій.</p>
-          </sc-if>
-          <sc-for list="{{ statsItems }}" as="it" hint-placeholder-count="5">
-            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
-              <span style="font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:{{ it.accent }};width:72px;flex-shrink:0;">{{ it.typeLabel }}</span>
-              <span style="flex:1;font-size:0.82rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{{ it.title }}</span>
-              <span style="font-size:0.78rem;color:#ffd700;flex-shrink:0;">{{ it.count }}</span>
-            </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
+            <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">✦ З чого читають</p>
+            <sc-if value="{{ statsNoDevices }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.76rem;color:rgba(255,255,255,0.3);padding:6px 0;line-height:1.5;">Дані з’являться на нових переглядах.</p>
+            </sc-if>
+            <sc-for list="{{ statsDevices }}" as="dv" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:10px;padding:5px 0;">
+                <span style="width:82px;flex-shrink:0;font-size:0.78rem;color:rgba(255,255,255,0.75);">{{ dv.label }}</span>
+                <div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div style="width:{{ dv.pct }}%;height:100%;background:rgba(100,149,237,0.6);border-radius:999px;"></div></div>
+                <span style="width:38px;text-align:right;font-size:0.72rem;color:rgba(255,255,255,0.55);flex-shrink:0;">{{ dv.share }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
+            <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">✦ Звідки приходять</p>
+            <sc-if value="{{ statsNoSources }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.76rem;color:rgba(255,255,255,0.3);padding:6px 0;line-height:1.5;">Дані з’являться на нових переглядах.</p>
+            </sc-if>
+            <sc-for list="{{ statsSources }}" as="src" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:10px;padding:5px 0;">
+                <span style="flex:1;font-size:0.78rem;color:rgba(255,255,255,0.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{{ src.label }}</span>
+                <div style="width:70px;height:6px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;flex-shrink:0;"><div style="width:{{ src.pct }}%;height:100%;background:rgba(255,215,0,0.5);border-radius:999px;"></div></div>
+                <span style="width:34px;text-align:right;font-size:0.72rem;color:rgba(255,255,255,0.55);flex-shrink:0;">{{ src.count }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);">✦ Топ матеріалів</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <sc-for list="{{ statsKinds }}" as="kd" hint-placeholder-count="4">
+              <button data-kind="{{ kd.id }}" onClick="{{ setStatsKind }}" style="background:{{ kd.bg }};border:1px solid {{ kd.border }};color:{{ kd.color }};border-radius:999px;padding:3px 12px;font-size:0.7rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;">{{ kd.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ statsNoItems }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.78rem;color:rgba(255,255,255,0.3);padding:8px 0;">Ще ніхто не відкривав анкет чи історій.</p>
+        </sc-if>
+        <sc-for list="{{ statsItems }}" as="it" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+            <span style="font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:{{ it.accent }};width:76px;flex-shrink:0;">{{ it.typeLabel }}</span>
+            <span style="flex:1;font-size:0.82rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{{ it.title }}</span>
+            <div style="width:90px;height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;flex-shrink:0;"><div style="width:{{ it.pct }}%;height:100%;background:rgba(255,215,0,0.55);border-radius:999px;"></div></div>
+            <span style="width:56px;text-align:right;font-size:0.66rem;color:rgba(255,255,255,0.3);flex-shrink:0;">{{ it.people }}</span>
+            <span style="width:34px;text-align:right;font-size:0.78rem;color:#ffd700;flex-shrink:0;">{{ it.count }}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:12px;padding:16px 18px;">
+        <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">✦ Ще ніхто не відкривав</p>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-bottom:10px;">За весь час спостережень — незалежно від обраного періоду.</p>
+        <sc-if value="{{ statsNoCold }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.78rem;color:rgba(255,215,0,0.7);padding:4px 0;">Кожен запис уже хтось прочитав. ✦</p>
+        </sc-if>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <sc-for list="{{ statsCold }}" as="cd" hint-placeholder-count="4">
+            <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px 12px;font-size:0.76rem;color:rgba(255,255,255,0.7);">
+              <span style="font-size:0.56rem;letter-spacing:0.08em;text-transform:uppercase;color:{{ cd.accent }};">{{ cd.typeLabel }}</span>
+              {{ cd.title }}
+            </span>
           </sc-for>
         </div>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:10px;">{{ statsColdMore }}</p>
       </div>
     </sc-if>
   </div>
@@ -1500,7 +1596,7 @@ class Component extends DCLogic {
     mapAdminNewX: 50, mapAdminNewY: 50,
     mapCharSearch: '',
     // analytics
-    statsPeriod: 7, statsRows: [], statsLoading: false, statsLoaded: false,
+    statsPeriod: 7, statsRows: [], statsLoading: false, statsLoaded: false, statsKind: 'all',
   };
 
   // ── Auth token helpers ─────────────────────────────────────
@@ -1765,7 +1861,7 @@ class Component extends DCLogic {
     try {
       for (let i = 0; i < 10; i++) {
         const from = i * 1000;
-        const r = await fetch(`${SUPA_URL}/page_views?select=created_at,page,item_type,item_id,item_title,visitor&order=created_at.desc`, {
+        const r = await fetch(`${SUPA_URL}/page_views?select=created_at,page,item_type,item_id,item_title,visitor,session,device,referrer&order=created_at.desc`, {
           headers: { ...this._authH(), 'Range': `${from}-${from + 999}` },
         });
         if (!r.ok) break;
@@ -1930,52 +2026,185 @@ class Component extends DCLogic {
       statsEmpty: !s.statsLoading && s.statsLoaded && !(s.statsRows || []).length,
       statsReady: !s.statsLoading && s.statsLoaded && (s.statsRows || []).length > 0,
     };
-    if (s.tab !== 'stats' || !base.statsReady) return { ...base, statsDays: [], statsSections: [], statsItems: [], statsNoItems: true };
+    const EMPTY = {
+      statsDays: [], statsSections: [], statsItems: [], statsNoItems: true,
+      statsHours: [], statsDevices: [], statsSources: [], statsNoSources: true,
+      statsKinds: [], statsCold: [], statsNoCold: true, statsNoDevices: true,
+    };
+    if (s.tab !== 'stats' || !base.statsReady) return { ...base, ...EMPTY };
+
     const now = Date.now();
-    const cutoff = period ? now - period * 86400000 : 0;
-    const rows = (s.statsRows || []).filter(r => !cutoff || new Date(r.created_at).getTime() >= cutoff);
-    const PAGE_LABELS = { home: 'Головна', lore: 'Довідник', stories: 'Історії', characters: 'Персонажі', chronicles: 'Хроніки', connections: 'Зв\u2019язки', pantheon: 'Пантеон', dice: 'Дайс', contacts: 'Контакти', map: 'Мапа' };
-    const TYPE_LABELS = { char: { t: 'Персонаж', c: '#e587a4' }, lore: { t: 'Довідник', c: '#ffd76b' }, story: { t: 'Історія', c: '#7aa8f5' }, chron: { t: 'Хроніка', c: '#6fcfbf' } };
+    const win = period * 86400000;
+    const cutoff = period ? now - win : 0;
+    const all = s.statsRows || [];
+    const rows = all.filter(r => !cutoff || new Date(r.created_at).getTime() >= cutoff);
+    const prevRows = period
+      ? all.filter(r => { const t = new Date(r.created_at).getTime(); return t < cutoff && t >= cutoff - win; })
+      : [];
+
+    const PAGE_LABELS = { home: 'Головна', lore: 'Довідник', stories: 'Історії', characters: 'Персонажі', chronicles: 'Хроніки', connections: 'Зв\u2019язки', pantheon: 'Пантеон', dice: 'Дайс', contacts: 'Контакти', map: 'Мапа', quotes: 'Цитати', join: 'Долучитися', rules: 'Правила' };
+    const TYPE_LABELS = {
+      char:   { t: 'Персонаж', c: '#e587a4' },
+      lore:   { t: 'Довідник', c: '#ffd76b' },
+      story:  { t: 'Історія',  c: '#7aa8f5' },
+      chron:  { t: 'Хроніка',  c: '#6fcfbf' },
+      map:    { t: 'Локація',  c: '#c9a0ff' },
+      quotes: { t: 'Цитати',   c: '#ffb27a' },
+    };
+    const pct = (n, d) => d ? Math.round(n / d * 100) : 0;
+    const trend = (cur, prev) => {
+      if (!period || !prev) return { txt: '', color: 'rgba(255,255,255,0.3)' };
+      const diff = Math.round((cur - prev) / prev * 100);
+      if (diff === 0) return { txt: '= як раніше', color: 'rgba(255,255,255,0.35)' };
+      return {
+        txt: (diff > 0 ? '↑ +' : '↓ ') + diff + '% до попереднього',
+        color: diff > 0 ? 'rgba(120,220,150,0.75)' : 'rgba(255,140,140,0.7)',
+      };
+    };
+
+    // ── Розділи ──
     const byPage = {};
     rows.forEach(r => { byPage[r.page] = (byPage[r.page] || 0) + 1; });
     const pagesSorted = Object.entries(byPage).sort((a, b) => b[1] - a[1]);
     const maxPage = pagesSorted.length ? pagesSorted[0][1] : 1;
+
+    // ── Матеріали ──
+    const kind = s.statsKind || 'all';
     const byItem = {};
     rows.forEach(r => {
       if (!r.item_type) return;
       const k = r.item_type + '|' + r.item_id;
-      if (!byItem[k]) byItem[k] = { type: r.item_type, title: r.item_title || '(без назви)', count: 0 };
+      if (!byItem[k]) byItem[k] = { type: r.item_type, id: String(r.item_id), title: r.item_title || '(без назви)', count: 0, people: new Set() };
       byItem[k].count++;
+      byItem[k].people.add(r.visitor || 'anon');
       if (r.item_title) byItem[k].title = r.item_title;
     });
-    const itemsSorted = Object.values(byItem).sort((a, b) => b.count - a.count).slice(0, 10);
+    const itemsAll = Object.values(byItem).sort((a, b) => b.count - a.count);
+    const presentKinds = Array.from(new Set(itemsAll.map(i => i.type)));
+    const itemsSorted = itemsAll.filter(i => kind === 'all' || i.type === kind).slice(0, 12);
+    const maxItem = itemsSorted.length ? itemsSorted[0].count : 1;
+
+    // ── Дні ──
     const nDays = period === 0 ? 30 : period;
+    const dayKey = (d) => d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
     const dayCounts = {};
-    rows.forEach(r => { const d = new Date(r.created_at); const k = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); dayCounts[k] = (dayCounts[k] || 0) + 1; });
+    rows.forEach(r => { const k = dayKey(new Date(r.created_at)); dayCounts[k] = (dayCounts[k] || 0) + 1; });
     let maxDay = 1;
     const days = [];
     for (let i = nDays - 1; i >= 0; i--) {
       const d = new Date(now - i * 86400000);
-      const c = dayCounts[d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()] || 0;
+      const c = dayCounts[dayKey(d)] || 0;
       if (c > maxDay) maxDay = c;
       days.push({ d, c });
     }
     const every = nDays > 14 ? 5 : 1;
     const fmt = (d) => d.getDate() + '.' + String(d.getMonth() + 1).padStart(2, '0');
+
+    // ── Години доби ──
+    const hourCounts = new Array(24).fill(0);
+    rows.forEach(r => { hourCounts[new Date(r.created_at).getHours()]++; });
+    const maxHour = Math.max(1, ...hourCounts);
+    const peakHour = hourCounts.indexOf(Math.max(...hourCounts));
+
+    // ── Візити, глибина, нові/повернулися ──
+    const sessions = new Set(rows.filter(r => r.session).map(r => r.session));
+    const visitors = new Set(rows.map(r => r.visitor || 'anon'));
+    const seenBefore = new Set(all.filter(r => !cutoff || new Date(r.created_at).getTime() < cutoff).map(r => r.visitor || 'anon'));
+    let newcomers = 0;
+    visitors.forEach(v => { if (!seenBefore.has(v)) newcomers++; });
+    const returning = visitors.size - newcomers;
+    const depth = sessions.size ? (rows.filter(r => r.session).length / sessions.size).toFixed(1) : '—';
+
+    // ── Пристрої ──
+    const DEV = { mobile: 'Телефон', tablet: 'Планшет', desktop: "Комп'ютер" };
+    const byDev = {};
+    rows.forEach(r => { if (r.device) byDev[r.device] = (byDev[r.device] || 0) + 1; });
+    const devTotal = Object.values(byDev).reduce((a, b) => a + b, 0);
+    const devices = Object.entries(byDev).sort((a, b) => b[1] - a[1])
+      .map(([k, c]) => ({ label: DEV[k] || k, count: c, pct: Math.max(3, pct(c, devTotal)), share: pct(c, devTotal) + '%' }));
+
+    // ── Звідки приходять ──
+    const SRC = { direct: 'Прямий перехід', 't.me': 'Telegram', 'telegram.me': 'Telegram', 'l.instagram.com': 'Instagram', 'instagram.com': 'Instagram', 'google.com': 'Пошук Google' };
+    const bySrc = {};
+    rows.forEach(r => { if (r.referrer) { const k = SRC[r.referrer] || r.referrer; bySrc[k] = (bySrc[k] || 0) + 1; } });
+    const srcTotal = Object.values(bySrc).reduce((a, b) => a + b, 0);
+    const sources = Object.entries(bySrc).sort((a, b) => b[1] - a[1]).slice(0, 6)
+      .map(([k, c]) => ({ label: k, count: c, pct: Math.max(3, pct(c, srcTotal)) }));
+
+    // ── Ще не читали (за весь час, не за період) ──
+    const everSeen = new Set(all.filter(r => r.item_type).map(r => r.item_type + '|' + String(r.item_id)));
+    const d = s.data || {};
+    const COLD = [
+      ['characters', 'char', 'name'], ['lore', 'lore', 'title'],
+      ['stories', 'story', 'title'], ['chronicles', 'chron', 'title'],
+    ];
+    const cold = [];
+    COLD.forEach(([table, type, tk]) => {
+      (d[table] || []).forEach(row => {
+        if (!row || row.id == null) return;
+        if (everSeen.has(type + '|' + String(row.id))) return;
+        cold.push({ title: String(row[tk] || '—'), typeLabel: TYPE_LABELS[type].t, accent: TYPE_LABELS[type].c });
+      });
+    });
+
+    const firstRow = all.length ? new Date(all[all.length - 1].created_at) : null;
+    const tTotal = trend(rows.length, prevRows.length);
+    const tUniq = trend(visitors.size, new Set(prevRows.map(r => r.visitor || 'anon')).size);
+
     return {
       ...base,
       statsTotal: rows.length,
-      statsUniq: new Set(rows.map(r => r.visitor || 'anon')).size,
+      statsTotalTrend: tTotal.txt, statsTotalTrendColor: tTotal.color,
+      statsUniq: visitors.size,
+      statsUniqTrend: tUniq.txt, statsUniqTrendColor: tUniq.color,
+      statsVisits: sessions.size || '—',
+      statsDepth: depth,
+      statsNew: newcomers,
+      statsReturning: returning,
+      statsNewPct: Math.max(2, pct(newcomers, visitors.size || 1)),
+      statsReturnPct: Math.max(2, pct(returning, visitors.size || 1)),
       statsTopSection: pagesSorted.length ? (PAGE_LABELS[pagesSorted[0][0]] || pagesSorted[0][0]) : '—',
+      statsPeak: hourCounts[peakHour] ? (String(peakHour).padStart(2, '0') + ':00–' + String((peakHour + 1) % 24).padStart(2, '0') + ':00') : '—',
+      statsSince: firstRow ? ('збір із ' + fmt(firstRow) + '.' + firstRow.getFullYear()) : '',
       statsDays: days.map((x, idx) => ({
         count: x.c,
         pct: Math.max(2, Math.round(x.c / maxDay * 100)),
         label: (idx % every === 0 || idx === days.length - 1) ? fmt(x.d) : '',
         tip: fmt(x.d) + ' — ' + x.c,
       })),
-      statsSections: pagesSorted.map(([pg, c]) => ({ label: PAGE_LABELS[pg] || pg, count: c, pct: Math.max(4, Math.round(c / maxPage * 100)) })),
-      statsItems: itemsSorted.map(it => ({ title: it.title, count: it.count, typeLabel: (TYPE_LABELS[it.type] || { t: it.type }).t, accent: (TYPE_LABELS[it.type] || { c: '#ccc' }).c })),
+      statsHours: hourCounts.map((c, h) => ({
+        pct: Math.max(2, Math.round(c / maxHour * 100)),
+        label: h % 6 === 0 ? String(h).padStart(2, '0') : '',
+        tip: String(h).padStart(2, '0') + ':00 — ' + c,
+        bg: h === peakHour ? 'rgba(255,215,0,0.75)' : 'rgba(255,255,255,0.18)',
+      })),
+      statsSections: pagesSorted.map(([pg, c]) => ({
+        label: PAGE_LABELS[pg] || pg, count: c,
+        pct: Math.max(4, Math.round(c / maxPage * 100)),
+        share: pct(c, rows.length) + '%',
+      })),
+      statsKinds: [{ id: 'all', label: 'Усе' }].concat(
+        presentKinds.map(k => ({ id: k, label: (TYPE_LABELS[k] || { t: k }).t }))
+      ).map(x => ({
+        id: x.id, label: x.label,
+        bg: kind === x.id ? 'rgba(255,215,0,0.14)' : 'transparent',
+        border: kind === x.id ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.12)',
+        color: kind === x.id ? '#ffd700' : 'rgba(255,255,255,0.45)',
+      })),
+      setStatsKind: (e) => this.setState({ statsKind: e.currentTarget.dataset.kind }),
+      statsItems: itemsSorted.map(it => ({
+        title: it.title, count: it.count,
+        people: it.people.size + ' чит.',
+        pct: Math.max(3, Math.round(it.count / maxItem * 100)),
+        typeLabel: (TYPE_LABELS[it.type] || { t: it.type }).t,
+        accent: (TYPE_LABELS[it.type] || { c: '#ccc' }).c,
+      })),
       statsNoItems: itemsSorted.length === 0,
+      statsDevices: devices, statsNoDevices: devices.length === 0,
+      statsSources: sources, statsNoSources: sources.length === 0,
+      statsCold: cold.slice(0, 10),
+      statsColdMore: cold.length > 10 ? '…і ще ' + (cold.length - 10) : '',
+      statsNoCold: cold.length === 0,
     };
   }
 
