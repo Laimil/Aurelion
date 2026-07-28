@@ -14,9 +14,9 @@
   <meta property="og:title" content="✦ AURELION — Мапа">
   <meta property="og:description" content="Інтерактивна мапа світу Ауреліону: Архонія, Некмарак, Елісія, Зейірум, Сумрак і Лансарія.">
   <meta property="og:url" content="https://laimil.github.io/Aurelion/s/map.html">
-  <meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-map.png">
-  <meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-map.png">
-  <meta property="og:image:type" content="image/png">
+  <meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-map.jpg">
+  <meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-map.jpg">
+  <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Затемнена мапа світу Ауреліону з позначками локацій">
@@ -25,7 +25,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="✦ AURELION — Мапа">
   <meta name="twitter:description" content="Інтерактивна мапа світу Ауреліону: Архонія, Некмарак, Елісія, Зейірум, Сумрак і Лансарія.">
-  <meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-map.png">
+  <meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-map.jpg">
 
   <meta name="theme-color" content="#1a1a1a">
   <style>
@@ -43,12 +43,18 @@
     <h1>✦ AURELION</h1>
     <h2>Мапа</h2>
     <p>Завантаження…</p>
-    <p><a href="../Aurelion%20Site.dc.html#map">Якщо не перенаправило — натисни сюди →</a></p>
+    <p><a id="go" href="../Aurelion.dc.html#map">Якщо не перенаправило — натисни сюди →</a></p>
   </div>
   <script>
     // Редірект лише в браузері: краулери (Telegram, Discord) JS не виконують,
     // тому вони лишаються тут і читають og:-теги вище.
-    location.replace("../Aurelion%20Site.dc.html#map");
+    // ?id=… — глибоке посилання на конкретний запис усередині розділу.
+    (function () {
+      var id = new URLSearchParams(location.search).get("id");
+      var to = "../Aurelion.dc.html#map" + (id ? "/" + encodeURIComponent(id) : "");
+      document.getElementById("go").href = to;
+      location.replace(to);
+    })();
   </script>
 </body>
 </html>

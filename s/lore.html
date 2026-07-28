@@ -14,9 +14,9 @@
   <meta property="og:title" content="✦ AURELION — Довідник">
   <meta property="og:description" content="Довідник світу Ауреліону: краї, народи, фракції, магія та історія — усе, що варто знати перед грою.">
   <meta property="og:url" content="https://laimil.github.io/Aurelion/s/lore.html">
-  <meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-lore.png">
-  <meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-lore.png">
-  <meta property="og:image:type" content="image/png">
+  <meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-lore.jpg">
+  <meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-lore.jpg">
+  <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Розгорнута книга-довідник у золотому сяйві">
@@ -25,7 +25,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="✦ AURELION — Довідник">
   <meta name="twitter:description" content="Довідник світу Ауреліону: краї, народи, фракції, магія та історія — усе, що варто знати перед грою.">
-  <meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-lore.png">
+  <meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-lore.jpg">
 
   <meta name="theme-color" content="#1a1a1a">
   <style>
@@ -43,12 +43,18 @@
     <h1>✦ AURELION</h1>
     <h2>Довідник</h2>
     <p>Завантаження…</p>
-    <p><a href="../Aurelion%20Site.dc.html#lore">Якщо не перенаправило — натисни сюди →</a></p>
+    <p><a id="go" href="../Aurelion.dc.html#lore">Якщо не перенаправило — натисни сюди →</a></p>
   </div>
   <script>
     // Редірект лише в браузері: краулери (Telegram, Discord) JS не виконують,
     // тому вони лишаються тут і читають og:-теги вище.
-    location.replace("../Aurelion%20Site.dc.html#lore");
+    // ?id=… — глибоке посилання на конкретний запис усередині розділу.
+    (function () {
+      var id = new URLSearchParams(location.search).get("id");
+      var to = "../Aurelion.dc.html#lore" + (id ? "/" + encodeURIComponent(id) : "");
+      document.getElementById("go").href = to;
+      location.replace(to);
+    })();
   </script>
 </body>
 </html>

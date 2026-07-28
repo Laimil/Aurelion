@@ -3,29 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Пульс — Aurelion</title>
-  <meta name="description" content="Пульс спільноти Ауреліону — свіжі персонажі, записи в довіднику та активність гравців.">
-  <link rel="canonical" href="https://laimil.github.io/Aurelion/s/pulse.html">
+  <title>Хроніки — Aurelion</title>
+  <meta name="description" content="Хроніки Ауреліону — зведені літописи персонажів та арок: те, що сталося за столом, зібране в один запис.">
+  <link rel="canonical" href="https://laimil.github.io/Aurelion/s/chronicles.html">
 
   <!-- Open Graph — це те, що читає Telegram, Discord, Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Aurelion">
   <meta property="og:locale" content="uk_UA">
-  <meta property="og:title" content="✦ AURELION — Пульс">
-  <meta property="og:description" content="Пульс спільноти Ауреліону — свіжі персонажі, записи в довіднику та активність гравців.">
-  <meta property="og:url" content="https://laimil.github.io/Aurelion/s/pulse.html">
-  <meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-pulse.jpg">
-  <meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-pulse.jpg">
+  <meta property="og:title" content="✦ AURELION — Хроніки">
+  <meta property="og:description" content="Хроніки Ауреліону — зведені літописи персонажів та арок: те, що сталося за столом, зібране в один запис.">
+  <meta property="og:url" content="https://laimil.github.io/Aurelion/s/chronicles.html">
+  <meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-lore.jpg">
+  <meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-lore.jpg">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Стовпчики активності спільноти">
+  <meta property="og:image:alt" content="Розгорнута книга-літопис у золотому сяйві">
 
   <!-- Twitter/X — Telegram теж підхоплює як запасний варіант -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="✦ AURELION — Пульс">
-  <meta name="twitter:description" content="Пульс спільноти Ауреліону — свіжі персонажі, записи в довіднику та активність гравців.">
-  <meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-pulse.jpg">
+  <meta name="twitter:title" content="✦ AURELION — Хроніки">
+  <meta name="twitter:description" content="Хроніки Ауреліону — зведені літописи персонажів та арок: те, що сталося за столом, зібране в один запис.">
+  <meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-lore.jpg">
 
   <meta name="theme-color" content="#1a1a1a">
   <style>
@@ -41,9 +41,9 @@
 <body>
   <div>
     <h1>✦ AURELION</h1>
-    <h2>Пульс</h2>
+    <h2>Хроніки</h2>
     <p>Завантаження…</p>
-    <p><a id="go" href="../Aurelion.dc.html#pulse">Якщо не перенаправило — натисни сюди →</a></p>
+    <p><a id="go" href="../Aurelion.dc.html#chronicles">Якщо не перенаправило — натисни сюди →</a></p>
   </div>
   <script>
     // Редірект лише в браузері: краулери (Telegram, Discord) JS не виконують,
@@ -51,7 +51,7 @@
     // ?id=… — глибоке посилання на конкретний запис усередині розділу.
     (function () {
       var id = new URLSearchParams(location.search).get("id");
-      var to = "../Aurelion.dc.html#pulse" + (id ? "/" + encodeURIComponent(id) : "");
+      var to = "../Aurelion.dc.html#chronicles" + (id ? "/" + encodeURIComponent(id) : "");
       document.getElementById("go").href = to;
       location.replace(to);
     })();

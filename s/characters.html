@@ -14,18 +14,18 @@
   <meta property="og:title" content="✦ AURELION — Персонажі">
   <meta property="og:description" content="Персонажі гравців Ауреліону — портрети, біографії, фракції, звʼязки та хроніки їхніх пригод.">
   <meta property="og:url" content="https://laimil.github.io/Aurelion/s/characters.html">
-  <meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-characters.png">
-  <meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-characters.png">
-  <meta property="og:image:type" content="image/png">
+  <meta property="og:image" content="https://laimil.github.io/Aurelion/promo/og-characters.jpg">
+  <meta property="og:image:secure_url" content="https://laimil.github.io/Aurelion/promo/og-characters.jpg">
+  <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Три портрети персонажів у золотих оправах">
+  <meta property="og:image:alt" content="Три портретні арки галереї персонажів">
 
   <!-- Twitter/X — Telegram теж підхоплює як запасний варіант -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="✦ AURELION — Персонажі">
   <meta name="twitter:description" content="Персонажі гравців Ауреліону — портрети, біографії, фракції, звʼязки та хроніки їхніх пригод.">
-  <meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-characters.png">
+  <meta name="twitter:image" content="https://laimil.github.io/Aurelion/promo/og-characters.jpg">
 
   <meta name="theme-color" content="#1a1a1a">
   <style>
@@ -43,12 +43,18 @@
     <h1>✦ AURELION</h1>
     <h2>Персонажі</h2>
     <p>Завантаження…</p>
-    <p><a href="../Aurelion%20Site.dc.html#characters">Якщо не перенаправило — натисни сюди →</a></p>
+    <p><a id="go" href="../Aurelion.dc.html#characters">Якщо не перенаправило — натисни сюди →</a></p>
   </div>
   <script>
     // Редірект лише в браузері: краулери (Telegram, Discord) JS не виконують,
     // тому вони лишаються тут і читають og:-теги вище.
-    location.replace("../Aurelion%20Site.dc.html#characters");
+    // ?id=… — глибоке посилання на конкретний запис усередині розділу.
+    (function () {
+      var id = new URLSearchParams(location.search).get("id");
+      var to = "../Aurelion.dc.html#characters" + (id ? "/" + encodeURIComponent(id) : "");
+      document.getElementById("go").href = to;
+      location.replace(to);
+    })();
   </script>
 </body>
 </html>
