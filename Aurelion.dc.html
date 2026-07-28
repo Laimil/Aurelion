@@ -2886,11 +2886,12 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!prevState) return;
-    const s = this.state, p = prevState;
-    if (s.page !== p.page) this._track(s.page);
-    if (s.page === 'dice' && p.page !== 'dice') this._loadDiceStats();
+  // Що зараз відкрито — те й пишемо. _track сам відсіює повтори,
+  // тож не залежимо від порівняння з попереднім станом.
+  _trackCurrent() {
+    const s = this.state;
+    if (!s.page) return;
+    this._track(s.page);
     const watch = [
       ['selectedChar', 'char', 'name'],
       ['peekChar', 'char', 'name'],
@@ -2901,13 +2902,17 @@ class Component extends DCLogic {
       ['mapActivePin', 'map', 'name'],
     ];
     for (const [k, type, titleKey] of watch) {
-      const cur = s[k], prev = p[k];
-      if (cur && (!prev || String(cur.id) !== String(prev.id))) {
-        this._track(s.page, type, cur.id, cur[titleKey] || cur.title || cur.label);
-      }
+      const cur = s[k];
+      if (cur && cur.id != null) this._track(s.page, type, cur.id, cur[titleKey] || cur.title || cur.label);
     }
-    if (s.quotesAuthor && s.quotesAuthor !== p.quotesAuthor) {
-      this._track(s.page, 'quotes', s.quotesAuthor, s.quotesAuthor);
+    if (s.quotesAuthor) this._track(s.page, 'quotes', s.quotesAuthor, s.quotesAuthor);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const s = this.state;
+    this._trackCurrent();
+    if (prevState) {
+      if (s.page === 'dice' && prevState.page !== 'dice') this._loadDiceStats();
     }
     // Відкрили запис, а текст ще не доїхав — тягнемо саме його.
     const needs = [
@@ -2925,7 +2930,7 @@ class Component extends DCLogic {
     window.addEventListener('scroll', this._toTopWatch, { passive: true });
     this._loadAll();
     // Аналітика не має конкурувати з даними за перше з'єднання.
-    const trackFirst = () => this._track(this.state.page);
+    const trackFirst = () => this._trackCurrent();
     if (window.requestIdleCallback) window.requestIdleCallback(trackFirst, { timeout: 3000 });
     else setTimeout(trackFirst, 1200);
     this._updateBoardScale();
