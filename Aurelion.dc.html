@@ -1572,7 +1572,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 
       <!-- 2 · Порядок читання -->
       <sc-if value="{{ joinShowReading }}" hint-placeholder-val="{{ false }}">
-      <div class="glass" style="padding:22px 26px 24px;">
+      <div style="padding:22px 26px 24px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
           <span style="font-family:'Cinzel',serif;color:rgba(255,215,0,0.5);font-size:0.82rem;flex-shrink:0;">✦</span>
           <h2 style="font-family:'Cinzel',serif;font-size:0.98rem;color:#ffd700;letter-spacing:0.07em;">{{ joinReadingTitle }}</h2>
@@ -1582,7 +1582,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
         </sc-if>
         <div style="display:flex;flex-direction:column;margin-top:8px;">
           <sc-for list="{{ joinReadingSteps }}" as="step" hint-placeholder-count="3">
-            <div data-key="{{ step.key }}" onClick="{{ openReadingStep }}" style="display:flex;align-items:flex-start;gap:14px;padding:13px 4px;border-bottom:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:all 0.2s ease;" style-hover="padding-left:10px;">
+            <div data-key="{{ step.key }}" onClick="{{ openReadingStep }}" style="display:flex;align-items:flex-start;gap:14px;padding:13px 10px;margin:0 -10px;border-radius:8px;border-bottom:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:background 0.2s ease,padding-left 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);padding-left:18px;">
               <span style="width:28px;height:28px;flex:none;border-radius:999px;border:1px solid rgba(255,215,0,0.3);background:rgba(255,215,0,0.08);color:#ffd700;font-family:'Cinzel',Georgia,serif;font-size:0.78rem;display:flex;align-items:center;justify-content:center;">{{ step.num }}</span>
               <div style="flex:1;min-width:0;">
                 <span style="display:block;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:{{ step.kindColor }};margin-bottom:3px;">{{ step.kindLabel }}</span>
