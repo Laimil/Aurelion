@@ -132,19 +132,13 @@ button{font-family:inherit;cursor:pointer}
       <div><label>Назва (заголовок)</label><input value="{{ siteTitle }}" onChange="{{ handleSiteInput }}" data-field="title" placeholder="AURELION" /></div>
       <div><label>Підзаголовок</label><input value="{{ siteSubtitle }}" onChange="{{ handleSiteInput }}" data-field="subtitle" /></div>
       <div><label>Вітальний текст (головна)</label><textarea value="{{ siteWelcome }}" onChange="{{ handleSiteInput }}" data-field="welcome" style="min-height:80px;"></textarea></div>
-      <div><label>Вступ сторінки «Долучитися»</label><textarea value="{{ siteAbout }}" onChange="{{ handleSiteInput }}" data-field="contactsAbout" style="min-height:80px;"></textarea><p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.4;">Короткий вітальний текст угорі сторінки «Долучитися». Порожнє — ховається.</p></div>
       <div><label>Цитата в Довіднику Мандрівника</label><textarea value="{{ siteLoreQuote }}" onChange="{{ handleSiteInput }}" data-field="lore_intro_quote" style="min-height:150px;font-family:Georgia,serif;font-style:italic;"></textarea><p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.4;">Показується під заголовком сторінки Довідника. Порожнє поле — цитата ховається.</p></div>
     </div>
 
-    <!-- ── Сторінка «Долучитися» ── -->
-    <div style="margin-top:34px;padding-top:26px;border-top:1px solid rgba(255,255,255,0.09);">
-      <h3 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:6px;">✍️ Сторінка «Долучитися»</h3>
-      <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:20px;line-height:1.5;">Контент вхідної сторінки: правила спільноти та шаблон анкети. Контакти для подачі — у вкладці «✍️ Долучитися».</p>
-      <div style="display:flex;flex-direction:column;gap:18px;">
-        <div><label>Правила спільноти</label><textarea value="{{ siteJoinRules }}" onChange="{{ handleSiteInput }}" data-field="join_rules" style="min-height:170px;font-family:'EB Garamond',Georgia,serif;line-height:1.6;"></textarea><p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.4;">Підтримує Markdown: **жирний**, списки через «- », підзаголовки «## ».</p></div>
-        <div><label>Шаблон анкети</label><textarea value="{{ siteJoinTemplate }}" onChange="{{ handleSiteInput }}" data-field="join_template" style="min-height:210px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:0.85rem;line-height:1.6;"></textarea><p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.4;">Показується як є (блок з кнопкою «Скопіювати»). Поля та питання анкети.</p></div>
-        <div><label>Куди подавати — пояснення</label><textarea value="{{ siteJoinSubmit }}" onChange="{{ handleSiteInput }}" data-field="join_submit_note" style="min-height:70px;"></textarea><p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.4;">Короткий текст над списком контактів: куди надсилати заповнену анкету.</p></div>
-      </div>
+    <!-- ── Сторінка «Долучитися» переїхала ── -->
+    <div style="margin-top:26px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.16);border-radius:9px;padding:13px 16px;">
+      <p style="flex:1;min-width:200px;font-size:0.79rem;color:rgba(255,255,255,0.5);line-height:1.5;">Вступ, правила, порядок читання, анкета й контакти сторінки «Долучитися» — тепер в окремій вкладці.</p>
+      <button data-tab="contacts" onClick="{{ setTab }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.78rem;cursor:pointer;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.2);">✍️ Відкрити «Долучитися» →</button>
     </div>
 
     <!-- ── Анімація відкриття анкети ── -->
@@ -1038,10 +1032,119 @@ button{font-family:inherit;cursor:pointer}
 <!-- CONTACTS TAB -->
 <sc-if value="{{ showContacts }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">✉️ Куди подавати анкету / посилання</h2>
-      <button data-section="contacts" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нове посилання</button>
+    <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:6px;">✍️ Сторінка «Долучитися»</h2>
+    <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.5;">Усе, що бачить новачок. Блоки йдуть на сторінці згори вниз у тому ж порядку, що й тут — вимкнені ховаються повністю.</p>
+
+    <!-- Видимість блоків -->
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+      <sc-for list="{{ joinBlocks }}" as="b" hint-placeholder-count="5">
+        <button data-key="{{ b.key }}" onClick="{{ toggleJoinBlock }}" style="display:inline-flex;align-items:center;gap:7px;background:{{ b.bg }};border:1px solid {{ b.border }};color:{{ b.color }};border-radius:999px;padding:6px 14px;font-size:0.78rem;cursor:pointer;transition:all 0.18s;">
+          <span style="font-size:0.72rem;opacity:0.9;">{{ b.mark }}</span>{{ b.label }}
+        </button>
+      </sc-for>
     </div>
+    <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);">Натисни, щоб показати або сховати блок на сторінці.</p>
+
+    <!-- ── Вступ ── -->
+    <div style="margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.09);">
+      <h3 style="font-family:'Cinzel',serif;font-size:0.92rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:12px;">✦ Вступ</h3>
+      <div><label>Текст під заголовком</label><textarea value="{{ siteAbout }}" onChange="{{ handleSiteInput }}" data-field="contactsAbout" style="min-height:80px;font-family:'EB Garamond',Georgia,serif;line-height:1.6;"></textarea><p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.4;">Коротке вітання вгорі сторінки. Порожнє — ховається.</p></div>
+    </div>
+
+    <!-- ── Правила ── -->
+    <div style="margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.09);">
+      <h3 style="font-family:'Cinzel',serif;font-size:0.92rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:12px;">✦ Правила спільноти</h3>
+      <div style="margin-bottom:14px;"><label>Заголовок блоку</label><input value="{{ siteJoinRulesTitle }}" onChange="{{ handleSiteInput }}" data-field="join_rules_title" placeholder="Правила спільноти" /></div>
+      <div><label>Текст правил</label><textarea value="{{ siteJoinRules }}" onChange="{{ handleSiteInput }}" data-field="join_rules" style="min-height:170px;font-family:'EB Garamond',Georgia,serif;line-height:1.6;"></textarea><p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.4;">Підтримує Markdown: **жирний**, списки через «- », підзаголовки «## ».</p></div>
+      <div data-key="join_rules_open" onClick="{{ toggleJoinFlag }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;margin-top:14px;">
+        <div style="width:40px;height:22px;border-radius:999px;flex-shrink:0;position:relative;transition:background 0.2s;background:{{ rulesOpenTrackBg }};">
+          <div style="position:absolute;top:2px;left:{{ rulesOpenKnobLeft }};width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s;"></div>
+        </div>
+        <div>
+          <p style="font-size:0.84rem;color:#fff;">Правила розгорнуті одразу</p>
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:1px;">{{ rulesOpenHint }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Порядок читання ── -->
+    <div style="margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.09);">
+      <h3 style="font-family:'Cinzel',serif;font-size:0.92rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:6px;">✦ Порядок читання</h3>
+      <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:16px;line-height:1.5;">Маршрут для новачка: обери статті з чек-листа нижче й розстав їх у потрібному порядку. Кожен крок стає посиланням на сторінці.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+        <div><label>Заголовок блоку</label><input value="{{ siteReadingTitle }}" onChange="{{ handleSiteInput }}" data-field="join_reading_title" placeholder="З чого почати" /></div>
+        <div><label>Підпис (необов'язково)</label><input value="{{ siteReadingIntro }}" onChange="{{ handleSiteInput }}" data-field="join_reading_intro" placeholder="Читай згори вниз — і світ складеться." /></div>
+      </div>
+
+      <label>Кроки маршруту ({{ readingCount }})</label>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+        <sc-for list="{{ readingSteps }}" as="st" hint-placeholder-count="0">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+            <span style="width:24px;height:24px;flex-shrink:0;border-radius:999px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;font-family:'Cinzel',serif;font-size:0.72rem;display:flex;align-items:center;justify-content:center;">{{ st.num }}</span>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="font-size:0.63rem;letter-spacing:0.09em;text-transform:uppercase;color:{{ st.kindColor }};border:1px solid {{ st.kindBorder }};border-radius:4px;padding:1px 7px;">{{ st.kindLabel }}</span>
+                <span style="font-size:0.86rem;color:{{ st.titleColor }};">{{ st.title }}</span>
+              </div>
+              <input value="{{ st.note }}" data-key="{{ st.key }}" onChange="{{ setReadingNote }}" placeholder="Підпис до кроку — навіщо це читати" style="margin-top:7px;font-size:0.76rem;padding:6px 10px;border-radius:6px;" />
+            </div>
+            <div style="display:flex;gap:4px;flex-shrink:0;">
+              <button data-key="{{ st.key }}" data-dir="up" onClick="{{ moveReading }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:4px 9px;font-size:0.76rem;cursor:pointer;" style-hover="color:#fff;">↑</button>
+              <button data-key="{{ st.key }}" data-dir="down" onClick="{{ moveReading }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:4px 9px;font-size:0.76rem;cursor:pointer;" style-hover="color:#fff;">↓</button>
+              <button data-key="{{ st.key }}" onClick="{{ removeReading }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 9px;font-size:0.76rem;cursor:pointer;" style-hover="background:rgba(255,77,77,0.18);">✕</button>
+            </div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ readingEmpty }}" hint-placeholder-val="{{ true }}">
+          <p style="font-size:0.79rem;color:rgba(255,255,255,0.28);font-style:italic;padding:10px 2px;">Кроків ще немає — познач статті у чек-листі нижче.</p>
+        </sc-if>
+      </div>
+
+      <label>Куди може вести крок</label>
+      <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
+        <div style="padding:9px 9px 5px;display:flex;gap:6px;flex-wrap:wrap;">
+          <sc-for list="{{ readingKinds }}" as="k" hint-placeholder-count="6">
+            <button data-kind="{{ k.id }}" onClick="{{ setReadingKind }}" style="background:{{ k.bg }};border:1px solid {{ k.border }};color:{{ k.color }};border-radius:999px;padding:4px 12px;font-size:0.74rem;cursor:pointer;transition:all 0.15s;">{{ k.label }}</button>
+          </sc-for>
+        </div>
+        <div style="padding:0 9px 6px;">
+          <input value="{{ readingQuery }}" onChange="{{ handleReadingSearch }}" placeholder="Пошук статті…" style="font-size:0.78rem;padding:6px 10px;border-radius:6px;" />
+        </div>
+        <div style="max-height:260px;overflow-y:auto;padding:4px 6px 8px;">
+          <sc-for list="{{ readingPickList }}" as="p" hint-placeholder-count="0">
+            <div data-key="{{ p.key }}" onClick="{{ toggleReadingPick }}" style="display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:6px;cursor:pointer;margin-bottom:2px;background:{{ p.rowBg }};transition:background 0.15s;">
+              <div style="width:18px;height:18px;border-radius:4px;border:1px solid {{ p.checkBorder }};background:{{ p.checkBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#ffd700;font-weight:700;">{{ p.checkMark }}</div>
+              <span style="font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:{{ p.kindColor }};flex-shrink:0;width:74px;">{{ p.kindLabel }}</span>
+              <div style="min-width:0;flex:1;">
+                <p style="font-size:0.83rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title }}</p>
+                <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.sub }}</p>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ readingPickEmpty }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.78rem;color:rgba(255,255,255,0.25);padding:12px 8px;">Нічого не знайдено.</p>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Анкета ── -->
+    <div style="margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.09);">
+      <h3 style="font-family:'Cinzel',serif;font-size:0.92rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:12px;">✦ Шаблон анкети</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+        <div><label>Назва картки</label><input value="{{ siteJoinTplTitle }}" onChange="{{ handleSiteInput }}" data-field="join_template_title" placeholder="Анкета персонажа" /></div>
+        <div><label>Надпис над назвою</label><input value="{{ siteJoinTplEyebrow }}" onChange="{{ handleSiteInput }}" data-field="join_template_eyebrow" placeholder="✦ Для нових гравців" /></div>
+      </div>
+      <div><label>Текст шаблону</label><textarea value="{{ siteJoinTemplate }}" onChange="{{ handleSiteInput }}" data-field="join_template" style="min-height:210px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:0.85rem;line-height:1.6;"></textarea><p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.4;">Показується як є — з кнопками «Переглянути», «Завантажити» та «Скопіювати».</p></div>
+    </div>
+
+    <!-- ── Контакти ── -->
+    <div style="margin-top:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.09);">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+        <h3 style="font-family:'Cinzel',serif;font-size:0.92rem;color:#ffd700;letter-spacing:0.06em;">✦ Куди подавати анкету</h3>
+        <button data-section="contacts" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нове посилання</button>
+      </div>
+      <div style="margin-bottom:16px;"><label>Пояснення над списком</label><textarea value="{{ siteJoinSubmit }}" onChange="{{ handleSiteInput }}" data-field="join_submit_note" style="min-height:70px;"></textarea></div>
     <div class="sort-chips">
       <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
       <button class="sort-chip" data-section="contacts" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
@@ -1085,6 +1188,8 @@ button{font-family:inherit;cursor:pointer}
         </div>
       </div>
     </sc-if>
+    </div>
+    <p style="margin-top:22px;font-size:0.75rem;color:rgba(255,255,255,0.22);">Тексти й порядок читання зберігаються кнопкою «Зберегти» у верхній панелі. Посилання — окремо, кнопкою в формі.</p>
   </div>
 </sc-if>
 
@@ -1268,6 +1373,36 @@ function parseMarkdown(raw){
   }
   fl();fp();
   return out.join('\n');
+}
+const JOIN_SOURCES = [
+  { t: 'lore',       label: 'Довідник', color: '#ffd76b', title: 'title', sub: 'category' },
+  { t: 'stories',    label: 'Історія',  color: '#7aa8f5', title: 'title', sub: 'description' },
+  { t: 'chronicles', label: 'Хроніка',   color: '#c98be0', title: 'title', sub: 'period' },
+  { t: 'pantheon',   label: 'Пантеон',   color: '#8fd6c4', title: 'name',  sub: 'domain' },
+  { t: 'characters', label: 'Персонаж',  color: '#e587a4', title: 'name',  sub: 'role' },
+];
+const JOIN_PAGES = [
+  { id: 'lore',        title: 'Довідник Мандрівника' },
+  { id: 'stories',     title: 'Історії' },
+  { id: 'chronicles',  title: 'Хроніки' },
+  { id: 'characters',  title: 'Персонажі' },
+  { id: 'pantheon',    title: 'Пантеон' },
+  { id: 'connections', title: 'Зв’язки' },
+  { id: 'map',         title: 'Мапа' },
+  { id: 'dice',        title: 'Кубик' },
+  { id: 'quotes',      title: 'Цитатник' },
+  { id: 'pulse',       title: 'Пульс' },
+];
+const JOIN_BLOCKS = [
+  { key: 'join_show_intro',    label: 'Вступ' },
+  { key: 'join_show_rules',    label: 'Правила' },
+  { key: 'join_show_reading',  label: 'Порядок читання' },
+  { key: 'join_show_template', label: 'Анкета' },
+  { key: 'join_show_contacts', label: 'Контакти' },
+];
+function parseReading(raw) {
+  try { const a = JSON.parse(raw || '[]'); return Array.isArray(a) ? a.filter(x => x && x.key) : []; }
+  catch (e) { return []; }
 }
 const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
@@ -1643,6 +1778,140 @@ class Component extends DCLogic {
     this.setState({ statsRows: out, statsLoading: false, statsLoaded: true });
   }
 
+  // ── Сторінка «Долучитися» ────────────────────────────────
+  _setSite(key, value) {
+    this.setState(st => ({ data: { ...st.data, site: { ...(st.data.site || {}), [key]: value } } }));
+  }
+
+  _setReading(arr) {
+    this._setSite('join_reading_items', JSON.stringify(arr));
+  }
+
+  _joinCatalog() {
+    const d = this.state.data || {};
+    const out = [];
+    JOIN_PAGES.forEach(p => out.push({
+      key: 'page:' + p.id, kindLabel: 'Розділ', kindColor: 'rgba(255,255,255,0.5)',
+      title: p.title, sub: 'Ціла сторінка сайту', group: 'page',
+    }));
+    JOIN_SOURCES.forEach(src => {
+      (d[src.t] || []).forEach(row => {
+        if (!row || row.id == null) return;
+        out.push({
+          key: src.t + ':' + row.id, kindLabel: src.label, kindColor: src.color,
+          title: String(row[src.title] || '—'),
+          sub: String(row[src.sub] || '').slice(0, 90),
+          group: src.t,
+        });
+      });
+    });
+    return out;
+  }
+
+  _joinVals() {
+    const s = this.state;
+    const site = (s.data && s.data.site) || {};
+    const items = parseReading(site.join_reading_items);
+    const catalog = this._joinCatalog();
+    const byKey = new Map(catalog.map(c => [c.key, c]));
+    const chosen = new Set(items.map(i => i.key));
+    const rulesOpen = site.join_rules_open === '1';
+    const kind = s.readingKind || 'all';
+    const q = (s.readingQuery || '').toLowerCase().trim();
+
+    const steps = items.map((it, i) => {
+      const c = byKey.get(it.key);
+      return {
+        key: it.key, num: String(i + 1), note: it.note || '',
+        kindLabel: c ? c.kindLabel : 'Зникло',
+        kindColor: c ? c.kindColor : 'rgba(255,77,77,0.8)',
+        kindBorder: c ? 'rgba(255,255,255,0.14)' : 'rgba(255,77,77,0.3)',
+        title: c ? c.title : (it.key + ' — запис видалено'),
+        titleColor: c ? '#fff' : 'rgba(255,77,77,0.75)',
+      };
+    });
+
+    const kindChips = [{ id: 'all', label: 'Усе' }, { id: 'page', label: 'Розділи' }]
+      .concat(JOIN_SOURCES.map(x => ({ id: x.t, label: x.label })))
+      .map(x => ({
+        id: x.id, label: x.label,
+        bg:     kind === x.id ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+        border: kind === x.id ? 'rgba(255,215,0,0.4)'  : 'rgba(255,255,255,0.12)',
+        color:  kind === x.id ? '#ffd700'              : 'rgba(255,255,255,0.5)',
+      }));
+
+    const picks = catalog
+      .filter(c => kind === 'all' || c.group === kind)
+      .filter(c => !q || c.title.toLowerCase().includes(q) || (c.sub || '').toLowerCase().includes(q))
+      .map(c => {
+        const on = chosen.has(c.key);
+        return {
+          ...c, checked: on,
+          rowBg:       on ? 'rgba(255,215,0,0.07)' : 'transparent',
+          checkBg:     on ? 'rgba(255,215,0,0.22)' : 'transparent',
+          checkBorder: on ? 'rgba(255,215,0,0.7)'  : 'rgba(255,255,255,0.18)',
+          checkMark:   on ? '✓' : '',
+        };
+      });
+
+    return {
+      joinBlocks: JOIN_BLOCKS.map(b => {
+        const on = site[b.key] !== '0';
+        return {
+          key: b.key, label: b.label, mark: on ? '◉' : '○',
+          bg:     on ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.03)',
+          border: on ? 'rgba(255,215,0,0.34)' : 'rgba(255,255,255,0.1)',
+          color:  on ? '#ffd700'              : 'rgba(255,255,255,0.34)',
+        };
+      }),
+      toggleJoinBlock: (e) => {
+        const k = e.currentTarget.dataset.key;
+        this._setSite(k, ((this.state.data.site || {})[k] !== '0') ? '0' : '1');
+      },
+      toggleJoinFlag: (e) => {
+        const k = e.currentTarget.dataset.key;
+        this._setSite(k, ((this.state.data.site || {})[k] === '1') ? '0' : '1');
+      },
+      rulesOpenTrackBg:  rulesOpen ? 'rgba(255,215,0,0.6)' : 'rgba(255,255,255,0.15)',
+      rulesOpenKnobLeft: rulesOpen ? '20px' : '2px',
+      rulesOpenHint:     rulesOpen ? 'Правила видно відразу при відкритті сторінки' : 'Сховані під кнопкою «Читати правила»',
+
+      readingSteps: steps,
+      readingCount: items.length ? (items.length + ' кроків') : 'порожньо',
+      readingEmpty: items.length === 0,
+      readingKinds: kindChips,
+      readingQuery: s.readingQuery || '',
+      readingPickList: picks,
+      readingPickEmpty: picks.length === 0,
+      setReadingKind: (e) => this.setState({ readingKind: e.currentTarget.dataset.kind }),
+      handleReadingSearch: (e) => this.setState({ readingQuery: e.target.value }),
+      toggleReadingPick: (e) => {
+        const key = e.currentTarget.dataset.key;
+        const cur = parseReading((this.state.data.site || {}).join_reading_items);
+        const i = cur.findIndex(x => x.key === key);
+        if (i >= 0) cur.splice(i, 1); else cur.push({ key, note: '' });
+        this._setReading(cur);
+      },
+      removeReading: (e) => {
+        const key = e.currentTarget.dataset.key;
+        this._setReading(parseReading((this.state.data.site || {}).join_reading_items).filter(x => x.key !== key));
+      },
+      moveReading: (e) => {
+        const key = e.currentTarget.dataset.key, dir = e.currentTarget.dataset.dir;
+        const cur = parseReading((this.state.data.site || {}).join_reading_items);
+        const i = cur.findIndex(x => x.key === key);
+        const j = dir === 'up' ? i - 1 : i + 1;
+        if (i < 0 || j < 0 || j >= cur.length) return;
+        const tmp = cur[i]; cur[i] = cur[j]; cur[j] = tmp;
+        this._setReading(cur);
+      },
+      setReadingNote: (e) => {
+        const key = e.target.dataset.key, note = e.target.value;
+        this._setReading(parseReading((this.state.data.site || {}).join_reading_items).map(x => x.key === key ? { ...x, note } : x));
+      },
+    };
+  }
+
   _statsVals() {
     const s = this.state;
     const period = s.statsPeriod;
@@ -1759,7 +2028,7 @@ class Component extends DCLogic {
         const site = s.data.site || {};
         const diceVal = (k, arr) => (site[k] != null && String(site[k]).trim() !== '') ? site[k] : arr.join('\n');
         await Promise.all([
-          ...['title','subtitle','welcome','contactsAbout','lore_intro_quote','join_rules','join_template','join_submit_note','char_open_effect_default','char_fx_duration','char_fx_intensity','char_fx_reduce_motion']
+          ...['title','subtitle','welcome','contactsAbout','lore_intro_quote','join_rules','join_template','join_submit_note','join_rules_title','join_rules_open','join_template_title','join_template_eyebrow','join_reading_title','join_reading_intro','join_reading_items','join_show_intro','join_show_rules','join_show_reading','join_show_template','join_show_contacts','char_open_effect_default','char_fx_duration','char_fx_intensity','char_fx_reduce_motion']
             .map(k => this._upsertSetting(k, site[k] || '')),
           this._upsertSetting('dice_quotes_crit',   diceVal('dice_quotes_crit',   DEFAULT_DICE_QUOTES.crit)),
           this._upsertSetting('dice_quotes_fumble', diceVal('dice_quotes_fumble', DEFAULT_DICE_QUOTES.fumble)),
@@ -1878,6 +2147,12 @@ class Component extends DCLogic {
       siteJoinRules:    data.site?.join_rules       || '',
       siteJoinTemplate: data.site?.join_template    || '',
       siteJoinSubmit:   data.site?.join_submit_note || '',
+      siteJoinRulesTitle:  data.site?.join_rules_title      || '',
+      siteJoinTplTitle:    data.site?.join_template_title   || '',
+      siteJoinTplEyebrow:  data.site?.join_template_eyebrow || '',
+      siteReadingTitle:    data.site?.join_reading_title    || '',
+      siteReadingIntro:    data.site?.join_reading_intro    || '',
+      ...this._joinVals(),
 
       // ── Ефект відкриття анкети ─────────────────────────────
       siteCharEffect:      data.site?.char_open_effect_default || 'sparks',

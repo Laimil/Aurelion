@@ -1550,10 +1550,11 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     <div style="display:flex;flex-direction:column;gap:14px;">
 
       <!-- 1 · Правила спільноти -->
+      <sc-if value="{{ joinShowRules }}" hint-placeholder-val="{{ true }}">
       <div class="glass" style="padding:22px 26px 24px;">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <span style="font-family:'Cinzel',serif;color:rgba(255,215,0,0.5);font-size:0.82rem;flex-shrink:0;">✦</span>
-          <h2 style="font-family:'Cinzel',serif;font-size:0.98rem;color:#ffd700;letter-spacing:0.07em;flex:1;">Правила спільноти</h2>
+          <h2 style="font-family:'Cinzel',serif;font-size:0.98rem;color:#ffd700;letter-spacing:0.07em;flex:1;">{{ joinRulesTitle }}</h2>
           <sc-if value="{{ joinHasRules }}" hint-placeholder-val="{{ true }}">
             <button onClick="{{ toggleJoinRules }}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.75);border-radius:999px;padding:7px 16px;font-size:0.8rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;" style-hover="color:#fff;background:rgba(255,255,255,0.1);">{{ joinRulesToggleLabel }}</button>
           </sc-if>
@@ -1564,11 +1565,41 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           </sc-if>
         </sc-if>
         <sc-if value="{{ joinNoRules }}" hint-placeholder-val="{{ false }}">
-          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.3);font-style:italic;">Правила ще не додано — заповніть їх в адмін-панелі, вкладка «⚙ Сайт».</p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.3);font-style:italic;">Правила ще не додано — заповніть їх в адмін-панелі, вкладка «✍️ Долучитися».</p>
         </sc-if>
       </div>
+      </sc-if>
 
-      <!-- 2 · Шаблон анкети -->
+      <!-- 2 · Порядок читання -->
+      <sc-if value="{{ joinShowReading }}" hint-placeholder-val="{{ false }}">
+      <div class="glass" style="padding:22px 26px 24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <span style="font-family:'Cinzel',serif;color:rgba(255,215,0,0.5);font-size:0.82rem;flex-shrink:0;">✦</span>
+          <h2 style="font-family:'Cinzel',serif;font-size:0.98rem;color:#ffd700;letter-spacing:0.07em;">{{ joinReadingTitle }}</h2>
+        </div>
+        <sc-if value="{{ joinReadingHasIntro }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.5);line-height:1.66;margin-bottom:6px;">{{ joinReadingIntro }}</p>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;margin-top:8px;">
+          <sc-for list="{{ joinReadingSteps }}" as="step" hint-placeholder-count="3">
+            <div data-key="{{ step.key }}" onClick="{{ openReadingStep }}" style="display:flex;align-items:flex-start;gap:14px;padding:13px 4px;border-bottom:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:all 0.2s ease;" style-hover="padding-left:10px;">
+              <span style="width:28px;height:28px;flex:none;border-radius:999px;border:1px solid rgba(255,215,0,0.3);background:rgba(255,215,0,0.08);color:#ffd700;font-family:'Cinzel',Georgia,serif;font-size:0.78rem;display:flex;align-items:center;justify-content:center;">{{ step.num }}</span>
+              <div style="flex:1;min-width:0;">
+                <span style="display:block;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:{{ step.kindColor }};margin-bottom:3px;">{{ step.kindLabel }}</span>
+                <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:1.02rem;color:#fff;letter-spacing:0.02em;">{{ step.title }}</span>
+                <sc-if value="{{ step.hasNote }}" hint-placeholder-val="{{ false }}">
+                  <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.45);line-height:1.55;margin-top:3px;">{{ step.note }}</span>
+                </sc-if>
+              </div>
+              <span style="color:rgba(255,215,0,0.45);font-size:0.9rem;flex:none;margin-top:4px;">→</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- 3 · Шаблон анкети -->
+      <sc-if value="{{ joinShowTemplate }}" hint-placeholder-val="{{ true }}">
       <div class="glass" style="padding:22px 26px 24px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
           <span style="font-family:'Cinzel',serif;color:rgba(255,215,0,0.5);font-size:0.82rem;flex-shrink:0;">✦</span>
@@ -1580,8 +1611,8 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;"><span style="font-family:'Cinzel',serif;font-size:3.6rem;color:rgba(255,215,0,0.17);">✦</span></div>
               <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(18,16,12,0.95) 0%,rgba(18,16,12,0.25) 55%,rgba(18,16,12,0.02) 100%);"></div>
               <div style="position:absolute;left:18px;right:18px;bottom:14px;">
-                <span style="display:block;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.82);margin-bottom:6px;">✦ Для нових гравців</span>
-                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.22rem;color:#fff;letter-spacing:0.03em;text-shadow:0 1px 10px rgba(0,0,0,0.7);">Анкета персонажа</h3>
+                <span style="display:block;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.82);margin-bottom:6px;">{{ joinTemplateEyebrow }}</span>
+                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.22rem;color:#fff;letter-spacing:0.03em;text-shadow:0 1px 10px rgba(0,0,0,0.7);">{{ joinTemplateTitle }}</h3>
               </div>
             </div>
             <div style="padding:15px 18px 18px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -1595,11 +1626,13 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           </sc-if>
         </sc-if>
         <sc-if value="{{ joinNoTemplate }}" hint-placeholder-val="{{ false }}">
-          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.3);font-style:italic;margin-top:8px;">Шаблон анкети ще не додано — заповніть його в адмін-панелі, вкладка «⚙ Сайт».</p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.3);font-style:italic;margin-top:8px;">Шаблон анкети ще не додано — заповніть його в адмін-панелі, вкладка «✍️ Долучитися».</p>
         </sc-if>
       </div>
+      </sc-if>
 
-      <!-- 3 · Контакти -->
+      <!-- 4 · Контакти -->
+      <sc-if value="{{ joinShowContacts }}" hint-placeholder-val="{{ true }}">
       <div class="glass" style="padding:22px 26px 24px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
           <span style="font-family:'Cinzel',serif;color:rgba(255,215,0,0.5);font-size:0.82rem;flex-shrink:0;">✦</span>
@@ -1618,6 +1651,7 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           </sc-for>
         </div>
       </div>
+      </sc-if>
     </div>
 
     <div style="text-align:center;margin-top:34px;">
@@ -2445,6 +2479,53 @@ class Component extends DCLogic {
         ta.remove(); done(ok);
       }
     } catch (e) { done(false); }
+  }
+
+  // ── «Долучитися»: порядок читання ────────────────────────
+  _readingSteps(data) {
+    const site = (data && data.site) || {};
+    let raw = [];
+    try { const a = JSON.parse(site.join_reading_items || '[]'); if (Array.isArray(a)) raw = a; } catch (e) { raw = []; }
+    const KIND = {
+      lore:       { label: 'Довідник', color: 'rgba(255,215,107,0.9)', title: 'title', sub: 'category' },
+      stories:    { label: 'Історія',  color: 'rgba(122,168,245,0.9)', title: 'title', sub: 'description' },
+      chronicles: { label: 'Хроніка',  color: 'rgba(201,139,224,0.9)', title: 'title', sub: 'period' },
+      pantheon:   { label: 'Пантеон',  color: 'rgba(143,214,196,0.9)', title: 'name',  sub: 'domain' },
+      characters: { label: 'Персонаж', color: 'rgba(229,135,164,0.9)', title: 'name',  sub: 'role' },
+    };
+    const PAGES = {
+      lore: 'Довідник Мандрівника', stories: 'Історії', chronicles: 'Хроніки', characters: 'Персонажі',
+      pantheon: 'Пантеон', connections: 'Зв’язки', map: 'Мапа', dice: 'Кубик', quotes: 'Цитатник', pulse: 'Пульс',
+    };
+    const out = [];
+    raw.forEach(it => {
+      if (!it || !it.key) return;
+      const sep = String(it.key).indexOf(':');
+      const t = String(it.key).slice(0, sep), id = String(it.key).slice(sep + 1);
+      let title = '', kindLabel = '', kindColor = 'rgba(255,255,255,0.5)';
+      if (t === 'page') {
+        if (!PAGES[id]) return;
+        title = PAGES[id]; kindLabel = 'Розділ';
+      } else {
+        const k = KIND[t]; if (!k) return;
+        const row = (data[t] || []).find(x => String(x.id) === id);
+        if (!row) return;
+        title = String(row[k.title] || '—'); kindLabel = k.label; kindColor = k.color;
+      }
+      out.push({
+        key: it.key, num: String(out.length + 1), title, kindLabel, kindColor,
+        note: it.note || '', hasNote: !!(it.note && String(it.note).trim()),
+      });
+    });
+    return out;
+  }
+
+  _openReading(key) {
+    const sep = String(key).indexOf(':');
+    const t = String(key).slice(0, sep), id = String(key).slice(sep + 1);
+    if (t === 'page') this._nav(id);
+    else if (t === 'pantheon') this._nav('pantheon');
+    else this._nav(t, id);
   }
 
   // Перехід за хешем (єдина точка зміни URL — hashchange застосує стан).
@@ -3883,7 +3964,7 @@ class Component extends DCLogic {
       siteWelcome:  data.site?.welcome  || 'Ласкаво просимо до Ауреліону.',
       homeWelcomeEl: React.createElement('div', { className: 'home-welcome', dangerouslySetInnerHTML: { __html: parseMarkdown(data.site?.welcome || 'Ласкаво просимо до Ауреліону.') } }),
       contactsAbout: data.site?.contactsAbout || '',
-      joinHasIntro:  !!(data.site && data.site.contactsAbout && String(data.site.contactsAbout).trim()),
+      joinHasIntro:  !!(data.site && data.site.contactsAbout && String(data.site.contactsAbout).trim()) && (data.site.join_show_intro !== '0'),
       joinIntroEl:   (data.site && data.site.contactsAbout && String(data.site.contactsAbout).trim())
         ? React.createElement('div', { className: 'home-welcome', dangerouslySetInnerHTML: { __html: parseMarkdown(data.site.contactsAbout) } })
         : null,
@@ -3898,6 +3979,24 @@ class Component extends DCLogic {
       joinSubmitNote:    (data.site && data.site.join_submit_note) || '',
       joinHasSubmitNote: !!(data.site && data.site.join_submit_note && String(data.site.join_submit_note).trim()),
       joinCopyLabel:     s.joinCopied ? '✓ Скопійовано' : 'Скопіювати шаблон',
+      joinShowRules:     (data.site?.join_show_rules    !== '0'),
+      joinShowTemplate:  (data.site?.join_show_template !== '0'),
+      joinShowContacts:  (data.site?.join_show_contacts !== '0'),
+      joinRulesTitle:    (data.site?.join_rules_title && String(data.site.join_rules_title).trim()) || 'Правила спільноти',
+      joinTemplateTitle: (data.site?.join_template_title && String(data.site.join_template_title).trim()) || 'Анкета персонажа',
+      joinTemplateEyebrow: (data.site?.join_template_eyebrow && String(data.site.join_template_eyebrow).trim()) || '✦ Для нових гравців',
+      ...(() => {
+        const steps = this._readingSteps(data);
+        const on = (data.site?.join_show_reading !== '0') && steps.length > 0;
+        return {
+          joinShowReading:  on,
+          joinReadingSteps: steps,
+          joinReadingTitle: (data.site?.join_reading_title && String(data.site.join_reading_title).trim()) || 'З чого почати',
+          joinReadingIntro: (data.site?.join_reading_intro) || '',
+          joinReadingHasIntro: !!(data.site?.join_reading_intro && String(data.site.join_reading_intro).trim()),
+          openReadingStep: (e) => this._openReading(e.currentTarget.dataset.key),
+        };
+      })(),
       copyJoinTemplate: () => {
         const t = (this.state.data.site && this.state.data.site.join_template) || '';
         const done = () => {
@@ -3913,9 +4012,9 @@ class Component extends DCLogic {
       joinTemplateOpen:        !!s.joinTemplateOpen,
       joinTemplateToggleLabel: s.joinTemplateOpen ? '▲ Згорнути' : '👁 Переглянути',
       toggleJoinTemplate: () => this.setState(st => ({ joinTemplateOpen: !st.joinTemplateOpen })),
-      joinRulesOpen:        !!s.joinRulesOpen,
-      joinRulesToggleLabel: s.joinRulesOpen ? '▲ Згорнути' : '👁 Читати правила',
-      toggleJoinRules: () => this.setState(st => ({ joinRulesOpen: !st.joinRulesOpen })),
+      joinRulesOpen:        (s.joinRulesOpen == null) ? (data.site?.join_rules_open === '1') : !!s.joinRulesOpen,
+      joinRulesToggleLabel: ((s.joinRulesOpen == null) ? (data.site?.join_rules_open === '1') : !!s.joinRulesOpen) ? '▲ Згорнути' : '👁 Читати правила',
+      toggleJoinRules: () => this.setState(st => ({ joinRulesOpen: !((st.joinRulesOpen == null) ? ((st.data.site || {}).join_rules_open === '1') : st.joinRulesOpen) })),
       downloadJoinTemplate: () => {
         const t = (this.state.data.site && this.state.data.site.join_template) || '';
         try {
