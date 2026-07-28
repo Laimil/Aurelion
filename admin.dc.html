@@ -104,7 +104,7 @@ button{font-family:inherit;cursor:pointer}
 <!-- TOP BAR -->
 <div style="position:sticky;top:0;z-index:50;background:rgba(22,22,22,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.09);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
   <div style="display:flex;align-items:center;gap:14px;">
-    <a href="Aurelion Site.dc.html" style="font-size:0.78rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.18s;" style-hover="color:#fff;">← Сайт</a>
+    <a href="Aurelion.dc.html" style="font-size:0.78rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.18s;" style-hover="color:#fff;">← Сайт</a>
     <span style="color:rgba(255,255,255,0.15);">|</span>
     <span style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.1em;">✦ ADMIN</span>
     <span style="font-size:0.68rem;color:rgba(100,149,237,0.55);border:1px solid rgba(100,149,237,0.18);border-radius:4px;padding:2px 8px;">{{ adminEmail }}</span>
@@ -223,7 +223,7 @@ button{font-family:inherit;cursor:pointer}
 
     <div style="background:rgba(255,215,0,0.045);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:16px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
       <div style="min-width:220px;flex:1;">
-        <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#ffd700;letter-spacing:0.05em;margin-bottom:6px;">✉ Зведена від Марти</p>
+        <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#ffd700;letter-spacing:0.05em;margin-bottom:6px;">✉ Зведення від Марти</p>
         <p style="font-size:0.76rem;line-height:1.55;color:rgba(255,255,255,0.45);">{{ martaMsg }}</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -1385,7 +1385,7 @@ class Component extends DCLogic {
   }
   _authHJ() { return { ...this._authH(), 'Content-Type': 'application/json' }; }
 
-  // ── Марта: ручна зведена ──────────────────────────────────
+  // ── Марта: ручне зведення ─────────────────────────────────
   // Функція telegram-report пускає або за секретом (розклад), або за
   // токеном залогіненого адміна — тому секрет тут світити не треба.
   async _sendMarta(kind) {
@@ -1401,7 +1401,7 @@ class Component extends DCLogic {
       this.setState({
         martaBusy: false,
         martaMsg: ok
-          ? `✦ Зведена ${label} пішла в чат звітів.`
+          ? `✦ Зведення ${label} пішло в чат звітів.`
           : `Не вийшло: ${t.slice(0, 140) || r.status}`,
       });
     } catch (err) {
