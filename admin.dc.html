@@ -207,12 +207,27 @@ button{font-family:inherit;cursor:pointer}
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">📊 Пульс сайту</h2>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <sc-for list="{{ statsPeriods }}" as="prd" hint-placeholder-count="3">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+        <sc-for list="{{ statsPeriods }}" as="prd" hint-placeholder-count="7">
           <button class="stat-seg" data-period="{{ prd.id }}" data-active="{{ prd.active }}" onClick="{{ setStatsPeriod }}" style="background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:5px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;">{{ prd.label }}</button>
         </sc-for>
         <button onClick="{{ reloadStats }}" title="Оновити" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;width:28px;height:28px;font-size:0.8rem;cursor:pointer;flex-shrink:0;" style-hover="color:#fff;background:rgba(255,255,255,0.1);">↻</button>
       </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:-8px 0 18px;">
+      <div>
+        <p style="font-size:0.74rem;color:rgba(255,255,255,0.5);">Період: <span style="color:#ffd700;">{{ statsRangeLabel }}</span></p>
+        <p style="font-size:0.66rem;color:rgba(255,255,255,0.26);margin-top:3px;">{{ statsPrevLabel }}</p>
+      </div>
+      <sc-if value="{{ statsCustom }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);">від</span>
+          <input type="date" value="{{ statsFromVal }}" onChange="{{ setStatsFrom }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:#fff;border-radius:8px;padding:5px 10px;font-size:0.74rem;color-scheme:dark;" />
+          <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);">до</span>
+          <input type="date" value="{{ statsToVal }}" onChange="{{ setStatsTo }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:#fff;border-radius:8px;padding:5px 10px;font-size:0.74rem;color-scheme:dark;" />
+        </div>
+      </sc-if>
     </div>
 
     <div style="background:rgba(255,215,0,0.045);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:16px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
@@ -253,7 +268,8 @@ button{font-family:inherit;cursor:pointer}
         <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
           <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;">Візити</p>
           <p style="font-family:'Cinzel',serif;font-size:1.5rem;color:#fff;">{{ statsVisits }}</p>
-          <p style="font-size:0.62rem;color:rgba(255,255,255,0.28);margin-top:4px;">{{ statsDepth }} сторінок за візит</p>
+          <p style="font-size:0.62rem;color:{{ statsVisitsTrendColor }};margin-top:4px;">{{ statsVisitsTrend }}</p>
+          <p style="font-size:0.62rem;color:rgba(255,255,255,0.28);margin-top:2px;">{{ statsDepth }} сторінок за візит</p>
         </div>
         <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
           <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;">Пік активності</p>
@@ -262,7 +278,7 @@ button{font-family:inherit;cursor:pointer}
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;margin-bottom:18px;">
         <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
           <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">Нові та знайомі</p>
           <div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,0.06);margin-bottom:10px;">
@@ -279,10 +295,15 @@ button{font-family:inherit;cursor:pointer}
           <p style="font-family:'Cinzel',serif;font-size:1.15rem;color:#fff;">{{ statsTopSection }}</p>
           <p style="font-size:0.66rem;color:rgba(255,255,255,0.28);margin-top:6px;">відвідувачі рахуються за пристроями</p>
         </div>
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
+          <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">Тривалість візиту</p>
+          <p style="font-family:'Cinzel',serif;font-size:1.15rem;color:#fff;">{{ statsDuration }}</p>
+          <p style="font-size:0.66rem;color:rgba(255,255,255,0.28);margin-top:6px;">{{ statsBounce }}</p>
+        </div>
       </div>
 
       <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:18px 18px 12px;margin-bottom:18px;">
-        <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px;">Активність по днях</p>
+        <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px;">{{ statsTimelineTitle }}</p>
         <div style="display:flex;align-items:flex-end;gap:3px;height:110px;">
           <sc-for list="{{ statsDays }}" as="day" hint-placeholder-count="7">
             <div title="{{ day.tip }}" style="flex:1;height:{{ day.pct }}%;min-height:2px;min-width:0;background:linear-gradient(180deg,rgba(255,215,0,0.8),rgba(255,215,0,0.18));border-radius:3px 3px 0 0;"></div>
@@ -306,6 +327,32 @@ button{font-family:inherit;cursor:pointer}
           <sc-for list="{{ statsHours }}" as="hr" hint-placeholder-count="24">
             <span style="flex:1;text-align:center;font-size:0.58rem;color:rgba(255,255,255,0.3);white-space:nowrap;min-width:0;">{{ hr.label }}</span>
           </sc-for>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:18px 18px 14px;margin-bottom:18px;">
+        <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px;">Мапа тижня · день × година</p>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <sc-for list="{{ statsHeat }}" as="wd" hint-placeholder-count="7">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="width:26px;flex-shrink:0;font-size:0.62rem;color:rgba(255,255,255,0.4);">{{ wd.label }}</span>
+              <div style="display:grid;grid-template-columns:repeat(24,1fr);gap:2px;flex:1;min-width:0;">
+                <sc-for list="{{ wd.cells }}" as="cell" hint-placeholder-count="24">
+                  <div title="{{ cell.tip }}" style="height:13px;border-radius:2px;background:{{ cell.bg }};"></div>
+                </sc-for>
+              </div>
+              <span style="width:34px;text-align:right;flex-shrink:0;font-size:0.62rem;color:rgba(255,255,255,0.32);">{{ wd.total }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:26px;flex-shrink:0;"></span>
+            <div style="display:grid;grid-template-columns:repeat(24,1fr);gap:2px;flex:1;min-width:0;">
+              <sc-for list="{{ statsHeatHours }}" as="hx" hint-placeholder-count="24">
+                <span style="font-size:0.54rem;color:rgba(255,255,255,0.28);text-align:left;">{{ hx.label }}</span>
+              </sc-for>
+            </div>
+            <span style="width:34px;flex-shrink:0;"></span>
+          </div>
         </div>
       </div>
 
@@ -345,6 +392,20 @@ button{font-family:inherit;cursor:pointer}
                 <span style="flex:1;font-size:0.78rem;color:rgba(255,255,255,0.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{{ src.label }}</span>
                 <div style="width:70px;height:6px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;flex-shrink:0;"><div style="width:{{ src.pct }}%;height:100%;background:rgba(255,215,0,0.5);border-radius:999px;"></div></div>
                 <span style="width:34px;text-align:right;font-size:0.72rem;color:rgba(255,255,255,0.55);flex-shrink:0;">{{ src.count }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;">
+            <p style="font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">✦ Де починають візит</p>
+            <p style="font-size:0.66rem;color:rgba(255,255,255,0.26);margin-bottom:10px;">перша сторінка кожного візиту</p>
+            <sc-if value="{{ statsNoEntry }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.76rem;color:rgba(255,255,255,0.3);padding:6px 0;line-height:1.5;">Ще немає завершених візитів у цьому періоді.</p>
+            </sc-if>
+            <sc-for list="{{ statsEntry }}" as="en" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:10px;padding:5px 0;">
+                <span style="flex:1;font-size:0.78rem;color:rgba(255,255,255,0.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{{ en.label }}</span>
+                <div style="width:60px;height:6px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;flex-shrink:0;"><div style="width:{{ en.pct }}%;height:100%;background:rgba(120,200,160,0.55);border-radius:999px;"></div></div>
+                <span style="width:34px;text-align:right;font-size:0.72rem;color:rgba(255,255,255,0.55);flex-shrink:0;">{{ en.share }}</span>
               </div>
             </sc-for>
           </div>
@@ -1596,7 +1657,7 @@ class Component extends DCLogic {
     mapAdminNewX: 50, mapAdminNewY: 50,
     mapCharSearch: '',
     // analytics
-    statsPeriod: 7, statsRows: [], statsLoading: false, statsLoaded: false, statsKind: 'all',
+    statsPeriod: '7', statsFrom: '', statsTo: '', statsRows: [], statsLoading: false, statsLoaded: false, statsKind: 'all',
   };
 
   // ── Auth token helpers ─────────────────────────────────────
@@ -2008,16 +2069,46 @@ class Component extends DCLogic {
     };
   }
 
+  _statsRange() {
+    const s = this.state, p = String(s.statsPeriod || '7'), DAY = 86400000;
+    const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+    const today = d0.getTime();
+    const parse = (v) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]).getTime() : null; };
+    if (p === 'today')     return { from: today, to: today + DAY, mode: p };
+    if (p === 'yesterday') return { from: today - DAY, to: today, mode: p };
+    if (p === 'custom') {
+      let a = parse(s.statsFrom), b = parse(s.statsTo);
+      if (a == null) a = today - 6 * DAY;
+      if (b == null) b = today;
+      if (b < a) { const t = a; a = b; b = t; }
+      return { from: a, to: b + DAY, mode: p };
+    }
+    if (p === '0') return { from: 0, to: today + DAY, mode: p };
+    const n = Math.max(1, Number(p) || 7);
+    return { from: today - (n - 1) * DAY, to: today + DAY, mode: p };
+  }
+
   _statsVals() {
     const s = this.state;
-    const period = s.statsPeriod;
+    const DAY = 86400000;
+    const R = this._statsRange();
+    const isoOf = (t) => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
     const base = {
       statsPeriods: [
-        { id: '7',  label: '7 днів',   active: period === 7 },
-        { id: '30', label: '30 днів',  active: period === 30 },
-        { id: '0',  label: 'Весь час', active: period === 0 },
-      ],
-      setStatsPeriod: (e) => this.setState({ statsPeriod: Number(e.currentTarget.dataset.period) }),
+        { id: 'today',     label: 'Сьогодні' },
+        { id: 'yesterday', label: 'Вчора' },
+        { id: '7',         label: '7 днів' },
+        { id: '30',        label: '30 днів' },
+        { id: '90',        label: '90 днів' },
+        { id: '0',         label: 'Весь час' },
+        { id: 'custom',    label: 'Свій період' },
+      ].map(x => ({ ...x, active: R.mode === x.id })),
+      statsCustom: R.mode === 'custom',
+      statsFromVal: s.statsFrom || isoOf(R.from),
+      statsToVal: s.statsTo || isoOf(R.to - DAY),
+      setStatsFrom: (e) => this.setState({ statsFrom: e.target.value, statsPeriod: 'custom' }),
+      setStatsTo: (e) => this.setState({ statsTo: e.target.value, statsPeriod: 'custom' }),
+      setStatsPeriod: (e) => this.setState({ statsPeriod: e.currentTarget.dataset.period }),
       reloadStats: () => this._loadStats(),
       martaBusy: !!s.martaBusy,
       martaMsg: s.martaMsg || 'Надіслати бланк у чат звітів просто зараз, не чекаючи розкладу.',
@@ -2030,17 +2121,22 @@ class Component extends DCLogic {
       statsDays: [], statsSections: [], statsItems: [], statsNoItems: true,
       statsHours: [], statsDevices: [], statsSources: [], statsNoSources: true,
       statsKinds: [], statsCold: [], statsNoCold: true, statsNoDevices: true,
+      statsHeat: [], statsHeatHours: [], statsEntry: [], statsNoEntry: true,
+      statsTimelineTitle: 'Активність', statsRangeLabel: '', statsPrevLabel: '',
+      statsDuration: '—', statsBounce: '—',
+      statsVisitsTrend: '', statsVisitsTrendColor: 'rgba(255,255,255,0.3)',
     };
     if (s.tab !== 'stats' || !base.statsReady) return { ...base, ...EMPTY };
 
-    const now = Date.now();
-    const win = period * 86400000;
-    const cutoff = period ? now - win : 0;
+    const from = R.from, to = R.to, span = to - from;
     const all = s.statsRows || [];
-    const rows = all.filter(r => !cutoff || new Date(r.created_at).getTime() >= cutoff);
-    const prevRows = period
-      ? all.filter(r => { const t = new Date(r.created_at).getTime(); return t < cutoff && t >= cutoff - win; })
-      : [];
+    const tOf = (r) => new Date(r.created_at).getTime();
+    const rows = all.filter(r => { const t = tOf(r); return t >= from && t < to; });
+    const prevRows = R.mode === '0'
+      ? []
+      : all.filter(r => { const t = tOf(r); return t < from && t >= from - span; });
+    const cutoff = from;
+    const period = R.mode === '0' ? 0 : 1;
 
     const PAGE_LABELS = { home: 'Головна', lore: 'Довідник', stories: 'Історії', characters: 'Персонажі', chronicles: 'Хроніки', connections: 'Зв\u2019язки', pantheon: 'Пантеон', dice: 'Дайс', contacts: 'Контакти', map: 'Мапа', quotes: 'Цитати', join: 'Долучитися', rules: 'Правила' };
     const TYPE_LABELS = {
@@ -2084,21 +2180,49 @@ class Component extends DCLogic {
     const itemsSorted = itemsAll.filter(i => kind === 'all' || i.type === kind).slice(0, 12);
     const maxItem = itemsSorted.length ? itemsSorted[0].count : 1;
 
-    // ── Дні ──
-    const nDays = period === 0 ? 30 : period;
-    const dayKey = (d) => d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
-    const dayCounts = {};
-    rows.forEach(r => { const k = dayKey(new Date(r.created_at)); dayCounts[k] = (dayCounts[k] || 0) + 1; });
-    let maxDay = 1;
-    const days = [];
-    for (let i = nDays - 1; i >= 0; i--) {
-      const d = new Date(now - i * 86400000);
-      const c = dayCounts[dayKey(d)] || 0;
-      if (c > maxDay) maxDay = c;
-      days.push({ d, c });
-    }
-    const every = nDays > 14 ? 5 : 1;
     const fmt = (d) => d.getDate() + '.' + String(d.getMonth() + 1).padStart(2, '0');
+    const hh = (d) => String(d.getHours()).padStart(2, '0');
+
+    // ── Таймлайн: години / дні / тижні залежно від довжини періоду ──
+    const firstT = all.length ? tOf(all[all.length - 1]) : from;
+    let winFrom = from;
+    if (R.mode === '0') { const f = new Date(firstT); f.setHours(0, 0, 0, 0); winFrom = Math.min(f.getTime(), to - DAY); }
+    const spanDays = Math.max(1, Math.round((to - winFrom) / DAY));
+    const unit = spanDays <= 2 ? 'hour' : (spanDays <= 92 ? 'day' : 'week');
+    const step = unit === 'hour' ? 3600000 : (unit === 'day' ? DAY : 7 * DAY);
+    const nB = Math.max(1, Math.ceil((to - winFrom) / step));
+    const bCounts = new Array(nB).fill(0);
+    rows.forEach(r => { const i = Math.floor((tOf(r) - winFrom) / step); if (i >= 0 && i < nB) bCounts[i]++; });
+    const maxDay = Math.max(1, ...bCounts);
+    const everyB = unit === 'hour' ? (nB > 26 ? 6 : 3) : (unit === 'day' ? (nB > 40 ? 7 : (nB > 14 ? 5 : 1)) : 2);
+    const days = bCounts.map((c, i) => {
+      const d = new Date(winFrom + i * step);
+      const label = unit === 'hour' ? hh(d) : fmt(d);
+      const tip = unit === 'hour'
+        ? (fmt(d) + ' ' + hh(d) + ':00 — ' + c)
+        : (unit === 'week' ? (fmt(d) + '–' + fmt(new Date(winFrom + i * step + 6 * DAY)) + ' — ' + c) : (fmt(d) + ' — ' + c));
+      return {
+        count: c, tip, label: (i % everyB === 0 || i === nB - 1) ? label : '',
+        pct: Math.max(2, Math.round(c / maxDay * 100)),
+      };
+    });
+    const timelineTitle = unit === 'hour' ? 'Активність по годинах' : (unit === 'day' ? 'Активність по днях' : 'Активність по тижнях');
+
+    // ── Мапа тижня: день × година ──
+    const WD = ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+    const heatGrid = [0, 1, 2, 3, 4, 5, 6].map(() => new Array(24).fill(0));
+    rows.forEach(r => { const d = new Date(r.created_at); heatGrid[d.getDay()][d.getHours()]++; });
+    let maxCell = 1;
+    heatGrid.forEach(row => row.forEach(c => { if (c > maxCell) maxCell = c; }));
+    const heat = [1, 2, 3, 4, 5, 6, 0].map(wd => ({
+      label: WD[wd],
+      total: heatGrid[wd].reduce((a, b) => a + b, 0),
+      cells: heatGrid[wd].map((c, h) => ({
+        tip: WD[wd] + ' ' + String(h).padStart(2, '0') + ':00 — ' + c,
+        bg: c ? 'rgba(255,215,0,' + (0.12 + 0.7 * (c / maxCell)).toFixed(3) + ')' : 'rgba(255,255,255,0.04)',
+      })),
+    }));
+    const heatHours = Array.from({ length: 24 }, (_, h) => ({ label: h % 3 === 0 ? String(h).padStart(2, '0') : '' }));
 
     // ── Години доби ──
     const hourCounts = new Array(24).fill(0);
@@ -2109,11 +2233,39 @@ class Component extends DCLogic {
     // ── Візити, глибина, нові/повернулися ──
     const sessions = new Set(rows.filter(r => r.session).map(r => r.session));
     const visitors = new Set(rows.map(r => r.visitor || 'anon'));
-    const seenBefore = new Set(all.filter(r => !cutoff || new Date(r.created_at).getTime() < cutoff).map(r => r.visitor || 'anon'));
+    const seenBefore = new Set(all.filter(r => tOf(r) < cutoff).map(r => r.visitor || 'anon'));
     let newcomers = 0;
     visitors.forEach(v => { if (!seenBefore.has(v)) newcomers++; });
     const returning = visitors.size - newcomers;
     const depth = sessions.size ? (rows.filter(r => r.session).length / sessions.size).toFixed(1) : '—';
+
+    // ── Тривалість візиту, «швидкі виходи», сторінки входу ──
+    const sessMap = {};
+    const entryPage = {};
+    rows.forEach(r => {
+      if (!r.session) return;
+      const t = tOf(r);
+      const m = sessMap[r.session] || (sessMap[r.session] = { min: t, max: t, n: 0 });
+      if (t < m.min) m.min = t;
+      if (t > m.max) m.max = t;
+      m.n++;
+      entryPage[r.session] = r.page; // rows ідуть від новіших — лишається найраніша
+    });
+    const sessArr = Object.values(sessMap);
+    const durs = sessArr.filter(m => m.n > 1).map(m => m.max - m.min);
+    const avgDur = durs.length ? durs.reduce((a, b) => a + b, 0) / durs.length : 0;
+    const fmtDur = (ms) => {
+      const sec = Math.round(ms / 1000);
+      if (!sec) return '—';
+      if (sec < 60) return sec + ' с';
+      return Math.floor(sec / 60) + ' хв ' + String(sec % 60).padStart(2, '0') + ' с';
+    };
+    const oneHit = sessArr.filter(m => m.n === 1).length;
+    const entryCounts = {};
+    Object.values(entryPage).forEach(p => { entryCounts[p] = (entryCounts[p] || 0) + 1; });
+    const entryTotal = Object.values(entryCounts).reduce((a, b) => a + b, 0);
+    const entries = Object.entries(entryCounts).sort((a, b) => b[1] - a[1]).slice(0, 6)
+      .map(([p, c]) => ({ label: PAGE_LABELS[p] || p, count: c, pct: Math.max(3, pct(c, entryTotal)), share: pct(c, entryTotal) + '%' }));
 
     // ── Пристрої ──
     const DEV = { mobile: 'Телефон', tablet: 'Планшет', desktop: "Комп'ютер" };
@@ -2150,9 +2302,27 @@ class Component extends DCLogic {
     const firstRow = all.length ? new Date(all[all.length - 1].created_at) : null;
     const tTotal = trend(rows.length, prevRows.length);
     const tUniq = trend(visitors.size, new Set(prevRows.map(r => r.visitor || 'anon')).size);
+    const tVisits = trend(sessions.size, new Set(prevRows.filter(r => r.session).map(r => r.session)).size);
+
+    const rangeLabel = R.mode === '0'
+      ? (all.length ? ('весь час · із ' + fmt(new Date(firstT)) + '.' + new Date(firstT).getFullYear()) : 'весь час')
+      : R.mode === 'today' ? ('сьогодні, ' + fmt(new Date(from)))
+      : R.mode === 'yesterday' ? ('вчора, ' + fmt(new Date(from)))
+      : (fmt(new Date(from)) + ' — ' + fmt(new Date(to - DAY)) + ' · ' + spanDays + ' дн.');
+    const prevLabel = R.mode === '0'
+      ? 'порівняння недоступне для «весь час»'
+      : ('попередній період: ' + fmt(new Date(from - span)) + ' — ' + fmt(new Date(from - 1)) + ' · ' + prevRows.length + ' переглядів');
 
     return {
       ...base,
+      statsRangeLabel: rangeLabel,
+      statsPrevLabel: prevLabel,
+      statsTimelineTitle: timelineTitle,
+      statsVisitsTrend: tVisits.txt, statsVisitsTrendColor: tVisits.color,
+      statsDuration: durs.length ? fmtDur(avgDur) : '—',
+      statsBounce: sessArr.length ? (pct(oneHit, sessArr.length) + '% одна сторінка') : '—',
+      statsHeat: heat, statsHeatHours: heatHours,
+      statsEntry: entries, statsNoEntry: entries.length === 0,
       statsTotal: rows.length,
       statsTotalTrend: tTotal.txt, statsTotalTrendColor: tTotal.color,
       statsUniq: visitors.size,
@@ -2166,12 +2336,7 @@ class Component extends DCLogic {
       statsTopSection: pagesSorted.length ? (PAGE_LABELS[pagesSorted[0][0]] || pagesSorted[0][0]) : '—',
       statsPeak: hourCounts[peakHour] ? (String(peakHour).padStart(2, '0') + ':00–' + String((peakHour + 1) % 24).padStart(2, '0') + ':00') : '—',
       statsSince: firstRow ? ('збір із ' + fmt(firstRow) + '.' + firstRow.getFullYear()) : '',
-      statsDays: days.map((x, idx) => ({
-        count: x.c,
-        pct: Math.max(2, Math.round(x.c / maxDay * 100)),
-        label: (idx % every === 0 || idx === days.length - 1) ? fmt(x.d) : '',
-        tip: fmt(x.d) + ' — ' + x.c,
-      })),
+      statsDays: days,
       statsHours: hourCounts.map((c, h) => ({
         pct: Math.max(2, Math.round(c / maxHour * 100)),
         label: h % 6 === 0 ? String(h).padStart(2, '0') : '',
