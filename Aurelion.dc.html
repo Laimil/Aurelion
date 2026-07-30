@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aurelion — українська темнофентезійна НРІ</title>
+<title>Aurelion — українська темнофентезійна ТРПГ</title>
 <meta name="description" content="Світ Ауреліону: персонажі гравців, довідник лору, пантеон п’яти богів, історії кампаній і мапа.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Aurelion">
@@ -2649,7 +2649,9 @@ class Component extends DCLogic {
         this._get(`lore?select=${LIST_SELECT.lore}&order=sort_order.asc,created_at.asc`),
         this._get(`stories?select=${LIST_SELECT.stories}&order=sort_order.asc,created_at.asc`),
         this._get(`chronicles?select=${LIST_SELECT.chronicles}&order=sort_order.asc,created_at.asc`),
-        this._get(`characters?select=${LIST_SELECT.characters}&order=sort_order.asc,created_at.asc`),
+        this._get(`characters?select=${LIST_SELECT.characters},is_draft&order=sort_order.asc,created_at.asc`)
+          // Колонки чернеток може ще не бути (supabase_char_intake_migration.sql).
+          .catch(() => this._get(`characters?select=${LIST_SELECT.characters}&order=sort_order.asc,created_at.asc`)),
         this._get('pantheon?select=*&order=sort_order.asc'),
         this._get('contacts?select=*&order=sort_order.asc'),
         this._get('site_settings?select=*'),
@@ -2676,7 +2678,7 @@ class Component extends DCLogic {
         lore:          Array.isArray(lore)       ? lore       : [],
         stories:       Array.isArray(stories)    ? stories    : [],
         chronicles:    Array.isArray(chronicles) ? chronicles : [],
-        characters:    Array.isArray(characters) ? characters : [],
+        characters:    Array.isArray(characters) ? characters.filter(c => c && c.is_draft !== true) : [],
         pantheon:      Array.isArray(pantheon)   ? pantheon   : [],
         contacts:      Array.isArray(contacts)   ? contacts   : [],
         map_locations: Array.isArray(mapLocs)    ? mapLocs    : [],

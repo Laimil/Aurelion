@@ -928,10 +928,13 @@ button{font-family:inherit;cursor:pointer}
           <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
           <div style="width:34px;height:34px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.78rem;color:rgba(255,215,0,0.5);flex-shrink:0;">{{ char.initials }}</div>
           <div style="flex:1;min-width:0;">
-            <p style="font-size:0.88rem;color:#fff;">{{ char.name }}<sc-if value="{{ char.inactive }}" hint-placeholder-val="{{ false }}"><span style="margin-left:8px;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:2px 8px;vertical-align:middle;">⊘ неактивний</span></sc-if></p>
+            <p style="font-size:0.88rem;color:#fff;">{{ char.name }}<sc-if value="{{ char.draft }}" hint-placeholder-val="{{ false }}"><span style="margin-left:8px;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:#ffd700;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:999px;padding:2px 8px;vertical-align:middle;">✦ чернетка</span></sc-if><sc-if value="{{ char.inactive }}" hint-placeholder-val="{{ false }}"><span style="margin-left:8px;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:2px 8px;vertical-align:middle;">⊘ неактивний</span></sc-if></p>
             <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:1px;">{{ char.role }}</p>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
+            <sc-if value="{{ char.draft }}" hint-placeholder-val="{{ false }}">
+              <button data-id="{{ char.id }}" onClick="{{ publishChar }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,215,0,0.22);">Опублік.</button>
+            </sc-if>
             <button data-section="characters" data-index="{{ char._index }}" onClick="{{ startEdit }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
             <button data-section="characters" data-index="{{ char._index }}" onClick="{{ deleteItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
           </div>
@@ -2410,7 +2413,7 @@ class Component extends DCLogic {
         || (ch.role || '').toLowerCase().includes(charSearch))
       .map(ch => {
         const p = (ch.name || '').trim().split(/\s+/);
-        return { ...ch, inactive: ch.is_active === false, initials: p.slice(0,2).map(x=>x[0]||'').join('').toUpperCase() || '?', dragTargetClass: !charSearch ? dtc('characters', ch._index) : '' };
+        return { ...ch, inactive: ch.is_active === false, draft: ch.is_draft === true, initials: p.slice(0,2).map(x=>x[0]||'').join('').toUpperCase() || '?', dragTargetClass: !charSearch ? dtc('characters', ch._index) : '' };
       });
     const panList     = mkList(data.pantheon).map((it, i) => ({ ...it, dragTargetClass: dtc('pantheon', i) }));
     const contactList = mkList(data.contacts).map((it, i) => ({ ...it, dragTargetClass: dtc('contacts', i) }));
@@ -2591,6 +2594,29 @@ class Component extends DCLogic {
       },
 
       loreList, storiesList, charList, panList, contactList,
+      publishChar: async (e) => {
+        const id = e.currentTarget.dataset.id;
+        if (!id) return;
+        if (!window.confirm('Опублікувати цю справу? Марта привітає нового персонажа в чаті.')) return;
+        try {
+          await this._patch('characters', id, { is_draft: false });
+          await this._refreshTable('characters');
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast('✓ Опубліковано');
+        } catch (ex) {
+          this._toast('✗ ' + (ex.message || 'Не вдалося опублікувати'));
+          return;
+        }
+        try {
+          const r = await fetch(`${SUPA_FUNCS}/telegram-report?announce=${encodeURIComponent(id)}`, {
+            method: 'POST',
+            headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken() || ''}` },
+          });
+          this._toast(r.ok ? '✦ Марта привітала в чаті' : '⚠ Опубліковано, привітання не пішло');
+        } catch (ex) {
+          this._toast('⚠ Опубліковано, привітання не пішло');
+        }
+      },
       setLoreFeatured: async (e) => {
         const id = e.currentTarget.dataset.id;
         const cur = this.state.data && this.state.data.site && this.state.data.site.lore_featured_id;
