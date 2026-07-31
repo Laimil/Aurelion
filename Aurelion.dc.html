@@ -391,6 +391,17 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     <!-- ── ГАЛЕРЕЯ ── -->
     <sc-if value="{{ showLoreGallery }}" hint-placeholder-val="{{ true }}">
     <div style="padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Архів</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Довідник</a>
+          <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
+          <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
+          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
+        </div>
+      </div>
+    </div>
     <header style="text-align:center;margin-bottom:32px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Знання</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Довідник Мандрівника</h1>
@@ -556,6 +567,17 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   <main class="au-page" style="min-height:100vh;">
     <sc-if value="{{ showStoryGallery }}" hint-placeholder-val="{{ true }}">
     <div style="padding:96px 24px 140px;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Архів</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Довідник</a>
+          <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Історії</a>
+          <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
+          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
+        </div>
+      </div>
+    </div>
     <header style="text-align:center;margin-bottom:40px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Авторські матеріали</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Бібліотека</h1>
@@ -667,17 +689,21 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
     <!-- ── ГАЛЕРЕЯ ── -->
     <sc-if value="{{ showChronGallery }}" hint-placeholder-val="{{ true }}">
       <div style="padding:96px 24px 140px;max-width:1180px;margin:0 auto;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+          <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Архів</p>
+          <div style="max-width:100%;overflow-x:auto;display:flex;">
+            <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+              <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Довідник</a>
+              <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
+              <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Хроніки</a>
+              <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
+            </div>
+          </div>
+        </div>
         <header style="text-align:center;margin-bottom:34px;">
           <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Літопис відіграшів</p>
           <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Хроніки</h1>
           <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.4);margin:10px auto 0;max-width:580px;line-height:1.6;">Зведені літописи персонажів та арок — те, що сталося за столом, зібране в один запис.</p>
-          <div style="display:flex;justify-content:center;margin-top:20px;">
-            <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
-              <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
-              <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
-              <button data-mode="chron" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🪶 Хроніки</button>
-            </div>
-          </div>
         </header>
 
         <!-- Теги -->
@@ -826,7 +852,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
           <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
             <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🎭 Галерея</button>
             <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
-            <button data-mode="chron" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🪶 Хроніки</button>
           </div>
         </div>
       </header>
@@ -1172,6 +1197,17 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 <!-- ═══ ПАНТЕОН ═══ -->
 <sc-if value="{{ showPantheon }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:30px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Архів</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Довідник</a>
+          <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
+          <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
+          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Пантеон</a>
+        </div>
+      </div>
+    </div>
     <header style="text-align:center;margin-bottom:52px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ П'ятеро</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Пантеон</h1>
@@ -1261,7 +1297,6 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
       <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
         <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
         <button data-mode="conn" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🕸 Зв'язки</button>
-        <button data-mode="chron" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🪶 Хроніки</button>
       </div>
     </div>
 
@@ -2093,6 +2128,11 @@ const ease0 = (t)=>{ t = Math.max(0, Math.min(1, t)); return 1 - Math.pow(1 - t,
 
 const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице, ти ж не хочеш померти одразу ж вийшовши за межі міста? Думаю, що ні. Тому я тут. Спробуй довірити своє життя моїм знанням, адже можливо, саме я стану найвірнішим, найчеснішим супутником на твоєму шляху.\n\nПравило перше: Не довіряй людям. Повір, твої шанси на виживання зростуть на двадцять пунктів вверх…»';
 
+// Розділи «Архіву»: у хеші лишаються власні сегменти (старі посилання й /s/*.html
+// працюють як раніше) — парасолька живе лише в шапці та на смужці вкладок.
+const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
+const KNOWN_SEGS = ['home', 'characters', 'connections', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive'].concat(ARCHIVE_SEGS);
+
 const LOAD_ERROR_QUOTES = [
   'Схоже, боги не беруть слухавку.',
   'Зв\u2019язок із пантеоном обірвався.',
@@ -2420,13 +2460,14 @@ class Component extends DCLogic {
 
   _getPage() {
     const { seg } = this._parseHash();
-    if (seg === 'chronicles' || seg === 'connections') return 'characters';
+    if (seg === 'connections') return 'characters';
+    if (seg === 'archive') return 'lore';               // вхід у парасольку → типова вкладка
+    if (KNOWN_SEGS.indexOf(seg) === -1) return 'home';  // обрізане чи застаріле посилання
     return seg;
   }
 
   _initMode() {
     const { seg } = this._parseHash();
-    if (seg === 'chronicles') return 'chron';
     if (seg === 'connections') return 'conn';
     return 'gallery';
   }
@@ -3677,9 +3718,9 @@ class Component extends DCLogic {
       showLoreGallery: page === 'lore' && !s.selectedLore,
       showLoreReader:  page === 'lore' && !!s.selectedLore,
       showStories:     page === 'stories',
-      showChronGallery: page === 'characters' && !sc && s.charMode === 'chron' && !s.selectedChronicle,
-      showChronReader:  page === 'characters' && !sc && s.charMode === 'chron' && !!s.selectedChronicle,
-      showCharChron:    page === 'characters' && !sc && s.charMode === 'chron',
+      showChronGallery: page === 'chronicles' && !s.selectedChronicle,
+      showChronReader:  page === 'chronicles' && !!s.selectedChronicle,
+      showCharChron:    page === 'chronicles',
       showCharacters:  page === 'characters' && (!!sc || s.charMode === 'gallery'),
       showPantheon:    page === 'pantheon',
       showDice:        page === 'dice',
@@ -3994,10 +4035,8 @@ class Component extends DCLogic {
 
       navItems: [
         { id: 'home',        label: 'Головна',    active: page === 'home' },
-        { id: 'lore',        label: 'Довідник',        active: page === 'lore' },
-        { id: 'stories',     label: 'Історії',      active: page === 'stories' },
+        { id: 'lore',        label: 'Архів',      active: ARCHIVE_SEGS.indexOf(page) !== -1 },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
-        { id: 'pantheon',    label: 'Пантеон',     active: page === 'pantheon' },
         { id: 'dice',        label: 'Дайс',       active: page === 'dice' },
         { id: 'quotes',      label: 'Цитатник',   active: page === 'quotes' },
         { id: 'map',         label: 'Мапа',       active: page === 'map' },
@@ -4745,7 +4784,7 @@ class Component extends DCLogic {
       },
       closeCharModal: () => this.setState({ peekChar: null }),
       closeCharPage: () => this._nav('characters'),
-      setCharMode: (e) => { const m = e.currentTarget.dataset.mode; this._nav(m === 'chron' ? 'chronicles' : m === 'conn' ? 'connections' : 'characters'); },
+      setCharMode: (e) => { const m = e.currentTarget.dataset.mode; this._nav(m === 'conn' ? 'connections' : 'characters'); },
       stopProp: (e) => e.stopPropagation(),
       saveCharCard:  () => this.saveCharCard(),
       copyCharCard:  () => this.copyCharCard(),
