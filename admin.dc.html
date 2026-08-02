@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<script src="./telegraph-import.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:#141414;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
@@ -897,6 +898,76 @@ button{font-family:inherit;cursor:pointer}
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🎭 Персонажі</h2>
       <button data-section="characters" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Новий персонаж</button>
     </div>
+    <!-- Імпорт анкети з Telegraph -->
+    <div style="background:rgba(100,149,237,0.055);border:1px solid rgba(100,149,237,0.2);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:220px;">
+          <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#6495ed;letter-spacing:0.05em;">✦ Імпорт анкети з Telegraph</p>
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.32);margin-top:4px;line-height:1.5;">Посилання на telegra.ph → графи, вікі-анкета й портрет підставляються у форму. Нічого не зберігається без твого «Зберегти».</p>
+        </div>
+        <button onClick="{{ tgToggle }}" style="background:rgba(100,149,237,0.12);border:1px solid rgba(100,149,237,0.3);color:#6495ed;border-radius:6px;padding:6px 14px;font-size:0.78rem;cursor:pointer;flex-shrink:0;" style-hover="background:rgba(100,149,237,0.22);">{{ tgToggleLabel }}</button>
+      </div>
+      <sc-if value="{{ tgOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;">
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <button type="button" class="stat-seg" data-mode="url" data-active="{{ tgModeUrl }}" onClick="{{ tgSetMode }}" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:8px 12px;font-size:0.8rem;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s;">Посилання</button>
+            <button type="button" class="stat-seg" data-mode="text" data-active="{{ tgModeText }}" onClick="{{ tgSetMode }}" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:8px 12px;font-size:0.8rem;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s;">Вставлений текст</button>
+          </div>
+          <sc-if value="{{ tgModeUrlOn }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input value="{{ tgUrl }}" onChange="{{ tgSetUrl }}" placeholder="https://telegra.ph/Mej-Lin-08-20" style="flex:1;min-width:220px;" />
+              <button onClick="{{ tgParse }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:7px;padding:8px 18px;font-size:0.82rem;cursor:pointer;flex-shrink:0;" style-hover="background:rgba(255,215,0,0.22);">{{ tgParseLabel }}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ tgModeTextOn }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <textarea value="{{ tgRaw }}" onChange="{{ tgSetRaw }}" placeholder="Скопіюй усю анкету зі сторінки Telegraph і встав сюди…" style="min-height:130px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.8rem;line-height:1.6;"></textarea>
+              <button onClick="{{ tgParse }}" style="margin-top:8px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:7px;padding:8px 18px;font-size:0.82rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.22);">{{ tgParseLabel }}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ tgHasError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:10px;font-size:0.78rem;color:rgba(255,77,77,0.8);line-height:1.5;">✕ {{ tgError }}</p>
+          </sc-if>
+
+          <sc-if value="{{ tgHasResult }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.09);padding-top:14px;">
+              <p style="font-size:0.74rem;color:rgba(255,255,255,0.4);margin-bottom:10px;line-height:1.5;">{{ tgSummary }}</p>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px;margin-bottom:12px;">
+                <sc-for list="{{ tgFields }}" as="f" hint-placeholder-count="0">
+                  <div data-key="{{ f.key }}" onClick="{{ tgToggleField }}" style="display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;background:{{ f.rowBg }};border:1px solid {{ f.rowBorder }};transition:all 0.15s;">
+                    <div style="width:17px;height:17px;border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;color:#ffd700;border:1px solid {{ f.checkBorder }};background:{{ f.checkBg }};">{{ f.checkMark }}</div>
+                    <div style="min-width:0;flex:1;">
+                      <p style="font-size:0.66rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.55);">{{ f.label }}</p>
+                      <p style="font-size:0.8rem;color:{{ f.valueColor }};margin-top:2px;line-height:1.45;word-break:break-word;">{{ f.value }}</p>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ tgHasImages }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px;">Зображення зі сторінки — клікни, щоб узяти портретом</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                  <sc-for list="{{ tgImages }}" as="im" hint-placeholder-count="0">
+                    <div data-url="{{ im.url }}" onClick="{{ tgPickImage }}" title="{{ im.url }}" style="{{ im.bg }}width:56px;height:74px;border-radius:6px;cursor:pointer;border:2px solid {{ im.border }};transition:all 0.15s;"></div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ tgHasWarn }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.72rem;color:rgba(255,215,0,0.55);margin-bottom:10px;line-height:1.5;">⚠ {{ tgWarn }}</p>
+              </sc-if>
+              <details style="margin-bottom:12px;">
+                <summary style="font-size:0.74rem;color:rgba(100,149,237,0.75);cursor:pointer;">Переглянути готову вікі-анкету ({{ tgMarkdownLen }} символів)</summary>
+                <textarea value="{{ tgMarkdown }}" onChange="{{ tgSetMarkdown }}" style="margin-top:8px;min-height:220px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.78rem;line-height:1.6;"></textarea>
+              </details>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onClick="{{ tgApply }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;cursor:pointer;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">{{ tgApplyLabel }}</button>
+                <button onClick="{{ tgClear }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;cursor:pointer;">Скинути</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+
     <!-- Пошук -->
     <div style="position:relative;margin-bottom:14px;">
       <input value="{{ charSearch }}" onChange="{{ handleCharSearch }}" placeholder="Пошук за ім'ям, псевдонімом, роллю…" style="padding-left:34px;padding-right:{{ hasCharSearch ? 32 : 12 }}px;" />
@@ -1641,6 +1712,9 @@ class Component extends DCLogic {
     authed: false, authChecking: true,
     uploadingImage: false,
     charSearch: '',
+    // імпорт анкети з Telegraph
+    tgOpen: false, tgMode: 'url', tgUrl: '', tgRaw: '', tgBusy: false,
+    tgError: '', tgResult: null, tgPick: {}, tgImage: '', tgMarkdown: '',
     connSearch: '',
     loginEmail: '', loginPassword: '', loginError: '', loginLoading: false,
     martaBusy: false, martaMsg: '',
@@ -1876,6 +1950,79 @@ class Component extends DCLogic {
     });
     if (!r.ok) throw new Error(await r.text());
     return `${STORAGE}/object/public/${bucket}/${name}`;
+  }
+
+  // ── Імпорт анкети з Telegraph ─────────────────────────────
+  _tgFold(v) {
+    const TI = window.TelegraphImport;
+    return TI ? TI.fold(v) : String(v == null ? '' : v).toLowerCase().trim();
+  }
+  _tgDeityValue(name) {
+    if (!name) return '';
+    const gods = (this.state.data && this.state.data.pantheon) || [];
+    const f = this._tgFold(name);
+    if (!f) return '';
+    const stem = x => x.slice(0, Math.max(4, x.length - 2));
+    let hit = gods.find(g => this._tgFold(g.name) === f || this._tgFold(g.god) === f);
+    if (!hit) hit = gods.find(g => {
+      const a = this._tgFold(g.name);
+      return a && (a.startsWith(stem(f)) || f.startsWith(stem(a)));
+    });
+    return hit ? String(hit.god || hit.name || '') : '';
+  }
+  _tgView(s) {
+    const res = s.tgResult;
+    const editingChar = !!(s.editing && s.editing.section === 'characters');
+    const base = {
+      tgFields: [], tgImages: [], tgHasImages: false, tgSummary: '', tgWarn: '', tgHasWarn: false,
+      tgApplyLabel: editingChar ? 'Підставити у форму' : 'Створити персонажа з анкети',
+    };
+    if (!res) return base;
+    const pick = s.tgPick || {};
+    const on = k => !!pick[k];
+    const row = (key, label, value, warn) => ({
+      key, label, value: value || '—',
+      checkMark: on(key) ? '✓' : '',
+      checkBg: on(key) ? 'rgba(255,215,0,0.16)' : 'transparent',
+      checkBorder: on(key) ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.2)',
+      rowBg: on(key) ? 'rgba(255,215,0,0.05)' : 'rgba(255,255,255,0.03)',
+      rowBorder: on(key) ? 'rgba(255,215,0,0.22)' : 'rgba(255,255,255,0.07)',
+      valueColor: warn ? 'rgba(255,215,0,0.72)' : '#fff',
+    });
+    const md = s.tgMarkdown || res.markdown || '';
+    const deityVal = res.deity ? this._tgDeityValue(res.deity) : '';
+    const f = [];
+    if (res.name)   f.push(row('name', "Ім'я", res.name));
+    if (res.alias)  f.push(row('alias', 'Псевдонім', res.alias));
+    if (res.age)    f.push(row('age', 'Вік', res.age));
+    if (res.height) f.push(row('height', 'Зріст', res.height));
+    if (res.weight) f.push(row('weight', 'Вага', res.weight));
+    if (res.deity)  f.push(row('deity', 'Божество', deityVal ? res.deity : res.deity + ' — немає в Пантеоні', !deityVal));
+    if (res.role)   f.push(row('role', 'Роль', res.role));
+    if (res.bio)    f.push(row('bio', "Коротке дос'є", res.bio.length > 110 ? res.bio.slice(0, 110) + '…' : res.bio));
+    if (md)         f.push(row('content', 'Анкета (вікі-текст)', res.sections.length + ' розділів · ' + md.length + ' символів'));
+    if (res.url)    f.push(row('telegraph_url', 'Telegraph URL', res.url));
+    if (s.tgImage)  f.push(row('image', 'Портрет', 'вибране зображення'));
+
+    const warns = [];
+    if (!res.name) warns.push("ім'я не розпізналось — впиши руками");
+    if (res.deity && !deityVal) warns.push('божество «' + res.deity + '» не збігається з Пантеоном');
+    if (res.empty && res.empty.length) warns.push('порожні графи пропущено: ' + res.empty.join(', '));
+    if (res.unknown && res.unknown.length) warns.push('незнайомі графи додано як розділи: ' + Array.from(new Set(res.unknown)).join(', '));
+
+    return {
+      tgFields: f,
+      tgImages: (res.images || []).map(u => ({
+        url: u,
+        bg: 'background-image:url(' + JSON.stringify(u) + ');background-size:cover;background-position:center top;',
+        border: s.tgImage === u ? 'rgba(255,215,0,0.85)' : 'rgba(255,255,255,0.12)',
+      })),
+      tgHasImages: !!(res.images && res.images.length),
+      tgSummary: '«' + (res.title || res.name || 'без назви') + '» · ' + res.sections.length + ' розділів · познач, що підставляти',
+      tgWarn: warns.join(' · '),
+      tgHasWarn: warns.length > 0,
+      tgApplyLabel: editingChar ? 'Підставити у форму' : 'Створити персонажа з анкети',
+    };
   }
 
   // ── Toast ──────────────────────────────────────────────────
@@ -2828,6 +2975,101 @@ class Component extends DCLogic {
       formIcon:         form.icon           || '',
       formLabel:        form.label          || '',
       formUrl:          form.url            || '',
+
+      // ── Імпорт з Telegraph ──────────────────────────────
+      tgOpen: !!s.tgOpen,
+      tgToggleLabel: s.tgOpen ? 'Згорнути' : 'Відкрити',
+      tgModeUrl:  s.tgMode === 'text' ? 'false' : 'true',
+      tgModeText: s.tgMode === 'text' ? 'true' : 'false',
+      tgModeUrlOn:  s.tgMode !== 'text',
+      tgModeTextOn: s.tgMode === 'text',
+      tgUrl: s.tgUrl || '',
+      tgRaw: s.tgRaw || '',
+      tgError: s.tgError || '',
+      tgHasError: !!s.tgError,
+      tgParseLabel: s.tgBusy ? 'Читаю…' : 'Розібрати',
+      tgHasResult: !!s.tgResult,
+      tgMarkdown: s.tgMarkdown || '',
+      tgMarkdownLen: (s.tgMarkdown || '').length,
+      ...this._tgView(s),
+      tgToggle: () => this.setState(st => ({ tgOpen: !st.tgOpen })),
+      tgSetMode: (e) => this.setState({ tgMode: e.currentTarget.dataset.mode, tgError: '' }),
+      tgSetUrl: (e) => this.setState({ tgUrl: e.target.value }),
+      tgSetRaw: (e) => this.setState({ tgRaw: e.target.value }),
+      tgSetMarkdown: (e) => this.setState({ tgMarkdown: e.target.value }),
+      tgClear: () => this.setState({ tgResult: null, tgPick: {}, tgImage: '', tgMarkdown: '', tgError: '' }),
+      tgToggleField: (e) => {
+        const k = e.currentTarget.dataset.key;
+        this.setState(st => ({ tgPick: { ...st.tgPick, [k]: !st.tgPick[k] } }));
+      },
+      tgPickImage: (e) => {
+        const u = e.currentTarget.dataset.url;
+        this.setState(st => ({
+          tgImage: st.tgImage === u ? '' : u,
+          tgPick: { ...st.tgPick, image: st.tgImage !== u },
+        }));
+      },
+      tgParse: async () => {
+        const TI = window.TelegraphImport;
+        if (!TI) { this.setState({ tgError: 'Модуль розбору не завантажився — онови сторінку' }); return; }
+        const st0 = this.state;
+        this.setState({ tgBusy: true, tgError: '' });
+        try {
+          const res = st0.tgMode === 'text'
+            ? TI.parseText(st0.tgRaw, { url: (st0.tgUrl || '').trim() })
+            : await TI.parseUrl(st0.tgUrl);
+          if (!res.sections.length && !res.name) throw new Error('Не знайшла граф анкети — перевір, чи це сторінка з анкетою');
+          const pick = {
+            name: !!res.name, alias: !!res.alias, age: !!res.age,
+            height: !!res.height, weight: !!res.weight, role: !!res.role,
+            deity: !!(res.deity && this._tgDeityValue(res.deity)),
+            bio: !!res.bio, content: !!res.markdown, telegraph_url: !!res.url, image: false,
+          };
+          this.setState({ tgBusy: false, tgResult: res, tgPick: pick, tgMarkdown: res.markdown, tgImage: '' });
+        } catch (err) {
+          this.setState({ tgBusy: false, tgError: err.message || 'Не вдалося прочитати сторінку' });
+        }
+      },
+      tgApply: async () => {
+        const st0 = this.state;
+        const res = st0.tgResult;
+        if (!res) return;
+        const p = st0.tgPick || {};
+        const patch = {};
+        if (p.name && res.name) patch.name = res.name;
+        if (p.alias && res.alias) patch.alias = res.alias;
+        if (p.age && res.age) patch.age = res.age;
+        if (p.height && res.height) patch.height = res.height;
+        if (p.weight && res.weight) patch.weight = res.weight;
+        if (p.role && res.role) patch.role = res.role;
+        if (p.deity && res.deity) {
+          const v = this._tgDeityValue(res.deity);
+          if (v) patch.deity = v;
+        }
+        if (p.bio && res.bio) patch.bio = res.bio;
+        if (p.content) patch.content = st0.tgMarkdown || res.markdown;
+        if (p.telegraph_url && res.url) patch.telegraph_url = res.url;
+        if (p.image && st0.tgImage) {
+          patch.image = st0.tgImage;
+          try {
+            const blob = await (await fetch(st0.tgImage)).blob();
+            const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+            patch.image = await this._uploadImage(new File([blob], 'telegraph.' + ext, { type: blob.type || 'image/jpeg' }));
+          } catch (err) {
+            this._toast('⚠ Портрет лишився посиланням на Telegraph');
+          }
+        }
+        const wasChar = !!(st0.editing && st0.editing.section === 'characters');
+        this.setState(stt => ({
+          editing: wasChar ? stt.editing : { section: 'characters', index: -1 },
+          form: wasChar ? { ...stt.form, ...patch } : { character_type: 'player', ...patch },
+        }));
+        this._toast('✦ Підставлено — перевір і натисни «Зберегти»');
+        setTimeout(() => {
+          const el = document.querySelector('[data-edit-form]');
+          if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 20, behavior: 'smooth' });
+        }, 80);
+      },
 
       handleInput: (e) => {
         const field = e.target.dataset.field, value = e.target.value;
