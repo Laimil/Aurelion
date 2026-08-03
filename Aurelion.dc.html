@@ -1495,6 +1495,18 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
   </main>
 </sc-if>
 
+<!-- ═══ ТЕСТИ ═══ -->
+<sc-if value="{{ showTests }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
+    <header style="text-align:center;margin-bottom:40px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Дзеркало</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Тести</h1>
+      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:440px;margin-left:auto;margin-right:auto;">Пройдіть за себе — або за свого персонажа, і подивіться, чим він відрізняється від вас.</p>
+    </header>
+    <dc-import name="Tests" tests="{{ testsData }}" embedded="{{ true }}" hint-size="100%,620px"></dc-import>
+  </main>
+</sc-if>
+
 <!-- ═══ ЦИТАТНИК ═══ -->
 <sc-if value="{{ showQuotes }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 90px;max-width:880px;margin:0 auto;">
@@ -2131,7 +2143,7 @@ const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице
 // Розділи «Архіву»: у хеші лишаються власні сегменти (старі посилання й /s/*.html
 // працюють як раніше) — парасолька живе лише в шапці та на смужці вкладок.
 const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
-const KNOWN_SEGS = ['home', 'characters', 'connections', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive'].concat(ARCHIVE_SEGS);
+const KNOWN_SEGS = ['home', 'characters', 'connections', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests'].concat(ARCHIVE_SEGS);
 
 const LOAD_ERROR_QUOTES = [
   'Схоже, боги не беруть слухавку.',
@@ -2200,7 +2212,7 @@ const DEFAULT_DICE_QUOTES = {
 class Component extends DCLogic {
   state = {
     page: this._getPage(),
-    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [] },
+    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [], tests: [] },
     quotesAuthor: null, quoteSpot: null,
     loading: true,
     loadError: false, loadErrorQuote: LOAD_ERROR_QUOTES[0],
@@ -2699,6 +2711,7 @@ class Component extends DCLogic {
         this._getSoft('community_pulse?select=*&order=month.asc'),
         this._getSoft('community_pulse_totals?select=*'),
         this._getSoft('quotes?select=num,text,author,added_by,source,created_at&is_hidden=eq.false&order=num.desc'),
+        this._getSoft('tests?select=*&is_published=eq.true&order=sort_order.asc,created_at.asc'),
       ]);
     } catch (e) {
       if (silent) return; // тихе оновлення — лишаємо те, що вже показано
@@ -2709,7 +2722,7 @@ class Component extends DCLogic {
       });
       return;
     }
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows] = res;
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows] = res;
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
     const loadedData = {
@@ -2725,6 +2738,7 @@ class Component extends DCLogic {
         pulse_months:  Array.isArray(pulseMonths)  ? pulseMonths  : [],
         pulse_totals:  (Array.isArray(pulseTotals) ? pulseTotals[0] : null) || null,
         quotes:        Array.isArray(quoteRows)    ? quoteRows    : [],
+        tests:         Array.isArray(testRows)     ? testRows     : [],
     };
     // Тексти, які вже є в пам'яті/кеші, переносимо на свіжі записи.
     const prev = this.state.data || {};
@@ -3633,7 +3647,11 @@ class Component extends DCLogic {
 
   renderVals() {
     const s = this.state;
-    const { data, page } = s;
+    const { data } = s;
+    // Розділ «Тести» вмикається в адмінці; поки вимкнений — його немає ні в
+    // шапці, ні на Головній, а пряме посилання #tests веде на Головну.
+    const testsOn = String((data.site || {}).tests_section_on || '') === '1';
+    const page = (s.page === 'tests' && !testsOn) ? 'home' : s.page;
     const isCrit   = !s.rolling && s.diceResult !== null && s.diceResult === s.diceType;
     const isFumble = !s.rolling && s.diceResult !== null && s.diceResult === 1;
     const diceDisplay = s.rolling
@@ -3724,6 +3742,8 @@ class Component extends DCLogic {
       showCharacters:  page === 'characters' && (!!sc || s.charMode === 'gallery'),
       showPantheon:    page === 'pantheon',
       showDice:        page === 'dice',
+      showTests:       page === 'tests',
+      testsData:       (data.tests || []),
       showContacts:    page === 'contacts',
       showMap:         page === 'map',
 
@@ -4038,6 +4058,7 @@ class Component extends DCLogic {
         { id: 'lore',        label: 'Архів',      active: ARCHIVE_SEGS.indexOf(page) !== -1 },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'dice',        label: 'Дайс',       active: page === 'dice' },
+        ...(testsOn ? [{ id: 'tests', label: 'Тести', active: page === 'tests' }] : []),
         { id: 'quotes',      label: 'Цитатник',   active: page === 'quotes' },
         { id: 'map',         label: 'Мапа',       active: page === 'map' },
         { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
@@ -4136,6 +4157,7 @@ class Component extends DCLogic {
           { id: 'characters', icon: '🎭', title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв', ...mk((data.characters||[]).length, 'персонаж', 'персонажі', 'персонажів') },
           { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу', ...mk((data.pantheon||[]).length, 'бог', 'боги', 'богів') },
           { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20', hasCount: false, countLabel: '' },
+          ...(testsOn ? [{ id: 'tests', icon: '🧠', title: 'Тести', desc: 'Дзеркало для вас і для вашого персонажа', ...mk((data.tests||[]).length, 'тест', 'тести', 'тестів') }] : []),
           { id: 'map',        icon: '🗺', title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону', ...mk((data.map_locations||[]).length, 'локація', 'локації', 'локацій') },
           { id: 'contacts',   icon: '✍️', title: 'Долучитися',  desc: 'Правила, анкета — і як стати частиною світу', hasCount: false, countLabel: '' },
         ]};

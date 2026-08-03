@@ -501,6 +501,120 @@ button{font-family:inherit;cursor:pointer}
   </div>
 </sc-if>
 
+<!-- TESTS TAB -->
+<sc-if value="{{ showTests }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+    <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:6px;">🧠 Тести</h2>
+    <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.55;">Тест пишеться в чаті з Клодом за промптом із файлу «Тести - Промпт для Клода.md» і вставляється сюди готовим куском. Новий тест лягає чернеткою — на сайті його видно лише з увімкненою позначкою «На сайті».</p>
+
+    <div onClick="{{ tstToggleSection }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;margin-bottom:20px;">
+      <div style="width:40px;height:22px;border-radius:999px;flex-shrink:0;position:relative;transition:background 0.2s;background:{{ tstSecTrackBg }};">
+        <div style="position:absolute;top:2px;left:{{ tstSecKnobLeft }};width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s;"></div>
+      </div>
+      <div>
+        <p style="font-size:0.84rem;color:#fff;">Розділ «Тести» на сайті</p>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:1px;line-height:1.45;">{{ tstSecHint }}</p>
+      </div>
+    </div>
+
+    <div style="background:rgba(100,149,237,0.055);border:1px solid rgba(100,149,237,0.2);border-radius:10px;padding:14px 16px;margin-bottom:22px;">
+      <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#6495ed;letter-spacing:0.05em;">✦ Вставити тест від Клода</p>
+      <p style="font-size:0.72rem;color:rgba(255,255,255,0.32);margin:4px 0 10px;line-height:1.5;">JSON або JS-обʼєкт — обгортку з трьох лапок, «const TESTS =» і крайні коми приберу сама. Можна вставити відразу масив тестів.</p>
+      <textarea value="{{ tstPaste }}" onChange="{{ tstSetPaste }}" placeholder="Встав сюди обʼєкт тесту — від відкритої фігурної дужки до закритої…" style="min-height:160px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.78rem;line-height:1.6;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+        <button onClick="{{ tstDoParse }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:7px;padding:8px 18px;font-size:0.82rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.22);">Розібрати й перевірити</button>
+        <button onClick="{{ tstClear }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:7px;padding:8px 16px;font-size:0.82rem;cursor:pointer;">Скинути</button>
+      </div>
+
+      <sc-if value="{{ tstHasError }}" hint-placeholder-val="{{ false }}">
+        <p style="margin-top:10px;font-size:0.78rem;color:rgba(255,77,77,0.8);line-height:1.5;">✕ {{ tstError }}</p>
+      </sc-if>
+
+      <sc-if value="{{ tstHasPreview }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.09);padding-top:14px;">
+          <p style="font-family:'Cinzel',serif;font-size:1rem;color:#ffd700;letter-spacing:0.05em;">{{ tstPrevTitle }}</p>
+          <sc-if value="{{ tstPrevHasTagline }}" hint-placeholder-val="{{ false }}">
+            <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.9rem;color:rgba(255,255,255,0.5);margin-top:3px;">{{ tstPrevTagline }}</p>
+          </sc-if>
+          <p style="font-size:0.72rem;letter-spacing:0.06em;color:rgba(255,255,255,0.3);margin-top:6px;">{{ tstPrevMeta }}</p>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin:12px 0;">
+            <sc-for list="{{ tstPrevTraits }}" as="tr" hint-placeholder-count="4">
+              <div style="display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
+                <div style="width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px;background:{{ tr.color }};"></div>
+                <div style="min-width:0;flex:1;">
+                  <p style="font-size:0.84rem;color:#fff;">{{ tr.name }} <span style="font-size:0.68rem;color:rgba(255,255,255,0.28);">{{ tr.qLabel }}</span></p>
+                  <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:2px;line-height:1.45;">{{ tr.tagline }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <p style="font-size:0.7rem;color:rgba(255,255,255,0.25);line-height:1.5;">Шкала: {{ tstPrevScale }}</p>
+
+          <sc-if value="{{ tstHasMore }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:10px;font-size:0.74rem;color:rgba(100,149,237,0.75);line-height:1.5;">{{ tstMoreLine }}</p>
+          </sc-if>
+          <sc-if value="{{ tstPrevHasExists }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:10px;font-size:0.74rem;color:rgba(100,149,237,0.75);line-height:1.5;">↻ {{ tstPrevExists }}</p>
+          </sc-if>
+          <sc-if value="{{ tstIsClean }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:10px;font-size:0.76rem;color:rgba(111,207,142,0.8);">{{ tstCleanLine }}</p>
+          </sc-if>
+          <sc-if value="{{ tstHasProblems }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:4px;margin-top:12px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;">
+              <sc-for list="{{ tstProblems }}" as="pr" hint-placeholder-count="0">
+                <p style="font-size:0.76rem;line-height:1.5;color:{{ pr.color }};">{{ pr.mark }} {{ pr.text }}</p>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center;">
+            <sc-if value="{{ tstCanSave }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ tstSave }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;cursor:pointer;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">{{ tstSaveLabel }}</button>
+            </sc-if>
+            <sc-if value="{{ tstBlocked }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.76rem;color:rgba(255,77,77,0.75);line-height:1.5;">Помилки (✕) блокують збереження — попроси Клода виправити саме їх. Зауваження (⚠) не блокують.</p>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ tstHasList }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <sc-for list="{{ tstList }}" as="t" hint-placeholder-count="2">
+          <div class="item-row {{ t.dragTargetClass }}"
+               draggable="{{ true }}"
+               data-section="tests"
+               data-index="{{ t._index }}"
+               onDragStart="{{ handleDragStart }}"
+               onDragOver="{{ handleDragOver }}"
+               onDrop="{{ handleDrop }}"
+               onDragEnd="{{ handleDragEnd }}"
+               style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);transition:all 0.15s;cursor:default;">
+            <span class="drag-handle" title="Перетягни для зміни порядку">⋮⋮</span>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:0.88rem;color:#fff;">{{ t.title }}</p>
+              <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:1px;">{{ t.meta }}</p>
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
+              <button data-id="{{ t.id }}" data-pub="{{ t.pubNext }}" onClick="{{ tstTogglePub }}" title="Показувати на сайті" style="border-radius:999px;padding:4px 12px;font-size:0.72rem;cursor:pointer;transition:all 0.18s;background:{{ t.pubBg }};border:1px solid {{ t.pubBorder }};color:{{ t.pubColor }};">{{ t.pubLabel }}</button>
+              <button data-id="{{ t.id }}" onClick="{{ tstEditItem }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
+              <button data-id="{{ t.id }}" onClick="{{ tstDelItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ tstEmpty }}" hint-placeholder-val="{{ true }}">
+      <div style="text-align:center;padding:44px 24px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.14);border-radius:12px;">
+        <p style="font-family:'Cinzel',serif;color:rgba(255,215,0,0.7);font-size:1rem;margin-bottom:8px;">✦ Тестів ще немає</p>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);line-height:1.6;max-width:430px;margin:0 auto;">Встав перший вище. Якщо збереження падає з помилкою про таблицю — прогони <code style="color:#ffd700;">supabase_tests_migration.sql</code> у SQL Editor.</p>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
 <!-- LORE TAB -->
 <sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
@@ -1649,6 +1763,18 @@ const TABLE_QUERIES = {
   pantheon:   'pantheon?select=*&order=sort_order.asc',
   contacts:      'contacts?select=*&order=sort_order.asc',
   map_locations: 'map_locations?select=*&order=sort_order.asc,created_at.asc',
+  tests:         'tests?select=*&order=sort_order.asc,created_at.asc',
+};
+
+// ── Тести: пантеонні акценти типів результату (hex для прев'ю) ──
+const TEST_ACCENTS = {
+  gold:   '#ffd700',
+  azure:  '#6495ed',
+  light:  '#ffd76b',
+  dark:   '#7b6fd4',
+  fate:   '#b0485a',
+  nature: '#3f9c8a',
+  magic:  '#c0c0cc',
 };
 
 const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице, ти ж не хочеш померти одразу ж вийшовши за межі міста? Думаю, що ні. Тому я тут. Спробуй довірити своє життя моїм знанням, адже можливо, саме я стану найвірнішим, найчеснішим супутником на твоєму шляху.\n\nПравило перше: Не довіряй людям. Повір, твої шанси на виживання зростуть на двадцять пунктів вверх…»';
@@ -1721,7 +1847,9 @@ class Component extends DCLogic {
     userEmail: '',
     // admin
     tab: 'site',
-    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [] },
+    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], tests: [] },
+    // тести: вставка від Клода
+    tstPaste: '', tstParsed: null, tstError: '',
     loading: false, saving: false,
     editing: null, form: {},
     toast: '',
@@ -1904,7 +2032,7 @@ class Component extends DCLogic {
   async _loadAll() {
     this.setState({ loading: true });
     try {
-      const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs] = await Promise.all([
+      const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, tests] = await Promise.all([
         this._get(TABLE_QUERIES.lore),
         this._get(TABLE_QUERIES.stories),
         this._get(TABLE_QUERIES.chronicles),
@@ -1913,6 +2041,7 @@ class Component extends DCLogic {
         this._get(TABLE_QUERIES.contacts),
         this._get('site_settings?select=*'),
         this._get(TABLE_QUERIES.map_locations),
+        this._get(TABLE_QUERIES.tests),
       ]);
       const site = {};
       (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
@@ -1927,6 +2056,7 @@ class Component extends DCLogic {
           pantheon:      Array.isArray(pantheon)   ? pantheon   : [],
           contacts:      Array.isArray(contacts)   ? contacts   : [],
           map_locations: Array.isArray(mapLocs)    ? mapLocs    : [],
+          tests:         Array.isArray(tests)      ? tests      : [],
         },
       });
     } catch(e) { this.setState({ loading: false }); }
@@ -2022,6 +2152,264 @@ class Component extends DCLogic {
       tgWarn: warns.join(' · '),
       tgHasWarn: warns.length > 0,
       tgApplyLabel: editingChar ? 'Підставити у форму' : 'Створити персонажа з анкети',
+    };
+  }
+
+  // ── Тести: розбір вставки від Клода ───────────────────────
+  _testParseSource(raw) {
+    let src = String(raw || '').trim();
+    if (!src) throw new Error('Порожньо — встав обʼєкт тесту.');
+    src = src.replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/, '').trim();
+    src = src.replace(/^(?:export\s+)?(?:const|let|var)\s+[A-Za-z_$][\w$]*\s*=\s*/, '').trim();
+    src = src.replace(/;+\s*$/, '').trim();
+    src = src.replace(/^,+/, '').replace(/,+$/, '').trim();
+    let val = null;
+    try { val = JSON.parse(src); }
+    catch (e1) {
+      try { val = new Function('"use strict";return (' + src + ');')(); }
+      catch (e2) { throw new Error('Не читається ні як JSON, ні як JS-обʼєкт: ' + (e2.message || e1.message)); }
+    }
+    const arr = (Array.isArray(val) ? val : [val]).filter(x => x && typeof x === 'object' && !Array.isArray(x));
+    if (!arr.length) throw new Error('У вставці немає жодного обʼєкта тесту.');
+    return arr;
+  }
+
+  _testCheck(t) {
+    const errors = [], warns = [];
+    const S = v => (typeof v === 'string' ? v.trim() : '');
+    if (!S(t.id)) errors.push('немає id (slug латиницею)');
+    else if (!/^[a-z0-9-]+$/.test(S(t.id))) errors.push('id «' + S(t.id) + '» — лише малі латинські літери, цифри й дефіс');
+    if (!S(t.title)) errors.push('немає назви (title)');
+    if (!S(t.tagline)) warns.push('немає підзаголовка (tagline)');
+    if (!S(t.description)) warns.push('немає опису для екрана вступу (description)');
+    if (!S(t.resultLabel)) warns.push('немає resultLabel — картка результату підпишеться загально');
+
+    const scale = Array.isArray(t.scale) ? t.scale : [];
+    if (scale.length !== 5) errors.push('шкала має бути з 5 пунктів, а тут ' + scale.length);
+    else if (scale.some((x, i) => !x || Number(x.value) !== i + 1 || !S(x.label))) errors.push('пункти шкали мусять мати value 1..5 по порядку і непорожній label');
+
+    const traits = (t.traits && typeof t.traits === 'object' && !Array.isArray(t.traits)) ? t.traits : null;
+    const keys = traits ? Object.keys(traits) : [];
+    if (!keys.length) errors.push('немає типів результату (traits)');
+    else {
+      if (keys.length < 3) errors.push('типів лише ' + keys.length + ' — потрібно від 3');
+      if (keys.length > 6) warns.push('типів ' + keys.length + ' — понад 6 картка результату читається важко');
+      const seen = {};
+      keys.forEach(k => {
+        const tr = traits[k] || {};
+        if (!S(tr.name)) errors.push('тип «' + k + '»: немає name');
+        if (!S(tr.desc)) errors.push('тип «' + k + '»: немає desc');
+        else if (S(tr.desc).length < 60) warns.push('тип «' + k + '»: опис короткий (' + S(tr.desc).length + ' символів)');
+        if (!S(tr.tagline)) warns.push('тип «' + k + '»: немає tagline');
+        const a = S(tr.accent);
+        if (!a) errors.push('тип «' + k + '»: немає accent');
+        else if (!TEST_ACCENTS[a]) errors.push('тип «' + k + '»: accent «' + a + '» не з переліку (' + Object.keys(TEST_ACCENTS).join(', ') + ')');
+        else if (seen[a]) errors.push('accent «' + a + '» повторюється: «' + seen[a] + '» і «' + k + '»');
+        else seen[a] = k;
+      });
+    }
+
+    const qs = Array.isArray(t.questions) ? t.questions : [];
+    if (!qs.length) errors.push('немає питань');
+    const perTrait = {};
+    qs.forEach((q, i) => {
+      if (!q || !S(q.text)) errors.push('питання ' + (i + 1) + ': немає тексту');
+      const k = S(q && q.trait);
+      if (!k) errors.push('питання ' + (i + 1) + ': немає trait');
+      else if (keys.length && !traits[k]) errors.push('питання ' + (i + 1) + ': trait «' + k + '» немає серед типів');
+      else perTrait[k] = (perTrait[k] || 0) + 1;
+    });
+    keys.forEach(k => {
+      const n = perTrait[k] || 0;
+      if (n === 0) errors.push('тип «' + k + '» не покритий жодним питанням');
+      else if (n === 1) warns.push('тип «' + k + '» має лише 1 питання — результат буде хитким');
+    });
+    if (qs.length && qs.length < 12) warns.push('питань ' + qs.length + ' — за схемою 12–16');
+    if (qs.length > 20) warns.push('питань ' + qs.length + ' — довго проходити');
+    const texts = qs.map(q => S(q && q.text).toLowerCase()).filter(Boolean);
+    if (new Set(texts).size !== texts.length) warns.push('є питання з однаковим текстом');
+    return { errors, warns, perTrait, qCount: qs.length, traitKeys: keys };
+  }
+
+  _testsVals() {
+    const s = this.state;
+    const ds = s.dragState;
+    const secOn = String((s.data.site || {}).tests_section_on || '') === '1';
+    const pubCount = (Array.isArray(s.data.tests) ? s.data.tests : []).filter(r => r.is_published).length;
+    const rows = Array.isArray(s.data.tests) ? s.data.tests : [];
+    const parsed = s.tstParsed || [];
+    const first = parsed[0] || null;
+
+    const problems = [];
+    parsed.forEach((p, i) => {
+      const pre = parsed.length > 1 ? ('«' + ((p.test.title || p.test.id || ('тест ' + (i + 1)))) + '»: ') : '';
+      p.check.errors.forEach(x => problems.push({ mark: '✕', text: pre + x, color: 'rgba(255,77,77,0.85)' }));
+      p.check.warns.forEach(x => problems.push({ mark: '⚠', text: pre + x, color: 'rgba(255,215,0,0.62)' }));
+    });
+    const bad = parsed.filter(p => p.check.errors.length).length;
+    const good = parsed.length - bad;
+
+    let prevTraits = [], prevTitle = '', prevTagline = '', prevMeta = '', prevScale = '', prevExists = '';
+    if (first) {
+      const t = first.test, c = first.check;
+      const traits = (t.traits && typeof t.traits === 'object') ? t.traits : {};
+      prevTitle   = String(t.title || '(без назви)');
+      prevTagline = String(t.tagline || '');
+      prevMeta    = [String(t.id || 'без id'), c.qCount + ' питань', c.traitKeys.length + ' типів'].join(' · ');
+      prevScale   = (Array.isArray(t.scale) ? t.scale : []).map(x => String((x && x.label) || '?')).join(' · ');
+      prevTraits  = c.traitKeys.map(k => {
+        const tr = traits[k] || {};
+        const acc = TEST_ACCENTS[String(tr.accent || '').trim()] || 'rgba(255,255,255,0.3)';
+        return {
+          key: k,
+          name: String(tr.name || k),
+          tagline: String(tr.tagline || ''),
+          color: acc,
+          qLabel: (c.perTrait[k] || 0) + ' пит.',
+        };
+      });
+      const dup = rows.find(r => r.test_id === String(t.id || '').trim());
+      prevExists = dup ? ('Тест з id «' + dup.test_id + '» уже в базі — збереження його оновить (видимість і порядок лишаться).') : '';
+    }
+
+    return {
+      tstSecTrackBg: secOn ? 'rgba(255,215,0,0.6)' : 'rgba(255,255,255,0.15)',
+      tstSecKnobLeft: secOn ? '20px' : '2px',
+      tstSecHint: secOn
+        ? (pubCount ? ('Увімкнено: пункт у шапці, плитка на Головній, ' + pubCount + ' тестів видно.') : 'Увімкнено, але жодного тесту не показано — розділ буде порожній.')
+        : 'Вимкнено: немає ні в шапці, ні на Головній, і посилання #tests веде на Головну.',
+      tstToggleSection: async () => {
+        const next = secOn ? '0' : '1';
+        this._setSite('tests_section_on', next);
+        try {
+          await this._upsertSetting('tests_section_on', next);
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast(next === '1' ? '✓ Розділ «Тести» на сайті' : '✓ Розділ «Тести» сховано');
+        } catch (ex) {
+          this._setSite('tests_section_on', secOn ? '1' : '0');
+          this._toast('✗ Не вдалося зберегти вимикач');
+        }
+      },
+
+      tstPaste: s.tstPaste || '',
+      tstError: s.tstError || '',
+      tstHasError: !!s.tstError,
+      tstHasPreview: parsed.length > 0,
+      tstPrevTitle: prevTitle,
+      tstPrevTagline: prevTagline,
+      tstPrevHasTagline: !!prevTagline,
+      tstPrevMeta: prevMeta,
+      tstPrevScale: prevScale,
+      tstPrevTraits: prevTraits,
+      tstPrevExists: prevExists,
+      tstPrevHasExists: !!prevExists,
+      tstMoreLine: parsed.length > 1 ? ('У вставці ' + parsed.length + ' тестів — показано перший; збережу всі без помилок (' + good + ').') : '',
+      tstHasMore: parsed.length > 1,
+      tstProblems: problems,
+      tstHasProblems: problems.length > 0,
+      tstCleanLine: (parsed.length && !problems.length) ? '✓ Перевірка пройдена — зауважень немає.' : '',
+      tstIsClean: !!(parsed.length && !problems.length),
+      tstCanSave: parsed.length > 0 && good > 0,
+      tstBlocked: parsed.length > 0 && good === 0,
+      tstSaveLabel: s.saving ? 'Збереження…' : (parsed.length > 1 ? ('Зберегти ' + good + ' тести') : 'Зберегти тест'),
+
+      tstList: rows.map((r, i) => {
+        const qn = Array.isArray(r.questions) ? r.questions.length : 0;
+        const tn = (r.traits && typeof r.traits === 'object') ? Object.keys(r.traits).length : 0;
+        const pub = !!r.is_published;
+        return {
+          id: r.id,
+          _index: i,
+          title: r.title || '(без назви)',
+          meta: [String(r.test_id || '—'), qn + ' питань', tn + ' типів'].join(' · '),
+          pubLabel: pub ? '● На сайті' : '○ Чернетка',
+          pubNext: pub ? 'false' : 'true',
+          pubBg: pub ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.05)',
+          pubBorder: pub ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.14)',
+          pubColor: pub ? '#ffd700' : 'rgba(255,255,255,0.45)',
+          dragTargetClass: (ds && ds.section === 'tests' && ds.overIdx === i) ? 'drag-target' : '',
+        };
+      }),
+      tstHasList: rows.length > 0,
+      tstEmpty: rows.length === 0,
+
+      tstSetPaste: (e) => this.setState({ tstPaste: e.target.value }),
+      tstClear: () => this.setState({ tstPaste: '', tstParsed: null, tstError: '' }),
+      tstDoParse: () => {
+        try {
+          const arr = this._testParseSource(this.state.tstPaste);
+          this.setState({ tstParsed: arr.map(t => ({ test: t, check: this._testCheck(t) })), tstError: '' });
+        } catch (e) {
+          this.setState({ tstParsed: null, tstError: e.message || 'Не вдалося розібрати вставку' });
+        }
+      },
+      tstSave: async () => {
+        const list = (this.state.tstParsed || []).filter(p => !p.check.errors.length);
+        if (!list.length) return;
+        this.setState({ saving: true });
+        try {
+          let added = 0, updated = 0;
+          for (const p of list) {
+            const t = p.test;
+            const body = {
+              test_id:      String(t.id || '').trim(),
+              title:        String(t.title || '').trim(),
+              tagline:      String(t.tagline || '').trim(),
+              description:  String(t.description || '').trim(),
+              result_label: String(t.resultLabel || '').trim(),
+              scale:        t.scale,
+              traits:       t.traits,
+              questions:    t.questions,
+            };
+            const cur = (this.state.data.tests || []).find(r => r.test_id === body.test_id);
+            if (cur) { await this._patch('tests', cur.id, body); updated++; }
+            else {
+              await this._insert('tests', { ...body, is_published: false, sort_order: (this.state.data.tests || []).length + added });
+              added++;
+            }
+          }
+          await this._refreshTable('tests');
+          this.setState({ saving: false, tstPaste: '', tstParsed: null, tstError: '' });
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast('✓ ' + [added ? ('нових ' + added) : '', updated ? ('оновлено ' + updated) : ''].filter(Boolean).join(', '));
+        } catch (e) {
+          this.setState({ saving: false });
+          this._toast('✗ ' + (e.message || 'Помилка') + ' — чи прогнано supabase_tests_migration.sql?');
+          console.error('tests save error:', e);
+        }
+      },
+      tstTogglePub: async (e) => {
+        const id = e.currentTarget.dataset.id;
+        const next = e.currentTarget.dataset.pub === 'true';
+        try {
+          await this._patch('tests', id, { is_published: next });
+          await this._refreshTable('tests');
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast(next ? '✓ Тест показано на сайті' : '✓ Тест схований у чернетки');
+        } catch (ex) { this._toast('✗ Не вдалося перемкнути видимість'); }
+      },
+      tstEditItem: (e) => {
+        const id = e.currentTarget.dataset.id;
+        const r = (this.state.data.tests || []).find(x => String(x.id) === String(id));
+        if (!r) return;
+        const obj = {
+          id: r.test_id, title: r.title, tagline: r.tagline || '', description: r.description || '',
+          resultLabel: r.result_label || '', scale: r.scale || [], traits: r.traits || {}, questions: r.questions || [],
+        };
+        this.setState({ tstPaste: JSON.stringify(obj, null, 2), tstParsed: null, tstError: '' });
+        this._toast('✦ Тест у полі вставки — правь і тисни «Розібрати»');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+      tstDelItem: async (e) => {
+        const id = e.currentTarget.dataset.id;
+        if (!window.confirm('Видалити цей тест? Проходження на сайті зникне разом з ним.')) return;
+        try {
+          await this._remove('tests', id);
+          await this._refreshTable('tests');
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast('✓ Видалено');
+        } catch (ex) { this._toast('✗ Помилка видалення'); }
+      },
     };
   }
 
@@ -2655,6 +3043,7 @@ class Component extends DCLogic {
         { id: 'pantheon',   label: '🐉 Пантеон',     active: tab === 'pantheon' },
         { id: 'map',        label: '🗺 Мапа',        active: tab === 'map' },
         { id: 'dice',       label: '🎲 Дайс',        active: tab === 'dice' },
+        { id: 'tests',      label: '🧠 Тести',       active: tab === 'tests' },
         { id: 'contacts',   label: '✍️ Долучитися',    active: tab === 'contacts' },
       ],
       setTab: (e) => {
@@ -2672,8 +3061,10 @@ class Component extends DCLogic {
       showContacts:   tab === 'contacts',
       showMap:        tab === 'map',
       showDice:       tab === 'dice',
+      showTests:      tab === 'tests',
       showStats:      tab === 'stats',
       ...this._statsVals(),
+      ...this._testsVals(),
 
       diceCritQuotes:   (data.site && data.site.dice_quotes_crit   != null && data.site.dice_quotes_crit   !== '') ? data.site.dice_quotes_crit   : DEFAULT_DICE_QUOTES.crit.join('\n'),
       diceFumbleQuotes: (data.site && data.site.dice_quotes_fumble != null && data.site.dice_quotes_fumble !== '') ? data.site.dice_quotes_fumble : DEFAULT_DICE_QUOTES.fumble.join('\n'),
