@@ -19,6 +19,8 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 .test-ans:hover{background:rgba(255,215,0,0.09)!important;border-color:rgba(255,215,0,0.45)!important;color:#fff!important}
 .test-go:hover{box-shadow:0 0 22px rgba(255,215,0,0.4)}
 .test-ghost:hover{color:#fff!important;border-color:rgba(255,255,255,0.3)!important}
+.test-share:hover{background:rgba(255,255,255,0.11)!important;transform:translateY(-2px)}
+.test-share[data-busy="true"]{opacity:0.5;pointer-events:none}
 </style>
 </helmet>
 
@@ -113,6 +115,28 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
         </div>
         <p style="text-align:center;font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.28em;color:rgba(255,255,255,0.18);">AURELION</p>
       </div>
+      <div style="width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+        <p style="font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.26);">— Поділитися результатом —</p>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:center;">
+          <button onClick="{{ saveCard }}" data-busy="{{ shareBusy }}" class="test-share" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,215,0,0.32);border-radius:999px;padding:10px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Картка PNG
+          </button>
+          <button onClick="{{ copyCard }}" data-busy="{{ shareBusy }}" class="test-share" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:10px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Копіювати
+          </button>
+          <sc-if value="{{ canNativeShare }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ shareCard }}" data-busy="{{ shareBusy }}" class="test-share" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:10px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              Поділитися
+            </button>
+          </sc-if>
+        </div>
+        <sc-if value="{{ hasShareMsg }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size:0.82rem;letter-spacing:0.03em;color:rgba(255,215,0,0.85);font-family:'EB Garamond',Georgia,serif;text-align:center;">{{ shareMsg }}</span>
+        </sc-if>
+      </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
         <button class="test-ghost" onClick="{{ retake }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:12px 22px;font-size:0.85rem;transition:all 0.2s ease;">Пройти ще раз</button>
         <button class="test-ghost" onClick="{{ toHub }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:12px 22px;font-size:0.85rem;transition:all 0.2s ease;">До списку тестів</button>
@@ -134,9 +158,11 @@ class Component extends DCLogic {
     stage: 'hub', activeId: null,
     forWhom: 'self', charName: '',
     qIndex: 0, answers: {},
+    sharing: false, shareMsg: '',
   };
 
   componentDidMount() {
+    if (typeof window !== 'undefined') window.__auTests = this; // TEMP-DEBUG
     // Автономний перегляд файлу: зразок беремо ЛИШЕ коли DC відкрито окремо.
     // Усередині сайту (embedded) порожній масив означає «у базі порожньо» —
     // підміняти його прототипом не можна.
@@ -202,6 +228,199 @@ class Component extends DCLogic {
     const answers = { ...this.state.answers, [i]: value };
     if (i + 1 < test.questions.length) this.setState({ answers, qIndex: i + 1 });
     else this.setState({ answers, stage: 'result' });
+  }
+
+  // ════════ КАРТКА РЕЗУЛЬТАТУ (PNG) ════════
+  // Той самий набір дій, що на картці персонажа й на кидку дайса:
+  // зберегти PNG · скопіювати в буфер · системний «Поділитися».
+
+  _cardHelpers() {
+    if (!this._helpersP) this._helpersP = import('./canvas-card-helpers.js');
+    return this._helpersP;
+  }
+
+  _cardName() {
+    return this.state.forWhom === 'character' ? (this.state.charName || '').trim() : '';
+  }
+
+  // Малюємо в два заходи однією функцією: перший (g === null) лише набирає
+  // висоту, другий малює. Так висота картки не розходиться з розміткою.
+  _renderResultCanvas(H, test, rows, name) {
+    const top = rows[0] || {};
+    const W = 900, dpr = 2, cw = 640, cx = W / 2, left = (W - cw) / 2;
+    const accent = top.color || '#ffd700';
+    const probe = document.createElement('canvas').getContext('2d');
+
+    const F_NAME = '700 52px "Cinzel", Georgia, serif';
+    const F_TAG  = 'italic 400 30px "EB Garamond", Georgia, serif';
+    const F_DESC = '400 27px "EB Garamond", Georgia, serif';
+    const lines = (font, text, max, cap) => {
+      if (!String(text || '').trim()) return [];
+      probe.font = font;
+      return H.clampLines(H.wrapLines(probe, text, max), cap);
+    };
+    const nameLines = lines(F_NAME, (top.name || '').toUpperCase(), cw - 40, 2);
+    const tagLines  = lines(F_TAG, top.tagline, cw - 60, 2);
+    const descLines = lines(F_DESC, top.desc, cw, 10);
+    const overline = name
+      ? ('✦ ' + name.toUpperCase() + ' · ' + String(test.resultLabel || '').toUpperCase())
+      : '✦ АУРЕЛІОН · ТЕСТИ';
+
+    // off — зсув, яким вміст центрується по висоті картки (портрет 3:4).
+    const paint = (g, off) => {
+      let y = 104 + (off || 0);
+      if (g) {
+        g.textAlign = 'center';
+        g.fillStyle = 'rgba(255,215,0,0.78)';
+        g.font = '600 19px "Cinzel", Georgia, serif';
+        H.trackedText(g, overline, cx, y, 5);
+      }
+      y += 34;
+      if (g) {
+        g.fillStyle = 'rgba(255,255,255,0.32)';
+        g.font = '600 20px "Cinzel", Georgia, serif';
+        H.trackedText(g, (test.title || '').toUpperCase(), cx, y, 3);
+      }
+      y += 66;
+      if (g) { g.fillStyle = accent; g.font = F_NAME; }
+      nameLines.forEach((ln, i) => { if (g) g.fillText(ln, cx, y + i * 58); });
+      y += (nameLines.length - 1) * 58 + (tagLines.length ? 40 : 32);
+      if (tagLines.length) {
+        if (g) { g.fillStyle = 'rgba(255,255,255,0.55)'; g.font = F_TAG; }
+        tagLines.forEach((ln, i) => { if (g) g.fillText(ln, cx, y + i * 36); });
+        y += (tagLines.length - 1) * 36 + 42;
+      }
+      if (descLines.length) {
+        if (g) { g.fillStyle = 'rgba(255,255,255,0.78)'; g.font = F_DESC; }
+        descLines.forEach((ln, i) => { if (g) g.fillText(ln, cx, y + i * 40); });
+        y += (descLines.length - 1) * 40 + 44;
+      }
+      if (g) { g.fillStyle = 'rgba(255,255,255,0.10)'; g.fillRect(left + 110, y, cw - 220, 1); }
+      y += 38;
+      rows.forEach(r => {
+        if (g) {
+          g.textAlign = 'left';
+          g.font = '400 22px "EB Garamond", Georgia, serif';
+          g.fillStyle = 'rgba(255,255,255,0.52)';
+          g.fillText(r.name, left, y);
+          g.textAlign = 'right';
+          g.font = '600 18px "Cinzel", Georgia, serif';
+          g.fillStyle = 'rgba(255,255,255,0.4)';
+          g.fillText(r.pctLabel, left + cw, y);
+          g.textAlign = 'center';
+          g.fillStyle = 'rgba(255,255,255,0.08)';
+          H.roundRect(g, left, y + 13, cw, 6, 3); g.fill();
+          g.fillStyle = r.color;
+          H.roundRect(g, left, y + 13, Math.max(6, Math.round(cw * (r.pct / 100))), 6, 3); g.fill();
+        }
+        y += 48;
+      });
+      return y - 104;   // висота самого вмісту, без верхнього відступу
+    };
+
+    // Картка — портрет 3:4 (як картка персонажа): довгий опис її розтягує,
+    // короткий не робить смужкою. Вміст центрується в полі над вотермаркою.
+    const inner = Math.round(paint(null, 0));
+    const BOTTOM = 150;                       // місце під вотермарку
+    const height = Math.max(Math.round(W * 4 / 3), inner + 104 + BOTTOM);
+    const off = Math.max(0, Math.round((height - BOTTOM - 104 - inner) / 2));
+    const canvas = document.createElement('canvas');
+    canvas.width = W * dpr; canvas.height = height * dpr;
+    const g = canvas.getContext('2d');
+    g.scale(dpr, dpr);
+    g.fillStyle = '#161514';
+    g.fillRect(0, 0, W, height);
+    const glow = g.createRadialGradient(cx, 250, 0, cx, 250, 560);
+    glow.addColorStop(0, H.withAlpha(accent, 0.13));
+    glow.addColorStop(1, 'rgba(22,21,20,0)');
+    g.fillStyle = glow;
+    g.fillRect(0, 0, W, height);
+    g.strokeStyle = H.withAlpha(accent, 0.36);
+    g.lineWidth = 1.5;
+    H.roundRect(g, 34, 34, W - 68, height - 68, 22); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,0.08)';
+    g.lineWidth = 1;
+    H.roundRect(g, 44, 44, W - 88, height - 88, 16); g.stroke();
+    paint(g, off);
+    g.textAlign = 'center';
+    g.fillStyle = 'rgba(255,215,0,0.85)';
+    g.font = '700 24px "Cinzel", Georgia, serif';
+    H.trackedText(g, 'AURELION', cx, height - 92, 8);
+    return canvas;
+  }
+
+  async _resultCardBlob() {
+    const test = this._active();
+    if (!test) throw new Error('no-test');
+    const H = await this._cardHelpers();
+    await H.ensureCardFonts();
+    const canvas = this._renderResultCanvas(H, test, this._breakdown(test), this._cardName());
+    return await new Promise(res => canvas.toBlob(res, 'image/png'));
+  }
+
+  _resultFileName() {
+    const test = this._active();
+    if (!test) return 'aurelion-test.png';
+    const top = this._breakdown(test)[0] || {};
+    const key = String(top.key || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return 'aurelion-test-' + test.id + (key ? '-' + key : '') + '.png';
+  }
+
+  _flashShareMsg(msg) {
+    this.setState({ shareMsg: msg });
+    clearTimeout(this._shareMsgTimer);
+    this._shareMsgTimer = setTimeout(() => this.setState({ shareMsg: '' }), 2600);
+  }
+
+  async saveResultCard() {
+    if (this.state.sharing) return;
+    this.setState({ sharing: true });
+    try {
+      const blob = await this._resultCardBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = this._resultFileName();
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      this._flashShareMsg('Картку збережено');
+    } catch (e) { this._flashShareMsg('Не вдалося зберегти'); }
+    this.setState({ sharing: false });
+  }
+
+  async copyResultCard() {
+    if (this.state.sharing) return;
+    this.setState({ sharing: true });
+    try {
+      if (!navigator.clipboard || !window.ClipboardItem) throw new Error('no-clipboard');
+      // Safari дозволяє тільки синхронний ClipboardItem — тому в нього йде
+      // ПРОМІС блоба, а не готовий блоб (той самий підхід, що в картці персонажа).
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': this._resultCardBlob() })]);
+      this._flashShareMsg('Скопійовано в буфер');
+    } catch (e) {
+      try {
+        const blob = await this._resultCardBlob();
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        this._flashShareMsg('Скопійовано в буфер');
+      } catch (e2) { this._flashShareMsg('Буфер недоступний — збережіть картку'); }
+    }
+    this.setState({ sharing: false });
+  }
+
+  async shareResultCard() {
+    if (this.state.sharing) return;
+    this.setState({ sharing: true });
+    try {
+      const test = this._active();
+      const blob = await this._resultCardBlob();
+      const file = new File([blob], this._resultFileName(), { type: 'image/png' });
+      if (!navigator.canShare || !navigator.canShare({ files: [file] })) throw new Error('no-share');
+      await navigator.share({ files: [file], title: 'Ауреліон · ' + ((test && test.title) || 'Тест') });
+      this._flashShareMsg('');
+    } catch (e) {
+      if (e && e.name === 'AbortError') { this.setState({ sharing: false }); return; }
+      this._flashShareMsg('Поділитися недоступно тут');
+    }
+    this.setState({ sharing: false });
   }
 
   renderVals() {
@@ -272,8 +491,17 @@ class Component extends DCLogic {
       topDesc: top.desc || '',
       topColor: top.color || '#ffd700',
       breakdown: rows,
-      retake: () => this.setState({ stage: 'quiz', qIndex: 0, answers: {} }),
-      toHub: () => this.setState({ stage: 'hub', activeId: null, forWhom: 'self', charName: '', qIndex: 0, answers: {} }),
+
+      canNativeShare: !!(typeof navigator !== 'undefined' && navigator.canShare && navigator.share),
+      shareBusy: s.sharing,
+      shareMsg: s.shareMsg,
+      hasShareMsg: !!s.shareMsg,
+      saveCard: () => this.saveResultCard(),
+      copyCard: () => this.copyResultCard(),
+      shareCard: () => this.shareResultCard(),
+
+      retake: () => this.setState({ stage: 'quiz', qIndex: 0, answers: {}, shareMsg: '' }),
+      toHub: () => this.setState({ stage: 'hub', activeId: null, forWhom: 'self', charName: '', qIndex: 0, answers: {}, shareMsg: '' }),
     };
   }
 }
