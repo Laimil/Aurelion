@@ -599,6 +599,7 @@ button{font-family:inherit;cursor:pointer}
             </div>
             <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
               <button data-id="{{ t.id }}" data-pub="{{ t.pubNext }}" onClick="{{ tstTogglePub }}" title="Показувати на сайті" style="border-radius:999px;padding:4px 12px;font-size:0.72rem;cursor:pointer;transition:all 0.18s;background:{{ t.pubBg }};border:1px solid {{ t.pubBorder }};color:{{ t.pubColor }};">{{ t.pubLabel }}</button>
+              <button data-test-id="{{ t.testId }}" data-announced="{{ t.annFlag }}" onClick="{{ tstAnnounce }}" title="{{ t.annTitle }}" style="border-radius:5px;padding:4px 12px;font-size:0.76rem;cursor:pointer;transition:all 0.18s;background:{{ t.annBg }};border:1px solid {{ t.annBorder }};color:{{ t.annColor }};" style-hover="background:rgba(255,215,0,0.22);">{{ t.annLabel }}</button>
               <button data-id="{{ t.id }}" onClick="{{ tstEditItem }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
               <button data-id="{{ t.id }}" onClick="{{ tstDelItem }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;" style-hover="background:rgba(255,77,77,0.18);">Вид.</button>
             </div>
@@ -2327,6 +2328,15 @@ class Component extends DCLogic {
           pubBg: pub ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.05)',
           pubBorder: pub ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.14)',
           pubColor: pub ? '#ffd700' : 'rgba(255,255,255,0.45)',
+          testId: r.test_id || '',
+          annFlag: r.announced_at ? 'true' : 'false',
+          annLabel: r.announced_at ? '✦ Оповіщено' : '✦ Оповістити',
+          annTitle: r.announced_at
+            ? ('Марта вже оповіщала ' + new Date(r.announced_at).toLocaleDateString('uk-UA') + ' — можна повторити')
+            : (pub ? 'Оповістити в чаті про новий тест' : 'Тест ще чернетка — Марта оповістить, але на сайті його не видно'),
+          annBg: r.announced_at ? 'rgba(255,255,255,0.04)' : 'rgba(255,215,0,0.12)',
+          annBorder: r.announced_at ? 'rgba(255,255,255,0.14)' : 'rgba(255,215,0,0.35)',
+          annColor: r.announced_at ? 'rgba(255,255,255,0.4)' : '#ffd700',
           dragTargetClass: (ds && ds.section === 'tests' && ds.overIdx === i) ? 'drag-target' : '',
         };
       }),
@@ -2387,6 +2397,28 @@ class Component extends DCLogic {
           localStorage.setItem('aurelion-refresh', Date.now().toString());
           this._toast(next ? '✓ Тест показано на сайті' : '✓ Тест схований у чернетки');
         } catch (ex) { this._toast('✗ Не вдалося перемкнути видимість'); }
+      },
+      tstAnnounce: async (e) => {
+        const testId = e.currentTarget.dataset.testId;
+        const again = e.currentTarget.dataset.announced === 'true';
+        if (!testId) { this._toast('✗ У тесту немає test_id'); return; }
+        const row = (this.state.data.tests || []).find(x => x.test_id === testId) || {};
+        const warn = row.is_published ? '' : '\n\nУвага: тест — чернетка, на сайті його ще не видно.';
+        if (!window.confirm((again
+          ? 'Оповістити про цей тест ще раз?'
+          : 'Оповістити в чаті про новий тест?') + warn)) return;
+        try {
+          const r = await fetch(`${SUPA_FUNCS}/telegram-report?announce_test=${encodeURIComponent(testId)}&force=1`, {
+            method: 'POST',
+            headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken() || ''}` },
+          });
+          if (r.ok) {
+            await this._refreshTable('tests');
+            this._toast('✦ Марта оповістила в чаті');
+          } else {
+            this._toast('⚠ Оповіщення не пішло' + (r.status === 404 ? ' — тесту немає в базі' : ''));
+          }
+        } catch (ex) { this._toast('⚠ Оповіщення не пішло'); }
       },
       tstEditItem: (e) => {
         const id = e.currentTarget.dataset.id;
