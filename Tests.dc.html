@@ -21,6 +21,7 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 .test-ghost:hover{color:#fff!important;border-color:rgba(255,255,255,0.3)!important}
 .test-share:hover{background:rgba(255,255,255,0.11)!important;transform:translateY(-2px)}
 .test-share[data-busy="true"]{opacity:0.5;pointer-events:none}
+.test-chip:hover{color:#fff!important;border-color:rgba(255,215,0,0.35)!important}
 </style>
 </helmet>
 
@@ -100,19 +101,64 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
           <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.55);">{{ topTagline }}</p>
           <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.7;color:rgba(255,255,255,0.78);text-wrap:pretty;">{{ topDesc }}</p>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <sc-for list="{{ breakdown }}" as="row" hint-placeholder-count="6">
-            <div style="display:flex;flex-direction:column;gap:4px;">
-              <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:rgba(255,255,255,0.42);">
-                <span>{{ row.name }}</span>
-                <span>{{ row.pctLabel }}</span>
-              </div>
-              <div style="height:4px;border-radius:999px;background:rgba(255,255,255,0.09);overflow:hidden;">
-                <div style="height:100%;border-radius:999px;width:{{ row.width }};background:{{ row.color }};"></div>
-              </div>
-            </div>
+        <div style="display:flex;justify-content:center;gap:6px;">
+          <sc-for list="{{ chartPicks }}" as="pick" hint-placeholder-count="3">
+            <button class="test-chip" onClick="{{ pick.onPick }}" style="cursor:pointer;border-radius:999px;padding:5px 13px;font-size:0.68rem;letter-spacing:0.06em;transition:all 0.2s ease;background:{{ pick.bg }};border:1px solid {{ pick.border }};color:{{ pick.color }};">{{ pick.label }}</button>
           </sc-for>
         </div>
+
+        <sc-if value="{{ isBars }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ breakdown }}" as="row" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:rgba(255,255,255,0.42);">
+                  <span>{{ row.name }}</span>
+                  <span>{{ row.pctLabel }}</span>
+                </div>
+                <div style="height:4px;border-radius:999px;background:rgba(255,255,255,0.09);overflow:hidden;">
+                  <div style="height:100%;border-radius:999px;width:{{ row.width }};background:{{ row.color }};"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isRadar }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative;width:100%;">
+          <svg viewBox="-48 -28 396 356" style="width:100%;height:auto;display:block;">
+            <sc-for list="{{ radarRings }}" as="ring" hint-placeholder-count="4">
+              <polygon points="{{ ring.points }}" fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="1"></polygon>
+            </sc-for>
+            <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
+              <line x1="{{ ax.x1 }}" y1="{{ ax.y1 }}" x2="{{ ax.x2 }}" y2="{{ ax.y2 }}" stroke="rgba(255,255,255,0.09)" strokeWidth="1"></line>
+            </sc-for>
+            <polygon points="{{ radarPoints }}" fill="{{ radarFill }}" stroke="{{ radarStroke }}" strokeWidth="2"></polygon>
+            <sc-for list="{{ radarDots }}" as="dot" hint-placeholder-count="6">
+              <circle cx="{{ dot.x }}" cy="{{ dot.y }}" r="2.8" fill="{{ dot.color }}"></circle>
+            </sc-for>
+          </svg>
+          <sc-for list="{{ radarLabels }}" as="lab" hint-placeholder-count="6">
+            <div style="position:absolute;left:{{ lab.left }};top:{{ lab.top }};transform:{{ lab.shift }};text-align:{{ lab.align }};white-space:nowrap;font-family:'EB Garamond',Georgia,serif;line-height:1.25;">
+              <span style="display:block;font-size:0.72rem;color:rgba(255,255,255,0.55);">{{ lab.text }}</span>
+              <span style="display:block;font-size:0.64rem;color:rgba(255,255,255,0.32);">{{ lab.pctLabel }}</span>
+            </div>
+          </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isCols }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:flex-end;gap:6px;">
+            <sc-for list="{{ cols }}" as="col" hint-placeholder-count="6">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <span style="font-size:0.66rem;color:rgba(255,255,255,0.42);">{{ col.pctLabel }}</span>
+                <div style="width:100%;height:132px;display:flex;align-items:flex-end;justify-content:center;">
+                  <div style="width:100%;max-width:34px;border-radius:6px 6px 0 0;background:{{ col.color }};height:{{ col.height }};transition:height 0.3s ease;"></div>
+                </div>
+                <span style="font-size:0.6rem;color:rgba(255,255,255,0.42);text-align:center;line-height:1.3;overflow:hidden;">{{ col.name }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
         <p style="text-align:center;font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.28em;color:rgba(255,255,255,0.18);">AURELION</p>
       </div>
       <div style="width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:12px;">
@@ -146,11 +192,20 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:700,&quot;height&quot;:760},&quot;tests&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{test_id:string,title:string,tagline?:string,description?:string,result_label?:string,scale:Array&lt;{value:number,label:string}&gt;,traits:Record&lt;string,{name:string,tagline?:string,desc:string,accent:string}&gt;,questions:Array&lt;{text:string,trait:string}&gt;}&gt;&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:700,&quot;height&quot;:760},&quot;tests&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{test_id:string,title:string,tagline?:string,description?:string,result_label?:string,scale:Array&lt;{value:number,label:string}&gt;,traits:Record&lt;string,{name:string,tagline?:string,desc:string,accent:string}&gt;,questions:Array&lt;{text:string,trait:string}&gt;}&gt;&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;chart&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bars&quot;,&quot;radar&quot;,&quot;cols&quot;],&quot;default&quot;:&quot;bars&quot;,&quot;tsType&quot;:&quot;'bars'|'radar'|'cols'&quot;,&quot;section&quot;:&quot;Картка результату&quot;}}">
 const ACCENT = {
   gold: '#ffd700', azure: '#6495ed', light: '#ffd76b',
   dark: '#8f7ee8', fate: '#d2607a', nature: '#5fbfb0', magic: '#cdd2db',
 };
+
+// viewBox SVG-пелюсток; з нього рахуються відсоткові координати підписів.
+const RADAR_VB = { x: -48, y: -28, w: 396, h: 356 };
+
+const CHARTS = [
+  { id: 'bars',  label: 'Смужки' },
+  { id: 'radar', label: 'Пелюстки' },
+  { id: 'cols',  label: 'Стовпчики' },
+];
 
 class Component extends DCLogic {
   state = {
@@ -159,10 +214,48 @@ class Component extends DCLogic {
     forWhom: 'self', charName: '',
     qIndex: 0, answers: {},
     sharing: false, shareMsg: '',
+    chart: null,   // null → береться з пропа `chart`, типово смужки
   };
 
+  // ── Графік розбивки: смужки / пелюстки / стовпчики ──
+  _chartKind() {
+    const k = this.state.chart || this.props.chart || 'bars';
+    return CHARTS.some(c => c.id === k) ? k : 'bars';
+  }
+
+  // Одна геометрія пелюсток на DOM (SVG) і на canvas — різняться лише масштабом.
+  _radarGeom(rows, cx, cy, R, labelR) {
+    const n = rows.length || 1;
+    const ang = (i) => (-Math.PI / 2) + i * (2 * Math.PI / n);
+    const at = (i, k) => [cx + Math.cos(ang(i)) * R * k, cy + Math.sin(ang(i)) * R * k];
+    const r1 = (v) => Math.round(v * 10) / 10;
+    const ring = (k) => rows.map((r, i) => at(i, k).map(r1).join(',')).join(' ');
+    const vals = rows.map((r, i) => {
+      const [x, y] = at(i, Math.max(0.06, (r.pct || 0) / 100));
+      return { x: r1(x), y: r1(y), color: r.color };
+    });
+    return {
+      rings: [0.25, 0.5, 0.75, 1].map(k => ({ points: ring(k) })),
+      axes: rows.map((r, i) => { const [x, y] = at(i, 1); return { x1: cx, y1: cy, x2: r1(x), y2: r1(y) }; }),
+      dots: vals,
+      points: vals.map(v => v.x + ',' + v.y).join(' '),
+      labels: rows.map((r, i) => {
+        const c = Math.cos(ang(i)), s = Math.sin(ang(i));
+        const ly = r1(cy + s * labelR + (s > 0.5 ? 8 : s < -0.5 ? -2 : 4));
+        return {
+          x: r1(cx + c * labelR),
+          y: ly,
+          ax: r1(cx + c * labelR),      // без зсуву під базову лінію — для HTML-шару
+          ay: r1(cy + s * labelR),
+          anchor: Math.abs(c) < 0.3 ? 'middle' : (c > 0 ? 'start' : 'end'),
+          text: r.name,
+          pctLabel: r.pctLabel,
+        };
+      }),
+    };
+  }
+
   componentDidMount() {
-    if (typeof window !== 'undefined') window.__auTests = this; // TEMP-DEBUG
     // Автономний перегляд файлу: зразок беремо ЛИШЕ коли DC відкрито окремо.
     // Усередині сайту (embedded) порожній масив означає «у базі порожньо» —
     // підміняти його прототипом не можна.
@@ -262,6 +355,7 @@ class Component extends DCLogic {
     const nameLines = lines(F_NAME, (top.name || '').toUpperCase(), cw - 40, 2);
     const tagLines  = lines(F_TAG, top.tagline, cw - 60, 2);
     const descLines = lines(F_DESC, top.desc, cw, 10);
+    const kind = this._chartKind();
     const overline = name
       ? ('✦ ' + name.toUpperCase() + ' · ' + String(test.resultLabel || '').toUpperCase())
       : '✦ АУРЕЛІОН · ТЕСТИ';
@@ -297,24 +391,7 @@ class Component extends DCLogic {
       }
       if (g) { g.fillStyle = 'rgba(255,255,255,0.10)'; g.fillRect(left + 110, y, cw - 220, 1); }
       y += 38;
-      rows.forEach(r => {
-        if (g) {
-          g.textAlign = 'left';
-          g.font = '400 22px "EB Garamond", Georgia, serif';
-          g.fillStyle = 'rgba(255,255,255,0.52)';
-          g.fillText(r.name, left, y);
-          g.textAlign = 'right';
-          g.font = '600 18px "Cinzel", Georgia, serif';
-          g.fillStyle = 'rgba(255,255,255,0.4)';
-          g.fillText(r.pctLabel, left + cw, y);
-          g.textAlign = 'center';
-          g.fillStyle = 'rgba(255,255,255,0.08)';
-          H.roundRect(g, left, y + 13, cw, 6, 3); g.fill();
-          g.fillStyle = r.color;
-          H.roundRect(g, left, y + 13, Math.max(6, Math.round(cw * (r.pct / 100))), 6, 3); g.fill();
-        }
-        y += 48;
-      });
+      y += this._paintChart(H, g, kind, rows, left, y, cw, accent);
       return y - 104;   // висота самого вмісту, без верхнього відступу
     };
 
@@ -347,6 +424,91 @@ class Component extends DCLogic {
     g.font = '700 24px "Cinzel", Georgia, serif';
     H.trackedText(g, 'AURELION', cx, height - 92, 8);
     return canvas;
+  }
+
+  // Малює вибраний графік і повертає з'їдену висоту (g === null — лише міряє).
+  _paintChart(H, g, kind, rows, left, top, cw, accent) {
+    const cx = left + cw / 2;
+
+    if (kind === 'radar') {
+      const R = Math.min(200, cw / 2 - 90), cy = top + R + 56;
+      const geom = this._radarGeom(rows, cx, cy, R, R + 34);
+      if (g) {
+        const poly = (pts, fill, stroke, lw) => {
+          const p = pts.split(' ').map(s => s.split(',').map(Number));
+          g.beginPath();
+          p.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+          g.closePath();
+          if (fill) { g.fillStyle = fill; g.fill(); }
+          if (stroke) { g.strokeStyle = stroke; g.lineWidth = lw || 1; g.stroke(); }
+        };
+        geom.rings.forEach(r => poly(r.points, null, 'rgba(255,255,255,0.09)', 1));
+        geom.axes.forEach(a => {
+          g.beginPath(); g.moveTo(a.x1, a.y1); g.lineTo(a.x2, a.y2);
+          g.strokeStyle = 'rgba(255,255,255,0.09)'; g.lineWidth = 1; g.stroke();
+        });
+        poly(geom.points, H.withAlpha(accent, 0.18), H.withAlpha(accent, 0.9), 2);
+        geom.dots.forEach(d => {
+          g.beginPath(); g.arc(d.x, d.y, 5, 0, Math.PI * 2);
+          g.fillStyle = d.color; g.fill();
+        });
+        g.font = '400 20px "EB Garamond", Georgia, serif';
+        geom.labels.forEach(l => {
+          g.textAlign = l.anchor === 'middle' ? 'center' : (l.anchor === 'start' ? 'left' : 'right');
+          g.fillStyle = 'rgba(255,255,255,0.55)';
+          g.fillText(l.text, l.x, l.y);
+          g.fillStyle = 'rgba(255,255,255,0.3)';
+          g.fillText(l.pctLabel, l.x, l.y + 22);
+        });
+        g.textAlign = 'center';
+      }
+      return (R + 56) * 2 + 20;
+    }
+
+    if (kind === 'cols') {
+      const H_COL = 230, base = top + H_COL, slot = cw / (rows.length || 1);
+      if (g) {
+        g.strokeStyle = 'rgba(255,255,255,0.08)'; g.lineWidth = 1;
+        g.beginPath(); g.moveTo(left, base + 0.5); g.lineTo(left + cw, base + 0.5); g.stroke();
+        rows.forEach((r, i) => {
+          const w = Math.min(58, slot - 16);
+          const x = left + slot * i + (slot - w) / 2;
+          const h = Math.max(4, Math.round(H_COL * (r.pct / 100)));
+          g.fillStyle = r.color;
+          H.roundRect(g, x, base - h, w, h, 7); g.fill();
+          g.textAlign = 'center';
+          g.font = '600 16px "Cinzel", Georgia, serif';
+          g.fillStyle = 'rgba(255,255,255,0.42)';
+          g.fillText(r.pctLabel, x + w / 2, base - h - 12);
+          g.font = '400 18px "EB Garamond", Georgia, serif';
+          g.fillStyle = 'rgba(255,255,255,0.55)';
+          let nm = r.name;
+          while (nm.length > 3 && g.measureText(nm).width > slot - 6) nm = nm.slice(0, -1);
+          g.fillText(nm + (nm === r.name ? '' : '…'), x + w / 2, base + 30);
+        });
+      }
+      return H_COL + 52;
+    }
+
+    if (g) {
+      rows.forEach((r, i) => {
+        const y = top + i * 48;
+        g.textAlign = 'left';
+        g.font = '400 22px "EB Garamond", Georgia, serif';
+        g.fillStyle = 'rgba(255,255,255,0.52)';
+        g.fillText(r.name, left, y);
+        g.textAlign = 'right';
+        g.font = '600 18px "Cinzel", Georgia, serif';
+        g.fillStyle = 'rgba(255,255,255,0.4)';
+        g.fillText(r.pctLabel, left + cw, y);
+        g.textAlign = 'center';
+        g.fillStyle = 'rgba(255,255,255,0.08)';
+        H.roundRect(g, left, y + 13, cw, 6, 3); g.fill();
+        g.fillStyle = r.color;
+        H.roundRect(g, left, y + 13, Math.max(6, Math.round(cw * (r.pct / 100))), 6, 3); g.fill();
+      });
+    }
+    return rows.length * 48;
   }
 
   async _resultCardBlob() {
@@ -435,6 +597,14 @@ class Component extends DCLogic {
     const q = test ? test.questions[s.qIndex] : null;
     const rows = (stage === 'result' && test) ? this._breakdown(test) : [];
     const top = rows[0] || {};
+    const kind = this._chartKind();
+    const radar = (kind === 'radar' && rows.length) ? this._radarGeom(rows, 150, 150, 95, 117) : null;
+    const alpha = (hex, a) => {
+      const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
+      if (!m) return 'rgba(255,215,0,' + a + ')';
+      const n = parseInt(m[1], 16);
+      return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+    };
 
     const pill = (on) => ({
       bg: on ? 'rgba(255,215,0,0.16)' : 'rgba(255,255,255,0.04)',
@@ -491,6 +661,38 @@ class Component extends DCLogic {
       topDesc: top.desc || '',
       topColor: top.color || '#ffd700',
       breakdown: rows,
+
+      chartPicks: CHARTS.map(c => {
+        const on = c.id === kind;
+        return {
+          id: c.id, label: c.label,
+          bg: on ? 'rgba(255,215,0,0.14)' : 'transparent',
+          border: on ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
+          color: on ? '#ffd700' : 'rgba(255,255,255,0.45)',
+          onPick: () => this.setState({ chart: c.id }),
+        };
+      }),
+      isBars: kind === 'bars',
+      isRadar: kind === 'radar',
+      isCols: kind === 'cols',
+      radarRings: radar ? radar.rings : [],
+      radarAxes: radar ? radar.axes : [],
+      radarDots: radar ? radar.dots : [],
+      // Підписи пелюсток — звичайним HTML поверх SVG: текстова дірка всередині
+      // <text> не малюється (рантайм обертає її в <span> у SVG-неймспейсі).
+      radarLabels: radar ? radar.labels.map(l => ({
+        text: l.text,
+        pctLabel: l.pctLabel,
+        left: (((l.ax - RADAR_VB.x) / RADAR_VB.w) * 100).toFixed(2) + '%',
+        top: (((l.ay - RADAR_VB.y) / RADAR_VB.h) * 100).toFixed(2) + '%',
+        shift: l.anchor === 'middle' ? 'translate(-50%,-50%)'
+             : l.anchor === 'start' ? 'translate(0,-50%)' : 'translate(-100%,-50%)',
+        align: l.anchor === 'middle' ? 'center' : (l.anchor === 'start' ? 'left' : 'right'),
+      })) : [],
+      radarPoints: radar ? radar.points : '',
+      radarFill: alpha(top.color, 0.16),
+      radarStroke: alpha(top.color, 0.9),
+      cols: rows.map(r => ({ name: r.name, pctLabel: r.pctLabel, color: r.color, height: Math.max(3, r.pct) + '%' })),
 
       canNativeShare: !!(typeof navigator !== 'undefined' && navigator.canShare && navigator.share),
       shareBusy: s.sharing,
