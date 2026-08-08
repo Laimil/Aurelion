@@ -713,6 +713,62 @@ button{font-family:inherit;cursor:pointer}
             {{ lorePreviewEl }}
           </sc-if>
         </div>
+        <sc-if value="{{ showLinksPanel }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
+            <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Зв'язки матеріалу</h4>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">З тексту беруться самі — усе, на що є вікі-посилання. Нижче можна дописати те, чого в тексті немає. Пишуться при збереженні.</p>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">З тексту · {{ linkAutoCount }}</p>
+            <sc-if value="{{ linkAutoHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+                <sc-for list="{{ linkAuto }}" as="l" hint-placeholder-count="2">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);font-size:0.72rem;color:rgba(255,255,255,0.72);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};">{{ l.kind }}</span>{{ l.name }}
+                  </span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkAutoNone }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-bottom:16px;">У тексті вікі-посилань немає.</p>
+            </sc-if>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">Дописані вручну · {{ linkManualCount }}</p>
+            <sc-if value="{{ linkManualHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+                <sc-for list="{{ linkManualList }}" as="l" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:7px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};flex-shrink:0;">{{ l.kind }}</span>
+                    <span style="flex:1 1 90px;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ l.name }}</span>
+                    <select value="{{ l.label }}" data-key="{{ l.key }}" onChange="{{ linkSetLabel }}" style="flex:0 1 auto;min-width:0;max-width:126px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);border-radius:5px;padding:4px 7px;font-size:0.72rem;">
+                      <sc-for list="{{ linkLabels }}" as="op" hint-placeholder-count="4">
+                        <option value="{{ op }}">{{ op }}</option>
+                      </sc-for>
+                    </select>
+                    <button type="button" data-key="{{ l.key }}" onClick="{{ linkRemove }}" title="Прибрати" style="flex-shrink:0;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">✕</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <input value="{{ linkSearch }}" onChange="{{ linkSetSearch }}" placeholder="Знайти матеріал, персонажа або бога…" style="width:100%;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:6px;padding:8px 11px;font-size:0.78rem;"/>
+            <sc-if value="{{ linkHasResults }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-top:7px;max-height:210px;overflow:auto;">
+                <sc-for list="{{ linkResults }}" as="r" hint-placeholder-count="0">
+                  <button type="button" data-key="{{ r.key }}" onClick="{{ linkAdd }}" style="display:flex;align-items:center;gap:9px;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:7px 10px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.07);border-color:rgba(255,215,0,0.25);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ r.color }};flex-shrink:0;">{{ r.kind }}</span>
+                    <span style="flex:1;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.78);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.name }}</span>
+                    <span style="flex-shrink:0;color:rgba(255,215,0,0.6);font-size:0.8rem;">+</span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkShowHint }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:7px;">{{ linkSearchHint }}</p>
+            </sc-if>
+
+            <button type="button" onClick="{{ linkRebuild }}" title="Перечитати вікі-посилання в усіх матеріалах" style="margin-top:14px;background:none;border:none;color:rgba(100,149,237,0.6);font-size:0.7rem;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;">{{ linkRebuildLabel }}</button>
+          </div>
+        </sc-if>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
@@ -865,6 +921,62 @@ button{font-family:inherit;cursor:pointer}
             {{ storiesPreviewEl }}
           </sc-if>
         </div>
+        <sc-if value="{{ showLinksPanel }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
+            <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Зв'язки матеріалу</h4>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">З тексту беруться самі — усе, на що є вікі-посилання. Нижче можна дописати те, чого в тексті немає. Пишуться при збереженні.</p>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">З тексту · {{ linkAutoCount }}</p>
+            <sc-if value="{{ linkAutoHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+                <sc-for list="{{ linkAuto }}" as="l" hint-placeholder-count="2">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);font-size:0.72rem;color:rgba(255,255,255,0.72);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};">{{ l.kind }}</span>{{ l.name }}
+                  </span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkAutoNone }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-bottom:16px;">У тексті вікі-посилань немає.</p>
+            </sc-if>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">Дописані вручну · {{ linkManualCount }}</p>
+            <sc-if value="{{ linkManualHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+                <sc-for list="{{ linkManualList }}" as="l" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:7px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};flex-shrink:0;">{{ l.kind }}</span>
+                    <span style="flex:1 1 90px;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ l.name }}</span>
+                    <select value="{{ l.label }}" data-key="{{ l.key }}" onChange="{{ linkSetLabel }}" style="flex:0 1 auto;min-width:0;max-width:126px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);border-radius:5px;padding:4px 7px;font-size:0.72rem;">
+                      <sc-for list="{{ linkLabels }}" as="op" hint-placeholder-count="4">
+                        <option value="{{ op }}">{{ op }}</option>
+                      </sc-for>
+                    </select>
+                    <button type="button" data-key="{{ l.key }}" onClick="{{ linkRemove }}" title="Прибрати" style="flex-shrink:0;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">✕</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <input value="{{ linkSearch }}" onChange="{{ linkSetSearch }}" placeholder="Знайти матеріал, персонажа або бога…" style="width:100%;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:6px;padding:8px 11px;font-size:0.78rem;"/>
+            <sc-if value="{{ linkHasResults }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-top:7px;max-height:210px;overflow:auto;">
+                <sc-for list="{{ linkResults }}" as="r" hint-placeholder-count="0">
+                  <button type="button" data-key="{{ r.key }}" onClick="{{ linkAdd }}" style="display:flex;align-items:center;gap:9px;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:7px 10px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.07);border-color:rgba(255,215,0,0.25);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ r.color }};flex-shrink:0;">{{ r.kind }}</span>
+                    <span style="flex:1;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.78);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.name }}</span>
+                    <span style="flex-shrink:0;color:rgba(255,215,0,0.6);font-size:0.8rem;">+</span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkShowHint }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:7px;">{{ linkSearchHint }}</p>
+            </sc-if>
+
+            <button type="button" onClick="{{ linkRebuild }}" title="Перечитати вікі-посилання в усіх матеріалах" style="margin-top:14px;background:none;border:none;color:rgba(100,149,237,0.6);font-size:0.7rem;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;">{{ linkRebuildLabel }}</button>
+          </div>
+        </sc-if>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
@@ -1003,6 +1115,62 @@ button{font-family:inherit;cursor:pointer}
             {{ storiesPreviewEl }}
           </sc-if>
         </div>
+        <sc-if value="{{ showLinksPanel }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
+            <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Зв'язки матеріалу</h4>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">З тексту беруться самі — усе, на що є вікі-посилання. Нижче можна дописати те, чого в тексті немає. Пишуться при збереженні.</p>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">З тексту · {{ linkAutoCount }}</p>
+            <sc-if value="{{ linkAutoHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+                <sc-for list="{{ linkAuto }}" as="l" hint-placeholder-count="2">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);font-size:0.72rem;color:rgba(255,255,255,0.72);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};">{{ l.kind }}</span>{{ l.name }}
+                  </span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkAutoNone }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-bottom:16px;">У тексті вікі-посилань немає.</p>
+            </sc-if>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">Дописані вручну · {{ linkManualCount }}</p>
+            <sc-if value="{{ linkManualHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+                <sc-for list="{{ linkManualList }}" as="l" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:7px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};flex-shrink:0;">{{ l.kind }}</span>
+                    <span style="flex:1 1 90px;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ l.name }}</span>
+                    <select value="{{ l.label }}" data-key="{{ l.key }}" onChange="{{ linkSetLabel }}" style="flex:0 1 auto;min-width:0;max-width:126px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);border-radius:5px;padding:4px 7px;font-size:0.72rem;">
+                      <sc-for list="{{ linkLabels }}" as="op" hint-placeholder-count="4">
+                        <option value="{{ op }}">{{ op }}</option>
+                      </sc-for>
+                    </select>
+                    <button type="button" data-key="{{ l.key }}" onClick="{{ linkRemove }}" title="Прибрати" style="flex-shrink:0;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">✕</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <input value="{{ linkSearch }}" onChange="{{ linkSetSearch }}" placeholder="Знайти матеріал, персонажа або бога…" style="width:100%;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:6px;padding:8px 11px;font-size:0.78rem;"/>
+            <sc-if value="{{ linkHasResults }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-top:7px;max-height:210px;overflow:auto;">
+                <sc-for list="{{ linkResults }}" as="r" hint-placeholder-count="0">
+                  <button type="button" data-key="{{ r.key }}" onClick="{{ linkAdd }}" style="display:flex;align-items:center;gap:9px;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:7px 10px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.07);border-color:rgba(255,215,0,0.25);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ r.color }};flex-shrink:0;">{{ r.kind }}</span>
+                    <span style="flex:1;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.78);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.name }}</span>
+                    <span style="flex-shrink:0;color:rgba(255,215,0,0.6);font-size:0.8rem;">+</span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkShowHint }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:7px;">{{ linkSearchHint }}</p>
+            </sc-if>
+
+            <button type="button" onClick="{{ linkRebuild }}" title="Перечитати вікі-посилання в усіх матеріалах" style="margin-top:14px;background:none;border:none;color:rgba(100,149,237,0.6);font-size:0.7rem;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;">{{ linkRebuildLabel }}</button>
+          </div>
+        </sc-if>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
@@ -1286,6 +1454,62 @@ button{font-family:inherit;cursor:pointer}
         </div>
         <!-- Telegraph -->
         <div style="margin-bottom:18px;"><label>Telegraph URL (повна анкета)</label><input value="{{ formTelegraphUrl }}" onChange="{{ handleInput }}" data-field="telegraph_url" placeholder="https://telegra.ph/..." /></div>
+        <sc-if value="{{ showLinksPanel }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
+            <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Зв'язки матеріалу</h4>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">З тексту беруться самі — усе, на що є вікі-посилання. Нижче можна дописати те, чого в тексті немає. Пишуться при збереженні.</p>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">З тексту · {{ linkAutoCount }}</p>
+            <sc-if value="{{ linkAutoHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+                <sc-for list="{{ linkAuto }}" as="l" hint-placeholder-count="2">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);font-size:0.72rem;color:rgba(255,255,255,0.72);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};">{{ l.kind }}</span>{{ l.name }}
+                  </span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkAutoNone }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-bottom:16px;">У тексті вікі-посилань немає.</p>
+            </sc-if>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">Дописані вручну · {{ linkManualCount }}</p>
+            <sc-if value="{{ linkManualHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+                <sc-for list="{{ linkManualList }}" as="l" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:7px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};flex-shrink:0;">{{ l.kind }}</span>
+                    <span style="flex:1 1 90px;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ l.name }}</span>
+                    <select value="{{ l.label }}" data-key="{{ l.key }}" onChange="{{ linkSetLabel }}" style="flex:0 1 auto;min-width:0;max-width:126px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);border-radius:5px;padding:4px 7px;font-size:0.72rem;">
+                      <sc-for list="{{ linkLabels }}" as="op" hint-placeholder-count="4">
+                        <option value="{{ op }}">{{ op }}</option>
+                      </sc-for>
+                    </select>
+                    <button type="button" data-key="{{ l.key }}" onClick="{{ linkRemove }}" title="Прибрати" style="flex-shrink:0;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">✕</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <input value="{{ linkSearch }}" onChange="{{ linkSetSearch }}" placeholder="Знайти матеріал, персонажа або бога…" style="width:100%;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:6px;padding:8px 11px;font-size:0.78rem;"/>
+            <sc-if value="{{ linkHasResults }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-top:7px;max-height:210px;overflow:auto;">
+                <sc-for list="{{ linkResults }}" as="r" hint-placeholder-count="0">
+                  <button type="button" data-key="{{ r.key }}" onClick="{{ linkAdd }}" style="display:flex;align-items:center;gap:9px;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:7px 10px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.07);border-color:rgba(255,215,0,0.25);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ r.color }};flex-shrink:0;">{{ r.kind }}</span>
+                    <span style="flex:1;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.78);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.name }}</span>
+                    <span style="flex-shrink:0;color:rgba(255,215,0,0.6);font-size:0.8rem;">+</span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkShowHint }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:7px;">{{ linkSearchHint }}</p>
+            </sc-if>
+
+            <button type="button" onClick="{{ linkRebuild }}" title="Перечитати вікі-посилання в усіх матеріалах" style="margin-top:14px;background:none;border:none;color:rgba(100,149,237,0.6);font-size:0.7rem;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;">{{ linkRebuildLabel }}</button>
+          </div>
+        </sc-if>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
@@ -1371,6 +1595,62 @@ button{font-family:inherit;cursor:pointer}
           </div>
           <input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
         </div>
+        <sc-if value="{{ showLinksPanel }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
+            <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Зв'язки матеріалу</h4>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">З тексту беруться самі — усе, на що є вікі-посилання. Нижче можна дописати те, чого в тексті немає. Пишуться при збереженні.</p>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">З тексту · {{ linkAutoCount }}</p>
+            <sc-if value="{{ linkAutoHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+                <sc-for list="{{ linkAuto }}" as="l" hint-placeholder-count="2">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);font-size:0.72rem;color:rgba(255,255,255,0.72);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};">{{ l.kind }}</span>{{ l.name }}
+                  </span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkAutoNone }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-bottom:16px;">У тексті вікі-посилань немає.</p>
+            </sc-if>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">Дописані вручну · {{ linkManualCount }}</p>
+            <sc-if value="{{ linkManualHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+                <sc-for list="{{ linkManualList }}" as="l" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:7px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};flex-shrink:0;">{{ l.kind }}</span>
+                    <span style="flex:1 1 90px;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ l.name }}</span>
+                    <select value="{{ l.label }}" data-key="{{ l.key }}" onChange="{{ linkSetLabel }}" style="flex:0 1 auto;min-width:0;max-width:126px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);border-radius:5px;padding:4px 7px;font-size:0.72rem;">
+                      <sc-for list="{{ linkLabels }}" as="op" hint-placeholder-count="4">
+                        <option value="{{ op }}">{{ op }}</option>
+                      </sc-for>
+                    </select>
+                    <button type="button" data-key="{{ l.key }}" onClick="{{ linkRemove }}" title="Прибрати" style="flex-shrink:0;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">✕</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <input value="{{ linkSearch }}" onChange="{{ linkSetSearch }}" placeholder="Знайти матеріал, персонажа або бога…" style="width:100%;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:6px;padding:8px 11px;font-size:0.78rem;"/>
+            <sc-if value="{{ linkHasResults }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-top:7px;max-height:210px;overflow:auto;">
+                <sc-for list="{{ linkResults }}" as="r" hint-placeholder-count="0">
+                  <button type="button" data-key="{{ r.key }}" onClick="{{ linkAdd }}" style="display:flex;align-items:center;gap:9px;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:7px 10px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.07);border-color:rgba(255,215,0,0.25);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ r.color }};flex-shrink:0;">{{ r.kind }}</span>
+                    <span style="flex:1;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.78);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.name }}</span>
+                    <span style="flex-shrink:0;color:rgba(255,215,0,0.6);font-size:0.8rem;">+</span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkShowHint }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:7px;">{{ linkSearchHint }}</p>
+            </sc-if>
+
+            <button type="button" onClick="{{ linkRebuild }}" title="Перечитати вікі-посилання в усіх матеріалах" style="margin-top:14px;background:none;border:none;color:rgba(100,149,237,0.6);font-size:0.7rem;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;">{{ linkRebuildLabel }}</button>
+          </div>
+        </sc-if>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
@@ -1533,6 +1813,62 @@ button{font-family:inherit;cursor:pointer}
           <div><label>Підпис</label><input value="{{ formLabel }}" onChange="{{ handleInput }}" data-field="label" /></div>
           <div><label>URL</label><input value="{{ formUrl }}" onChange="{{ handleInput }}" data-field="url" placeholder="https://..." /></div>
         </div>
+        <sc-if value="{{ showLinksPanel }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
+            <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Зв'язки матеріалу</h4>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">З тексту беруться самі — усе, на що є вікі-посилання. Нижче можна дописати те, чого в тексті немає. Пишуться при збереженні.</p>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">З тексту · {{ linkAutoCount }}</p>
+            <sc-if value="{{ linkAutoHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+                <sc-for list="{{ linkAuto }}" as="l" hint-placeholder-count="2">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);font-size:0.72rem;color:rgba(255,255,255,0.72);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};">{{ l.kind }}</span>{{ l.name }}
+                  </span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkAutoNone }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-bottom:16px;">У тексті вікі-посилань немає.</p>
+            </sc-if>
+
+            <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:7px;">Дописані вручну · {{ linkManualCount }}</p>
+            <sc-if value="{{ linkManualHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+                <sc-for list="{{ linkManualList }}" as="l" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:7px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ l.color }};flex-shrink:0;">{{ l.kind }}</span>
+                    <span style="flex:1 1 90px;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ l.name }}</span>
+                    <select value="{{ l.label }}" data-key="{{ l.key }}" onChange="{{ linkSetLabel }}" style="flex:0 1 auto;min-width:0;max-width:126px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);border-radius:5px;padding:4px 7px;font-size:0.72rem;">
+                      <sc-for list="{{ linkLabels }}" as="op" hint-placeholder-count="4">
+                        <option value="{{ op }}">{{ op }}</option>
+                      </sc-for>
+                    </select>
+                    <button type="button" data-key="{{ l.key }}" onClick="{{ linkRemove }}" title="Прибрати" style="flex-shrink:0;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">✕</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <input value="{{ linkSearch }}" onChange="{{ linkSetSearch }}" placeholder="Знайти матеріал, персонажа або бога…" style="width:100%;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:6px;padding:8px 11px;font-size:0.78rem;"/>
+            <sc-if value="{{ linkHasResults }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-top:7px;max-height:210px;overflow:auto;">
+                <sc-for list="{{ linkResults }}" as="r" hint-placeholder-count="0">
+                  <button type="button" data-key="{{ r.key }}" onClick="{{ linkAdd }}" style="display:flex;align-items:center;gap:9px;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:7px 10px;cursor:pointer;transition:all 0.18s;" style-hover="background:rgba(255,215,0,0.07);border-color:rgba(255,215,0,0.25);">
+                    <span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ r.color }};flex-shrink:0;">{{ r.kind }}</span>
+                    <span style="flex:1;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.78);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.name }}</span>
+                    <span style="flex-shrink:0;color:rgba(255,215,0,0.6);font-size:0.8rem;">+</span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ linkShowHint }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:7px;">{{ linkSearchHint }}</p>
+            </sc-if>
+
+            <button type="button" onClick="{{ linkRebuild }}" title="Перечитати вікі-посилання в усіх матеріалах" style="margin-top:14px;background:none;border:none;color:rgba(100,149,237,0.6);font-size:0.7rem;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;">{{ linkRebuildLabel }}</button>
+          </div>
+        </sc-if>
         <div style="display:flex;gap:8px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
@@ -1714,7 +2050,7 @@ function buildWikiIndex(data){
   feed(data.stories, 'stories', 'title');
   feed(data.chronicles, 'chronicles', 'title');
   (data.characters || []).forEach(c => { const v = { seg:'characters', id:c.id, label:c.name || '', kind:'Персонаж' }; add(c.name, v); if (c.alias) add(c.alias, v); });
-  (data.pantheon || []).forEach(g => { const nm = g.name || g.god || ''; const v = { seg:'pantheon', id:null, label:nm, kind:'Пантеон' }; add(nm, v); if (g.god) add(g.god, v); });
+  (data.pantheon || []).forEach(g => { const nm = g.name || g.god || ''; const v = { seg:'pantheon', id:g.id, label:nm, kind:'Пантеон' }; add(nm, v); if (g.god) add(g.god, v); });
   WIKI_INDEX = idx;
 }
 function ensureWikiIndex(data){ if (data === WIKI_SRC) return; WIKI_SRC = data; buildWikiIndex(data || {}); }
@@ -1729,8 +2065,20 @@ function _wikiLink(target, text){
   if (!hit) return _wikiMiss(target, label);
   return '<span class="md-wiki" title="' + _attr(hit.kind + ' · ' + hit.label) + '">' + label + '</span>';
 }
+const KNOWN_LINK_SEGS = ['lore', 'stories', 'chronicles', 'characters', 'pantheon'];
+// Посилання на власний сайт часто пишуть повною адресою
+// (https://…/Aurelion.dc.html#stories/<id>). Це внутрішній перехід: відкривати
+// його новою вкладкою означало б перезавантажити застосунок з нуля.
+function selfHash(addr){
+  const v = String(addr || '').trim(), h = v.indexOf('#');
+  if (h === -1) return null;
+  const frag = v.slice(h + 1);
+  return KNOWN_LINK_SEGS.indexOf(frag.split('/')[0]) === -1 ? null : '#' + frag;
+}
 function _mdLink(text, addr){
   const t = String(text).trim(), v = String(addr).trim();
+  const self = selfHash(v);
+  if (self) return _hashLink(self, t);
   if (_isExt(v)) return _extLink(v, t);
   if (v.charAt(0) === '#') return _hashLink(v, t);
   return _wikiLink(v, t);
@@ -1879,6 +2227,37 @@ const DEFAULT_DICE_QUOTES = {
   ],
 };
 
+// ── Павутина матеріалів ────────────────────────────────────
+// Ребра з тексту адмінка перераховує при кожному збереженні; ручні лежать
+// поряд із позначкою origin='manual' і переживають правку тексту.
+const LINK_TYPES = ['lore', 'stories', 'characters', 'pantheon'];
+const LINK_LABELS = ['згадує', 'учасник', 'місце дії', 'пов’язане'];
+const LINK_COLOR = { lore: '#ffd76b', stories: '#7aa8f5', characters: '#e587a4', pantheon: '#8fd6c4' };
+function extractWikiTargets(raw){
+  const txt = String(raw || ''), out = [];
+  txt.replace(/\[\[([^\]|\n]+)(?:\|[^\]\n]+)?\]\]/g, (m, x) => { out.push(x); return m; });
+  txt.replace(/\[[^\]\n]+\]\(([^)\s]+)\)/g, (m, x) => { if (selfHash(x) || (!_isExt(x) && x.charAt(0) !== '#')) out.push(x); return m; });
+  txt.replace(/\[[^\]\n]+\]\[([^\]\n]+)\]/g, (m, x) => { out.push(x); return m; });
+  return out.map(v => String(v).trim()).filter(Boolean);
+}
+// Текст, з якого читаємо посилання: у богів це опис, в решти — повний текст.
+// Ціль посилання → вузол павутини: хеш-адреса дає id напряму, назва — через
+// WIKI_INDEX. На бога ребра не буває: у #pantheon id не пишуть.
+function resolveLinkTarget(t){
+  const self = selfHash(t);
+  if (!self) return wikiLookup(t);
+  const parts = self.slice(1).split('/');
+  if (parts[0] === 'pantheon' || !parts[1]) return null;
+  let id = parts[1];
+  try { id = decodeURIComponent(id); } catch (e) {}
+  return { seg: parts[0], id, label: '', kind: WIKI_KIND[parts[0]] || '' };
+}
+function materialText(section, row){
+  row = row || {};
+  if (section === 'pantheon') return row.description || '';
+  return row.content || '';
+}
+
 class Component extends DCLogic {
   state = {
     // auth
@@ -1899,6 +2278,7 @@ class Component extends DCLogic {
     tstPaste: '', tstParsed: null, tstError: '',
     loading: false, saving: false,
     editing: null, form: {},
+    linkManual: [], linkSearch: '', linkBusy: false,
     toast: '',
     lorePreview: false,
     dragState: null,
@@ -2049,6 +2429,86 @@ class Component extends DCLogic {
       method: 'DELETE', headers: this._authH(),
     });
     if (!r.ok) throw new Error(await r.text());
+  }
+
+  // ── Павутина: запис ребер ─────────────────────────────────
+  _autoEdges(type, id, text) {
+    const rows = [], seen = new Set();
+    extractWikiTargets(text).forEach(t => {
+      const hit = resolveLinkTarget(t);
+      if (!hit || LINK_TYPES.indexOf(hit.seg) === -1 || hit.id == null) return;
+      if (hit.seg === type && String(hit.id) === String(id)) return;   // сам на себе
+      const key = hit.seg + ':' + hit.id;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push({ from_type: type, from_id: String(id), to_type: hit.seg, to_id: String(hit.id), label: 'згадує', origin: 'auto' });
+    });
+    return rows;
+  }
+
+  // Ребра матеріалу переписуємо цілком: інакше знята з тексту згадка лишалася
+  // б у павутині назавжди. Ручний підпис переважає над автоматичним.
+  async _syncLinks(type, id, text, manual) {
+    if (LINK_TYPES.indexOf(type) === -1 || !id) return;
+    const rows = this._autoEdges(type, id, text);
+    (manual || []).forEach(m => {
+      if (!m || !m.type || m.id == null) return;
+      if (m.type === type && String(m.id) === String(id)) return;
+      const row = { from_type: type, from_id: String(id), to_type: m.type, to_id: String(m.id), label: m.label || 'пов’язане', origin: 'manual' };
+      const i = rows.findIndex(r => r.to_type === row.to_type && r.to_id === row.to_id);
+      if (i === -1) rows.push(row); else rows[i] = row;
+    });
+    await fetch(`${SUPA_URL}/material_links?from_type=eq.${type}&from_id=eq.${encodeURIComponent(id)}`,
+      { method: 'DELETE', headers: this._authH() });
+    if (rows.length) {
+      const r = await fetch(`${SUPA_URL}/material_links`, {
+        method: 'POST', headers: { ...this._authHJ(), 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify(rows),
+      });
+      if (!r.ok) throw new Error(await r.text());
+    }
+  }
+
+  async _loadManualLinks(type, id) {
+    if (LINK_TYPES.indexOf(type) === -1 || !id) { this.setState({ linkManual: [] }); return; }
+    const rows = await this._get(`material_links?select=to_type,to_id,label&origin=eq.manual&from_type=eq.${type}&from_id=eq.${encodeURIComponent(id)}`);
+    this.setState({
+      linkManual: (Array.isArray(rows) ? rows : []).map(r => ({ type: r.to_type, id: String(r.to_id), label: r.label || 'пов’язане' })),
+    });
+  }
+
+  // Разова дія: автоматичні ребра з'являються при збереженні матеріалу, тому
+  // архів, написаний до появи павутини, треба перерахувати один раз.
+  async _rebuildAllLinks() {
+    if (!window.confirm('Перечитати вікі-посилання в усьому архіві й перерахувати автоматичні зв\'язки?')) return;
+    this.setState({ linkBusy: true });
+    try {
+      const [lore, stories, chars, pan] = await Promise.all([
+        this._get('lore?select=id,content'),
+        this._get('stories?select=id,content'),
+        this._get('characters?select=id,content'),
+        this._get('pantheon?select=id,description'),
+      ]);
+      const rows = [];
+      const feed = (arr, type) => (Array.isArray(arr) ? arr : []).forEach(r => {
+        rows.push(...this._autoEdges(type, r.id, materialText(type, r)));
+      });
+      feed(lore, 'lore'); feed(stories, 'stories'); feed(chars, 'characters'); feed(pan, 'pantheon');
+      await fetch(`${SUPA_URL}/material_links?origin=eq.auto`, { method: 'DELETE', headers: this._authH() });
+      if (rows.length) {
+        const r = await fetch(`${SUPA_URL}/material_links`, {
+          method: 'POST', headers: { ...this._authHJ(), 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify(rows),
+        });
+        if (!r.ok) throw new Error(await r.text());
+      }
+      localStorage.setItem('aurelion-refresh', Date.now().toString());
+      this._toast('✓ Зв\'язків з текстів: ' + rows.length);
+    } catch (e) {
+      this._toast('✗ ' + (e.message || 'Не вдалося перерахувати'));
+      console.error('rebuildAllLinks:', e);
+    }
+    this.setState({ linkBusy: false });
   }
 
   _scrollToForm() {
@@ -3063,14 +3523,22 @@ class Component extends DCLogic {
       });
       this.setState({ saving: true });
       try {
+        let savedId = null;
         if (index === -1) {
-          await this._insert(section, body);
+          const res = await this._insert(section, body);
+          savedId = (Array.isArray(res) ? res[0] : res)?.id || null;
         } else {
-          const id = (s.data[section] || [])[index]?.id;
-          if (id) await this._patch(section, id, body);
+          savedId = (s.data[section] || [])[index]?.id || null;
+          if (savedId) await this._patch(section, savedId, body);
+        }
+        // Павутина: ребра переписуємо після самого запису, щоб id вже існував.
+        // Збій тут не має гасити збереження матеріалу — лише попередження.
+        if (savedId && LINK_TYPES.indexOf(section) !== -1) {
+          try { await this._syncLinks(section, savedId, materialText(section, body), s.linkManual); }
+          catch (le) { console.warn('syncLinks:', le); this._toast('⚠ Матеріал збережено, зв’язки — ні'); }
         }
         await this._refreshTable(section);
-        this.setState({ editing: null, form: {}, saving: false, lorePreview: false });
+        this.setState({ editing: null, form: {}, saving: false, lorePreview: false, linkManual: [], linkSearch: '' });
         localStorage.setItem('aurelion-refresh', Date.now().toString());
         this._toast('✓ Збережено!');
       } catch(e) {
@@ -3548,17 +4016,18 @@ class Component extends DCLogic {
 
       startAdd: (e) => {
         const section = e.currentTarget.dataset.section;
-        this.setState({ editing: { section, index: -1 }, form: {} });
+        this.setState({ editing: { section, index: -1 }, form: {}, linkManual: [], linkSearch: '' });
         this._scrollToForm();
       },
       startEdit: (e) => {
         const section = e.currentTarget.dataset.section;
         const index   = parseInt(e.currentTarget.dataset.index);
         const item    = (this.state.data[section] || [])[index] || {};
-        this.setState({ editing: { section, index }, form: { ...item } });
+        this.setState({ editing: { section, index }, form: { ...item }, linkManual: [], linkSearch: '' });
+        this._loadManualLinks(section, item.id);
         this._scrollToForm();
       },
-      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false }),
+      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false, linkManual: [], linkSearch: '' }),
       saveItem,
       deleteItem,
 
@@ -3642,6 +4111,77 @@ class Component extends DCLogic {
         className: 'lore-md lore-preview-box',
         dangerouslySetInnerHTML: { __html: parseMarkdown(s.form.content || '') },
       }),
+      // ── Панель «Зв'язки матеріалу» ──────────────────────────
+      ...(() => {
+        const section = ed ? ed.section : '';
+        const on = !!(ed && LINK_TYPES.indexOf(section) !== -1);
+        const selfId = ed && ed.index !== -1 ? String((data[section] || [])[ed.index]?.id || '') : '';
+        const mk = (t, i) => {
+          const row = (data[t] || []).find(x => String(x.id) === String(i));
+          return {
+            type: t, id: String(i), key: t + '|' + i, color: LINK_COLOR[t] || '#ffd700',
+            kind: WIKI_KIND[t] || 'Матеріал',
+            name: row ? (row.title || row.name || row.god || '—') : '(запис видалено)',
+          };
+        };
+        const auto = [];
+        if (on) {
+          const seen = new Set();
+          extractWikiTargets(materialText(section, form)).forEach(t => {
+            const hit = resolveLinkTarget(t);
+            if (!hit || LINK_TYPES.indexOf(hit.seg) === -1 || hit.id == null) return;
+            if (hit.seg === section && String(hit.id) === selfId) return;
+            const k = hit.seg + '|' + hit.id;
+            if (seen.has(k)) return;
+            seen.add(k);
+            auto.push(mk(hit.seg, hit.id));
+          });
+        }
+        const manual = (s.linkManual || []).map(m => ({ ...mk(m.type, m.id), label: m.label || 'пов’язане' }));
+        const q = wikiFold(s.linkSearch || '');
+        const taken = new Set(manual.map(m => m.key).concat(auto.map(x => x.key)));
+        const results = [];
+        if (on && q.length >= 2) {
+          LINK_TYPES.forEach(t => (data[t] || []).forEach(row => {
+            if (results.length >= 14) return;
+            const nm = row.title || row.name || row.god || '';
+            if (!wikiFold(nm).includes(q) && !wikiFold(row.alias || '').includes(q)) return;
+            if (t === section && String(row.id) === selfId) return;
+            const item = mk(t, row.id);
+            if (taken.has(item.key)) return;
+            results.push(item);
+          }));
+        }
+        return {
+          showLinksPanel: on,
+          linkAuto: auto, linkAutoCount: auto.length, linkAutoHas: auto.length > 0, linkAutoNone: on && !auto.length,
+          linkManualList: manual, linkManualCount: manual.length, linkManualHas: manual.length > 0,
+          linkLabels: LINK_LABELS,
+          linkSearch: s.linkSearch || '',
+          linkResults: results, linkHasResults: results.length > 0,
+          linkSearchHint: q.length >= 2 && !results.length ? 'Нічого не знайдено.' : '',
+          linkShowHint: q.length >= 2 && !results.length,
+          linkRebuildLabel: s.linkBusy ? 'Перераховую…' : '↻ Перерахувати весь архів',
+          linkSetSearch: (e) => this.setState({ linkSearch: e.target.value }),
+          linkAdd: (e) => {
+            const [t, i] = String(e.currentTarget.dataset.key || '').split('|');
+            if (!t || !i) return;
+            this.setState(st => ({
+              linkSearch: '',
+              linkManual: (st.linkManual || []).concat([{ type: t, id: i, label: 'пов’язане' }]),
+            }));
+          },
+          linkRemove: (e) => {
+            const key = e.currentTarget.dataset.key;
+            this.setState(st => ({ linkManual: (st.linkManual || []).filter(m => (m.type + '|' + m.id) !== key) }));
+          },
+          linkSetLabel: (e) => {
+            const key = e.currentTarget.dataset.key, val = e.target.value;
+            this.setState(st => ({ linkManual: (st.linkManual || []).map(m => (m.type + '|' + m.id) === key ? { ...m, label: val } : m) }));
+          },
+          linkRebuild: () => this._rebuildAllLinks(),
+        };
+      })(),
       mdBold:   () => this._mdWrap('**', '**'),
       mdItalic: () => this._mdWrap('*', '*'),
       mdH2:     () => this._mdPrefix('## '),

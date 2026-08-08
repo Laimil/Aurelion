@@ -520,8 +520,14 @@ a:hover{color:#a8c4f7;}
     <!-- ── ЧИТАЛКА ── -->
     <sc-if value="{{ showLoreReader }}" hint-placeholder-val="{{ false }}">
       <div style="padding:78px 24px 120px;">
-        <div style="max-width:1060px;margin:0 auto 16px;">
+        <div style="max-width:1060px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <button onClick="{{ closeLore }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">← Довідник Мандрівника</button>
+          <sc-if value="{{ webBtnVisible }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ openWeb }}" title="Павутина: чим цей матеріал пов'язаний з іншими" style="display:inline-flex;align-items:center;gap:7px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.38);color:#6495ed;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(100,149,237,0.18);box-shadow:0 0 18px rgba(100,149,237,0.28);">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#6495ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              {{ webBtnLabel }}
+            </button>
+          </sc-if>
         </div>
 
         <header style="max-width:1060px;margin:0 auto 42px;position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);{{ loreReaderHeaderMinH }}">
@@ -640,8 +646,14 @@ a:hover{color:#a8c4f7;}
     <!-- ── ЧИТАЛКА: ІСТОРІЯ ── -->
     <sc-if value="{{ showStoryReader }}" hint-placeholder-val="{{ false }}">
       <div style="padding:78px 24px 120px;">
-        <div style="max-width:1060px;margin:0 auto 16px;">
+        <div style="max-width:1060px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <button onClick="{{ closeStory }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">← Бібліотека</button>
+          <sc-if value="{{ webBtnVisible }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ openWeb }}" title="Павутина: чим цей матеріал пов'язаний з іншими" style="display:inline-flex;align-items:center;gap:7px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.38);color:#6495ed;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(100,149,237,0.18);box-shadow:0 0 18px rgba(100,149,237,0.28);">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#6495ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              {{ webBtnLabel }}
+            </button>
+          </sc-if>
         </div>
         <header style="max-width:1060px;margin:0 auto 42px;position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);min-height:210px;{{ storyReaderHeaderBg }}">
           <div style="position:absolute;right:6%;top:50%;transform:translateY(-50%);font-family:'Cinzel',serif;font-size:9rem;line-height:1;color:rgba(255,255,255,0.05);pointer-events:none;">✦</div>
@@ -1018,8 +1030,14 @@ a:hover{color:#a8c4f7;}
     <!-- ── ЧИТАЛКА: ПЕРСОНАЖ ── -->
     <sc-if value="{{ showCharReader }}" hint-placeholder-val="{{ false }}">
       <div style="padding:78px 24px 120px;">
-        <div style="max-width:1060px;margin:0 auto 16px;">
+        <div style="max-width:1060px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <button onClick="{{ closeCharPage }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">← Персонажі</button>
+          <sc-if value="{{ webBtnVisible }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ openWeb }}" title="Павутина: чим цей матеріал пов'язаний з іншими" style="display:inline-flex;align-items:center;gap:7px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.38);color:#6495ed;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(100,149,237,0.18);box-shadow:0 0 18px rgba(100,149,237,0.28);">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#6495ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              {{ webBtnLabel }}
+            </button>
+          </sc-if>
         </div>
         <div class="char-reader-grid">
           <aside class="char-reader-aside">
@@ -2047,6 +2065,40 @@ a:hover{color:#a8c4f7;}
 <sc-if value="{{ showToTop }}" hint-placeholder-val="{{ false }}">
   <button onClick="{{ scrollToTop }}" title="Нагору" aria-label="Нагору" style="position:fixed;right:22px;bottom:22px;z-index:9999;width:48px;height:48px;border-radius:999px;border:1px solid rgba(255,215,0,0.4);background:rgba(26,24,20,0.82);backdrop-filter:blur(10px);color:#ffd700;font-size:1.3rem;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.8);box-shadow:0 0 22px rgba(255,215,0,0.35);transform:translateY(-3px);">↑</button>
 </sc-if>
+<!-- ── ПАВУТИНА ЗВ'ЯЗКІВ ── -->
+<sc-if value="{{ webVisible }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeWeb }}" style="position:fixed;inset:0;z-index:10001;background:rgba(10,9,8,0.93);backdrop-filter:blur(12px);display:flex;align-items:flex-start;justify-content:center;padding:26px 18px 60px;overflow:auto;">
+    <div onClick="{{ stopProp }}" style="width:100%;max-width:900px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;">
+        <div style="min-width:0;">
+          <p style="font-size:0.64rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:7px;">✦ Павутина зв'язків</p>
+          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.3rem,3.4vw,1.85rem);font-weight:700;color:#fff;letter-spacing:0.05em;line-height:1.18;">{{ webCenterName }}</h2>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.4);margin-top:5px;">{{ webCountLabel }}</p>
+        </div>
+        <button onClick="{{ closeWeb }}" aria-label="Закрити" style="flex-shrink:0;width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:1rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.34);">✕</button>
+      </div>
+      <div style="display:flex;justify-content:center;height:{{ webScaledH }};">
+        <div style="position:relative;width:{{ webW }};height:{{ webH }};transform:scale({{ webScale }});transform-origin:top center;flex-shrink:0;">
+          {{ webEdgeEls }}
+          <div style="position:absolute;left:{{ webCenterLeft }};top:{{ webCenterTop }};width:192px;height:72px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:{{ webCenterBg }};border:1px solid {{ webCenterColor }};box-shadow:0 12px 34px rgba(0,0,0,0.6);text-align:center;padding:0 12px;">
+            <p style="font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.42);">{{ webCenterKind }}</p>
+            <p style="font-family:'Cinzel',Georgia,serif;font-size:0.92rem;font-weight:700;color:#fff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:168px;">{{ webCenterName }}</p>
+          </div>
+          <sc-for list="{{ webNodes }}" as="node" hint-placeholder-count="0">
+            <button data-type="{{ node.type }}" data-id="{{ node.id }}" onClick="{{ openWebNode }}" title="{{ node.name }}" style="position:absolute;left:{{ node.left }};top:{{ node.top }};width:{{ webNodeW }};height:{{ webNodeH }};border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:{{ node.bg }};border:1px solid {{ node.border }};cursor:pointer;transition:all 0.25s ease;padding:0 10px;text-align:center;" style-hover="transform:translateY(-3px);box-shadow:0 12px 26px rgba(0,0,0,0.55);">
+              <span style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:{{ node.color }};">{{ node.kind }}</span>
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:0.82rem;font-weight:700;color:#fff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:{{ webNameMax }};">{{ node.name }}</span>
+              <sc-if value="{{ node.hasSub }}" hint-placeholder-val="{{ false }}">
+                <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.7rem;color:rgba(255,255,255,0.38);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:{{ webNameMax }};">{{ node.sub }}</span>
+              </sc-if>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.3);margin-top:10px;">Тицьніть на вузол, щоб відкрити матеріал.</p>
+    </div>
+  </div>
+</sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 const SUPA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
@@ -2084,7 +2136,7 @@ function buildWikiIndex(data){
   feed(data.stories, 'stories', 'title');
   feed(data.chronicles, 'chronicles', 'title');
   (data.characters || []).forEach(c => { const v = { seg:'characters', id:c.id, label:c.name || '', kind:'Персонаж' }; add(c.name, v); if (c.alias) add(c.alias, v); });
-  (data.pantheon || []).forEach(g => { const nm = g.name || g.god || ''; const v = { seg:'pantheon', id:null, label:nm, kind:'Пантеон' }; add(nm, v); if (g.god) add(g.god, v); });
+  (data.pantheon || []).forEach(g => { const nm = g.name || g.god || ''; const v = { seg:'pantheon', id:g.id, label:nm, kind:'Пантеон' }; add(nm, v); if (g.god) add(g.god, v); });
   WIKI_INDEX = idx;
 }
 function ensureWikiIndex(data){ if (data === WIKI_SRC) return; WIKI_SRC = data; buildWikiIndex(data || {}); }
@@ -2093,15 +2145,28 @@ const _attr = (v) => String(v).replace(/"/g, '&quot;');
 const _wikiMiss = (target, label) => '<span class="md-wiki md-wiki-off" title="' + _attr('Немає в архіві: ' + target) + '">' + label + '</span>';
 const _extLink = (addr, label) => '<a class="md-link" href="' + _attr(addr) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
 const _isExt = (v) => /^(https?:)?\/\//i.test(v) || /^mailto:/i.test(v) || /^tel:/i.test(v);
-function _wikiHref(hit){ return '#' + hit.seg + (hit.id != null ? '/' + encodeURIComponent(hit.id) : ''); }
+// Окремого маршруту на бога немає — пантеон відкривається сторінкою розділу.
+function _wikiHref(hit){ return '#' + hit.seg + (hit.seg !== 'pantheon' && hit.id != null ? '/' + encodeURIComponent(hit.id) : ''); }
 function _hashLink(addr, label){ return '<a class="md-wiki" href="' + _attr(addr) + '">' + label + '</a>'; }
 function _wikiLink(target, text){
   const label = String(text || target).trim(), hit = wikiLookup(target);
   if (!hit) return _wikiMiss(target, label);
   return '<a class="md-wiki" href="' + _wikiHref(hit) + '" title="' + _attr(hit.kind + ' · ' + hit.label) + '">' + label + '</a>';
 }
+const KNOWN_LINK_SEGS = ['lore', 'stories', 'chronicles', 'characters', 'pantheon'];
+// Посилання на власний сайт часто пишуть повною адресою
+// (https://…/Aurelion.dc.html#stories/<id>). Це внутрішній перехід: відкривати
+// його новою вкладкою означало б перезавантажити застосунок з нуля.
+function selfHash(addr){
+  const v = String(addr || '').trim(), h = v.indexOf('#');
+  if (h === -1) return null;
+  const frag = v.slice(h + 1);
+  return KNOWN_LINK_SEGS.indexOf(frag.split('/')[0]) === -1 ? null : '#' + frag;
+}
 function _mdLink(text, addr){
   const t = String(text).trim(), v = String(addr).trim();
+  const self = selfHash(v);
+  if (self) return _hashLink(self, t);
   if (_isExt(v)) return _extLink(v, t);
   if (v.charAt(0) === '#') return _hashLink(v, t);
   return _wikiLink(v, t);
@@ -2195,6 +2260,22 @@ const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице
 const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
 const KNOWN_SEGS = ['home', 'characters', 'connections', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests'].concat(ARCHIVE_SEGS);
 
+// ── Павутина матеріалів ────────────────────────────────────
+// Ребра лежать у material_links: автоматичні пише адмінка з вікі-посилань
+// у тексті, ручні додає людина. Сайт лише читає й малює.
+const WEB_KIND = {
+  lore:       { label: 'Довідник', color: '#ffd76b' },
+  stories:    { label: 'Історія',  color: '#7aa8f5' },
+  characters: { label: 'Персонаж', color: '#e587a4' },
+  pantheon:   { label: 'Бог',      color: '#8fd6c4' },
+  chronicles: { label: 'Хроніка',  color: '#c98be0' },
+};
+const hexA = (hex, al) => {
+  const h = String(hex).replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+  return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + al + ')';
+};
+
 const LOAD_ERROR_QUOTES = [
   'Схоже, боги не беруть слухавку.',
   'Зв\u2019язок із пантеоном обірвався.',
@@ -2262,7 +2343,8 @@ const DEFAULT_DICE_QUOTES = {
 class Component extends DCLogic {
   state = {
     page: this._getPage(),
-    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [], tests: [] },
+    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [], tests: [], material_links: [] },
+    webOpen: false,
     quotesAuthor: null, quoteSpot: null,
     loading: true,
     loadError: false, loadErrorQuote: LOAD_ERROR_QUOTES[0],
@@ -2762,6 +2844,7 @@ class Component extends DCLogic {
         this._getSoft('community_pulse_totals?select=*'),
         this._getSoft('quotes?select=num,text,author,added_by,source,created_at&is_hidden=eq.false&order=num.desc'),
         this._getSoft('tests?select=*&is_published=eq.true&order=sort_order.asc,created_at.asc'),
+        this._getSoft('material_links?select=from_type,from_id,to_type,to_id,label'),
       ]);
     } catch (e) {
       if (silent) return; // тихе оновлення — лишаємо те, що вже показано
@@ -2772,7 +2855,7 @@ class Component extends DCLogic {
       });
       return;
     }
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows] = res;
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows] = res;
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
     const loadedData = {
@@ -2789,6 +2872,7 @@ class Component extends DCLogic {
         pulse_totals:  (Array.isArray(pulseTotals) ? pulseTotals[0] : null) || null,
         quotes:        Array.isArray(quoteRows)    ? quoteRows    : [],
         tests:         Array.isArray(testRows)     ? testRows     : [],
+        material_links: Array.isArray(linkRows)    ? linkRows     : [],
     };
     // Тексти, які вже є в пам'яті/кеші, переносимо на свіжі записи.
     const prev = this.state.data || {};
@@ -2856,12 +2940,51 @@ class Component extends DCLogic {
     this.setState({ mapBaseW: IMG_W, mapFitScale: fitScale, mapPanX: panX, mapPanY: panY, mapScale: fitScale });
   }
 
+  // ── Павутина: вузол і прямі сусіди ────────────────────────
+  _webNode(data, type, id) {
+    const row = (data[type] || []).find(x => String(x.id) === String(id));
+    if (!row) return null;
+    const k = WEB_KIND[type] || { label: 'Матеріал', color: '#ffd700' };
+    return {
+      type, id: String(id), color: k.color, kind: k.label,
+      name: row.title || row.name || row.god || '—',
+      sub: row.category || row.role || row.domain || row.period || '',
+    };
+  }
+
+  // Ребро працює в обидва боки: «згадує» видно і з того матеріалу, на який
+  // посилаються, — інакше половина павутини була б невидимою.
+  _webNeighbours(data, type, id) {
+    const out = [], seen = new Set();
+    (data.material_links || []).forEach(l => {
+      let t, i, dir;
+      if (l.from_type === type && String(l.from_id) === String(id))    { t = l.to_type;   i = l.to_id;   dir = 'out'; }
+      else if (l.to_type === type && String(l.to_id) === String(id))   { t = l.from_type; i = l.from_id; dir = 'in'; }
+      else return;
+      const key = t + ':' + i;
+      if (seen.has(key)) return;
+      const n = this._webNode(data, t, i);
+      if (!n) return;
+      seen.add(key);
+      out.push({ ...n, rel: l.label || 'пов’язане', dir });
+    });
+    return out;
+  }
+
+  _webCurrent() {
+    const s = this.state;
+    if (s.selectedChar)    return { type: 'characters', id: s.selectedChar.id };
+    if (s.selectedLore)    return { type: 'lore',       id: s.selectedLore.id };
+    if (s.selectedHistory) return { type: 'stories',    id: s.selectedHistory.id };
+    return null;
+  }
+
   _updateBoardScale() {
     // Available space: viewport minus nav (60px) + title/controls (~200px)
     const avH = window.innerHeight - 180;
     const avW = window.innerWidth - 48;
     const scale = Math.min(1, avH / 840, avW / 1200);
-    this.setState({ boardScale: Math.max(0.35, scale), relViewW: window.innerWidth });
+    this.setState({ boardScale: Math.max(0.35, scale), relViewW: window.innerWidth, relViewH: window.innerHeight });
   }
 
   _pulseRef = (node) => {
@@ -5213,6 +5336,105 @@ class Component extends DCLogic {
       closeMapPopup: () => this.setState({ mapActivePin: null }),
       stopMapProp:   (e) => e.stopPropagation(),
 
+      // ── Павутина зв'язків: центр — відкритий матеріал, коло — прямі сусіди ──
+      ...(() => {
+        const cur   = this._webCurrent();
+        const neigh = cur ? this._webNeighbours(data, cur.type, cur.id) : [];
+        const base = {
+          webBtnVisible: !!(cur && neigh.length),
+          webBtnLabel:   'Павутина · ' + neigh.length,
+          openWeb:  () => this.setState({ webOpen: true }),
+          closeWeb: () => this.setState({ webOpen: false }),
+          openWebNode: (e) => {
+            const d = e.currentTarget.dataset;
+            this.setState({ webOpen: false });
+            this._nav(d.type, d.type === 'pantheon' ? undefined : d.id);
+          },
+          webVisible: !!(s.webOpen && cur && neigh.length),
+        };
+        if (!base.webVisible) return base;
+        const center = this._webNode(data, cur.type, cur.id) || { name: '', kind: '', color: '#ffd700' };
+        // Один ярус завжди: радіус рахуємо з кількості сусідів, розміру карток і
+        // місця під пігулку підпису. Двоярусна розкладка налазила сама на себе.
+        const many  = neigh.length >= 8;
+        const nodeW = many ? 150 : 168, nodeH = many ? 46 : 62;
+        const cardW = 192, cardH = 72;
+        const stretch = 1.34;                       // полотно ширше за висоту — розтягуємо коло по x
+        const step = (Math.PI * 2) / Math.max(1, neigh.length);
+        const r = Math.max(
+          (cardW / 2 + nodeW / 2 + 78) / stretch,   // радіально: край центру + край сусіда + підпис
+          (nodeH + 14) / Math.max(step, 0.001),     // по колу, вертикальні пари
+          (nodeW + 16) / Math.max(step * stretch, 0.001)
+        );
+        const W = Math.round(2 * (r * stretch + nodeW / 2 + 18));
+        const H = Math.round(2 * (r + nodeH / 2 + 18));
+        const cx = W / 2, cy = H / 2;
+        const place = neigh.map((x, i) => {
+          const ang = i * step - Math.PI / 2;
+          return { ...x, x: cx + r * stretch * Math.cos(ang), y: cy + r * Math.sin(ang) };
+        });
+        // Лінія йде від краю картки до краю картки: раніше вона входила в центр
+        // обох і перекреслювала назви.
+        const rectDist = (dx, dy, hw, hh) => {
+          const ax = Math.abs(dx), ay = Math.abs(dy);
+          if (!ax && !ay) return 0;
+          const t = Math.min(ax ? hw / ax : Infinity, ay ? hh / ay : Infinity);
+          return t * Math.sqrt(dx * dx + dy * dy);
+        };
+        const els = [];
+        place.forEach((p, i) => {
+          const dx = p.x - cx, dy = p.y - cy;
+          const len = Math.sqrt(dx * dx + dy * dy) || 1;
+          const ux = dx / len, uy = dy / len;
+          const d0 = rectDist(dx, dy, cardW / 2, cardH / 2) + 5;
+          const d1 = rectDist(dx, dy, nodeW / 2, nodeH / 2) + 5;
+          const seg = Math.max(10, len - d0 - d1);
+          const x0 = cx + ux * d0, y0 = cy + uy * d0;
+          els.push(React.createElement('div', { key: 'e' + i, style: {
+            position: 'absolute', left: x0 + 'px', top: y0 + 'px', width: seg + 'px', height: '1px',
+            background: 'linear-gradient(90deg,' + hexA(center.color, 0.5) + ',' + hexA(p.color, 0.6) + ')',
+            transform: 'rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI) + 'deg)',
+            transformOrigin: '0 0', pointerEvents: 'none',
+          }}));
+          // На короткому відрізку пігулка все одно налізла б на картки — краще без неї.
+          if (seg < 46) return;
+          els.push(React.createElement('div', { key: 'l' + i, style: {
+            position: 'absolute', left: (x0 + ux * seg * 0.5) + 'px', top: (y0 + uy * seg * 0.5) + 'px',
+            transform: 'translate(-50%,-50%)', padding: '2px 8px', borderRadius: '999px',
+            background: 'rgba(18,17,14,0.92)', border: '1px solid ' + hexA(p.color, 0.3),
+            fontSize: '0.63rem', letterSpacing: '0.04em', color: hexA(p.color, 0.85),
+            whiteSpace: 'nowrap', pointerEvents: 'none',
+          }}, p.rel));
+        });
+        // Масштаб і по ширині, і по ВИСОТІ: на широкому невисокому вікні
+        // нижні вузли інакше йшли за край, і їх треба було шукати скролом.
+        const avW = (s.relViewW || window.innerWidth  || 1200) - 56;
+        const avH = (s.relViewH || window.innerHeight || 800)  - 210;
+        const scale = Math.max(0.34, Math.min(1, avW / W, avH / H));
+        return {
+          ...base,
+          webEdgeEls:     React.createElement(React.Fragment, null, ...els),
+          webCenterName:  center.name,
+          webCenterKind:  center.kind,
+          webCenterColor: center.color,
+          webCenterBg:    hexA(center.color, 0.12),
+          webCenterLeft:  (cx - cardW / 2) + 'px',
+          webCenterTop:   (cy - cardH / 2) + 'px',
+          webCountLabel:  neigh.length + ' ' + uaPlural(neigh.length, 'прямий зв’язок', 'прямі зв’язки', 'прямих зв’язків'),
+          webScale:       scale,
+          webW:           W + 'px',
+          webH:           H + 'px',
+          webScaledH:     Math.round(H * scale) + 'px',
+          webNodeW:       nodeW + 'px',
+          webNodeH:       nodeH + 'px',
+          webNameMax:     (nodeW - 22) + 'px',
+          webNodes: place.map(p => ({
+            type: p.type, id: p.id, name: p.name, kind: p.kind, sub: p.sub, hasSub: !many && !!p.sub,
+            color: p.color, bg: hexA(p.color, 0.1), border: hexA(p.color, 0.42),
+            left: (p.x - nodeW / 2) + 'px', top: (p.y - nodeH / 2) + 'px',
+          })),
+        };
+      })(),
       closeLoreModal: () => this.setState({ selectedLore: null }),
       stopLoreProp:   (e) => e.stopPropagation(),
     };
