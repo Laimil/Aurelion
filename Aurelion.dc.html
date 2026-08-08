@@ -123,7 +123,15 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .lore-md ul{margin:0.85em 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0.38em;}
 .lore-md li{padding-left:1.5em;position:relative;}
 .lore-md li::before{content:'✦';position:absolute;left:0;color:rgba(255,215,0,0.45);font-size:0.58em;top:0.45em;}
-.lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.28);cursor:default;}
+.lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.28);text-decoration:none;transition:all 0.25s ease;}
+.lore-md a.md-wiki{cursor:pointer;}
+.lore-md a.md-wiki:hover{color:#a8c4f7;border-bottom-color:rgba(168,196,247,0.65);background:rgba(100,149,237,0.1);}
+.lore-md .md-wiki-off{color:rgba(255,255,255,0.4);border-bottom:1px dashed rgba(255,255,255,0.22);cursor:help;}
+.lore-md a.md-link{color:#6495ed;text-decoration:none;border-bottom:1px solid rgba(100,149,237,0.28);transition:all 0.25s ease;}
+.lore-md a.md-link:hover{color:#a8c4f7;border-bottom-color:rgba(168,196,247,0.65);}
+.lore-md a.md-link::after{content:'↗';font-size:0.7em;margin-left:0.18em;vertical-align:0.4em;opacity:0.65;}
+a{color:#6495ed;text-decoration:none;}
+a:hover{color:#a8c4f7;}
 .lore-md code{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:0.88em;color:rgba(255,215,0,0.8);}
 .home-welcome{font-family:'EB Garamond',Georgia,serif;font-size:clamp(1rem,1.8vw,1.15rem);line-height:1.88;color:rgba(255,255,255,0.55);text-wrap:pretty;}
 .home-welcome p{margin:0 0 0.9em;}
@@ -2060,9 +2068,49 @@ const CACHE_KEY = 'au_cache_v1';
 const CACHE_VER = 2;
 const CACHE_MAX_AGE = 7 * 24 * 3600 * 1000;
 
+
+// ── Вікі-посилання ─────────────────────────────────────────
+// [[Назва]] · [[Назва|текст]] · [текст](адреса) · [текст][Назва].
+// Назву звіряємо з архівом: збіг стає справжнім посиланням, незбіг лишається
+// сірим пунктиром з підказкою — щоб биті посилання було видно одразу.
+const WIKI_KIND = { lore:'Довідник', stories:'Історія', chronicles:'Хроніка', characters:'Персонаж', pantheon:'Пантеон' };
+let WIKI_INDEX = new Map(), WIKI_SRC = null;
+const wikiFold = (v) => String(v || '').toLowerCase().replace(/[«»"'’`ʼ]/g, '').replace(/[ _\-–—]+/g, ' ').trim();
+function buildWikiIndex(data){
+  const idx = new Map();
+  const add = (key, val) => { const k = wikiFold(key); if (k && !idx.has(k)) idx.set(k, val); };
+  const feed = (arr, seg, field) => (arr || []).forEach(x => add(x[field], { seg, id: x.id, label: x[field] || '', kind: WIKI_KIND[seg] }));
+  feed(data.lore, 'lore', 'title');
+  feed(data.stories, 'stories', 'title');
+  feed(data.chronicles, 'chronicles', 'title');
+  (data.characters || []).forEach(c => { const v = { seg:'characters', id:c.id, label:c.name || '', kind:'Персонаж' }; add(c.name, v); if (c.alias) add(c.alias, v); });
+  (data.pantheon || []).forEach(g => { const nm = g.name || g.god || ''; const v = { seg:'pantheon', id:null, label:nm, kind:'Пантеон' }; add(nm, v); if (g.god) add(g.god, v); });
+  WIKI_INDEX = idx;
+}
+function ensureWikiIndex(data){ if (data === WIKI_SRC) return; WIKI_SRC = data; buildWikiIndex(data || {}); }
+function wikiLookup(target){ return WIKI_INDEX.get(wikiFold(target)) || null; }
+const _attr = (v) => String(v).replace(/"/g, '&quot;');
+const _wikiMiss = (target, label) => '<span class="md-wiki md-wiki-off" title="' + _attr('Немає в архіві: ' + target) + '">' + label + '</span>';
+const _extLink = (addr, label) => '<a class="md-link" href="' + _attr(addr) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
+const _isExt = (v) => /^(https?:)?\/\//i.test(v) || /^mailto:/i.test(v) || /^tel:/i.test(v);
+function _wikiHref(hit){ return '#' + hit.seg + (hit.id != null ? '/' + encodeURIComponent(hit.id) : ''); }
+function _hashLink(addr, label){ return '<a class="md-wiki" href="' + _attr(addr) + '">' + label + '</a>'; }
+function _wikiLink(target, text){
+  const label = String(text || target).trim(), hit = wikiLookup(target);
+  if (!hit) return _wikiMiss(target, label);
+  return '<a class="md-wiki" href="' + _wikiHref(hit) + '" title="' + _attr(hit.kind + ' · ' + hit.label) + '">' + label + '</a>';
+}
+function _mdLink(text, addr){
+  const t = String(text).trim(), v = String(addr).trim();
+  if (_isExt(v)) return _extLink(v, t);
+  if (v.charAt(0) === '#') return _hashLink(v, t);
+  return _wikiLink(v, t);
+}
 function _mdInl(t){
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\[\[([^\]]+)\]\]/g,'<span class="md-wiki">$1</span>')
+    .replace(/\[\[([^\]|\n]+)(?:\|([^\]\n]+))?\]\]/g,(m,a,b)=>_wikiLink(a,b))
+    .replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g,(m,a,b)=>_mdLink(a,b))
+    .replace(/\[([^\]\n]+)\]\[([^\]\n]+)\]/g,(m,a,b)=>_wikiLink(b,a))
     .replace(/\*\*\*([^*\n]+)\*\*\*/g,'<strong><em>$1</em></strong>')
     .replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')
     .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
@@ -2091,7 +2139,9 @@ function stripMarkdown(raw){
   if(!raw) return '';
   return raw
     .replace(/\*\*\*([^*]+)\*\*\*/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
-    .replace(/\[\[([^\]]+)\]\]/g,'$1').replace(/^#{1,4}\s+/gm,'').replace(/^>\s+/gm,'')
+    .replace(/\[\[([^\]|\n]+)(?:\|([^\]\n]+))?\]\]/g,(m,x,y)=>y||x)
+    .replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g,'$1').replace(/\[([^\]\n]+)\]\[([^\]\n]+)\]/g,'$1')
+    .replace(/^#{1,4}\s+/gm,'').replace(/^>\s+/gm,'')
     .replace(/^[-*+]\s+/gm,'').replace(/^-{3,}$/gm,'').replace(/`([^`]+)`/g,'$1').trim();
 }
 function extractToc(raw){
@@ -2102,7 +2152,7 @@ function extractToc(raw){
     const hm=t.match(/^(#{1,4})\s+(.+)/);
     if(hm){
       const id='lh'+(hc++);
-      const text=hm[2].replace(/\*\*\*([^*]+)\*\*\*/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/\[\[([^\]]+)\]\]/g,'$1');
+      const text=hm[2].replace(/\*\*\*([^*]+)\*\*\*/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/\[\[([^\]|\n]+)(?:\|([^\]\n]+))?\]\]/g,(m,x,y)=>y||x).replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g,'$1');
       result.push({level:hm[1].length,text,id});
     }
   }
@@ -3648,6 +3698,7 @@ class Component extends DCLogic {
   renderVals() {
     const s = this.state;
     const { data } = s;
+    ensureWikiIndex(data);
     // Розділ «Тести» вмикається в адмінці; поки вимкнений — його немає ні в
     // шапці, ні на Головній, а пряме посилання #tests веде на Головну.
     const testsOn = String((data.site || {}).tests_section_on || '') === '1';

@@ -47,7 +47,10 @@ button{font-family:inherit;cursor:pointer}
 .lore-md ul{margin:0.7em 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0.3em;}
 .lore-md li{padding-left:1.3em;position:relative;}
 .lore-md li::before{content:'✦';position:absolute;left:0;color:rgba(255,215,0,0.4);font-size:0.58em;top:0.4em;}
-.lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.25);}
+.lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.25);cursor:help;}
+.lore-md .md-wiki-off{color:rgba(255,255,255,0.4);border-bottom:1px dashed rgba(255,255,255,0.22);cursor:help;}
+.lore-md a.md-link{color:#6495ed;text-decoration:none;border-bottom:1px solid rgba(100,149,237,0.25);}
+.lore-md a.md-link::after{content:'↗';font-size:0.7em;margin-left:0.18em;vertical-align:0.4em;opacity:0.65;}
 .lore-md code{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:3px;padding:1px 5px;font-family:monospace;font-size:0.86em;color:rgba(255,215,0,0.75);}
 .lore-preview-box{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:18px 20px;min-height:140px;}
 .md-tb{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:3px 7px;font-size:0.72rem;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.15s;line-height:1.6;font-family:inherit;}
@@ -696,14 +699,15 @@ button{font-family:inherit;cursor:pointer}
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" onClick="{{ mdQuote }}" title="цитата">❝</button>
               <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
-              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Посилання]]">[[]]</button>
+              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Назва матеріалу]] — посилання в архів">[[]]</button>
+              <button type="button" class="md-tb" onClick="{{ mdLink }}" title="[текст](адреса) — зовнішнє посилання">🔗</button>
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" data-active="{{ lorePreviewActive }}" onClick="{{ toggleLorePreview }}">{{ lorePreviewLabel }}</button>
             </div>
           </div>
           <sc-if value="{{ showLoreTextarea }}" hint-placeholder-val="{{ true }}">
             <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:300px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.62;resize:vertical;"></textarea>
-            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, # Заголовок, &gt; цитата, --- розділювач, [[Посилання]]</p>
+            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, # Заголовок, &gt; цитата, --- розділювач, [[Назва матеріалу]] → посилання в архів, [текст](адреса)</p>
           </sc-if>
           <sc-if value="{{ showLorePreview }}" hint-placeholder-val="{{ false }}">
             {{ lorePreviewEl }}
@@ -847,14 +851,15 @@ button{font-family:inherit;cursor:pointer}
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" onClick="{{ mdQuote }}" title="цитата">❝</button>
               <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
-              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Посилання]]">[[]]</button>
+              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Назва матеріалу]] — посилання в архів">[[]]</button>
+              <button type="button" class="md-tb" onClick="{{ mdLink }}" title="[текст](адреса) — зовнішнє посилання">🔗</button>
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" data-active="{{ storiesPreviewActive }}" onClick="{{ toggleStoriesPreview }}">{{ storiesPreviewLabel }}</button>
             </div>
           </div>
           <sc-if value="{{ showStoriesTextarea }}" hint-placeholder-val="{{ true }}">
             <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:420px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.62;resize:vertical;"></textarea>
-            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, ## Заголовок, &gt; цитата, --- розділювач, [[Посилання]]</p>
+            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, ## Заголовок, &gt; цитата, --- розділювач, [[Назва матеріалу]] → посилання в архів, [текст](адреса)</p>
           </sc-if>
           <sc-if value="{{ showStoriesPreview }}" hint-placeholder-val="{{ false }}">
             {{ storiesPreviewEl }}
@@ -984,14 +989,15 @@ button{font-family:inherit;cursor:pointer}
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" onClick="{{ mdQuote }}" title="цитата">❝</button>
               <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
-              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Посилання]]">[[]]</button>
+              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Назва матеріалу]] — посилання в архів">[[]]</button>
+              <button type="button" class="md-tb" onClick="{{ mdLink }}" title="[текст](адреса) — зовнішнє посилання">🔗</button>
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" data-active="{{ storiesPreviewActive }}" onClick="{{ toggleStoriesPreview }}">{{ storiesPreviewLabel }}</button>
             </div>
           </div>
           <sc-if value="{{ showStoriesTextarea }}" hint-placeholder-val="{{ true }}">
             <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" style="min-height:460px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.62;resize:vertical;" placeholder="# Назва&#10;&#10;*Вступна примітка курсивом…*&#10;&#10;## Хто вона&#10;&#10;Текст…&#10;&#10;## Частина I. …"></textarea>
-            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, ## Заголовок (→ Зміст), &gt; цитата, --- розділювач, [[Посилання]]. Заголовки ## та ### формують зміст збоку.</p>
+            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, ## Заголовок (→ Зміст), &gt; цитата, --- розділювач, [[Назва матеріалу]] → посилання в архів, [текст](адреса). Заголовки ## та ### формують зміст збоку.</p>
           </sc-if>
           <sc-if value="{{ showStoriesPreview }}" hint-placeholder-val="{{ false }}">
             {{ storiesPreviewEl }}
@@ -1242,14 +1248,15 @@ button{font-family:inherit;cursor:pointer}
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" onClick="{{ mdQuote }}" title="цитата">❝</button>
               <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
-              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Посилання]]">[[]]</button>
+              <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Назва матеріалу]] — посилання в архів">[[]]</button>
+              <button type="button" class="md-tb" onClick="{{ mdLink }}" title="[текст](адреса) — зовнішнє посилання">🔗</button>
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" data-active="{{ storiesPreviewActive }}" onClick="{{ toggleStoriesPreview }}">{{ storiesPreviewLabel }}</button>
             </div>
           </div>
           <sc-if value="{{ showStoriesTextarea }}" hint-placeholder-val="{{ true }}">
-            <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" placeholder="Анкета персонажа. Підтримує ## Заголовок (→ Зміст), **жирний**, *курсив*, &gt; цитата, --- розділювач, [[Посилання]]…" style="min-height:340px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.65;"></textarea>
-            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, ## Заголовок (→ Зміст), &gt; цитата, --- розділювач, [[Посилання]]</p>
+            <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" placeholder="Анкета персонажа. Підтримує ## Заголовок (→ Зміст), **жирний**, *курсив*, &gt; цитата, --- розділювач, [[Назва матеріалу]] → посилання в архів, [текст](адреса)…" style="min-height:340px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.65;"></textarea>
+            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, ## Заголовок (→ Зміст), &gt; цитата, --- розділювач, [[Назва матеріалу]] → посилання в архів, [текст](адреса)</p>
           </sc-if>
           <sc-if value="{{ showStoriesPreview }}" hint-placeholder-val="{{ false }}">
             {{ storiesPreviewEl }}
@@ -1691,9 +1698,48 @@ const STORY_ICONS = {
   chalice: { t: 'Келих',    d: 'M8 21h8M12 17v4M17 3H7v5a5 5 0 0 0 10 0V3Z' },
 };
 
+
+// ── Вікі-посилання ─────────────────────────────────────────
+// [[Назва]] · [[Назва|текст]] · [текст](адреса) · [текст][Назва].
+// Назву звіряємо з архівом: збіг стає справжнім посиланням, незбіг лишається
+// сірим пунктиром з підказкою — щоб биті посилання було видно одразу.
+const WIKI_KIND = { lore:'Довідник', stories:'Історія', chronicles:'Хроніка', characters:'Персонаж', pantheon:'Пантеон' };
+let WIKI_INDEX = new Map(), WIKI_SRC = null;
+const wikiFold = (v) => String(v || '').toLowerCase().replace(/[«»"'’`ʼ]/g, '').replace(/[ _\-–—]+/g, ' ').trim();
+function buildWikiIndex(data){
+  const idx = new Map();
+  const add = (key, val) => { const k = wikiFold(key); if (k && !idx.has(k)) idx.set(k, val); };
+  const feed = (arr, seg, field) => (arr || []).forEach(x => add(x[field], { seg, id: x.id, label: x[field] || '', kind: WIKI_KIND[seg] }));
+  feed(data.lore, 'lore', 'title');
+  feed(data.stories, 'stories', 'title');
+  feed(data.chronicles, 'chronicles', 'title');
+  (data.characters || []).forEach(c => { const v = { seg:'characters', id:c.id, label:c.name || '', kind:'Персонаж' }; add(c.name, v); if (c.alias) add(c.alias, v); });
+  (data.pantheon || []).forEach(g => { const nm = g.name || g.god || ''; const v = { seg:'pantheon', id:null, label:nm, kind:'Пантеон' }; add(nm, v); if (g.god) add(g.god, v); });
+  WIKI_INDEX = idx;
+}
+function ensureWikiIndex(data){ if (data === WIKI_SRC) return; WIKI_SRC = data; buildWikiIndex(data || {}); }
+function wikiLookup(target){ return WIKI_INDEX.get(wikiFold(target)) || null; }
+const _attr = (v) => String(v).replace(/"/g, '&quot;');
+const _wikiMiss = (target, label) => '<span class="md-wiki md-wiki-off" title="' + _attr('Немає в архіві: ' + target) + '">' + label + '</span>';
+const _extLink = (addr, label) => '<a class="md-link" href="' + _attr(addr) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
+const _isExt = (v) => /^(https?:)?\/\//i.test(v) || /^mailto:/i.test(v) || /^tel:/i.test(v);
+function _hashLink(addr, label){ return '<span class="md-wiki" title="' + _attr(addr) + '">' + label + '</span>'; }
+function _wikiLink(target, text){
+  const label = String(text || target).trim(), hit = wikiLookup(target);
+  if (!hit) return _wikiMiss(target, label);
+  return '<span class="md-wiki" title="' + _attr(hit.kind + ' · ' + hit.label) + '">' + label + '</span>';
+}
+function _mdLink(text, addr){
+  const t = String(text).trim(), v = String(addr).trim();
+  if (_isExt(v)) return _extLink(v, t);
+  if (v.charAt(0) === '#') return _hashLink(v, t);
+  return _wikiLink(v, t);
+}
 function _mdInl(t){
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\[\[([^\]]+)\]\]/g,'<span class="md-wiki">$1</span>')
+    .replace(/\[\[([^\]|\n]+)(?:\|([^\]\n]+))?\]\]/g,(m,a,b)=>_wikiLink(a,b))
+    .replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g,(m,a,b)=>_mdLink(a,b))
+    .replace(/\[([^\]\n]+)\]\[([^\]\n]+)\]/g,(m,a,b)=>_wikiLink(b,a))
     .replace(/\*\*\*([^*\n]+)\*\*\*/g,'<strong><em>$1</em></strong>')
     .replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')
     .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
@@ -2944,6 +2990,7 @@ class Component extends DCLogic {
   renderVals() {
     const s    = this.state;
     const data = s.data;
+    ensureWikiIndex(data);
     const tab  = s.tab;
     const ed   = s.editing;
     const form = s.form;
@@ -3602,6 +3649,7 @@ class Component extends DCLogic {
       mdQuote:  () => this._mdPrefix('> '),
       mdHr:     () => this._mdInsert('\n\n---\n\n'),
       mdWiki:   () => this._mdWrap('[[', ']]'),
+      mdLink:   () => this._mdWrap('[', '](https://)'),
       toggleLorePreview: () => this.setState(st => ({ lorePreview: !st.lorePreview })),
       // ── Карта (Admin) ──────────────────────────────────────
       adminMapPinList: (s.data.map_locations || []).map(loc => ({
