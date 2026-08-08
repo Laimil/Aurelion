@@ -2431,6 +2431,30 @@ class Component extends DCLogic {
     if (!r.ok) throw new Error(await r.text());
   }
 
+  // ── Знайомства: обопільні ─────────────────────────────────
+  // Графа connections лежить у кожній анкеті окремо, тому галочка стояла лише
+  // з одного боку (діаграма ребро малювала, список знайомств — ні). Правку в
+  // одній анкеті дописуємо в другу: відмітив — зʼявилося в обох, зняв — зникло.
+  async _syncMutualConns(selfId, prevStr, nextStr) {
+    const list = str => String(str || '').split(',').map(x => x.trim()).filter(Boolean);
+    const self = String(selfId);
+    const prev = new Set(list(prevStr)), next = new Set(list(nextStr));
+    const touched = [...new Set([...prev, ...next])].filter(id => prev.has(id) !== next.has(id));
+    if (!touched.length) return;
+    const chars = this.state.data.characters || [];
+    const jobs = [];
+    touched.forEach(id => {
+      const other = chars.find(c => String(c.id) === String(id));
+      if (!other || String(other.id) === self) return;
+      const cur  = new Set(list(other.connections));
+      const want = next.has(id);
+      if (want === cur.has(self)) return;      // з того боку вже як треба
+      if (want) cur.add(self); else cur.delete(self);
+      jobs.push(this._patch('characters', other.id, { connections: [...cur].join(',') }));
+    });
+    if (jobs.length) await Promise.all(jobs);
+  }
+
   // ── Павутина: запис ребер ─────────────────────────────────
   _autoEdges(type, id, text) {
     const rows = [], seen = new Set();
@@ -3537,6 +3561,12 @@ class Component extends DCLogic {
           try { await this._syncLinks(section, savedId, materialText(section, body), s.linkManual); }
           catch (le) { console.warn('syncLinks:', le); this._toast('⚠ Матеріал збережено, зв’язки — ні'); }
         }
+        // Знайомства обопільні: те саме дописуємо в анкети, яких це торкнулося.
+        if (savedId && section === 'characters' && body.connections !== undefined) {
+          const prevConns = index === -1 ? '' : ((s.data.characters || [])[index] || {}).connections;
+          try { await this._syncMutualConns(savedId, prevConns, body.connections); }
+          catch (ce) { console.warn('mutualConns:', ce); this._toast('⚠ Анкету збережено, взаємні знайомства — ні'); }
+        }
         await this._refreshTable(section);
         this.setState({ editing: null, form: {}, saving: false, lorePreview: false, linkManual: [], linkSearch: '' });
         localStorage.setItem('aurelion-refresh', Date.now().toString());
@@ -4023,7 +4053,20 @@ class Component extends DCLogic {
         const section = e.currentTarget.dataset.section;
         const index   = parseInt(e.currentTarget.dataset.index);
         const item    = (this.state.data[section] || [])[index] || {};
-        this.setState({ editing: { section, index }, form: { ...item }, linkManual: [], linkSearch: '' });
+        const form    = { ...item };
+        // Вхідні знайомства (хтось відмітив цю анкету, а вона його — ні)
+        // показуємо відміченими; збереження допише їх і з цього боку.
+        if (section === 'characters' && item.id != null) {
+          const me  = String(item.id);
+          const cur = new Set(String(form.connections || '').split(',').map(x => x.trim()).filter(Boolean));
+          (this.state.data.characters || []).forEach(c => {
+            if (String(c.id) === me) return;
+            const his = String(c.connections || '').split(',').map(x => x.trim()).filter(Boolean);
+            if (his.indexOf(me) !== -1) cur.add(String(c.id));
+          });
+          form.connections = [...cur].join(',');
+        }
+        this.setState({ editing: { section, index }, form, linkManual: [], linkSearch: '' });
         this._loadManualLinks(section, item.id);
         this._scrollToForm();
       },
