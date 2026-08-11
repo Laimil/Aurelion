@@ -687,6 +687,53 @@ button{font-family:inherit;cursor:pointer}
           <input value="{{ formCover }}" onChange="{{ handleInput }}" data-field="cover" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
           <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Зображення для картки у Довіднику. Без нього картка отримає тематичний градієнт за категорією.</p>
         </div>
+        <!-- Галерея -->
+        <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
+          <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Галерея · {{ cgCount }}</h4>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">{{ cgIntro }}</p>
+          <sc-if value="{{ cgNoChar }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.75rem;color:rgba(255,215,0,0.55);">{{ cgNewHint }}</p>
+          </sc-if>
+          <sc-if value="{{ cgReady }}" hint-placeholder-val="{{ true }}">
+            <input type="file" accept="image/*" multiple onChange="{{ cgAdd }}" data-galpick="1" style="display:none;" />
+            <div class="drop-zone" data-over="{{ cgDropOver }}" onDragOver="{{ cgDragOver }}" onDragLeave="{{ cgDragLeave }}" onDrop="{{ cgDrop }}" onClick="{{ cgPick }}" style="padding:14px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">{{ cgDropLabel }}</p>
+            </div>
+            <sc-if value="{{ cgHasRows }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+                <sc-for list="{{ cgRows }}" as="g" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 10px;background:rgba(255,255,255,0.04);border:1px solid {{ g.border }};border-radius:7px;">
+                    <div style="{{ g.thumbBg }}width:52px;height:52px;border-radius:5px;flex-shrink:0;"></div>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
+                      <input value="{{ g.caption }}" data-id="{{ g.id }}" onChange="{{ cgSetCaption }}" onBlur="{{ cgSaveCaption }}" placeholder="Підпис (необов'язково)…" style="font-size:0.78rem;padding:6px 9px;border-radius:5px;" />
+                      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                        <select value="{{ g.kind }}" data-id="{{ g.id }}" onChange="{{ cgSetKind }}" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.72);border-radius:5px;padding:4px 7px;font-size:0.72rem;">
+                          <sc-for list="{{ cgKindOpts }}" as="k" hint-placeholder-count="5">
+                            <option value="{{ k.id }}">{{ k.label }}</option>
+                          </sc-for>
+                        </select>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgToggleSens }}" title="Делікатне: на сайті розмите, відкривається кліком" style="background:{{ g.sensBg }};border:1px solid {{ g.sensBd }};color:{{ g.sensCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.sensLabel }}</button>
+                        <sc-if value="{{ g.isDraft }}" hint-placeholder-val="{{ false }}">
+                          <button type="button" data-id="{{ g.id }}" onClick="{{ cgPublish }}" title="Чернетка: на сайті не видно" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">Чернетка → опублікувати</button>
+                        </sc-if>
+                        <sc-if value="{{ g.hasBy }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size:0.68rem;color:rgba(255,255,255,0.28);">приніс {{ g.addedBy }}</span>
+                        </sc-if>
+                        <span style="flex:1;"></span>
+                        <button type="button" data-id="{{ g.id }}" data-d="-1" onClick="{{ cgMove }}" title="Вище" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">↑</button>
+                        <button type="button" data-id="{{ g.id }}" data-d="1" onClick="{{ cgMove }}" title="Нижче" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">↓</button>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgDel }}" title="Видалити" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">✕</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ cgNoRows }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:10px;">У теці ще нічого немає.</p>
+            </sc-if>
+          </sc-if>
+        </div>
         <div style="margin-bottom:18px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
             <label style="margin-bottom:0;">Повний текст</label>
@@ -894,6 +941,53 @@ button{font-family:inherit;cursor:pointer}
         <div style="margin-bottom:14px;">
           <label>Telegraph URL (посилання на матеріал)</label>
           <input value="{{ formTelegraphUrl }}" onChange="{{ handleInput }}" data-field="telegraph_url" placeholder="https://telegra.ph/..." />
+        </div>
+        <!-- Галерея -->
+        <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
+          <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Галерея · {{ cgCount }}</h4>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">{{ cgIntro }}</p>
+          <sc-if value="{{ cgNoChar }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.75rem;color:rgba(255,215,0,0.55);">{{ cgNewHint }}</p>
+          </sc-if>
+          <sc-if value="{{ cgReady }}" hint-placeholder-val="{{ true }}">
+            <input type="file" accept="image/*" multiple onChange="{{ cgAdd }}" data-galpick="1" style="display:none;" />
+            <div class="drop-zone" data-over="{{ cgDropOver }}" onDragOver="{{ cgDragOver }}" onDragLeave="{{ cgDragLeave }}" onDrop="{{ cgDrop }}" onClick="{{ cgPick }}" style="padding:14px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">{{ cgDropLabel }}</p>
+            </div>
+            <sc-if value="{{ cgHasRows }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+                <sc-for list="{{ cgRows }}" as="g" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 10px;background:rgba(255,255,255,0.04);border:1px solid {{ g.border }};border-radius:7px;">
+                    <div style="{{ g.thumbBg }}width:52px;height:52px;border-radius:5px;flex-shrink:0;"></div>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
+                      <input value="{{ g.caption }}" data-id="{{ g.id }}" onChange="{{ cgSetCaption }}" onBlur="{{ cgSaveCaption }}" placeholder="Підпис (необов'язково)…" style="font-size:0.78rem;padding:6px 9px;border-radius:5px;" />
+                      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                        <select value="{{ g.kind }}" data-id="{{ g.id }}" onChange="{{ cgSetKind }}" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.72);border-radius:5px;padding:4px 7px;font-size:0.72rem;">
+                          <sc-for list="{{ cgKindOpts }}" as="k" hint-placeholder-count="5">
+                            <option value="{{ k.id }}">{{ k.label }}</option>
+                          </sc-for>
+                        </select>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgToggleSens }}" title="Делікатне: на сайті розмите, відкривається кліком" style="background:{{ g.sensBg }};border:1px solid {{ g.sensBd }};color:{{ g.sensCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.sensLabel }}</button>
+                        <sc-if value="{{ g.isDraft }}" hint-placeholder-val="{{ false }}">
+                          <button type="button" data-id="{{ g.id }}" onClick="{{ cgPublish }}" title="Чернетка: на сайті не видно" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">Чернетка → опублікувати</button>
+                        </sc-if>
+                        <sc-if value="{{ g.hasBy }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size:0.68rem;color:rgba(255,255,255,0.28);">приніс {{ g.addedBy }}</span>
+                        </sc-if>
+                        <span style="flex:1;"></span>
+                        <button type="button" data-id="{{ g.id }}" data-d="-1" onClick="{{ cgMove }}" title="Вище" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">↑</button>
+                        <button type="button" data-id="{{ g.id }}" data-d="1" onClick="{{ cgMove }}" title="Нижче" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">↓</button>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgDel }}" title="Видалити" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">✕</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ cgNoRows }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:10px;">У теці ще нічого немає.</p>
+            </sc-if>
+          </sc-if>
         </div>
         <div style="margin-bottom:18px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -1369,9 +1463,9 @@ button{font-family:inherit;cursor:pointer}
         <!-- Галерея -->
         <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
           <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Галерея · {{ cgCount }}</h4>
-          <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">Головний портрет вище лишається головним — він на PNG-картці й у плитках. Тут усе інше: арти, сцени, меми. Зміни тут зберігаються одразу, окремо від кнопки «Зберегти».</p>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">{{ cgIntro }}</p>
           <sc-if value="{{ cgNoChar }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:0.75rem;color:rgba(255,215,0,0.55);">Спершу збережи персонажа — тоді з'явиться галерея.</p>
+            <p style="font-size:0.75rem;color:rgba(255,215,0,0.55);">{{ cgNewHint }}</p>
           </sc-if>
           <sc-if value="{{ cgReady }}" hint-placeholder-val="{{ true }}">
             <input type="file" accept="image/*" multiple onChange="{{ cgAdd }}" data-galpick="1" style="display:none;" />
@@ -1398,7 +1492,9 @@ button{font-family:inherit;cursor:pointer}
                         <sc-if value="{{ g.hasBy }}" hint-placeholder-val="{{ false }}">
                           <span style="font-size:0.68rem;color:rgba(255,255,255,0.28);">приніс {{ g.addedBy }}</span>
                         </sc-if>
-                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgAnnounce }}" title="{{ g.annTitle }}" style="background:{{ g.annBg }};border:1px solid {{ g.annBd }};color:{{ g.annCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.annLabel }}</button>
+                        <sc-if value="{{ g.hasAnn }}" hint-placeholder-val="{{ false }}">
+                          <button type="button" data-id="{{ g.id }}" onClick="{{ cgAnnounce }}" title="{{ g.annTitle }}" style="background:{{ g.annBg }};border:1px solid {{ g.annBd }};color:{{ g.annCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.annLabel }}</button>
+                        </sc-if>
                         <span style="flex:1;"></span>
                         <button type="button" data-id="{{ g.id }}" data-d="-1" onClick="{{ cgMove }}" title="Вище" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">↑</button>
                         <button type="button" data-id="{{ g.id }}" data-d="1" onClick="{{ cgMove }}" title="Нижче" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">↓</button>
@@ -2286,6 +2382,20 @@ const GAL_KINDS = [
   { id: 'scene',    label: 'Сцена' },
   { id: 'meme',     label: 'Мем' },
 ];
+// Галерея матеріалу (material_images.kind) — види інші: у розділу
+// довідника немає «портрета», зате бувають мапи й документи.
+const MAT_KINDS = [
+  { id: 'illustration', label: 'Ілюстрація' },
+  { id: 'map',          label: 'Мапа / схема' },
+  { id: 'scene',        label: 'Сцена' },
+  { id: 'document',     label: 'Документ' },
+  { id: 'symbol',       label: 'Символ / герб' },
+];
+// Розділи з галереєю й чим вони різняться: таблиця, види, бакет.
+const GAL_SECTIONS = ['characters', 'lore', 'stories'];
+const galSpec = (section) => section === 'characters'
+  ? { table: 'character_images', kinds: GAL_KINDS, fallback: 'art',          bucket: 'character-images' }
+  : { table: 'material_images',  kinds: MAT_KINDS, fallback: 'illustration', bucket: 'material-images'  };
 const LINK_LABELS = ['згадує', 'учасник', 'місце дії', 'пов’язане'];
 const LINK_COLOR = { lore: '#ffd76b', stories: '#7aa8f5', characters: '#e587a4', pantheon: '#8fd6c4' };
 function extractWikiTargets(raw){
@@ -2318,7 +2428,7 @@ class Component extends DCLogic {
     // auth
     authed: false, authChecking: true,
     uploadingImage: false,
-    galRows: [], cgBusy: false, cgDropOver: false,
+    galRows: [], galCtx: null, cgBusy: false, cgDropOver: false,
     charSearch: '',
     // імпорт анкети з Telegraph
     tgOpen: false, tgMode: 'url', tgUrl: '', tgRaw: '', tgBusy: false,
@@ -2549,39 +2659,55 @@ class Component extends DCLogic {
     }
   }
 
-  // ── Галерея персонажа ─────────────────────────
+  // ── Галерея (персонаж, розділ довідника, історія) ─────────
   // Ця панель пише в базу одразу, не чекаючи кнопки «Зберегти»: рядки
   // лежать у своїй таблиці, а не в анкеті, і втратити завантажене фото на
   // скасуванні форми було б гірше за зайвий запис.
-  async _loadCharImages(id) {
-    if (!id) { this.setState({ galRows: [] }); return; }
-    const rows = await this._get(`character_images?select=*&character_id=eq.${encodeURIComponent(id)}&order=sort_order.asc,created_at.asc`);
+  _galTable() { return galSpec(((this.state.galCtx || {}).section) || 'characters').table; }
+
+  async _loadGalImages(section, id) {
+    if (GAL_SECTIONS.indexOf(section) === -1 || !id) { this.setState({ galRows: [], galCtx: null }); return; }
+    this.setState({ galCtx: { section, id: String(id) } });
+    const sp = galSpec(section);
+    const where = section === 'characters'
+      ? `character_id=eq.${encodeURIComponent(id)}`
+      : `material_type=eq.${section}&material_id=eq.${encodeURIComponent(id)}`;
+    let rows = [];
+    // Таблиця матеріалів може ще не існувати (міграцію не прогнали) — панель
+    // тоді просто порожня, а не гасить усю форму.
+    try { rows = await this._get(`${sp.table}?select=*&${where}&order=sort_order.asc,created_at.asc`); }
+    catch (e) { console.warn('галерея:', e.message); }
     this.setState({ galRows: Array.isArray(rows) ? rows : [] });
   }
 
   _cgPing() { try { localStorage.setItem('aurelion-refresh', Date.now().toString()); } catch (_) {} }
 
-  async _cgUpload(files, cid) {
-    if (!files.length || !cid) return;
+  async _cgUpload(files) {
+    const ctx = this.state.galCtx;
+    if (!files.length || !ctx) return;
+    const sp = galSpec(ctx.section);
     this.setState({ cgBusy: true });
     let base = (this.state.galRows || []).reduce((m, r) => Math.max(m, r.sort_order || 0), 0);
     let ok = 0, err = '';
+    const own = ctx.section === 'characters'
+      ? { character_id: ctx.id }
+      : { material_type: ctx.section, material_id: ctx.id };
     for (const f of files) {
       try {
-        const url = await this._uploadImage(f, 'character-images');
-        await this._insert('character_images', { character_id: String(cid), url, kind: 'art', sort_order: ++base });
+        const url = await this._uploadImage(f, sp.bucket);
+        await this._insert(sp.table, { ...own, url, kind: sp.fallback, sort_order: ++base });
         ok++;
       } catch (e) { err = e.message || 'Помилка завантаження'; }
     }
     this.setState({ cgBusy: false });
-    await this._loadCharImages(cid);
+    await this._loadGalImages(ctx.section, ctx.id);
     if (ok) { this._cgPing(); this._toast('✓ Додано: ' + ok); }
     if (err) this._toast('✗ ' + err);
   }
 
   async _cgPatch(id, body) {
     try {
-      await this._patch('character_images', id, body);
+      await this._patch(this._galTable(), id, body);
       this.setState(st => ({ galRows: (st.galRows || []).map(r => String(r.id) === String(id) ? { ...r, ...body } : r) }));
       this._cgPing();
     } catch (e) { this._toast('✗ ' + (e.message || 'Не збереглося')); }
@@ -2590,7 +2716,7 @@ class Component extends DCLogic {
   async _cgDelete(id) {
     if (!confirm('Видалити зображення з галереї?')) return;
     try {
-      await this._remove('character_images', id);
+      await this._remove(this._galTable(), id);
       this.setState(st => ({ galRows: (st.galRows || []).filter(r => String(r.id) !== String(id)) }));
       this._cgPing();
       this._toast('✓ Видалено');
@@ -2605,7 +2731,7 @@ class Component extends DCLogic {
     [rows[i], rows[j]] = [rows[j], rows[i]];
     this.setState({ galRows: rows });
     try {
-      await Promise.all(rows.map((r, k) => this._patch('character_images', r.id, { sort_order: k + 1 })));
+      await Promise.all(rows.map((r, k) => this._patch(this._galTable(), r.id, { sort_order: k + 1 })));
       this._cgPing();
     } catch (e) { this._toast('✗ Порядок не зберігся'); }
   }
@@ -4164,7 +4290,7 @@ class Component extends DCLogic {
       startAdd: (e) => {
         const section = e.currentTarget.dataset.section;
         this.setState({ editing: { section, index: -1 }, form: {}, linkManual: [], linkSearch: '' });
-        this.setState({ galRows: [] });
+        this.setState({ galRows: [], galCtx: null });
         this._scrollToForm();
       },
       startEdit: (e) => {
@@ -4186,10 +4312,10 @@ class Component extends DCLogic {
         }
         this.setState({ editing: { section, index }, form, linkManual: [], linkSearch: '' });
         this._loadManualLinks(section, item.id);
-        this._loadCharImages(section === 'characters' ? item.id : null);
+        this._loadGalImages(section, item.id);
         this._scrollToForm();
       },
-      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false, linkManual: [], linkSearch: '', galRows: [] }),
+      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false, linkManual: [], linkSearch: '', galRows: [], galCtx: null }),
       saveItem,
       deleteItem,
 
@@ -4273,25 +4399,38 @@ class Component extends DCLogic {
         className: 'lore-md lore-preview-box',
         dangerouslySetInnerHTML: { __html: parseMarkdown(s.form.content || '') },
       }),
-      // ── Панель «Галерея» (персонажі) ─────────────────
+      // ── Панель «Галерея» (персонажі, довідник, історії) ────
       ...(() => {
-        const isChar = !!(ed && ed.section === 'characters');
+        const section = ed ? ed.section : '';
+        const on = GAL_SECTIONS.indexOf(section) !== -1;
         const off = { cgCount: 0, cgNoChar: false, cgReady: false, cgHasRows: false, cgNoRows: false };
-        if (!isChar) return off;
+        if (!on) return off;
+        const isChar = section === 'characters';
+        const sp = galSpec(section);
+        const intro = isChar
+          ? 'Головний портрет вище лишається головним — він на PNG-картці й у плитках. Тут усе інше: арти, сцени, меми. Зміни тут зберігаються одразу, окремо від кнопки «Зберегти».'
+          : 'Обкладинка лишається головною — вона на картці в галереї розділу. Тут усе інше: ілюстрації, мапи, сцени, документи, герби. На сайті це смужка плиток і кнопка «Галерея» під шапкою матеріалу. Зміни тут зберігаються одразу, окремо від кнопки «Зберегти».';
         const cid = s.form.id;
-        if (!cid) return { ...off, cgNoChar: true };
+        if (!cid) return {
+          ...off, cgNoChar: true, cgIntro: intro,
+          cgNewHint: isChar
+            ? 'Спершу збережи персонажа — тоді з\'явиться галерея.'
+            : 'Спершу збережи матеріал — тоді з\'явиться галерея.',
+        };
         const rows = s.galRows || [];
         return {
           cgCount: rows.length,
           cgNoChar: false, cgReady: true,
+          cgIntro: intro, cgNewHint: '',
           cgHasRows: rows.length > 0, cgNoRows: rows.length === 0,
           cgDropOver: !!s.cgDropOver,
           cgDropLabel: s.cgBusy ? 'Завантаження…' : 'Перетягни зображення (можна кілька) або клікни',
-          cgKindOpts: GAL_KINDS,
+          cgKindOpts: sp.kinds,
           cgRows: rows.map(r => ({
             id: String(r.id),
             caption: r.caption || '',
-            kind: r.kind || 'art',
+            kind: r.kind || sp.fallback,
+            hasAnn: isChar,
             thumbBg: `background:url('${r.url}') center/cover no-repeat;`,
             border: r.is_draft ? 'rgba(255,215,0,0.32)' : 'rgba(255,255,255,0.1)',
             isDraft: !!r.is_draft,
@@ -4309,13 +4448,13 @@ class Component extends DCLogic {
             annCol: r.announced_at ? 'rgba(255,255,255,0.35)' : '#6495ed',
           })),
           cgPick: () => { const el = document.querySelector('[data-galpick]'); if (el) el.click(); },
-          cgAdd: (e) => this._cgUpload([...(e.target.files || [])], cid),
+          cgAdd: (e) => this._cgUpload([...(e.target.files || [])]),
           cgDragOver: (e) => { e.preventDefault(); if (!s.cgDropOver) this.setState({ cgDropOver: true }); },
           cgDragLeave: () => this.setState({ cgDropOver: false }),
           cgDrop: (e) => {
             e.preventDefault();
             this.setState({ cgDropOver: false });
-            this._cgUpload([...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/')), cid);
+            this._cgUpload([...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/')));
           },
           cgSetCaption: (e) => {
             const id = e.target.dataset.id, v = e.target.value;
