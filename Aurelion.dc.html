@@ -168,7 +168,10 @@ a:hover{color:#a8c4f7;}
 .chron-toc-sticky .lore-toc{display:block;width:100%;margin-bottom:0;}
 @media(max-width:880px){.chron-reader-grid{grid-template-columns:1fr;gap:24px;}.chron-toc-sticky{position:static;max-height:none;}}
 .char-reader-grid{display:grid;grid-template-columns:300px 1fr;gap:44px;align-items:start;max-width:1060px;margin:0 auto;}
+/* Липка колонка, вища за екран, свій низ прокручуванням не показує — тому
+   на низьких вікнах вона перестає бути липкою і їде разом зі сторінкою. */
 .char-reader-aside{position:sticky;top:84px;}
+@media(max-height:900px){.char-reader-aside{position:static;}}
 @media(max-width:820px){.char-reader-grid{grid-template-columns:1fr;gap:26px;}.char-reader-aside{position:static;max-width:340px;margin:0 auto;}}
 /* ── Мобільна навігація: від «✦ AURELION» лишається тільки зірочка ── */
 @media(max-width:640px){.au-wm-full{display:none}.au-brand{margin-right:16px!important}}
@@ -1054,6 +1057,23 @@ a:hover{color:#a8c4f7;}
                 <x-import component-from-global-scope="aurelion-fx" from="./aurelion-fx.js" effect="{{ charReaderFxEffect }}" intensity="{{ charFxIntensity }}" duration-ms="{{ charFxDurationMs }}" seed="{{ charReaderFxSeed }}" respect-reduced-motion="{{ charFxRespectRM }}" accent="{{ charFxAccent }}" style="position:absolute;inset:0;z-index:6;pointer-events:none;" hint-size="100%,100%"></x-import>
               </sc-if>
             </div>
+            <sc-if value="{{ galStripVisible }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;">
+                <sc-for list="{{ galStrip }}" as="g" hint-placeholder-count="0">
+                  <button data-i="{{ g.i }}" onClick="{{ galOpenAt }}" title="{{ g.title }}" style="position:relative;aspect-ratio:1/1;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);background:#111;cursor:pointer;padding:0;transition:all 0.22s ease;" style-hover="border-color:rgba(255,215,0,0.55);transform:translateY(-2px);">
+                    <sc-if value="{{ g.clear }}" hint-placeholder-val="{{ true }}">
+                      <img src="{{ g.src }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+                    </sc-if>
+                    <sc-if value="{{ g.veiled }}" hint-placeholder-val="{{ false }}">
+                      <img src="{{ g.src }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(11px);transform:scale(1.14);">
+                    </sc-if>
+                    <sc-if value="{{ g.hasMore }}" hint-placeholder-val="{{ false }}">
+                      <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,9,8,0.7);font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;color:#ffd700;">{{ g.moreLabel }}</span>
+                    </sc-if>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
             <sc-if value="{{ charReaderHasTelegraph }}" hint-placeholder-val="{{ false }}">
               <a href="{{ charReaderUrl }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;background:#ffd700;color:#1a1a1a;border-radius:999px;padding:11px 22px;font-family:'Cinzel',serif;font-size:0.85rem;font-weight:700;letter-spacing:0.05em;text-decoration:none;transition:all 0.2s;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.4);">↗ Відкрити анкету</a>
             </sc-if>
@@ -1062,6 +1082,12 @@ a:hover{color:#a8c4f7;}
                 <button onClick="{{ scrollToConns }}" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.4);border-radius:999px;padding:9px 18px;color:#6495ed;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(100,149,237,0.18);box-shadow:0 0 18px rgba(100,149,237,0.3);">
                   <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#6495ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                   До зв'язків
+                </button>
+              </sc-if>
+              <sc-if value="{{ galBtnVisible }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ galShow }}" title="Усі зображення цього персонажа" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.4);border-radius:999px;padding:9px 18px;color:#ffd700;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(255,215,0,0.18);box-shadow:0 0 18px rgba(255,215,0,0.3);">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                  {{ galBtnLabel }}
                 </button>
               </sc-if>
               <button onClick="{{ saveCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,215,0,0.32);border-radius:999px;padding:9px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
@@ -2099,6 +2125,87 @@ a:hover{color:#a8c4f7;}
     </div>
   </div>
 </sc-if>
+
+<!-- ── ГАЛЕРЕЯ ПЕРСОНАЖА ── -->
+<sc-if value="{{ galVisible }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ galClose }}" style="position:fixed;inset:0;z-index:10002;background:rgba(10,9,8,0.95);backdrop-filter:blur(12px);overflow:auto;padding:26px 18px 70px;">
+    <div onClick="{{ stopProp }}" style="width:100%;max-width:1180px;margin:0 auto;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;">
+        <div style="min-width:0;">
+          <p style="font-size:0.64rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:7px;">✦ Галерея</p>
+          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.3rem,3.4vw,1.85rem);font-weight:700;color:#fff;letter-spacing:0.05em;line-height:1.18;">{{ galCharName }}</h2>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.4);margin-top:5px;">{{ galCountLabel }}</p>
+        </div>
+        <button onClick="{{ galClose }}" aria-label="Закрити" style="flex-shrink:0;width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:1rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.34);">✕</button>
+      </div>
+      <sc-if value="{{ galHasPills }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;">
+          <sc-for list="{{ galPills }}" as="p" hint-placeholder-count="0">
+            <button data-k="{{ p.id }}" onClick="{{ galSetKind }}" style="background:{{ p.bg }};border:1px solid {{ p.bd }};color:{{ p.col }};border-radius:999px;padding:5px 15px;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">{{ p.label }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <div style="columns:250px;column-gap:14px;">
+        <sc-for list="{{ galItems }}" as="g" hint-placeholder-count="0">
+          <div style="break-inside:avoid;margin:0 0 16px;">
+            <button data-i="{{ g.i }}" onClick="{{ galItemClick }}" style="display:block;width:100%;position:relative;padding:0;border:1px solid rgba(255,255,255,0.12);background:#111;border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.25s ease;" style-hover="border-color:rgba(255,215,0,0.5);box-shadow:0 14px 34px rgba(0,0,0,0.6);">
+              <sc-if value="{{ g.clear }}" hint-placeholder-val="{{ true }}">
+                <img src="{{ g.src }}" alt="{{ g.caption }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto;">
+              </sc-if>
+              <sc-if value="{{ g.veiled }}" hint-placeholder-val="{{ false }}">
+                <img src="{{ g.src }}" alt="" loading="lazy" decoding="async" style="display:block;width:100%;height:auto;filter:blur(24px);transform:scale(1.08);">
+                <span style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:rgba(10,9,8,0.32);">
+                  <span style="font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.88);">Делікатне</span>
+                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.85rem;color:rgba(255,255,255,0.62);">клік, щоб відкрити</span>
+                </span>
+              </sc-if>
+            </button>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-top:7px;padding:0 2px;">
+              <span style="font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,215,0,0.6);flex-shrink:0;">{{ g.kindLabel }}</span>
+              <sc-if value="{{ g.hasCaption }}" hint-placeholder-val="{{ false }}">
+                <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.88rem;color:rgba(255,255,255,0.45);line-height:1.4;">{{ g.caption }}</span>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.3);margin-top:16px;">Тицьніть на зображення, щоб розгорнути. Стрілки — гортати, Esc — закрити.</p>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ── ГАЛЕРЕЯ: РОЗГОРНУТЕ ЗОБРАЖЕННЯ ── -->
+<sc-if value="{{ galBoxVisible }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ galBoxClose }}" style="position:fixed;inset:0;z-index:10003;background:rgba(6,5,4,0.97);display:flex;align-items:center;justify-content:center;padding:58px 16px 24px;">
+    <button onClick="{{ galBoxClose }}" aria-label="Закрити" style="position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:1rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.34);">✕</button>
+    <div onClick="{{ stopProp }}" style="display:flex;align-items:center;gap:12px;max-width:100%;">
+      <sc-if value="{{ galBoxHasNav }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ galPrev }}" aria-label="Попереднє" style="flex-shrink:0;width:42px;height:42px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);font-size:1.05rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#ffd700;border-color:rgba(255,215,0,0.5);">←</button>
+      </sc-if>
+      <div style="min-width:0;display:flex;flex-direction:column;align-items:center;gap:13px;">
+        <sc-if value="{{ galBoxClear }}" hint-placeholder-val="{{ true }}">
+          <img src="{{ galBoxSrc }}" alt="{{ galBoxCaption }}" style="display:block;max-width:min(1100px,82vw);max-height:74vh;width:auto;height:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.12);box-shadow:0 24px 60px rgba(0,0,0,0.7);">
+        </sc-if>
+        <sc-if value="{{ galBoxVeiled }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ galReveal }}" style="position:relative;padding:0;border:1px solid rgba(255,215,0,0.3);border-radius:10px;overflow:hidden;background:#111;cursor:pointer;">
+            <img src="{{ galBoxSrc }}" alt="" style="display:block;max-width:min(1100px,82vw);max-height:74vh;width:auto;height:auto;filter:blur(30px);transform:scale(1.06);">
+            <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,9,8,0.3);font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.9);">Делікатне · відкрити</span>
+          </button>
+        </sc-if>
+        <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;justify-content:center;max-width:min(1100px,82vw);">
+          <span style="font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,215,0,0.6);">{{ galBoxKind }}</span>
+          <sc-if value="{{ galBoxHasCaption }}" hint-placeholder-val="{{ false }}">
+            <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.6);line-height:1.45;">{{ galBoxCaption }}</span>
+          </sc-if>
+          <span style="font-family:'Cinzel',serif;font-size:0.74rem;letter-spacing:0.08em;color:rgba(255,255,255,0.3);">{{ galBoxCounter }}</span>
+        </div>
+      </div>
+      <sc-if value="{{ galBoxHasNav }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ galNext }}" aria-label="Наступне" style="flex-shrink:0;width:42px;height:42px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);font-size:1.05rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#ffd700;border-color:rgba(255,215,0,0.5);">→</button>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 const SUPA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
@@ -2260,6 +2367,16 @@ const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице
 const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
 const KNOWN_SEGS = ['home', 'characters', 'connections', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests'].concat(ARCHIVE_SEGS);
 
+// ── Галерея персонажа ──────────────────────────────────────
+// Головний портрет лишається в characters.image; усе інше (арти від
+// гравців, сцени, меми) — рядки в character_images.
+const GAL_KINDS = [
+  { id: 'portrait', label: 'Портрет' },
+  { id: 'art',      label: 'Арт' },
+  { id: 'scene',    label: 'Сцена' },
+  { id: 'meme',     label: 'Мем' },
+];
+
 // ── Павутина матеріалів ────────────────────────────────────
 // Ребра лежать у material_links: автоматичні пише адмінка з вікі-посилань
 // у тексті, ручні додає людина. Сайт лише читає й малює.
@@ -2343,8 +2460,9 @@ const DEFAULT_DICE_QUOTES = {
 class Component extends DCLogic {
   state = {
     page: this._getPage(),
-    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [], tests: [], material_links: [] },
+    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [], tests: [], material_links: [], character_images: [] },
     webOpen: false,
+    galOpen: false, galKind: null, galIndex: -1, galShown: {},
     quotesAuthor: null, quoteSpot: null,
     loading: true,
     loadError: false, loadErrorQuote: LOAD_ERROR_QUOTES[0],
@@ -2845,6 +2963,7 @@ class Component extends DCLogic {
         this._getSoft('quotes?select=num,text,author,added_by,source,created_at&is_hidden=eq.false&order=num.desc'),
         this._getSoft('tests?select=*&is_published=eq.true&order=sort_order.asc,created_at.asc'),
         this._getSoft('material_links?select=from_type,from_id,to_type,to_id,label'),
+        this._getSoft('character_images?select=id,character_id,url,caption,kind,is_sensitive,added_by,created_at&is_draft=eq.false&order=sort_order.asc,created_at.asc'),
       ]);
     } catch (e) {
       if (silent) return; // тихе оновлення — лишаємо те, що вже показано
@@ -2855,7 +2974,7 @@ class Component extends DCLogic {
       });
       return;
     }
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows] = res;
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows, galRows] = res;
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
     const loadedData = {
@@ -2873,6 +2992,7 @@ class Component extends DCLogic {
         quotes:        Array.isArray(quoteRows)    ? quoteRows    : [],
         tests:         Array.isArray(testRows)     ? testRows     : [],
         material_links: Array.isArray(linkRows)    ? linkRows     : [],
+        character_images: Array.isArray(galRows)   ? galRows      : [],
     };
     // Тексти, які вже є в пам'яті/кеші, переносимо на свіжі записи.
     const prev = this.state.data || {};
@@ -3185,6 +3305,36 @@ class Component extends DCLogic {
       this.setState({ mapScale: newScale, mapPanX: e.clientX - (e.clientX - st.mapPanX) * ratio, mapPanY: e.clientY - (e.clientY - st.mapPanY) * ratio, mapActivePin: null });
     };
     window.addEventListener('wheel', this._mapWheelHandler, { passive: false });
+    // Галерея: стрілки й Esc. Слухаємо глобально — лайтбокс не має фокусу.
+    this._galKeyHandler = (e) => {
+      const st = this.state;
+      if (st.galIndex >= 0) {
+        if (e.key === 'Escape')          this.setState({ galIndex: -1 });
+        else if (e.key === 'ArrowRight') this._galStep(1);
+        else if (e.key === 'ArrowLeft')  this._galStep(-1);
+        else return;
+        e.preventDefault();
+      } else if (st.galOpen && e.key === 'Escape') {
+        this.setState({ galOpen: false });
+      }
+    };
+    window.addEventListener('keydown', this._galKeyHandler);
+  }
+
+  // Склад галереї в тому самому порядку, що й на екрані — інакше стрілка
+  // в лайтбоксі йшла б не туди, куди показує сітка з увімкненим фільтром.
+  _galList() {
+    const s = this.state, sc = s.selectedChar;
+    if (!sc) return [];
+    const all = (s.data.character_images || []).filter(r => String(r.character_id) === String(sc.id));
+    return s.galKind ? all.filter(r => (r.kind || 'art') === s.galKind) : all;
+  }
+
+  _galStep(d) {
+    const list = this._galList();
+    const i = this.state.galIndex;
+    if (!list.length || i < 0) return;
+    this.setState({ galIndex: (i + d + list.length) % list.length });
   }
 
   componentWillUnmount() {
@@ -3194,6 +3344,7 @@ class Component extends DCLogic {
     clearInterval(this._pulseTimer);
     clearTimeout(this._drawTimer);
     if (this._mapWheelHandler) window.removeEventListener('wheel', this._mapWheelHandler);
+    if (this._galKeyHandler) window.removeEventListener('keydown', this._galKeyHandler);
   }
 
   _toTopWatch = () => {
@@ -5039,6 +5190,82 @@ class Component extends DCLogic {
       charReaderFxEffect: sc ? readerOpenEffect : 'sparks',
       charReaderFxSeed:   sc ? (sc.id + '|r|' + readerOpenEffect) : '',
       showCharReaderFx:   !!sc && readerOpenEffect !== 'none',
+
+      // ── Галерея зображень персонажа ──
+      // Плитка під портретом і кнопка ведуть в один оверлей; лайтбокс —
+      // окремий шар над ним, щоб стрілки не гортали крізь сітку.
+      ...(() => {
+        const all = sc ? (data.character_images || []).filter(r => String(r.character_id) === String(sc.id)) : [];
+        const off = { galBtnVisible: false, galStripVisible: false, galVisible: false, galBoxVisible: false };
+        if (!all.length) return off;
+        const kindOf   = (r) => r.kind || 'art';
+        const kindsHere = GAL_KINDS.filter(k => all.some(r => kindOf(r) === k.id));
+        const kind = (s.galKind && kindsHere.some(k => k.id === s.galKind)) ? s.galKind : null;
+        const list = kind ? all.filter(r => kindOf(r) === kind) : all;
+        const shown  = s.galShown || {};
+        const veiled = (r) => !!r.is_sensitive && !shown[r.id];
+        const label  = (r) => (GAL_KINDS.find(k => k.id === kindOf(r)) || GAL_KINDS[1]).label;
+        const cur = (s.galIndex >= 0 && s.galIndex < list.length) ? list[s.galIndex] : null;
+        const reveal = (row) => this.setState(st => ({ galShown: { ...(st.galShown || {}), [row.id]: true } }));
+        return {
+          galBtnVisible:   true,
+          galBtnLabel:     'Галерея · ' + all.length,
+          galStripVisible: true,
+          galCharName:     sc.name || '',
+          galCountLabel:   all.length + (all.length === 1 ? ' зображення' : (all.length < 5 ? ' зображення' : ' зображень')) + ' у теці',
+          galStrip: all.slice(0, 4).map((r, i) => ({
+            i: String(i), src: r.url,
+            title: r.caption || label(r),
+            clear: !veiled(r), veiled: veiled(r),
+            hasMore: i === 3 && all.length > 4,
+            moreLabel: '+' + (all.length - 3),
+          })),
+          galHasPills: kindsHere.length > 1,
+          galPills: [{ id: '', label: 'Усі · ' + all.length, on: !kind }].concat(
+            kindsHere.map(k => ({
+              id: k.id,
+              label: k.label + ' · ' + all.filter(r => kindOf(r) === k.id).length,
+              on: kind === k.id,
+            }))
+          ).map(p => ({
+            id: p.id, label: p.label,
+            bg:  p.on ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+            bd:  p.on ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.1)',
+            col: p.on ? '#ffd700' : 'rgba(255,255,255,0.55)',
+          })),
+          galItems: list.map((r, i) => ({
+            i: String(i), src: r.url,
+            kindLabel: label(r),
+            hasCaption: !!r.caption, caption: r.caption || '',
+            clear: !veiled(r), veiled: veiled(r),
+          })),
+          galVisible: !!s.galOpen,
+          galShow:    () => this.setState({ galOpen: true, galIndex: -1 }),
+          galClose:   () => this.setState({ galOpen: false, galIndex: -1 }),
+          galOpenAt:  (e) => this.setState({ galOpen: true, galKind: null, galIndex: parseInt(e.currentTarget.dataset.i) || 0 }),
+          galSetKind: (e) => this.setState({ galKind: e.currentTarget.dataset.k || null, galIndex: -1 }),
+          galItemClick: (e) => {
+            const row = list[parseInt(e.currentTarget.dataset.i)];
+            if (!row) return;
+            // Делікатне спершу відкривається на місці, а вже потім розгортається.
+            if (veiled(row)) { reveal(row); return; }
+            this.setState({ galIndex: parseInt(e.currentTarget.dataset.i) });
+          },
+          galBoxVisible:    !!cur,
+          galBoxSrc:        cur ? cur.url : '',
+          galBoxKind:       cur ? label(cur) : '',
+          galBoxHasCaption: !!(cur && cur.caption),
+          galBoxCaption:    cur ? (cur.caption || '') : '',
+          galBoxCounter:    cur ? (s.galIndex + 1) + ' / ' + list.length : '',
+          galBoxHasNav:     list.length > 1,
+          galBoxClear:      !!(cur && !veiled(cur)),
+          galBoxVeiled:     !!(cur && veiled(cur)),
+          galBoxClose:      () => this.setState({ galIndex: -1 }),
+          galPrev:          () => this._galStep(-1),
+          galNext:          () => this._galStep(1),
+          galReveal:        () => { if (cur) reveal(cur); },
+        };
+      })(),
 
       // ── ЧИТАЛКА: Довідник (лор) ──
       ...(() => {

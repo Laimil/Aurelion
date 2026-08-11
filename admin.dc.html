@@ -1366,6 +1366,54 @@ button{font-family:inherit;cursor:pointer}
           </div>
           <input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
         </div>
+        <!-- Галерея -->
+        <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
+          <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Галерея · {{ cgCount }}</h4>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">Головний портрет вище лишається головним — він на PNG-картці й у плитках. Тут усе інше: арти, сцени, меми. Зміни тут зберігаються одразу, окремо від кнопки «Зберегти».</p>
+          <sc-if value="{{ cgNoChar }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.75rem;color:rgba(255,215,0,0.55);">Спершу збережи персонажа — тоді з'явиться галерея.</p>
+          </sc-if>
+          <sc-if value="{{ cgReady }}" hint-placeholder-val="{{ true }}">
+            <input type="file" accept="image/*" multiple onChange="{{ cgAdd }}" data-galpick="1" style="display:none;" />
+            <div class="drop-zone" data-over="{{ cgDropOver }}" onDragOver="{{ cgDragOver }}" onDragLeave="{{ cgDragLeave }}" onDrop="{{ cgDrop }}" onClick="{{ cgPick }}" style="padding:14px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">{{ cgDropLabel }}</p>
+            </div>
+            <sc-if value="{{ cgHasRows }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+                <sc-for list="{{ cgRows }}" as="g" hint-placeholder-count="0">
+                  <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 10px;background:rgba(255,255,255,0.04);border:1px solid {{ g.border }};border-radius:7px;">
+                    <div style="{{ g.thumbBg }}width:52px;height:52px;border-radius:5px;flex-shrink:0;"></div>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
+                      <input value="{{ g.caption }}" data-id="{{ g.id }}" onChange="{{ cgSetCaption }}" onBlur="{{ cgSaveCaption }}" placeholder="Підпис (необов'язково)…" style="font-size:0.78rem;padding:6px 9px;border-radius:5px;" />
+                      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                        <select value="{{ g.kind }}" data-id="{{ g.id }}" onChange="{{ cgSetKind }}" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.72);border-radius:5px;padding:4px 7px;font-size:0.72rem;">
+                          <sc-for list="{{ cgKindOpts }}" as="k" hint-placeholder-count="4">
+                            <option value="{{ k.id }}">{{ k.label }}</option>
+                          </sc-for>
+                        </select>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgToggleSens }}" title="Делікатне: на сайті розмите, відкривається кліком" style="background:{{ g.sensBg }};border:1px solid {{ g.sensBd }};color:{{ g.sensCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.sensLabel }}</button>
+                        <sc-if value="{{ g.isDraft }}" hint-placeholder-val="{{ false }}">
+                          <button type="button" data-id="{{ g.id }}" onClick="{{ cgPublish }}" title="Чернетка: на сайті не видно" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">Чернетка → опублікувати</button>
+                        </sc-if>
+                        <sc-if value="{{ g.hasBy }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size:0.68rem;color:rgba(255,255,255,0.28);">приніс {{ g.addedBy }}</span>
+                        </sc-if>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgAnnounce }}" title="{{ g.annTitle }}" style="background:{{ g.annBg }};border:1px solid {{ g.annBd }};color:{{ g.annCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.annLabel }}</button>
+                        <span style="flex:1;"></span>
+                        <button type="button" data-id="{{ g.id }}" data-d="-1" onClick="{{ cgMove }}" title="Вище" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">↑</button>
+                        <button type="button" data-id="{{ g.id }}" data-d="1" onClick="{{ cgMove }}" title="Нижче" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">↓</button>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgDel }}" title="Видалити" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:3px 8px;font-size:0.72rem;cursor:pointer;">✕</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ cgNoRows }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:10px;">У теці ще нічого немає.</p>
+            </sc-if>
+          </sc-if>
+        </div>
         <!-- Теги -->
         <div style="margin-bottom:14px;">
           <label>Теги (через кому)</label>
@@ -2231,6 +2279,13 @@ const DEFAULT_DICE_QUOTES = {
 // Ребра з тексту адмінка перераховує при кожному збереженні; ручні лежать
 // поряд із позначкою origin='manual' і переживають правку тексту.
 const LINK_TYPES = ['lore', 'stories', 'characters', 'pantheon'];
+// Галерея персонажа — ті самі види, що й на сайті (character_images.kind).
+const GAL_KINDS = [
+  { id: 'portrait', label: 'Портрет' },
+  { id: 'art',      label: 'Арт' },
+  { id: 'scene',    label: 'Сцена' },
+  { id: 'meme',     label: 'Мем' },
+];
 const LINK_LABELS = ['згадує', 'учасник', 'місце дії', 'пов’язане'];
 const LINK_COLOR = { lore: '#ffd76b', stories: '#7aa8f5', characters: '#e587a4', pantheon: '#8fd6c4' };
 function extractWikiTargets(raw){
@@ -2263,6 +2318,7 @@ class Component extends DCLogic {
     // auth
     authed: false, authChecking: true,
     uploadingImage: false,
+    galRows: [], cgBusy: false, cgDropOver: false,
     charSearch: '',
     // імпорт анкети з Telegraph
     tgOpen: false, tgMode: 'url', tgUrl: '', tgRaw: '', tgBusy: false,
@@ -2491,6 +2547,67 @@ class Component extends DCLogic {
       });
       if (!r.ok) throw new Error(await r.text());
     }
+  }
+
+  // ── Галерея персонажа ─────────────────────────
+  // Ця панель пише в базу одразу, не чекаючи кнопки «Зберегти»: рядки
+  // лежать у своїй таблиці, а не в анкеті, і втратити завантажене фото на
+  // скасуванні форми було б гірше за зайвий запис.
+  async _loadCharImages(id) {
+    if (!id) { this.setState({ galRows: [] }); return; }
+    const rows = await this._get(`character_images?select=*&character_id=eq.${encodeURIComponent(id)}&order=sort_order.asc,created_at.asc`);
+    this.setState({ galRows: Array.isArray(rows) ? rows : [] });
+  }
+
+  _cgPing() { try { localStorage.setItem('aurelion-refresh', Date.now().toString()); } catch (_) {} }
+
+  async _cgUpload(files, cid) {
+    if (!files.length || !cid) return;
+    this.setState({ cgBusy: true });
+    let base = (this.state.galRows || []).reduce((m, r) => Math.max(m, r.sort_order || 0), 0);
+    let ok = 0, err = '';
+    for (const f of files) {
+      try {
+        const url = await this._uploadImage(f, 'character-images');
+        await this._insert('character_images', { character_id: String(cid), url, kind: 'art', sort_order: ++base });
+        ok++;
+      } catch (e) { err = e.message || 'Помилка завантаження'; }
+    }
+    this.setState({ cgBusy: false });
+    await this._loadCharImages(cid);
+    if (ok) { this._cgPing(); this._toast('✓ Додано: ' + ok); }
+    if (err) this._toast('✗ ' + err);
+  }
+
+  async _cgPatch(id, body) {
+    try {
+      await this._patch('character_images', id, body);
+      this.setState(st => ({ galRows: (st.galRows || []).map(r => String(r.id) === String(id) ? { ...r, ...body } : r) }));
+      this._cgPing();
+    } catch (e) { this._toast('✗ ' + (e.message || 'Не збереглося')); }
+  }
+
+  async _cgDelete(id) {
+    if (!confirm('Видалити зображення з галереї?')) return;
+    try {
+      await this._remove('character_images', id);
+      this.setState(st => ({ galRows: (st.galRows || []).filter(r => String(r.id) !== String(id)) }));
+      this._cgPing();
+      this._toast('✓ Видалено');
+    } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
+  }
+
+  async _cgMove(id, d) {
+    const rows = [...(this.state.galRows || [])];
+    const i = rows.findIndex(r => String(r.id) === String(id));
+    const j = i + d;
+    if (i < 0 || j < 0 || j >= rows.length) return;
+    [rows[i], rows[j]] = [rows[j], rows[i]];
+    this.setState({ galRows: rows });
+    try {
+      await Promise.all(rows.map((r, k) => this._patch('character_images', r.id, { sort_order: k + 1 })));
+      this._cgPing();
+    } catch (e) { this._toast('✗ Порядок не зберігся'); }
   }
 
   async _loadManualLinks(type, id) {
@@ -4047,6 +4164,7 @@ class Component extends DCLogic {
       startAdd: (e) => {
         const section = e.currentTarget.dataset.section;
         this.setState({ editing: { section, index: -1 }, form: {}, linkManual: [], linkSearch: '' });
+        this.setState({ galRows: [] });
         this._scrollToForm();
       },
       startEdit: (e) => {
@@ -4068,9 +4186,10 @@ class Component extends DCLogic {
         }
         this.setState({ editing: { section, index }, form, linkManual: [], linkSearch: '' });
         this._loadManualLinks(section, item.id);
+        this._loadCharImages(section === 'characters' ? item.id : null);
         this._scrollToForm();
       },
-      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false, linkManual: [], linkSearch: '' }),
+      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false, linkManual: [], linkSearch: '', galRows: [] }),
       saveItem,
       deleteItem,
 
@@ -4154,6 +4273,88 @@ class Component extends DCLogic {
         className: 'lore-md lore-preview-box',
         dangerouslySetInnerHTML: { __html: parseMarkdown(s.form.content || '') },
       }),
+      // ── Панель «Галерея» (персонажі) ─────────────────
+      ...(() => {
+        const isChar = !!(ed && ed.section === 'characters');
+        const off = { cgCount: 0, cgNoChar: false, cgReady: false, cgHasRows: false, cgNoRows: false };
+        if (!isChar) return off;
+        const cid = s.form.id;
+        if (!cid) return { ...off, cgNoChar: true };
+        const rows = s.galRows || [];
+        return {
+          cgCount: rows.length,
+          cgNoChar: false, cgReady: true,
+          cgHasRows: rows.length > 0, cgNoRows: rows.length === 0,
+          cgDropOver: !!s.cgDropOver,
+          cgDropLabel: s.cgBusy ? 'Завантаження…' : 'Перетягни зображення (можна кілька) або клікни',
+          cgKindOpts: GAL_KINDS,
+          cgRows: rows.map(r => ({
+            id: String(r.id),
+            caption: r.caption || '',
+            kind: r.kind || 'art',
+            thumbBg: `background:url('${r.url}') center/cover no-repeat;`,
+            border: r.is_draft ? 'rgba(255,215,0,0.32)' : 'rgba(255,255,255,0.1)',
+            isDraft: !!r.is_draft,
+            hasBy: !!r.added_by, addedBy: r.added_by || '',
+            sensLabel: r.is_sensitive ? '⚠ Делікатне' : 'Делікатне?',
+            sensBg:  r.is_sensitive ? 'rgba(255,77,77,0.12)' : 'rgba(255,255,255,0.05)',
+            sensBd:  r.is_sensitive ? 'rgba(255,77,77,0.3)'  : 'rgba(255,255,255,0.12)',
+            sensCol: r.is_sensitive ? 'rgba(255,120,120,0.9)' : 'rgba(255,255,255,0.4)',
+            annLabel: r.announced_at ? '✦ Оповіщено' : '✦ Оповістити',
+            annTitle: r.announced_at
+              ? 'Марта вже показала це в чаті (' + String(r.announced_at).slice(0, 10) + ')'
+              : 'Марта покаже це зображення в чаті звітів',
+            annBg:  r.announced_at ? 'rgba(255,255,255,0.04)' : 'rgba(100,149,237,0.12)',
+            annBd:  r.announced_at ? 'rgba(255,255,255,0.1)'  : 'rgba(100,149,237,0.35)',
+            annCol: r.announced_at ? 'rgba(255,255,255,0.35)' : '#6495ed',
+          })),
+          cgPick: () => { const el = document.querySelector('[data-galpick]'); if (el) el.click(); },
+          cgAdd: (e) => this._cgUpload([...(e.target.files || [])], cid),
+          cgDragOver: (e) => { e.preventDefault(); if (!s.cgDropOver) this.setState({ cgDropOver: true }); },
+          cgDragLeave: () => this.setState({ cgDropOver: false }),
+          cgDrop: (e) => {
+            e.preventDefault();
+            this.setState({ cgDropOver: false });
+            this._cgUpload([...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/')), cid);
+          },
+          cgSetCaption: (e) => {
+            const id = e.target.dataset.id, v = e.target.value;
+            this.setState(st => ({ galRows: (st.galRows || []).map(r => String(r.id) === id ? { ...r, caption: v } : r) }));
+          },
+          cgSaveCaption: (e) => {
+            const id = e.target.dataset.id;
+            const row = (this.state.galRows || []).find(r => String(r.id) === id);
+            if (row) this._cgPatch(id, { caption: row.caption || null });
+          },
+          cgSetKind:    (e) => this._cgPatch(e.target.dataset.id, { kind: e.target.value }),
+          cgToggleSens: (e) => {
+            const id = e.currentTarget.dataset.id;
+            const row = (this.state.galRows || []).find(r => String(r.id) === id);
+            if (row) this._cgPatch(id, { is_sensitive: !row.is_sensitive });
+          },
+          cgPublish: (e) => this._cgPatch(e.currentTarget.dataset.id, { is_draft: false }),
+          cgAnnounce: async (e) => {
+            const id = e.currentTarget.dataset.id;
+            const row = (this.state.galRows || []).find(r => String(r.id) === id);
+            if (!row) return;
+            const warn = row.is_draft ? '\n\nУвага: це чернетка, на сайті її ще не видно.' : '';
+            if (!window.confirm((row.announced_at
+              ? 'Показати це зображення в чаті ще раз?'
+              : 'Марта покаже цей арт у чаті звітів. Надсилати?') + warn)) return;
+            try {
+              const r = await fetch(`${SUPA_FUNCS}/telegram-report?announce_art=${encodeURIComponent(id)}&force=1`, {
+                method: 'POST',
+                headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken() || ''}` },
+              });
+              if (!r.ok) { this._toast('⚠ Оповіщення не пішло'); return; }
+              this.setState(st => ({ galRows: (st.galRows || []).map(x => String(x.id) === id ? { ...x, announced_at: new Date().toISOString() } : x) }));
+              this._toast('✦ Марта показала в чаті');
+            } catch (ex) { this._toast('⚠ Оповіщення не пішло'); }
+          },
+          cgMove:    (e) => this._cgMove(e.currentTarget.dataset.id, parseInt(e.currentTarget.dataset.d)),
+          cgDel:     (e) => this._cgDelete(e.currentTarget.dataset.id),
+        };
+      })(),
       // ── Панель «Зв'язки матеріалу» ──────────────────────────
       ...(() => {
         const section = ed ? ed.section : '';
