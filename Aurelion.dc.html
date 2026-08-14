@@ -1916,9 +1916,39 @@ a:hover{color:#a8c4f7;}
 
         <div style="display:flex;flex-direction:column;gap:18px;">
           <section class="glass" style="padding:28px 30px;border-radius:12px;">
-            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Найдовша варта</h2>
-            <p style="font-family:'Cinzel',Georgia,serif;font-size:2.4rem;font-weight:700;color:#ffd700;line-height:1;margin-top:14px;">{{ streakDays }} <span style="font-size:1rem;font-weight:400;color:rgba(255,255,255,0.45);letter-spacing:0.04em;">{{ streakWord }} поспіль</span></p>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.42);margin-top:12px;">Стільки днів підряд у чаті не було жодної тиші. Остання така серія завершилася {{ streakEnd }}.</p>
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Варта</h2>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.38);margin-top:4px;">Дні підряд, коли в чаті не було жодної тиші.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:18px;margin-top:18px;">
+              <div>
+                <p style="font-family:'Cinzel',Georgia,serif;font-size:2.4rem;font-weight:700;line-height:1;color:{{ curStreakColor }};">{{ curStreakDays }}</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.45);margin-top:6px;">{{ curStreakWord }}</p>
+                <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-top:8px;">Зараз</p>
+              </div>
+              <div>
+                <p style="font-family:'Cinzel',Georgia,serif;font-size:2.4rem;font-weight:700;line-height:1;color:rgba(255,255,255,0.9);">{{ streakDays }}</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.45);margin-top:6px;">{{ streakWord }} поспіль</p>
+                <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">Рекорд · до {{ streakEnd }}</p>
+              </div>
+            </div>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.42);margin-top:16px;">{{ curStreakNote }}</p>
+            <div style="border-top:1px solid rgba(255,255,255,0.07);margin-top:20px;padding-top:18px;">
+              <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Проміжки без тиші</p>
+              <div style="display:flex;flex-direction:column;gap:11px;margin-top:14px;">
+                <sc-for list="{{ streakList }}" as="sr" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline;">
+                    <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:{{ sr.color }};">{{ sr.range }}</span>
+                    <span style="font-size:0.78rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ sr.days }} {{ sr.dayWord }} · {{ sr.posts }}</span>
+                    <span style="grid-column:1/-1;display:flex;align-items:center;gap:9px;">
+                      <span style="flex:1;height:6px;border-radius:999px;background:rgba(255,255,255,0.05);overflow:hidden;display:block;">
+                        <span style="display:block;height:100%;border-radius:999px;width:{{ sr.pct }};background:{{ sr.bg }};"></span>
+                      </span>
+                      <span style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.55);min-width:58px;text-align:right;">{{ sr.tail }}</span>
+                    </span>
+                  </div>
+                </sc-for>
+              </div>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.3);margin-top:14px;">{{ streakListNote }}</p>
+            </div>
           </section>
           <section class="glass" style="padding:28px 30px;border-radius:12px;">
             <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;margin-bottom:16px;">Гучно й тихо</h2>
@@ -4341,16 +4371,23 @@ class Component extends DCLogic {
           color: i === dowTop ? 'rgba(255,215,0,0.9)' : 'rgba(255,255,255,0.5)',
         }));
 
-        // ── Найдовша серія днів поспіль ──
-        let best = 0, run = 0, bestEnd = null, prev = null;
+        // ── Серії днів поспіль: не лише найдовша, а всі проміжки ──
+        const runs = [];
+        let prev = null;
         rows.filter(r => r.v > 0).forEach(r => {
           const d = new Date(r.iso + 'T00:00:00Z');
-          run = (prev && (d - prev) === 86400000) ? run + 1 : 1;
-          if (run > best) { best = run; bestEnd = d; }
+          if (prev && (d - prev) === 86400000) {
+            const last = runs[runs.length - 1];
+            last.to = r.iso; last.len++; last.sum += r.v;
+          } else {
+            runs.push({ from: r.iso, to: r.iso, len: 1, sum: r.v });
+          }
           prev = d;
         });
-        const streakEnd = bestEnd
-          ? bestEnd.getUTCDate() + ' ' + MON[bestEnd.getUTCMonth()] + ' ' + bestEnd.getUTCFullYear()
+        const bestRun = runs.reduce((a, b) => (b.len > a.len ? b : a), runs[0] || null);
+        const best = bestRun ? bestRun.len : 0;
+        const streakEnd = bestRun
+          ? (() => { const d = new Date(bestRun.to + 'T00:00:00Z'); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); })()
           : '';
 
         // ── Місяці ──
@@ -4384,6 +4421,61 @@ class Component extends DCLogic {
           for (let i = from; i <= to; i++) acc += byDay.get(shift(kToday, -i)) || 0;
           return acc;
         };
+
+        // ── Поточна варта ──
+        // Сьогоднішня доба ще не скінчилася, тому тиша «сьогодні» серію не рве:
+        // рахуємо від вчора, а сьогоднішній допис лише додає ще один день.
+        const runBack = (from) => {
+          let n = 0, k = from;
+          while ((byDay.get(k) || 0) > 0) { n++; k = shift(k, -1); }
+          return n;
+        };
+        const todayV = byDay.get(kToday) || 0;
+        const curTail = todayV > 0 ? kToday : shift(kToday, -1);
+        const cur = runBack(curTail);
+        const curFrom = cur
+          ? (() => { const d = new Date(shift(curTail, -(cur - 1)) + 'T00:00:00Z'); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; })()
+          : '';
+        // Варти немає — тоді число дня має бути про тишу, а не нуль без пояснення.
+        const quietRun = (() => {
+          if (cur) return 0;
+          let n = 0, k = kToday;
+          while (n < 400 && !(byDay.get(k) || 0)) { n++; k = shift(k, -1); }
+          return n;
+        })();
+        // Проміжок словами: «12–19 серпня», «28 липня — 4 серпня», рік лише чужий.
+        const rangeLabel = (a, b) => {
+          const x = new Date(a + 'T00:00:00Z'), y = new Date(b + 'T00:00:00Z');
+          const yr = y.getUTCFullYear() !== end.getUTCFullYear() ? ' ' + y.getUTCFullYear() : '';
+          if (a === b) return x.getUTCDate() + ' ' + MON[x.getUTCMonth()] + yr;
+          if (x.getUTCMonth() === y.getUTCMonth() && x.getUTCFullYear() === y.getUTCFullYear())
+            return x.getUTCDate() + '–' + y.getUTCDate() + ' ' + MON[y.getUTCMonth()] + yr;
+          // Проміжок через Новий рік: без року на початку «24 листопада — 8 лютого»
+          // читається як неможлива дата, тому тут рік стоїть з обох боків.
+          const xyr = x.getUTCFullYear() !== y.getUTCFullYear() ? ' ' + x.getUTCFullYear() : '';
+          return x.getUTCDate() + ' ' + MON[x.getUTCMonth()] + xyr + ' — ' + y.getUTCDate() + ' ' + MON[y.getUTCMonth()] +
+                 (xyr ? ' ' + y.getUTCFullYear() : yr);
+        };
+        const liveRun = cur ? runs.find(r => r.to === curTail) : null;
+        // Спершу довші, а поточна варта — завжди в списку, навіть коротка.
+        const topRuns = runs.slice().sort((a, b) => b.len - a.len || (a.from < b.from ? 1 : -1)).slice(0, 6);
+        if (liveRun && topRuns.indexOf(liveRun) === -1) topRuns.splice(topRuns.length - 1, 1, liveRun);
+        const streakList = topRuns.map(r => ({
+          range:   rangeLabel(r.from, r.to),
+          days:    String(r.len),
+          dayWord: plural(r.len, 'день', 'дні', 'днів'),
+          posts:   r.sum.toLocaleString('uk-UA') + ' ' + plural(r.sum, 'допис', 'дописи', 'дописів'),
+          pct:     Math.max(3, (r.len / Math.max(1, best)) * 100).toFixed(1) + '%',
+          live:    r === liveRun,
+          tail:    r === liveRun ? 'триває' : (r === bestRun ? 'рекорд' : ''),
+          color:   r === liveRun ? 'rgba(255,215,0,0.9)' : 'rgba(255,255,255,0.62)',
+          bg:      r === liveRun ? 'rgba(255,215,0,0.85)' : 'rgba(255,215,0,0.28)',
+        }));
+        const curNote = cur === 0
+          ? 'Варта обірвана: ' + quietRun + ' ' + plural(quietRun, 'день', 'дні', 'днів') + ' тиші. Рекорд — ' + best + ' ' + plural(best, 'день', 'дні', 'днів') + ' поспіль, до ' + streakEnd + '.'
+          : cur >= best
+            ? 'Триває з ' + curFrom + ' — і це вже рекорд літопису.' + (todayV ? '' : ' Сьогодні ще тихо.')
+            : 'Триває з ' + curFrom + '. До рекорду — ще ' + (best - cur) + ' ' + plural(best - cur, 'день', 'дні', 'днів') + '.' + (todayV ? '' : ' Сьогодні ще тихо.');
         const recentCards = ['Сьогодні', 'Вчора', 'Позавчора'].map((label, i) => {
           const key = shift(kToday, -i);
           const v = byDay.get(key) || 0;
@@ -4446,6 +4538,16 @@ class Component extends DCLogic {
           streakDays:   String(best),
           streakWord:   plural(best, 'день', 'дні', 'днів'),
           streakEnd,
+          curStreakDays:  cur === 0 ? String(quietRun) : String(cur),
+          curStreakWord:  cur === 0
+            ? plural(quietRun, 'день', 'дні', 'днів') + ' тиші'
+            : plural(cur, 'день', 'дні', 'днів') + ' поспіль',
+          curStreakColor: cur === 0 ? 'rgba(255,255,255,0.32)' : '#ffd700',
+          curStreakNote:  curNote,
+          streakList,
+          streakListNote: runs.length > streakList.length
+            ? 'Усього таких проміжків — ' + runs.length + '; ось найдовші.'
+            : 'Кожен проміжок від першого дня до останнього перед тишею.',
           loudName:     loud ? mName(loud[0]) : '',
           loudValue:    loud ? loud[1].toLocaleString('uk-UA') : '',
           quietName:    quiet ? mName(quiet[0]) : '',
