@@ -1418,11 +1418,35 @@ a:hover{color:#a8c4f7;}
           </button>
         </sc-for>
       </div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;align-items:center;">
+        <button onClick="{{ saveWallPng }}" data-busy="{{ wallBusy }}" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:6px 15px;font-family:'Cinzel',serif;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="background:rgba(255,215,0,0.18);">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Знімок стіни
+        </button>
+        <button onClick="{{ copyWallPng }}" data-busy="{{ wallBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);border-radius:999px;padding:6px 15px;font-size:0.74rem;letter-spacing:0.03em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.34);">Копіювати</button>
+        <sc-if value="{{ canShareWall }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ shareWallPng }}" data-busy="{{ wallBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);border-radius:999px;padding:6px 15px;font-size:0.74rem;letter-spacing:0.03em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.34);">Поділитися</button>
+        </sc-if>
+        <sc-if value="{{ wallHasCards }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ shelfAll }}" title="Зняти всі теки зі стіни на полицю" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);border-radius:999px;padding:6px 15px;font-size:0.74rem;letter-spacing:0.03em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,215,0,0.45);">↓ Все на полицю</button>
+        </sc-if>
+        <sc-if value="{{ wallDirty }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ resetWall }}" title="Повернути теки на місця й забрати все з полиці" style="background:none;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);border-radius:999px;padding:6px 15px;font-size:0.74rem;letter-spacing:0.03em;cursor:pointer;transition:all 0.2s;" style-hover="color:#ff8f8f;border-color:rgba(255,77,77,0.4);">↺ Скинути стіну</button>
+        </sc-if>
+      </div>
+      <sc-if value="{{ hasWallMsg }}" hint-placeholder-val="{{ false }}">
+        <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,215,0,0.7);margin:0;">{{ wallShareMsg }}</p>
+      </sc-if>
     </div>
 
     <sc-if value="{{ wallEmpty }}" hint-placeholder-val="{{ false }}">
       <div style="text-align:center;padding:50px 24px;color:rgba(255,255,255,0.3);">
         <p>Персонажів ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+      </div>
+    </sc-if>
+    <sc-if value="{{ wallAllShelved }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:26px 24px 0;color:rgba(255,255,255,0.34);">
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;">Стіна порожня — усі теки на полиці. Дістаньте ті, які потрібні саме зараз.</p>
       </div>
     </sc-if>
     <sc-if value="{{ wallNoLinks }}" hint-placeholder-val="{{ false }}">
@@ -1431,7 +1455,8 @@ a:hover{color:#a8c4f7;}
       </div>
     </sc-if>
 
-    <div style="display:flex;justify-content:center;padding:0 12px;max-width:100%;overflow-x:auto;">
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:14px;padding:0 12px;">
+      <div style="max-width:100%;min-width:0;overflow-x:auto;">
       <div style="background:linear-gradient(160deg,#1d1a17 0%,#141312 55%,#100f0e 100%);border:1px solid rgba(255,255,255,0.08);border-radius:16px;box-shadow:0 20px 54px rgba(0,0,0,0.55);overflow:hidden;">
         <div data-wall="1" style="position:relative;width:{{ wallW }};height:{{ wallH }};">
           <svg viewBox="{{ wallViewBox }}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
@@ -1451,7 +1476,7 @@ a:hover{color:#a8c4f7;}
             </div>
           </sc-for>
           <sc-for list="{{ wallCards }}" as="n" hint-placeholder-count="0">
-            <div data-card="{{ n.id }}" onClick="{{ setWallFocus }}"
+            <div data-card="{{ n.id }}" onClick="{{ setWallFocus }}" onDoubleClick="{{ shelveCard }}"
                  style="position:absolute;left:{{ n.left }};top:{{ n.top }};width:62px;transform:translate(-50%,-50%) rotate({{ n.rot }});cursor:pointer;opacity:{{ n.op }};z-index:{{ n.z }};transition:opacity 0.3s ease;touch-action:{{ n.touch }};">
               <div style="background:#e8e0cd;padding:4px;border-radius:2px;box-shadow:{{ n.shadow }};border:{{ n.ring }};">
                 <div style="width:100%;height:70px;border-radius:1px;overflow:hidden;background:#2a2724;">
@@ -1471,6 +1496,35 @@ a:hover{color:#a8c4f7;}
           </sc-for>
         </div>
       </div>
+      </div>
+
+    <sc-if value="{{ wallHasShelf }}" hint-placeholder-val="{{ false }}">
+      <div style="width:{{ shelfW }};flex:{{ shelfFlex }};order:{{ shelfOrder }};min-width:0;">
+        <div style="background:linear-gradient(180deg,rgba(255,255,255,0.035) 0%,rgba(0,0,0,0.24) 100%);border:1px solid rgba(255,255,255,0.08);border-top:2px solid rgba(255,215,0,0.2);border-radius:12px;padding:12px 14px 14px;box-shadow:0 12px 30px rgba(0,0,0,0.4);">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:11px;">
+            <p style="font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin:0;">✦ Полиця · {{ shelfCountLabel }}</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,255,255,0.34);margin:0;flex:1;min-width:120px;">{{ shelfHint }}</p>
+            <button onClick="{{ clearShelf }}" style="background:none;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:5px 13px;font-size:0.72rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;" style-hover="color:#fff;border-color:rgba(255,255,255,0.36);">Повернути всі</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;max-height:{{ shelfMax }};overflow:auto;">
+            <sc-for list="{{ shelfItems }}" as="sh" hint-placeholder-count="0">
+              <button data-shelf="{{ sh.id }}" onClick="{{ unshelfCard }}" title="Повернути на стіну" style="display:inline-flex;align-items:center;gap:8px;flex:{{ shelfItemFlex }};background:#ddd4bf;border:1px solid {{ sh.bd }};border-radius:3px;padding:4px 11px 4px 5px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.45);transition:transform 0.18s ease,box-shadow 0.18s ease;" style-hover="transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,0.55);">
+                <span style="width:22px;height:28px;border-radius:2px;background:#2a2724;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <sc-if value="{{ sh.hasImg }}" hint-placeholder-val="{{ false }}">
+                    <span style="{{ sh.imgBg }}width:100%;height:100%;display:block;filter:saturate(0.88);"></span>
+                  </sc-if>
+                  <sc-if value="{{ sh.noImg }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-family:'Cinzel',serif;font-weight:700;font-size:0.6rem;color:rgba(255,215,0,0.45);">{{ sh.initials }}</span>
+                  </sc-if>
+                </span>
+                <span style="font-family:'Cinzel',serif;font-size:0.72rem;color:#2b2620;letter-spacing:0.02em;max-width:132px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">{{ sh.name }}</span>
+                <span style="font-size:0.72rem;color:#6b6252;">↑</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
     </div>
 
     <div style="max-width:1100px;margin:0 auto;padding:20px 20px 0;">
@@ -1487,6 +1541,7 @@ a:hover{color:#a8c4f7;}
             </div>
             <div style="display:flex;gap:8px;flex-shrink:0;">
               <button data-id="{{ wallFocusId }}" onClick="{{ openCharacter }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:7px 16px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="background:rgba(255,215,0,0.2);">Відкрити теку</button>
+              <button onClick="{{ shelveFocus }}" title="Зняти теку зі стіни на полицю" style="background:none;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.55);border-radius:999px;padding:7px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,215,0,0.45);">↓ На полицю</button>
               <button onClick="{{ clearWallFocus }}" style="background:none;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.4);">вся стіна</button>
             </div>
           </div>
@@ -2490,6 +2545,9 @@ const WALL_KIND = {
 };
 const WALL_ORDER = ['family', 'love', 'feud', 'ally', 'duty', 'plain'];
 const WALL = { cellW: 82, cellH: 132, cardW: 62, jit: 4, minW: 74, minH: 118, pad: 16, maxCols: 12 };
+// Своя стіна лежить у localStorage: розкладка (для тієї самої кількості
+// колонок) і полиця. Акаунтів немає, тому це пристрій, а не людина.
+const WALL_KEY = 'au_wall_v1';
 
 // ── Павутина матеріалів ────────────────────────────────────
 // Ребра лежать у material_links: автоматичні пише адмінка з вікі-посилань
@@ -2592,6 +2650,8 @@ class Component extends DCLogic {
     charMode: this._initMode(),
     selectedBoardChar: null, wallTypes: WALL_ORDER.slice(),
     boardSearch: '',
+    wallShelf: this._wallStore().shelf.slice(),
+    wallSharing: false, wallShareMsg: '',
     loreTagFilter: null, loreSortBy: 'order',
     charSortBy: 'order',
     charActiveFilter: 'active',
@@ -2812,13 +2872,19 @@ class Component extends DCLogic {
   // Спершу типізовані рядки з character_links, потім старі знайомства як
   // «знайомі». Пара, що є в обох, береться з типізованої таблиці.
   _wallEdges(data) {
-    const chars = data.characters || [], links = data.character_links || [];
-    if (this._we && this._we.c === chars && this._we.l === links) return this._we.m;
-    const byId = {}; chars.forEach(c => { byId[String(c.id)] = c; });
+    const all = data.characters || [], links = data.character_links || [];
+    const shelfArr = (this.state && this.state.wallShelf) || [];
+    const sig = shelfArr.join(',');
+    if (this._we && this._we.c === all && this._we.l === links && this._we.s === sig) return this._we.m;
+    const shelf = new Set(shelfArr.map(String));
+    const byId = {}; all.forEach(c => { byId[String(c.id)] = c; });
+    // Тека на полиці зі стіни знята цілком: ні картки, ні ниток до неї.
+    const chars = all.filter(c => !shelf.has(String(c.id)));
+    const onWall = {}; chars.forEach(c => { onWall[String(c.id)] = true; });
     const seen = new Set(), edges = [];
     const add = (a, b, kind, label) => {
       a = String(a); b = String(b);
-      if (a === b || !byId[a] || !byId[b]) return;
+      if (a === b || !onWall[a] || !onWall[b]) return;
       const key = [a, b].sort().join('|');
       if (seen.has(key)) return;
       seen.add(key);
@@ -2830,9 +2896,154 @@ class Component extends DCLogic {
     const deg = {}, nbr = {};
     chars.forEach(c => { deg[String(c.id)] = 0; nbr[String(c.id)] = []; });
     edges.forEach(e => { deg[e.a]++; deg[e.b]++; nbr[e.a].push(e); nbr[e.b].push(e); });
-    const m = { chars, byId, edges, deg, nbr };
-    this._we = { c: chars, l: links, m };
+    const shelved = shelfArr.map(id => byId[String(id)]).filter(Boolean);
+    const m = { chars, all, byId, onWall, edges, deg, nbr, shelved };
+    this._we = { c: all, l: links, s: sig, m };
     return m;
+  }
+
+  // ── Своя стіна: розкладка й полиця на пристрої ─────────
+  _wallStore() {
+    if (this._ws) return this._ws;
+    let v = null;
+    try { v = JSON.parse(localStorage.getItem(WALL_KEY) || 'null'); } catch (e) {}
+    this._ws = (v && typeof v === 'object')
+      ? { cols: parseInt(v.cols) || 0, pos: (v.pos && typeof v.pos === 'object') ? v.pos : {}, shelf: Array.isArray(v.shelf) ? v.shelf.map(String) : [] }
+      : { cols: 0, pos: {}, shelf: [] };
+    return this._ws;
+  }
+
+  // Записуємо ЖИВУ розкладку. Позиції, збережені для іншої кількості колонок,
+  // не змішуємо з новими — інакше стіна з ноутбука лягала б на телефоні
+  // одним стовпчиком поверх себе.
+  _wallSave() {
+    const st = this._wallStore();
+    const live = (this._wp || {}).map;
+    const cols = this._wallCols();
+    if (live) {
+      const pos = st.cols === cols ? Object.assign({}, st.pos) : {};
+      Object.keys(live).forEach(id => {
+        const p = live[id];
+        pos[id] = { x: Math.round(p.x), y: Math.round(p.y), rot: p.rot };
+      });
+      st.pos = pos; st.cols = cols;
+    }
+    st.shelf = ((this.state && this.state.wallShelf) || []).map(String);
+    try { localStorage.setItem(WALL_KEY, JSON.stringify(st)); } catch (e) {}
+  }
+
+  _wallReset() {
+    try { localStorage.removeItem(WALL_KEY); } catch (e) {}
+    this._ws = null; this._wp = null; this._we = null;
+    this.setState({
+      wallShelf: [], selectedBoardChar: null, boardSearch: '',
+      wallTypes: WALL_ORDER.slice(),
+    });
+    this._flashWallMsg('Стіну скинуто — теки на своїх місцях');
+  }
+
+  // Перед зняттям теки заморожуємо розкладку решти: інакше сітка перерахується
+  // від нового порядку й уся стіна переїде через одну зняту теку.
+  _shelve(id) {
+    id = String(id);
+    this._wallSave();
+    this._wp = null;
+    this.setState(st => ({
+      wallShelf: (st.wallShelf || []).indexOf(id) === -1 ? (st.wallShelf || []).concat([id]) : (st.wallShelf || []),
+      selectedBoardChar: st.selectedBoardChar === id ? null : st.selectedBoardChar,
+    }), () => this._wallSave());
+  }
+
+  _unshelve(id) {
+    id = String(id);
+    this._wallSave();
+    this._wp = null;
+    this.setState(st => ({ wallShelf: (st.wallShelf || []).filter(x => String(x) !== id) }), () => this._wallSave());
+  }
+
+  _shelfAll() {
+    const M = this._wallEdges(this.state.data || {});
+    const ids = M.chars.map(c => String(c.id));
+    if (!ids.length) return;
+    this._wallSave();
+    this._wp = null;
+    this.setState(st => {
+      const cur = (st.wallShelf || []).map(String);
+      return { wallShelf: cur.concat(ids.filter(id => cur.indexOf(id) === -1)), selectedBoardChar: null };
+    }, () => this._wallSave());
+  }
+
+  _shelfClear() {
+    this._wallSave();
+    this._wp = null;
+    this.setState({ wallShelf: [] }, () => this._wallSave());
+  }
+
+  _flashWallMsg(msg) {
+    this.setState({ wallShareMsg: msg });
+    clearTimeout(this._wallMsgTimer);
+    this._wallMsgTimer = setTimeout(() => this.setState({ wallShareMsg: '' }), 2600);
+  }
+
+  // Одна вибірка геометрії й стану стіни — з неї малюється і DOM, і PNG.
+  _wallScene() {
+    const s = this.state, data = s.data || {};
+    const M = this._wallEdges(data);
+    const pos = this._wallPos();
+    const S = this._wallSize();
+    const types = s.wallTypes || WALL_ORDER;
+    const on = (k) => types.indexOf(k) !== -1;
+    const focus = (s.selectedBoardChar && M.onWall[String(s.selectedBoardChar)]) ? String(s.selectedBoardChar) : null;
+    const q = (s.boardSearch || '').trim().toLowerCase();
+    const match = new Set();
+    if (q) M.all.forEach(c => {
+      const hay = ((c.name || '') + ' ' + (c.alias || '') + ' ' + (c.role || '')).toLowerCase();
+      if (hay.indexOf(q) !== -1) match.add(String(c.id));
+    });
+    const near = {};
+    if (focus) M.nbr[focus].forEach(e => { if (on(e.kind)) near[e.a === focus ? e.b : e.a] = e.kind; });
+    const curve = (e) => {
+      const a = pos[e.a], b = pos[e.b];
+      if (!a || !b) return null;
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const d = Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+      const cy = my + 20 + d * 0.1;
+      return {
+        ax: a.x, ay: a.y, bx: b.x, by: b.y, cx: mx, cy,
+        d: 'M ' + a.x.toFixed(0) + ' ' + a.y.toFixed(0) + ' Q ' + mx.toFixed(0) + ' ' + cy.toFixed(0) + ' ' + b.x.toFixed(0) + ' ' + b.y.toFixed(0),
+        mx: (a.x + 2 * mx + b.x) / 4, my: (a.y + 2 * cy + b.y) / 4,
+      };
+    };
+    return { M, pos, S, on, focus, q, match, near, curve };
+  }
+
+  // Стилі однакові для екрана й для PNG — тому вони тут, а не в шаблоні.
+  _threadStyle(e, sc) {
+    const vis = sc.on(e.kind), dir = sc.focus && (e.a === sc.focus || e.b === sc.focus);
+    let op = 0.4, w = 1.4;
+    if (!vis) { op = 0.04; w = 0.8; }
+    else if (dir) { op = 0.95; w = 2.4; }
+    else if (sc.focus || sc.q) { op = 0.07; w = 0.9; }
+    return { op, w, color: WALL_KIND[e.kind].color };
+  }
+
+  _cardStyle(id, sc) {
+    const rel = sc.focus ? (id === sc.focus ? 'self' : (sc.near[id] ? 'near' : 'far')) : 'none';
+    let op = 1, ringColor = 'rgba(0,0,0,0.25)', ringW = 1, glow = false, z = 14;
+    if (rel === 'self') { ringColor = 'rgba(255,215,0,0.9)'; ringW = 2; glow = true; z = 40; }
+    else if (rel === 'near') { ringColor = WALL_KIND[sc.near[id]].color; ringW = 2; z = 28; }
+    else if (rel === 'far') { op = 0.2; }
+    else if (sc.q) {
+      if (sc.match.has(id)) { ringColor = 'rgba(255,215,0,0.85)'; ringW = 2; glow = true; z = 30; }
+      else { op = 0.22; }
+    }
+    return { op, ringColor, ringW, glow, z };
+  }
+
+  _wallInk(hex) {
+    const h = String(hex).replace('#', '');
+    const c = (v) => Math.round(parseInt(v, 16) * 0.34).toString(16).padStart(2, '0');
+    return '#' + c(h.slice(0, 2)) + c(h.slice(2, 4)) + c(h.slice(4, 6));
   }
 
   // Скільки колонок влазить у вікно — стіна ніколи не масштабується,
@@ -2847,10 +3058,17 @@ class Component extends DCLogic {
     const M = this._wallEdges(this.state.data || {});
     const cols = this._wallCols();
     if (this._wp && this._wp.src === M.chars && this._wp.cols === cols) return this._wp.map;
+    const store = this._wallStore();
+    const saved = store.cols === cols ? (store.pos || {}) : {};
     const map = {}, j = WALL.jit;
     M.chars.forEach((ch, i) => {
-      const col = i % cols, row = Math.floor(i / cols), h = this._wallHash(String(ch.id));
-      map[String(ch.id)] = {
+      const id = String(ch.id), h = this._wallHash(id), sv = saved[id];
+      if (sv && isFinite(sv.x) && isFinite(sv.y)) {
+        map[id] = { x: +sv.x, y: +sv.y, rot: sv.rot || (((h % 460) / 100) - 2.3).toFixed(1) + 'deg' };
+        return;
+      }
+      const col = i % cols, row = Math.floor(i / cols);
+      map[id] = {
         x: WALL.pad + col * WALL.cellW + WALL.cellW / 2 + ((h % (j * 2 + 1)) - j),
         y: WALL.pad + row * WALL.cellH + WALL.cellH / 2 + ((Math.floor(h / 7) % (j * 2 + 1)) - j),
         rot: (((h % 460) / 100) - 2.3).toFixed(1) + 'deg',
@@ -2871,11 +3089,21 @@ class Component extends DCLogic {
 
   _wallHash(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) & 0x7fffffff; return h; }
 
+  // Висота — за кількістю тек НА СТІНІ, але не менша за ту, куди вже
+  // розкладено збережені позиції, і не більша за повну картотеку: інакше
+  // перетягування вниз розтягувало б стіну без кінця.
   _wallSize() {
     const cols = this._wallCols();
-    const n = ((this.state.data || {}).characters || []).length || 1;
+    const all = ((this.state.data || {}).characters || []).length || 1;
+    const n = (this._wallEdges(this.state.data || {}).chars || []).length || 1;
     const rows = Math.ceil(n / cols);
-    return { w: WALL.pad * 2 + cols * WALL.cellW, h: WALL.pad * 2 + rows * WALL.cellH, cols, rows };
+    const map = (this._wp || {}).map;
+    let need = rows;
+    if (map) Object.keys(map).forEach(id => {
+      need = Math.max(need, Math.ceil((map[id].y + WALL.minH / 2 - WALL.pad) / WALL.cellH));
+    });
+    const useRows = Math.max(1, Math.min(Math.max(rows, Math.ceil(all / cols)), need));
+    return { w: WALL.pad * 2 + cols * WALL.cellW, h: WALL.pad * 2 + useRows * WALL.cellH, cols, rows: useRows };
   }
 
   // Після перетягування сусіди відступають — накладань на стіні не буває.
@@ -2935,6 +3163,7 @@ class Component extends DCLogic {
     this._wallNoClick = d.moved > 6;
     setTimeout(() => { this._wallNoClick = false; }, 90);
     this._wallSeparate(null);
+    if (d.moved > 6) this._wallSave();   // своя стіна лишається такою, як її склали
     this.forceUpdate();
   };
 
@@ -4230,6 +4459,282 @@ class Component extends DCLogic {
     this.setState({ charSharing: false });
   }
 
+  // ════════ СТІНА → PNG ════════
+  // Малюємо не скріншот екрана, а ту саму стіну на канві: у рамці з
+  // вордмарком, з нитками й бирками рівно в тому стані, що зараз на екрані.
+  _renderWallCanvas(sc, imgs) {
+    const S = sc.S;
+    const k = Math.max(1.5, Math.min(2.9, 1460 / Math.max(1, S.w)));
+    const padX = 30, head = 176, foot = 112, dpr = 2;
+    const W = Math.round(S.w * k + padX * 2), H = Math.round(S.h * k + head + foot);
+    const canvas = document.createElement('canvas');
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    ctx.fillStyle = '#141312';
+    ctx.fillRect(0, 0, W, H);
+    const g = ctx.createRadialGradient(W / 2, head * 0.6, 40, W / 2, head * 0.6, Math.max(W, H) * 0.75);
+    g.addColorStop(0, 'rgba(255,215,0,0.11)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(255,215,0,0.3)';
+    ctx.lineWidth = 1.5;
+    this._roundRect(ctx, 14, 14, W - 28, H - 28, 18);
+    ctx.stroke();
+
+    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,215,0,0.78)';
+    ctx.font = '600 15px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, '✦ СТІНА РЕЦЕПЦІЇ', W / 2, 60, 4);
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,215,0,0.5)';
+    ctx.shadowBlur = 26;
+    ctx.fillStyle = '#ffd700';
+    ctx.font = '700 42px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, 'AURELION', W / 2, 116, 8);
+    ctx.restore();
+
+    const fc = sc.focus ? sc.M.byId[sc.focus] : null;
+    const shown = sc.M.edges.filter(e => sc.on(e.kind)).length;
+    const sub = fc
+      ? (fc.name || '') + ' · ' + this._threadWord(sc.M.nbr[sc.focus].filter(e => sc.on(e.kind)).length)
+      : sc.M.chars.length + ' тек · ' + this._threadWord(shown);
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = 'italic 400 21px "EB Garamond", Georgia, serif';
+    ctx.fillText(sub, W / 2, 152);
+
+    // ── Дошка ──
+    const bx = padX, by = head, bw = S.w * k, bh = S.h * k;
+    const bg = ctx.createLinearGradient(bx, by, bx + bw, by + bh);
+    bg.addColorStop(0, '#1d1a17');
+    bg.addColorStop(0.55, '#141312');
+    bg.addColorStop(1, '#100f0e');
+    ctx.save();
+    this._roundRect(ctx, bx, by, bw, bh, 14);
+    ctx.fillStyle = bg;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.09)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    this._roundRect(ctx, bx, by, bw, bh, 14);
+    ctx.clip();
+    ctx.translate(bx, by);
+    ctx.scale(k, k);
+
+    // Нитки
+    sc.M.edges.forEach(e => {
+      const c = sc.curve(e); if (!c) return;
+      const t = this._threadStyle(e, sc);
+      ctx.save();
+      ctx.globalAlpha = t.op;
+      ctx.strokeStyle = t.color;
+      ctx.lineWidth = t.w;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(c.ax, c.ay);
+      ctx.quadraticCurveTo(c.cx, c.cy, c.bx, c.by);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // Теки
+    const clipText = (text, max) => {
+      let t = String(text);
+      if (ctx.measureText(t).width <= max) return t;
+      while (t.length > 1 && ctx.measureText(t + '…').width > max) t = t.slice(0, -1);
+      return t + '…';
+    };
+    sc.M.chars.forEach(ch => {
+      const id = String(ch.id), p = sc.pos[id]; if (!p) return;
+      const st = this._cardStyle(id, sc);
+      const w = 62, ih = 70, h = 8 + ih + 13;
+      ctx.save();
+      ctx.globalAlpha = st.op;
+      ctx.translate(p.x, p.y);
+      ctx.rotate((parseFloat(p.rot) || 0) * Math.PI / 180);
+      ctx.shadowColor = 'rgba(0,0,0,0.62)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 5;
+      ctx.fillStyle = '#e8e0cd';
+      ctx.fillRect(-w / 2, -h / 2, w, h);
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+      const ix = -w / 2 + 4, iy = -h / 2 + 4, iw = w - 8;
+      ctx.fillStyle = '#2a2724';
+      ctx.fillRect(ix, iy, iw, ih);
+      const img = imgs[id];
+      if (img) {
+        ctx.save();
+        ctx.beginPath(); ctx.rect(ix, iy, iw, ih); ctx.clip();
+        this._drawCover(ctx, img, ix, iy, iw, ih, 0);
+        ctx.restore();
+      } else {
+        const initials = (String(ch.name || '').trim().split(/\s+/).slice(0, 2).map(x => x[0] || '').join('') || '?').toUpperCase();
+        ctx.fillStyle = 'rgba(255,215,0,0.42)';
+        ctx.font = '700 13px "Cinzel", Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(initials, 0, iy + ih / 2);
+        ctx.textBaseline = 'alphabetic';
+      }
+      ctx.fillStyle = '#2b2620';
+      ctx.font = '700 7.6px "Cinzel", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(clipText(String(ch.name || '').trim().split(/\s+/)[0] || '—', w - 7), 0, h / 2 - 4.5);
+      ctx.strokeStyle = st.ringColor;
+      ctx.lineWidth = st.ringW;
+      if (st.glow) { ctx.shadowColor = 'rgba(255,215,0,0.45)'; ctx.shadowBlur = 12; }
+      ctx.strokeRect(-w / 2, -h / 2, w, h);
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      const pin = ctx.createRadialGradient(-1.4, -h / 2 - 1.4, 0.4, 0, -h / 2, 5);
+      pin.addColorStop(0, '#ffe98a');
+      pin.addColorStop(1, '#b8902f');
+      ctx.beginPath();
+      ctx.arc(0, -h / 2, 4.6, 0, Math.PI * 2);
+      ctx.fillStyle = pin;
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // Бирки — тільки коли стіна в фокусі однієї теки
+    if (sc.focus) sc.M.nbr[sc.focus].filter(e => sc.on(e.kind)).forEach(e => {
+      const c = sc.curve(e); if (!c) return;
+      const K = WALL_KIND[e.kind];
+      const lx = Math.max(96, Math.min(S.w - 96, c.mx));
+      const ly = Math.max(26, Math.min(S.h - 26, c.my));
+      const tl = K.label.toUpperCase(), lab = String(e.label || '');
+      ctx.save();
+      ctx.translate(lx, ly);
+      ctx.rotate((((this._wallHash(e.key) % 400) / 100) - 2) * Math.PI / 180);
+      ctx.font = '400 8.8px "EB Garamond", Georgia, serif';
+      const labW = lab ? Math.min(168, ctx.measureText(lab).width) : 0;
+      ctx.font = '700 6.6px system-ui, "Helvetica Neue", Arial, sans-serif';
+      const bwid = Math.min(186, Math.max(56, Math.max(ctx.measureText(tl).width + 30, labW + 16)));
+      const bh2 = lab ? 30 : 17;
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
+      ctx.shadowBlur = 7;
+      ctx.shadowOffsetY = 3;
+      ctx.fillStyle = '#efe7d4';
+      ctx.fillRect(-bwid / 2, -bh2 / 2, bwid, bh2);
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.beginPath();
+      ctx.arc(-bwid / 2 + 8, -bh2 / 2 + 7, 3.4, 0, Math.PI * 2);
+      ctx.fillStyle = K.color;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+      ctx.textAlign = 'left';
+      ctx.fillStyle = this._wallInk(K.color);
+      ctx.fillText(tl, -bwid / 2 + 15, -bh2 / 2 + 9.6);
+      if (lab) {
+        ctx.fillStyle = '#2c2620';
+        ctx.font = '400 8.8px "EB Garamond", Georgia, serif';
+        ctx.fillText(clipText(lab, bwid - 16), -bwid / 2 + 8, -bh2 / 2 + 24);
+      }
+      ctx.restore();
+    });
+    ctx.restore();
+
+    // ── Підвал: які нитки видно + дата ──
+    const kinds = WALL_ORDER.filter(kd => sc.on(kd) && sc.M.edges.some(e => e.kind === kd));
+    ctx.font = '400 15px system-ui, "Helvetica Neue", Arial, sans-serif';
+    ctx.textAlign = 'left';
+    const gap = 26;
+    const widths = kinds.map(kd => 26 + ctx.measureText(WALL_KIND[kd].label).width);
+    let total = widths.reduce((a, b) => a + b, 0) + gap * Math.max(0, kinds.length - 1);
+    let x = W / 2 - total / 2;
+    const ly2 = H - foot + 46;
+    kinds.forEach((kd, i) => {
+      ctx.strokeStyle = WALL_KIND[kd].color;
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(x, ly2 - 5);
+      ctx.lineTo(x + 20, ly2 - 5);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.fillText(WALL_KIND[kd].label, x + 26, ly2);
+      x += widths[i] + gap;
+    });
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = 'italic 400 17px "EB Garamond", Georgia, serif';
+    let when = '';
+    try { when = new Date().toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { when = ''; }
+    ctx.fillText('Знято ' + when + ' · aurelion', W / 2, H - 34);
+
+    return canvas;
+  }
+
+  async _wallPngBlob() {
+    await this._ensureCardFonts();
+    const sc = this._wallScene();
+    const imgs = {};
+    await Promise.all(sc.M.chars.map(async (ch) => {
+      imgs[String(ch.id)] = await this._loadImageSafe(ch.image);
+    }));
+    const canvas = this._renderWallCanvas(sc, imgs);
+    return await new Promise(res => canvas.toBlob(res, 'image/png'));
+  }
+
+  _wallFileName() {
+    const fc = this.state.selectedBoardChar ? (this.state.data.characters || []).find(c => String(c.id) === String(this.state.selectedBoardChar)) : null;
+    const slug = (s) => String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+    return 'aurelion-stina' + (fc ? '-' + (slug(fc.name) || 'teka') : '') + '.png';
+  }
+
+  async saveWallPng() {
+    if (this.state.wallSharing) return;
+    this.setState({ wallSharing: true });
+    try {
+      const blob = await this._wallPngBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = this._wallFileName();
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      this._flashWallMsg('Стіну збережено');
+    } catch (e) { this._flashWallMsg('Не вдалося зберегти'); }
+    this.setState({ wallSharing: false });
+  }
+
+  async copyWallPng() {
+    if (this.state.wallSharing) return;
+    this.setState({ wallSharing: true });
+    try {
+      const blob = await this._wallPngBlob();
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        this._flashWallMsg('Скопійовано в буфер');
+      } else { throw new Error('no-clipboard'); }
+    } catch (e) { this._flashWallMsg('Буфер недоступний — збережіть PNG'); }
+    this.setState({ wallSharing: false });
+  }
+
+  async shareWallPng() {
+    if (this.state.wallSharing) return;
+    this.setState({ wallSharing: true });
+    try {
+      const blob = await this._wallPngBlob();
+      const file = new File([blob], this._wallFileName(), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Ауреліон · стіна рецепції' });
+        this._flashWallMsg('');
+      } else { throw new Error('no-share'); }
+    } catch (e) {
+      if (e && e.name === 'AbortError') { this.setState({ wallSharing: false }); return; }
+      this._flashWallMsg('Поділитися недоступно тут');
+    }
+    this.setState({ wallSharing: false });
+  }
+
   renderVals() {
     const s = this.state;
     const { data } = s;
@@ -5198,21 +5703,9 @@ class Component extends DCLogic {
         // Рахуємо тільки коли стіна відкрита — інакше розкладка й усі нитки
         // перебиралися б на кожен setState по всьому сайту.
         if (!(page === 'characters' && s.charMode === 'conn')) return { showWall: false };
-        const M = this._wallEdges(data);
-        const pos = this._wallPos();
-        const S = this._wallSize();
+        const sc = this._wallScene();
+        const M = sc.M, pos = sc.pos, S = sc.S, on = sc.on, focus = sc.focus, q = sc.q, match = sc.match;
         const drag = S.cols >= 8;
-        const types = s.wallTypes || WALL_ORDER;
-        const on = (k) => types.indexOf(k) !== -1;
-        const focus = (s.selectedBoardChar && M.byId[String(s.selectedBoardChar)]) ? String(s.selectedBoardChar) : null;
-        const q = (s.boardSearch || '').trim().toLowerCase();
-        const match = new Set();
-        if (q) M.chars.forEach(c => {
-          const hay = ((c.name || '') + ' ' + (c.alias || '') + ' ' + (c.role || '')).toLowerCase();
-          if (hay.indexOf(q) !== -1) match.add(String(c.id));
-        });
-        const near = {};
-        if (focus) M.nbr[focus].forEach(e => { if (on(e.kind)) near[e.a === focus ? e.b : e.a] = e.kind; });
 
         const cnt = {}; WALL_ORDER.forEach(k => { cnt[k] = 0; });
         M.edges.forEach(e => { cnt[e.kind]++; });
@@ -5223,56 +5716,31 @@ class Component extends DCLogic {
           text: on(k) ? '#fff' : 'rgba(255,255,255,0.3)',
         }));
 
-        const curve = (e) => {
-          const a = pos[e.a], b = pos[e.b];
-          if (!a || !b) return null;
-          const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-          const d = Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
-          const cy = my + 20 + d * 0.1;
-          return {
-            d: 'M ' + a.x.toFixed(0) + ' ' + a.y.toFixed(0) + ' Q ' + mx.toFixed(0) + ' ' + cy.toFixed(0) + ' ' + b.x.toFixed(0) + ' ' + b.y.toFixed(0),
-            mx: (a.x + 2 * mx + b.x) / 4, my: (a.y + 2 * cy + b.y) / 4,
-          };
-        };
+        const curve = sc.curve;
 
         const wallCards = M.chars.map(ch => {
           const id = String(ch.id), p = pos[id] || { x: 0, y: 0, rot: '0deg' };
-          const rel = focus ? (id === focus ? 'self' : (near[id] ? 'near' : 'far')) : 'none';
-          const hit = q ? match.has(id) : false;
-          let op = '1', ring = '1px solid rgba(0,0,0,0.25)', shadow = '0 7px 18px rgba(0,0,0,0.62)', z = '14';
-          if (rel === 'self') { ring = '2px solid rgba(255,215,0,0.9)'; shadow = '0 12px 30px rgba(0,0,0,0.8),0 0 26px rgba(255,215,0,0.32)'; z = '40'; }
-          else if (rel === 'near') { ring = '2px solid ' + WALL_KIND[near[id]].color; z = '28'; }
-          else if (rel === 'far') { op = '0.2'; }
-          else if (q) {
-            if (hit) { ring = '2px solid rgba(255,215,0,0.85)'; shadow = '0 10px 26px rgba(0,0,0,0.75),0 0 20px rgba(255,215,0,0.28)'; z = '30'; }
-            else { op = '0.22'; }
-          }
+          const st = this._cardStyle(id, sc);
           return {
             id, left: Math.round(p.x) + 'px', top: Math.round(p.y) + 'px', rot: p.rot,
             short: String(ch.name || '').trim().split(/\s+/)[0] || '—',
             initials: (String(ch.name || '').trim().split(/\s+/).slice(0, 2).map(x => x[0] || '').join('') || '?').toUpperCase(),
             hasImg: !!ch.image, noImg: !ch.image,
             imgBg: ch.image ? 'background-image:url(' + JSON.stringify(ch.image) + ');background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
-            op, ring, shadow, z, touch: drag ? 'none' : 'auto',
+            op: String(st.op),
+            ring: st.ringW + 'px solid ' + st.ringColor,
+            shadow: st.glow ? '0 12px 30px rgba(0,0,0,0.8),0 0 26px rgba(255,215,0,0.32)' : '0 7px 18px rgba(0,0,0,0.62)',
+            z: String(st.z), touch: drag ? 'none' : 'auto',
           };
         });
 
         const wallThreads = M.edges.map(e => {
           const c = curve(e); if (!c) return null;
-          const vis = on(e.kind);
-          const dir = focus && (e.a === focus || e.b === focus);
-          let op = '0.4', w = '1.4';
-          if (!vis) { op = '0.04'; w = '0.8'; }
-          else if (dir) { op = '0.95'; w = '2.4'; }
-          else if (focus || q) { op = '0.07'; w = '0.9'; }
-          return { d: c.d, stroke: WALL_KIND[e.kind].color, w, op };
+          const t = this._threadStyle(e, sc);
+          return { d: c.d, stroke: t.color, w: String(t.w), op: String(t.op) };
         }).filter(Boolean);
 
-        const ink = (hex) => {
-          const h = String(hex).replace('#', '');
-          const c = (v) => Math.round(parseInt(v, 16) * 0.34).toString(16).padStart(2, '0');
-          return '#' + c(h.slice(0, 2)) + c(h.slice(2, 4)) + c(h.slice(4, 6));
-        };
+        const ink = (hex) => this._wallInk(hex);
         const wallTags = (focus && !this._wdrag) ? M.nbr[focus].filter(e => on(e.kind)).map(e => {
           const c = curve(e); if (!c) return null;
           return {
@@ -5295,16 +5763,62 @@ class Component extends DCLogic {
           };
         }) : [];
 
+        // ── Полиця: теки, зняті зі стіни ──
+        const shelfItems = M.shelved.map(ch => {
+          const id = String(ch.id), hit = q ? match.has(id) : false;
+          return {
+            id, name: ch.name || '—',
+            initials: (String(ch.name || '').trim().split(/\s+/).slice(0, 2).map(x => x[0] || '').join('') || '?').toUpperCase(),
+            hasImg: !!ch.image, noImg: !ch.image,
+            imgBg: ch.image ? 'background-image:url(' + JSON.stringify(ch.image) + ');background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
+            bd: hit ? 'rgba(255,215,0,0.85)' : 'rgba(0,0,0,0.3)',
+          };
+        });
+        const store = this._wallStore();
+        const dirty = !!(M.shelved.length || Object.keys(store.pos || {}).length);
+        const vw = s.relViewW || (typeof window !== 'undefined' ? window.innerWidth : 1040);
+        const side = drag && (vw - S.w) >= 300;
+
         return {
           showWall: true,
           wallCards, wallThreads, wallTags, wallRels, wallLegend,
           wallW: S.w + 'px', wallH: S.h + 'px', wallViewBox: '0 0 ' + S.w + ' ' + S.h,
-          wallEmpty: !M.chars.length,
+          wallEmpty: !M.all.length,
+          wallAllShelved: !!M.all.length && !M.chars.length,
           wallNoLinks: !!M.chars.length && !M.edges.length,
           wallNoFocus: !focus, wallHasFocus: !!focus,
+          // Полиця
+          shelfItems,
+          wallHasShelf: !!shelfItems.length,
+          shelfCountLabel: shelfItems.length + (shelfItems.length % 10 === 1 && shelfItems.length % 100 !== 11 ? ' тека' : (shelfItems.length % 10 >= 2 && shelfItems.length % 10 <= 4 && (shelfItems.length % 100 < 12 || shelfItems.length % 100 > 14) ? ' теки' : ' тек')),
+          shelveFocus: () => { if (focus) this._shelve(focus); },
+          shelveCard: (e) => this._shelve(e.currentTarget.dataset.card),
+          unshelfCard: (e) => this._unshelve(e.currentTarget.dataset.shelf),
+          clearShelf: () => this._shelfClear(),
+          shelfAll: () => this._shelfAll(),
+          wallHasCards: !!M.chars.length,
+          // Коли поряд зі стіною є місце — полиця стоїть праворуч, і знімати
+          // теки можна не прокручуючи. Вузько — вона згортається під стіну.
+          shelfSide: side,
+          shelfW: side ? '252px' : '100%',
+          shelfFlex: side ? '0 0 252px' : '1 1 100%',
+          shelfOrder: side ? '0' : '2',
+          shelfMax: side ? S.h + 'px' : 'none',
+          shelfItemFlex: side ? '1 1 100%' : '0 0 auto',
+          shelfHint: side ? 'Клік — назад на стіну.' : 'Натисніть теку, щоб повернути її на стіну.',
+          // Своя стіна: скинути / знести в PNG
+          wallDirty: dirty,
+          resetWall: () => this._wallReset(),
+          wallBusy: s.wallSharing ? '1' : '0',
+          wallShareMsg: s.wallShareMsg || '',
+          hasWallMsg: !!s.wallShareMsg,
+          canShareWall: typeof navigator !== 'undefined' && !!navigator.canShare,
+          saveWallPng: () => this.saveWallPng(),
+          copyWallPng: () => this.copyWallPng(),
+          shareWallPng: () => this.shareWallPng(),
           wallHint: drag
-            ? 'Теки можна перетягувати — сусіди відступають самі. Натисніть теку, щоб побачити лише її нитки.'
-            : 'Натисніть теку, щоб побачити лише її нитки з підписами.',
+            ? 'Теки можна перетягувати — сусіди відступають самі. Клік — її нитки, подвійний клік — на полицю.'
+            : 'Натисніть теку, щоб побачити її нитки з підписами; подвійний дотик знімає її на полицю.',
           wallFocusId: focus || '',
           wallFocusName: fc ? (fc.name || '') : '',
           wallFocusRole: fc ? (fc.role || '—') : '',
