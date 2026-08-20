@@ -1542,6 +1542,32 @@ button{font-family:inherit;cursor:pointer}
             </div>
           </div>
         </div>
+        <!-- Тип і підпис кожної нитки -->
+        <sc-if value="{{ hasLinkRows }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:14px;">
+            <label>Тип і підпис ниток ({{ linkRowsCount }})</label>
+            <p style="font-size:0.7rem;color:rgba(255,255,255,0.22);margin:-2px 0 7px;">Так нитка виглядає на стіні рецепції: колір — тип, підпис — бирка. Порожній підпис лишає лише тип.</p>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <sc-for list="{{ linkRows }}" as="r" hint-placeholder-count="0">
+                <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-left:3px solid {{ r.color }};border-radius:8px;padding:9px 11px;">
+                  <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">
+                    <div style="{{ r.imgBg }}width:26px;height:32px;border-radius:4px;background-color:rgba(255,215,0,0.06);flex-shrink:0;"></div>
+                    <p style="font-size:0.84rem;color:#fff;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</p>
+                  </div>
+                  <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;">
+                    <sc-for list="{{ r.kinds }}" as="k" hint-placeholder-count="6">
+                      <button data-id="{{ r.id }}" data-k="{{ k.key }}" onClick="{{ setLinkKind }}" style="display:inline-flex;align-items:center;gap:6px;background:{{ k.bg }};border:1px solid {{ k.bd }};border-radius:999px;padding:4px 11px 4px 8px;cursor:pointer;transition:all 0.15s;">
+                        <span style="width:13px;height:2px;border-radius:2px;background:{{ k.color }};flex-shrink:0;"></span>
+                        <span style="font-size:0.73rem;color:{{ k.text }};">{{ k.label }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                  <input data-id="{{ r.id }}" value="{{ r.label }}" onChange="{{ setLinkLabel }}" placeholder="Підпис на бирці — коротко, як у плітці" style="font-size:0.78rem;padding:6px 10px;border-radius:6px;" />
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
         <!-- Коротке дос'є -->
         <div style="margin-bottom:14px;">
           <label>Коротке дос'є (показується в модалі персонажа)</label>
@@ -2595,6 +2621,53 @@ class Component extends DCLogic {
       method: 'DELETE', headers: this._authH(),
     });
     if (!r.ok) throw new Error(await r.text());
+  }
+
+  // ── Типи й підписи ниток (character_links) ───────────
+  // Пара лишається там, де була — у галочках «Знайомств». Тут лише
+  // тип і підпис для вже відміченої пари; без рядка в таблиці нитка
+  // на сайті все одно малюється — сіра, як «Знайомі».
+  async _loadCharLinks(id) {
+    if (!id) { this.setState({ charLinks: {}, charLinksMiss: false }); return; }
+    try {
+      const rows = await this._get(`character_links?select=id,from_id,to_id,kind,label&or=(from_id.eq.${id},to_id.eq.${id})`);
+      const map = {};
+      (Array.isArray(rows) ? rows : []).forEach(r => {
+        const other = String(r.from_id) === String(id) ? String(r.to_id) : String(r.from_id);
+        map[other] = { rowId: r.id, kind: r.kind || 'plain', label: r.label || '' };
+      });
+      this.setState({ charLinks: map, charLinksMiss: false });
+    } catch (e) {
+      // Таблиці ще немає (міграція не прогнана) — панель просто мовчить.
+      console.warn('charLinks:', e);
+      this.setState({ charLinks: {}, charLinksMiss: true });
+    }
+  }
+
+  async _saveCharLinks(selfId, ids) {
+    const want = this.state.charLinks || {};
+    const rows = await this._get(`character_links?select=id,from_id,to_id,kind,label&or=(from_id.eq.${selfId},to_id.eq.${selfId})`);
+    const has = {};
+    (Array.isArray(rows) ? rows : []).forEach(r => {
+      has[String(r.from_id) === String(selfId) ? String(r.to_id) : String(r.from_id)] = r;
+    });
+    const jobs = [];
+    ids.forEach(other => {
+      const w = want[other] || {};
+      const kind = w.kind || 'plain', label = String(w.label || '').trim();
+      const ex = has[other];
+      if (ex) {
+        if ((ex.kind || 'plain') !== kind || String(ex.label || '') !== label) {
+          jobs.push(this._patch('character_links', ex.id, { kind, label }));
+        }
+      } else {
+        jobs.push(this._insert('character_links', { from_id: selfId, to_id: other, kind, label }));
+      }
+    });
+    Object.keys(has).forEach(other => {
+      if (ids.indexOf(other) === -1) jobs.push(this._remove('character_links', has[other].id));
+    });
+    if (jobs.length) await Promise.all(jobs);
   }
 
   // ── Знайомства: обопільні ─────────────────────────────────
@@ -3809,6 +3882,14 @@ class Component extends DCLogic {
           const prevConns = index === -1 ? '' : ((s.data.characters || [])[index] || {}).connections;
           try { await this._syncMutualConns(savedId, prevConns, body.connections); }
           catch (ce) { console.warn('mutualConns:', ce); this._toast('⚠ Анкету збережено, взаємні знайомства — ні'); }
+          // Типи й підписи ниток для тих самих пар.
+          try {
+            const picked = String(body.connections || '').split(',').map(x => x.trim()).filter(Boolean);
+            await this._saveCharLinks(savedId, picked);
+          } catch (le2) {
+            console.warn('charLinks save:', le2);
+            this._toast('⚠ Анкету збережено, типи ниток — ні (міграція character_links?)');
+          }
         }
         await this._refreshTable(section);
         this.setState({ editing: null, form: {}, saving: false, lorePreview: false, linkManual: [], linkSearch: '' });
@@ -3990,7 +4071,7 @@ class Component extends DCLogic {
         this.setState(st => ({ form: { ...st.form, connections: [...cur].join(',') } }));
       },
       ...((() => {
-        if (!(tab === 'characters' && ed && ed.section === 'characters')) return { availableConnections: [], connectedCount: 0 };
+        if (!(tab === 'characters' && ed && ed.section === 'characters')) return { availableConnections: [], connectedCount: 0, linkRows: [], hasLinkRows: false, linkRowsCount: '0' };
         const editingId = ed.index >= 0 ? ((s.data.characters||[])[ed.index]||{}).id : null;
         const connSet = new Set((s.form.connections||'').split(',').map(x=>x.trim()).filter(Boolean));
         const q = (s.connSearch||'').toLowerCase().trim();
@@ -4013,7 +4094,47 @@ class Component extends DCLogic {
               initials: parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
             };
           });
-        return { availableConnections: available, connectedCount: connSet.size };
+        return { availableConnections: available, connectedCount: connSet.size,
+          ...((() => {
+            const KINDS = [
+              ['family', 'Родина',    '#ffd76b'],
+              ['love',   'Романтика', '#c56a80'],
+              ['feud',   'Ворожнеча', '#ff4d4d'],
+              ['ally',   'Союз',      '#6495ed'],
+              ['duty',   'Служба',    '#5e9a8f'],
+              ['plain',  'Знайомі',   '#9a958c'],
+            ];
+            const links = s.charLinks || {};
+            const rows = [...connSet].map(id => {
+              const c = (s.data.characters || []).find(x => String(x.id) === String(id));
+              if (!c) return null;
+              const cur = links[String(id)] || {};
+              const kind = cur.kind || 'plain';
+              const col = (KINDS.find(k => k[0] === kind) || KINDS[5])[2];
+              return {
+                id: String(id), name: c.name || '', label: cur.label || '', color: col,
+                imgBg: c.image ? 'background-image:url(' + JSON.stringify(c.image) + ');background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
+                kinds: KINDS.map(k => ({
+                  key: k[0], label: k[1], color: k[2],
+                  bg: kind === k[0] ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  bd: kind === k[0] ? k[2] : 'rgba(255,255,255,0.1)',
+                  text: kind === k[0] ? '#fff' : 'rgba(255,255,255,0.35)',
+                })),
+              };
+            }).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name, 'uk'));
+            return {
+              linkRows: rows, hasLinkRows: rows.length > 0, linkRowsCount: String(rows.length),
+              setLinkKind: (e) => {
+                const id = e.currentTarget.dataset.id, k = e.currentTarget.dataset.k;
+                this.setState(st => ({ charLinks: { ...(st.charLinks || {}), [id]: { ...((st.charLinks || {})[id] || {}), kind: k } } }));
+              },
+              setLinkLabel: (e) => {
+                const id = e.currentTarget.dataset.id, v = e.currentTarget.value.slice(0, 90);
+                this.setState(st => ({ charLinks: { ...(st.charLinks || {}), [id]: { ...((st.charLinks || {})[id] || {}), label: v } } }));
+              },
+            };
+          })()),
+        };
       })()),
       charSearchCount: charList.length,
       charTotalCount: (data.characters || []).length,
@@ -4312,6 +4433,7 @@ class Component extends DCLogic {
         }
         this.setState({ editing: { section, index }, form, linkManual: [], linkSearch: '' });
         this._loadManualLinks(section, item.id);
+        if (section === 'characters') this._loadCharLinks(item.id);
         this._loadGalImages(section, item.id);
         this._scrollToForm();
       },

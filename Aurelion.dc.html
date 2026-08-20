@@ -1384,115 +1384,129 @@ a:hover{color:#a8c4f7;}
   </main>
 </sc-if>
 
-<!-- ═══ ЗВ'ЯЗКИ (режим на сторінці Персонажі) ═══ -->
+<!-- ═══ ЗВ'ЯЗКИ · Стіна рецепції ═══ -->
 <sc-if value="{{ showCharConnections }}" hint-placeholder-val="{{ false }}">
-  <main class="au-page" style="min-height:100vh;padding:80px 0 48px;">
+  <main class="au-page" style="min-height:100vh;padding:80px 0 64px;">
 
-    <div style="display:flex;justify-content:center;margin-bottom:8px;padding:0 24px;">
+    <div style="display:flex;justify-content:center;margin-bottom:16px;padding:0 24px;">
       <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
         <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
         <button data-mode="conn" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🕸 Зв'язки</button>
       </div>
     </div>
 
-    <!-- Заголовок · підказка · перемикач · панель вибраного -->
-    <div style="display:grid;grid-template-columns:260px minmax(0,360px) 260px;justify-content:center;align-items:start;gap:20px;padding:10px 32px 14px;position:relative;z-index:10;">
-      <!-- Ліво: заголовок + підказка про кольори -->
-      <div style="flex-shrink:0;">
-        <p style="font-size:0.6rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.65);margin-bottom:3px;">✦ Рукостискання</p>
-        <h1 style="font-family:'Cinzel',Georgia,serif;font-size:1.45rem;font-weight:700;color:#fff;letter-spacing:0.07em;line-height:1;">Зв'язки</h1>
-        <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:6px;line-height:1.5;"><span style="color:rgba(255,215,0,0.5);">золото</span> = прямі · <span style="color:rgba(100,149,237,0.6);">синє</span> = знайомі знайомих</p>
-      </div>
-      <!-- Центр: пошук на дошці -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:2px;">
-        <div style="position:relative;width:100%;max-width:340px;">
-          <input value="{{ boardSearch }}" onInput="{{ setBoardSearch }}" placeholder="Пошук персонажа на дошці…" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:8px 34px;font-size:0.82rem;color:#fff;outline:none;transition:border-color 0.18s;" style-focus="border-color:rgba(255,215,0,0.5);" />
-          <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:0.85rem;opacity:0.4;pointer-events:none;">🔍</span>
-          <sc-if value="{{ hasBoardSearch }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ clearBoardSearch }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.8rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
-          </sc-if>
-        </div>
-        <sc-if value="{{ hasSearchResults }}" hint-placeholder-val="{{ false }}">
-          <p style="font-size:0.66rem;letter-spacing:0.06em;color:rgba(255,215,0,0.6);">Знайдено: {{ searchCount }} · клікніть, щоб сфокусувати</p>
-        </sc-if>
-        <sc-if value="{{ searchNoResults }}" hint-placeholder-val="{{ false }}">
-          <p style="font-size:0.66rem;color:rgba(255,255,255,0.3);">Нічого не знайдено</p>
-        </sc-if>
-        <sc-if value="{{ hasBoardSel }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ toggleIsolate }}" data-active="{{ boardIsolate }}" style="margin-top:2px;background:{{ isolateBtnBg }};border:1px solid rgba(255,215,0,0.4);color:{{ isolateBtnColor }};border-radius:999px;padding:7px 22px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;box-shadow:{{ isolateBtnShadow }};" style-hover="border-color:rgba(255,215,0,0.7);">{{ isolateLabel }}</button>
+    <header style="max-width:900px;margin:0 auto;padding:0 20px 20px;text-align:center;">
+      <p style="font-size:0.66rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin-bottom:8px;">✦ Стіна рецепції</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.9rem,5vw,2.7rem);font-weight:700;color:#fff;letter-spacing:0.07em;line-height:1;">Зв'язки</h1>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;line-height:1.6;color:rgba(255,255,255,0.45);margin-top:12px;text-wrap:pretty;">Хто з ким — так, як це висить у Марти на стіні. Натисніть теку: стіна погасне, лишиться її павутина з підписаними бирками.</p>
+    </header>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 20px 18px;">
+      <div style="position:relative;width:100%;max-width:360px;">
+        <input value="{{ boardSearch }}" onInput="{{ setBoardSearch }}" placeholder="Знайти теку на стіні…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:9px 34px;font-size:0.86rem;color:#fff;outline:none;transition:border-color 0.18s;" style-focus="border-color:rgba(255,215,0,0.5);" />
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:0.85rem;opacity:0.4;pointer-events:none;">🔍</span>
+        <sc-if value="{{ hasBoardSearch }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ clearBoardSearch }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.82rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
         </sc-if>
       </div>
-      <div style="justify-self:end;display:flex;flex-direction:column;align-items:flex-end;gap:10px;width:260px;position:relative;">
-        <!-- Панель вибраного персонажа — абсолютна, не зсуває дошку -->
-        <sc-if value="{{ hasBoardSel }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute;top:calc(100% + 6px);right:0;width:260px;background:rgba(22,22,22,0.97);border:1px solid rgba(255,215,0,0.22);border-radius:12px;padding:14px 16px;backdrop-filter:blur(8px);z-index:20;">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-              <sc-if value="{{ selCharHasImg }}" hint-placeholder-val="{{ false }}">
-                <div style="{{ selCharImgBg }}width:38px;height:50px;border-radius:6px;flex-shrink:0;border:1px solid rgba(255,215,0,0.25);"></div>
-              </sc-if>
-              <div style="flex:1;min-width:0;">
-                <p style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.65);margin-bottom:2px;">{{ selCharRole }}</p>
-                <h3 style="font-family:'Cinzel',serif;font-size:0.92rem;color:#fff;letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ selCharName }}</h3>
-                <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:1px;">{{ directConnsCount }} прямих · <span style="color:rgba(100,149,237,0.65);">{{ indirectConnsCount }} ч/з знайомих</span></p>
-              </div>
-              <button onClick="{{ clearBoardSel }}" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:0.8rem;flex-shrink:0;padding:2px;" style-hover="color:#fff;">✕</button>
-            </div>
-            <div style="display:flex;flex-wrap:wrap;gap:5px;max-height:140px;overflow-y:auto;">
-              <sc-for list="{{ directConns }}" as="conn" hint-placeholder-count="0">
-                <div data-id="{{ conn.id }}" onClick="{{ jumpToChar }}" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(100,149,237,0.2);border-radius:6px;padding:5px 8px;cursor:pointer;transition:all 0.15s;" style-hover="background:rgba(100,149,237,0.1);border-color:rgba(100,149,237,0.45);">
-                  <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ false }}">
-                    <div style="{{ conn.imgBg }}width:22px;height:22px;border-radius:3px;flex-shrink:0;"></div>
-                  </sc-if>
-                  <p style="font-size:0.74rem;color:#fff;white-space:nowrap;">{{ conn.name }}</p>
-                </div>
-              </sc-for>
-            </div>
-          </div>
-        </sc-if>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;">
+        <sc-for list="{{ wallLegend }}" as="lg" hint-placeholder-count="6">
+          <button data-t="{{ lg.key }}" onClick="{{ toggleWallType }}" style="display:inline-flex;align-items:center;gap:7px;background:{{ lg.bg }};border:1px solid {{ lg.bd }};border-radius:999px;padding:5px 13px 5px 10px;cursor:pointer;transition:all 0.2s;" style-hover="border-color:rgba(255,255,255,0.45);">
+            <span style="width:16px;height:2px;border-radius:2px;background:{{ lg.color }};flex-shrink:0;"></span>
+            <span style="font-size:0.76rem;color:{{ lg.text }};letter-spacing:0.03em;">{{ lg.label }}</span>
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);">{{ lg.count }}</span>
+          </button>
+        </sc-for>
       </div>
     </div>
 
-    <!-- ── ДОШКА ── -->
-    <sc-if value="{{ showBoardView }}" hint-placeholder-val="{{ true }}">
-      <sc-if value="{{ boardEmpty }}" hint-placeholder-val="{{ false }}">
-        <div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);">
-          <p>Персонажів ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін →</a></p>
-        </div>
-      </sc-if>
-      <sc-if value="{{ hasNoConnections }}" hint-placeholder-val="{{ false }}">
-        <div style="text-align:center;padding:40px 24px;color:rgba(255,255,255,0.3);">
-          <p style="font-size:1.2rem;margin-bottom:10px;">🕸</p>
-          <p>Зв'язки ще не вказано. Відкрий адмін → Персонаж → Знайомства.</p>
-          <p style="margin-top:8px;font-size:0.84rem;"><a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
-        </div>
-      </sc-if>
-      <div style="overflow:visible;display:flex;align-items:center;justify-content:center;height:{{ boardScaledH }};">
-        <div style="position:relative;width:1200px;height:840px;transform:scale({{ boardScale }});transform-origin:center center;flex-shrink:0;">
-          {{ connectionLines }}
-          <sc-for list="{{ boardChars }}" as="char" hint-placeholder-count="0">
-            <div data-id="{{ char.id }}" onClick="{{ setBoardChar }}" onMouseEnter="{{ char.onHover }}" onMouseLeave="{{ clearBoardHover }}"
-                 style="position:absolute;left:{{ char.leftPx }};top:{{ char.topPx }};width:80px;cursor:pointer;pointer-events:{{ char.cardPointer }};z-index:{{ char.cardZ }};transition:opacity 0.22s,transform 0.32s cubic-bezier(.22,.68,0,1.2);opacity:{{ char.cardOpacity }};transform:{{ char.cardScale }};">
-              <div style="width:80px;height:107px;border-radius:8px;overflow:hidden;border:{{ char.cardBorder }};box-shadow:{{ char.cardGlow }};transition:all 0.22s;background:#111;">
-                <sc-if value="{{ char.hasImg }}" hint-placeholder-val="{{ false }}">
-                  <div style="{{ char.imgBg }}width:100%;height:100%;"></div>
-                </sc-if>
-                <sc-if value="{{ char.noImg }}" hint-placeholder-val="{{ true }}">
-                  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.07) 0%,transparent 70%);">
-                    <span style="font-family:'Cinzel',serif;font-size:1.5rem;color:rgba(255,215,0,0.22);font-weight:700;">{{ char.initials }}</span>
-                  </div>
-                </sc-if>
+    <sc-if value="{{ wallEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:50px 24px;color:rgba(255,255,255,0.3);">
+        <p>Персонажів ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
+      </div>
+    </sc-if>
+    <sc-if value="{{ wallNoLinks }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:30px 24px 10px;color:rgba(255,255,255,0.34);">
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;">Ниток ще немає — теки висять, але нічим не зв'язані. Типи й підписи додаються в адмінці, на сторінці персонажа.</p>
+      </div>
+    </sc-if>
+
+    <div style="display:flex;justify-content:center;padding:0 12px;max-width:100%;overflow-x:auto;">
+      <div style="background:linear-gradient(160deg,#1d1a17 0%,#141312 55%,#100f0e 100%);border:1px solid rgba(255,255,255,0.08);border-radius:16px;box-shadow:0 20px 54px rgba(0,0,0,0.55);overflow:hidden;">
+        <div data-wall="1" style="position:relative;width:{{ wallW }};height:{{ wallH }};">
+          <svg viewBox="{{ wallViewBox }}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
+            <sc-for list="{{ wallThreads }}" as="ln" hint-placeholder-count="0">
+              <path d="{{ ln.d }}" fill="none" stroke="{{ ln.stroke }}" stroke-width="{{ ln.w }}" stroke-opacity="{{ ln.op }}" stroke-linecap="round"></path>
+            </sc-for>
+          </svg>
+          <sc-for list="{{ wallTags }}" as="t" hint-placeholder-count="0">
+            <div style="position:absolute;left:{{ t.left }};top:{{ t.top }};transform:translate(-50%,-50%) rotate({{ t.rot }});background:#efe7d4;border-radius:2px;padding:4px 9px 5px;box-shadow:0 5px 14px rgba(0,0,0,0.65);max-width:186px;z-index:50;pointer-events:none;">
+              <div style="display:flex;align-items:center;gap:5px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:{{ t.color }};border:1px solid rgba(0,0,0,0.35);flex-shrink:0;"></span>
+                <p style="font-size:0.64rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ t.ink }};margin:0;font-weight:700;">{{ t.typeLabel }}</p>
               </div>
-              <div style="margin-top:5px;text-align:center;padding:0 2px;position:relative;">
-                <p style="font-family:'Cinzel',serif;font-size:0.56rem;color:#fff;letter-spacing:0.02em;line-height:1.2;text-shadow:0 1px 5px rgba(0,0,0,0.9);word-break:break-word;">{{ char.name }}</p>
-                <sc-if value="{{ char.hasBadge }}" hint-placeholder-val="{{ false }}">
-                  <span style="display:inline-block;background:rgba(255,215,0,0.18);border:1px solid rgba(255,215,0,0.35);border-radius:999px;padding:0px 5px;font-size:0.5rem;color:rgba(255,215,0,0.85);margin-top:2px;font-family:sans-serif;">{{ char.connBadge }}</span>
-                </sc-if>
+              <sc-if value="{{ t.hasLabel }}" hint-placeholder-val="{{ false }}">
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;line-height:1.25;margin:2px 0 0;color:#2c2620;">{{ t.label }}</p>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-for list="{{ wallCards }}" as="n" hint-placeholder-count="0">
+            <div data-card="{{ n.id }}" onClick="{{ setWallFocus }}"
+                 style="position:absolute;left:{{ n.left }};top:{{ n.top }};width:62px;transform:translate(-50%,-50%) rotate({{ n.rot }});cursor:pointer;opacity:{{ n.op }};z-index:{{ n.z }};transition:opacity 0.3s ease;touch-action:{{ n.touch }};">
+              <div style="background:#e8e0cd;padding:4px;border-radius:2px;box-shadow:{{ n.shadow }};border:{{ n.ring }};">
+                <div style="width:100%;height:70px;border-radius:1px;overflow:hidden;background:#2a2724;">
+                  <sc-if value="{{ n.hasImg }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ n.imgBg }}width:100%;height:100%;filter:saturate(0.88) contrast(1.04);"></div>
+                  </sc-if>
+                  <sc-if value="{{ n.noImg }}" hint-placeholder-val="{{ true }}">
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+                      <span style="font-family:'Cinzel',serif;font-weight:700;font-size:0.9rem;color:rgba(255,215,0,0.4);">{{ n.initials }}</span>
+                    </div>
+                  </sc-if>
+                </div>
+                <p style="font-family:'Cinzel',serif;font-size:0.5rem;line-height:1.15;color:#2b2620;margin:4px 1px 1px;text-align:center;letter-spacing:0.01em;height:1.15em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">{{ n.short }}</p>
               </div>
+              <span style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe98a,#b8902f);box-shadow:0 2px 5px rgba(0,0,0,0.7);"></span>
             </div>
           </sc-for>
         </div>
       </div>
-    </sc-if>
+    </div>
+
+    <div style="max-width:1100px;margin:0 auto;padding:20px 20px 0;">
+      <sc-if value="{{ wallNoFocus }}" hint-placeholder-val="{{ true }}">
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;font-style:italic;color:rgba(255,255,255,0.42);margin:0;text-align:center;line-height:1.6;">{{ wallHint }}</p>
+      </sc-if>
+      <sc-if value="{{ wallHasFocus }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div style="{{ wallFocusImg }}width:44px;height:58px;border-radius:7px;border:1px solid rgba(255,215,0,0.35);background-color:#151515;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <h2 style="font-family:'Cinzel',serif;font-size:1.1rem;color:#fff;letter-spacing:0.04em;margin:0;">{{ wallFocusName }}</h2>
+              <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin:3px 0 0;">{{ wallFocusRole }} · {{ wallFocusCount }}</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0;">
+              <button data-id="{{ wallFocusId }}" onClick="{{ openCharacter }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:7px 16px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="background:rgba(255,215,0,0.2);">Відкрити теку</button>
+              <button onClick="{{ clearWallFocus }}" style="background:none;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.4);">вся стіна</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:8px;margin-top:14px;">
+            <sc-for list="{{ wallRels }}" as="r" hint-placeholder-count="0">
+              <div data-card="{{ r.id }}" onClick="{{ setWallFocus }}" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-left:3px solid {{ r.color }};border-radius:9px;padding:8px 12px;cursor:pointer;transition:all 0.16s;" style-hover="background:rgba(255,255,255,0.08);">
+                <div style="{{ r.imgBg }}width:26px;height:34px;border-radius:4px;background-color:#222;flex-shrink:0;"></div>
+                <div style="min-width:0;flex:1;">
+                  <p style="font-size:0.84rem;color:#fff;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</p>
+                  <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ r.color }};margin:2px 0 0;">{{ r.typeLabel }}</p>
+                  <sc-if value="{{ r.hasLabel }}" hint-placeholder-val="{{ false }}">
+                    <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.9rem;color:rgba(255,255,255,0.45);margin:3px 0 0;line-height:1.35;">{{ r.label }}</p>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
 
   </main>
 </sc-if>
@@ -2462,6 +2476,21 @@ const MAT_KINDS = [
   { id: 'symbol',       label: 'Символ' },
 ];
 
+// ── Стіна рецепції (вкладка «Зв'язки») ─────────────────────
+// Типи зв'язків лежать у character_links (kind + label). Старе поле
+// characters.connections лишається запасом: пара без рядка в новій
+// таблиці малюється сірою ниткою «знайомі».
+const WALL_KIND = {
+  family: { label: 'Родина',    color: '#ffd76b' },
+  love:   { label: 'Романтика', color: '#c56a80' },
+  feud:   { label: 'Ворожнеча', color: '#ff4d4d' },
+  ally:   { label: 'Союз',      color: '#6495ed' },
+  duty:   { label: 'Служба',    color: '#5e9a8f' },
+  plain:  { label: 'Знайомі',   color: '#9a958c' },
+};
+const WALL_ORDER = ['family', 'love', 'feud', 'ally', 'duty', 'plain'];
+const WALL = { cellW: 82, cellH: 132, cardW: 62, jit: 4, minW: 74, minH: 118, pad: 16, maxCols: 12 };
+
 // ── Павутина матеріалів ────────────────────────────────────
 // Ребра лежать у material_links: автоматичні пише адмінка з вікі-посилань
 // у тексті, ручні додає людина. Сайт лише читає й малює.
@@ -2545,7 +2574,7 @@ const DEFAULT_DICE_QUOTES = {
 class Component extends DCLogic {
   state = {
     page: this._getPage(),
-    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [], tests: [], material_links: [], character_images: [], material_images: [] },
+    data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [], tests: [], material_links: [], character_links: [], character_images: [], material_images: [] },
     webOpen: false,
     galOpen: false, galKind: null, galIndex: -1, galShown: {},
     quotesAuthor: null, quoteSpot: null,
@@ -2561,10 +2590,8 @@ class Component extends DCLogic {
     relHoverId: null, relPinId: null, relMx: 0, relMy: 0,
     charTab: 'player', charSearch: '', homeSearch: '',
     charMode: this._initMode(),
-    selectedBoardChar: null, boardFilterTag: null, boardView: 'board',
-    boardSearch: '', boardIsolate: false,
-    boardHoverId: null,
-    boardScale: 1,
+    selectedBoardChar: null, wallTypes: WALL_ORDER.slice(),
+    boardSearch: '',
     loreTagFilter: null, loreSortBy: 'order',
     charSortBy: 'order',
     charActiveFilter: 'active',
@@ -2781,19 +2808,135 @@ class Component extends DCLogic {
     };
   }
 
-  _boardLayout(chars) {
-    const n = chars.length; if (!n) return [];
-    const cx = 600, cy = 430;
-    const pos = [];
-    const ring = (list, r) => list.forEach((ch, i) => {
-      const a = (i / list.length) * Math.PI * 2 - Math.PI / 2;
-      pos.push({ ...ch, bx: cx + r * Math.cos(a), by: cy + r * Math.sin(a) });
-    });
-    if (n <= 10)      { ring(chars, 260); }
-    else if (n <= 20) { ring(chars.slice(0, Math.round(n * .45)), 175); ring(chars.slice(Math.round(n * .45)), 335); }
-    else              { const n1 = Math.min(8, Math.round(n * .22)), n2 = Math.min(14, Math.round(n * .38)); ring(chars.slice(0, n1), 155); ring(chars.slice(n1, n1 + n2), 280); ring(chars.slice(n1 + n2), 415); }
-    return pos;
+  // ── Стіна рецепції: ребра ──────────────────────────────
+  // Спершу типізовані рядки з character_links, потім старі знайомства як
+  // «знайомі». Пара, що є в обох, береться з типізованої таблиці.
+  _wallEdges(data) {
+    const chars = data.characters || [], links = data.character_links || [];
+    if (this._we && this._we.c === chars && this._we.l === links) return this._we.m;
+    const byId = {}; chars.forEach(c => { byId[String(c.id)] = c; });
+    const seen = new Set(), edges = [];
+    const add = (a, b, kind, label) => {
+      a = String(a); b = String(b);
+      if (a === b || !byId[a] || !byId[b]) return;
+      const key = [a, b].sort().join('|');
+      if (seen.has(key)) return;
+      seen.add(key);
+      const p = key.split('|');
+      edges.push({ key, a: p[0], b: p[1], kind: WALL_KIND[kind] ? kind : 'plain', label: String(label || '').trim() });
+    };
+    links.forEach(l => add(l.from_id, l.to_id, l.kind, l.label));
+    chars.forEach(c => String(c.connections || '').split(',').map(x => x.trim()).filter(Boolean).forEach(to => add(c.id, to, 'plain', '')));
+    const deg = {}, nbr = {};
+    chars.forEach(c => { deg[String(c.id)] = 0; nbr[String(c.id)] = []; });
+    edges.forEach(e => { deg[e.a]++; deg[e.b]++; nbr[e.a].push(e); nbr[e.b].push(e); });
+    const m = { chars, byId, edges, deg, nbr };
+    this._we = { c: chars, l: links, m };
+    return m;
   }
+
+  // Скільки колонок влазить у вікно — стіна ніколи не масштабується,
+  // тому картка на телефоні лишається розміру пальця, а не марки.
+  _wallCols() {
+    const vw = this.state.relViewW || window.innerWidth || 1040;
+    const room = Math.max(300, vw - 28);
+    return Math.max(3, Math.min(WALL.maxCols, Math.floor(room / WALL.cellW)));
+  }
+
+  _wallPos() {
+    const M = this._wallEdges(this.state.data || {});
+    const cols = this._wallCols();
+    if (this._wp && this._wp.src === M.chars && this._wp.cols === cols) return this._wp.map;
+    const map = {}, j = WALL.jit;
+    M.chars.forEach((ch, i) => {
+      const col = i % cols, row = Math.floor(i / cols), h = this._wallHash(String(ch.id));
+      map[String(ch.id)] = {
+        x: WALL.pad + col * WALL.cellW + WALL.cellW / 2 + ((h % (j * 2 + 1)) - j),
+        y: WALL.pad + row * WALL.cellH + WALL.cellH / 2 + ((Math.floor(h / 7) % (j * 2 + 1)) - j),
+        rot: (((h % 460) / 100) - 2.3).toFixed(1) + 'deg',
+      };
+    });
+    this._wp = { src: M.chars, cols, map };
+    this._wallSeparate(null);
+    return map;
+  }
+
+  // «1 нитка · 3 нитки · 7 ниток» — інакше в підписі стояло б «1 ниток».
+  _threadWord(n) {
+    const t10 = n % 10, t100 = n % 100;
+    const w = (t10 === 1 && t100 !== 11) ? 'нитка'
+      : (t10 >= 2 && t10 <= 4 && (t100 < 12 || t100 > 14)) ? 'нитки' : 'ниток';
+    return n + ' ' + w;
+  }
+
+  _wallHash(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) & 0x7fffffff; return h; }
+
+  _wallSize() {
+    const cols = this._wallCols();
+    const n = ((this.state.data || {}).characters || []).length || 1;
+    const rows = Math.ceil(n / cols);
+    return { w: WALL.pad * 2 + cols * WALL.cellW, h: WALL.pad * 2 + rows * WALL.cellH, cols, rows };
+  }
+
+  // Після перетягування сусіди відступають — накладань на стіні не буває.
+  _wallSeparate(held) {
+    const map = (this._wp || {}).map; if (!map) return;
+    const ids = Object.keys(map), S = this._wallSize();
+    for (let it = 0; it < 5; it++) {
+      for (let i = 0; i < ids.length; i++) {
+        for (let k = i + 1; k < ids.length; k++) {
+          const ia = ids[i], ib = ids[k], a = map[ia], b = map[ib];
+          const dx = b.x - a.x, dy = b.y - a.y;
+          const ox = WALL.minW - Math.abs(dx), oy = WALL.minH - Math.abs(dy);
+          if (ox <= 0 || oy <= 0) continue;
+          if (ia === held && ib === held) continue;
+          const wa = ia === held ? 0 : ib === held ? 1 : 0.5, wb = 1 - wa;
+          if (ox < oy) { const s = (dx >= 0 ? 1 : -1) * ox; a.x -= s * wa; b.x += s * wb; }
+          else         { const s = (dy >= 0 ? 1 : -1) * oy; a.y -= s * wa; b.y += s * wb; }
+        }
+      }
+    }
+    ids.forEach(id => {
+      const p = map[id];
+      p.x = Math.max(WALL.minW / 2, Math.min(S.w - WALL.minW / 2, p.x));
+      p.y = Math.max(WALL.minH / 2, Math.min(S.h - WALL.minH / 2, p.y));
+    });
+  }
+
+  _wallDown = (e) => {
+    const t = e.target;
+    if (!t || !t.closest) return;
+    if (!t.closest('[data-wall]')) return;
+    if (this._wallCols() < 8) return;          // на телефоні стіна пришпилена
+    const card = t.closest('[data-card]');
+    if (!card) return;
+    const wall = t.closest('[data-wall]');
+    const id = card.getAttribute('data-card');
+    const pos = (this._wallPos() || {})[id]; if (!pos) return;
+    const r = wall.getBoundingClientRect();
+    this._wdrag = { id, ox: pos.x - (e.clientX - r.left), oy: pos.y - (e.clientY - r.top), moved: 0 };
+    e.preventDefault();
+  };
+  _wallMove = (e) => {
+    const d = this._wdrag; if (!d) return;
+    const wall = document.querySelector('[data-wall]'); if (!wall) return;
+    const r = wall.getBoundingClientRect(), S = this._wallSize();
+    const pos = (this._wallPos() || {})[d.id]; if (!pos) return;
+    const nx = e.clientX - r.left + d.ox, ny = e.clientY - r.top + d.oy;
+    d.moved += Math.abs(nx - pos.x) + Math.abs(ny - pos.y);
+    pos.x = Math.max(WALL.minW / 2, Math.min(S.w - WALL.minW / 2, nx));
+    pos.y = Math.max(WALL.minH / 2, Math.min(S.h - WALL.minH / 2, ny));
+    this._wallSeparate(d.id);
+    this.forceUpdate();
+  };
+  _wallUp = () => {
+    const d = this._wdrag; if (!d) return;
+    this._wdrag = null;
+    this._wallNoClick = d.moved > 6;
+    setTimeout(() => { this._wallNoClick = false; }, 90);
+    this._wallSeparate(null);
+    this.forceUpdate();
+  };
 
   // ── Маршрутизація за хешем (розділ + опційний id елемента) ──
   _parseHash() {
@@ -3051,6 +3194,7 @@ class Component extends DCLogic {
         this._getSoft('quotes?select=num,text,author,added_by,source,created_at&is_hidden=eq.false&order=num.desc'),
         this._getSoft('tests?select=*&is_published=eq.true&order=sort_order.asc,created_at.asc'),
         this._getSoft('material_links?select=from_type,from_id,to_type,to_id,label'),
+        this._getSoft('character_links?select=from_id,to_id,kind,label&order=sort_order.asc,created_at.asc'),
         this._getSoft('character_images?select=id,character_id,url,caption,kind,is_sensitive,added_by,created_at&is_draft=eq.false&order=sort_order.asc,created_at.asc'),
         this._getSoft('material_images?select=id,material_type,material_id,url,caption,kind,is_sensitive,added_by,created_at&is_draft=eq.false&order=sort_order.asc,created_at.asc'),
       ]);
@@ -3063,7 +3207,7 @@ class Component extends DCLogic {
       });
       return;
     }
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows, galRows, matGalRows] = res;
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows, charLinkRows, galRows, matGalRows] = res;
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
     const loadedData = {
@@ -3081,6 +3225,7 @@ class Component extends DCLogic {
         quotes:        Array.isArray(quoteRows)    ? quoteRows    : [],
         tests:         Array.isArray(testRows)     ? testRows     : [],
         material_links: Array.isArray(linkRows)    ? linkRows     : [],
+        character_links: Array.isArray(charLinkRows) ? charLinkRows : [],
         character_images: Array.isArray(galRows)   ? galRows      : [],
         material_images:  Array.isArray(matGalRows) ? matGalRows   : [],
     };
@@ -3189,12 +3334,10 @@ class Component extends DCLogic {
     return null;
   }
 
+  // Розмір вікна: від нього залежить кількість колонок на стіні зв'язків
+  // і розкладка деревця на сторінці персонажа.
   _updateBoardScale() {
-    // Available space: viewport minus nav (60px) + title/controls (~200px)
-    const avH = window.innerHeight - 180;
-    const avW = window.innerWidth - 48;
-    const scale = Math.min(1, avH / 840, avW / 1200);
-    this.setState({ boardScale: Math.max(0.35, scale), relViewW: window.innerWidth, relViewH: window.innerHeight });
+    this.setState({ relViewW: window.innerWidth, relViewH: window.innerHeight });
   }
 
   _pulseRef = (node) => {
@@ -3375,6 +3518,11 @@ class Component extends DCLogic {
     this._updateMapBase();
     if (this.state.page === 'dice') this._loadDiceStats();
     window.addEventListener('resize', () => { this._updateBoardScale(); this._updateMapBase(); });
+    // Стіна зв'язків: перетягування тек. Слухачі делеговані на документ —
+    // сама стіна живе в шаблоні й перемальовується.
+    document.addEventListener('pointerdown', this._wallDown);
+    window.addEventListener('pointermove', this._wallMove);
+    window.addEventListener('pointerup', this._wallUp);
     window.addEventListener('hashchange', () => {
       this.setState({ ...this._routePatch(), navOpen: false });
       window.scrollTo({ top: 0 });
@@ -5045,227 +5193,140 @@ class Component extends DCLogic {
       diceTotalStr: s.diceTotal == null ? '···' : s.diceTotal.toLocaleString('uk-UA'),
       diceStatsNote: s.diceStatsLive ? 'Кидки всієї спільноти' : 'Твої кидки на цьому пристрої',
       rollBtnLabel: s.rolling ? 'Кидаємо…' : 'Кинути d' + s.diceType,
-      // ── Дошка зв'язків ──────────────────────────────────────
+      // ── Стіна зв'язків ──────────────────────────────────────
       ...((() => {
-        // Дошку зв'язків рахуємо тільки коли вона відкрита — інакше цей блок
-        // (розкладка + усі ребра) виконувався на кожен setState по всьому сайту.
-        if (!(page === 'characters' && s.charMode === 'conn')) return { showBoardView: false };
-        const allChars = data.characters || [];
-        const selId    = s.selectedBoardChar;
-        const bView    = s.boardView || 'board';
-        const q        = (s.boardSearch || '').trim().toLowerCase();
-        const isolate  = !!s.boardIsolate;
-        const placed   = this._boardLayout(allChars);
-
-        // Search matches (name / alias / role)
-        const matchIds = new Set();
-        if (q) {
-          allChars.forEach(ch => {
-            const hay = ((ch.name||'') + ' ' + (ch.alias||'') + ' ' + (ch.role||'')).toLowerCase();
-            if (hay.includes(q)) matchIds.add(ch.id);
-          });
-        }
-        const searchActive = !!q && !selId;
-
-        // Build edges from explicit connections
-        const edgeSet = new Set(), edges = [];
-        const charMap = {};
-        allChars.forEach(ch => { charMap[ch.id] = ch; });
-        allChars.forEach(ch => {
-          (ch.connections||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(toId => {
-            const key = [ch.id,toId].sort().join('|');
-            if (!edgeSet.has(key) && charMap[toId]) { edgeSet.add(key); edges.push({ fromId:ch.id, toId }); }
-          });
+        // Рахуємо тільки коли стіна відкрита — інакше розкладка й усі нитки
+        // перебиралися б на кожен setState по всьому сайту.
+        if (!(page === 'characters' && s.charMode === 'conn')) return { showWall: false };
+        const M = this._wallEdges(data);
+        const pos = this._wallPos();
+        const S = this._wallSize();
+        const drag = S.cols >= 8;
+        const types = s.wallTypes || WALL_ORDER;
+        const on = (k) => types.indexOf(k) !== -1;
+        const focus = (s.selectedBoardChar && M.byId[String(s.selectedBoardChar)]) ? String(s.selectedBoardChar) : null;
+        const q = (s.boardSearch || '').trim().toLowerCase();
+        const match = new Set();
+        if (q) M.chars.forEach(c => {
+          const hay = ((c.name || '') + ' ' + (c.alias || '') + ' ' + (c.role || '')).toLowerCase();
+          if (hay.indexOf(q) !== -1) match.add(String(c.id));
         });
+        const near = {};
+        if (focus) M.nbr[focus].forEach(e => { if (on(e.kind)) near[e.a === focus ? e.b : e.a] = e.kind; });
 
-        // Degree map from selected char
-        const deg = {};
-        if (selId) {
-          deg[selId] = 0;
-          edges.forEach(e => {
-            if (e.fromId===selId && deg[e.toId]===undefined) deg[e.toId]=1;
-            if (e.toId===selId && deg[e.fromId]===undefined) deg[e.fromId]=1;
-          });
-          edges.forEach(e => {
-            if (deg[e.fromId]===1 && deg[e.toId]===undefined) deg[e.toId]=2;
-            if (deg[e.toId]===1 && deg[e.fromId]===undefined) deg[e.fromId]=2;
-          });
-        }
-
-        // Position map
-        const posMap = {};
-        placed.forEach(p => { posMap[p.id] = { bx:p.bx, by:p.by }; });
-
-        // SVG lines
-        const connectionLines = React.createElement('svg', {
-          key:'svgl2',
-          style:{ position:'absolute',left:0,top:0,width:'1200px',height:'840px',pointerEvents:'none',overflow:'visible',zIndex:0 },
-        },[
-          React.createElement('defs',{key:'d'},
-            React.createElement('radialGradient',{key:'rg',id:'brdGrad3',cx:'50%',cy:'50%',r:'50%'},[
-              React.createElement('stop',{key:'s1',offset:'0%',stopColor:'rgba(255,215,0,0.04)'}),
-              React.createElement('stop',{key:'s2',offset:'100%',stopColor:'rgba(0,0,0,0)'}),
-            ])
-          ),
-          React.createElement('ellipse',{key:'el',cx:600,cy:420,rx:460,ry:380,fill:'url(#brdGrad3)'}),
-          ...edges.map((e,idx) => {
-            const p1=posMap[e.fromId], p2=posMap[e.toId];
-            if (!p1||!p2) return null;
-            const isDirect = selId && (e.fromId===selId||e.toId===selId);
-            const is2nd    = selId && !isDirect && (deg[e.fromId]===1&&deg[e.toId]!==undefined || deg[e.toId]===1&&deg[e.fromId]!==undefined);
-            const isFaded  = selId && !isDirect && !is2nd;
-            const mx=(p1.bx+p2.bx)/2, my=(p1.by+p2.by)/2;
-            const bcx=mx+(600-mx)*0.28, bcy=my+(420-my)*0.28;
-            let sOp = isDirect ? 0.8 : (is2nd ? 0.45 : (isFaded ? 0.06 : 0.25));
-            let sW  = isDirect ? 2.5 : (is2nd ? 1.2 : (isFaded ? 0.3 : 0.8));
-            if (isolate && selId && isFaded) sOp = 0;
-            if (searchActive) { sOp = 0.05; sW = 0.6; }
-            return React.createElement('path',{key:idx,
-              d:`M ${p1.bx} ${p1.by} Q ${bcx} ${bcy} ${p2.bx} ${p2.by}`,
-              stroke: isDirect ? '#ffd700' : (is2nd ? '#6495ed' : 'rgba(255,255,255,0.4)'),
-              strokeWidth: sW,
-              strokeOpacity: sOp,
-              fill:'none', strokeLinecap:'round',
-            });
-          }).filter(Boolean),
-        ]);
-
-        // Board hover repulsion
-        const boardHoverId = s.boardHoverId;
-        const REPEL_R = 170, REPEL_F = 85;
-        const hoverPlaced = boardHoverId ? placed.find(p => p.id === boardHoverId) : null;
-        const getRepel = (pos) => {
-          if (!hoverPlaced) return '';
-          const dx = pos.bx - hoverPlaced.bx, dy = pos.by - hoverPlaced.by;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          if (dist === 0 || dist >= REPEL_R) return '';
-          const force = REPEL_F * Math.pow(1 - dist/REPEL_R, 1.4);
-          return `translate(${((dx/dist)*force).toFixed(1)}px,${((dy/dist)*force).toFixed(1)}px) `;
-        };
-
-        // Board chars
-        const boardChars = placed.map(ch => {
-          const parts=(ch.name||'').trim().split(/\s+/);
-          const imgUrl=ch.image?'url('+JSON.stringify(ch.image)+')':'';
-          const isSelected=ch.id===selId;
-          const isHovered=ch.id===boardHoverId;
-          const d=deg[ch.id];
-          let opacity='1', border='2px solid rgba(255,255,255,0.12)', glow='none', scale='scale(1)', pointer='auto';
-          if (selId) {
-            if (isSelected)  { border='2px solid rgba(255,215,0,0.9)'; glow='0 0 18px rgba(255,215,0,0.5)'; scale='scale(1.1)'; }
-            else if (d===1)  { border='2px solid rgba(100,149,237,0.6)'; }
-            else if (d===2)  { opacity='0.38'; }
-            else             { opacity='0.1'; if (isolate) { opacity='0'; pointer='none'; } }
-          } else if (searchActive) {
-            if (matchIds.has(ch.id)) { border='2px solid rgba(255,215,0,0.85)'; glow='0 0 16px rgba(255,215,0,0.45)'; scale='scale(1.05)'; }
-            else { opacity='0.14'; }
-          }
-          const repelStr = isHovered ? '' : getRepel(ch);
-          const scaleStr = isHovered ? 'scale(1.06)' : scale;
-          return {
-            ...ch,
-            leftPx:(ch.bx-40)+'px', topPx:(ch.by-60)+'px',
-            imgBg:imgUrl?'background-image:'+imgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
-            hasImg:!!(ch.image), noImg:!(ch.image),
-            initials:parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
-            cardOpacity:opacity, cardBorder:border, cardGlow:glow,
-            cardScale: repelStr + scaleStr,
-            cardZ: isHovered ? '20' : isSelected ? '10' : '1',
-            cardPointer: pointer,
-            onHover: () => this.setState({ boardHoverId: ch.id }),
-          };
-        });
-
-        // Direct connections panel
-        const directConns = selId ? edges
-          .filter(e=>e.fromId===selId||e.toId===selId)
-          .map(e => {
-            const otherId=e.fromId===selId?e.toId:e.fromId;
-            const other=charMap[otherId]; if(!other) return null;
-            const parts=(other.name||'').trim().split(/\s+/);
-            const imgUrl=other.image?'url('+JSON.stringify(other.image)+')':'';
-            return { id:other.id, name:other.name||'', role:other.role||'',
-              hasImg:!!(other.image),
-              imgBg:imgUrl?'background-image:'+imgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
-              initials:parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
-            };
-          }).filter(Boolean) : [];
-
-        // Cloud — chars sorted by connection count
-        const connCount={};
-        allChars.forEach(ch=>{connCount[ch.id]=0;});
-        edges.forEach(e=>{if(connCount[e.fromId]!==undefined)connCount[e.fromId]++;if(connCount[e.toId]!==undefined)connCount[e.toId]++;});
-        const maxConn=Math.max(1,...Object.values(connCount));
-        const cloudChars=allChars.filter(ch=>connCount[ch.id]>0).sort((a,b)=>connCount[b.id]-connCount[a.id]).map(ch=>{
-          const cnt=connCount[ch.id];
-          const parts=(ch.name||'').trim().split(/\s+/);
-          const imgUrl=ch.image?'url('+JSON.stringify(ch.image)+')':'';
-          return { id:ch.id, name:ch.name||'', role:ch.role||'', count:String(cnt),
-            fontSize:Math.round(14+(cnt/maxConn)*30)+'px',
-            opacity:String(0.45+(cnt/maxConn)*0.55),
-            hasImg:!!(ch.image),
-            imgBg:imgUrl?'background-image:'+imgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
-            initials:parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
-          };
-        });
-
-        const selChar = selId ? (charMap[selId]||{}) : {};
-        const selImgUrl = selChar.image?'url('+JSON.stringify(selChar.image)+')':'';
-
-        // Indirect count (2nd degree, not direct)
-        const indirectCount = selId ? allChars.filter(ch => deg[ch.id] === 2).length : 0;
-
-        // Connection count per char (for badges)
-        const connCountMap = {};
-        allChars.forEach(ch => { connCountMap[ch.id] = 0; });
-        edges.forEach(e => {
-          if (connCountMap[e.fromId] !== undefined) connCountMap[e.fromId]++;
-          if (connCountMap[e.toId]   !== undefined) connCountMap[e.toId]++;
-        });
-        const boardCharsWithBadge = boardChars.map(ch => ({
-          ...ch,
-          connBadge: String(connCountMap[ch.id] || 0),
-          hasBadge: (connCountMap[ch.id] || 0) > 0,
+        const cnt = {}; WALL_ORDER.forEach(k => { cnt[k] = 0; });
+        M.edges.forEach(e => { cnt[e.kind]++; });
+        const wallLegend = WALL_ORDER.filter(k => cnt[k] > 0 || k !== 'plain').map(k => ({
+          key: k, label: WALL_KIND[k].label, color: WALL_KIND[k].color, count: String(cnt[k]),
+          bg: on(k) ? 'rgba(255,255,255,0.07)' : 'transparent',
+          bd: on(k) ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
+          text: on(k) ? '#fff' : 'rgba(255,255,255,0.3)',
         }));
 
-        const sc2 = s.boardScale || 1;
+        const curve = (e) => {
+          const a = pos[e.a], b = pos[e.b];
+          if (!a || !b) return null;
+          const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+          const d = Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+          const cy = my + 20 + d * 0.1;
+          return {
+            d: 'M ' + a.x.toFixed(0) + ' ' + a.y.toFixed(0) + ' Q ' + mx.toFixed(0) + ' ' + cy.toFixed(0) + ' ' + b.x.toFixed(0) + ' ' + b.y.toFixed(0),
+            mx: (a.x + 2 * mx + b.x) / 4, my: (a.y + 2 * cy + b.y) / 4,
+          };
+        };
+
+        const wallCards = M.chars.map(ch => {
+          const id = String(ch.id), p = pos[id] || { x: 0, y: 0, rot: '0deg' };
+          const rel = focus ? (id === focus ? 'self' : (near[id] ? 'near' : 'far')) : 'none';
+          const hit = q ? match.has(id) : false;
+          let op = '1', ring = '1px solid rgba(0,0,0,0.25)', shadow = '0 7px 18px rgba(0,0,0,0.62)', z = '14';
+          if (rel === 'self') { ring = '2px solid rgba(255,215,0,0.9)'; shadow = '0 12px 30px rgba(0,0,0,0.8),0 0 26px rgba(255,215,0,0.32)'; z = '40'; }
+          else if (rel === 'near') { ring = '2px solid ' + WALL_KIND[near[id]].color; z = '28'; }
+          else if (rel === 'far') { op = '0.2'; }
+          else if (q) {
+            if (hit) { ring = '2px solid rgba(255,215,0,0.85)'; shadow = '0 10px 26px rgba(0,0,0,0.75),0 0 20px rgba(255,215,0,0.28)'; z = '30'; }
+            else { op = '0.22'; }
+          }
+          return {
+            id, left: Math.round(p.x) + 'px', top: Math.round(p.y) + 'px', rot: p.rot,
+            short: String(ch.name || '').trim().split(/\s+/)[0] || '—',
+            initials: (String(ch.name || '').trim().split(/\s+/).slice(0, 2).map(x => x[0] || '').join('') || '?').toUpperCase(),
+            hasImg: !!ch.image, noImg: !ch.image,
+            imgBg: ch.image ? 'background-image:url(' + JSON.stringify(ch.image) + ');background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
+            op, ring, shadow, z, touch: drag ? 'none' : 'auto',
+          };
+        });
+
+        const wallThreads = M.edges.map(e => {
+          const c = curve(e); if (!c) return null;
+          const vis = on(e.kind);
+          const dir = focus && (e.a === focus || e.b === focus);
+          let op = '0.4', w = '1.4';
+          if (!vis) { op = '0.04'; w = '0.8'; }
+          else if (dir) { op = '0.95'; w = '2.4'; }
+          else if (focus || q) { op = '0.07'; w = '0.9'; }
+          return { d: c.d, stroke: WALL_KIND[e.kind].color, w, op };
+        }).filter(Boolean);
+
+        const ink = (hex) => {
+          const h = String(hex).replace('#', '');
+          const c = (v) => Math.round(parseInt(v, 16) * 0.34).toString(16).padStart(2, '0');
+          return '#' + c(h.slice(0, 2)) + c(h.slice(2, 4)) + c(h.slice(4, 6));
+        };
+        const wallTags = (focus && !this._wdrag) ? M.nbr[focus].filter(e => on(e.kind)).map(e => {
+          const c = curve(e); if (!c) return null;
+          return {
+            left: Math.round(Math.max(96, Math.min(S.w - 96, c.mx))) + 'px',
+            top: Math.round(Math.max(26, Math.min(S.h - 26, c.my))) + 'px',
+            rot: (((this._wallHash(e.key) % 400) / 100) - 2).toFixed(1) + 'deg',
+            typeLabel: WALL_KIND[e.kind].label, color: WALL_KIND[e.kind].color, ink: ink(WALL_KIND[e.kind].color),
+            label: e.label, hasLabel: !!e.label,
+          };
+        }).filter(Boolean) : [];
+
+        const fc = focus ? M.byId[focus] : null;
+        const wallRels = focus ? M.nbr[focus].filter(e => on(e.kind)).map(e => {
+          const o = M.byId[e.a === focus ? e.b : e.a] || {};
+          return {
+            id: String(o.id), name: o.name || '',
+            typeLabel: WALL_KIND[e.kind].label, color: WALL_KIND[e.kind].color,
+            label: e.label, hasLabel: !!e.label,
+            imgBg: o.image ? 'background-image:url(' + JSON.stringify(o.image) + ');background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
+          };
+        }) : [];
+
         return {
-          connectionLines,
-          boardChars: boardCharsWithBadge,
-          directConns,
-          boardScale: sc2,
-          boardScaledH: Math.round(840 * sc2 + 24) + 'px',
-          showBoardView: true,
-          boardEmpty: !allChars.length,
-          hasNoConnections: edges.length===0,
-          hasBoardSel: !!(selId),
+          showWall: true,
+          wallCards, wallThreads, wallTags, wallRels, wallLegend,
+          wallW: S.w + 'px', wallH: S.h + 'px', wallViewBox: '0 0 ' + S.w + ' ' + S.h,
+          wallEmpty: !M.chars.length,
+          wallNoLinks: !!M.chars.length && !M.edges.length,
+          wallNoFocus: !focus, wallHasFocus: !!focus,
+          wallHint: drag
+            ? 'Теки можна перетягувати — сусіди відступають самі. Натисніть теку, щоб побачити лише її нитки.'
+            : 'Натисніть теку, щоб побачити лише її нитки з підписами.',
+          wallFocusId: focus || '',
+          wallFocusName: fc ? (fc.name || '') : '',
+          wallFocusRole: fc ? (fc.role || '—') : '',
+          wallFocusCount: focus ? this._threadWord(M.nbr[focus].filter(e => on(e.kind)).length) : '',
+          wallFocusImg: (fc && fc.image) ? 'background-image:url(' + JSON.stringify(fc.image) + ');background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
           boardSearch: s.boardSearch || '',
           hasBoardSearch: !!q,
-          searchCount: String(matchIds.size),
-          hasSearchResults: !!q && matchIds.size > 0,
-          searchNoResults: !!q && matchIds.size === 0,
-          boardIsolate: isolate,
-          isolateLabel: isolate ? '◉ Лише мережу' : '◎ Лише мережу',
-          isolateBtnBg: isolate ? 'rgba(255,215,0,0.18)' : 'rgba(255,255,255,0.05)',
-          isolateBtnColor: isolate ? '#ffd700' : 'rgba(255,215,0,0.85)',
-          isolateBtnShadow: isolate ? '0 0 16px rgba(255,215,0,0.25)' : 'none',
-          selCharName: selChar.name||'',
-          selCharRole: selChar.role||'',
-          selCharHasImg: !!(selChar.image),
-          selCharImgBg: selImgUrl?'background-image:'+selImgUrl+';background-size:cover;background-position:center top;background-repeat:no-repeat;':'',
-          directConnsCount: String(directConns.length),
-          indirectConnsCount: String(indirectCount),
-          hasIndirect: indirectCount > 0,
-          clearBoardHover: ()=>this.setState({boardHoverId:null}),
-          setBoardSearch: (e)=>this.setState({boardSearch:e.currentTarget.value}),
-          clearBoardSearch: ()=>this.setState({boardSearch:''}),
-          toggleIsolate: ()=>this.setState(st=>({boardIsolate:!st.boardIsolate})),
-          setBoardChar: (e)=>{
-            const id=e.currentTarget.dataset.id;
-            this.setState(st=>({selectedBoardChar:st.selectedBoardChar===id?null:id}));
+          setBoardSearch: (e) => this.setState({ boardSearch: e.currentTarget.value }),
+          clearBoardSearch: () => this.setState({ boardSearch: '' }),
+          toggleWallType: (e) => {
+            const t = e.currentTarget.dataset.t;
+            this.setState(st => {
+              const cur = st.wallTypes || WALL_ORDER;
+              return { wallTypes: cur.indexOf(t) === -1 ? cur.concat([t]) : cur.filter(x => x !== t) };
+            });
           },
-          jumpToChar: (e)=>this.setState({selectedBoardChar:e.currentTarget.dataset.id}),
-          clearBoardSel: ()=>this.setState({selectedBoardChar:null, boardIsolate:false}),
+          setWallFocus: (e) => {
+            if (this._wallNoClick) return;
+            const id = e.currentTarget.dataset.card;
+            this.setState(st => ({ selectedBoardChar: st.selectedBoardChar === id ? null : id }));
+          },
+          clearWallFocus: () => this.setState({ selectedBoardChar: null }),
         };
       })()),
 
