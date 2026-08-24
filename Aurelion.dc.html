@@ -253,6 +253,9 @@ a:hover{color:#a8c4f7;}
       </div>
     </sc-if>
     <button onClick="{{ copyShareLink }}" class="au-sharebtn" title="Скопіювати посилання на цей розділ" aria-label="Скопіювати посилання" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.22);color:rgba(255,215,0,0.85);border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;cursor:pointer;transition:all 0.25s ease;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);" data-msg="{{ shareLinkBusy }}">{{ shareLinkGlyph }}<span class="au-share-label">{{ shareLinkLabel }}</span></button>
+    <!-- Плашка входу стоїть і для гостей: інакше ввійти нема звідки, бо
+         сам розділ показується тільки тим, хто вже ввійшов. -->
+    <a href="#gossip" data-active="{{ userChipActive }}" title="{{ userChipTitle }}" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;text-decoration:none;transition:all 0.25s ease;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ userChipGlyph }}<span class="au-share-label">{{ userChipLabel }}</span></a>
     <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
   </div>
   <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
@@ -3972,9 +3975,26 @@ class Component extends DCLogic {
     }
   }
 
+  _readUser = () => {
+    let nick = '';
+    try {
+      if (localStorage.getItem('au_user_token')) {
+        const p = JSON.parse(localStorage.getItem('au_user_card') || 'null');
+        nick = (p && p.nick) ? String(p.nick) : 'Віконце';
+      }
+    } catch (e) {}
+    if (nick !== this.state.userNick) this.setState({ userNick: nick });
+  };
+
   componentDidMount() {
     window.addEventListener('scroll', this._pulseCheck, { passive: true });
     window.addEventListener('scroll', this._toTopWatch, { passive: true });
+    // Хто увійшов у віконце. Шапка про нього має знати: інакше на свої
+    // плітки треба було б щоразу кидати посилання. Саме віконце бʼє `au-user`
+    // при вході й виході; `storage` ловить те саме в іншій вкладці.
+    this._readUser();
+    window.addEventListener('au-user', this._readUser);
+    window.addEventListener('storage', this._readUser);
     this._loadAll();
     // Аналітика не має конкурувати з даними за перше з'єднання.
     const trackFirst = () => this._trackCurrent();
@@ -5275,8 +5295,16 @@ class Component extends DCLogic {
     // Віконце пліток вмикається там само: доки вимкнене, його немає
     // ні в шапці, ні на Головній, а #gossip веде на Головну.
     const gossipOn = String((data.site || {}).gossip_section_on || '') === '1';
+    // Хто вже увійшов, тому віконце відчинєне й тоді, коли розділ ще не
+    // показаний усім: інакше на тестах треба було б кидати посилання руками.
+    const signedIn = !!s.userNick;
+    const gossipNav = gossipOn || signedIn;
     const pageT = (s.page === 'tests' && !testsOn) ? 'home' : s.page;
-    const page = (pageT === 'gossip' && !gossipOn) ? 'home' : pageT;
+    // Маршрут #gossip відкритий завжди — інакше вийшло б замкнене коло:
+    // щоб увійти, треба потрапити у віконце, а воно показується тільки тим, хто
+    // ввійшов. Схований розділ не згадується ні в ряду розділів, ні на Головній —
+    // туди веде сама лише плашка входу в шапці.
+    const page = pageT;
     const isCrit   = !s.rolling && s.diceResult !== null && s.diceResult === s.diceType;
     const isFumble = !s.rolling && s.diceResult !== null && s.diceResult === 1;
     const diceDisplay = s.rolling
@@ -5757,7 +5785,7 @@ class Component extends DCLogic {
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'dice',        label: 'Дайс',       active: page === 'dice' },
         ...(testsOn ? [{ id: 'tests', label: 'Тести', active: page === 'tests' }] : []),
-        ...(gossipOn ? [{ id: 'gossip', label: 'Віконце', active: page === 'gossip' }] : []),
+        ...(gossipNav ? [{ id: 'gossip', label: 'Віконце', active: page === 'gossip' }] : []),
         { id: 'quotes',      label: 'Цитатник',   active: page === 'quotes' },
         { id: 'map',         label: 'Мапа',       active: page === 'map' },
         { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
@@ -5769,6 +5797,15 @@ class Component extends DCLogic {
       shareLinkGlyph: s.shareLinkStatus === 'ok' ? '✓' : s.shareLinkStatus === 'fail' ? '✕' : '✦',
       shareLinkBusy: s.shareLinkStatus ? 'true' : 'false',
       navOpen: !!s.navOpen,
+      signedIn,
+      userNick: s.userNick || '',
+      userChipLabel: signedIn ? (s.userNick || 'Віконце') : 'Увійти',
+      userChipGlyph: signedIn ? '✉' : '✦',
+      userChipTitle: signedIn ? 'Віконце — ваші плітки' : 'Увійти або записатися до віконця',
+      userChipBg: signedIn ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.04)',
+      userChipBorder: signedIn ? 'rgba(255,215,0,0.22)' : 'rgba(255,255,255,0.12)',
+      userChipColor: signedIn ? 'rgba(255,215,0,0.85)' : 'rgba(255,255,255,0.4)',
+      userChipActive: page === 'gossip' ? 'true' : 'false',
       navBurgerLabel: s.navOpen ? '✕ Закрити' : '☰ Розділи',
       toggleNav: () => this.setState(st => ({ navOpen: !st.navOpen })),
       closeNav: () => this.setState({ navOpen: false }),

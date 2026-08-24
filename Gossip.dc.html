@@ -255,7 +255,27 @@ class Component extends DCLogic {
       localStorage.removeItem('au_user_token');
       localStorage.removeItem('au_user_refresh');
       localStorage.removeItem('au_gossip_profile');
+      localStorage.removeItem('au_user_card');
     } catch (e) {}
+    this._ping();
+  }
+
+  // Шапка сайту тримає посилання на віконце тільки для тих, хто ввійшов, —
+  // тож про вхід і вихід їй треба сказати. Картка тут навмисно мінімальна:
+  // нік і статус, більше в неї нічого не лежить.
+  _card(prof) {
+    try {
+      if (prof && prof.nick) {
+        localStorage.setItem('au_user_card', JSON.stringify({
+          nick: prof.nick, status: prof.status || 'pending',
+        }));
+      } else localStorage.removeItem('au_user_card');
+    } catch (e) {}
+    this._ping();
+  }
+
+  _ping() {
+    try { window.dispatchEvent(new CustomEvent('au-user')); } catch (e) {}
   }
   _h(json) {
     const h = { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` };
@@ -313,6 +333,7 @@ class Component extends DCLogic {
     }
     if (!prof) { this.setState({ phase: 'guest', authErr: 'Анкети немає — запишіться заново.' }); this._drop(); return; }
 
+    this._card(prof);
     this.setState({ phase: 'ok', uid: u.id, prof, sign: 'anon' });
     if (prof.status === 'approved') this._loadLists(u.id);
   }
@@ -397,6 +418,7 @@ class Component extends DCLogic {
         this._save(d);
         const u = d.user || await this._me();
         const prof = await this._createProfile(u, { nick: s.nick.trim(), tg: s.tg.trim(), about: s.about.trim() });
+        this._card(prof);
         this.setState({ authBusy: false, pass: '', phase: 'ok', uid: u.id, prof });
         return;
       }
