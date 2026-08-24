@@ -504,6 +504,87 @@ button{font-family:inherit;cursor:pointer}
   </div>
 </sc-if>
 
+<!-- GOSSIP TAB -->
+<sc-if value="{{ showGossipTab }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:900px;margin:0 auto;padding:28px 24px 80px;">
+    <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:6px;">✉ Плітки з віконця</h2>
+    <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.55;">Люди реєструються на сайті, ви відкриваєте їм доступ — і те, що вони приносять, стає в чергу. Марта бере з неї верхній рядок за розкладом; коли черга накопичується, вона озивається й поза ним. Автоматична плітка з картотеки вимкнена.</p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:26px;">
+      <button onClick="{{ gosToggleSection }}" style="cursor:pointer;border:1px solid rgba(255,215,0,0.3);border-radius:999px;padding:8px 18px;font-size:0.8rem;transition:all 0.2s ease;background:{{ gosSectionBg }};color:{{ gosSectionColor }};">{{ gosSectionLabel }}</button>
+      <button onClick="{{ gosTellNext }}" disabled="{{ gosBusy }}" style="cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.9);border-radius:999px;padding:8px 18px;font-size:0.8rem;">✦ Кинути наступну в чат</button>
+      <button onClick="{{ gosReload }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:999px;padding:8px 16px;font-size:0.78rem;">↻ Оновити</button>
+      <span style="font-size:0.76rem;color:rgba(255,255,255,0.3);">{{ gosQueueNote }}</span>
+    </div>
+
+    <h3 style="font-family:'Cinzel',serif;font-size:0.85rem;color:rgba(255,255,255,0.6);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;">Люди</h3>
+    <sc-if value="{{ gosNoPeople }}" hint-placeholder-val="{{ true }}">
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);margin-bottom:30px;">Поки ніхто не записався. Якщо ви щойно прогнали міграцію — це нормально.</p>
+    </sc-if>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:34px;">
+      <sc-for list="{{ gosPeople }}" as="p" hint-placeholder-count="0">
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:14px 16px;">
+          <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+            <span style="font-family:'Cinzel',serif;font-size:0.95rem;color:#fff;">{{ p.nick }}</span>
+            <span style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ p.badgeColor }};">{{ p.badge }}</span>
+          </div>
+          <p style="font-size:0.74rem;color:rgba(255,255,255,0.3);margin-top:4px;">{{ p.meta }}</p>
+          <sc-if value="{{ p.hasAbout }}" hint-placeholder-val="{{ false }}">
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.5);margin-top:8px;line-height:1.6;">{{ p.about }}</p>
+          </sc-if>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+            <sc-if value="{{ p.canOpen }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ p.onOpen }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відкрити доступ</button>
+            </sc-if>
+            <sc-if value="{{ p.canTrust }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ p.onTrust }}" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:6px 16px;font-size:0.76rem;color:{{ p.trustColor }};">{{ p.trustLabel }}</button>
+            </sc-if>
+            <sc-if value="{{ p.canBlock }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ p.onBlock }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,120,120,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відмовити</button>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <h3 style="font-family:'Cinzel',serif;font-size:0.85rem;color:rgba(255,255,255,0.6);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;">Черга</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+      <sc-for list="{{ gosFilters }}" as="f" hint-placeholder-count="4">
+        <button onClick="{{ f.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.78rem;transition:all 0.2s ease;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};">{{ f.label }}</button>
+      </sc-for>
+    </div>
+    <sc-if value="{{ gosNoRows }}" hint-placeholder-val="{{ true }}">
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);">Тут порожньо.</p>
+    </sc-if>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <sc-for list="{{ gosRows }}" as="g" hint-placeholder-count="0">
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:14px 16px;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ g.badgeColor }};">{{ g.head }}</span>
+          </div>
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.28);margin-top:4px;">{{ g.meta }}</p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.66);margin-top:9px;text-wrap:pretty;">{{ g.text }}</p>
+          <sc-if value="{{ g.hasLine }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;line-height:1.6;color:rgba(255,215,0,0.72);white-space:pre-line;">{{ g.line }}</p>
+          </sc-if>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+            <sc-if value="{{ g.canApprove }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ g.onApprove }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">У чергу</button>
+            </sc-if>
+            <sc-if value="{{ g.canTell }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ g.onTell }}" disabled="{{ gosBusy }}" style="cursor:pointer;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.35);color:rgba(160,190,255,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;">✦ У чат зараз</button>
+            </sc-if>
+            <sc-if value="{{ g.canReject }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ g.onReject }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,120,120,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відхилити</button>
+            </sc-if>
+            <button onClick="{{ g.onDelete }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);border-radius:999px;padding:6px 14px;font-size:0.76rem;">Видалити</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
 <!-- TESTS TAB -->
 <sc-if value="{{ showTests }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
@@ -2462,6 +2543,7 @@ class Component extends DCLogic {
     connSearch: '',
     loginEmail: '', loginPassword: '', loginError: '', loginLoading: false,
     martaBusy: false, martaMsg: '',
+    gosPeople: [], gosRows: [], gosFilter: 'pending', gosBusy: false,
     userEmail: '',
     // admin
     tab: 'site',
@@ -2906,7 +2988,21 @@ class Component extends DCLogic {
           tests:         Array.isArray(tests)      ? tests      : [],
         },
       });
+      this._loadGossipAdmin();
     } catch(e) { this.setState({ loading: false }); }
+  }
+
+  // ── Віконце: люди й черга пліток ─────────────────────
+  // Поки міграції немає, _get віддає порожнє — вкладка просто порожня.
+  async _loadGossipAdmin() {
+    const [people, rows] = await Promise.all([
+      this._get('site_users?select=*&order=created_at.desc'),
+      this._get('gossip_queue?select=*&order=created_at.desc&limit=200'),
+    ]);
+    this.setState({
+      gosPeople: Array.isArray(people) ? people : [],
+      gosRows:   Array.isArray(rows)   ? rows   : [],
+    });
   }
 
   async _refreshTable(table) {
@@ -3288,6 +3384,160 @@ class Component extends DCLogic {
           this._toast('✓ Видалено');
         } catch (ex) { this._toast('✗ Помилка видалення'); }
       },
+    };
+  }
+
+  // ── Віконце: значення для вкладки «Плітки» ────────────────
+  _gosWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso), p = (n) => String(n).padStart(2, '0');
+    return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()} · ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  _gossipVals() {
+    const s = this.state;
+    const secOn = String((s.data.site || {}).gossip_section_on || '') === '1';
+    const people = Array.isArray(s.gosPeople) ? s.gosPeople : [];
+    const rows = Array.isArray(s.gosRows) ? s.gosRows : [];
+    const me = s.userEmail || 'адмін';
+
+    const P_BADGE = {
+      pending:  { label: 'Чекає', color: 'rgba(255,215,0,0.85)' },
+      approved: { label: 'Свій',  color: 'rgba(120,220,150,0.85)' },
+      blocked:  { label: 'Відмовлено', color: 'rgba(255,120,120,0.85)' },
+    };
+    const G_BADGE = {
+      pending:  { label: 'На розгляді', color: 'rgba(255,215,0,0.85)' },
+      ready:    { label: 'У черзі',     color: 'rgba(100,149,237,0.9)' },
+      posted:   { label: 'Переказано',  color: 'rgba(120,220,150,0.85)' },
+      rejected: { label: 'Відхилено',   color: 'rgba(255,120,120,0.8)' },
+    };
+
+    const pending = people.filter(p => p.status === 'pending').length;
+    const inQueue = rows.filter(r => r.status === 'ready').length;
+    const onDesk  = rows.filter(r => r.status === 'pending').length;
+
+    const patchUser = async (id, body, note) => {
+      try {
+        await this._patch('site_users', id, { ...body, decided_at: new Date().toISOString(), decided_by: me });
+        this.setState(st => ({ gosPeople: (st.gosPeople || []).map(p => String(p.id) === String(id) ? { ...p, ...body } : p) }));
+        this._toast(note);
+      } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
+    };
+    const patchGos = async (id, body, note) => {
+      try {
+        await this._patch('gossip_queue', id, { ...body, decided_at: new Date().toISOString(), decided_by: me });
+        this.setState(st => ({ gosRows: (st.gosRows || []).map(r => String(r.id) === String(id) ? { ...r, ...body } : r) }));
+        this._toast(note);
+      } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
+    };
+    const call = async (qs, okNote) => {
+      this.setState({ gosBusy: true });
+      try {
+        const r = await fetch(`${SUPA_FUNCS}/telegram-report?${qs}`, {
+          method: 'POST', headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken() || ''}` },
+        });
+        const t = (await r.text()).trim();
+        this.setState({ gosBusy: false });
+        this._toast(r.ok && t === 'ok' ? okNote : '⚠ ' + (t || 'не пішло'));
+        if (r.ok && t === 'ok') this._loadGossipAdmin();
+      } catch (e) {
+        this.setState({ gosBusy: false });
+        this._toast('⚠ Не пішло: ' + (e.message || ''));
+      }
+    };
+
+    const shown = rows.filter(r => r.status === s.gosFilter);
+
+    return {
+      gosSectionLabel: secOn ? '✓ Віконце на сайті' : 'Віконце сховане',
+      gosSectionBg: secOn ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+      gosSectionColor: secOn ? '#ffd700' : 'rgba(255,255,255,0.45)',
+      gosToggleSection: async () => {
+        const next = secOn ? '0' : '1';
+        this._setSite('gossip_section_on', next);
+        try {
+          await this._upsertSetting('gossip_section_on', next);
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast(next === '1' ? '✓ Віконце відчинене на сайті' : '✓ Віконце сховане');
+        } catch (ex) {
+          this._setSite('gossip_section_on', secOn ? '1' : '0');
+          this._toast('✗ Не вдалося зберегти вимикач');
+        }
+      },
+
+      gosBusy: !!s.gosBusy,
+      gosQueueNote: `У черзі ${inQueue} · на розгляді ${onDesk} · нових людей ${pending}`,
+      gosTellNext: () => call('gossip=1&force=1', '✦ Марта переказала верхню з черги'),
+      gosReload: () => this._loadGossipAdmin(),
+
+      gosPeople: people.map(p => {
+        const b = P_BADGE[p.status] || P_BADGE.pending;
+        return {
+          key: p.id, id: p.id,
+          nick: p.nick || '—',
+          badge: b.label, badgeColor: b.color,
+          meta: [p.tg_nick, p.email, this._gosWhen(p.created_at)].filter(Boolean).join(' · '),
+          about: p.about || '',
+          hasAbout: !!p.about,
+          trustLabel: p.trusted ? '✓ Без модерації' : 'Довіряти',
+          trustColor: p.trusted ? 'rgba(120,220,150,0.9)' : 'rgba(255,255,255,0.45)',
+          canOpen: p.status !== 'approved',
+          canBlock: p.status !== 'blocked',
+          canTrust: p.status === 'approved',
+          onOpen: () => patchUser(p.id, { status: 'approved' }, '✓ Доступ відкрито'),
+          onBlock: () => { if (window.confirm(`Закрити віконце для «${p.nick}»?`)) patchUser(p.id, { status: 'blocked' }, '✓ Відмовлено'); },
+          onTrust: () => patchUser(p.id, { trusted: !p.trusted }, p.trusted ? '✓ Знову з модерацією' : '✓ Плітки йтимуть одразу'),
+        };
+      }),
+      gosNoPeople: people.length === 0,
+
+      gosFilters: [
+        { key: 'pending', label: `На розгляді · ${onDesk}` },
+        { key: 'ready', label: `У черзі · ${inQueue}` },
+        { key: 'posted', label: 'Переказані' },
+        { key: 'rejected', label: 'Відхилені' },
+      ].map(f => ({
+        key: f.key, label: f.label,
+        bg: s.gosFilter === f.key ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+        border: s.gosFilter === f.key ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
+        color: s.gosFilter === f.key ? '#ffd700' : 'rgba(255,255,255,0.45)',
+        onPick: () => this.setState({ gosFilter: f.key }),
+      })),
+
+      gosRows: shown.map(g => {
+        const b = G_BADGE[g.status] || G_BADGE.pending;
+        const about = (Array.isArray(g.about) ? g.about : []).map(a => a && a.name).filter(Boolean).join(', ');
+        return {
+          key: g.id, id: g.id,
+          head: `№${g.num} · ${b.label}`,
+          badgeColor: b.color,
+          meta: [
+            g.sign === 'nick' ? `від ${g.author_nick || '?'}` : `від ${g.author_nick || '?'} (у чаті не називати)`,
+            about ? `про ${about}` : '',
+            g.topic || '', g.truth ? `певність: ${g.truth}` : '',
+            this._gosWhen(g.created_at),
+          ].filter(Boolean).join(' · '),
+          text: g.text || '',
+          line: g.marta_line || '',
+          hasLine: !!g.marta_line,
+          canApprove: g.status === 'pending',
+          canReject: g.status === 'pending' || g.status === 'ready',
+          canTell: g.status === 'ready' || g.status === 'pending',
+          onApprove: () => patchGos(g.id, { status: 'ready' }, '✓ Стоїть у черзі'),
+          onReject: () => patchGos(g.id, { status: 'rejected' }, '✓ Відхилено'),
+          onTell: () => { if (window.confirm('Марта перекаже цю плітку в чаті просто зараз. Надсилати?')) call(`gossip=1&force=1&pick=${g.id}`, '✦ Пішло в чат'); },
+          onDelete: async () => {
+            if (!window.confirm('Видалити рядок назовсім?')) return;
+            try {
+              await this._remove('gossip_queue', g.id);
+              this.setState(st => ({ gosRows: (st.gosRows || []).filter(r => String(r.id) !== String(g.id)) }));
+              this._toast('✓ Видалено');
+            } catch (e) { this._toast('✗ Не вийшло'); }
+          },
+        };
+      }),
+      gosNoRows: shown.length === 0,
     };
   }
 
@@ -3945,6 +4195,7 @@ class Component extends DCLogic {
         { id: 'map',        label: '🗺 Мапа',        active: tab === 'map' },
         { id: 'dice',       label: '🎲 Дайс',        active: tab === 'dice' },
         { id: 'tests',      label: '🧠 Тести',       active: tab === 'tests' },
+        { id: 'gossip',     label: '✉ Плітки',      active: tab === 'gossip' },
         { id: 'contacts',   label: '✍️ Долучитися',    active: tab === 'contacts' },
       ],
       setTab: (e) => {
@@ -3963,9 +4214,11 @@ class Component extends DCLogic {
       showMap:        tab === 'map',
       showDice:       tab === 'dice',
       showTests:      tab === 'tests',
+      showGossipTab:  tab === 'gossip',
       showStats:      tab === 'stats',
       ...this._statsVals(),
       ...this._testsVals(),
+      ...this._gossipVals(),
 
       diceCritQuotes:   (data.site && data.site.dice_quotes_crit   != null && data.site.dice_quotes_crit   !== '') ? data.site.dice_quotes_crit   : DEFAULT_DICE_QUOTES.crit.join('\n'),
       diceFumbleQuotes: (data.site && data.site.dice_quotes_fumble != null && data.site.dice_quotes_fumble !== '') ? data.site.dice_quotes_fumble : DEFAULT_DICE_QUOTES.fumble.join('\n'),

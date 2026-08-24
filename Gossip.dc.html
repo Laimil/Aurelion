@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;margin:0}
+a{color:#ffd700;text-decoration:none}
+a:hover{color:#fff}
+@keyframes gosIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.gos-in{animation:gosIn 0.32s ease both}
+.gos-field:focus{border-color:rgba(255,215,0,0.45)!important;background:rgba(255,255,255,0.07)!important}
+.gos-go:hover{box-shadow:0 0 22px rgba(255,215,0,0.4)}
+.gos-go[data-busy="true"]{opacity:0.45;pointer-events:none}
+.gos-ghost:hover{color:#fff!important;border-color:rgba(255,255,255,0.32)!important}
+.gos-pill:hover{color:#fff!important;border-color:rgba(255,215,0,0.4)!important}
+.gos-hit:hover{background:rgba(255,215,0,0.1)!important;color:#fff!important}
+</style>
+</helmet>
+
+<div style="width:100%;max-width:680px;margin:0 auto;padding-bottom:8px;">
+
+  <sc-if value="{{ standalone }}" hint-placeholder-val="{{ false }}">
+    <header style="text-align:center;padding:72px 0 34px;">
+      <p style="font-size:0.66rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:12px;">✦ Рецепція штабу</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#fff;letter-spacing:0.08em;">ВІКОНЦЕ</h1>
+      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);">Принесіть Марті рядок — далі вона сама.</p>
+    </header>
+  </sc-if>
+
+  <!-- ── чекаємо, поки зʼясується, хто прийшов ── -->
+  <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ true }}">
+    <div style="text-align:center;padding:60px 24px;font-family:'EB Garamond',Georgia,serif;font-style:italic;color:rgba(255,255,255,0.35);">Марта гортає журнал…</div>
+  </sc-if>
+
+  <!-- ══════════ ГІСТЬ: вхід або заявка ══════════ -->
+  <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
+    <div class="gos-in" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:30px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+      <div style="display:flex;gap:8px;margin-bottom:22px;">
+        <button onClick="{{ pickLogin }}" class="gos-pill" style="cursor:pointer;flex:1;border-radius:999px;padding:11px 16px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.05em;transition:all 0.2s ease;background:{{ loginBg }};border:1px solid {{ loginBorder }};color:{{ loginColor }};">Увійти</button>
+        <button onClick="{{ pickSignup }}" class="gos-pill" style="cursor:pointer;flex:1;border-radius:999px;padding:11px 16px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.05em;transition:all 0.2s ease;background:{{ signupBg }};border:1px solid {{ signupBorder }};color:{{ signupColor }};">Записатися</button>
+      </div>
+
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:22px;text-wrap:pretty;">{{ guestIntro }}</p>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <input class="gos-field" type="email" value="{{ email }}" onChange="{{ setEmail }}" onKeyDown="{{ onAuthEnter }}" placeholder="Пошта" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+        <input class="gos-field" type="password" value="{{ pass }}" onChange="{{ setPass }}" onKeyDown="{{ onAuthEnter }}" placeholder="Пароль" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+
+        <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <input class="gos-field" value="{{ nick }}" onChange="{{ setNick }}" placeholder="Як вас звати в чаті" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+            <input class="gos-field" value="{{ tg }}" onChange="{{ setTg }}" placeholder="Нік у телеграмі — @хтось" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+            <textarea class="gos-field" value="{{ about }}" onChange="{{ setAbout }}" placeholder="Пару слів про себе — щоб адміни впізнали" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:16px;background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.25);border-radius:8px;padding:10px 14px;font-size:0.84rem;color:#ff8080;">{{ authErr }}</div>
+      </sc-if>
+
+      <button onClick="{{ doAuth }}" class="gos-go" data-busy="{{ authBusy }}" style="width:100%;margin-top:20px;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px;font-family:'Cinzel',serif;font-size:0.86rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;">{{ authBtn }}</button>
+    </div>
+  </sc-if>
+
+  <!-- ══════════ ЗАЯВКА ЛЕЖИТЬ НА СТОЛІ ══════════ -->
+  <sc-if value="{{ isPending }}" hint-placeholder-val="{{ false }}">
+    <div class="gos-in" style="background:rgba(255,255,255,0.04);border:1px dashed rgba(255,215,0,0.28);border-radius:15px;padding:34px 28px;text-align:center;">
+      <p style="font-family:'Cinzel',Georgia,serif;color:rgba(255,215,0,0.75);font-size:1.05rem;letter-spacing:0.06em;margin-bottom:12px;">✦ Заявку прийнято</p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;line-height:1.7;color:rgba(255,255,255,0.5);max-width:440px;margin:0 auto;text-wrap:pretty;">Аркуш лежить у Марти на столі, вона вже постукала кому треба. Щойно доступ відкриють — віконце тут само й відчиниться.</p>
+      <button onClick="{{ doLogout }}" class="gos-ghost" style="margin-top:24px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 22px;font-size:0.8rem;transition:all 0.2s ease;">Вийти</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isBlocked }}" hint-placeholder-val="{{ false }}">
+    <div class="gos-in" style="background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.2);border-radius:15px;padding:30px 26px;text-align:center;">
+      <p style="font-family:'Cinzel',Georgia,serif;color:#ff8080;font-size:1rem;letter-spacing:0.06em;margin-bottom:10px;">ВІДМОВЛЕНО</p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:rgba(255,255,255,0.45);">Віконце для вас зачинене. З цим — до адміністрації, не до мене. — М.</p>
+      <button onClick="{{ doLogout }}" class="gos-ghost" style="margin-top:22px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 22px;font-size:0.8rem;transition:all 0.2s ease;">Вийти</button>
+    </div>
+  </sc-if>
+
+  <!-- ══════════ ВІКОНЦЕ ВІДЧИНЕНЕ ══════════ -->
+  <sc-if value="{{ isOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="gos-in" style="display:flex;flex-direction:column;gap:20px;">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <p style="font-size:0.78rem;color:rgba(255,255,255,0.42);">Віконце відчинене для <span style="color:#ffd700;">{{ myNick }}</span>{{ trustNote }}</p>
+        <button onClick="{{ doLogout }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 16px;font-size:0.74rem;transition:all 0.2s ease;">Вийти</button>
+      </div>
+
+      <!-- форма -->
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+        <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:14px;">✦ Що ви чули</p>
+
+        <textarea class="gos-field" value="{{ text }}" onChange="{{ setText }}" placeholder="Так і пишіть, як переказали б знайомій. Коротке Марта зачитає дослівно, довге перекаже своїми словами." rows="5" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:14px 16px;color:#fff;font-size:1rem;font-family:'EB Garamond',Georgia,serif;line-height:1.7;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+        <p style="text-align:right;font-size:0.7rem;color:{{ countColor }};margin-top:6px;">{{ countLabel }}</p>
+
+        <!-- про кого -->
+        <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Про кого</p>
+        <sc-if value="{{ hasPicked }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+            <sc-for list="{{ picked }}" as="p" hint-placeholder-count="2">
+              <button onClick="{{ p.onDrop }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 14px;font-size:0.8rem;">{{ p.name }} ✕</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <input class="gos-field" value="{{ charQ }}" onChange="{{ setCharQ }}" placeholder="Почніть писати імʼя" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 16px;color:#fff;font-size:0.88rem;outline:none;transition:all 0.2s ease;" />
+        <sc-if value="{{ hasHits }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+            <sc-for list="{{ charHits }}" as="h" hint-placeholder-count="3">
+              <button onClick="{{ h.onAdd }}" class="gos-hit" style="cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;transition:all 0.2s ease;">{{ h.name }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- про що -->
+        <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Про що це</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <sc-for list="{{ topics }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.onPick }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:8px 18px;font-size:0.83rem;transition:all 0.2s ease;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.color }};">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <!-- певність -->
+        <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Наскільки це правда</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <sc-for list="{{ truths }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.onPick }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:8px 18px;font-size:0.83rem;transition:all 0.2s ease;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.color }};">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <!-- підпис -->
+        <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Підпис у чаті</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <sc-for list="{{ signs }}" as="t" hint-placeholder-count="2">
+            <button onClick="{{ t.onPick }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:8px 18px;font-size:0.83rem;transition:all 0.2s ease;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.color }};">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ hasSendMsg }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:18px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.22);border-radius:8px;padding:11px 15px;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.72);">{{ sendMsg }}</div>
+        </sc-if>
+
+        <button onClick="{{ doSend }}" class="gos-go" data-busy="{{ sending }}" style="width:100%;margin-top:20px;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px;font-family:'Cinzel',serif;font-size:0.86rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;">{{ sendBtn }}</button>
+        <p style="text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.26);margin-top:10px;">{{ limitNote }}</p>
+      </div>
+
+      <!-- мої плітки -->
+      <div>
+        <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;">✦ Мої плітки</p>
+        <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ mine }}" as="m" hint-placeholder-count="2">
+              <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-left:2px solid {{ m.accent }};border-radius:10px;padding:14px 16px;">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px;">
+                  <span style="font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:{{ m.accent }};">{{ m.badge }}</span>
+                  <span style="font-size:0.68rem;color:rgba(255,255,255,0.22);">{{ m.when }}</span>
+                </div>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.6;color:rgba(255,255,255,0.6);text-wrap:pretty;">{{ m.text }}</p>
+                <sc-if value="{{ m.hasLine }}" hint-placeholder-val="{{ false }}">
+                  <p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.96rem;line-height:1.65;color:rgba(255,215,0,0.72);white-space:pre-line;">{{ m.line }}</p>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noMine }}" hint-placeholder-val="{{ true }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;color:rgba(255,255,255,0.3);font-size:0.98rem;">Поки ви не приносили нічого.</p>
+        </sc-if>
+      </div>
+
+      <!-- стрічка -->
+      <div>
+        <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;">✦ Що Марта вже переказала</p>
+        <sc-if value="{{ hasFeed }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ feed }}" as="f" hint-placeholder-count="2">
+              <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 16px;">
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.7;color:rgba(255,255,255,0.66);white-space:pre-line;text-wrap:pretty;">{{ f.line }}</p>
+                <p style="margin-top:8px;font-size:0.68rem;color:rgba(255,255,255,0.22);">{{ f.when }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noFeed }}" hint-placeholder-val="{{ true }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;color:rgba(255,255,255,0.3);font-size:0.98rem;">У чаті ще тиша.</p>
+        </sc-if>
+      </div>
+
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:900},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const SUPA_URL   = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH  = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_FUNCS = 'https://ztltzghfkppuwixhylng.supabase.co/functions/v1';
+const SUPA_KEY   = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const BASE_H     = { 'apikey': SUPA_KEY };
+
+const TOPICS = ['подія', 'стосунки', 'чутка', 'курйоз'];
+const TRUTHS = ['чув', 'бачив', 'вигадав'];
+const MAX_TEXT = 600;
+
+// Статус рядка людською мовою — і колір, який його несе.
+const BADGE = {
+  pending:  { label: 'На розгляді', accent: 'rgba(255,255,255,0.35)' },
+  ready:    { label: 'У черзі',     accent: 'rgba(100,149,237,0.75)' },
+  posted:   { label: 'Переказано',  accent: '#ffd700' },
+  rejected: { label: 'Відхилено',   accent: 'rgba(255,77,77,0.7)' },
+};
+
+// «Дарена» і «Дарен» мають знаходитися одне одним: рубаємо хвіст, як це
+// робить пошук у Марти.
+const fold = (s) => String(s || '').toLowerCase()
+  .replace(/[ʼ'’`ь]/g, '').replace(/і/g, 'и').replace(/ї/g, 'и').replace(/є/g, 'е');
+
+class Component extends DCLogic {
+  state = {
+    phase: 'load',
+    mode: 'login',
+    email: '', pass: '', nick: '', tg: '', about: '',
+    authErr: '', authBusy: false,
+    prof: null, uid: '',
+    chars: [], charQ: '',
+    text: '', picked: [], topic: 'чутка', truth: 'чув', sign: 'anon',
+    sending: false, sendMsg: '',
+    mine: [], feed: [],
+  };
+
+  componentDidMount() { this._boot(); }
+
+  // ── токен ─────────────────────────────────────────────────
+  _tok()  { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _ref()  { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
+  _save(d) {
+    try {
+      if (d && d.access_token) localStorage.setItem('au_user_token', d.access_token);
+      if (d && d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+    } catch (e) {}
+  }
+  _drop() {
+    try {
+      localStorage.removeItem('au_user_token');
+      localStorage.removeItem('au_user_refresh');
+      localStorage.removeItem('au_gossip_profile');
+    } catch (e) {}
+  }
+  _h(json) {
+    const h = { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` };
+    if (json) h['Content-Type'] = 'application/json';
+    return h;
+  }
+
+  // Токен живе годину. Без оновлення людину викидало б з віконця
+  // посеред набраного рядка.
+  async _refresh() {
+    const rt = this._ref();
+    if (!rt) return false;
+    try {
+      const r = await fetch(`${SUPA_AUTH}/token?grant_type=refresh_token`, {
+        method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: rt }),
+      });
+      const d = await r.json();
+      if (d && d.access_token) { this._save(d); return true; }
+    } catch (e) {}
+    return false;
+  }
+
+  async _me() {
+    if (!this._tok()) return null;
+    let r = await fetch(`${SUPA_AUTH}/user`, { headers: this._h() });
+    if (r.status === 401 && await this._refresh()) {
+      r = await fetch(`${SUPA_AUTH}/user`, { headers: this._h() });
+    }
+    if (!r.ok) return null;
+    try { return await r.json(); } catch (e) { return null; }
+  }
+
+  async _boot() {
+    this._loadChars();
+    const u = await this._me();
+    if (!u || !u.id) { this.setState({ phase: 'guest' }); return; }
+    await this._loadProfile(u);
+  }
+
+  // ── анкета людини ─────────────────────────────────────────
+  async _loadProfile(u) {
+    let prof = null;
+    try {
+      const r = await fetch(`${SUPA_URL}/site_users?id=eq.${u.id}&select=*`, { headers: this._h() });
+      if (r.ok) prof = (await r.json())[0] || null;
+    } catch (e) {}
+
+    // Пошта з підтвердженням: анкету не було кому створити на реєстрації,
+    // тому створюємо її при першому вдалому вході.
+    if (!prof) {
+      let draft = null;
+      try { draft = JSON.parse(localStorage.getItem('au_gossip_profile') || 'null'); } catch (e) {}
+      if (draft && draft.nick) prof = await this._createProfile(u, draft);
+    }
+    if (!prof) { this.setState({ phase: 'guest', authErr: 'Анкети немає — запишіться заново.' }); this._drop(); return; }
+
+    this.setState({ phase: 'ok', uid: u.id, prof, sign: 'anon' });
+    if (prof.status === 'approved') this._loadLists(u.id);
+  }
+
+  async _createProfile(u, draft) {
+    try {
+      const r = await fetch(`${SUPA_URL}/site_users`, {
+        method: 'POST',
+        headers: { ...this._h(true), 'Prefer': 'return=representation' },
+        body: JSON.stringify({
+          id: u.id, email: u.email || '', nick: draft.nick,
+          tg_nick: draft.tg || '', about: draft.about || '',
+        }),
+      });
+      if (!r.ok) return null;
+      const row = (await r.json())[0] || null;
+      try { localStorage.removeItem('au_gossip_profile'); } catch (e) {}
+      // Марта стукає адмінам у лічку — сама, своїм ключем; сайт лише
+      // каже їй, що хтось прийшов.
+      fetch(`${SUPA_FUNCS}/telegram-report?knock=user`, {
+        method: 'POST', headers: this._h(),
+      }).catch(() => {});
+      return row;
+    } catch (e) { return null; }
+  }
+
+  async _loadChars() {
+    try {
+      const r = await fetch(`${SUPA_URL}/characters?select=id,name,alias&order=name.asc`, { headers: BASE_H });
+      if (r.ok) this.setState({ chars: await r.json() });
+    } catch (e) {}
+  }
+
+  async _loadLists(uid) {
+    const get = async (q) => {
+      try {
+        const r = await fetch(`${SUPA_URL}/${q}`, { headers: this._h() });
+        return r.ok ? await r.json() : [];
+      } catch (e) { return []; }
+    };
+    const [mine, feed] = await Promise.all([
+      get(`gossip_queue?author_id=eq.${uid}&select=*&order=created_at.desc&limit=30`),
+      get(`gossip_queue?status=eq.posted&select=num,marta_line,posted_at,sign,author_nick&order=posted_at.desc&limit=30`),
+    ]);
+    this.setState({ mine, feed });
+  }
+
+  // ── вхід і заявка ─────────────────────────────────────────
+  async _auth() {
+    const s = this.state;
+    const email = s.email.trim(), pass = s.pass;
+    if (!email || !pass) { this.setState({ authErr: 'Пошта й пароль — обовʼязково.' }); return; }
+    if (s.mode === 'signup' && !s.nick.trim()) { this.setState({ authErr: 'Скажіть, як вас звати в чаті.' }); return; }
+    if (s.mode === 'signup' && pass.length < 6) { this.setState({ authErr: 'Пароль коротший за шість знаків.' }); return; }
+    this.setState({ authBusy: true, authErr: '' });
+
+    try {
+      if (s.mode === 'signup') {
+        try {
+          localStorage.setItem('au_gossip_profile', JSON.stringify({
+            nick: s.nick.trim(), tg: s.tg.trim(), about: s.about.trim(),
+          }));
+        } catch (e) {}
+        const r = await fetch(`${SUPA_AUTH}/signup`, {
+          method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pass }),
+        });
+        const d = await r.json();
+        if (!r.ok) {
+          this.setState({ authBusy: false, authErr: d.msg || d.error_description || 'Записати не вийшло.' });
+          return;
+        }
+        if (!d.access_token) {
+          // У Supabase увімкнене підтвердження пошти — анкету створимо
+          // при першому вході, чернетка вже лежить у браузері.
+          this.setState({
+            authBusy: false, mode: 'login', pass: '',
+            authErr: 'Перевірте пошту: лист із підтвердженням. Тоді увійдіть.',
+          });
+          return;
+        }
+        this._save(d);
+        const u = d.user || await this._me();
+        const prof = await this._createProfile(u, { nick: s.nick.trim(), tg: s.tg.trim(), about: s.about.trim() });
+        this.setState({ authBusy: false, pass: '', phase: 'ok', uid: u.id, prof });
+        return;
+      }
+
+      const r = await fetch(`${SUPA_AUTH}/token?grant_type=password`, {
+        method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: pass }),
+      });
+      const d = await r.json();
+      if (!d.access_token) {
+        this.setState({ authBusy: false, authErr: d.error_description || d.msg || 'Невірна пошта або пароль.' });
+        return;
+      }
+      this._save(d);
+      this.setState({ authBusy: false, pass: '' });
+      await this._loadProfile(d.user || await this._me());
+    } catch (e) {
+      this.setState({ authBusy: false, authErr: 'Звʼязку немає. Спробуйте ще раз.' });
+    }
+  }
+
+  _logout() {
+    const t = this._tok();
+    if (t) fetch(`${SUPA_AUTH}/logout`, { method: 'POST', headers: this._h() }).catch(() => {});
+    this._drop();
+    this.setState({ phase: 'guest', prof: null, uid: '', mine: [], feed: [], text: '', picked: [] });
+  }
+
+  // ── подання плітки ────────────────────────────────────────
+  async _send() {
+    const s = this.state;
+    const text = s.text.trim();
+    if (text.length < 12) { this.setState({ sendMsg: 'Надто коротко — Марті нема що переказувати.' }); return; }
+    if (text.length > MAX_TEXT) { this.setState({ sendMsg: `Задовго: ${text.length} знаків із ${MAX_TEXT}.` }); return; }
+    this.setState({ sending: true, sendMsg: '' });
+    try {
+      const r = await fetch(`${SUPA_URL}/gossip_queue`, {
+        method: 'POST',
+        headers: { ...this._h(true), 'Prefer': 'return=representation' },
+        body: JSON.stringify({
+          author_id: s.uid, text,
+          about: s.picked.map((p) => ({ id: p.id, name: p.name })),
+          topic: s.topic, truth: s.truth, sign: s.sign,
+        }),
+      });
+      if (!r.ok) {
+        const body = await r.text();
+        const m = body.match(/"message":"([^"]+)"/);
+        this.setState({ sending: false, sendMsg: m ? m[1] : 'Не прийнято. Спробуйте пізніше.' });
+        return;
+      }
+      const row = (await r.json())[0] || {};
+      if (row.status === 'pending' && row.id) {
+        fetch(`${SUPA_FUNCS}/telegram-report?knock=gossip&id=${row.id}`, {
+          method: 'POST', headers: this._h(),
+        }).catch(() => {});
+      }
+      this.setState({
+        sending: false, text: '', picked: [], charQ: '',
+        sendMsg: row.status === 'ready'
+          ? '✦ Прийнято. Стоїть у черзі — Марта перекаже в чаті.'
+          : '✦ Прийнято. Лежить на розгляді; щойно схвалять — піде в чергу.',
+      });
+      this._loadLists(s.uid);
+    } catch (e) {
+      this.setState({ sending: false, sendMsg: 'Звʼязку немає. Спробуйте ще раз.' });
+    }
+  }
+
+  // ── дрібниці для розмітки ─────────────────────────────────
+  _pillStyle(on) {
+    return on
+      ? { bg: 'rgba(255,215,0,0.14)', border: 'rgba(255,215,0,0.5)', color: '#ffd700' }
+      : { bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.13)', color: 'rgba(255,255,255,0.5)' };
+  }
+
+  _when(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const p = (n) => String(n).padStart(2, '0');
+    return `${p(d.getDate())}.${p(d.getMonth() + 1)} · ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const prof = s.prof || {};
+    const isSignup = s.mode === 'signup';
+    const pickedIds = new Set(s.picked.map((p) => p.id));
+
+    const q = fold(s.charQ.trim());
+    const hits = q.length < 2 ? [] : s.chars
+      .filter((c) => !pickedIds.has(c.id))
+      .filter((c) => fold(c.name).indexOf(q) !== -1 || fold(c.alias || '').indexOf(q) !== -1)
+      .slice(0, 8)
+      .map((c) => ({
+        id: c.id, name: c.name,
+        onAdd: () => this.setState((st) => ({
+          picked: [...st.picked, { id: c.id, name: c.name }], charQ: '',
+        })),
+      }));
+
+    const pill = (list, cur, key) => list.map((v) => ({
+      key: v, label: v, ...this._pillStyle(cur === v),
+      onPick: () => this.setState({ [key]: v }),
+    }));
+
+    const nick = String(prof.nick || '').trim();
+    const signs = [
+      { key: 'anon', label: 'Не називати мене', ...this._pillStyle(s.sign === 'anon'),
+        onPick: () => this.setState({ sign: 'anon' }) },
+      { key: 'nick', label: `Можна назвати: ${nick || 'мене'}`, ...this._pillStyle(s.sign === 'nick'),
+        onPick: () => this.setState({ sign: 'nick' }) },
+    ];
+
+    const len = s.text.trim().length;
+    const mine = (s.mine || []).map((m) => {
+      const b = BADGE[m.status] || BADGE.pending;
+      return {
+        key: m.id, badge: b.label, accent: b.accent,
+        when: this._when(m.created_at),
+        text: m.text,
+        hasLine: !!m.marta_line, line: m.marta_line || '',
+      };
+    });
+    const feed = (s.feed || []).map((f) => ({
+      key: f.num, line: f.marta_line || '', when: this._when(f.posted_at),
+    }));
+
+    return {
+      standalone: !this.props.embedded,
+      isLoading: s.phase === 'load',
+      isGuest:   s.phase === 'guest',
+      isPending: s.phase === 'ok' && prof.status === 'pending',
+      isBlocked: s.phase === 'ok' && prof.status === 'blocked',
+      isOpen:    s.phase === 'ok' && prof.status === 'approved',
+
+      isSignup,
+      guestIntro: isSignup
+        ? 'Запишіться, і Марта покладе аркуш на стіл адміністрації. Щойно доступ відкриють — зможете приносити плітки, які вона переказуватиме в чаті.'
+        : 'Віконце відчиняється тільки своїм. Якщо вас уже записали — заходьте.',
+      ...(() => {
+        const l = this._pillStyle(!isSignup), r = this._pillStyle(isSignup);
+        return {
+          loginBg: l.bg, loginBorder: l.border, loginColor: l.color,
+          signupBg: r.bg, signupBorder: r.border, signupColor: r.color,
+        };
+      })(),
+      email: s.email, pass: s.pass, nick: s.nick, tg: s.tg, about: s.about,
+      authErr: s.authErr, hasAuthErr: !!s.authErr, authBusy: s.authBusy,
+      authBtn: s.authBusy ? 'Хвилинку…' : (isSignup ? 'Подати заявку' : 'Увійти'),
+      setEmail: (e) => this.setState({ email: e.target.value }),
+      setPass:  (e) => this.setState({ pass: e.target.value }),
+      setNick:  (e) => this.setState({ nick: e.target.value }),
+      setTg:    (e) => this.setState({ tg: e.target.value }),
+      setAbout: (e) => this.setState({ about: e.target.value }),
+      onAuthEnter: (e) => { if (e.key === 'Enter') this._auth(); },
+      pickLogin:  () => this.setState({ mode: 'login', authErr: '' }),
+      pickSignup: () => this.setState({ mode: 'signup', authErr: '' }),
+      doAuth:   () => this._auth(),
+      doLogout: () => this._logout(),
+
+      myNick: nick,
+      trustNote: prof.trusted ? ' — ваші плітки йдуть без модерації' : '',
+
+      text: s.text, setText: (e) => this.setState({ text: e.target.value }),
+      countLabel: `${len} / ${MAX_TEXT}`,
+      countColor: len > MAX_TEXT ? '#ff8080' : 'rgba(255,255,255,0.25)',
+      charQ: s.charQ, setCharQ: (e) => this.setState({ charQ: e.target.value }),
+      charHits: hits, hasHits: hits.length > 0,
+      picked: s.picked.map((p) => ({
+        key: p.id, name: p.name,
+        onDrop: () => this.setState((st) => ({ picked: st.picked.filter((x) => x.id !== p.id) })),
+      })),
+      hasPicked: s.picked.length > 0,
+      topics: pill(TOPICS, s.topic, 'topic'),
+      truths: pill(TRUTHS, s.truth, 'truth'),
+      signs,
+      sending: s.sending,
+      sendBtn: s.sending ? 'Несу до віконця…' : 'Віддати Марті',
+      sendMsg: s.sendMsg, hasSendMsg: !!s.sendMsg,
+      limitNote: prof.trusted
+        ? 'Не більше пʼяти пліток на добу.'
+        : 'Не більше пʼяти пліток на добу; перші кілька дивиться адміністрація.',
+      doSend: () => this._send(),
+
+      mine, hasMine: mine.length > 0, noMine: mine.length === 0,
+      feed, hasFeed: feed.length > 0, noFeed: feed.length === 0,
+    };
+  }
+}
+</script>
+</body>
+</html>
