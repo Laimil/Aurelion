@@ -1510,9 +1510,12 @@ a:hover{color:#a8c4f7;}
             <sc-for list="{{ wallThreads }}" as="ln" hint-placeholder-count="0">
               <path d="{{ ln.d }}" fill="none" stroke="{{ ln.stroke }}" stroke-width="{{ ln.w }}" stroke-opacity="{{ ln.op }}" stroke-linecap="round"></path>
             </sc-for>
+            <sc-for list="{{ wallLeads }}" as="ld" hint-placeholder-count="0">
+              <line x1="{{ ld.x1 }}" y1="{{ ld.y1 }}" x2="{{ ld.x2 }}" y2="{{ ld.y2 }}" stroke="{{ ld.stroke }}" stroke-width="1.2" stroke-opacity="0.75" stroke-dasharray="4 3" stroke-linecap="round"></line>
+            </sc-for>
           </svg>
           <sc-for list="{{ wallTags }}" as="t" hint-placeholder-count="0">
-            <div style="position:absolute;left:{{ t.left }};top:{{ t.top }};transform:translate(-50%,-50%) rotate({{ t.rot }});background:#efe7d4;border-radius:2px;padding:4px 9px 5px;box-shadow:0 5px 14px rgba(0,0,0,0.65);max-width:186px;z-index:50;pointer-events:none;">
+            <div style="position:absolute;left:{{ t.left }};top:{{ t.top }};width:{{ t.w }};box-sizing:border-box;transform:translate(-50%,-50%) rotate({{ t.rot }});background:#efe7d4;border-radius:2px;padding:4px 9px 5px;box-shadow:0 5px 14px rgba(0,0,0,0.65);z-index:50;pointer-events:none;">
               <div style="display:flex;align-items:center;gap:5px;">
                 <span style="width:8px;height:8px;border-radius:50%;background:{{ t.color }};border:1px solid rgba(0,0,0,0.35);flex-shrink:0;"></span>
                 <p style="font-size:0.64rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ t.ink }};margin:0;font-weight:700;">{{ t.typeLabel }}</p>
@@ -3125,7 +3128,118 @@ class Component extends DCLogic {
         mx: (a.x + 2 * mx + b.x) / 4, my: (a.y + 2 * cy + b.y) / 4,
       };
     };
-    return { M, pos, S, on, focus, q, match, near, curve };
+    const sc = { M, pos, S, on, focus, q, match, near, curve };
+    sc.tags = this._wallTags(sc);
+    return sc;
+  }
+
+  // Ширина рядка без DOM: екран і канва мусять мати ОДНЕ число, інакше
+  // розсунуті на екрані бирки на знімку знову налізали б.
+  _textW(s, per) {
+    let w = 0;
+    for (const ch of String(s)) w += /[іїjlt.,:;!'’ ]/.test(ch) ? per * 0.55 : per;
+    return w;
+  }
+
+  // Скільки від центру коробки до її межі в напрямку (ux,uy).
+  _reachOf(hw, hh, ux, uy) {
+    const ax = Math.abs(ux), ay = Math.abs(uy);
+    return Math.min(ax > 1e-6 ? hw / ax : Infinity, ay > 1e-6 ? hh / ay : Infinity);
+  }
+
+  // ── Бирки на стіні: біля своєї теки й без накладань ──────
+  // Раніше бирка ставала в СЕРЕДИНУ нитки. У теки з десятком знайомих усі
+  // середини сходяться в одну пляму — папір лягав один на одного. Тепер
+  // бирка висить ЗА своєю текою (у бік від центральної), потім усі бирки
+  // розсуваються між собою й з-під тек, а до своєї теки тягнеться коротка
+  // волосина — щоб видно було, чия вона.
+  _wallTags(sc) {
+    if (!sc.focus || this._wdrag) return [];
+    const F = sc.pos[sc.focus]; if (!F) return [];
+    const edges = (sc.M.nbr[sc.focus] || []).filter(e => sc.on(e.kind));
+    if (!edges.length) return [];
+    const S = sc.S, CW = 36, CH = 52, LH = 17.6;
+    // Багато знайомих — папір вужчий: інакше на стіну він просто не влазить.
+    const MAXW = edges.length > 7 ? 140 : 186;
+    const reach = (hw, hh, ux, uy) => this._reachOf(hw, hh, ux, uy);
+    const boxes = edges.map((e, i) => {
+      const oid = e.a === sc.focus ? e.b : e.a;
+      const p = sc.pos[oid] || F;
+      let ux = p.x - F.x, uy = p.y - F.y;
+      const len = Math.sqrt(ux * ux + uy * uy);
+      if (len < 1) { const a = ((this._wallHash(e.key) % 360) + i * 11) * Math.PI / 180; ux = Math.cos(a); uy = Math.sin(a); }
+      else { ux /= len; uy /= len; }
+      const K = WALL_KIND[e.kind] || WALL_KIND.plain;
+      const lab = String(e.label || '').trim();
+      const headW = 32 + this._textW(K.label.toUpperCase(), 7.3);
+      const labW = lab ? this._textW(lab, 6.9) : 0;
+      const w = Math.max(68, Math.min(MAXW, Math.max(headW, labW + 20)));
+      // Рядків рахуємо з запасом (0.82 — на нерівний правий край переносу):
+      // коробка на екрані росте за текстом, і применшена висота знову дала б
+      // накладання. Перебільшити тут безпечно — бирки просто стануть далі.
+      const lines = lab ? Math.min(7, Math.max(1, Math.ceil(labW / ((w - 20) * 0.82)))) : 0;
+      const h = (lab ? 25 : 21) + lines * LH;
+      return { e, K, lab, lines, w, h, px: p.x, py: p.y, ux, uy, x: p.x, y: p.y };
+    });
+    const cards = (sc.M.chars || []).map(ch => sc.pos[String(ch.id)]).filter(Boolean);
+    // Світлі теки — центральна й ті, з якими саме зараз нитка: їх бирка
+    // накривати НЕ має права (тоді не видно, з КИМ той зв'язок). Погаслі
+    // теки — інша річ: вони й так стерті, папір поверх них не заважає.
+    const lit = [sc.pos[sc.focus]].concat(edges.map(e => sc.pos[e.a === sc.focus ? e.b : e.a])).filter(Boolean);
+    // Місце шукаємо по черзі, а не «розсуванням»: теки на стіні стоять
+    // щільно, і взаємне відштовхування щоразу заганяло папір у той самий
+    // тупик — з-під однієї теки на іншу. Тепер кожна бирка обходить своє
+    // коло навколо власної теки (радіус за радіусом, кут за кутом) і стає в
+    // перше місце, де нікого не накриває; хто більший, той обирає першим.
+    const litHit = (b, x, y) => lit.reduce((s, p) => {
+      const ox = b.w / 2 + 33 - Math.abs(p.x - x), oy = b.h / 2 + 50 - Math.abs(p.y - y);
+      return s + (ox > 0 && oy > 0 ? ox * oy : 0);
+    }, 0);
+    const dimHit = (b, x, y) => cards.reduce((s, p) => {
+      const ox = b.w / 2 + 31 - Math.abs(p.x - x), oy = b.h / 2 + 47 - Math.abs(p.y - y);
+      return s + (ox > 0 && oy > 0 ? ox * oy : 0);
+    }, 0);
+    const placed = [];
+    const tagHit = (b, x, y) => placed.reduce((s, q) => {
+      const ox = (b.w + q.w) / 2 + 8 - Math.abs(q.x - x), oy = (b.h + q.h) / 2 + 7 - Math.abs(q.y - y);
+      return s + (ox > 0 && oy > 0 ? ox * oy : 0);
+    }, 0);
+    const RING = [0, 12, 26, 42, 60, 82, 108, 140, 180, 230];
+    const TURN = [0, 13, -13, 26, -26, 40, -40, 54, -54, 68, -68, 84, -84, 100, -100, 116, -116, 133, -133, 150, -150, 166, -166, 180];
+    boxes.slice().sort((a, b) => b.w * b.h - a.w * a.h).forEach(b => {
+      const base = Math.atan2(b.uy, b.ux);
+      let best = null;
+      for (const dr of RING) {
+        for (const deg of TURN) {
+          const a = base + deg * Math.PI / 180;
+          const ux = Math.cos(a), uy = Math.sin(a);
+          const out = reach(CW, CH, ux, uy) + reach(b.w / 2 + 4, b.h / 2 + 4, ux, uy) + 8 + dr;
+          const x = Math.max(b.w / 2 + 4, Math.min(S.w - b.w / 2 - 4, b.px + out * ux));
+          const y = Math.max(b.h / 2 + 4, Math.min(S.h - b.h / 2 - 4, b.py + out * uy));
+          const hard = litHit(b, x, y) + tagHit(b, x, y);
+          // Погаслу теку накрити можна — вона й так стерта; це лише останній
+          // з доводів, коли решта місць однакова.
+          // Накрити світлу теку чи іншу бирку — найдорожче з усього: краще
+          // відійти на півстіни, ніж затулити обличчя, про яке мова.
+          const cost = hard * 60 + dimHit(b, x, y) * 0.04 + dr * 14 + Math.abs(deg) * 4;
+          if (!best || cost < best.cost) best = { x, y, cost, clean: hard === 0 };
+        }
+        if (best && best.clean) break;
+      }
+      b.x = best.x; b.y = best.y;
+      placed.push(b);
+    });
+    return boxes.map(b => {
+      const dx = b.x - b.px, dy = b.y - b.py, d = Math.sqrt(dx * dx + dy * dy) || 1;
+      const ux = dx / d, uy = dy / d;
+      const edge = this._reachOf(31, 47, ux, uy), cut = this._reachOf(b.w / 2, b.h / 2, ux, uy);
+      return {
+        e: b.e, K: b.K, label: b.lab, lines: b.lines, w: b.w, h: b.h, x: b.x, y: b.y,
+        rot: (((this._wallHash(b.e.key) % 300) / 100) - 1.5).toFixed(1),
+        // Волосина від своєї теки до паперу — щоб було видно, чия бирка.
+        lead: d - edge - cut > 5 ? { x1: b.px + edge * ux, y1: b.py + edge * uy, x2: b.x - cut * ux, y2: b.y - cut * uy } : null,
+      };
+    });
   }
 
   // Стилі однакові для екрана й для PNG — тому вони тут, а не в шаблоні.
@@ -4712,31 +4826,36 @@ class Component extends DCLogic {
       ctx.restore();
     });
 
-    // Бирки — тільки коли стіна в фокусі однієї теки
-    if (sc.focus) sc.M.nbr[sc.focus].filter(e => sc.on(e.kind)).forEach(e => {
-      const c = sc.curve(e); if (!c) return;
-      const K = WALL_KIND[e.kind];
-      const lx = Math.max(96, Math.min(S.w - 96, c.mx));
-      const ly = Math.max(26, Math.min(S.h - 26, c.my));
-      const tl = K.label.toUpperCase(), lab = String(e.label || '');
+    // Бирки — тільки коли стіна в фокусі однієї теки. Місце й розміри беремо
+    // з тієї самої розкладки, що на екрані (sc.tags): знімок мусить повторювати
+    // стіну, а не рахувати геометрію вдруге по-своєму.
+    (sc.tags || []).forEach(t => {
+      const K = t.K;
+      if (t.lead) {
+        ctx.save();
+        ctx.globalAlpha = 0.75;
+        ctx.strokeStyle = K.color;
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(t.lead.x1, t.lead.y1);
+        ctx.lineTo(t.lead.x2, t.lead.y2);
+        ctx.stroke();
+        ctx.restore();
+      }
       ctx.save();
-      ctx.translate(lx, ly);
-      ctx.rotate((((this._wallHash(e.key) % 400) / 100) - 2) * Math.PI / 180);
-      ctx.font = '400 8.8px "EB Garamond", Georgia, serif';
-      const labW = lab ? Math.min(168, ctx.measureText(lab).width) : 0;
-      ctx.font = '700 6.6px system-ui, "Helvetica Neue", Arial, sans-serif';
-      const bwid = Math.min(186, Math.max(56, Math.max(ctx.measureText(tl).width + 30, labW + 16)));
-      const bh2 = lab ? 30 : 17;
+      ctx.translate(t.x, t.y);
+      ctx.rotate((parseFloat(t.rot) || 0) * Math.PI / 180);
       ctx.shadowColor = 'rgba(0,0,0,0.6)';
       ctx.shadowBlur = 7;
       ctx.shadowOffsetY = 3;
       ctx.fillStyle = '#efe7d4';
-      ctx.fillRect(-bwid / 2, -bh2 / 2, bwid, bh2);
+      ctx.fillRect(-t.w / 2, -t.h / 2, t.w, t.h);
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
       ctx.shadowOffsetY = 0;
       ctx.beginPath();
-      ctx.arc(-bwid / 2 + 8, -bh2 / 2 + 7, 3.4, 0, Math.PI * 2);
+      ctx.arc(-t.w / 2 + 13, -t.h / 2 + 11, 4, 0, Math.PI * 2);
       ctx.fillStyle = K.color;
       ctx.fill();
       ctx.strokeStyle = 'rgba(0,0,0,0.35)';
@@ -4744,11 +4863,24 @@ class Component extends DCLogic {
       ctx.stroke();
       ctx.textAlign = 'left';
       ctx.fillStyle = this._wallInk(K.color);
-      ctx.fillText(tl, -bwid / 2 + 15, -bh2 / 2 + 9.6);
-      if (lab) {
+      ctx.font = '700 9px system-ui, "Helvetica Neue", Arial, sans-serif';
+      ctx.fillText(K.label.toUpperCase(), -t.w / 2 + 22, -t.h / 2 + 14);
+      if (t.label) {
         ctx.fillStyle = '#2c2620';
-        ctx.font = '400 8.8px "EB Garamond", Georgia, serif';
-        ctx.fillText(clipText(lab, bwid - 16), -bwid / 2 + 8, -bh2 / 2 + 24);
+        ctx.font = '400 13.2px "EB Garamond", Georgia, serif';
+        const maxw = t.w - 20, cap = Math.max(1, t.lines || 1);
+        const lines = [];
+        let cur = '';
+        String(t.label).split(/\s+/).forEach(wd => {
+          const trial = cur ? cur + ' ' + wd : wd;
+          if (!cur || ctx.measureText(trial).width <= maxw) cur = trial;
+          else { lines.push(cur); cur = wd; }
+        });
+        if (cur) lines.push(cur);
+        lines.slice(0, cap).forEach((ln, i) => {
+          const last = i === Math.min(lines.length, cap) - 1;
+          ctx.fillText(clipText(last && lines.length > cap ? ln + '…' : ln, maxw), -t.w / 2 + 10, -t.h / 2 + 18 + i * 17.2 + 13);
+        });
       }
       ctx.restore();
     });
@@ -6127,16 +6259,17 @@ class Component extends DCLogic {
         }).filter(Boolean);
 
         const ink = (hex) => this._wallInk(hex);
-        const wallTags = (focus && !this._wdrag) ? M.nbr[focus].filter(e => on(e.kind)).map(e => {
-          const c = curve(e); if (!c) return null;
-          return {
-            left: Math.round(Math.max(96, Math.min(S.w - 96, c.mx))) + 'px',
-            top: Math.round(Math.max(26, Math.min(S.h - 26, c.my))) + 'px',
-            rot: (((this._wallHash(e.key) % 400) / 100) - 2).toFixed(1) + 'deg',
-            typeLabel: WALL_KIND[e.kind].label, color: WALL_KIND[e.kind].color, ink: ink(WALL_KIND[e.kind].color),
-            label: e.label, hasLabel: !!e.label,
-          };
-        }).filter(Boolean) : [];
+        // Геометрія бирок рахується в _wallTags — там же, звідки її бере знімок.
+        const wallTags = (sc.tags || []).map(t => ({
+          left: Math.round(t.x) + 'px', top: Math.round(t.y) + 'px',
+          w: Math.round(t.w) + 'px', rot: t.rot + 'deg',
+          typeLabel: t.K.label, color: t.K.color, ink: ink(t.K.color),
+          label: t.label, hasLabel: !!t.label,
+        }));
+        const wallLeads = (sc.tags || []).filter(t => t.lead).map(t => ({
+          x1: t.lead.x1.toFixed(0), y1: t.lead.y1.toFixed(0),
+          x2: t.lead.x2.toFixed(0), y2: t.lead.y2.toFixed(0), stroke: t.K.color,
+        }));
 
         const fc = focus ? M.byId[focus] : null;
         const wallRels = focus ? M.nbr[focus].filter(e => on(e.kind)).map(e => {
@@ -6167,7 +6300,7 @@ class Component extends DCLogic {
 
         return {
           showWall: true,
-          wallCards, wallThreads, wallTags, wallRels, wallLegend,
+          wallCards, wallThreads, wallTags, wallLeads, wallRels, wallLegend,
           wallW: S.w + 'px', wallH: S.h + 'px', wallViewBox: '0 0 ' + S.w + ' ' + S.h,
           wallEmpty: !M.all.length,
           wallAllShelved: !!M.all.length && !M.chars.length,
