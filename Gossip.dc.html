@@ -72,6 +72,24 @@ a:hover{color:#fff}
     </div>
   </sc-if>
 
+  <!-- ══════════ УВІЙШОВ, АЛЕ АНКЕТИ НЕМАЄ ══════════ -->
+  <sc-if value="{{ needProfile }}" hint-placeholder-val="{{ false }}">
+    <div class="gos-in" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:30px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+      <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:12px;">✦ Аркуш на вас ще не заведено</p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:20px;text-wrap:pretty;">Пошта <span style="color:#ffd700;">{{ profEmail }}</span> у книзі є, а анкети до неї немає. Заповніть — і Марта покладе аркуш на стіл адміністрації.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <input class="gos-field" value="{{ nick }}" onChange="{{ setNick }}" placeholder="Як вас звати в чаті" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+        <input class="gos-field" value="{{ tg }}" onChange="{{ setTg }}" placeholder="Нік у телеграмі — @хтось" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+        <textarea class="gos-field" value="{{ about }}" onChange="{{ setAbout }}" placeholder="Пару слів про себе" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+      </div>
+      <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:16px;background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.25);border-radius:8px;padding:10px 14px;font-size:0.84rem;color:#ff8080;">{{ authErr }}</div>
+      </sc-if>
+      <button onClick="{{ doFillProfile }}" class="gos-go" data-busy="{{ authBusy }}" style="width:100%;margin-top:20px;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px;font-family:'Cinzel',serif;font-size:0.86rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;">{{ fillBtn }}</button>
+      <button onClick="{{ doLogout }}" class="gos-ghost" style="width:100%;margin-top:10px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:9px;font-size:0.78rem;transition:all 0.2s ease;">Це не я — вийти</button>
+    </div>
+  </sc-if>
+
   <!-- ══════════ ЗАЯВКА ЛЕЖИТЬ НА СТОЛІ ══════════ -->
   <sc-if value="{{ isPending }}" hint-placeholder-val="{{ false }}">
     <div class="gos-in" style="background:rgba(255,255,255,0.04);border:1px dashed rgba(255,215,0,0.28);border-radius:15px;padding:34px 28px;text-align:center;">
@@ -146,6 +164,7 @@ a:hover{color:#fff}
             <button onClick="{{ t.onPick }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:8px 18px;font-size:0.83rem;transition:all 0.2s ease;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.color }};">{{ t.label }}</button>
           </sc-for>
         </div>
+        <p style="margin-top:10px;font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.6;color:rgba(255,255,255,0.38);text-wrap:pretty;">{{ signNote }}</p>
 
         <sc-if value="{{ hasSendMsg }}" hint-placeholder-val="{{ false }}">
           <div style="margin-top:18px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.22);border-radius:8px;padding:11px 15px;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.72);">{{ sendMsg }}</div>
@@ -236,7 +255,7 @@ class Component extends DCLogic {
     chars: [], charQ: '',
     text: '', picked: [], topic: 'чутка', truth: 'чув', sign: 'anon',
     sending: false, sendMsg: '',
-    mine: [], feed: [],
+    mine: [], feed: [], stubs: [],
   };
 
   componentDidMount() { this._boot(); }
@@ -331,11 +350,35 @@ class Component extends DCLogic {
       try { draft = JSON.parse(localStorage.getItem('au_gossip_profile') || 'null'); } catch (e) {}
       if (draft && draft.nick) prof = await this._createProfile(u, draft);
     }
-    if (!prof) { this.setState({ phase: 'guest', authErr: 'Анкети немає — запишіться заново.' }); this._drop(); return; }
+    // Акаунт є, анкети немає. Так буває в адміна (його пошта вже в
+    // auth.users через адмінку), і так буває, коли реєстрація йшла в
+    // іншому браузері з підтвердженням пошти. Викидати людину назад у
+    // «запишіться заново» тут нікуди: пошта вже зайнята нею ж.
+    if (!prof) {
+      this.setState({ phase: 'profile', uid: u.id, email: u.email || '' });
+      return;
+    }
 
     this._card(prof);
     this.setState({ phase: 'ok', uid: u.id, prof, sign: 'anon' });
     if (prof.status === 'approved') this._loadLists(u.id);
+  }
+
+  // Анкета для того, хто вже ввійшов (див. phase: 'profile').
+  async _fillProfile() {
+    const s = this.state;
+    if (!s.nick.trim()) { this.setState({ authErr: 'Скажіть, як вас звати в чаті.' }); return; }
+    this.setState({ authBusy: true, authErr: '' });
+    const prof = await this._createProfile(
+      { id: s.uid, email: s.email },
+      { nick: s.nick.trim(), tg: s.tg.trim(), about: s.about.trim() },
+    );
+    if (!prof) {
+      this.setState({ authBusy: false, authErr: 'Не вийшло завести анкету. Міграція прогнана?' });
+      return;
+    }
+    this._card(prof);
+    this.setState({ authBusy: false, phase: 'ok', prof });
   }
 
   async _createProfile(u, draft) {
@@ -367,6 +410,28 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
+  // ── Корінці анонімних пліток (тільки в браузері) ──────────
+  // Корінець належить акаунту, а не браузеру: на спільному компʼютері
+  // інакше друга людина побачила б у «Моїх плітках» чужу анонімку — саме
+  // той текст, який ховали.
+  _allStubs() {
+    try { return JSON.parse(localStorage.getItem('au_gossip_stubs') || '[]'); }
+    catch (e) { return []; }
+  }
+  _stubs(who) {
+    // uid передається явно: _loadLists() біжить одразу після setState,
+    // і this.state.uid там ще може бути порожній.
+    const uid = who || this.state.uid;
+    return uid ? this._allStubs().filter((x) => x && x.uid === uid) : [];
+  }
+  _keep(stub) {
+    try {
+      const all = [{ ...stub, uid: this.state.uid }, ...this._allStubs()].slice(0, 60);
+      localStorage.setItem('au_gossip_stubs', JSON.stringify(all));
+      this.setState({ stubs: all.filter((x) => x && x.uid === this.state.uid) });
+    } catch (e) {}
+  }
+
   async _loadLists(uid) {
     const get = async (q) => {
       try {
@@ -376,9 +441,9 @@ class Component extends DCLogic {
     };
     const [mine, feed] = await Promise.all([
       get(`gossip_queue?author_id=eq.${uid}&select=*&order=created_at.desc&limit=30`),
-      get(`gossip_queue?status=eq.posted&select=num,marta_line,posted_at,sign,author_nick&order=posted_at.desc&limit=30`),
+      get(`gossip_queue?status=eq.posted&select=id,num,marta_line,posted_at,sign,author_nick&order=posted_at.desc&limit=30`),
     ]);
-    this.setState({ mine, feed });
+    this.setState({ mine, feed, stubs: this._stubs(uid) });
   }
 
   // ── вхід і заявка ─────────────────────────────────────────
@@ -444,7 +509,10 @@ class Component extends DCLogic {
     const t = this._tok();
     if (t) fetch(`${SUPA_AUTH}/logout`, { method: 'POST', headers: this._h() }).catch(() => {});
     this._drop();
-    this.setState({ phase: 'guest', prof: null, uid: '', mine: [], feed: [], text: '', picked: [] });
+    // Корінці анонімок треба прибрати і зі стану, не лише зі сховища:
+    // інакше на спільному компʼютері наступна людина побачила б їх у
+    // «Моїх плітках» до першої відповіді з бази.
+    this.setState({ phase: 'guest', prof: null, uid: '', mine: [], feed: [], stubs: [], text: '', picked: [] });
   }
 
   // ── подання плітки ────────────────────────────────────────
@@ -455,14 +523,25 @@ class Component extends DCLogic {
     if (text.length > MAX_TEXT) { this.setState({ sendMsg: `Задовго: ${text.length} знаків із ${MAX_TEXT}.` }); return; }
     this.setState({ sending: true, sendMsg: '' });
     try {
+      // Анонімний рядок не можна прочитати назад: у нього немає автора, а
+      // політика читання пускає лише свої й уже переказані. Тому номер
+      // складаємо тут і віддаємо разом із рядком — інакше ні корінця, ні
+      // стуку адмінам не було б.
+      const secret = s.sign === 'secret';
+      const id = secret
+        ? ((crypto && crypto.randomUUID) ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(16).slice(2)}`)
+        : null;
+      const body = {
+        author_id: secret ? null : s.uid, text,
+        about: s.picked.map((p) => ({ id: p.id, name: p.name })),
+        topic: s.topic, truth: s.truth, sign: s.sign,
+      };
+      if (secret) body.id = id;
       const r = await fetch(`${SUPA_URL}/gossip_queue`, {
         method: 'POST',
-        headers: { ...this._h(true), 'Prefer': 'return=representation' },
-        body: JSON.stringify({
-          author_id: s.uid, text,
-          about: s.picked.map((p) => ({ id: p.id, name: p.name })),
-          topic: s.topic, truth: s.truth, sign: s.sign,
-        }),
+        headers: { ...this._h(true), 'Prefer': secret ? 'return=minimal' : 'return=representation' },
+        body: JSON.stringify(body),
       });
       if (!r.ok) {
         const body = await r.text();
@@ -470,12 +549,16 @@ class Component extends DCLogic {
         this.setState({ sending: false, sendMsg: m ? m[1] : 'Не прийнято. Спробуйте пізніше.' });
         return;
       }
-      const row = (await r.json())[0] || {};
+      const row = secret ? { id, status: 'pending' } : ((await r.json())[0] || {});
       if (row.status === 'pending' && row.id) {
         fetch(`${SUPA_FUNCS}/telegram-report?knock=gossip&id=${row.id}`, {
           method: 'POST', headers: this._h(),
         }).catch(() => {});
       }
+      // Анонімну плітку база з автором не звʼязує, тому в «Моїх плітках»
+      // її нема звідки взяти. Розписка лишається в браузері — як корінець
+      // квитанції: сама база про неї не знає.
+      if (secret && row.id) this._keep({ id: row.id, text, at: new Date().toISOString() });
       this.setState({
         sending: false, text: '', picked: [], charQ: '',
         sendMsg: row.status === 'ready'
@@ -531,18 +614,41 @@ class Component extends DCLogic {
         onPick: () => this.setState({ sign: 'anon' }) },
       { key: 'nick', label: `Можна назвати: ${nick || 'мене'}`, ...this._pillStyle(s.sign === 'nick'),
         onPick: () => this.setState({ sign: 'nick' }) },
+      { key: 'secret', label: 'Таємно — навіть від адмінів', ...this._pillStyle(s.sign === 'secret'),
+        onPick: () => this.setState({ sign: 'secret' }) },
     ];
+    const signNote = s.sign === 'secret'
+      ? 'Імені не буде ніде: ні в чаті, ні в адмінці, ні в базі. Такі плітки завжди дивиться адміністрація — анонімність без перегляду це відкриті двері. Розписка про неї лишиться тільки у вашому браузері.'
+      : s.sign === 'nick'
+        ? `Під рядком у чаті стоятиме «зі слів ${nick || '—'}».`
+        : 'У чаті вас не назвуть. Адміністрація, що дивиться плітки, бачитиме ваш нік.';
 
     const len = s.text.trim().length;
+    const posted = {};
+    (s.feed || []).forEach((f) => { if (f.id) posted[f.id] = f; });
+
+    // Свої підписані плітки — з бази; анонімні — з корінців у браузері.
+    // Долю анонімки видно лише тоді, коли Марта її переказала: доти в базі
+    // немає нічого, що звʼязало б рядок із цією людиною.
     const mine = (s.mine || []).map((m) => {
       const b = BADGE[m.status] || BADGE.pending;
       return {
-        key: m.id, badge: b.label, accent: b.accent,
+        key: m.id, badge: b.label, accent: b.accent, at: m.created_at,
         when: this._when(m.created_at),
         text: m.text,
         hasLine: !!m.marta_line, line: m.marta_line || '',
       };
-    });
+    }).concat((s.stubs || []).filter((x) => x && x.uid === s.uid).map((st) => {
+      const p = posted[st.id];
+      return {
+        key: `s-${st.id}`, at: st.at,
+        badge: p ? 'Таємно · переказано' : 'Таємно · доля невідома',
+        accent: p ? '#ffd700' : 'rgba(255,255,255,0.3)',
+        when: this._when(st.at),
+        text: st.text,
+        hasLine: !!p, line: p ? (p.marta_line || '') : '',
+      };
+    })).sort((a, b) => String(b.at || '').localeCompare(String(a.at || '')));
     const feed = (s.feed || []).map((f) => ({
       key: f.num, line: f.marta_line || '', when: this._when(f.posted_at),
     }));
@@ -551,6 +657,10 @@ class Component extends DCLogic {
       standalone: !this.props.embedded,
       isLoading: s.phase === 'load',
       isGuest:   s.phase === 'guest',
+      needProfile: s.phase === 'profile',
+      profEmail: s.email || '',
+      doFillProfile: () => this._fillProfile(),
+      fillBtn: s.authBusy ? 'Хвилинку…' : 'Завести анкету',
       isPending: s.phase === 'ok' && prof.status === 'pending',
       isBlocked: s.phase === 'ok' && prof.status === 'blocked',
       isOpen:    s.phase === 'ok' && prof.status === 'approved',
@@ -595,7 +705,7 @@ class Component extends DCLogic {
       hasPicked: s.picked.length > 0,
       topics: pill(TOPICS, s.topic, 'topic'),
       truths: pill(TRUTHS, s.truth, 'truth'),
-      signs,
+      signs, signNote,
       sending: s.sending,
       sendBtn: s.sending ? 'Несу до віконця…' : 'Віддати Марті',
       sendMsg: s.sendMsg, hasSendMsg: !!s.sendMsg,

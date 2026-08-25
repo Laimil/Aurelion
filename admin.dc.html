@@ -577,6 +577,9 @@ button{font-family:inherit;cursor:pointer}
             <sc-if value="{{ g.canReject }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ g.onReject }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,120,120,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відхилити</button>
             </sc-if>
+            <sc-if value="{{ g.canBan }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ g.onBan }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.2);color:rgba(255,120,120,0.6);border-radius:999px;padding:6px 14px;font-size:0.76rem;">Перекрити руку</button>
+            </sc-if>
             <button onClick="{{ g.onDelete }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);border-radius:999px;padding:6px 14px;font-size:0.76rem;">Видалити</button>
           </div>
         </div>
@@ -3508,16 +3511,34 @@ class Component extends DCLogic {
       gosRows: shown.map(g => {
         const b = G_BADGE[g.status] || G_BADGE.pending;
         const about = (Array.isArray(g.about) ? g.about : []).map(a => a && a.name).filter(Boolean).join(', ');
+        const secret = g.sign === 'secret';
+        // Анонімну плітку база з автором не звʼязує — ні тут, ні в SQL.
+        // Є лише відбиток: з нього видно, що це та сама рука, але не чия.
+        const hand = String(g.author_hash || '').slice(0, 6);
+        const sameHand = hand
+          ? rows.filter(r => r.author_hash === g.author_hash).length
+          : 0;
         return {
           key: g.id, id: g.id,
           head: `№${g.num} · ${b.label}`,
           badgeColor: b.color,
           meta: [
-            g.sign === 'nick' ? `від ${g.author_nick || '?'}` : `від ${g.author_nick || '?'} (у чаті не називати)`,
+            secret
+              ? `таємно · рука ${hand}${sameHand > 1 ? ` (від неї всього ${sameHand})` : ''}`
+              : g.sign === 'nick' ? `від ${g.author_nick || '?'}` : `від ${g.author_nick || '?'} (у чаті не називати)`,
             about ? `про ${about}` : '',
             g.topic || '', g.truth ? `певність: ${g.truth}` : '',
             this._gosWhen(g.created_at),
           ].filter(Boolean).join(' · '),
+          secret,
+          canBan: secret && !!g.author_hash,
+          onBan: async () => {
+            if (!window.confirm(`Перекрити віконце для руки ${hand}? Хто це — не дізнаєтесь ні ви, ні хто інший.`)) return;
+            try {
+              await this._insert('gossip_bans', { hash: g.author_hash, by_whom: me, reason: `№${g.num}` });
+              this._toast('✓ Руку перекрито');
+            } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
+          },
           text: g.text || '',
           line: g.marta_line || '',
           hasLine: !!g.marta_line,
