@@ -607,9 +607,6 @@ button{font-family:inherit;cursor:pointer}
             <sc-if value="{{ p.canOpen }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ p.onOpen }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відкрити доступ</button>
             </sc-if>
-            <sc-if value="{{ p.canTrust }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ p.onTrust }}" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:6px 16px;font-size:0.76rem;color:{{ p.trustColor }};">{{ p.trustLabel }}</button>
-            </sc-if>
             <sc-if value="{{ p.canBlock }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ p.onBlock }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,120,120,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відмовити</button>
             </sc-if>
@@ -2617,7 +2614,7 @@ class Component extends DCLogic {
     connSearch: '',
     loginEmail: '', loginPassword: '', loginError: '', loginLoading: false,
     martaBusy: false, martaMsg: '',
-    gosPeople: [], gosRows: [], gosFilter: 'pending', gosBusy: false,
+    gosPeople: [], gosRows: [], gosFilter: 'ready', gosBusy: false,
     userEmail: '',
     // admin
     tab: 'site',
@@ -3668,7 +3665,7 @@ class Component extends DCLogic {
       ...this._schedVals(),
 
       gosBusy: !!s.gosBusy,
-      gosQueueNote: `У черзі ${inQueue} · на розгляді ${onDesk} · нових людей ${pending}`,
+      gosQueueNote: `У черзі ${inQueue}${onDesk ? ` · на розгляді ${onDesk}` : ''} · нових людей ${pending}`,
       gosTellNext: () => call('gossip=1&force=1', '✦ Марта переказала верхню з черги'),
       gosReload: () => this._loadGossipAdmin(),
 
@@ -3681,20 +3678,22 @@ class Component extends DCLogic {
           meta: [p.tg_nick, p.email, this._gosWhen(p.created_at)].filter(Boolean).join(' · '),
           about: p.about || '',
           hasAbout: !!p.about,
-          trustLabel: p.trusted ? '✓ Без модерації' : 'Довіряти',
-          trustColor: p.trusted ? 'rgba(120,220,150,0.9)' : 'rgba(255,255,255,0.45)',
           canOpen: p.status !== 'approved',
           canBlock: p.status !== 'blocked',
-          canTrust: p.status === 'approved',
+          // Кнопки «Довіряти» більше немає: плітка від кожного, кому
+          // відкрито доступ, іде в чергу одразу — модерація стоїть на
+          // людині («Відкрити доступ» / «Відмовити»), а не на рядку.
+          // Графа `site_users.trusted` лишилася в базі без діла.
           onOpen: () => patchUser(p.id, { status: 'approved' }, '✓ Доступ відкрито'),
           onBlock: () => { if (window.confirm(`Закрити віконце для «${p.nick}»?`)) patchUser(p.id, { status: 'blocked' }, '✓ Відмовлено'); },
-          onTrust: () => patchUser(p.id, { trusted: !p.trusted }, p.trusted ? '✓ Знову з модерацією' : '✓ Плітки йтимуть одразу'),
         };
       }),
       gosNoPeople: people.length === 0,
 
       gosFilters: [
-        { key: 'pending', label: `На розгляді · ${onDesk}` },
+        // Модерації перед чергою більше немає — фільтр «на розгляді»
+        // показуємо лише тоді, коли там справді щось лежить.
+        ...(onDesk ? [{ key: 'pending', label: `На розгляді · ${onDesk}` }] : []),
         { key: 'ready', label: `У черзі · ${inQueue}` },
         { key: 'posted', label: 'Переказані' },
         { key: 'rejected', label: 'Відхилені' },
@@ -3740,7 +3739,7 @@ class Component extends DCLogic {
           text: g.text || '',
           line: g.marta_line || '',
           hasLine: !!g.marta_line,
-          canApprove: g.status === 'pending',
+          canApprove: g.status === 'pending' || g.status === 'rejected',
           canReject: g.status === 'pending' || g.status === 'ready',
           canTell: g.status === 'ready' || g.status === 'pending',
           onApprove: () => patchGos(g.id, { status: 'ready' }, '✓ Стоїть у черзі'),

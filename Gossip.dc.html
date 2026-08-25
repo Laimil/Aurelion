@@ -112,7 +112,7 @@ a:hover{color:#fff}
     <div class="gos-in" style="display:flex;flex-direction:column;gap:20px;">
 
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-        <p style="font-size:0.78rem;color:rgba(255,255,255,0.42);">Віконце відчинене для <span style="color:#ffd700;">{{ myNick }}</span>{{ trustNote }}</p>
+        <p style="font-size:0.78rem;color:rgba(255,255,255,0.42);">Віконце відчинене для <span style="color:#ffd700;">{{ myNick }}</span> — плітки йдуть у чергу одразу</p>
         <button onClick="{{ doLogout }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 16px;font-size:0.74rem;transition:all 0.2s ease;">Вийти</button>
       </div>
 
@@ -549,8 +549,10 @@ class Component extends DCLogic {
         this.setState({ sending: false, sendMsg: m ? m[1] : 'Не прийнято. Спробуйте пізніше.' });
         return;
       }
-      const row = secret ? { id, status: 'pending' } : ((await r.json())[0] || {});
-      if (row.status === 'pending' && row.id) {
+      const row = secret ? { id, status: 'ready' } : ((await r.json())[0] || {});
+      // Модерації перед чергою немає — стук лишився як «прийшло нове»,
+      // щоб адміни бачили рядок ДО того, як Марта його переказала.
+      if (row.id) {
         fetch(`${SUPA_FUNCS}/telegram-report?knock=gossip&id=${row.id}`, {
           method: 'POST', headers: this._h(),
         }).catch(() => {});
@@ -561,9 +563,7 @@ class Component extends DCLogic {
       if (secret && row.id) this._keep({ id: row.id, text, at: new Date().toISOString() });
       this.setState({
         sending: false, text: '', picked: [], charQ: '',
-        sendMsg: row.status === 'ready'
-          ? '✦ Прийнято. Стоїть у черзі — Марта перекаже в чаті.'
-          : '✦ Прийнято. Лежить на розгляді; щойно схвалять — піде в чергу.',
+        sendMsg: '✦ Прийнято. Стоїть у черзі — Марта перекаже в чаті.',
       });
       this._loadLists(s.uid);
     } catch (e) {
@@ -618,10 +618,10 @@ class Component extends DCLogic {
         onPick: () => this.setState({ sign: 'secret' }) },
     ];
     const signNote = s.sign === 'secret'
-      ? 'Імені не буде ніде: ні в чаті, ні в адмінці, ні в базі. Такі плітки завжди дивиться адміністрація — анонімність без перегляду це відкриті двері. Розписка про неї лишиться тільки у вашому браузері.'
+      ? 'Імені не буде ніде: ні в чаті, ні в адмінці, ні в базі. Розписка про неї лишиться тільки у вашому браузері.'
       : s.sign === 'nick'
         ? `Під рядком у чаті стоятиме «зі слів ${nick || '—'}».`
-        : 'У чаті вас не назвуть. Адміністрація, що дивиться плітки, бачитиме ваш нік.';
+        : 'У чаті вас не назвуть; у черзі в адмінці ваш нік буде видно.';
 
     const len = s.text.trim().length;
     const posted = {};
@@ -691,7 +691,6 @@ class Component extends DCLogic {
       doLogout: () => this._logout(),
 
       myNick: nick,
-      trustNote: prof.trusted ? ' — ваші плітки йдуть без модерації' : '',
 
       text: s.text, setText: (e) => this.setState({ text: e.target.value }),
       countLabel: `${len} / ${MAX_TEXT}`,
