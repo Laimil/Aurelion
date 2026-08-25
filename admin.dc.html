@@ -517,6 +517,77 @@ button{font-family:inherit;cursor:pointer}
       <span style="font-size:0.76rem;color:rgba(255,255,255,0.3);">{{ gosQueueNote }}</span>
     </div>
 
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px 18px;margin-bottom:30px;">
+      <div onClick="{{ gosSchedToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+        <div style="width:40px;height:22px;border-radius:999px;flex-shrink:0;position:relative;transition:background 0.2s;background:{{ gosSchedTrackBg }};">
+          <div style="position:absolute;top:2px;left:{{ gosSchedKnobLeft }};width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s;"></div>
+        </div>
+        <div>
+          <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#ffd700;letter-spacing:0.05em;">✦ Розклад появ</p>
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.38);margin-top:2px;line-height:1.45;">{{ gosSchedHint }}</p>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px;margin-top:18px;">
+        <div>
+          <p style="font-size:0.7rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:9px;">Години за Києвом</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+            <sc-for list="{{ gosTimes }}" as="t" hint-placeholder-count="2">
+              <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:6px 8px 6px 15px;font-size:0.84rem;">{{ t.label }}<button onClick="{{ t.onRemove }}" style="cursor:pointer;background:transparent;border:none;color:rgba(255,215,0,0.45);font-size:0.85rem;line-height:1;padding:0 4px;" style-hover="color:rgba(255,120,120,0.9);">✕</button></span>
+            </sc-for>
+            <sc-if value="{{ gosNoTimes }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:0.78rem;color:rgba(255,120,120,0.75);">Жодної появи — за розкладом Марта мовчатиме.</span>
+            </sc-if>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:11px;flex-wrap:wrap;">
+            <input type="time" value="{{ gosNewTime }}" onChange="{{ gosSetNewTime }}" style="color-scheme:dark;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;color:#fff;padding:7px 10px;font-size:0.84rem;width:118px;" />
+            <button onClick="{{ gosAddTime }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:999px;padding:7px 16px;font-size:0.78rem;">＋ Додати появу</button>
+          </div>
+        </div>
+
+        <div>
+          <p style="font-size:0.7rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:9px;">Дні тижня</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <sc-for list="{{ gosDays }}" as="d" hint-placeholder-count="7">
+              <button onClick="{{ d.onPick }}" style="cursor:pointer;min-width:46px;border-radius:999px;padding:7px 12px;font-size:0.78rem;transition:all 0.2s ease;background:{{ d.bg }};border:1px solid {{ d.border }};color:{{ d.color }};">{{ d.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:15px;">
+          <div onClick="{{ gosExtraToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <div style="width:40px;height:22px;border-radius:999px;flex-shrink:0;position:relative;transition:background 0.2s;background:{{ gosExtraTrackBg }};">
+              <div style="position:absolute;top:2px;left:{{ gosExtraKnobLeft }};width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s;"></div>
+            </div>
+            <div>
+              <p style="font-size:0.84rem;color:#fff;">Позарозкладні появи</p>
+              <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:1px;line-height:1.45;">{{ gosExtraHint }}</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:13px;padding-left:52px;">
+            <div style="display:flex;align-items:center;gap:9px;">
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.42);">У черзі від</span>
+              <div style="display:flex;align-items:center;gap:2px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:3px;">
+                <button onClick="{{ gosMinDown }}" style="cursor:pointer;background:transparent;border:none;color:rgba(255,255,255,0.55);font-size:0.95rem;line-height:1;padding:2px 8px;">−</button>
+                <span style="min-width:24px;text-align:center;font-size:0.84rem;color:#ffd700;">{{ gosExtraMin }}</span>
+                <button onClick="{{ gosMinUp }}" style="cursor:pointer;background:transparent;border:none;color:rgba(255,255,255,0.55);font-size:0.95rem;line-height:1;padding:2px 8px;">＋</button>
+              </div>
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.42);">пліток</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:9px;">
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.42);">пауза</span>
+              <div style="display:flex;align-items:center;gap:2px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:3px;">
+                <button onClick="{{ gosGapDown }}" style="cursor:pointer;background:transparent;border:none;color:rgba(255,255,255,0.55);font-size:0.95rem;line-height:1;padding:2px 8px;">−</button>
+                <span style="min-width:24px;text-align:center;font-size:0.84rem;color:#ffd700;">{{ gosExtraGap }}</span>
+                <button onClick="{{ gosGapUp }}" style="cursor:pointer;background:transparent;border:none;color:rgba(255,255,255,0.55);font-size:0.95rem;line-height:1;padding:2px 8px;">＋</button>
+              </div>
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.42);">год</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <h3 style="font-family:'Cinzel',serif;font-size:0.85rem;color:rgba(255,255,255,0.6);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;">Люди</h3>
     <sc-if value="{{ gosNoPeople }}" hint-placeholder-val="{{ true }}">
       <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);margin-bottom:30px;">Поки ніхто не записався. Якщо ви щойно прогнали міграцію — це нормально.</p>
@@ -2553,6 +2624,8 @@ class Component extends DCLogic {
     data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], tests: [] },
     // тести: вставка від Клода
     tstPaste: '', tstParsed: null, tstError: '',
+    // віконце: поле «додати появу» в розкладі пліток
+    gosNewTime: '',
     loading: false, saving: false,
     editing: null, form: {},
     linkManual: [], linkSearch: '', linkBusy: false,
@@ -3397,6 +3470,129 @@ class Component extends DCLogic {
     return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()} · ${p(d.getHours())}:${p(d.getMinutes())}`;
   }
 
+  // ── Віконце: розклад появ ─────────────────────────────────
+  // Години й дні живуть у site_settings, крон лише цокає раз на 10 хвилин
+  // і питає функцію (?gossip=1&sched=1) — чи не настала якась поява.
+  // Ключ ВІДСУТНІЙ = типове (13:20 і 20:40, усі дні); ключ є, але порожній =
+  // свідоме «жодної появи». Тому список можна спорожнити, і це не скидається
+  // на типове.
+  _gosPlan() {
+    const site = this.state.data.site || {};
+    const HM = /^([01]\d|2[0-3]):[0-5]\d$/;
+    const num = (v, def) => {
+      const n = Number(v);
+      return Number.isFinite(n) && n > 0 ? Math.round(n) : def;
+    };
+    const times = [...new Set(
+      (site.gossip_times == null ? '13:20,20:40' : String(site.gossip_times))
+        .split(/[,;\s]+/).map(x => x.trim()).filter(x => HM.test(x))
+    )].sort();
+    const days = [...new Set(
+      (site.gossip_days == null ? '1,2,3,4,5,6,7' : String(site.gossip_days))
+        .split(/[,;\s]+/).map(Number).filter(n => n >= 1 && n <= 7)
+    )].sort((a, b) => a - b);
+    return {
+      HM, times, days,
+      on: String(site.gossip_sched_on == null ? '1' : site.gossip_sched_on) !== '0',
+      extraOn: String(site.gossip_extra_on == null ? '1' : site.gossip_extra_on) !== '0',
+      extraMin: num(site.gossip_extra_min, 4),
+      extraGap: num(site.gossip_extra_gap, 3),
+    };
+  }
+
+  // Наступна поява людською мовою — інакше розклад читається як список чисел
+  // і незрозуміло, чи він узагалі живий.
+  _gosNext(p) {
+    const DAY_FULL = ['понеділок', 'вівторок', 'середу', 'четвер', 'пʼятницю', 'суботу', 'неділю'];
+    if (!p.on) return 'Розклад вимкнено — плітка йде лише кнопкою й позарозкладно.';
+    if (!p.times.length) return 'У розкладі жодної появи — додайте хоч одну годину.';
+    if (!p.days.length) return 'Не позначено жодного дня — за розкладом вона мовчить.';
+    const now = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Kyiv' });
+    const hm = now.slice(11, 16);
+    const wd = new Date(now.slice(0, 10) + 'T12:00:00Z').getUTCDay();
+    const today = wd === 0 ? 7 : wd;
+    const set = new Set(p.days);
+    const later = set.has(today) ? p.times.find(t => t > hm) : null;
+    if (later) return `Наступна поява: сьогодні о ${later} за Києвом.`;
+    let d = today, hops = 0;
+    do { d = d === 7 ? 1 : d + 1; hops += 1; } while (!set.has(d) && hops < 7);
+    const when = hops === 1 ? 'завтра' : 'у ' + DAY_FULL[d - 1];
+    return `Наступна поява: ${when} о ${p.times[0]} за Києвом.`;
+  }
+
+  _schedVals() {
+    const s = this.state;
+    const p = this._gosPlan();
+    const DAY_L = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
+    // Кожна правка зберігається одразу: розклад — це три кнопки, і окрема
+    // кнопка «Зберегти» тут лише додала б спосіб забути її натиснути.
+    const save = async (key, val, note) => {
+      const prev = (s.data.site || {})[key];
+      this._setSite(key, val);
+      try {
+        await this._upsertSetting(key, val);
+        if (note) this._toast(note);
+      } catch (e) {
+        this._setSite(key, prev == null ? null : prev);
+        this._toast('✗ Не вдалося зберегти розклад');
+      }
+    };
+
+    return {
+      gosSchedTrackBg: p.on ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.15)',
+      gosSchedKnobLeft: p.on ? '20px' : '2px',
+      gosSchedHint: this._gosNext(p),
+      gosSchedToggle: () => save('gossip_sched_on', p.on ? '0' : '1',
+        p.on ? '✓ Розклад вимкнено' : '✓ Розклад увімкнено'),
+
+      gosNoTimes: p.times.length === 0,
+      gosTimes: p.times.map(t => ({
+        key: t, label: t,
+        onRemove: () => save('gossip_times', p.times.filter(x => x !== t).join(','),
+          `✓ Появу о ${t} прибрано`),
+      })),
+      gosNewTime: s.gosNewTime || '',
+      gosSetNewTime: (e) => this.setState({ gosNewTime: e.target.value }),
+      gosAddTime: () => {
+        const v = String(s.gosNewTime || '').trim();
+        if (!p.HM.test(v)) { this._toast('✗ Година у вигляді 20:40'); return; }
+        if (p.times.includes(v)) { this._toast('Ця поява вже стоїть у розкладі'); return; }
+        this.setState({ gosNewTime: '' });
+        save('gossip_times', [...p.times, v].sort().join(','), `✓ Поява о ${v} у розкладі`);
+      },
+
+      gosDays: DAY_L.map((label, i) => {
+        const d = i + 1;
+        const on = p.days.includes(d);
+        return {
+          key: d, label,
+          bg: on ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+          border: on ? 'rgba(255,215,0,0.35)' : 'rgba(255,255,255,0.1)',
+          color: on ? '#ffd700' : 'rgba(255,255,255,0.4)',
+          onPick: () => save(
+            'gossip_days',
+            (on ? p.days.filter(x => x !== d) : [...p.days, d]).sort((a, b) => a - b).join(','),
+            on ? `✓ ${label} — не її день` : `✓ ${label} у розкладі`,
+          ),
+        };
+      }),
+
+      gosExtraTrackBg: p.extraOn ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.15)',
+      gosExtraKnobLeft: p.extraOn ? '20px' : '2px',
+      gosExtraHint: p.extraOn
+        ? `Коли в черзі назбирається ${p.extraMin} і від минулої появи минуло ${p.extraGap} год — озветься поза розкладом.`
+        : 'Вимкнено: тільки години з розкладу.',
+      gosExtraToggle: () => save('gossip_extra_on', p.extraOn ? '0' : '1',
+        p.extraOn ? '✓ Тільки за розкладом' : '✓ Позарозкладні появи увімкнено'),
+      gosExtraMin: String(p.extraMin),
+      gosExtraGap: String(p.extraGap),
+      gosMinDown: () => save('gossip_extra_min', String(Math.max(1, p.extraMin - 1))),
+      gosMinUp:   () => save('gossip_extra_min', String(Math.min(20, p.extraMin + 1))),
+      gosGapDown: () => save('gossip_extra_gap', String(Math.max(1, p.extraGap - 1))),
+      gosGapUp:   () => save('gossip_extra_gap', String(Math.min(24, p.extraGap + 1))),
+    };
+  }
+
   _gossipVals() {
     const s = this.state;
     const secOn = String((s.data.site || {}).gossip_section_on || '') === '1';
@@ -3468,6 +3664,8 @@ class Component extends DCLogic {
           this._toast('✗ Не вдалося зберегти вимикач');
         }
       },
+
+      ...this._schedVals(),
 
       gosBusy: !!s.gosBusy,
       gosQueueNote: `У черзі ${inQueue} · на розгляді ${onDesk} · нових людей ${pending}`,
