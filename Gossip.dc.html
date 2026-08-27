@@ -1249,6 +1249,58 @@ class Component extends DCLogic {
 
       myNick: nick,
 
+      // вкладки
+      showIntake: s.tab !== 'gossip',
+      showGossip: s.tab === 'gossip' && status === 'approved',
+      pickIntake: () => this.setState({ tab: 'intake' }),
+      pickGossip: () => this.setState({ tab: 'gossip' }),
+      ...(() => {
+        const a = this._pillStyle(s.tab !== 'gossip'), b = this._pillStyle(s.tab === 'gossip');
+        return {
+          tabIntakeBg: a.bg, tabIntakeBorder: a.border, tabIntakeColor: a.color,
+          tabGosBg: b.bg, tabGosBorder: b.border, tabGosColor: b.color,
+        };
+      })(),
+
+      // ── анкета ──
+      formHead: s.editId ? `✦ Правка анкети` : '✦ Нова анкета на розгляд',
+      formIntro: s.editId
+        ? 'Поки анкета лежить на розгляді, її можна правити. Адміністрація побачить останній варіант.'
+        : 'Заповніть бланк — Марта віднесе його адміністрації. Персонаж зʼявиться в картотеці не одразу: спершу з анкети роблять чернетку, а вже її вичитують і публікують.',
+      ways: [wayPill('blank', 'Заповнити бланк'), wayPill('tg', 'Вставити')],
+      showTg: s.way === 'tg',
+      tgUrl: s.tgUrl, setTgUrl: (e) => this.setState({ tgUrl: e.target.value }),
+      tgRaw: s.tgRaw, setTgRaw: (e) => this.setState({ tgRaw: e.target.value }),
+      tgBusy: s.tgBusy, parseBtn: s.tgBusy ? 'Читаю…' : 'Розібрати',
+      doParse: () => this._parse(),
+      tgMsg: s.tgMsg, hasTgMsg: !!s.tgMsg,
+      tgMsgColor: s.tgBad ? '#ff8080' : 'rgba(160,190,255,0.85)',
+
+      fName: f.name, setFName: (e) => this._setF('name', e.target.value),
+      fAlias: f.alias, setFAlias: (e) => this._setF('alias', e.target.value),
+      fAge: f.age, setFAge: (e) => this._setF('age', e.target.value),
+      fHeight: f.height, setFHeight: (e) => this._setF('height', e.target.value),
+      fWeight: f.weight, setFWeight: (e) => this._setF('weight', e.target.value),
+      fRole: f.role, setFRole: (e) => this._setF('role', e.target.value),
+      fNote: f.note, setFNote: (e) => this._setF('note', e.target.value),
+      gods,
+      fPortrait: f.portrait, hasPortrait: !!f.portrait, noPortrait: !f.portrait,
+      onPortrait: (e) => this._portrait(e),
+      portraitNote: s.upBusy ? 'Несу портрет…' : 'До 6 МБ. Можна й без нього — принесете потім.',
+      dropPortrait: () => this._setF('portrait', ''),
+      secs, addSecs,
+      intakeMsg: s.intakeMsg, hasIntakeMsg: !!s.intakeMsg,
+      intakeBusy: s.intakeBusy || s.upBusy,
+      submitBtn: s.intakeBusy
+        ? 'Несу…'
+        : (s.editId ? 'Зберегти правки' : 'Віддати анкету Марті'),
+      doSubmit: () => this._submit(),
+      editing: !!s.editId,
+      doCancelEdit: () => this._cancelEdit(),
+      intakeLimit: `На розгляді у вас ${onDesk} із трьох. Правити можна доки рішення немає.`,
+      subs, hasSubs: subs.length > 0, noSubs: subs.length === 0,
+
+      // ── плітка ──
       text: s.text, setText: (e) => this.setState({ text: e.target.value }),
       countLabel: `${len} / ${MAX_TEXT}`,
       countColor: len > MAX_TEXT ? '#ff8080' : 'rgba(255,255,255,0.25)',
