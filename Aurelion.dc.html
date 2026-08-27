@@ -255,7 +255,7 @@ a:hover{color:#a8c4f7;}
     <button onClick="{{ copyShareLink }}" class="au-sharebtn" title="Скопіювати посилання на цей розділ" aria-label="Скопіювати посилання" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.22);color:rgba(255,215,0,0.85);border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;cursor:pointer;transition:all 0.25s ease;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);" data-msg="{{ shareLinkBusy }}">{{ shareLinkGlyph }}<span class="au-share-label">{{ shareLinkLabel }}</span></button>
     <!-- Плашка входу стоїть і для гостей: інакше ввійти нема звідки, бо
          сам розділ показується тільки тим, хто вже ввійшов. -->
-    <a href="#gossip" data-active="{{ userChipActive }}" title="{{ userChipTitle }}" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;text-decoration:none;transition:all 0.25s ease;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ userChipGlyph }}<span class="au-share-label">{{ userChipLabel }}</span></a>
+    <a href="#cabinet" data-active="{{ userChipActive }}" title="{{ userChipTitle }}" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;text-decoration:none;transition:all 0.25s ease;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ userChipGlyph }}<span class="au-share-label">{{ userChipLabel }}</span></a>
     <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
   </div>
   <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
@@ -1724,15 +1724,15 @@ a:hover{color:#a8c4f7;}
   </main>
 </sc-if>
 
-<!-- ═══ ВІКОНЦЕ (плітки від людей) ═══ -->
+<!-- ═══ КАБІНЕТ (анкета на розгляд + віконце пліток) ═══ -->
 <sc-if value="{{ showGossip }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
     <header style="text-align:center;margin-bottom:40px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Рецепція штабу</p>
-      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Віконце</h1>
-      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:460px;margin-left:auto;margin-right:auto;">Принесіть Марті те, що чули. Що з цього вийде в чаті — вже її справа.</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Кабінет</h1>
+      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:460px;margin-left:auto;margin-right:auto;">Анкета нового персонажа й віконце пліток — в Марти одна рецепція на обидві справи.</p>
     </header>
-    <dc-import name="Gossip" embedded="{{ true }}" hint-size="100%,720px"></dc-import>
+    <dc-import name="Gossip" embedded="{{ true }}" start-tab="{{ cabinetTab }}" hint-size="100%,720px"></dc-import>
   </main>
 </sc-if>
 
@@ -1906,6 +1906,20 @@ a:hover{color:#a8c4f7;}
         </sc-if>
       </div>
       </sc-if>
+
+      <!-- 3½ · Подати анкету — окремо від блоку шаблона: його можна сховати в
+           адмінці, а кабінет приймає анкету від будь-кого, хто записався,
+           ще до відкриття доступу. -->
+      <div class="glass" style="padding:20px 26px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:230px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span style="font-family:'Cinzel',serif;color:rgba(255,215,0,0.5);font-size:0.82rem;flex-shrink:0;">✦</span>
+            <h2 style="font-family:'Cinzel',serif;font-size:0.98rem;color:#ffd700;letter-spacing:0.07em;">Подати анкету</h2>
+          </div>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.68;color:rgba(255,255,255,0.6);text-wrap:pretty;">Анкета готова? Віддайте її просто тут — Марта покладе аркуш на стіл адміністрації, а рішення побачите у своєму кабінеті. Можна взяти й готову сторінку з telegra.ph: графи стануть у бланк самі.</p>
+        </div>
+        <a href="#intake" style="flex-shrink:0;display:inline-flex;align-items:center;gap:7px;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:10px 22px;font-family:'Cinzel',serif;font-size:0.84rem;letter-spacing:0.05em;text-decoration:none;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.24);box-shadow:0 0 20px rgba(255,215,0,0.28);color:#fff;">✍ Подати анкету</a>
+      </div>
 
       <!-- 4 · Контакти -->
       <sc-if value="{{ joinShowContacts }}" hint-placeholder-val="{{ true }}">
@@ -2572,7 +2586,10 @@ const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице
 // Розділи «Архіву»: у хеші лишаються власні сегменти (старі посилання й /s/*.html
 // працюють як раніше) — парасолька живе лише в шапці та на смужці вкладок.
 const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
-const KNOWN_SEGS = ['home', 'characters', 'connections', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip'].concat(ARCHIVE_SEGS);
+// `cabinet` і `intake` — той самий кабінет, різниця лише в тому, яка
+// вкладка відкриється. `gossip` лишили живим: посилання на віконце
+// вже розіслані по чатах.
+const KNOWN_SEGS = ['home', 'characters', 'connections', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake'].concat(ARCHIVE_SEGS);
 
 // ── Галерея персонажа ──────────────────────────────────────
 // Головний портрет лишається в characters.image; усе інше (арти від
@@ -3421,6 +3438,7 @@ class Component extends DCLogic {
     const { seg } = this._parseHash();
     if (seg === 'connections') return 'characters';
     if (seg === 'archive') return 'lore';               // вхід у парасольку → типова вкладка
+    if (seg === 'cabinet' || seg === 'intake') return 'gossip';   // одна сторінка — кабінет
     if (KNOWN_SEGS.indexOf(seg) === -1) return 'home';  // обрізане чи застаріле посилання
     return seg;
   }
@@ -3666,6 +3684,11 @@ class Component extends DCLogic {
         this._getSoft('character_links?select=from_id,to_id,kind,label&order=sort_order.asc,created_at.asc'),
         this._getSoft('character_images?select=id,character_id,url,caption,kind,is_sensitive,added_by,created_at&is_draft=eq.false&order=sort_order.asc,created_at.asc'),
         this._getSoft('material_images?select=id,material_type,material_id,url,caption,kind,is_sensitive,added_by,created_at&is_draft=eq.false&order=sort_order.asc,created_at.asc'),
+        // Чернетки анкет (з кабінету або з лічки Марти) на сайті не показуємо.
+        // Окремим тихим запитом, а не фільтром у головному: доки міграція не
+        // прогнана, колонки немає — і головний запит упав би разом з усією
+        // картотекою.
+        this._getSoft('characters?select=id&is_draft=eq.true'),
       ]);
     } catch (e) {
       if (silent) return; // тихе оновлення — лишаємо те, що вже показано
@@ -3676,7 +3699,9 @@ class Component extends DCLogic {
       });
       return;
     }
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows, charLinkRows, galRows, matGalRows] = res;
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows, charLinkRows, galRows, matGalRows, draftChars] = res;
+    const draftIds = new Set((Array.isArray(draftChars) ? draftChars : []).map(c => String(c.id)));
+    const charsLive = (Array.isArray(characters) ? characters : []).filter(c => !draftIds.has(String(c.id)));
     const site = {};
     (Array.isArray(settings) ? settings : []).forEach(s => { site[s.key] = s.value; });
     const loadedData = {
@@ -3684,7 +3709,7 @@ class Component extends DCLogic {
         lore:          Array.isArray(lore)       ? lore       : [],
         stories:       Array.isArray(stories)    ? stories    : [],
         chronicles:    Array.isArray(chronicles) ? chronicles : [],
-        characters:    Array.isArray(characters) ? characters : [],
+        characters:    charsLive,
         pantheon:      Array.isArray(pantheon)   ? pantheon   : [],
         contacts:      Array.isArray(contacts)   ? contacts   : [],
         map_locations: Array.isArray(mapLocs)    ? mapLocs    : [],
@@ -5397,6 +5422,9 @@ class Component extends DCLogic {
       showDice:        page === 'dice',
       showTests:       page === 'tests',
       showGossip:      page === 'gossip',
+      // Вкладка кабінету береться з сегмента: #gossip — віконце (такі
+      // посилання вже розіслані), #cabinet і #intake — анкета.
+      cabinetTab:      this._parseHash().seg === 'gossip' ? 'gossip' : 'intake',
       testsData:       (data.tests || []),
       showContacts:    page === 'contacts',
       showMap:         page === 'map',
@@ -5785,7 +5813,7 @@ class Component extends DCLogic {
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'dice',        label: 'Дайс',       active: page === 'dice' },
         ...(testsOn ? [{ id: 'tests', label: 'Тести', active: page === 'tests' }] : []),
-        ...(gossipNav ? [{ id: 'gossip', label: 'Віконце', active: page === 'gossip' }] : []),
+        ...(gossipNav ? [{ id: 'cabinet', label: 'Кабінет', active: page === 'gossip' }] : []),
         { id: 'quotes',      label: 'Цитатник',   active: page === 'quotes' },
         { id: 'map',         label: 'Мапа',       active: page === 'map' },
         { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
@@ -5799,9 +5827,9 @@ class Component extends DCLogic {
       navOpen: !!s.navOpen,
       signedIn,
       userNick: s.userNick || '',
-      userChipLabel: signedIn ? (s.userNick || 'Віконце') : 'Увійти',
+      userChipLabel: signedIn ? (s.userNick || 'Кабінет') : 'Увійти',
       userChipGlyph: signedIn ? '✉' : '✦',
-      userChipTitle: signedIn ? 'Віконце — ваші плітки' : 'Увійти або записатися до віконця',
+      userChipTitle: signedIn ? 'Кабінет — анкети й плітки' : 'Увійти або записатися',
       userChipBg: signedIn ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.04)',
       userChipBorder: signedIn ? 'rgba(255,215,0,0.22)' : 'rgba(255,255,255,0.12)',
       userChipColor: signedIn ? 'rgba(255,215,0,0.85)' : 'rgba(255,255,255,0.4)',
@@ -5894,7 +5922,7 @@ class Component extends DCLogic {
           { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу', ...mk((data.pantheon||[]).length, 'бог', 'боги', 'богів') },
           { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20', hasCount: false, countLabel: '' },
           ...(testsOn ? [{ id: 'tests', icon: '🧠', title: 'Тести', desc: 'Дзеркало для вас і для вашого персонажа', ...mk((data.tests||[]).length, 'тест', 'тести', 'тестів') }] : []),
-          ...(gossipOn ? [{ id: 'gossip', icon: '✉', title: 'Віконце', desc: 'Принесіть Марті плітку — вона перекаже її в чаті', hasCount: false, countLabel: '' }] : []),
+          ...(gossipOn ? [{ id: 'cabinet', icon: '✉', title: 'Кабінет', desc: 'Анкета нового персонажа на розгляд і віконце пліток', hasCount: false, countLabel: '' }] : []),
           { id: 'map',        icon: '🗺', title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону', ...mk((data.map_locations||[]).length, 'локація', 'локації', 'локацій') },
           { id: 'contacts',   icon: '✍️', title: 'Долучитися',  desc: 'Правила, анкета — і як стати частиною світу', hasCount: false, countLabel: '' },
         ]};

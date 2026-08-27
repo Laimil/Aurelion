@@ -656,6 +656,90 @@ button{font-family:inherit;cursor:pointer}
   </div>
 </sc-if>
 
+<!-- INTAKE TAB -->
+<sc-if value="{{ showIntakeTab }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:900px;margin:0 auto;padding:28px 24px 80px;">
+    <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:6px;">📥 Анкети з кабінету</h2>
+    <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.55;">Анкету приносить будь-хто, хто зареєструвався на сайті, — доступ до пліток для цього не потрібен. «Прийняти» заводить <strong style="color:rgba(255,255,255,0.55);">чернетку</strong> персонажа: на сайті її не видно, доки ви не вичитаєте й не натиснете «Опублікувати» у вкладці «Персонажі». Марта стукає в лічку про кожну нову анкету.</p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px;">
+      <sc-for list="{{ inFilters }}" as="f" hint-placeholder-count="4">
+        <button onClick="{{ f.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.78rem;transition:all 0.2s ease;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};">{{ f.label }}</button>
+      </sc-for>
+      <button onClick="{{ inReload }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:999px;padding:7px 15px;font-size:0.78rem;">↻ Оновити</button>
+      <span style="font-size:0.76rem;color:rgba(255,255,255,0.3);">{{ inNote }}</span>
+    </div>
+
+    <sc-if value="{{ inNoRows }}" hint-placeholder-val="{{ true }}">
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);">Тут порожньо. Якщо ви щойно прогнали міграцію — це нормально.</p>
+    </sc-if>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <sc-for list="{{ inRows }}" as="c" hint-placeholder-count="0">
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-left:2px solid {{ c.accent }};border-radius:11px;padding:16px 18px;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ c.accent }};">{{ c.head }}</span>
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.24);">{{ c.when }}</span>
+          </div>
+
+          <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;">
+            <sc-if value="{{ c.hasPortrait }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ c.portrait }}" target="_blank" rel="noopener noreferrer" style="flex-shrink:0;"><img src="{{ c.portrait }}" alt="Портрет" style="width:96px;height:128px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,215,0,0.25);" /></a>
+            </sc-if>
+            <div style="flex:1;min-width:220px;">
+              <p style="font-family:'Cinzel',serif;font-size:1.05rem;color:#fff;letter-spacing:0.03em;">{{ c.name }}</p>
+              <p style="font-size:0.76rem;color:rgba(255,255,255,0.42);margin-top:5px;line-height:1.5;">{{ c.meta }}</p>
+              <p style="font-size:0.74rem;color:rgba(255,255,255,0.3);margin-top:5px;line-height:1.5;">{{ c.from }}</p>
+              <sc-if value="{{ c.hasSource }}" hint-placeholder-val="{{ false }}">
+                <p style="margin-top:5px;font-size:0.74rem;"><a href="{{ c.source }}" target="_blank" rel="noopener noreferrer" style="color:#6495ed;">↗ джерело на telegra.ph</a></p>
+              </sc-if>
+            </div>
+          </div>
+
+          <sc-if value="{{ c.hasNote }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.6;color:rgba(255,255,255,0.6);">Від автора: «{{ c.note }}»</p>
+          </sc-if>
+
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ c.secs }}" as="x" hint-placeholder-count="0">
+              <div>
+                <p style="font-size:0.68rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.55);margin-bottom:4px;">{{ x.title }}</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.68;color:rgba(255,255,255,0.66);white-space:pre-line;text-wrap:pretty;">{{ x.text }}</p>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ c.hasAdminNote }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);font-size:0.8rem;line-height:1.55;color:rgba(255,215,0,0.7);">Ваше слово автору: {{ c.adminNote }}</p>
+          </sc-if>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+            <sc-if value="{{ c.canAccept }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ c.onAccept }}" disabled="{{ inBusy }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">✓ Прийняти — завести чернетку</button>
+            </sc-if>
+            <sc-if value="{{ c.canAdvise }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ c.onAdvise }}" style="cursor:pointer;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:rgba(160,190,255,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Порада автору</button>
+            </sc-if>
+            <sc-if value="{{ c.canReject }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ c.onReject }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,120,120,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відхилити</button>
+            </sc-if>
+            <sc-if value="{{ c.canOpen }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ c.onOpen }}" style="cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.7);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відкрити чернетку</button>
+            </sc-if>
+            <sc-if value="{{ c.canPublish }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ c.onPublish }}" title="Чернетка: на сайті її ще не видно" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">✦ Опублікувати на сайті</button>
+            </sc-if>
+            <sc-if value="{{ c.canBack }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ c.onBack }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 14px;font-size:0.76rem;">Вернути на розгляд</button>
+            </sc-if>
+            <button onClick="{{ c.onDelete }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);border-radius:999px;padding:6px 14px;font-size:0.76rem;">Видалити</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
 <!-- TESTS TAB -->
 <sc-if value="{{ showTests }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
@@ -2615,6 +2699,8 @@ class Component extends DCLogic {
     loginEmail: '', loginPassword: '', loginError: '', loginLoading: false,
     martaBusy: false, martaMsg: '',
     gosPeople: [], gosRows: [], gosFilter: 'ready', gosBusy: false,
+    // анкети з кабінету
+    inRows: [], inFilter: 'pending', inBusy: false,
     userEmail: '',
     // admin
     tab: 'site',
@@ -3062,6 +3148,7 @@ class Component extends DCLogic {
         },
       });
       this._loadGossipAdmin();
+      this._loadIntake();
     } catch(e) { this.setState({ loading: false }); }
   }
 
@@ -3076,6 +3163,206 @@ class Component extends DCLogic {
       gosPeople: Array.isArray(people) ? people : [],
       gosRows:   Array.isArray(rows)   ? rows   : [],
     });
+  }
+
+  // ── Анкети з кабінету ────────────────────────────────
+  // Поки міграції немає, _get віддає порожнє — вкладка просто порожня.
+  async _loadIntake() {
+    const rows = await this._get('char_intake?select=*&order=created_at.desc&limit=200');
+    this.setState({ inRows: Array.isArray(rows) ? rows : [] });
+  }
+
+  // Анкета → чернетка персонажа. Розділи складаються у вікі-текст тим самим
+  // порядком, що в імпорті з Telegraph, — інакше прийнята анкета лягала б у
+  // картотеку в чужому порядку.
+  _intakeContent(row) {
+    const sec = (row && row.sections) || {};
+    const TI = window.TelegraphImport;
+    const order = (TI && TI.ORDER) || [];
+    const keys = Object.keys(sec).filter(k => String(sec[k] || '').trim());
+    keys.sort((a, b) => {
+      const ia = order.indexOf(a), ib = order.indexOf(b);
+      return (ia < 0 ? 99 + keys.indexOf(a) : ia) - (ib < 0 ? 99 + keys.indexOf(b) : ib);
+    });
+    const head = [];
+    if (row.height || row.weight) head.push(`**Зріст/Вага:** ${[row.height, row.weight].filter(Boolean).join(' / ')}`);
+    return head.concat(keys.map(k => `## ${k}\n\n${String(sec[k]).trim()}`)).join('\n\n');
+  }
+
+  _intakeBio(row) {
+    const sec = (row && row.sections) || {};
+    const src = String(sec['Характер'] || sec['Біографія'] || Object.values(sec)[0] || '').trim();
+    if (!src) return '';
+    const out = [];
+    let len = 0;
+    for (const part of src.replace(/\s+/g, ' ').split(/(?<=[.!?…])\s+/)) {
+      if (len && len + part.length > 240) break;
+      out.push(part); len += part.length;
+    }
+    return out.join(' ').slice(0, 300);
+  }
+
+  async _intakeAccept(row) {
+    if (!window.confirm(`Завести чернетку персонажа «${row.name}»?\n\nНа сайті її не буде видно, доки ви не опублікуєте.`)) return;
+    this.setState({ inBusy: true });
+    try {
+      const chars = this.state.data.characters || [];
+      const maxOrder = chars.reduce((m, c) => Math.max(m, Number(c.sort_order) || 0), 0);
+      const body = {
+        name: row.name,
+        alias: row.alias || '',
+        role: row.role || '',
+        image: row.portrait || '',
+        telegraph_url: row.source_url || '',
+        age: row.age || '',
+        height: row.height || '',
+        weight: row.weight || '',
+        deity: row.deity || '',
+        bio: this._intakeBio(row),
+        content: this._intakeContent(row),
+        character_type: 'player',
+        is_active: true,
+        is_draft: true,
+        intake_by: row.author_nick || '',
+        intake_at: new Date().toISOString(),
+        sort_order: maxOrder + 1,
+      };
+      const made = await this._insert('characters', body);
+      const ch = Array.isArray(made) ? made[0] : made;
+      await this._patch('char_intake', row.id, {
+        status: 'accepted',
+        character_id: ch && ch.id != null ? String(ch.id) : null,
+        decided_at: new Date().toISOString(),
+        decided_by: this.state.userEmail || '',
+      });
+      await this._refreshTable('characters');
+      await this._loadIntake();
+      this.setState({ inBusy: false, inFilter: 'accepted' });
+      localStorage.setItem('aurelion-refresh', Date.now().toString());
+      this._toast('✓ Чернетку заведено — вичитайте й опублікуйте');
+    } catch (e) {
+      this.setState({ inBusy: false });
+      this._toast('✗ ' + (e.message || 'Не вийшло') + ' — чи прогнано supabase_char_submissions_migration.sql?');
+    }
+  }
+
+  async _intakePatch(id, body, note) {
+    try {
+      await this._patch('char_intake', id, {
+        ...body,
+        decided_at: new Date().toISOString(),
+        decided_by: this.state.userEmail || '',
+      });
+      this.setState(st => ({
+        inRows: (st.inRows || []).map(r => String(r.id) === String(id) ? { ...r, ...body } : r),
+      }));
+      this._toast(note);
+    } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
+  }
+
+  _intakeVals() {
+    const s = this.state;
+    const rows = s.inRows || [];
+    const people = s.gosPeople || [];
+    const BADGE = {
+      pending:   { label: 'На розгляді', accent: 'rgba(255,215,0,0.7)' },
+      accepted:  { label: 'Прийнято',    accent: '#ffd700' },
+      rejected:  { label: 'Відхилено',   accent: 'rgba(255,77,77,0.7)' },
+      withdrawn: { label: 'Відкликано',  accent: 'rgba(255,255,255,0.3)' },
+    };
+    const when = (iso) => {
+      if (!iso) return '';
+      const d = new Date(iso), p = n => String(n).padStart(2, '0');
+      return `${p(d.getDate())}.${p(d.getMonth() + 1)} · ${p(d.getHours())}:${p(d.getMinutes())}`;
+    };
+    const count = (st) => rows.filter(r => r.status === st).length;
+    const shown = s.inFilter === 'all' ? rows : rows.filter(r => r.status === s.inFilter);
+
+    return {
+      inBusy: !!s.inBusy,
+      inReload: () => this._loadIntake(),
+      inNote: `На розгляді ${count('pending')} · прийнято ${count('accepted')}`,
+      inFilters: [
+        { key: 'pending',   label: `На розгляді · ${count('pending')}` },
+        { key: 'accepted',  label: 'Прийняті' },
+        { key: 'rejected',  label: 'Відхилені' },
+        ...(count('withdrawn') ? [{ key: 'withdrawn', label: 'Відкликані' }] : []),
+        { key: 'all',       label: 'Усі' },
+      ].map(f => ({
+        key: f.key, label: f.label,
+        bg: s.inFilter === f.key ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+        border: s.inFilter === f.key ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
+        color: s.inFilter === f.key ? '#ffd700' : 'rgba(255,255,255,0.45)',
+        onPick: () => this.setState({ inFilter: f.key }),
+      })),
+      inNoRows: shown.length === 0,
+      inRows: shown.map(r => {
+        const b = BADGE[r.status] || BADGE.pending;
+        const who = people.find(p => String(p.id) === String(r.author_id));
+        const made = r.character_id
+          ? (this.state.data.characters || []).find(c => String(c.id) === String(r.character_id))
+          : null;
+        const sec = r.sections || {};
+        return {
+          key: r.id,
+          head: `№${r.num} · ${b.label}`, accent: b.accent, when: when(r.created_at),
+          name: `${r.name}${r.alias ? ` «${r.alias}»` : ''}`,
+          meta: [r.age, [r.height, r.weight].filter(Boolean).join(' / '), r.deity, r.role]
+            .filter(Boolean).join(' · ') || 'графи не заповнені',
+          from: `Подав: ${r.author_nick || 'невідомо хто'}`
+            + (who && who.tg_nick ? ` · ${who.tg_nick}` : '')
+            + (who ? (who.status === 'approved' ? ' · доступ відкрито' : ' · доступ ще не відкрито') : ''),
+          hasPortrait: !!r.portrait, portrait: r.portrait || '',
+          hasSource: !!r.source_url, source: r.source_url || '',
+          hasNote: !!r.note, note: r.note || '',
+          hasAdminNote: !!r.admin_note, adminNote: r.admin_note || '',
+          secs: Object.keys(sec).filter(k => String(sec[k] || '').trim())
+            .map(k => ({ key: k, title: k, text: String(sec[k]).trim() })),
+          canAccept: r.status === 'pending',
+          canAdvise: r.status === 'pending',
+          canReject: r.status === 'pending',
+          canBack:   r.status === 'rejected' || r.status === 'withdrawn',
+          canOpen:   r.status === 'accepted' && !!r.character_id,
+          canPublish: !!made && made.is_draft === true,
+          onPublish: async () => {
+            if (!window.confirm(`Опублікувати «${made.name}» на сайті?`)) return;
+            try {
+              await this._patch('characters', made.id, { is_draft: false });
+              await this._refreshTable('characters');
+              localStorage.setItem('aurelion-refresh', Date.now().toString());
+              this._toast('✓ На сайті. Марта привітає його з вкладки «Персонажі»');
+            } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
+          },
+          onAccept: () => this._intakeAccept(r),
+          onAdvise: () => {
+            const t = window.prompt('Що сказати авторові? Він побачить це у своєму кабінеті:', r.admin_note || '');
+            if (t == null) return;
+            this._intakePatch(r.id, { admin_note: t.trim() }, '✓ Слово передано');
+          },
+          onReject: () => {
+            const t = window.prompt(`Чому «${r.name}» не підходить? Автор побачить причину:`, '');
+            if (t == null) return;
+            this._intakePatch(r.id, { status: 'rejected', admin_note: t.trim() }, '✓ Відхилено');
+          },
+          onBack: () => this._intakePatch(r.id, { status: 'pending' }, '✓ Вернули на розгляд'),
+          onOpen: () => {
+            const list = this.state.data.characters || [];
+            const idx = list.findIndex(c => String(c.id) === String(r.character_id));
+            if (idx === -1) { this._toast('⚠ Чернетки немає в списку — оновіть сторінку'); return; }
+            this.setState({ tab: 'characters', editing: { section: 'characters', index: idx }, form: { ...list[idx] } });
+            this._scrollToForm();
+          },
+          onDelete: async () => {
+            if (!window.confirm(`Видалити анкету «${r.name}» назовсім?`)) return;
+            try {
+              await this._remove('char_intake', r.id);
+              this.setState(st => ({ inRows: (st.inRows || []).filter(x => String(x.id) !== String(r.id)) }));
+              this._toast('✓ Видалено');
+            } catch (e) { this._toast('✗ Не вийшло видалити'); }
+          },
+        };
+      }),
+    };
   }
 
   async _refreshTable(table) {
@@ -4414,6 +4701,7 @@ class Component extends DCLogic {
         { id: 'dice',       label: '🎲 Дайс',        active: tab === 'dice' },
         { id: 'tests',      label: '🧠 Тести',       active: tab === 'tests' },
         { id: 'gossip',     label: '✉ Плітки',      active: tab === 'gossip' },
+        { id: 'intake',     label: '📥 Анкети',      active: tab === 'intake' },
         { id: 'contacts',   label: '✍️ Долучитися',    active: tab === 'contacts' },
       ],
       setTab: (e) => {
@@ -4433,10 +4721,12 @@ class Component extends DCLogic {
       showDice:       tab === 'dice',
       showTests:      tab === 'tests',
       showGossipTab:  tab === 'gossip',
+      showIntakeTab:  tab === 'intake',
       showStats:      tab === 'stats',
       ...this._statsVals(),
       ...this._testsVals(),
       ...this._gossipVals(),
+      ...this._intakeVals(),
 
       diceCritQuotes:   (data.site && data.site.dice_quotes_crit   != null && data.site.dice_quotes_crit   !== '') ? data.site.dice_quotes_crit   : DEFAULT_DICE_QUOTES.crit.join('\n'),
       diceFumbleQuotes: (data.site && data.site.dice_quotes_fumble != null && data.site.dice_quotes_fumble !== '') ? data.site.dice_quotes_fumble : DEFAULT_DICE_QUOTES.fumble.join('\n'),
