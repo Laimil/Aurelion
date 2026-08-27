@@ -109,7 +109,8 @@ a:hover{color:#fff}
         <button onClick="{{ doLogout }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 16px;font-size:0.74rem;transition:all 0.2s ease;">Вийти</button>
       </div>
 
-      <!-- вкладки кабінету -->
+      <!-- вкладки кабінету (у режимі «тільки плітки» смужки немає) -->
+      <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button onClick="{{ pickIntake }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabIntakeBg }};border:1px solid {{ tabIntakeBorder }};color:{{ tabIntakeColor }};">✍ Анкета персонажа</button>
         <sc-if value="{{ canGossip }}" hint-placeholder-val="{{ false }}">
@@ -119,6 +120,10 @@ a:hover{color:#fff}
           <span title="Віконце відчиняють адміни" style="border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.24);">✉ Плітка — доступ ще не відкрито</span>
         </sc-if>
       </div>
+      </sc-if>
+      <sc-if value="{{ lockedOnly }}" hint-placeholder-val="{{ false }}">
+        <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">Віконце пліток відчиняють адміни — ваш аркуш ще на розгляді.</p>
+      </sc-if>
 
       <!-- ═════ ВКЛАДКА: АНКЕТА ═════ -->
       <sc-if value="{{ showIntake }}" hint-placeholder-val="{{ true }}">
@@ -259,7 +264,7 @@ a:hover{color:#fff}
           <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:14px;">✦ Що ви чули</p>
 
-            <textarea class="gos-field" value="{{ text }}" onChange="{{ setText }}" placeholder="Так і пишіть, як переказали б знайомій. Коротке Марта зачитає дослівно, довге перекаже своїми словами." rows="5" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:14px 16px;color:#fff;font-size:1rem;font-family:'EB Garamond',Georgia,serif;line-height:1.7;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+            <textarea class="gos-field" value="{{ text }}" onChange="{{ setText }}" placeholder="Так і пишіть, як переказали б знайомій. Нижче скажете, чи зачитувати дослівно." rows="5" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:14px 16px;color:#fff;font-size:1rem;font-family:'EB Garamond',Georgia,serif;line-height:1.7;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
             <p style="text-align:right;font-size:0.7rem;color:{{ countColor }};margin-top:6px;">{{ countLabel }}</p>
 
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Про кого</p>
@@ -292,6 +297,14 @@ a:hover{color:#fff}
                 <button onClick="{{ t.onPick }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:8px 18px;font-size:0.83rem;transition:all 0.2s ease;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.color }};">{{ t.label }}</button>
               </sc-for>
             </div>
+
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Як переказувати</p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              <sc-for list="{{ says }}" as="t" hint-placeholder-count="3">
+                <button onClick="{{ t.onPick }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:8px 18px;font-size:0.83rem;transition:all 0.2s ease;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.color }};">{{ t.label }}</button>
+              </sc-for>
+            </div>
+            <p style="margin-top:10px;font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.6;color:rgba(255,255,255,0.38);text-wrap:pretty;">{{ sayNote }}</p>
 
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Підпис у чаті</p>
             <div style="display:flex;flex-wrap:wrap;gap:8px;">
@@ -357,7 +370,7 @@ a:hover{color:#fff}
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:960},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;startTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;intake&quot;,&quot;gossip&quot;],&quot;default&quot;:&quot;intake&quot;,&quot;tsType&quot;:&quot;'intake' | 'gossip'&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:960},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;startTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;intake&quot;,&quot;gossip&quot;],&quot;default&quot;:&quot;intake&quot;,&quot;tsType&quot;:&quot;'intake' | 'gossip'&quot;},&quot;onlyGossip&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Пліткарка&quot;}}">
 const SUPA_URL   = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
 const SUPA_AUTH  = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
 const SUPA_FUNCS = 'https://ztltzghfkppuwixhylng.supabase.co/functions/v1';
@@ -417,7 +430,7 @@ class Component extends DCLogic {
     authErr: '', authBusy: false,
     prof: null, uid: '',
     chars: [], charQ: '',
-    text: '', picked: [], topic: 'чутка', truth: 'чув', sign: 'anon',
+    text: '', picked: [], topic: 'чутка', truth: 'чув', sign: 'anon', say: 'auto',
     sending: false, sendMsg: '',
     mine: [], feed: [], stubs: [],
     // анкета на розгляд
@@ -806,7 +819,7 @@ class Component extends DCLogic {
       const body = {
         author_id: secret ? null : s.uid, text,
         about: s.picked.map((p) => ({ id: p.id, name: p.name })),
-        topic: s.topic, truth: s.truth, sign: s.sign,
+        topic: s.topic, truth: s.truth, sign: s.sign, say: s.say,
       };
       if (secret) body.id = id;
       const r = await this._api(`${SUPA_URL}/gossip_queue`, {
@@ -1124,6 +1137,22 @@ class Component extends DCLogic {
       { key: 'secret', label: 'Таємно — навіть від адмінів', ...this._pillStyle(s.sign === 'secret'),
         onPick: () => this.setState({ sign: 'secret' }) },
     ];
+    // Чи викидати в чат ваш рядок дослівно. Раніше це вирішувала довжина;
+    // тепер вирішує той, хто приніс, а «сама» лишилася типовим.
+    const says = [
+      { key: 'auto', label: 'Хай вирішить сама', ...this._pillStyle(s.say === 'auto'),
+        onPick: () => this.setState({ say: 'auto' }) },
+      { key: 'quote', label: 'Дослівно, як я написала', ...this._pillStyle(s.say === 'quote'),
+        onPick: () => this.setState({ say: 'quote' }) },
+      { key: 'retell', label: 'Своїми словами', ...this._pillStyle(s.say === 'retell'),
+        onPick: () => this.setState({ say: 'retell' }) },
+    ];
+    const sayNote = s.say === 'quote'
+      ? 'У чат піде ваш рядок у лапках, а Марта додасть одне речення від себе.'
+      : s.say === 'retell'
+        ? 'Вашого рядка в чаті не буде: Марта перекаже його своїми словами — не додаючи нічого, чого ви не сказали, — а вже потім скаже, що сама про це думає.'
+        : 'Коротке зачитає дослівно, довше перекаже своїми словами.';
+
     const signNote = s.sign === 'secret'
       ? 'Імені не буде ніде: ні в чаті, ні в адмінці, ні в базі. Розписка про неї лишиться тільки у вашому браузері.'
       : s.sign === 'nick'
@@ -1249,9 +1278,12 @@ class Component extends DCLogic {
 
       myNick: nick,
 
-      // вкладки
-      showIntake: s.tab !== 'gossip',
-      showGossip: s.tab === 'gossip' && status === 'approved',
+      // вкладки. `onlyGossip` — вхід з меню «Пліткарка»: анкети тут немає
+      // взагалі, тому й смужки вкладок немає.
+      showTabs: !this.props.onlyGossip,
+      lockedOnly: !!this.props.onlyGossip && s.phase === 'ok' && status === 'pending',
+      showIntake: !this.props.onlyGossip && s.tab !== 'gossip',
+      showGossip: (!!this.props.onlyGossip || s.tab === 'gossip') && status === 'approved',
       pickIntake: () => this.setState({ tab: 'intake' }),
       pickGossip: () => this.setState({ tab: 'gossip' }),
       ...(() => {
@@ -1313,6 +1345,7 @@ class Component extends DCLogic {
       hasPicked: s.picked.length > 0,
       topics: pill(TOPICS, s.topic, 'topic'),
       truths: pill(TRUTHS, s.truth, 'truth'),
+      says, sayNote,
       signs, signNote,
       sending: s.sending,
       sendBtn: s.sending ? 'Несу до віконця…' : 'Віддати Марті',

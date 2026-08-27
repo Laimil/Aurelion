@@ -4012,6 +4012,8 @@ class Component extends DCLogic {
               : g.sign === 'nick' ? `від ${g.author_nick || '?'}` : `від ${g.author_nick || '?'} (у чаті не називати)`,
             about ? `про ${about}` : '',
             g.topic || '', g.truth ? `певність: ${g.truth}` : '',
+            g.say === 'quote' ? 'просили дослівно'
+              : g.say === 'retell' ? 'просили своїми словами' : '',
             this._gosWhen(g.created_at),
           ].filter(Boolean).join(' · '),
           secret,

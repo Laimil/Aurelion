@@ -1728,11 +1728,11 @@ a:hover{color:#a8c4f7;}
 <sc-if value="{{ showGossip }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
     <header style="text-align:center;margin-bottom:40px;">
-      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Рецепція штабу</p>
-      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Кабінет</h1>
-      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:460px;margin-left:auto;margin-right:auto;">Анкета нового персонажа й віконце пліток — в Марти одна рецепція на обидві справи.</p>
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">{{ cabinetKicker }}</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">{{ cabinetTitle }}</h1>
+      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:460px;margin-left:auto;margin-right:auto;">{{ cabinetSub }}</p>
     </header>
-    <dc-import name="Gossip" embedded="{{ true }}" start-tab="{{ cabinetTab }}" hint-size="100%,720px"></dc-import>
+    <dc-import name="Gossip" embedded="{{ true }}" start-tab="{{ cabinetTab }}" only-gossip="{{ cabinetOnlyGossip }}" hint-size="100%,720px"></dc-import>
   </main>
 </sc-if>
 
@@ -5425,6 +5425,14 @@ class Component extends DCLogic {
       // Вкладка кабінету береться з сегмента: #gossip — віконце (такі
       // посилання вже розіслані), #cabinet і #intake — анкета.
       cabinetTab:      this._parseHash().seg === 'gossip' ? 'gossip' : 'intake',
+      // #gossip — «Пліткарка» з меню: тільки віконце, без анкети.
+      // #cabinet / #intake — кабінет із шапки: анкета й вкладки.
+      cabinetOnlyGossip: this._parseHash().seg === 'gossip',
+      cabinetKicker:   this._parseHash().seg === 'gossip' ? '✦ Віконце пліток' : '✦ Рецепція штабу',
+      cabinetTitle:    this._parseHash().seg === 'gossip' ? 'Пліткарка' : 'Мій кабінет',
+      cabinetSub:      this._parseHash().seg === 'gossip'
+        ? 'Що почули — то й принесіть. Марта запише, а далі воно саме розійдеться чатом.'
+        : 'Анкета нового персонажа й віконце пліток — в Марти одна рецепція на обидві справи.',
       testsData:       (data.tests || []),
       showContacts:    page === 'contacts',
       showMap:         page === 'map',
@@ -5813,7 +5821,7 @@ class Component extends DCLogic {
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'dice',        label: 'Дайс',       active: page === 'dice' },
         ...(testsOn ? [{ id: 'tests', label: 'Тести', active: page === 'tests' }] : []),
-        ...(gossipNav ? [{ id: 'cabinet', label: 'Кабінет', active: page === 'gossip' }] : []),
+        ...(gossipNav ? [{ id: 'gossip', label: 'Пліткарка', active: page === 'gossip' }] : []),
         { id: 'quotes',      label: 'Цитатник',   active: page === 'quotes' },
         { id: 'map',         label: 'Мапа',       active: page === 'map' },
         { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
@@ -5922,7 +5930,7 @@ class Component extends DCLogic {
           { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу', ...mk((data.pantheon||[]).length, 'бог', 'боги', 'богів') },
           { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20', hasCount: false, countLabel: '' },
           ...(testsOn ? [{ id: 'tests', icon: '🧠', title: 'Тести', desc: 'Дзеркало для вас і для вашого персонажа', ...mk((data.tests||[]).length, 'тест', 'тести', 'тестів') }] : []),
-          ...(gossipOn ? [{ id: 'cabinet', icon: '✉', title: 'Кабінет', desc: 'Анкета нового персонажа на розгляд і віконце пліток', hasCount: false, countLabel: '' }] : []),
+          ...(gossipOn ? [{ id: 'gossip', icon: '✉', title: 'Пліткарка', desc: 'Віконце пліток — принесіть Марті те, що почули', hasCount: false, countLabel: '' }] : []),
           { id: 'map',        icon: '🗺', title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону', ...mk((data.map_locations||[]).length, 'локація', 'локації', 'локацій') },
           { id: 'contacts',   icon: '✍️', title: 'Долучитися',  desc: 'Правила, анкета — і як стати частиною світу', hasCount: false, countLabel: '' },
         ]};
