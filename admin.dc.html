@@ -2765,6 +2765,24 @@ class Component extends DCLogic {
   }
 
   // ── Auth API ───────────────────────────────────────────────
+  // ⚠ Дійсна сесія Supabase Auth сама по собі не значить «адмін» —
+  // з відкритою реєстрацією на сайті (site_users) той самий Auth
+  // видає JWT кожному гравцю. Обов'язково звіряємо ще й is_admin()
+  // через RPC; це не заміна RLS-політик на самих таблицях (вони
+  // мають перевіряти is_admin() самостійно), а другий бар'єр, щоб
+  // не-адмін не бачив навіть інтерфейс панелі.
+  async _isAdmin(token) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rpc/is_admin`, {
+        method: 'POST',
+        headers: { ...BASE_H, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      if (!r.ok) return false;
+      return (await r.json()) === true;
+    } catch(e) { return false; }
+  }
+
   async _checkSession() {
     const token = this._getToken();
     if (!token) { this.setState({ authChecking: false }); return; }
@@ -2772,7 +2790,7 @@ class Component extends DCLogic {
       const r = await fetch(`${SUPA_AUTH}/user`, {
         headers: { ...BASE_H, 'Authorization': `Bearer ${token}` },
       });
-      if (r.ok) {
+      if (r.ok && await this._isAdmin(token)) {
         const u = await r.json();
         this.setState({ authed: true, authChecking: false, userEmail: u.email || localStorage.getItem('aur-admin-email') || '' });
         this._loadAll();
@@ -2793,6 +2811,10 @@ class Component extends DCLogic {
       });
       const d = await r.json();
       if (d.access_token) {
+        if (!(await this._isAdmin(d.access_token))) {
+          this.setState({ loginError: 'Цей акаунт не має прав адміна', loginLoading: false });
+          return;
+        }
         this._setToken(d.access_token, email);
         this.setState({ authed: true, loginLoading: false, userEmail: email });
         this._loadAll();
