@@ -119,6 +119,9 @@ a:hover{color:#fff}
         <sc-if value="{{ canGossip }}" hint-placeholder-val="{{ false }}">
           <button onClick="{{ pickGossip }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabGosBg }};border:1px solid {{ tabGosBorder }};color:{{ tabGosColor }};">✉ Плітка</button>
         </sc-if>
+        <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ pickMe }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabMeBg }};border:1px solid {{ tabMeBorder }};color:{{ tabMeColor }};">✦ Про мене</button>
+        </sc-if>
         <sc-if value="{{ gossipLocked }}" hint-placeholder-val="{{ false }}">
           <span title="Віконце відчиняють адміни" style="border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.24);">✉ Плітка — доступ ще не відкрито</span>
         </sc-if>
@@ -362,6 +365,100 @@ a:hover{color:#fff}
             </sc-if>
             <sc-if value="{{ noFeed }}" hint-placeholder-val="{{ true }}">
               <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;color:rgba(255,255,255,0.3);font-size:0.98rem;">У чаті ще тиша.</p>
+            </sc-if>
+          </div>
+
+        </div>
+      </sc-if>
+
+      <!-- ═════ ВКЛАДКА: ПРО МЕНЕ ═════ -->
+      <sc-if value="{{ showMe }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Аркуш рецепції</p>
+            <p style="font-family:'Cinzel',Georgia,serif;font-size:1.45rem;color:#fff;letter-spacing:0.05em;">{{ meNick }}</p>
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.35);margin-top:6px;line-height:1.6;">{{ meMeta }}</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-top:14px;text-wrap:pretty;">{{ meIntro }}</p>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:16px;">✦ Записане на вас</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;">
+              <sc-for list="{{ meTotals }}" as="t" hint-placeholder-count="5">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:14px 12px;">
+                  <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:#ffd700;letter-spacing:0.02em;">{{ t.num }}</p>
+                  <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-top:6px;">{{ t.cap }}</p>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ hasMeRows }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px;">
+                <sc-for list="{{ meRows }}" as="c" hint-placeholder-count="1">
+                  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:14px 16px;">
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:baseline;justify-content:space-between;">
+                      <p style="font-family:'Cinzel',Georgia,serif;font-size:1rem;color:#fff;letter-spacing:0.03em;">{{ c.name }}</p>
+                      <p style="font-size:0.76rem;color:rgba(255,215,0,0.7);">{{ c.fill }}</p>
+                    </div>
+                    <div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.08);margin-top:10px;overflow:hidden;">
+                      <div style="height:6px;border-radius:3px;background:rgba(255,215,0,0.75);width:{{ c.pct }};"></div>
+                    </div>
+                    <p style="font-size:0.76rem;color:rgba(255,255,255,0.3);margin-top:9px;line-height:1.5;">{{ c.meta }}</p>
+                    <sc-if value="{{ c.hasGap }}" hint-placeholder-val="{{ false }}">
+                      <p style="font-size:0.76rem;color:rgba(255,255,255,0.42);margin-top:5px;line-height:1.5;">{{ c.gap }}</p>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noMeRows }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.4);margin-top:16px;">Записаних на вас персонажів у картотеці ще немає. Анкету заводить адміністрація — після того, як прийме її з віконця.</p>
+            </sc-if>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:16px;">✦ Ваші заявки</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;">
+              <sc-for list="{{ subTiles }}" as="t" hint-placeholder-count="6">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:14px 12px;">
+                  <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:{{ t.color }};letter-spacing:0.02em;">{{ t.num }}</p>
+                  <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-top:6px;">{{ t.cap }}</p>
+                </div>
+              </sc-for>
+            </div>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-top:16px;text-wrap:pretty;">{{ subNote }}</p>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Місце серед інших</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:16px;text-wrap:pretty;">Рахує рецепція, імен не називає: ви бачите тільки своє місце й скільки всього людей у списку.</p>
+            <sc-if value="{{ hasStand }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <sc-for list="{{ standRows }}" as="r" hint-placeholder-count="3">
+                  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:baseline;justify-content:space-between;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:13px 16px;">
+                    <p style="font-size:0.86rem;color:rgba(255,255,255,0.62);">{{ r.label }}</p>
+                    <p style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.03em;">{{ r.value }}</p>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noStand }}" hint-placeholder-val="{{ true }}">
+              <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">{{ standNote }}</p>
+            </sc-if>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.22);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Виписка з рахунку</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:18px;text-wrap:pretty;">Марта складе ваш аркуш у картку — з нею можна піти в чат.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button onClick="{{ doSaveCard }}" disabled="{{ cardBusy }}" class="gos-pill" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:9px 18px;font-size:0.8rem;">⬇ Зберегти PNG</button>
+              <button onClick="{{ doCopyCard }}" disabled="{{ cardBusy }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 18px;font-size:0.8rem;">⧉ Скопіювати</button>
+              <sc-if value="{{ canShare }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ doShareCard }}" disabled="{{ cardBusy }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 18px;font-size:0.8rem;">↗ Поділитися</button>
+              </sc-if>
+            </div>
+            <sc-if value="{{ hasCardMsg }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:16px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.22);border-radius:8px;padding:11px 15px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,215,0,0.85);">{{ cardMsg }}</div>
             </sc-if>
           </div>
 
@@ -618,6 +715,9 @@ class Component extends DCLogic {
     subs: [], gods: [],
     // мої персонажі й правки до них
     owned: [], edits: [],
+    // «Про мене»: stand — те, що порахувала база (місце серед інших),
+    // bits — те, що порахували ми з уже прочитаних рядків.
+    stand: null, bits: null, statsBusy: false, cardBusy: false, cardMsg: '',
     eId: '', ef: {}, eBase: {}, eGal: [], eLinks: [],
     eLinkQ: '', eLinkKind: 'plain', eNote: '', eBusy: false, eMsg: '',
     way: 'blank', tgUrl: '', tgRaw: '', tgBusy: false, tgMsg: '', tgBad: false,
@@ -1397,6 +1497,309 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
+  // ── аркуш «Про мене» ──────────────────────────────────────
+  // Усе, крім місця серед інших, рахується з рядків, які людина й так
+  // має право читати. Місце рахує база (`my_standing`), бо для нього
+  // треба заглянути в чужі рядки — назовні йдуть самі числа.
+  async _loadStats(force) {
+    const s = this.state;
+    if (!s.uid || s.statsBusy) return;
+    if (!force && this._statsAt && Date.now() - this._statsAt < 60000) return;
+    this._statsAt = Date.now();
+    this.setState({ statsBusy: true });
+
+    const get = async (q) => {
+      try {
+        const r = await this._api(`${SUPA_URL}/${q}`);
+        if (!r.ok) { console.warn('аркуш:', q, r.status, await r.text()); return []; }
+        return await r.json();
+      } catch (e) { console.warn('аркуш:', q, e); return []; }
+    };
+
+    let stand = null;
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/my_standing`, { method: 'POST', body: '{}' }, true);
+      if (r.ok) stand = await r.json();
+      else console.warn('my_standing:', r.status, await r.text());
+    } catch (e) { console.warn('my_standing:', e); }
+
+    const ids = (this.state.owned || []).map((c) => String(c.id)).filter(Boolean);
+    const bits = { gal: {}, links: {}, ment: {} };
+    if (ids.length) {
+      const inl = `(${ids.map((i) => `"${i}"`).join(',')})`;
+      const [gal, links, mTo, mFrom] = await Promise.all([
+        get(`character_images?character_id=in.${inl}&select=character_id`),
+        get(`character_links?or=(from_id.in.${inl},to_id.in.${inl})&select=from_id,to_id`),
+        get(`material_links?to_type=eq.characters&to_id=in.${inl}&select=to_id`),
+        get(`material_links?from_type=eq.characters&from_id=in.${inl}&select=from_id`),
+      ]);
+      const bump = (map, id) => { const k = String(id); if (ids.indexOf(k) !== -1) map[k] = (map[k] || 0) + 1; };
+      gal.forEach((g) => bump(bits.gal, g.character_id));
+      links.forEach((l) => { bump(bits.links, l.from_id); bump(bits.links, l.to_id); });
+      mTo.forEach((m) => bump(bits.ment, m.to_id));
+      mFrom.forEach((m) => bump(bits.ment, m.from_id));
+    }
+    this.setState({ stand, bits, statsBusy: false });
+  }
+
+  _ago(iso) {
+    if (!iso) return '';
+    const d = Math.round((Date.now() - new Date(iso).getTime()) / 86400000);
+    if (d <= 0) return 'сьогодні';
+    if (d === 1) return 'учора';
+    if (d < 31) return `${d} ${this._plural(d, 'день', 'дні', 'днів')} тому`;
+    const m = Math.round(d / 30);
+    return `${m} ${this._plural(m, 'місяць', 'місяці', 'місяців')} тому`;
+  }
+  _plural(n, one, few, many) {
+    const a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return many;
+    if (b > 1 && b < 5) return few;
+    return b === 1 ? one : many;
+  }
+  _hoursLabel(h) {
+    if (h < 1) return 'менш ніж за годину';
+    if (h < 36) { const n = Math.round(h); return `за ${n} ${this._plural(n, 'годину', 'години', 'годин')}`; }
+    const d = Math.round(h / 24);
+    return `за ${d} ${this._plural(d, 'день', 'дні', 'днів')}`;
+  }
+  _place(rank, of) {
+    if (!rank || !of) return '';
+    return `${rank}-те місце з ${of}`;
+  }
+
+  _meVals() {
+    const s = this.state;
+    const prof = s.prof || {};
+    const owned = s.owned || [];
+    const bits = s.bits || { gal: {}, links: {}, ment: {} };
+    const st = s.stand && !s.stand.error ? s.stand : null;
+    const num = (v) => Number(v || 0).toLocaleString('uk-UA');
+
+    const rows = owned.map((c) => {
+      const filled = E_KEYS.filter((k) => String(c[k] == null ? '' : c[k]).trim()).length;
+      const pct = Math.round((filled / E_KEYS.length) * 100);
+      const gaps = E_KEYS.filter((k) => !String(c[k] == null ? '' : c[k]).trim())
+        .map((k) => (E_LABEL && E_LABEL[k]) || k);
+      const letters = String(c.content || '').length + String(c.bio || '').length;
+      const id = String(c.id);
+      return {
+        key: id,
+        name: `${c.name}${c.alias ? ` «${c.alias}»` : ''}`,
+        fill: `${filled} з ${E_KEYS.length} граф`,
+        pct: `${pct}%`,
+        letters,
+        imgs: bits.gal[id] || 0, links: bits.links[id] || 0, ment: bits.ment[id] || 0,
+        meta: [
+          `${num(letters)} ${this._plural(letters, 'літера', 'літери', 'літер')} в анкеті`,
+          `${bits.gal[id] || 0} у галереї`,
+          `${bits.links[id] || 0} ${this._plural(bits.links[id] || 0, 'нитка', 'нитки', 'ниток')}`,
+          `${bits.ment[id] || 0} ${this._plural(bits.ment[id] || 0, 'згадка', 'згадки', 'згадок')} в матеріалах`,
+        ].join(' · '),
+        hasGap: gaps.length > 0 && gaps.length <= 5,
+        gap: `Не заповнено: ${gaps.join(', ')}.`,
+      };
+    });
+
+    const sum = (k) => rows.reduce((a, r) => a + r[k], 0);
+    const posted = (s.mine || []).filter((m) => String(m.status) === 'posted').length;
+    const meTotals = [
+      { key: 'ch', num: String(rows.length), cap: 'персонажів' },
+      { key: 'le', num: num(sum('letters')), cap: 'літер' },
+      { key: 'im', num: String(sum('imgs')), cap: 'у галереї' },
+      { key: 'li', num: String(sum('links')), cap: 'ниток' },
+      { key: 'go', num: String(st ? st.gossip.mine : posted), cap: 'пліток у чаті' },
+    ];
+
+    // Заявки. `decided_at` ставить адмін — тому середній час рахуємо
+    // тільки по вирішених, а по тих, що лежать, показуємо найдовше чекання.
+    const subs = s.subs || [], edits = s.edits || [];
+    const cnt = (list, st2) => list.filter((r) => String(r.status) === st2).length;
+    const subTiles = [
+      { key: 's1', num: String(cnt(subs, 'pending')), cap: 'анкет на розгляді', color: '#ffd700' },
+      { key: 's2', num: String(cnt(subs, 'accepted')), cap: 'анкет прийнято', color: '#ffd700' },
+      { key: 's3', num: String(cnt(subs, 'rejected')), cap: 'анкет відхилено', color: 'rgba(255,255,255,0.5)' },
+      { key: 'e1', num: String(cnt(edits, 'pending')), cap: 'правок на розгляді', color: '#ffd700' },
+      { key: 'e2', num: String(cnt(edits, 'applied')), cap: 'правок внесено', color: '#ffd700' },
+      { key: 'e3', num: String(cnt(edits, 'rejected')), cap: 'правок відхилено', color: 'rgba(255,255,255,0.5)' },
+    ];
+    const done = subs.concat(edits).filter((r) => r.decided_at && r.created_at);
+    const waits = subs.concat(edits).filter((r) => String(r.status) === 'pending' && r.created_at);
+    const parts = [];
+    if (done.length) {
+      const h = done.reduce((a, r) => a + (new Date(r.decided_at) - new Date(r.created_at)), 0) / done.length / 3600000;
+      parts.push(`Рішення зазвичай приходить ${this._hoursLabel(h)}.`);
+    }
+    if (waits.length) {
+      const oldest = waits.map((r) => r.created_at).sort()[0];
+      parts.push(`Найдовша з тих, що лежать, чекає з ${this._ago(oldest)}.`);
+    }
+    if (!parts.length) parts.push('Заявок ви ще не приносили — бланк лежить у вкладці «Анкета персонажа».');
+
+    const standRows = st ? [
+      { key: 'g', label: 'За плітками, що Марта переказала',
+        value: st.gossip.rank ? `${this._place(st.gossip.rank, st.gossip.of)} · ${st.gossip.mine} з ${st.gossip.all}` : 'ще жодної' },
+      { key: 'c', label: 'За кількістю персонажів',
+        value: st.chars.rank ? `${this._place(st.chars.rank, st.chars.of)} · ${st.chars.mine} з ${st.chars.all}` : 'ще жодного' },
+      { key: 'l', label: 'За обсягом написаного',
+        value: st.letters.rank ? `${this._place(st.letters.rank, st.chars.of)} · ${num(st.letters.mine)} літер` : '—' },
+    ] : [];
+
+    const STATUS = { approved: 'доступ відкрито', pending: 'аркуш на розгляді', blocked: 'кабінет зачинено' };
+    const nick = prof.nick || 'Гість';
+
+    return {
+      meNick: nick,
+      meMeta: [
+        STATUS[String(prof.status || 'pending')] || String(prof.status || ''),
+        prof.created_at ? `у рецепції з ${this._when(prof.created_at)}` : '',
+        prof.tg_nick ? `чат: ${prof.tg_nick}` : '',
+      ].filter(Boolean).join(' · '),
+      meIntro: s.statsBusy
+        ? 'Хвилинку, гортаю теку…'
+        : 'Усе, що записано за вами в картотеці. Ці числа бачите тільки ви.',
+      meTotals, meRows: rows, hasMeRows: rows.length > 0, noMeRows: rows.length === 0,
+      subTiles, subNote: parts.join(' '),
+      standRows, hasStand: standRows.length > 0, noStand: standRows.length === 0,
+      standNote: s.statsBusy
+        ? 'Рахую…'
+        : 'Рецепція не змогла порахувати місця — схоже, міграцію supabase_cabinet_stats_migration.sql ще не прогнали.',
+      cardBusy: s.cardBusy, cardMsg: s.cardMsg, hasCardMsg: !!s.cardMsg,
+      canShare: !!(typeof navigator !== 'undefined' && navigator.canShare && navigator.share),
+      doSaveCard: () => this._meCard('save'),
+      doCopyCard: () => this._meCard('copy'),
+      doShareCard: () => this._meCard('share'),
+    };
+  }
+
+  // ── картка аркуша ─────────────────────────────────────────
+  _cardHelpers() {
+    if (!this._helpersP) this._helpersP = import('./canvas-card-helpers.js');
+    return this._helpersP;
+  }
+
+  _cardRows() {
+    const v = this._meVals();
+    const rows = v.meTotals.map((t) => ({ label: t.cap[0].toUpperCase() + t.cap.slice(1), value: t.num }));
+    v.standRows.forEach((r) => rows.push({ label: r.label, value: r.value }));
+    return rows;
+  }
+
+  _renderMeCanvas(H, nick, meta, rows) {
+    const W = 760, dpr = 2, cx = W / 2, left = 78, right = W - 78;
+    const head = 232, line = 46, foot = 128;
+    const height = Math.max(Math.round(W * 4 / 3), head + rows.length * line + foot);
+    const canvas = document.createElement('canvas');
+    canvas.width = W * dpr; canvas.height = height * dpr;
+    const g = canvas.getContext('2d');
+    g.scale(dpr, dpr);
+
+    g.fillStyle = '#161514';
+    g.fillRect(0, 0, W, height);
+    const glow = g.createRadialGradient(cx, 190, 0, cx, 190, 520);
+    glow.addColorStop(0, 'rgba(255,215,0,0.12)');
+    glow.addColorStop(1, 'rgba(22,21,20,0)');
+    g.fillStyle = glow; g.fillRect(0, 0, W, height);
+    g.strokeStyle = 'rgba(255,215,0,0.34)'; g.lineWidth = 1.5;
+    H.roundRect(g, 30, 30, W - 60, height - 60, 22); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,0.08)'; g.lineWidth = 1;
+    H.roundRect(g, 40, 40, W - 80, height - 80, 16); g.stroke();
+
+    g.textAlign = 'center';
+    g.fillStyle = 'rgba(255,215,0,0.78)';
+    g.font = '600 18px "Cinzel", Georgia, serif';
+    H.trackedText(g, '✦ АРКУШ РЕЦЕПЦІЇ', cx, 104, 5);
+    g.fillStyle = '#fff';
+    g.font = '700 44px "Cinzel", Georgia, serif';
+    H.trackedText(g, String(nick).toUpperCase(), cx, 162, 2);
+    g.fillStyle = 'rgba(255,255,255,0.34)';
+    g.font = '16px Georgia, serif';
+    g.fillText(meta, cx, 194);
+
+    let y = head + 10;
+    rows.forEach((r) => {
+      g.textAlign = 'left';
+      g.fillStyle = 'rgba(255,255,255,0.62)';
+      g.font = '17px Georgia, serif';
+      const lw = g.measureText(r.label).width;
+      g.fillText(r.label, left, y);
+      g.textAlign = 'right';
+      g.fillStyle = '#ffd700';
+      g.font = '600 19px "Cinzel", Georgia, serif';
+      const vw = g.measureText(r.value).width;
+      g.fillText(r.value, right, y);
+      g.strokeStyle = 'rgba(255,255,255,0.10)'; g.lineWidth = 1;
+      g.setLineDash([2, 5]);
+      g.beginPath();
+      g.moveTo(left + lw + 12, y - 5); g.lineTo(right - vw - 12, y - 5);
+      g.stroke(); g.setLineDash([]);
+      y += line;
+    });
+
+    g.textAlign = 'center';
+    g.fillStyle = 'rgba(255,215,0,0.85)';
+    g.font = '700 22px "Cinzel", Georgia, serif';
+    H.trackedText(g, 'AURELION', cx, height - 84, 8);
+    g.fillStyle = 'rgba(255,255,255,0.26)';
+    g.font = '15px Georgia, serif';
+    g.fillText('— М., рецепція · ' + new Date().toLocaleDateString('uk-UA'), cx, height - 58);
+    return canvas;
+  }
+
+  async _meCardBlob() {
+    const H = await this._cardHelpers();
+    await H.ensureCardFonts();
+    const prof = this.state.prof || {};
+    const canvas = this._renderMeCanvas(
+      H, prof.nick || 'Гість',
+      prof.created_at ? `у рецепції з ${this._when(prof.created_at)}` : 'кабінет Ауреліону',
+      this._cardRows(),
+    );
+    return await new Promise((res) => canvas.toBlob(res, 'image/png'));
+  }
+
+  _flashCard(msg) {
+    this.setState({ cardMsg: msg });
+    clearTimeout(this._cardTimer);
+    this._cardTimer = setTimeout(() => this.setState({ cardMsg: '' }), 2600);
+  }
+
+  async _meCard(how) {
+    if (this.state.cardBusy) return;
+    this.setState({ cardBusy: true });
+    const name = 'aurelion-arkush.png';
+    try {
+      if (how === 'copy') {
+        if (!navigator.clipboard || !window.ClipboardItem) throw new Error('no-clipboard');
+        try {
+          // Safari приймає лише синхронний ClipboardItem — тому спершу проміс.
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': this._meCardBlob() })]);
+        } catch (e) {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': await this._meCardBlob() })]);
+        }
+        this._flashCard('Скопійовано в буфер');
+      } else if (how === 'share') {
+        const file = new File([await this._meCardBlob()], name, { type: 'image/png' });
+        if (!navigator.canShare || !navigator.canShare({ files: [file] })) throw new Error('no-share');
+        await navigator.share({ files: [file], title: 'Ауреліон · аркуш рецепції' });
+        this._flashCard('');
+      } else {
+        const url = URL.createObjectURL(await this._meCardBlob());
+        const a = document.createElement('a');
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        this._flashCard('Картку збережено');
+      }
+    } catch (e) {
+      if (!(e && e.name === 'AbortError')) {
+        this._flashCard(how === 'copy' ? 'Буфер недоступний — збережіть картку'
+          : how === 'share' ? 'Поділитися тут не вийде' : 'Не вдалося зберегти');
+      }
+    }
+    this.setState({ cardBusy: false });
+  }
+
   _mineVals() {
     const s = this.state;
     const owned = s.owned || [];
@@ -1681,22 +2084,29 @@ class Component extends DCLogic {
       // взагалі, тому й смужки вкладок немає.
       showTabs: !this.props.onlyGossip,
       lockedOnly: !!this.props.onlyGossip && s.phase === 'ok' && status === 'pending',
-      showIntake: !this.props.onlyGossip && s.tab !== 'gossip' && s.tab !== 'mine',
+      showIntake: !this.props.onlyGossip && s.tab !== 'gossip' && s.tab !== 'mine' && s.tab !== 'me',
       showGossip: (!!this.props.onlyGossip || s.tab === 'gossip') && status === 'approved',
       showMine: !this.props.onlyGossip && s.tab === 'mine',
       canMine: !this.props.onlyGossip && (s.owned || []).length > 0,
+      // Аркуш — для своїх: поки статус не відкрито, порівнюватися нема з чим.
+      showMe: !this.props.onlyGossip && s.tab === 'me' && status === 'approved',
+      canMe: !this.props.onlyGossip && status === 'approved',
       pickIntake: () => this.setState({ tab: 'intake' }),
       pickGossip: () => this.setState({ tab: 'gossip' }),
       pickMine: () => this.setState({ tab: 'mine' }),
+      pickMe: () => { this.setState({ tab: 'me' }); this._loadStats(); },
       ...this._mineVals(),
+      ...this._meVals(),
       ...(() => {
-        const a = this._pillStyle(s.tab !== 'gossip' && s.tab !== 'mine');
+        const a = this._pillStyle(s.tab !== 'gossip' && s.tab !== 'mine' && s.tab !== 'me');
         const b = this._pillStyle(s.tab === 'gossip');
         const c = this._pillStyle(s.tab === 'mine');
+        const d = this._pillStyle(s.tab === 'me');
         return {
           tabIntakeBg: a.bg, tabIntakeBorder: a.border, tabIntakeColor: a.color,
           tabGosBg: b.bg, tabGosBorder: b.border, tabGosColor: b.color,
           tabMineBg: c.bg, tabMineBorder: c.border, tabMineColor: c.color,
+          tabMeBg: d.bg, tabMeBorder: d.border, tabMeColor: d.color,
         };
       })(),
 

@@ -614,7 +614,23 @@ button{font-family:inherit;cursor:pointer}
               </select>
             </div>
           </sc-if>
+          <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;gap:8px;">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;">
+                <input value="{{ p.fNick }}" onChange="{{ p.setNick }}" placeholder="Нік у кабінеті" style="width:100%;box-sizing:border-box;" />
+                <input value="{{ p.fTg }}" onChange="{{ p.setTg }}" placeholder="@нік у телеграмі" style="width:100%;box-sizing:border-box;" />
+              </div>
+              <textarea value="{{ p.fAbout }}" onChange="{{ p.setAbout }}" rows="2" placeholder="Про себе — як бачить рецепція" style="width:100%;box-sizing:border-box;"></textarea>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onClick="{{ p.onSave }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">Зберегти аркуш</button>
+                <button onClick="{{ p.onCancel }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Скасувати</button>
+              </div>
+            </div>
+          </sc-if>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+            <sc-if value="{{ p.canEdit }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ p.onEdit }}" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.3);color:rgba(140,175,255,0.85);border-radius:999px;padding:6px 16px;font-size:0.76rem;">✎ Правити аркуш</button>
+            </sc-if>
             <sc-if value="{{ p.canOpen }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ p.onOpen }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відкрити доступ</button>
             </sc-if>
@@ -2845,6 +2861,8 @@ class Component extends DCLogic {
     loginEmail: '', loginPassword: '', loginError: '', loginLoading: false,
     martaBusy: false, martaMsg: '',
     gosPeople: [], gosRows: [], gosFilter: 'ready', gosBusy: false,
+    // правка аркуша людини (нік, @тг, «про себе») — не рішення по доступу
+    pEdit: '', pForm: {},
     // анкети з кабінету
     inRows: [], inFilter: 'pending', inBusy: false,
     userEmail: '',
@@ -3541,6 +3559,32 @@ class Component extends DCLogic {
   async _loadEdits() {
     const rows = await this._get('char_edits?select=*&order=created_at.desc&limit=200');
     this.setState({ edRows: Array.isArray(rows) ? rows : [] });
+  }
+
+  // Аркуш людини править адмін: нік у кабінеті, @нік у чаті, «про себе».
+  // Нік іде ще й у зліпки — на картках персонажів (`owner_nick`), інакше
+  // виправлене імʼя лишилося б старим усюди, крім самого аркуша.
+  async _savePerson(id) {
+    const f = this.state.pForm || {};
+    const nick = String(f.nick || '').trim();
+    if (!nick) { this._toast('✗ Нік не може бути порожнім'); return; }
+    const body = {
+      nick,
+      tg_nick: String(f.tg_nick || '').trim(),
+      about: String(f.about || '').trim(),
+    };
+    try {
+      await this._patch('site_users', id, body);
+      this.setState(st => ({
+        pEdit: '', pForm: {},
+        gosPeople: (st.gosPeople || []).map(p => String(p.id) === String(id) ? { ...p, ...body } : p),
+      }));
+      const own = (this.state.data.characters || []).filter(c => String(c.owner_id || '') === String(id));
+      for (const c of own) {
+        try { await this._patch('characters', c.id, { owner_nick: nick }); } catch (e) {}
+      }
+      this._toast('✓ Аркуш виправлено');
+    } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
   }
 
   async _setOwner(ch, uid) {
@@ -4404,6 +4448,24 @@ class Component extends DCLogic {
             const ch = chars.find(c => String(c.id) === String(id));
             if (ch) this._setOwner(ch, String(p.id));
           },
+          // Правка аркуша — не рішення по доступу, тому `decided_*` тут
+          // не чіпаємо: інакше «виправила @нік» виглядало б у базі як
+          // повторне відкриття доступу.
+          canEdit: String(s.pEdit || '') !== String(p.id),
+          editing: String(s.pEdit || '') === String(p.id),
+          fNick: String((s.pForm || {}).nick || ''),
+          fTg: String((s.pForm || {}).tg_nick || ''),
+          fAbout: String((s.pForm || {}).about || ''),
+          setNick: (e) => this.setState(st => ({ pForm: { ...st.pForm, nick: e.target.value } })),
+          setTg: (e) => this.setState(st => ({ pForm: { ...st.pForm, tg_nick: e.target.value } })),
+          setAbout: (e) => this.setState(st => ({ pForm: { ...st.pForm, about: e.target.value } })),
+          onEdit: () => this.setState({
+            pEdit: String(p.id),
+            pForm: { nick: p.nick || '', tg_nick: p.tg_nick || '', about: p.about || '' },
+          }),
+          onCancel: () => this.setState({ pEdit: '', pForm: {} }),
+          onSave: () => this._savePerson(p.id),
+
           canOpen: p.status !== 'approved',
           canBlock: p.status !== 'blocked',
           // Кнопки «Довіряти» більше немає: плітка від кожного, кому
