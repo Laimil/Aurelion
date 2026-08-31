@@ -603,6 +603,16 @@ button{font-family:inherit;cursor:pointer}
           <sc-if value="{{ p.hasAbout }}" hint-placeholder-val="{{ false }}">
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.5);margin-top:8px;line-height:1.6;">{{ p.about }}</p>
           </sc-if>
+          <sc-if value="{{ p.canOwn }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);">
+              <span style="font-size:0.74rem;color:rgba(255,255,255,0.35);">{{ p.charsLine }}</span>
+              <select value="" onChange="{{ p.onAssign }}" style="min-width:190px;">
+                <sc-for list="{{ p.freeChars }}" as="fc" hint-placeholder-count="2">
+                  <option value="{{ fc.value }}">{{ fc.label }}</option>
+                </sc-for>
+              </select>
+            </div>
+          </sc-if>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
             <sc-if value="{{ p.canOpen }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ p.onOpen }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відкрити доступ</button>
@@ -733,6 +743,123 @@ button{font-family:inherit;cursor:pointer}
               <button onClick="{{ c.onBack }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 14px;font-size:0.76rem;">Вернути на розгляд</button>
             </sc-if>
             <button onClick="{{ c.onDelete }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);border-radius:999px;padding:6px 14px;font-size:0.76rem;">Видалити</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- OWNERS &amp; EDITS TAB -->
+<sc-if value="{{ showOwnersTab }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:900px;margin:0 auto;padding:28px 24px 80px;">
+    <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:6px;">✎ Власники й правки</h2>
+    <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:22px;line-height:1.55;">Персонаж, записаний на людину, зʼявляється в її кабінеті: вона бачить анкету й може <strong style="color:rgba(255,255,255,0.55);">пропонувати</strong> правки. У картотеці нічого не змінюється, доки ви не приймете заявку — цілою, як вона є. Марта стукає в лічку про кожен запит.</p>
+
+    <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-radius:11px;padding:16px 18px;margin-bottom:26px;">
+      <p style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:4px;">Хто чий</p>
+      <p style="font-size:0.74rem;color:rgba(255,255,255,0.3);line-height:1.5;margin-bottom:12px;">{{ ownNote }}</p>
+      <input value="{{ ownQ }}" onChange="{{ ownSetQ }}" placeholder="Знайти персонажа або власника" style="width:100%;box-sizing:border-box;margin-bottom:12px;" />
+      <div style="display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;">
+        <sc-for list="{{ ownRows }}" as="o" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);">
+            <div style="min-width:180px;">
+              <p style="font-size:0.88rem;color:#fff;">{{ o.name }}</p>
+              <p style="font-size:0.7rem;color:{{ o.hintColor }};margin-top:2px;">{{ o.hint }}</p>
+            </div>
+            <select value="{{ o.value }}" onChange="{{ o.onPick }}" style="min-width:200px;">
+              <sc-for list="{{ ownPeople }}" as="p" hint-placeholder-count="3">
+                <option value="{{ p.value }}">{{ p.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ ownNoRows }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);">Нікого не знайшла.</p>
+      </sc-if>
+    </div>
+
+    <p style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:12px;">Заявки на правку</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px;">
+      <sc-for list="{{ edFilters }}" as="f" hint-placeholder-count="4">
+        <button onClick="{{ f.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.78rem;transition:all 0.2s ease;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};">{{ f.label }}</button>
+      </sc-for>
+      <button onClick="{{ edReload }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:999px;padding:7px 15px;font-size:0.78rem;">↻ Оновити</button>
+      <span style="font-size:0.76rem;color:rgba(255,255,255,0.3);">{{ edNote }}</span>
+    </div>
+
+    <sc-if value="{{ edNoRows }}" hint-placeholder-val="{{ true }}">
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);">Тут порожньо. Якщо ви щойно прогнали міграцію — це нормально.</p>
+    </sc-if>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <sc-for list="{{ edRows }}" as="e" hint-placeholder-count="0">
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-left:2px solid {{ e.accent }};border-radius:11px;padding:16px 18px;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ e.accent }};">{{ e.head }}</span>
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.24);">{{ e.when }}</span>
+          </div>
+          <p style="font-family:'Cinzel',serif;font-size:1.05rem;color:#fff;letter-spacing:0.03em;margin-top:8px;">{{ e.name }}</p>
+          <p style="font-size:0.74rem;color:rgba(255,255,255,0.3);margin-top:4px;">{{ e.from }}</p>
+
+          <sc-if value="{{ e.hasStale }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:10px;font-size:0.76rem;line-height:1.5;color:rgba(255,180,120,0.85);">⚠ {{ e.stale }}</p>
+          </sc-if>
+
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ e.diff }}" as="d" hint-placeholder-count="0">
+              <div>
+                <p style="font-size:0.68rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.55);margin-bottom:4px;">{{ d.label }}</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.94rem;line-height:1.6;color:rgba(255,120,120,0.6);text-decoration:line-through;white-space:pre-line;">{{ d.was }}</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.68;color:rgba(255,255,255,0.72);white-space:pre-line;text-wrap:pretty;">{{ d.now }}</p>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ e.hasGallery }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:12px;">
+              <p style="font-size:0.68rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.55);margin-bottom:6px;">Нові зображення</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <sc-for list="{{ e.gallery }}" as="g" hint-placeholder-count="0">
+                  <a href="{{ g.url }}" target="_blank" rel="noopener noreferrer" title="{{ g.caption }}"><img src="{{ g.url }}" alt="" style="width:88px;height:112px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,215,0,0.22);" /></a>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ e.hasLinks }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:12px;">
+              <p style="font-size:0.68rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.55);margin-bottom:6px;">Нові нитки</p>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <sc-for list="{{ e.links }}" as="l" hint-placeholder-count="0">
+                  <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);line-height:1.5;">{{ l.line }}</p>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ e.hasNote }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.6;color:rgba(255,255,255,0.6);">Від автора: «{{ e.note }}»</p>
+          </sc-if>
+          <sc-if value="{{ e.hasAdminNote }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);font-size:0.8rem;line-height:1.55;color:rgba(255,215,0,0.7);">Ваше слово автору: {{ e.adminNote }}</p>
+          </sc-if>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+            <sc-if value="{{ e.canDecide }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ e.onApply }}" disabled="{{ edBusy }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">✓ Прийняти й внести</button>
+            </sc-if>
+            <sc-if value="{{ e.canDecide }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ e.onAdvise }}" style="cursor:pointer;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:rgba(160,190,255,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Порада автору</button>
+            </sc-if>
+            <sc-if value="{{ e.canDecide }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ e.onReject }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,120,120,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відхилити</button>
+            </sc-if>
+            <sc-if value="{{ e.canOpen }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ e.onOpen }}" style="cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.7);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відкрити анкету</button>
+            </sc-if>
+            <button onClick="{{ e.onDelete }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);border-radius:999px;padding:6px 14px;font-size:0.76rem;">Видалити</button>
           </div>
         </div>
       </sc-for>
@@ -2556,6 +2683,18 @@ const SECTION_FIELDS = {
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
 };
+// Графи, які власник має право пропонувати до правки. Усе, чого тут немає
+// (розряд, чернетка, порядок, позначки Марти), лишається за адміністрацією.
+const EDIT_FIELDS = {
+  name: 'Імʼя', alias: 'Псевдонім', age: 'Вік / дата народження',
+  height: 'Зріст', weight: 'Вага', deity: 'Покровителька', role: 'Роль',
+  card_caption: 'Підпис на картці', image: 'Портрет',
+  bio: 'Коротко на картці', content: 'Текст анкети',
+};
+const LINK_KIND_UA = {
+  family: 'родина', love: 'романтика', feud: 'ворожнеча',
+  ally: 'спілка', duty: 'обовʼязок', plain: 'знайомство',
+};
 const TABLE_QUERIES = {
   lore:       'lore?select=*&order=sort_order.asc,created_at.asc',
   stories:    'stories?select=*&order=sort_order.asc,created_at.asc',
@@ -2704,6 +2843,8 @@ class Component extends DCLogic {
     userEmail: '',
     // admin
     tab: 'site',
+    // власники й правки
+    edRows: [], edFilter: 'pending', edBusy: false, ownQ: '',
     data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], tests: [] },
     // тести: вставка від Клода
     tstPaste: '', tstParsed: null, tstError: '',
@@ -3171,6 +3312,7 @@ class Component extends DCLogic {
       });
       this._loadGossipAdmin();
       this._loadIntake();
+      this._loadEdits();
     } catch(e) { this.setState({ loading: false }); }
   }
 
@@ -3379,6 +3521,230 @@ class Component extends DCLogic {
             try {
               await this._remove('char_intake', r.id);
               this.setState(st => ({ inRows: (st.inRows || []).filter(x => String(x.id) !== String(r.id)) }));
+              this._toast('✓ Видалено');
+            } catch (e) { this._toast('✗ Не вийшло видалити'); }
+          },
+        };
+      }),
+    };
+  }
+
+  // ── Власники анкет і правки від них ──────────────────
+  // Поки міграції немає, _get віддає порожнє — вкладка просто порожня.
+  async _loadEdits() {
+    const rows = await this._get('char_edits?select=*&order=created_at.desc&limit=200');
+    this.setState({ edRows: Array.isArray(rows) ? rows : [] });
+  }
+
+  async _setOwner(ch, uid) {
+    const who = (this.state.gosPeople || []).find(p => String(p.id) === String(uid));
+    try {
+      await this._patch('characters', ch.id, {
+        owner_id: uid || null,
+        owner_nick: who ? who.nick : null,
+        owner_at: uid ? new Date().toISOString() : null,
+      });
+      await this._refreshTable('characters');
+      this._toast(uid ? `✓ «${ch.name}» — за ${who ? who.nick : 'кимось'}` : '✓ Власника знято');
+    } catch (e) {
+      this._toast('✗ ' + (e.message || 'Не вийшло') + ' — чи прогнано supabase_char_owner_migration.sql?');
+    }
+  }
+
+  // Заявка приймається ЦІЛОЮ: графи, зображення й нитки лягають разом.
+  // Часткове рішення — це «порада авторові» плюс нова заявка від нього.
+  async _editApply(row) {
+    const ch = (this.state.data.characters || []).find(c => String(c.id) === String(row.character_id));
+    if (!ch) { this._toast('⚠ Персонажа немає в списку — оновіть сторінку'); return; }
+    if (!window.confirm(`Внести правку до «${ch.name}»?`)) return;
+    this.setState({ edBusy: true });
+    try {
+      const patch = {};
+      Object.keys(row.patch || {}).forEach(k => { if (EDIT_FIELDS[k]) patch[k] = row.patch[k]; });
+      if (Object.keys(patch).length) await this._patch('characters', ch.id, patch);
+
+      const gal = Array.isArray(row.gallery) ? row.gallery : [];
+      for (let i = 0; i < gal.length; i++) {
+        const g = gal[i] || {};
+        if (!g.url) continue;
+        try {
+          await this._insert('character_images', {
+            character_id: String(ch.id), url: g.url, caption: g.caption || '',
+            kind: g.kind || 'art', added_by: row.author_nick || '',
+            sort_order: 100 + i,
+          });
+        } catch (e) { this._toast('⚠ Зображення не лягло: ' + (e.message || '')); }
+      }
+
+      const links = Array.isArray(row.links) ? row.links : [];
+      for (const l of links) {
+        if (!l || !l.to_id) continue;
+        try {
+          await this._insert('character_links', {
+            from_id: String(ch.id), to_id: String(l.to_id),
+            kind: l.kind || 'plain', label: l.label || '',
+          });
+        } catch (e) { this._toast(`⚠ Нитку до «${l.to_name || '?'}» не внесла — можливо, вона вже є`); }
+      }
+
+      await this._patch('char_edits', row.id, {
+        status: 'applied',
+        decided_at: new Date().toISOString(),
+        decided_by: this.state.userEmail || '',
+      });
+      await this._refreshTable('characters');
+      await this._loadEdits();
+      this.setState({ edBusy: false });
+      localStorage.setItem('aurelion-refresh', Date.now().toString());
+      this._toast('✓ Правку внесено');
+    } catch (e) {
+      this.setState({ edBusy: false });
+      this._toast('✗ ' + (e.message || 'Не вийшло'));
+    }
+  }
+
+  async _editPatch(id, body, note) {
+    try {
+      await this._patch('char_edits', id, {
+        ...body,
+        decided_at: new Date().toISOString(),
+        decided_by: this.state.userEmail || '',
+      });
+      this.setState(st => ({
+        edRows: (st.edRows || []).map(r => String(r.id) === String(id) ? { ...r, ...body } : r),
+      }));
+      this._toast(note);
+    } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
+  }
+
+  _ownersVals() {
+    const s = this.state;
+    const chars = s.data.characters || [];
+    const people = (s.gosPeople || []).filter(p => p.status === 'approved');
+    const rows = s.edRows || [];
+    const clip = (v, n) => {
+      const t = String(v == null ? '' : v).trim();
+      return t.length > n ? t.slice(0, n) + '…' : t;
+    };
+    const when = (iso) => {
+      if (!iso) return '';
+      const d = new Date(iso), p = n => String(n).padStart(2, '0');
+      return `${p(d.getDate())}.${p(d.getMonth() + 1)} · ${p(d.getHours())}:${p(d.getMinutes())}`;
+    };
+
+    // ── хто чий ──
+    const q = String(s.ownQ || '').toLowerCase().trim();
+    const owned = chars.filter(c => c.owner_id).length;
+    const shownChars = (q
+      ? chars.filter(c => `${c.name || ''} ${c.alias || ''} ${c.owner_nick || ''}`.toLowerCase().includes(q))
+      : chars).slice(0, 60);
+
+    // ── заявки ──
+    const BADGE = {
+      pending:   { label: 'На розгляді', accent: 'rgba(255,215,0,0.7)' },
+      applied:   { label: 'Внесено',     accent: '#ffd700' },
+      rejected:  { label: 'Відхилено',   accent: 'rgba(255,77,77,0.7)' },
+      withdrawn: { label: 'Відкликано',  accent: 'rgba(255,255,255,0.3)' },
+    };
+    const count = (st) => rows.filter(r => r.status === st).length;
+    const shown = s.edFilter === 'all' ? rows : rows.filter(r => r.status === s.edFilter);
+
+    return {
+      ownQ: s.ownQ || '',
+      ownSetQ: (e) => this.setState({ ownQ: e.target.value }),
+      ownNote: people.length
+        ? `Персонажів із власником: ${owned} з ${chars.length}. У списку — лише люди з відкритим доступом (${people.length}).`
+        : 'Нікому ще не відкрито доступ у кабінеті — спершу підтвердіть людину у вкладці «Плітки».',
+      ownPeople: [{ value: '', label: '— нікому —' }]
+        .concat(people.map(p => ({ value: String(p.id), label: `${p.nick}${p.tg_nick ? ` · ${p.tg_nick}` : ''}` }))),
+      ownNoRows: shownChars.length === 0,
+      ownRows: shownChars.map(c => ({
+        key: c.id,
+        name: `${c.name}${c.alias ? ` «${c.alias}»` : ''}`,
+        hint: c.owner_id
+          ? `за ${c.owner_nick || 'кимось'}${c.is_draft ? ' · чернетка' : ''}`
+          : (c.is_draft ? 'нічия · чернетка' : 'нічия'),
+        hintColor: c.owner_id ? 'rgba(255,215,0,0.6)' : 'rgba(255,255,255,0.25)',
+        value: c.owner_id ? String(c.owner_id) : '',
+        onPick: (e) => this._setOwner(c, e.target.value),
+      })),
+
+      edBusy: !!s.edBusy,
+      edReload: () => this._loadEdits(),
+      edNote: `На розгляді ${count('pending')} · внесено ${count('applied')}`,
+      edFilters: [
+        { key: 'pending',  label: `На розгляді · ${count('pending')}` },
+        { key: 'applied',  label: 'Внесені' },
+        { key: 'rejected', label: 'Відхилені' },
+        ...(count('withdrawn') ? [{ key: 'withdrawn', label: 'Відкликані' }] : []),
+        { key: 'all',      label: 'Усі' },
+      ].map(f => ({
+        key: f.key, label: f.label,
+        bg: s.edFilter === f.key ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+        border: s.edFilter === f.key ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
+        color: s.edFilter === f.key ? '#ffd700' : 'rgba(255,255,255,0.45)',
+        onPick: () => this.setState({ edFilter: f.key }),
+      })),
+      edNoRows: shown.length === 0,
+      edRows: shown.map(r => {
+        const b = BADGE[r.status] || BADGE.pending;
+        const ch = chars.find(c => String(c.id) === String(r.character_id));
+        const patch = r.patch || {}, before = r.before || {};
+        const keys = Object.keys(patch).filter(k => EDIT_FIELDS[k]);
+        // Анкету могли поправити в адмінці вже після того, як склали заявку:
+        // тоді «було» в заявці й теперішнє значення розходяться, і прийняти
+        // її наосліп означає мовчки затерти свою ж правку.
+        const stale = ch ? keys.filter(k => String(ch[k] == null ? '' : ch[k]) !== String(before[k] == null ? '' : before[k])) : [];
+        const links = (Array.isArray(r.links) ? r.links : []).filter(l => l && l.to_id);
+        const gallery = (Array.isArray(r.gallery) ? r.gallery : []).filter(g => g && g.url);
+        return {
+          key: r.id,
+          head: `№${r.num} · ${b.label}`, accent: b.accent, when: when(r.created_at),
+          name: r.char_name || (ch ? ch.name : 'персонаж зник з картотеки'),
+          from: `Просить: ${r.author_nick || 'невідомо хто'}`
+            + (ch && ch.owner_nick && ch.owner_nick !== r.author_nick ? ` · зараз анкета за ${ch.owner_nick}` : ''),
+          hasStale: stale.length > 0,
+          stale: stale.length
+            ? `Відколи склали заявку, в картотеці змінили: ${stale.map(k => EDIT_FIELDS[k]).join(', ')}. Прийняти — означає затерти це.`
+            : '',
+          diff: keys.map(k => ({
+            key: k, label: EDIT_FIELDS[k],
+            was: clip(before[k], 600) || '— порожньо —',
+            now: clip(patch[k], 1200) || '— порожньо —',
+          })),
+          hasGallery: gallery.length > 0,
+          gallery: gallery.map((g, i) => ({ key: i, url: g.url, caption: g.caption || '' })),
+          hasLinks: links.length > 0,
+          links: links.map((l, i) => ({
+            key: i,
+            line: `${LINK_KIND_UA[l.kind] || 'знайомство'} — ${l.to_name || l.to_id}${l.label ? ` · «${clip(l.label, 90)}»` : ''}`,
+          })),
+          hasNote: !!r.note, note: r.note || '',
+          hasAdminNote: !!r.admin_note, adminNote: r.admin_note || '',
+          canDecide: r.status === 'pending',
+          canOpen: !!ch,
+          onApply: () => this._editApply(r),
+          onAdvise: () => {
+            const t = window.prompt('Що сказати авторові? Він побачить це у своєму кабінеті:', r.admin_note || '');
+            if (t == null) return;
+            this._editPatch(r.id, { admin_note: t.trim() }, '✓ Слово передано');
+          },
+          onReject: () => {
+            const t = window.prompt(`Чому правку до «${r.char_name || ''}» не внести? Автор побачить причину:`, '');
+            if (t == null) return;
+            this._editPatch(r.id, { status: 'rejected', admin_note: t.trim() }, '✓ Відхилено');
+          },
+          onOpen: () => {
+            const idx = chars.findIndex(c => String(c.id) === String(r.character_id));
+            if (idx === -1) { this._toast('⚠ Персонажа немає в списку — оновіть сторінку'); return; }
+            this.setState({ tab: 'characters', editing: { section: 'characters', index: idx }, form: { ...chars[idx] } });
+            this._scrollToForm();
+          },
+          onDelete: async () => {
+            if (!window.confirm('Видалити заявку назовсім?')) return;
+            try {
+              await this._remove('char_edits', r.id);
+              this.setState(st => ({ edRows: (st.edRows || []).filter(x => String(x.id) !== String(r.id)) }));
               this._toast('✓ Видалено');
             } catch (e) { this._toast('✗ Не вийшло видалити'); }
           },
@@ -3980,6 +4346,8 @@ class Component extends DCLogic {
 
       gosPeople: people.map(p => {
         const b = P_BADGE[p.status] || P_BADGE.pending;
+        const chars = s.data.characters || [];
+        const own = chars.filter(c => String(c.owner_id || '') === String(p.id));
         return {
           key: p.id, id: p.id,
           nick: p.nick || '—',
@@ -3987,6 +4355,20 @@ class Component extends DCLogic {
           meta: [p.tg_nick, p.email, this._gosWhen(p.created_at)].filter(Boolean).join(' · '),
           about: p.about || '',
           hasAbout: !!p.about,
+          // Другий бік призначення: те саме, що в картці персонажа
+          // (вкладка «Правки»), але від людини.
+          canOwn: p.status === 'approved',
+          charsLine: own.length
+            ? `Персонажі: ${own.map(c => c.name).join(', ')}`
+            : 'Персонажів не записано',
+          freeChars: [{ key: '', value: '', label: 'Записати персонажа…' }].concat(
+            chars.filter(c => !c.owner_id)
+              .map(c => ({ key: c.id, value: String(c.id), label: c.name }))),
+          onAssign: (e) => {
+            const id = e.target.value;
+            const ch = chars.find(c => String(c.id) === String(id));
+            if (ch) this._setOwner(ch, String(p.id));
+          },
           canOpen: p.status !== 'approved',
           canBlock: p.status !== 'blocked',
           // Кнопки «Довіряти» більше немає: плітка від кожного, кому
@@ -4726,6 +5108,7 @@ class Component extends DCLogic {
         { id: 'tests',      label: '🧠 Тести',       active: tab === 'tests' },
         { id: 'gossip',     label: '✉ Плітки',      active: tab === 'gossip' },
         { id: 'intake',     label: '📥 Анкети',      active: tab === 'intake' },
+        { id: 'owners',     label: '✎ Правки',      active: tab === 'owners' },
         { id: 'contacts',   label: '✍️ Долучитися',    active: tab === 'contacts' },
       ],
       setTab: (e) => {
@@ -4746,11 +5129,13 @@ class Component extends DCLogic {
       showTests:      tab === 'tests',
       showGossipTab:  tab === 'gossip',
       showIntakeTab:  tab === 'intake',
+      showOwnersTab:  tab === 'owners',
       showStats:      tab === 'stats',
       ...this._statsVals(),
       ...this._testsVals(),
       ...this._gossipVals(),
       ...this._intakeVals(),
+      ...this._ownersVals(),
 
       diceCritQuotes:   (data.site && data.site.dice_quotes_crit   != null && data.site.dice_quotes_crit   !== '') ? data.site.dice_quotes_crit   : DEFAULT_DICE_QUOTES.crit.join('\n'),
       diceFumbleQuotes: (data.site && data.site.dice_quotes_fumble != null && data.site.dice_quotes_fumble !== '') ? data.site.dice_quotes_fumble : DEFAULT_DICE_QUOTES.fumble.join('\n'),
