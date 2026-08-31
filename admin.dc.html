@@ -589,6 +589,7 @@ button{font-family:inherit;cursor:pointer}
     </div>
 
     <h3 style="font-family:'Cinzel',serif;font-size:0.85rem;color:rgba(255,255,255,0.6);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;">Люди</h3>
+    <input value="{{ gosPQ }}" onChange="{{ gosSetPQ }}" placeholder="Пошук: нік, телеграм, пошта або персонаж" style="width:100%;box-sizing:border-box;margin-bottom:12px;" />
     <sc-if value="{{ gosNoPeople }}" hint-placeholder-val="{{ true }}">
       <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);margin-bottom:30px;">Поки ніхто не записався. Якщо ви щойно прогнали міграцію — це нормально.</p>
     </sc-if>
@@ -759,19 +760,25 @@ button{font-family:inherit;cursor:pointer}
     <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-radius:11px;padding:16px 18px;margin-bottom:26px;">
       <p style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:4px;">Хто чий</p>
       <p style="font-size:0.74rem;color:rgba(255,255,255,0.3);line-height:1.5;margin-bottom:12px;">{{ ownNote }}</p>
-      <input value="{{ ownQ }}" onChange="{{ ownSetQ }}" placeholder="Знайти персонажа або власника" style="width:100%;box-sizing:border-box;margin-bottom:12px;" />
-      <div style="display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;">
-        <sc-for list="{{ ownRows }}" as="o" hint-placeholder-count="4">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);">
-            <div style="min-width:180px;">
-              <p style="font-size:0.88rem;color:#fff;">{{ o.name }}</p>
-              <p style="font-size:0.7rem;color:{{ o.hintColor }};margin-top:2px;">{{ o.hint }}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;">
+        <input value="{{ ownQ }}" onChange="{{ ownSetQ }}" placeholder="Пошук: персонаж або власник" style="flex:1;min-width:200px;box-sizing:border-box;" />
+        <sc-for list="{{ ownFilters }}" as="f" hint-placeholder-count="3">
+          <button onClick="{{ f.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 15px;font-size:0.76rem;transition:all 0.2s ease;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};">{{ f.label }}</button>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;max-height:520px;overflow-y:auto;">
+        <sc-for list="{{ ownRows }}" as="o" hint-placeholder-count="6">
+          <div style="display:flex;gap:12px;padding:12px;border-radius:10px;background:{{ o.tileBg }};border:1px solid {{ o.tileBorder }};">
+            <div style="width:46px;height:60px;flex-shrink:0;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:1.1rem;color:rgba(255,215,0,0.5);background-color:rgba(255,255,255,0.04);background-image:{{ o.face }};">{{ o.initial }}</div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:0.86rem;color:#fff;line-height:1.35;">{{ o.name }}</p>
+              <p style="font-size:0.7rem;color:{{ o.hintColor }};margin:3px 0 8px;">{{ o.hint }}</p>
+              <select value="{{ o.value }}" onChange="{{ o.onPick }}" style="width:100%;box-sizing:border-box;font-size:0.78rem;padding:6px 8px;">
+                <sc-for list="{{ ownPeople }}" as="p" hint-placeholder-count="3">
+                  <option value="{{ p.value }}">{{ p.label }}</option>
+                </sc-for>
+              </select>
             </div>
-            <select value="{{ o.value }}" onChange="{{ o.onPick }}" style="min-width:200px;">
-              <sc-for list="{{ ownPeople }}" as="p" hint-placeholder-count="3">
-                <option value="{{ p.value }}">{{ p.label }}</option>
-              </sc-for>
-            </select>
           </div>
         </sc-for>
       </div>
@@ -2844,7 +2851,7 @@ class Component extends DCLogic {
     // admin
     tab: 'site',
     // власники й правки
-    edRows: [], edFilter: 'pending', edBusy: false, ownQ: '',
+    edRows: [], edFilter: 'pending', edBusy: false, ownQ: '', ownWho: 'all', gosPQ: '',
     data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], tests: [] },
     // тести: вставка від Клода
     tstPaste: '', tstParsed: null, tstError: '',
@@ -3635,9 +3642,11 @@ class Component extends DCLogic {
     // ── хто чий ──
     const q = String(s.ownQ || '').toLowerCase().trim();
     const owned = chars.filter(c => c.owner_id).length;
-    const shownChars = (q
-      ? chars.filter(c => `${c.name || ''} ${c.alias || ''} ${c.owner_nick || ''}`.toLowerCase().includes(q))
-      : chars).slice(0, 60);
+    const byWho = s.ownWho || 'all';
+    const shownChars = chars
+      .filter(c => byWho === 'all' || (byWho === 'free' ? !c.owner_id : !!c.owner_id))
+      .filter(c => !q || `${c.name || ''} ${c.alias || ''} ${c.owner_nick || ''}`.toLowerCase().includes(q))
+      .slice(0, 120);
 
     // ── заявки ──
     const BADGE = {
@@ -3658,9 +3667,24 @@ class Component extends DCLogic {
       ownPeople: [{ value: '', label: '— нікому —' }]
         .concat(people.map(p => ({ value: String(p.id), label: `${p.nick}${p.tg_nick ? ` · ${p.tg_nick}` : ''}` }))),
       ownNoRows: shownChars.length === 0,
+      ownFilters: [
+        { key: 'all',   label: `Усі · ${chars.length}` },
+        { key: 'free',  label: `Нічиї · ${chars.length - owned}` },
+        { key: 'taken', label: `Записані · ${owned}` },
+      ].map(f => ({
+        key: f.key, label: f.label,
+        bg: byWho === f.key ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+        border: byWho === f.key ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
+        color: byWho === f.key ? '#ffd700' : 'rgba(255,255,255,0.45)',
+        onPick: () => this.setState({ ownWho: f.key }),
+      })),
       ownRows: shownChars.map(c => ({
         key: c.id,
         name: `${c.name}${c.alias ? ` «${c.alias}»` : ''}`,
+        initial: c.image ? '' : String(c.name || '?').trim().slice(0, 1).toUpperCase(),
+        face: c.image ? `url(${c.image})` : 'none',
+        tileBg: c.owner_id ? 'rgba(255,215,0,0.05)' : 'rgba(255,255,255,0.025)',
+        tileBorder: c.owner_id ? 'rgba(255,215,0,0.22)' : 'rgba(255,255,255,0.08)',
         hint: c.owner_id
           ? `за ${c.owner_nick || 'кимось'}${c.is_draft ? ' · чернетка' : ''}`
           : (c.is_draft ? 'нічия · чернетка' : 'нічия'),
@@ -4269,6 +4293,17 @@ class Component extends DCLogic {
     const s = this.state;
     const secOn = String((s.data.site || {}).gossip_section_on || '') === '1';
     const people = Array.isArray(s.gosPeople) ? s.gosPeople : [];
+    // Пошук по людях шукає й за іменем персонажа: «хто веде Цю-то» —
+    // частіше питання, ніж «який у неї нік».
+    const pq = String(s.gosPQ || '').toLowerCase().trim();
+    const shownPeople = pq
+      ? people.filter(p => {
+          const mine = (s.data.characters || [])
+            .filter(c => String(c.owner_id || '') === String(p.id))
+            .map(c => c.name).join(' ');
+          return `${p.nick || ''} ${p.tg_nick || ''} ${p.email || ''} ${mine}`.toLowerCase().includes(pq);
+        })
+      : people;
     const rows = Array.isArray(s.gosRows) ? s.gosRows : [];
     const me = s.userEmail || 'адмін';
 
@@ -4344,7 +4379,7 @@ class Component extends DCLogic {
       gosTellNext: () => call('gossip=1&force=1', '✦ Марта переказала верхню з черги'),
       gosReload: () => this._loadGossipAdmin(),
 
-      gosPeople: people.map(p => {
+      gosPeople: shownPeople.map(p => {
         const b = P_BADGE[p.status] || P_BADGE.pending;
         const chars = s.data.characters || [];
         const own = chars.filter(c => String(c.owner_id || '') === String(p.id));
@@ -4379,7 +4414,9 @@ class Component extends DCLogic {
           onBlock: () => { if (window.confirm(`Закрити віконце для «${p.nick}»?`)) patchUser(p.id, { status: 'blocked' }, '✓ Відмовлено'); },
         };
       }),
-      gosNoPeople: people.length === 0,
+      gosNoPeople: shownPeople.length === 0,
+      gosPQ: s.gosPQ || '',
+      gosSetPQ: (e) => this.setState({ gosPQ: e.target.value }),
 
       gosFilters: [
         // Модерації перед чергою більше немає — фільтр «на розгляді»
