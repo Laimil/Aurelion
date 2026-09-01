@@ -173,6 +173,18 @@ a:hover{color:#a8c4f7;}
 .char-reader-aside{position:sticky;top:84px;}
 @media(max-height:900px){.char-reader-aside{position:static;}}
 @media(max-width:820px){.char-reader-grid{grid-template-columns:1fr;gap:26px;}.char-reader-aside{position:static;max-width:340px;margin:0 auto;}}
+/* ── Лінійка зросту: своя смужка прокручування, бо шеренга ширша за екран ── */
+.ruler-scroll::-webkit-scrollbar{height:9px}
+.ruler-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,0.04);border-radius:99px}
+.ruler-scroll::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.22);border-radius:99px}
+.ruler-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,215,0,0.42)}
+/* Силует — CSS-маска: PNG задає форму, колір дає покровителька.
+   Властивості маски мусять жити тут, а не в інлайн-стилі: скорочення
+   `-webkit-mask` не переживає компіляцію рядка стилю в обʼєкт. */
+.ruler-fig{transition:opacity 0.22s ease;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center bottom;mask-position:center bottom;-webkit-mask-size:100% 100%;mask-size:100% 100%}
+.ruler-fig[data-s="man"]{-webkit-mask-image:url("silhouettes/man.png");mask-image:url("silhouettes/man.png")}
+.ruler-fig[data-s="woman"]{-webkit-mask-image:url("silhouettes/woman.png");mask-image:url("silhouettes/woman.png")}
+.ruler-fig[data-s="gown"]{-webkit-mask-image:url("silhouettes/gown.png");mask-image:url("silhouettes/gown.png")}
 /* ── Мобільна навігація: від «✦ AURELION» лишається тільки зірочка ── */
 @media(max-width:640px){.au-wm-full{display:none}.au-brand{margin-right:16px!important}}
 /* Кнопка «поділитися» на вузьких екранах згортається до самої зірочки. */
@@ -920,6 +932,7 @@ a:hover{color:#a8c4f7;}
           <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
             <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🎭 Галерея</button>
             <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
+            <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">📏 Лінійка</button>
           </div>
         </div>
       </header>
@@ -1433,6 +1446,143 @@ a:hover{color:#a8c4f7;}
   </main>
 </sc-if>
 
+<!-- ═══ ЛІНІЙКА ЗРОСТУ ═══ -->
+<sc-if value="{{ showCharRuler }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:80px 0 64px;">
+
+    <div style="display:flex;justify-content:center;margin-bottom:16px;padding:0 24px;">
+      <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+        <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
+        <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
+        <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">📏 Лінійка</button>
+      </div>
+    </div>
+
+    <header style="max-width:900px;margin:0 auto;padding:0 20px 18px;text-align:center;">
+      <p style="font-size:0.66rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin-bottom:8px;">✦ Виміряно й записано</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.9rem,5vw,2.7rem);font-weight:700;color:#fff;letter-spacing:0.07em;line-height:1;">Лінійка зросту</h1>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:rgba(255,255,255,0.4);margin-top:10px;line-height:1.6;">Зріст із анкети, колір — покровителька, силует — з графи «постать».</p>
+    </header>
+
+    <div style="max-width:420px;margin:0 auto 14px;padding:0 24px;position:relative;">
+      <input value="{{ rulerQuery }}" onChange="{{ setRulerQuery }}" placeholder="Знайти в шерензі…" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 40px 10px 42px;font-size:0.88rem;color:#fff;outline:none;transition:border-color 0.18s;" />
+      <span style="position:absolute;left:40px;top:50%;transform:translateY(-50%);font-size:0.95rem;opacity:0.4;pointer-events:none;">🔍</span>
+      <sc-if value="{{ rulerHasQuery }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ clearRulerQuery }}" style="position:absolute;right:38px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.85rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:0 24px;margin-bottom:8px;">
+      <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+        <sc-for list="{{ rulerGroups }}" as="g" hint-placeholder-count="3">
+          <button data-group="{{ g.value }}" onClick="{{ setRulerGroup }}" data-active="{{ g.active }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 18px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">{{ g.label }}</button>
+        </sc-for>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <sc-for list="{{ rulerSorts }}" as="o" hint-placeholder-count="3">
+          <button data-sort="{{ o.value }}" onClick="{{ setRulerSort }}" data-active="{{ o.active }}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 13px;font-size:0.72rem;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">{{ o.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:9px;flex-wrap:wrap;padding:0 24px;margin-bottom:10px;">
+      <span style="font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.6);">Порівняти</span>
+      <select value="" onChange="{{ addRulerPick }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:7px 14px;font-size:0.78rem;color:#fff;outline:none;max-width:210px;cursor:pointer;color-scheme:dark;">
+        <option value="">— додати особу —</option>
+        <sc-for list="{{ rulerAddNames }}" as="n" hint-placeholder-count="0">
+          <option value="{{ n.id }}">{{ n.label }}</option>
+        </sc-for>
+      </select>
+      <sc-if value="{{ rulerHasPick }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ rulerClearPick }}" style="background:none;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Зняти всіх ({{ rulerPickCount }}) ✕</button>
+      </sc-if>
+    </div>
+    <p style="text-align:center;font-size:0.74rem;color:rgba(255,255,255,0.3);margin-bottom:16px;padding:0 24px;min-height:16px;">{{ rulerHint }}</p>
+
+    <sc-if value="{{ rulerHasItems }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ rulerSingle }}" hint-placeholder-val="{{ true }}">
+        <div class="glass" style="max-width:640px;margin:0 auto 22px;border-radius:12px;padding:14px 22px;display:flex;align-items:center;gap:16px;min-height:74px;">
+          <div style="{{ rulerFocusDot }}"></div>
+          <div style="min-width:0;flex:1;">
+            <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;">
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:1.02rem;color:#fff;letter-spacing:0.03em;">{{ rulerFocusName }}</span>
+              <sc-if value="{{ rulerFocusHasAlias }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.82rem;color:rgba(255,255,255,0.32);">«{{ rulerFocusAlias }}»</span></sc-if>
+            </div>
+            <p style="font-size:0.78rem;color:rgba(255,255,255,0.44);margin-top:4px;line-height:1.5;">{{ rulerFocusMeta }}</p>
+          </div>
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:#ffd700;letter-spacing:0.02em;flex-shrink:0;">{{ rulerFocusCm }}</span>
+          <button data-id="{{ rulerFocusId }}" onClick="{{ openCharacter }}" style="flex-shrink:0;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.28);color:#6495ed;border-radius:999px;padding:7px 15px;font-size:0.74rem;cursor:pointer;transition:all 0.2s;" style-hover="background:rgba(100,149,237,0.2);">тека →</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ rulerCompare }}" hint-placeholder-val="{{ false }}">
+        <div class="glass" style="max-width:520px;margin:0 auto 22px;border-radius:12px;padding:16px 20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.62);">Порівняння · {{ rulerPickCount }}</span>
+            <button onClick="{{ rulerClearPick }}" style="background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.72rem;cursor:pointer;padding:0;" style-hover="color:#fff;">Зняти всіх ✕</button>
+          </div>
+          <sc-for list="{{ rulerCmpRows }}" as="r" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(255,255,255,0.07);">
+              <span style="{{ r.dot }}"></span>
+              <button data-id="{{ r.id }}" onClick="{{ openCharacter }}" style="flex:1;min-width:0;text-align:left;background:none;border:none;padding:0;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;color:#fff;letter-spacing:0.02em;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" style-hover="color:#ffd700;">{{ r.name }}</button>
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:0.88rem;color:#ffd700;flex-shrink:0;min-width:50px;text-align:right;">{{ r.cm }}</span>
+              <span style="font-size:0.7rem;color:rgba(255,255,255,0.4);flex-shrink:0;min-width:56px;text-align:right;">{{ r.diff }}</span>
+              <button data-id="{{ r.id }}" onClick="{{ rulerToggle }}" title="Прибрати з порівняння" style="flex-shrink:0;background:none;border:none;color:rgba(255,255,255,0.28);font-size:0.76rem;cursor:pointer;padding:2px;line-height:1;" style-hover="color:#fff;">✕</button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+        <div style="display:flex;align-items:stretch;">
+          <div style="{{ rulerAxisStyle }}">
+            <sc-for list="{{ rulerMarks }}" as="m" hint-placeholder-count="0">
+              <span style="{{ m.labStyle }}">{{ m.label }}</span>
+            </sc-for>
+            <span style="{{ rulerAvgLabStyle }}">сер. {{ rulerAvgCm }}</span>
+          </div>
+          <div class="ruler-scroll" style="flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;padding-bottom:10px;">
+            <div style="{{ rulerInnerStyle }}">
+              <sc-for list="{{ rulerMarks }}" as="m" hint-placeholder-count="0">
+                <div style="{{ m.lineStyle }}"></div>
+              </sc-for>
+              <div style="{{ rulerAvgStyle }}"></div>
+              <div style="{{ rulerFloorStyle }}"></div>
+              <div style="{{ rulerRowStyle }}">
+                <sc-for list="{{ rulerItems }}" as="f" hint-placeholder-count="8">
+                  <div data-id="{{ f.id }}" onClick="{{ rulerToggle }}" onMouseEnter="{{ rulerEnter }}" onMouseLeave="{{ rulerLeave }}" style="{{ f.colStyle }}">
+                    <div style="flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;">
+                      <span style="{{ f.markStyle }}">✦</span>
+                      <span style="{{ f.numStyle }}">{{ f.cm }}</span>
+                      <div class="ruler-fig" data-s="{{ f.silh }}" style="{{ f.figStyle }}"></div>
+                    </div>
+                    <div title="{{ f.name }}" style="{{ f.nameStyle }}">{{ f.name }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width:1280px;margin:16px auto 0;padding:0 24px;display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;">
+        <sc-for list="{{ rulerLegend }}" as="l" hint-placeholder-count="0">
+          <span style="display:inline-flex;align-items:center;gap:7px;font-size:0.72rem;color:rgba(255,255,255,0.42);letter-spacing:0.03em;">
+            <span style="{{ l.dot }}"></span>{{ l.label }}
+          </span>
+        </sc-for>
+      </div>
+      <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.3);margin-top:14px;padding:0 24px;line-height:1.6;">{{ rulerNote }}</p>
+    </sc-if>
+
+    <sc-if value="{{ rulerEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:70px 24px;color:rgba(255,255,255,0.3);">
+        <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
+        <p>Зросту не вказано в жодній анкеті цієї добірки — міряти нема кого.</p>
+      </div>
+    </sc-if>
+
+  </main>
+</sc-if>
+
 <!-- ═══ ЗВ'ЯЗКИ · Стіна рецепції ═══ -->
 <sc-if value="{{ showCharConnections }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:80px 0 64px;">
@@ -1441,6 +1591,7 @@ a:hover{color:#a8c4f7;}
       <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
         <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
         <button data-mode="conn" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🕸 Зв'язки</button>
+        <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">📏 Лінійка</button>
       </div>
     </div>
 
@@ -2440,7 +2591,7 @@ const LIST_SELECT = {
   lore:       'id,title,category,excerpt,cover,sort_order,created_at',
   stories:    'id,title,status,description,sort_order,created_at,author_name,author_telegram,telegraph_url,chapters,tags,status_label,status_color,cover_color,cover_ornament,cover_icon,author_label',
   chronicles: 'id,title,subtitle,character_id,cover,period,gm,status,summary,tags,sort_order,created_at',
-  characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,bio,character_type,connections,sort_order,open_effect,card_caption,is_active,deity',
+  characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,build,bio,character_type,connections,sort_order,open_effect,card_caption,is_active,deity',
 };
 const HEAVY_TABLES = ['characters', 'lore', 'stories', 'chronicles'];
 const CACHE_KEY = 'au_cache_v1';
@@ -2588,7 +2739,7 @@ const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
 // `cabinet` і `intake` — той самий кабінет, різниця лише в тому, яка
 // вкладка відкриється. `gossip` лишили живим: посилання на віконце
 // вже розіслані по чатах.
-const KNOWN_SEGS = ['home', 'characters', 'connections', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake'].concat(ARCHIVE_SEGS);
+const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake'].concat(ARCHIVE_SEGS);
 
 // ── Галерея персонажа ──────────────────────────────────────
 // Головний портрет лишається в characters.image; усе інше (арти від
@@ -3435,7 +3586,7 @@ class Component extends DCLogic {
 
   _getPage() {
     const { seg } = this._parseHash();
-    if (seg === 'connections') return 'characters';
+    if (seg === 'connections' || seg === 'ruler') return 'characters';
     if (seg === 'archive') return 'lore';               // вхід у парасольку → типова вкладка
     if (seg === 'cabinet' || seg === 'intake') return 'gossip';   // одна сторінка — кабінет
     if (KNOWN_SEGS.indexOf(seg) === -1) return 'home';  // обрізане чи застаріле посилання
@@ -3445,7 +3596,231 @@ class Component extends DCLogic {
   _initMode() {
     const { seg } = this._parseHash();
     if (seg === 'connections') return 'conn';
+    if (seg === 'ruler') return 'ruler';
     return 'gallery';
+  }
+
+  // ── Лінійка зросту ──────────────────────────────────────────
+  // Силует один на всіх: масштаб по висоті — зі «зросту», ширина — з «ваги»
+  // (індекс маси), тому різниця у фігурах це записане в анкеті, а не здогад.
+  _rulerVals(page) {
+    const s = this.state, data = s.data || {};
+    const on = page === 'characters' && !s.selectedChar && s.charMode === 'ruler';
+    const groups = [
+      { value: 'all',    label: 'Усі',    active: (s.rulerGroup || 'all') === 'all' },
+      { value: 'player', label: 'Гравці', active: (s.rulerGroup || 'all') === 'player' },
+      { value: 'npc',    label: 'НПЦ',    active: (s.rulerGroup || 'all') === 'npc' },
+    ];
+    const sorts = [
+      { value: 'height', label: 'за зростом', active: (s.rulerSort || 'height') === 'height' },
+      { value: 'name',   label: 'за іменем',  active: (s.rulerSort || 'height') === 'name' },
+      { value: 'type',   label: 'за розрядом', active: (s.rulerSort || 'height') === 'type' },
+    ];
+    const picks = Array.isArray(s.rulerPick) ? s.rulerPick : [];
+    const base = {
+      showCharRuler: on,
+      rulerGroups: groups,
+      rulerSorts: sorts,
+      rulerQuery: s.rulerQuery || '',
+      rulerHasQuery: !!(s.rulerQuery || ''),
+      setRulerGroup: (e) => this.setState({ rulerGroup: e.currentTarget.dataset.group, rulerHover: null }),
+      setRulerSort:  (e) => this.setState({ rulerSort: e.currentTarget.dataset.sort }),
+      setRulerQuery: (e) => this.setState({ rulerQuery: e.target.value }),
+      clearRulerQuery: () => this.setState({ rulerQuery: '' }),
+      rulerClearPick: () => this.setState({ rulerPick: [] }),
+      // Вибір зі списку — коли шукати потрібну фігуру очима в шерензі з
+      // півсотні довго. Додає в кінець; скільки завгодно осіб одразу.
+      addRulerPick: (e) => {
+        const v = e.target.value;
+        if (!v) return;
+        this.setState(st => {
+          const cur = Array.isArray(st.rulerPick) ? st.rulerPick.slice() : [];
+          return cur.indexOf(v) !== -1 ? {} : { rulerPick: cur.concat([v]) };
+        });
+      },
+      // Клік — це вибір для порівняння, а не перехід: тека відкривається
+      // окремим посиланням у картці, інакше порівняти було б нічим.
+      rulerToggle: (e) => {
+        const id = String(e.currentTarget.dataset.id || '');
+        this.setState(st => {
+          const cur = Array.isArray(st.rulerPick) ? st.rulerPick : [];
+          return cur.indexOf(id) !== -1
+            ? { rulerPick: cur.filter(x => x !== id) }
+            : { rulerPick: cur.concat([id]) };
+        });
+      },
+      rulerEnter: (e) => { const id = e.currentTarget.dataset.id; if (String(this.state.rulerHover || '') !== String(id)) this.setState({ rulerHover: id }); },
+      rulerLeave: () => { if (this.state.rulerHover != null) this.setState({ rulerHover: null }); },
+    };
+    if (!on) return { ...base, rulerItems: [], rulerMarks: [], rulerLegend: [], rulerHasItems: false, rulerEmpty: false, rulerCompare: false, rulerSingle: false, rulerCmpRows: [], rulerAddNames: [], rulerPickCount: 0 };
+
+    const PX = 1.9, BAND = 168;
+    // Постаті — справжні силуети (PNG у теці silhouettes/), а не мальовані
+    // криві: намальовані від руки читалися як скафандри. Колір бога дає CSS-
+    // маска, тому один файл на всіх, а відтінок у кожного свій.
+    // Співвідношення — з обрізаного по контуру файлу, інакше фігура попливе.
+    const SILH = {
+      man:   { label: 'чоловіча',        src: 'silhouettes/man.png',   r: 0.3132 },
+      woman: { label: 'жіноча',          src: 'silhouettes/woman.png', r: 0.2697 },
+      gown:  { label: 'жіноча в сукні',  src: 'silhouettes/gown.png',  r: 0.2328 },
+    };
+    const GOD_C = { light: '#ffd76b', dark: '#8b8fd0', fate: '#c07882', nature: '#6ec0b0', magic: '#c8ccd8' };
+    const GOD_NONE = '#9aa0ab';
+    const gods = data.pantheon || [];
+    const godKey = (v) => {
+      const k = String(v == null ? '' : v).trim().toLowerCase();
+      if (!k) return '';
+      const g = gods.find(x => String(x.god || '').trim().toLowerCase() === k || String(x.name || '').trim().toLowerCase() === k);
+      return g ? String(g.god || '').trim().toLowerCase() : '';
+    };
+    const num = (v) => { const m = String(v == null ? '' : v).replace(',', '.').match(/(\d+(?:\.\d+)?)/); return m ? parseFloat(m[1]) : 0; };
+    // «175 см», «1,75 м», «175» — усі три форми людям звичні, тож беремо всі три.
+    const cmOf = (v) => { let n = num(v); if (n > 0 && n < 3) n *= 100; n = Math.round(n); return (n >= 60 && n <= 260) ? n : 0; };
+
+    const group = s.rulerGroup || 'all';
+    const isNpc = (c) => c.character_type === 'npc';
+    const pool = (data.characters || []).filter(c => group === 'all' || (group === 'npc' ? isNpc(c) : !isNpc(c)));
+    const rows = pool.map(c => ({ c, cm: cmOf(c.height) })).filter(x => x.cm);
+    const noH = pool.length - rows.length;
+
+    const byName = (a, b) => String(a.c.name || '').localeCompare(String(b.c.name || ''), 'uk');
+    const sort = s.rulerSort || 'height';
+    if (sort === 'name') rows.sort(byName);
+    else if (sort === 'type') rows.sort((a, b) => (isNpc(a.c) ? 1 : 0) - (isNpc(b.c) ? 1 : 0) || b.cm - a.cm || byName(a, b));
+    else rows.sort((a, b) => b.cm - a.cm || byName(a, b));
+
+    const heights = rows.map(x => x.cm);
+    const maxCm = heights.length ? Math.max.apply(null, heights) : 190;
+    const minCm = heights.length ? Math.min.apply(null, heights) : 150;
+    const topCm = Math.ceil((maxCm + 14) / 10) * 10;
+    // Сітка йде від найнижчого до найвищого: під ногами найнижчої особи міряти
+    // нічого, і два порожні поверхи розлініяного неба тільки крали б увагу.
+    const botCm = Math.max(0, Math.floor((minCm - 12) / 10) * 10);
+    const CH = Math.round(topCm * PX);
+    const yOf = (cm) => Math.round((topCm - cm) * PX);
+    const avgCm = heights.length ? Math.round(heights.reduce((a, n) => a + n, 0) / heights.length) : 0;
+
+    const marks = [];
+    for (let cm = botCm; cm <= topCm; cm += 10) {
+      const major = cm % 50 === 0, top = yOf(cm);
+      marks.push({
+        key: 'm' + cm, label: String(cm),
+        labStyle: `position:absolute;right:9px;top:${top}px;transform:translateY(-50%);font-size:0.6rem;letter-spacing:0.04em;color:rgba(255,255,255,${major ? 0.42 : 0.18});`,
+        lineStyle: `position:absolute;left:0;right:0;top:${top}px;height:1px;background:rgba(255,255,255,${major ? 0.1 : 0.04});`,
+      });
+    }
+
+    const fold = (v) => String(v == null ? '' : v).toLowerCase().replace(/[«»"'’`ʼ]/g, '').trim();
+    const q = fold(s.rulerQuery);
+    const hits = q ? rows.filter(x => fold(x.c.name).indexOf(q) !== -1 || fold(x.c.alias).indexOf(q) !== -1).length : 0;
+    const hov = s.rulerHover != null ? String(s.rulerHover) : '';
+    const pickSet = picks.filter(id => rows.some(x => String(x.c.id) === id));
+
+    const items = rows.map(({ c, cm }) => {
+      const id = String(c.id);
+      const h = Math.round(cm * PX);
+      const sKey = SILH[String(c.build || '').trim()] ? String(c.build).trim() : 'man';
+      const B = SILH[sKey];
+      const w = Math.max(30, Math.round(h * B.r));
+      const fill = GOD_C[godKey(c.deity)] || GOD_NONE;
+      const hovOn = hov === id;
+      const picked = pickSet.indexOf(id) !== -1;
+      const hit = q ? (fold(c.name).indexOf(q) !== -1 || fold(c.alias).indexOf(q) !== -1) : false;
+      // Порядок важливий: вибір сильніший за пошук, наведення — за все.
+      let op = 0.52, lit = false;
+      if (pickSet.length) { lit = picked; op = picked ? 0.95 : 0.13; }
+      else if (q) { lit = hit; op = hit ? 0.88 : 0.11; }
+      if (hovOn) { lit = true; op = 0.95; }
+      else if (hov && !pickSet.length && !q) op = 0.16;
+      const gold = lit && (picked || hit || hovOn);
+      // Обрано хоч одного — решта зникає з шеренги, а не просто гасне,
+      // щоб порівняння читалося без стороннього шуму навколо.
+      const hide = pickSet.length > 0 && !picked;
+      return {
+        id, name: c.name || '—', cm: String(cm), silh: sKey,
+        figStyle: `width:${w}px;height:${h}px;background:${fill};opacity:${op};`
+          + `-webkit-mask-image:url("${B.src}");mask-image:url("${B.src}");`,
+        colStyle: hide
+          ? 'display:none;'
+          : `flex:0 0 auto;width:${w}px;height:100%;display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;`,
+        numStyle: `font-family:'Cinzel',Georgia,serif;font-size:0.62rem;letter-spacing:0.03em;color:${gold ? '#ffd700' : 'rgba(255,255,255,0.34)'};transition:color 0.2s;`,
+        nameStyle: `height:${BAND}px;width:100%;writing-mode:vertical-rl;transform:rotate(180deg);text-align:start;padding:10px 0;font-family:'Cinzel',Georgia,serif;font-size:0.68rem;letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${gold ? '#ffd700' : 'rgba(255,255,255,0.48)'};transition:color 0.2s;`,
+        markStyle: picked ? 'font-size:0.6rem;color:#ffd700;line-height:1;' : 'display:none;',
+      };
+    });
+
+    // Порівняння: скільки завгодно осіб, від найвищої до найнижчої.
+    const pickRows = rows.filter(x => pickSet.indexOf(String(x.c.id)) !== -1);
+    const cmp = pickRows.length >= 2 ? pickRows.slice().sort((a, b) => b.cm - a.cm) : null;
+    const maxPickCm = cmp ? cmp[0].cm : 0;
+
+    const focus = (rows.find(x => String(x.c.id) === hov)
+      || (pickRows.length === 1 ? pickRows[0] : null)
+      || rows[0] || null);
+    const fc = focus ? focus.c : null;
+    const fKey = fc ? godKey(fc.deity) : '';
+    const meta = [];
+    if (fc) {
+      if (fc.role) meta.push(String(fc.role));
+      // «132» в графі ваги — це кілограми; без підпису рядок читається як шифр.
+      if (fc.weight) { const w = String(fc.weight).trim(); meta.push(/[а-яїієґa-z]/i.test(w) ? w : w + ' кг'); }
+      if (fc.deity) meta.push('під рукою ' + this._deityName(fc.deity));
+      meta.push(isNpc(fc) ? 'НПЦ' : 'гравець');
+    }
+
+    const seen = new Map();
+    rows.forEach(({ c }) => { const k = godKey(c.deity) || 'none'; seen.set(k, (seen.get(k) || 0) + 1); });
+    const legend = Array.from(seen.entries()).sort((a, b) => b[1] - a[1]).map(([k, n]) => ({
+      key: k,
+      label: (k === 'none' ? 'без покровительки' : this._deityName(k)) + ' · ' + n,
+      dot: `width:9px;height:9px;border-radius:50%;background:${GOD_C[k] || GOD_NONE};opacity:0.75;`,
+    }));
+
+    const noteParts = [];
+    noteParts.push(rows.length === 1 ? 'В анкеті виміряно одну особу.' : `Виміряно ${rows.length} ${rows.length % 10 === 1 && rows.length % 100 !== 11 ? 'особу' : 'осіб'}.`);
+    noteParts.push(`Від ${minCm} до ${maxCm} см.`);
+    if (noH > 0) noteParts.push(`Ще ${noH} ${noH === 1 ? 'анкета стоїть' : 'анкет стоять'} без зросту — у шеренгу їх поставити нема як.`);
+
+    return {
+      ...base,
+      rulerHasItems: rows.length > 0,
+      rulerEmpty: rows.length === 0,
+      rulerItems: items,
+      rulerMarks: marks,
+      rulerLegend: legend,
+      rulerNote: noteParts.join(' '),
+      rulerHint: q
+        ? (hits ? `Знайдено ${hits} — решта пригашена.` : 'За цим іменем у шерензі нікого.')
+        : (pickSet.length === 1 ? 'Додайте ще — покажу порівняння.' : (pickSet.length ? '' : 'Натисніть на силует або додайте зі списку, щоб порівняти.')),
+      rulerAddNames: rows.slice().sort(byName).filter(x => pickSet.indexOf(String(x.c.id)) === -1).map(x => ({
+        id: String(x.c.id), label: (x.c.name || '—') + ' · ' + x.cm + ' см',
+      })),
+      rulerCompare: !!cmp,
+      rulerSingle: !cmp && rows.length > 0,
+      rulerHasPick: pickSet.length > 0,
+      rulerPickCount: pickSet.length,
+      rulerCmpRows: cmp ? cmp.map(x => ({
+        id: String(x.c.id),
+        name: x.c.name || '—',
+        cm: x.cm + ' см',
+        dot: `width:10px;height:10px;border-radius:50%;background:${GOD_C[godKey(x.c.deity)] || GOD_NONE};opacity:0.75;flex-shrink:0;`,
+        diff: x.cm === maxPickCm ? '' : '−' + (maxPickCm - x.cm) + ' см',
+      })) : [],
+      rulerFocusId: fc ? String(fc.id) : '',
+      rulerAvgCm: String(avgCm),
+      rulerInnerStyle: `position:relative;height:${CH + BAND}px;min-width:100%;width:max-content;`,
+      rulerRowStyle: 'position:absolute;left:0;top:0;bottom:0;display:flex;align-items:stretch;gap:5px;padding:0 16px;',
+      rulerAxisStyle: `position:relative;flex:0 0 52px;width:52px;height:${CH + BAND}px;`,
+      rulerFloorStyle: `position:absolute;left:0;right:0;top:${CH}px;height:1px;background:rgba(255,215,0,0.34);box-shadow:0 0 18px rgba(255,215,0,0.16);`,
+      rulerAvgStyle: avgCm ? `position:absolute;left:0;right:0;top:${yOf(avgCm)}px;border-top:1px dashed rgba(255,215,0,0.28);` : 'display:none;',
+      rulerAvgLabStyle: avgCm ? `position:absolute;right:9px;top:${yOf(avgCm)}px;transform:translateY(-50%);font-size:0.56rem;letter-spacing:0.04em;color:rgba(255,215,0,0.6);background:#1a1a1a;padding:1px 0 1px 3px;` : 'display:none;',
+      rulerFocusName: fc ? (fc.name || '—') : '',
+      rulerFocusAlias: fc ? (fc.alias || '') : '',
+      rulerFocusHasAlias: !!(fc && fc.alias),
+      rulerFocusCm: focus ? focus.cm + ' см' : '',
+      rulerFocusMeta: meta.join(' · '),
+      rulerFocusDot: `flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:${GOD_C[fKey] || GOD_NONE};opacity:0.5;`,
+    };
   }
 
   // Повний стан сторінки, обчислений з хеша (розв'язує вибраний елемент по id).
@@ -3473,7 +3848,7 @@ class Component extends DCLogic {
 
   // Коротке посилання на поточний розділ (сторінки /s/*.html мають власні og-превʼю).
   _shareLink() {
-    const SHAREABLE = ['characters', 'lore', 'stories', 'pantheon', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'chronicles', 'connections'];
+    const SHAREABLE = ['characters', 'lore', 'stories', 'pantheon', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'chronicles', 'connections', 'ruler'];
     const { seg, id } = this._parseHash();
     const dir = window.location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '');
     if (!seg || seg === 'home') return dir;
@@ -3669,7 +4044,13 @@ class Component extends DCLogic {
         this._get(`lore?select=${LIST_SELECT.lore}&order=sort_order.asc,created_at.asc`),
         this._get(`stories?select=${LIST_SELECT.stories}&order=sort_order.asc,created_at.asc`),
         this._get(`chronicles?select=${LIST_SELECT.chronicles}&order=sort_order.asc,created_at.asc`),
-        this._get(`characters?select=${LIST_SELECT.characters}&order=sort_order.asc,created_at.asc`),
+        // Двозахідно: `build` зʼявиться лише після міграції, і одна відсутня
+        // колонка не має гасити цілий сайт екраном «щось пішло не так».
+        this._get(`characters?select=${LIST_SELECT.characters}&order=sort_order.asc,created_at.asc`)
+          .catch((e) => {
+            console.warn('характери: без графи build —', e && e.message);
+            return this._get(`characters?select=${LIST_SELECT.characters.replace(',build', '')}&order=sort_order.asc,created_at.asc`);
+          }),
         this._get('pantheon?select=*&order=sort_order.asc'),
         this._get('contacts?select=*&order=sort_order.asc'),
         this._get('site_settings?select=*'),
@@ -6501,7 +6882,8 @@ class Component extends DCLogic {
       },
       closeCharModal: () => this.setState({ peekChar: null }),
       closeCharPage: () => this._nav('characters'),
-      setCharMode: (e) => { const m = e.currentTarget.dataset.mode; this._nav(m === 'conn' ? 'connections' : 'characters'); },
+      setCharMode: (e) => { const m = e.currentTarget.dataset.mode; this._nav(m === 'conn' ? 'connections' : (m === 'ruler' ? 'ruler' : 'characters')); },
+      ...this._rulerVals(page),
       stopProp: (e) => e.stopPropagation(),
       saveCharCard:  () => this.saveCharCard(),
       copyCharCard:  () => this.copyCharCard(),

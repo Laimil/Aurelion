@@ -1823,6 +1823,17 @@ button{font-family:inherit;cursor:pointer}
           <div><label>Зріст</label><input value="{{ formHeight }}" onChange="{{ handleInput }}" data-field="height" placeholder="175 см" /></div>
           <div><label>Вага</label><input value="{{ formWeight }}" onChange="{{ handleInput }}" data-field="weight" placeholder="70 кг" /></div>
         </div>
+        <!-- Статура: форма силуету на лінійці зросту -->
+        <div style="margin-bottom:14px;">
+          <label>Постать <span style="color:rgba(255,255,255,0.3);font-weight:400;">(силует на лінійці зросту)</span></label>
+          <select value="{{ formBuild }}" onChange="{{ handleInput }}" data-field="build">
+            <option value="">— чоловіча —</option>
+            <option value="man">Чоловіча</option>
+            <option value="woman">Жіноча</option>
+            <option value="gown">Жіноча в сукні (профіль)</option>
+          </select>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:5px;line-height:1.5;">Висоту бере з графи «зріст», колір — з покровительки. Порожня постать — чоловічий силует.</p>
+        </div>
         <!-- Зображення -->
         <div style="margin-bottom:14px;">
           <label>Зображення персонажа</label>
@@ -2702,7 +2713,7 @@ const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order', 'status_label', 'status_color', 'cover_color', 'cover_ornament', 'cover_icon', 'author_label'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
-  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'deity', 'tags', 'connections', 'open_effect', 'sort_order'],
+  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'build', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'deity', 'tags', 'connections', 'open_effect', 'sort_order'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
 };
@@ -2710,7 +2721,7 @@ const SECTION_FIELDS = {
 // (розряд, чернетка, порядок, позначки Марти), лишається за адміністрацією.
 const EDIT_FIELDS = {
   name: 'Імʼя', alias: 'Псевдонім', age: 'Вік / дата народження',
-  height: 'Зріст', weight: 'Вага', deity: 'Покровителька', role: 'Роль',
+  height: 'Зріст', weight: 'Вага', build: 'Постать', deity: 'Покровителька', role: 'Роль',
   card_caption: 'Підпис на картці', image: 'Портрет',
   bio: 'Коротко на картці', content: 'Текст анкети',
 };
@@ -5118,7 +5129,7 @@ class Component extends DCLogic {
       allowed.forEach(k => {
         const v = s.form[k];
         // connections може бути порожнім рядком (всі знайомства знято) — надсилаємо завжди
-        const alwaysSend = k === 'connections' || k === 'status_label' || k === 'status_color' || k === 'cover_color' || k === 'cover_ornament' || k === 'cover_icon';
+        const alwaysSend = k === 'connections' || k === 'build' || k === 'status_label' || k === 'status_color' || k === 'cover_color' || k === 'cover_ornament' || k === 'cover_icon';
         if (alwaysSend ? (v !== undefined) : (v !== '' && v !== undefined && v !== null)) body[k] = v === null ? '' : v;
       });
       this.setState({ saving: true });
@@ -5475,6 +5486,7 @@ class Component extends DCLogic {
       formTelegraphUrl:  form.telegraph_url  || '',
       formAge:          form.age            || '',
       formHeight:       form.height         || '',
+      formBuild:        form.build          || '',
       formWeight:       form.weight         || '',
       uploadingImage:   s.uploadingImage,
       uploadBtnLabel:   s.uploadingImage ? 'Завантаження…' : '📎 З комп\'ютера',
