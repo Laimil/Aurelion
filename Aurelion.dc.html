@@ -1493,7 +1493,7 @@ a:hover{color:#a8c4f7;}
             <input value="{{ rulerAddQuery }}" onChange="{{ setRulerAddQuery }}" placeholder="Пошук особи…" autoFocus="{{ true }}" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:8px 10px;font-size:0.8rem;color:#fff;outline:none;flex-shrink:0;" />
             <div style="overflow-y:auto;max-height:290px;display:flex;flex-direction:column;gap:4px;">
               <sc-if value="{{ rulerAddEmpty }}" hint-placeholder-val="{{ false }}">
-                <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.35);padding:14px 6px;">Усі вже додані.</p>
+                <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.35);padding:14px 6px;">{{ rulerAddEmptyMsg }}</p>
               </sc-if>
               <sc-for list="{{ rulerAddNames }}" as="n" hint-placeholder-count="4">
                 <button data-id="{{ n.id }}" onClick="{{ addRulerPick }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 12px;text-align:left;cursor:pointer;transition:all 0.16s;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);">
@@ -1511,7 +1511,18 @@ a:hover{color:#a8c4f7;}
       <sc-if value="{{ rulerHasPick }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ rulerClearPick }}" style="background:none;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Зняти всіх ({{ rulerPickCount }}) ✕</button>
       </sc-if>
+      <button onClick="{{ saveRulerPng }}" data-busy="{{ rulerShotBusy }}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:6px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.2s;" style-hover="background:rgba(255,215,0,0.18);">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Скріншот
+      </button>
+      <button onClick="{{ copyRulerPng }}" data-busy="{{ rulerShotBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);border-radius:999px;padding:6px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Копіювати</button>
+      <sc-if value="{{ canShareRuler }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ shareRulerPng }}" data-busy="{{ rulerShotBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);border-radius:999px;padding:6px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Поділитися</button>
+      </sc-if>
     </div>
+    <sc-if value="{{ hasRulerShotMsg }}" hint-placeholder-val="{{ false }}">
+      <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.9rem;color:rgba(255,215,0,0.7);margin:0 0 8px;">{{ rulerShotMsg }}</p>
+    </sc-if>
     <p style="text-align:center;font-size:0.74rem;color:rgba(255,255,255,0.3);margin-bottom:16px;padding:0 24px;min-height:16px;">{{ rulerHint }}</p>
 
     <sc-if value="{{ rulerHasItems }}" hint-placeholder-val="{{ true }}">
@@ -3661,7 +3672,7 @@ class Component extends DCLogic {
       rulerEnter: (e) => { const id = e.currentTarget.dataset.id; if (String(this.state.rulerHover || '') !== String(id)) this.setState({ rulerHover: id }); },
       rulerLeave: () => { if (this.state.rulerHover != null) this.setState({ rulerHover: null }); },
     };
-    if (!on) return { ...base, rulerItems: [], rulerMarks: [], rulerLegend: [], rulerHasItems: false, rulerEmpty: false, rulerCompare: false, rulerSingle: false, rulerCmpSummary: '', rulerAddNames: [], rulerPickCount: 0, rulerHasAll: false };
+    if (!on) return { ...base, rulerItems: [], rulerMarks: [], rulerLegend: [], rulerHasItems: false, rulerEmpty: false, rulerCompare: false, rulerSingle: false, rulerCmpSummary: '', rulerAddNames: [], rulerPickCount: 0, rulerHasAll: false, rulerAddEmptyMsg: 'Усі вже додані.', rulerShotBusy: '0', rulerShotMsg: '', hasRulerShotMsg: false, canShareRuler: false };
 
     const PX = 1.9, BAND = 168;
     // Постаті — справжні силуети (PNG у теці silhouettes/), а не мальовані
@@ -3725,6 +3736,12 @@ class Component extends DCLogic {
     const hov = s.rulerHover != null ? String(s.rulerHover) : '';
     const pickSet = picks.filter(id => rows.some(x => String(x.c.id) === id));
     this._rulerAllIds = rows.map(x => String(x.c.id));
+    // Знімок малює з цього ж проходу — інакше PNG і екран могли б розійтися.
+    this._rulerExportRows = rows.map(({ c, cm }) => {
+      const sKey = SILH[String(c.build || '').trim()] ? String(c.build).trim() : 'man';
+      const B = SILH[sKey];
+      return { id: String(c.id), name: c.name || '—', cm, color: GOD_C[godKey(c.deity)] || GOD_NONE, src: B.src, r: B.r, picked: pickSet.indexOf(String(c.id)) !== -1 };
+    });
     const addQ = fold(s.rulerAddQuery);
     const rulerAddList = rows.slice().sort(byName).filter(x => pickSet.indexOf(String(x.c.id)) === -1)
       .filter(x => !addQ || fold(x.c.name).indexOf(addQ) !== -1 || fold(x.c.alias).indexOf(addQ) !== -1);
@@ -3810,6 +3827,7 @@ class Component extends DCLogic {
       rulerAddNames: rulerAddList.map(x => ({ id: String(x.c.id), name: x.c.name || '—', cm: x.cm + ' см' })),
       rulerAddOpen: !!s.rulerAddOpen,
       rulerAddEmpty: rulerAddList.length === 0,
+      rulerAddEmptyMsg: addQ ? 'Нікого не знайдено.' : 'Усі вже додані.',
       rulerHasAll: rows.length > 1,      rulerCompare: !!cmp,
       rulerSingle: !cmp && rows.length > 0,
       rulerHasPick: pickSet.length > 0,
@@ -3831,7 +3849,180 @@ class Component extends DCLogic {
       rulerFocusCm: focus ? focus.cm + ' см' : '',
       rulerFocusMeta: meta.join(' · '),
       rulerFocusDot: `flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:${GOD_C[fKey] || GOD_NONE};opacity:0.5;`,
+      rulerShotBusy: s.rulerShotBusy ? '1' : '0',
+      rulerShotMsg: s.rulerShotMsg || '',
+      hasRulerShotMsg: !!s.rulerShotMsg,
+      canShareRuler: typeof navigator !== 'undefined' && !!navigator.canShare,
+      saveRulerPng: () => this.saveRulerPng(),
+      copyRulerPng: () => this.copyRulerPng(),
+      shareRulerPng: () => this.shareRulerPng(),
     };
+  }
+
+  _flashRulerMsg(msg) {
+    this.setState({ rulerShotMsg: msg });
+    clearTimeout(this._rulerMsgTimer);
+    this._rulerMsgTimer = setTimeout(() => this.setState({ rulerShotMsg: '' }), 2600);
+  }
+
+  // Тонування: та сама PNG-маска, що на екрані, лише через composite
+  // замість CSS mask-image — канва їх не підтримує.
+  _tintSilhouette(img, w, h, color) {
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h));
+    const cx = c.getContext('2d');
+    cx.drawImage(img, 0, 0, c.width, c.height);
+    cx.globalCompositeOperation = 'source-in';
+    cx.fillStyle = color;
+    cx.fillRect(0, 0, c.width, c.height);
+    return c;
+  }
+
+  async _renderRulerCanvas(list) {
+    const dpr = 2;
+    const n = list.length;
+    const colW = Math.max(120, Math.min(190, 1400 / Math.max(n, 1)));
+    const W = Math.max(720, Math.round(colW * n) + 160);
+    const H = 1000;
+    const canvas = document.createElement('canvas');
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    ctx.fillStyle = '#141312';
+    ctx.fillRect(0, 0, W, H);
+    const g = ctx.createRadialGradient(W / 2, 160, 40, W / 2, 160, Math.max(W, H) * 0.75);
+    g.addColorStop(0, 'rgba(255,215,0,0.11)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(255,215,0,0.3)';
+    ctx.lineWidth = 1.5;
+    this._roundRect(ctx, 14, 14, W - 28, H - 28, 18);
+    ctx.stroke();
+
+    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,215,0,0.78)';
+    ctx.font = '600 15px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, '✦ ЛІНІЙКА ЗРОСТУ', W / 2, 60, 4);
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,215,0,0.5)';
+    ctx.shadowBlur = 26;
+    ctx.fillStyle = '#ffd700';
+    ctx.font = '700 42px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, 'AURELION', W / 2, 116, 8);
+    ctx.restore();
+    const maxCm = Math.max.apply(null, list.map(x => x.cm));
+    const minCm = Math.min.apply(null, list.map(x => x.cm));
+    const sub = n === 1 ? (list[0].name + ' · ' + list[0].cm + ' см') : (n + ' осіб · ' + minCm + '–' + maxCm + ' см');
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = 'italic 400 21px "EB Garamond", Georgia, serif';
+    ctx.fillText(sub, W / 2, 152);
+
+    const floorY = 830, maxFigH = 520;
+    ctx.strokeStyle = 'rgba(255,215,0,0.34)';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = 'rgba(255,215,0,0.16)'; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.moveTo(40, floorY); ctx.lineTo(W - 40, floorY); ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    const imgs = {};
+    await Promise.all(Array.from(new Set(list.map(x => x.src))).map(async (src) => {
+      imgs[src] = await this._loadImageSafe(src);
+    }));
+
+    const startX = (W - colW * n) / 2;
+    list.forEach((p, i) => {
+      const cx0 = startX + colW * i + colW / 2;
+      const h = Math.max(60, Math.round(maxFigH * (p.cm / maxCm)));
+      const w = Math.max(28, Math.round(h * p.r));
+      const img = imgs[p.src];
+      const topY = floorY - h;
+      if (img) {
+        const tinted = this._tintSilhouette(img, w, h, p.color);
+        ctx.drawImage(tinted, cx0 - w / 2, topY, w, h);
+      } else {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(cx0 - w / 2, topY, w, h);
+      }
+      ctx.fillStyle = '#ffd700';
+      ctx.font = '600 15px "Cinzel", Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(p.cm + ' см', cx0, topY - 12);
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx.font = '600 13px "Cinzel", Georgia, serif';
+      const lines = this._wrapLines(ctx, p.name, colW - 14);
+      lines.slice(0, 2).forEach((ln, li) => ctx.fillText(ln, cx0, floorY + 24 + li * 17));
+    });
+
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = '#ffd700';
+    ctx.font = '700 20px "Cinzel", Georgia, serif';
+    this._trackedText(ctx, 'AURELION', W / 2, H - 40, 5);
+    ctx.restore();
+
+    return canvas;
+  }
+
+  async _rulerPngBlob() {
+    await this._ensureCardFonts();
+    const all = this._rulerExportRows || [];
+    const picked = all.filter(x => x.picked);
+    const list = (picked.length ? picked : all).slice().sort((a, b) => b.cm - a.cm);
+    if (!list.length) throw new Error('no-rows');
+    const canvas = await this._renderRulerCanvas(list);
+    return await new Promise(res => canvas.toBlob(res, 'image/png'));
+  }
+
+  _rulerFileName() {
+    return 'aurelion-liniyka-zrostu.png';
+  }
+
+  async saveRulerPng() {
+    if (this.state.rulerShotBusy) return;
+    this.setState({ rulerShotBusy: true });
+    try {
+      const blob = await this._rulerPngBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = this._rulerFileName();
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      this._flashRulerMsg('Знімок збережено');
+    } catch (e) { this._flashRulerMsg('Не вдалося зробити знімок'); }
+    this.setState({ rulerShotBusy: false });
+  }
+
+  async copyRulerPng() {
+    if (this.state.rulerShotBusy) return;
+    this.setState({ rulerShotBusy: true });
+    try {
+      const blob = await this._rulerPngBlob();
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        this._flashRulerMsg('Скопійовано в буфер');
+      } else { throw new Error('no-clipboard'); }
+    } catch (e) { this._flashRulerMsg('Буфер недоступний — збережіть PNG'); }
+    this.setState({ rulerShotBusy: false });
+  }
+
+  async shareRulerPng() {
+    if (this.state.rulerShotBusy) return;
+    this.setState({ rulerShotBusy: true });
+    try {
+      const blob = await this._rulerPngBlob();
+      const file = new File([blob], this._rulerFileName(), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Ауреліон · лінійка зросту' });
+        this._flashRulerMsg('');
+      } else { throw new Error('no-share'); }
+    } catch (e) {
+      if (e && e.name === 'AbortError') { this.setState({ rulerShotBusy: false }); return; }
+      this._flashRulerMsg('Поділитися недоступно тут');
+    }
+    this.setState({ rulerShotBusy: false });
   }
 
   // Повний стан сторінки, обчислений з хеша (розв'язує вибраний елемент по id).
