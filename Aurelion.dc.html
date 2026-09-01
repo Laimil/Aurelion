@@ -1489,19 +1489,25 @@ a:hover{color:#a8c4f7;}
       <div style="position:relative;">
         <button onClick="{{ toggleRulerAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:7px 16px;font-size:0.78rem;font-family:'Cinzel',Georgia,serif;letter-spacing:0.02em;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;" style-hover="background:rgba(255,215,0,0.16);">+ Додати особу</button>
         <sc-if value="{{ rulerAddOpen }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:280px;max-height:340px;overflow-y:auto;background:rgba(26,26,26,0.97);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.14);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.5);padding:8px;z-index:40;display:flex;flex-direction:column;gap:4px;">
-            <sc-if value="{{ rulerAddEmpty }}" hint-placeholder-val="{{ false }}">
-              <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.35);padding:14px 6px;">Усі вже додані.</p>
-            </sc-if>
-            <sc-for list="{{ rulerAddNames }}" as="n" hint-placeholder-count="4">
-              <button data-id="{{ n.id }}" onClick="{{ addRulerPick }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 12px;text-align:left;cursor:pointer;transition:all 0.16s;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);">
-                <span style="font-family:'Cinzel',Georgia,serif;font-size:0.86rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ n.name }}</span>
-                <span style="font-size:0.74rem;color:rgba(255,215,0,0.7);flex-shrink:0;">{{ n.cm }}</span>
-              </button>
-            </sc-for>
+          <div style="position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:280px;max-height:380px;overflow:hidden;background:rgba(26,26,26,0.97);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.14);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.5);padding:8px;z-index:40;display:flex;flex-direction:column;gap:6px;">
+            <input value="{{ rulerAddQuery }}" onChange="{{ setRulerAddQuery }}" placeholder="Пошук…" autoFocus="{{ true }}" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:8px 10px;font-size:0.8rem;color:#fff;outline:none;flex-shrink:0;" />
+            <div style="overflow-y:auto;max-height:290px;display:flex;flex-direction:column;gap:4px;">
+              <sc-if value="{{ rulerAddEmpty }}" hint-placeholder-val="{{ false }}">
+                <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.35);padding:14px 6px;">Усі вже додані.</p>
+              </sc-if>
+              <sc-for list="{{ rulerAddNames }}" as="n" hint-placeholder-count="4">
+                <button data-id="{{ n.id }}" onClick="{{ addRulerPick }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 12px;text-align:left;cursor:pointer;transition:all 0.16s;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);">
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:0.86rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ n.name }}</span>
+                  <span style="font-size:0.74rem;color:rgba(255,215,0,0.7);flex-shrink:0;">{{ n.cm }}</span>
+                </button>
+              </sc-for>
+            </div>
           </div>
         </sc-if>
       </div>
+      <sc-if value="{{ rulerHasAll }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ rulerAddAll }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;padding:7px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">Додати всіх</button>
+      </sc-if>
       <sc-if value="{{ rulerHasPick }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ rulerClearPick }}" style="background:none;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Зняти всіх ({{ rulerPickCount }}) ✕</button>
       </sc-if>
@@ -1524,20 +1530,10 @@ a:hover{color:#a8c4f7;}
         </div>
       </sc-if>
       <sc-if value="{{ rulerCompare }}" hint-placeholder-val="{{ false }}">
-        <div class="glass" style="max-width:520px;margin:0 auto 22px;border-radius:12px;padding:16px 20px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-            <span style="font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.62);">Порівняння · {{ rulerPickCount }}</span>
-            <button onClick="{{ rulerClearPick }}" style="background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.72rem;cursor:pointer;padding:0;" style-hover="color:#fff;">Зняти всіх ✕</button>
-          </div>
-          <sc-for list="{{ rulerCmpRows }}" as="r" hint-placeholder-count="2">
-            <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(255,255,255,0.07);">
-              <span style="{{ r.dot }}"></span>
-              <button data-id="{{ r.id }}" onClick="{{ openCharacter }}" style="flex:1;min-width:0;text-align:left;background:none;border:none;padding:0;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;color:#fff;letter-spacing:0.02em;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" style-hover="color:#ffd700;">{{ r.name }}</button>
-              <span style="font-family:'Cinzel',Georgia,serif;font-size:0.88rem;color:#ffd700;flex-shrink:0;min-width:50px;text-align:right;">{{ r.cm }}</span>
-              <span style="font-size:0.7rem;color:rgba(255,255,255,0.4);flex-shrink:0;min-width:56px;text-align:right;">{{ r.diff }}</span>
-              <button data-id="{{ r.id }}" onClick="{{ rulerToggle }}" title="Прибрати з порівняння" style="flex-shrink:0;background:none;border:none;color:rgba(255,255,255,0.28);font-size:0.76rem;cursor:pointer;padding:2px;line-height:1;" style-hover="color:#fff;">✕</button>
-            </div>
-          </sc-for>
+        <div class="glass" style="max-width:520px;margin:0 auto 22px;border-radius:12px;padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;">
+          <span style="font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.62);">Порівняння · {{ rulerPickCount }}</span>
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:0.86rem;color:#fff;">{{ rulerCmpSummary }}</span>
+          <button onClick="{{ rulerClearPick }}" style="background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.72rem;cursor:pointer;padding:0;" style-hover="color:#fff;">Зняти всіх ✕</button>
         </div>
       </sc-if>
 
@@ -3645,10 +3641,12 @@ class Component extends DCLogic {
         if (!v) return;
         this.setState(st => {
           const cur = Array.isArray(st.rulerPick) ? st.rulerPick.slice() : [];
-          return cur.indexOf(v) !== -1 ? { rulerAddOpen: false } : { rulerPick: cur.concat([v]), rulerAddOpen: false };
+          return cur.indexOf(v) !== -1 ? { rulerAddOpen: false, rulerAddQuery: '' } : { rulerPick: cur.concat([v]), rulerAddOpen: false, rulerAddQuery: '' };
         });
       },
       toggleRulerAdd: () => this.setState(st => ({ rulerAddOpen: !st.rulerAddOpen })),
+      setRulerAddQuery: (e) => this.setState({ rulerAddQuery: e.target.value }),
+      rulerAddAll: () => this.setState({ rulerPick: (this._rulerAllIds || []).slice(), rulerAddOpen: false }),
       // Клік — це вибір для порівняння, а не перехід: тека відкривається
       // окремим посиланням у картці, інакше порівняти було б нічим.
       rulerToggle: (e) => {
@@ -3663,7 +3661,7 @@ class Component extends DCLogic {
       rulerEnter: (e) => { const id = e.currentTarget.dataset.id; if (String(this.state.rulerHover || '') !== String(id)) this.setState({ rulerHover: id }); },
       rulerLeave: () => { if (this.state.rulerHover != null) this.setState({ rulerHover: null }); },
     };
-    if (!on) return { ...base, rulerItems: [], rulerMarks: [], rulerLegend: [], rulerHasItems: false, rulerEmpty: false, rulerCompare: false, rulerSingle: false, rulerCmpRows: [], rulerAddNames: [], rulerPickCount: 0 };
+    if (!on) return { ...base, rulerItems: [], rulerMarks: [], rulerLegend: [], rulerHasItems: false, rulerEmpty: false, rulerCompare: false, rulerSingle: false, rulerCmpSummary: '', rulerAddNames: [], rulerPickCount: 0, rulerHasAll: false };
 
     const PX = 1.9, BAND = 168;
     // Постаті — справжні силуети (PNG у теці silhouettes/), а не мальовані
@@ -3726,8 +3724,12 @@ class Component extends DCLogic {
     const hits = q ? rows.filter(x => fold(x.c.name).indexOf(q) !== -1 || fold(x.c.alias).indexOf(q) !== -1).length : 0;
     const hov = s.rulerHover != null ? String(s.rulerHover) : '';
     const pickSet = picks.filter(id => rows.some(x => String(x.c.id) === id));
+    this._rulerAllIds = rows.map(x => String(x.c.id));
+    const addQ = fold(s.rulerAddQuery);
+    const rulerAddList = rows.slice().sort(byName).filter(x => pickSet.indexOf(String(x.c.id)) === -1)
+      .filter(x => !addQ || fold(x.c.name).indexOf(addQ) !== -1 || fold(x.c.alias).indexOf(addQ) !== -1);
 
-    const items = rows.map(({ c, cm }) => {
+    const items = rows.map(({ c, cm }, idx) => {
       const id = String(c.id);
       const h = Math.round(cm * PX);
       const sKey = SILH[String(c.build || '').trim()] ? String(c.build).trim() : 'man';
@@ -3750,12 +3752,13 @@ class Component extends DCLogic {
       return {
         id, name: c.name || '—', cm: String(cm), silh: sKey,
         figStyle: `width:${w}px;height:${h}px;background:${fill};opacity:${op};`
-          + `-webkit-mask-image:url("${B.src}");mask-image:url("${B.src}");`,
+          + `-webkit-mask-image:url("${B.src}");mask-image:url("${B.src}");`
+          + `filter:drop-shadow(0 3px 8px rgba(0,0,0,0.55)) drop-shadow(0 0 1px rgba(0,0,0,0.4));`,
         colStyle: hide
           ? 'display:none;'
           : `flex:0 0 auto;width:${w}px;height:100%;display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;`,
         numStyle: `font-family:'Cinzel',Georgia,serif;font-size:0.62rem;letter-spacing:0.03em;color:${gold ? '#ffd700' : 'rgba(255,255,255,0.34)'};transition:color 0.2s;`,
-        nameStyle: `height:${BAND}px;width:100%;writing-mode:vertical-rl;transform:rotate(180deg);text-align:start;padding:10px 0;font-family:'Cinzel',Georgia,serif;font-size:0.68rem;letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${gold ? '#ffd700' : 'rgba(255,255,255,0.48)'};transition:color 0.2s;`,
+        nameStyle: `height:${BAND}px;width:${w + 26}px;margin-left:${Math.round((w - (w + 26)) / 2)}px;display:flex;align-items:flex-start;justify-content:center;text-align:center;padding-top:8px;font-family:'Cinzel',Georgia,serif;font-size:0.64rem;letter-spacing:0.02em;line-height:1.25;overflow:hidden;color:${gold ? '#ffd700' : 'rgba(255,255,255,0.48)'};transition:color 0.2s;`,
         markStyle: picked ? 'font-size:0.6rem;color:#ffd700;line-height:1;' : 'display:none;',
       };
     });
@@ -3803,26 +3806,21 @@ class Component extends DCLogic {
       rulerHint: q
         ? (hits ? `Знайдено ${hits} — решта пригашена.` : 'За цим іменем у шерензі нікого.')
         : (pickSet.length === 1 ? 'Додайте ще — покажу порівняння.' : (pickSet.length ? '' : 'Натисніть на силует або додайте зі списку, щоб порівняти.')),
-      rulerAddNames: rows.slice().sort(byName).filter(x => pickSet.indexOf(String(x.c.id)) === -1).map(x => ({
-        id: String(x.c.id), name: x.c.name || '—', cm: x.cm + ' см',
-      })),
+      rulerAddQuery: s.rulerAddQuery || '',
+      rulerAddNames: rulerAddList.map(x => ({ id: String(x.c.id), name: x.c.name || '—', cm: x.cm + ' см' })),
       rulerAddOpen: !!s.rulerAddOpen,
-      rulerAddEmpty: rows.length > 0 && rows.length === pickSet.length,
-      rulerCompare: !!cmp,
+      rulerAddEmpty: rulerAddList.length === 0,
+      rulerHasAll: rows.length > 1,      rulerCompare: !!cmp,
       rulerSingle: !cmp && rows.length > 0,
       rulerHasPick: pickSet.length > 0,
       rulerPickCount: pickSet.length,
-      rulerCmpRows: cmp ? cmp.map(x => ({
-        id: String(x.c.id),
-        name: x.c.name || '—',
-        cm: x.cm + ' см',
-        dot: `width:10px;height:10px;border-radius:50%;background:${GOD_C[godKey(x.c.deity)] || GOD_NONE};opacity:0.75;flex-shrink:0;`,
-        diff: x.cm === maxPickCm ? '' : '−' + (maxPickCm - x.cm) + ' см',
-      })) : [],
+      rulerCmpSummary: cmp
+        ? ((cmp[0].c.name || '—') + ' ' + cmp[0].cm + ' см · ' + (cmp[cmp.length - 1].c.name || '—') + ' ' + cmp[cmp.length - 1].cm + ' см · різниця ' + (maxPickCm - cmp[cmp.length - 1].cm) + ' см')
+        : '',
       rulerFocusId: fc ? String(fc.id) : '',
       rulerAvgCm: String(avgCm),
       rulerInnerStyle: `position:relative;height:${CH + BAND}px;min-width:100%;width:max-content;`,
-      rulerRowStyle: 'position:absolute;left:0;top:0;bottom:0;display:flex;align-items:stretch;gap:5px;padding:0 16px;',
+      rulerRowStyle: 'position:absolute;left:0;top:0;bottom:0;display:flex;align-items:stretch;gap:0;padding:0 16px;',
       rulerAxisStyle: `position:relative;flex:0 0 52px;width:52px;height:${CH + BAND}px;`,
       rulerFloorStyle: `position:absolute;left:0;right:0;top:${CH}px;height:1px;background:rgba(255,215,0,0.34);box-shadow:0 0 18px rgba(255,215,0,0.16);`,
       rulerAvgStyle: avgCm ? `position:absolute;left:0;right:0;top:${yOf(avgCm)}px;border-top:1px dashed rgba(255,215,0,0.28);` : 'display:none;',
