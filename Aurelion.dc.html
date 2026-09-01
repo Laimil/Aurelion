@@ -1486,12 +1486,22 @@ a:hover{color:#a8c4f7;}
     </div>
     <div style="display:flex;justify-content:center;align-items:center;gap:9px;flex-wrap:wrap;padding:0 24px;margin-bottom:10px;">
       <span style="font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.6);">Порівняти</span>
-      <select value="" onChange="{{ addRulerPick }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:7px 14px;font-size:0.78rem;color:#fff;outline:none;max-width:210px;cursor:pointer;color-scheme:dark;">
-        <option value="">— додати особу —</option>
-        <sc-for list="{{ rulerAddNames }}" as="n" hint-placeholder-count="0">
-          <option value="{{ n.id }}">{{ n.label }}</option>
-        </sc-for>
-      </select>
+      <div style="position:relative;">
+        <button onClick="{{ toggleRulerAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:7px 16px;font-size:0.78rem;font-family:'Cinzel',Georgia,serif;letter-spacing:0.02em;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;" style-hover="background:rgba(255,215,0,0.16);">+ Додати особу</button>
+        <sc-if value="{{ rulerAddOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:280px;max-height:340px;overflow-y:auto;background:rgba(26,26,26,0.97);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.14);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.5);padding:8px;z-index:40;display:flex;flex-direction:column;gap:4px;">
+            <sc-if value="{{ rulerAddEmpty }}" hint-placeholder-val="{{ false }}">
+              <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.35);padding:14px 6px;">Усі вже додані.</p>
+            </sc-if>
+            <sc-for list="{{ rulerAddNames }}" as="n" hint-placeholder-count="4">
+              <button data-id="{{ n.id }}" onClick="{{ addRulerPick }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 12px;text-align:left;cursor:pointer;transition:all 0.16s;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);">
+                <span style="font-family:'Cinzel',Georgia,serif;font-size:0.86rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ n.name }}</span>
+                <span style="font-size:0.74rem;color:rgba(255,215,0,0.7);flex-shrink:0;">{{ n.cm }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
       <sc-if value="{{ rulerHasPick }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ rulerClearPick }}" style="background:none;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 14px;font-size:0.74rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Зняти всіх ({{ rulerPickCount }}) ✕</button>
       </sc-if>
@@ -3631,13 +3641,14 @@ class Component extends DCLogic {
       // Вибір зі списку — коли шукати потрібну фігуру очима в шерензі з
       // півсотні довго. Додає в кінець; скільки завгодно осіб одразу.
       addRulerPick: (e) => {
-        const v = e.target.value;
+        const v = String(e.currentTarget.dataset.id || '');
         if (!v) return;
         this.setState(st => {
           const cur = Array.isArray(st.rulerPick) ? st.rulerPick.slice() : [];
-          return cur.indexOf(v) !== -1 ? {} : { rulerPick: cur.concat([v]) };
+          return cur.indexOf(v) !== -1 ? { rulerAddOpen: false } : { rulerPick: cur.concat([v]), rulerAddOpen: false };
         });
       },
+      toggleRulerAdd: () => this.setState(st => ({ rulerAddOpen: !st.rulerAddOpen })),
       // Клік — це вибір для порівняння, а не перехід: тека відкривається
       // окремим посиланням у картці, інакше порівняти було б нічим.
       rulerToggle: (e) => {
@@ -3793,8 +3804,10 @@ class Component extends DCLogic {
         ? (hits ? `Знайдено ${hits} — решта пригашена.` : 'За цим іменем у шерензі нікого.')
         : (pickSet.length === 1 ? 'Додайте ще — покажу порівняння.' : (pickSet.length ? '' : 'Натисніть на силует або додайте зі списку, щоб порівняти.')),
       rulerAddNames: rows.slice().sort(byName).filter(x => pickSet.indexOf(String(x.c.id)) === -1).map(x => ({
-        id: String(x.c.id), label: (x.c.name || '—') + ' · ' + x.cm + ' см',
+        id: String(x.c.id), name: x.c.name || '—', cm: x.cm + ' см',
       })),
+      rulerAddOpen: !!s.rulerAddOpen,
+      rulerAddEmpty: rows.length > 0 && rows.length === pickSet.length,
       rulerCompare: !!cmp,
       rulerSingle: !cmp && rows.length > 0,
       rulerHasPick: pickSet.length > 0,
