@@ -28,41 +28,6 @@
   </sc-if>
   <sc-if value="{{ isOk }}" hint-placeholder-val="{{ false }}">
     <div>
-      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
-        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:18px 20px;margin-bottom:22px;">
-          <button onClick="{{ toggleImport }}" style="background:none;border:none;color:rgba(255,215,0,0.85);font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.04em;cursor:pointer;padding:0;">{{ importToggleLabel }}</button>
-          <sc-if value="{{ importOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="margin-top:14px;">
-              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.5);margin-bottom:10px;">Завантажте .html-файл із «Експорт історії чату» в Telegram Desktop — знайдені дописи з тегами (дата братиметься зі самого повідомлення) розберу й покажу для перевірки, нічого одразу не пишу в базу.</p>
-              <input type="file" accept=".html,.htm,text/html" onChange="{{ onImportFile }}" class="gos-file" style="color:rgba(255,255,255,0.6);font-size:0.82rem;" />
-              <sc-if value="{{ importBusy }}" hint-placeholder-val="{{ false }}">
-                <p style="color:rgba(255,255,255,0.4);font-size:0.82rem;margin-top:10px;">Розбираю файл…</p>
-              </sc-if>
-              <sc-if value="{{ importErr }}" hint-placeholder-val="{{ false }}">
-                <p style="color:rgba(255,77,77,0.75);font-size:0.82rem;margin-top:10px;">{{ importErr }}</p>
-              </sc-if>
-              <sc-if value="{{ hasImportRows }}" hint-placeholder-val="{{ false }}">
-                <div style="margin-top:14px;">
-                  <p style="font-size:0.82rem;color:rgba(255,255,255,0.55);margin-bottom:10px;">Знайдено {{ importCount }}. Позначені сірим уже є в стрічці (за автором і початком тексту) — не додадуться повторно.</p>
-                  <div style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;margin-bottom:14px;">
-                    <sc-for list="{{ importRows }}" as="r" hint-placeholder-count="3">
-                      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:{{ r.bg }};border:1px solid rgba(255,255,255,0.1);opacity:{{ r.op }};">
-                        <span style="font-family:'Cinzel',serif;font-size:0.8rem;color:#ffd700;flex-shrink:0;min-width:110px;">{{ r.name }}</span>
-                        <sc-if value="{{ r.hasArc }}" hint-placeholder-val="{{ false }}">
-                          <span style="font-size:0.68rem;color:#8fb0ff;flex-shrink:0;">{{ r.arc }}</span>
-                        </sc-if>
-                        <span style="font-size:0.82rem;color:rgba(255,255,255,0.55);flex:1;">{{ r.preview }}</span>
-                      </div>
-                    </sc-for>
-                  </div>
-                  <button onClick="{{ doImport }}" disabled="{{ importBusy }}" class="gos-pill" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:9px 20px;font-size:0.85rem;">Додати {{ importNewCount }} нових</button>
-                </div>
-              </sc-if>
-            </div>
-          </sc-if>
-        </div>
-      </sc-if>
-
       <div style="margin-bottom:14px;">
         <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:8px;">Персонаж</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
@@ -123,21 +88,8 @@ const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
 const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 const BASE_H    = { apikey: SUPA_KEY };
 
-const POST_TAG_RE = /^[ \t]*(#\S+(?:[ \t]+#\S+){0,2})[ \t]*(?:\n+|$)/u;
-
-function parseTags(text) {
-  const m = text.match(POST_TAG_RE);
-  if (!m) return null;
-  const tags = m[1].split(/\s+/).map((t) => t.replace(/^#/, '').replace(/_/g, ' ').trim()).filter(Boolean);
-  if (!tags.length) return null;
-  return { name: tags[0], arc: tags[1] || null, body: text.slice(m[0].length).trim() };
-}
-
 class Component extends DCLogic {
-  state = {
-    phase: 'load', posts: [], err: '', fChar: '', fArc: '', isAdmin: false,
-    importOpen: false, importBusy: false, importErr: '', importRows: [], roster: [],
-  };
+  state = { phase: 'load', posts: [], err: '', fChar: '', fArc: '' };
 
   _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
   _h() { return { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` }; }
@@ -158,114 +110,12 @@ class Component extends DCLogic {
       if (!pr.ok) { this.setState({ phase: 'error', err: await pr.text() }); return; }
       const posts = await pr.json();
       this.setState({ phase: 'ok', posts });
-      // Адмінська перевірка й картотека для звірки тегів у довантаженні — не
-      // блокують стрічку, тому йдуть окремо й тихо.
-      fetch(`${SUPA_URL}/rpc/is_admin`, { method: 'POST', headers: { ...this._h(), 'Content-Type': 'application/json' }, body: '{}' })
-        .then((r) => r.ok ? r.json() : false).then((v) => this.setState({ isAdmin: v === true })).catch(() => {});
-      fetch(`${SUPA_URL}/characters?select=id,name,image`, { headers: this._h() })
-        .then((r) => r.ok ? r.json() : []).then((rows) => this.setState({ roster: rows || [] })).catch(() => {});
     } catch (e) {
       this.setState({ phase: 'error', err: String(e) });
     }
   }
 
-  _matchChar(name) {
-    const f = (s) => String(s || '').trim().toLowerCase();
-    const n = f(name);
-    return (this.state.roster || []).find((c) => f(c.name) === n) || null;
-  }
 
-  // Telegram Desktop («Експорт історії чату» → HTML): кожне повідомлення —
-  // .message з .from_name (лише на першому з групи підряд від одного
-  // автора — далі підхоплюємо останнє відоме) і .text; час — у title
-  // атрибуті .date.details ("03.09.2026 12:34:56 UTC+03:00"). Якщо файл
-  // не такого формату — падаємо назад на абзаци суцільного тексту.
-  _extractTelegram(doc) {
-    const msgs = doc.querySelectorAll('.message');
-    if (msgs.length < 2) return null;
-    let lastName = '';
-    const out = [];
-    msgs.forEach((m) => {
-      const nameEl = m.querySelector('.from_name');
-      if (nameEl) lastName = (nameEl.textContent || '').trim();
-      const textEl = m.querySelector('.text');
-      if (!textEl) return;
-      const tmp = doc.createElement('div');
-      tmp.innerHTML = textEl.innerHTML.replace(/<br\s*\/?>/gi, '\n');
-      const text = (tmp.textContent || '').replace(/\u00a0/g, ' ').trim();
-      if (!text) return;
-      const dateEl = m.querySelector('.date.details');
-      const title = dateEl ? (dateEl.getAttribute('title') || '') : '';
-      const dm = title.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-      out.push({ text, day: dm ? `${dm[3]}-${dm[2]}-${dm[1]}` : null });
-    });
-    return out;
-  }
-
-  onImportFile = (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    this.setState({ importBusy: true, importErr: '', importRows: [] });
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const doc = new DOMParser().parseFromString(String(reader.result || ''), 'text/html');
-        const tgMsgs = this._extractTelegram(doc);
-        const blocks = tgMsgs
-          ? tgMsgs.map((m) => ({ text: m.text, day: m.day }))
-          : (doc.body ? (doc.body.textContent || '') : '').split(/\n\s*\n+/).map((t) => ({ text: t, day: null }));
-        const seen = new Set();
-        const found = [];
-        for (const b of blocks) {
-          const t = parseTags(String(b.text || '').trim());
-          if (!t || !t.body) continue;
-          const key = t.name + '|' + t.body.slice(0, 60);
-          if (seen.has(key)) continue;
-          seen.add(key);
-          found.push({ ...t, day: b.day });
-        }
-        if (!found.length) {
-          this.setState({ importBusy: false, importErr: 'У файлі не знайдено дописів із тегами #Ім\'я #Арка на початку.' });
-          return;
-        }
-        this.setState({ importBusy: false, importRows: found });
-      } catch (err) {
-        this.setState({ importBusy: false, importErr: 'Не вдалося розібрати файл: ' + String(err) });
-      }
-    };
-    reader.onerror = () => this.setState({ importBusy: false, importErr: 'Не вдалося прочитати файл.' });
-    reader.readAsText(file, 'utf-8');
-  };
-
-  _isDup(t) {
-    return (this.state.posts || []).some((p) =>
-      (p.character_name || p.tag_name) === t.name && String(p.body || '').slice(0, 60) === t.body.slice(0, 60));
-  }
-
-  doImport = async () => {
-    const rows = (this.state.importRows || []).filter((t) => !this._isDup(t));
-    if (!rows.length) return;
-    this.setState({ importBusy: true, importErr: '' });
-    try {
-      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Kyiv' });
-      const payload = rows.map((t) => {
-        const m = this._matchChar(t.name);
-        return {
-          tag_name: t.name, tag_arc: t.arc, body: t.body, day: t.day || today,
-          character_id: m ? m.id : null, character_name: m ? m.name : null,
-        };
-      });
-      const r = await fetch(`${SUPA_URL}/marta_posts`, {
-        method: 'POST', headers: { ...this._h(), 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-        body: JSON.stringify(payload),
-      });
-      if (!r.ok) { this.setState({ importBusy: false, importErr: 'Не вдалося записати: ' + await r.text() }); return; }
-      this.setState({ importBusy: false, importOpen: false, importRows: [] });
-      this._load();
-    } catch (err) {
-      this.setState({ importBusy: false, importErr: String(err) });
-    }
-  };
 
   _fmt(iso) {
     try {
@@ -311,16 +161,6 @@ class Component extends DCLogic {
 
     const allChar = this._pill(!s.fChar);
     const allArc = this._pill(!s.fArc);
-    const importRows = (s.importRows || []).map((t, i) => {
-      const dup = this._isDup(t);
-      return {
-        key: i, name: t.name, hasArc: !!t.arc, arc: t.arc || '',
-        preview: t.body.slice(0, 90) + (t.body.length > 90 ? '…' : ''),
-        bg: dup ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)',
-        op: dup ? '0.4' : '1',
-      };
-    });
-    const newCount = (s.importRows || []).filter((t) => !this._isDup(t)).length;
 
     return {
       isLoad: s.phase === 'load',
@@ -337,18 +177,6 @@ class Component extends DCLogic {
       arcChips: arcs.map((a) => ({ name: a, ...this._pill(s.fArc === a) })),
       pickChar: (e) => this.setState({ fChar: e.currentTarget.dataset.v }),
       pickArc: (e) => this.setState({ fArc: e.currentTarget.dataset.v }),
-      isAdmin: s.isAdmin,
-      importOpen: s.importOpen,
-      importToggleLabel: s.importOpen ? '— Згорнути' : '+ Довантажити з експорту Telegram',
-      toggleImport: () => this.setState({ importOpen: !s.importOpen }),
-      onImportFile: this.onImportFile,
-      importBusy: s.importBusy,
-      importErr: s.importErr,
-      hasImportRows: importRows.length > 0,
-      importRows,
-      importCount: String(importRows.length),
-      importNewCount: String(newCount),
-      doImport: this.doImport,
     };
   }
 }
