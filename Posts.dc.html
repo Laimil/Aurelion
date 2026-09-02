@@ -43,7 +43,7 @@
           </sc-if>
           <sc-if value="{{ tagsReady }}" hint-placeholder-val="{{ false }}">
             <div>
-              <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin:0 0 8px;">Персонаж</p>
+              <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin:0 0 8px;">Персонаж <span style="text-transform:none;letter-spacing:0;color:rgba(255,255,255,0.22);">— можна кілька</span></p>
               <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
                 <sc-for list="{{ charChips }}" as="c" hint-placeholder-count="4">
                   <button onClick="{{ pickChar }}" data-v="{{ c.name }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:{{ c.bg }};border:1px solid {{ c.border }};color:{{ c.color }};">{{ c.name }}</button>
@@ -129,7 +129,7 @@ const POST_SEL = 'id,tag_name,tag_arc,character_id,character_name,body,created_a
 
 class Component extends DCLogic {
   state = {
-    phase: 'load', posts: [], err: '', fChar: '', fArc: '',
+    phase: 'load', posts: [], err: '', fChar: [], fArc: [],
     off: 0, more: false, busy: false,
     filtOpen: false, tagsPhase: 'none', chars: [], arcs: [],
     allChars: false, allArcs: false, open: {},
@@ -164,8 +164,11 @@ class Component extends DCLogic {
     this.setState({ busy: true });
     let url = `${SUPA_URL}/marta_posts?select=${POST_SEL}&order=created_at.desc`
       + `&limit=${PAGE + 1}&offset=${off}`;
-    if (s.fChar) url += `&tag_name=eq.${encodeURIComponent(s.fChar)}`;
-    if (s.fArc)  url += `&tag_arc=eq.${encodeURIComponent(s.fArc)}`;
+    // Кілька позначених теґів — це «або»: показуємо все, що підпадає
+    // хоч під один. Відбирає база (in.(…)), а не браузер.
+    const inList = (v) => 'in.(' + v.map((x) => '"' + encodeURIComponent(x) + '"').join(',') + ')';
+    if (s.fChar.length) url += `&tag_name=${inList(s.fChar)}`;
+    if (s.fArc.length)  url += `&tag_arc=${inList(s.fArc)}`;
     try {
       const r = await fetch(url, { headers: this._h() });
       if (!r.ok) { this.setState({ phase: 'error', busy: false, err: await r.text() }); return; }
@@ -254,9 +257,18 @@ class Component extends DCLogic {
       };
     });
 
-    const chars = s.allChars ? s.chars : s.chars.slice(0, CAP);
-    const arcs  = s.allArcs  ? s.arcs  : s.arcs.slice(0, CAP);
-    const pick  = [s.fChar, s.fArc].filter(Boolean).join(' · ');
+    // Позначені теґи завжди на видноті, навіть якщо в частому десятку їх немає.
+    const head = (all, list, on) => {
+      const top = all ? list : list.slice(0, CAP);
+      return top.concat(on.filter((v) => !top.includes(v)));
+    };
+    const chars = head(s.allChars, s.chars, s.fChar);
+    const arcs  = head(s.allArcs, s.arcs, s.fArc);
+    const pick  = s.fChar.concat(s.fArc).join(' · ');
+    const flip  = (key, v) => {
+      const cur = this.state[key];
+      this._setFilt({ [key]: cur.includes(v) ? cur.filter((x) => x !== v) : cur.concat(v) });
+    };
 
     return {
       isLoad: s.phase === 'load',
@@ -280,12 +292,12 @@ class Component extends DCLogic {
       },
       hasPick: !!pick,
       pickLabel: pick,
-      clearFilt: () => this._setFilt({ fChar: '', fArc: '' }),
+      clearFilt: () => this._setFilt({ fChar: [], fArc: [] }),
 
       tagsBusy: s.filtOpen && s.tagsPhase !== 'ready',
       tagsReady: s.tagsPhase === 'ready',
-      charChips: chars.map((c) => ({ name: c, ...this._pill(s.fChar === c) })),
-      arcChips: arcs.map((a) => ({ name: a, ...this._pill(s.fArc === a) })),
+      charChips: chars.map((c) => ({ name: c, ...this._pill(s.fChar.includes(c)) })),
+      arcChips: arcs.map((a) => ({ name: a, ...this._pill(s.fArc.includes(a)) })),
       hasArcs: s.arcs.length > 0,
       moreChars: !s.allChars && s.chars.length > CAP,
       moreCharsLabel: `ще ${s.chars.length - CAP}`,
@@ -293,8 +305,8 @@ class Component extends DCLogic {
       moreArcsLabel: `ще ${s.arcs.length - CAP}`,
       allChars: () => this.setState({ allChars: true }),
       allArcs: () => this.setState({ allArcs: true }),
-      pickChar: (e) => { const v = e.currentTarget.dataset.v; this._setFilt({ fChar: s.fChar === v ? '' : v }); },
-      pickArc:  (e) => { const v = e.currentTarget.dataset.v; this._setFilt({ fArc:  s.fArc  === v ? '' : v }); },
+      pickChar: (e) => flip('fChar', e.currentTarget.dataset.v),
+      pickArc:  (e) => flip('fArc', e.currentTarget.dataset.v),
     };
   }
 }

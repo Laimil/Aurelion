@@ -2614,7 +2614,31 @@ const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 // Один із тегів завжди персонаж, але не обов'язково перший, і часто це
 // лише ім'я без прізвища («#Дарен» → «Дарен Мороз»). Тому котрий тег
 // персонаж, вирішує картотека, а не порядок; решта — арка.
-const POST_TAG_RE = /^[ \t]*(#\S+(?:[ \t]+#\S+){0,3})[ \t]*(?:\n+|$)/u;
+// Теги — суцільний ряд від початку допису, без вимоги порожнього рядка:
+// пишуть і в один рядок, і кожен тег з нового, і текст одразу поряд із тегом.
+const POST_TAG_ONE = /^#([^\s#]+)[ \t]*/u;
+
+// Підкреслення — пробіл; склеєний тег («ВежаКвірки») розбиваємо по великих.
+function unTag(t) {
+  let s = String(t || '').replace(/_/g, ' ').trim();
+  if (!/\s/.test(s) && /\p{Lu}/u.test(s.slice(1))) {
+    s = s.replace(/(\p{Ll}|\p{N})(\p{Lu})/gu, '$1 $2').trim();
+  }
+  return s;
+}
+
+function leadTags(text) {
+  let rest = String(text || '').replace(/^\s+/u, '');
+  const tags = [];
+  while (tags.length < 6) {
+    const m = rest.match(POST_TAG_ONE);
+    if (!m) break;
+    const t = unTag(m[1]);
+    if (t) tags.push(t);
+    rest = rest.slice(m[0].length).replace(/^[\r\n]+[ \t]*/u, '');
+  }
+  return { tags, body: rest.trim() };
+}
 const POST_MIN = 0.72;
 
 const pfold = (s) => String(s || '').toLowerCase()
@@ -2674,11 +2698,8 @@ function postMatch(tag, roster) {
 }
 
 function parsePostTags(text, roster) {
-  const m = text.match(POST_TAG_RE);
-  if (!m) return null;
-  const tags = m[1].split(/\s+/).map((t) => t.replace(/^#/, '').replace(/_/g, ' ').trim()).filter(Boolean);
+  const { tags, body } = leadTags(text);
   if (!tags.length) return null;
-  const body = text.slice(m[0].length).trim();
   let bi = -1, bc = null, bs = 0;
   tags.forEach((t, i) => {
     const hit = postMatch(t, roster);
