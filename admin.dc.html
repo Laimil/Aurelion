@@ -2470,6 +2470,7 @@ button{font-family:inherit;cursor:pointer}
                 <span style="font-size:0.68rem;color:#8fb0ff;flex-shrink:0;">{{ r.arc }}</span>
               </sc-if>
               <span style="font-size:0.82rem;color:rgba(255,255,255,0.55);flex:1;">{{ r.preview }}</span>
+              <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);flex-shrink:0;">{{ r.when }}</span>
             </div>
           </sc-for>
         </div>
@@ -4151,8 +4152,19 @@ class Component extends DCLogic {
       if (!text) return;
       const dateEl = m.querySelector('.date.details');
       const title = dateEl ? (dateEl.getAttribute('title') || '') : '';
-      const dm = title.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-      out.push({ text, day: dm ? `${dm[3]}-${dm[2]}-${dm[1]}` : null });
+      // У експорті title — «23.07.2025 19:12:34 UTC+03:00». Беремо й годину
+      // зі своїм зсувом: час допису — той, коли його написали, а не коли залили.
+      const dm = title.match(/(\d{2})\.(\d{2})\.(\d{4})(?:[ \t]+(\d{2}):(\d{2})(?::(\d{2}))?)?(?:[ \t]*UTC([+-]\d{2}:?\d{2}))?/);
+      let day = null, at = null;
+      if (dm) {
+        day = `${dm[3]}-${dm[2]}-${dm[1]}`;
+        if (dm[4]) {
+          const zone = dm[7] ? (dm[7].includes(':') ? dm[7] : dm[7].slice(0, 3) + ':' + dm[7].slice(3)) : '+03:00';
+          const iso = `${day}T${dm[4]}:${dm[5]}:${dm[6] || '00'}${zone}`;
+          if (!isNaN(new Date(iso).getTime())) at = new Date(iso).toISOString();
+        }
+      }
+      out.push({ text, day, at });
     });
     return out;
   }
@@ -4175,8 +4187,8 @@ class Component extends DCLogic {
         const doc = new DOMParser().parseFromString(String(reader.result || ''), 'text/html');
         const tgMsgs = this._extractTelegram(doc);
         const blocks = tgMsgs
-          ? tgMsgs.map((m) => ({ text: m.text, day: m.day }))
-          : (doc.body ? (doc.body.textContent || '') : '').split(/\n\s*\n+/).map((t) => ({ text: t, day: null }));
+          ? tgMsgs.map((m) => ({ text: m.text, day: m.day, at: m.at }))
+          : (doc.body ? (doc.body.textContent || '') : '').split(/\n\s*\n+/).map((t) => ({ text: t, day: null, at: null }));
         const seen = new Set();
         const found = [];
         for (const b of blocks) {
@@ -4185,7 +4197,7 @@ class Component extends DCLogic {
           const key = t.name + '|' + t.body.slice(0, 60);
           if (seen.has(key)) continue;
           seen.add(key);
-          found.push({ ...t, day: b.day });
+          found.push({ ...t, day: b.day, at: b.at });
         }
         if (!found.length) {
           this.setState({ postsBusy: false, postsErr: 'У файлі не знайдено дописів із хештегами на початку (персонаж + арка).' });
@@ -4213,7 +4225,9 @@ class Component extends DCLogic {
       const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Kyiv' });
       const payload = rows.map((t) => ({
         tag_name: t.match ? t.match.name : t.tag,
-        tag_arc: t.arc, body: t.body, day: t.day || today,
+        tag_arc: t.arc, body: t.body,
+        day: t.day || (t.at ? t.at.slice(0, 10) : today),
+        ...(t.at ? { created_at: t.at } : {}),
         character_id: t.match ? t.match.id : null,
         character_name: t.match ? t.match.name : null,
       }));
@@ -4231,6 +4245,9 @@ class Component extends DCLogic {
       const dup = this._postsIsDup(t);
       return {
         key: i, name: t.name + (t.match ? '' : ' (не в картотеці)'), hasArc: !!t.arc, arc: t.arc || '',
+        when: t.at
+          ? new Date(t.at).toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+          : (t.day || 'без дати'),
         preview: t.body.slice(0, 90) + (t.body.length > 90 ? '…' : ''),
         bg: dup ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)',
         op: dup ? '0.4' : '1',

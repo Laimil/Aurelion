@@ -43,6 +43,7 @@
           </sc-if>
           <sc-if value="{{ tagsReady }}" hint-placeholder-val="{{ false }}">
             <div>
+              <input type="text" value="{{ q }}" onInput="{{ setQ }}" placeholder="Пошук персонажа або арки…" style="width:100%;box-sizing:border-box;margin-bottom:14px;border-radius:999px;padding:8px 16px;font-size:0.84rem;font-family:Arial,sans-serif;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.85);outline:none;">
               <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin:0 0 8px;">Персонаж <span style="text-transform:none;letter-spacing:0;color:rgba(255,255,255,0.22);">— можна кілька</span></p>
               <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
                 <sc-for list="{{ charChips }}" as="c" hint-placeholder-count="4">
@@ -131,7 +132,7 @@ class Component extends DCLogic {
   state = {
     phase: 'load', posts: [], err: '', fChar: [], fArc: [],
     off: 0, more: false, busy: false,
-    filtOpen: false, tagsPhase: 'none', chars: [], arcs: [],
+    filtOpen: false, tagsPhase: 'none', chars: [], arcs: [], q: '',
     allChars: false, allArcs: false, open: {},
   };
 
@@ -257,9 +258,16 @@ class Component extends DCLogic {
       };
     });
 
+    // Пошук по переліку: коли теґів сотні, десяток найчастіших не рятує.
+    // Звіряємо згорнуто — «і/ї/й», «е/є» та апостроф на письмі гуляють.
+    const fold = (x) => String(x || '').toLowerCase()
+      .replace(/[ʼ'’`ь]/g, '').replace(/[іїий]/g, 'и').replace(/[еє]/g, 'е');
+    const q = fold(s.q);
+    const hit = (list) => (q ? list.filter((v) => fold(v).includes(q)) : list);
     // Позначені теґи завжди на видноті, навіть якщо в частому десятку їх немає.
     const head = (all, list, on) => {
-      const top = all ? list : list.slice(0, CAP);
+      const found = hit(list);
+      const top = (all || q) ? found : found.slice(0, CAP);
       return top.concat(on.filter((v) => !top.includes(v)));
     };
     const chars = head(s.allChars, s.chars, s.fChar);
@@ -299,9 +307,11 @@ class Component extends DCLogic {
       charChips: chars.map((c) => ({ name: c, ...this._pill(s.fChar.includes(c)) })),
       arcChips: arcs.map((a) => ({ name: a, ...this._pill(s.fArc.includes(a)) })),
       hasArcs: s.arcs.length > 0,
-      moreChars: !s.allChars && s.chars.length > CAP,
+      q: s.q,
+      setQ: (e) => this.setState({ q: e.target.value }),
+      moreChars: !s.allChars && !q && s.chars.length > CAP,
       moreCharsLabel: `ще ${s.chars.length - CAP}`,
-      moreArcs: !s.allArcs && s.arcs.length > CAP,
+      moreArcs: !s.allArcs && !q && s.arcs.length > CAP,
       moreArcsLabel: `ще ${s.arcs.length - CAP}`,
       allChars: () => this.setState({ allChars: true }),
       allArcs: () => this.setState({ allArcs: true }),
