@@ -1166,6 +1166,33 @@ a:hover{color:#a8c4f7;}
                 <span style="font-size:0.82rem;letter-spacing:0.03em;color:rgba(255,215,0,0.85);font-family:'EB Garamond',Georgia,serif;text-align:center;">{{ charShareMsg }}</span>
               </sc-if>
             </div>
+            <sc-if value="{{ charArcsVisible }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.09);">
+                <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.66);margin:0 0 10px;">✦ Арки</p>
+                <sc-if value="{{ charArcsLoading }}" hint-placeholder-val="{{ true }}">
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.3);margin:0;">Гортаю стрічку…</p>
+                </sc-if>
+                <sc-if value="{{ charArcsFailed }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.92rem;color:rgba(255,255,255,0.34);margin:0;line-height:1.5;">Стрічка не відповіла. Спробуйте увійти у віконце знову — і арки зʼявляться.</p>
+                </sc-if>
+                <sc-if value="{{ charArcsEmpty }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.92rem;color:rgba(255,255,255,0.3);margin:0;line-height:1.5;">У стрічці дописів цього персонажа ще немає.</p>
+                </sc-if>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <sc-for list="{{ charArcs }}" as="a" hint-placeholder-count="0">
+                    <button data-arc="{{ a.arc }}" onClick="{{ openArc }}" title="{{ a.title }}" style="display:block;width:100%;text-align:left;cursor:pointer;background:{{ a.bg }};border:1px solid {{ a.border }};border-radius:10px;padding:9px 12px;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);">
+                      <span style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-family:'Cinzel',Georgia,serif;font-size:0.84rem;font-weight:700;letter-spacing:0.03em;color:{{ a.ink }};flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ a.arc }}</span>
+                        <sc-if value="{{ a.live }}" hint-placeholder-val="{{ false }}">
+                          <span style="flex-shrink:0;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:#1a1a1a;background:#ffd700;border-radius:999px;padding:2px 8px;font-weight:700;">активна</span>
+                        </sc-if>
+                      </span>
+                      <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.4);margin-top:3px;">{{ a.count }} · {{ a.when }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
           </aside>
           <article style="min-width:0;">
             <p style="font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin-bottom:10px;">✦ {{ charReaderRole }}</p>
@@ -1911,7 +1938,7 @@ a:hover{color:#a8c4f7;}
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Пости</h1>
       <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:460px;margin-left:auto;margin-right:auto;">Дописи з рольового чату, підписані тегами — за персонажем і аркою.</p>
     </header>
-    <dc-import name="Posts" embedded="{{ true }}" hint-size="100%,720px"></dc-import>
+    <dc-import name="Posts" embedded="{{ true }}" pre-char="{{ postsPreChar }}" pre-char-id="{{ postsPreCharId }}" pre-arc="{{ postsPreArc }}" hint-size="100%,720px"></dc-import>
   </main>
 </sc-if>
 
@@ -4580,8 +4607,19 @@ class Component extends DCLogic {
   componentDidUpdate(prevProps, prevState) {
     const s = this.state;
     this._trackCurrent();
-    if (prevState) {
-      if (s.page === 'dice' && prevState.page !== 'dice') this._loadDiceStats();
+    // Цей runtime не передає другим аргументом попередній стан, тому будь-яке
+    // порівняння з `prevState` тут — мертвий код (саме через це не спрацьовував
+    // ні лічильник кубика, ні скидання відбору стрічки). Попередню сторінку
+    // тримаємо самі, полем на екземплярі.
+    const prevPage = this._lastPage;
+    this._lastPage = s.page;
+    if (prevPage !== s.page) {
+      if (s.page === 'dice') this._loadDiceStats();
+      // Відбір, з яким прийшли з анкети, живе рівно поки відкрита стрічка:
+      // інакше наступний захід у «Пости» з меню теж був би відібраним.
+      if (prevPage === 'posts' && (s.postsPreArc || s.postsPreChar)) {
+        this.setState({ postsPreArc: '', postsPreChar: '', postsPreCharId: '' });
+      }
     }
     // Відкрили запис, а текст ще не доїхав — тягнемо саме його.
     const needs = [
@@ -4592,6 +4630,42 @@ class Component extends DCLogic {
       const cur = s[k];
       if (cur && cur.content == null) this._fetchOne(table, cur.id);
     }
+    // Арки — лише коли теку справді відкрили і доступ до стрічки є.
+    if (s.selectedChar) this._loadArcs(s.selectedChar);
+
+  }
+
+  // ── Арки персонажа (з дописів рольового чату) ───────────────
+  // Дописи лежать у `marta_posts`, і RLS віддає їх лише увійшлим із
+  // відкритим доступом — тому запит іде з токеном віконця, а не з
+  // анонімним ключем, як решта сайту. Раз на персонажа, ліниво.
+  _loadArcs(ch) {
+    if (!ch || this.state.userStatus !== 'approved') return;
+    const key = String(ch.id);
+    this._arcReq = this._arcReq || {};
+    if (this._arcReq[key]) return;
+    let tok = '';
+    try { tok = localStorage.getItem('au_user_token') || ''; } catch (e) {}
+    if (!tok) return;
+    this._arcReq[key] = 1;
+    // Тег бота не завжди звірений з картоткою (`character_id` порожній),
+    // тому беремо і за текою, і за самим ім'ям з тегу.
+    const name = String(ch.name || '').trim();
+    const parts = ['character_id.eq.' + key];
+    if (name) parts.push('tag_name.eq."' + name + '"');
+    const q = 'marta_posts?select=tag_arc,created_at&or=' + encodeURIComponent('(' + parts.join(',') + ')')
+      + '&order=created_at.desc&limit=800';
+    fetch(`${SUPA_URL}/${q}`, { headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + tok } })
+      .then(r => r.ok ? r.json() : r.text().then(t => Promise.reject(new Error('HTTP ' + r.status + ' ' + t))))
+      .then(rows => this.setState(st => ({ charArcs: { ...(st.charArcs || {}), [key]: rows || [] } })))
+      // Прапорець запиту НЕ скидаємо: `componentDidUpdate` смикає це на
+      // кожну зміну стану, і скинутий прапорець означав би нескінченне
+      // повторення того самого невдалого запиту. Прострочений токен у
+      // localStorage — стан звичайний, а не аварія: показуємо рядок.
+      .catch(e => {
+        console.warn('арки персонажа:', e && e.message);
+        this.setState(st => ({ charArcsFail: { ...(st.charArcsFail || {}), [key]: 1 } }));
+      });
   }
 
   _readUser = () => {
@@ -4604,7 +4678,11 @@ class Component extends DCLogic {
       }
     } catch (e) {}
     if (nick !== this.state.userNick || status !== this.state.userStatus) {
-      this.setState({ userNick: nick, userStatus: status });
+      // Новий вхід — новий токен, тобто нова спроба для арок: інакше рядок
+      // «увійдіть у віконце знову» обіцяв би те, чого без перезавантаження
+      // сторінки не буває. Це одна спроба на вхід, а не повторення по колу.
+      this._arcReq = {};
+      this.setState({ userNick: nick, userStatus: status, charArcsFail: {} });
     }
   };
 
@@ -6418,7 +6496,6 @@ class Component extends DCLogic {
       })()),
 
       navItems: [
-        ...(postsApproved ? [{ id: 'posts', label: 'Пости', active: page === 'posts' }] : []),
         { id: 'home',        label: 'Головна',    active: page === 'home' },
         { id: 'lore',        label: 'Архів',      active: ARCHIVE_SEGS.indexOf(page) !== -1 },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
@@ -6428,6 +6505,8 @@ class Component extends DCLogic {
         { id: 'quotes',      label: 'Цитатник',   active: page === 'quotes' },
         { id: 'map',         label: 'Мапа',       active: page === 'map' },
         { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
+        // «Пости» — в кінці: це стрічка для своїх, а не головний вхід.
+        ...(postsApproved ? [{ id: 'posts', label: 'Пости', active: page === 'posts' }] : []),
       ],
       navJoinActive: page === 'contacts',
       copyShareLink: () => this.copyShareLink(),
@@ -7153,6 +7232,63 @@ class Component extends DCLogic {
       charReaderHasTelegraph: !!(sc?.telegraph_url),
       charReaderNoTelegraph:  !!(sc && !sc.telegraph_url),
       charReaderUrl:       sc?.telegraph_url || '',
+
+      // ── Арки персонажа (тільки для тих, кому відкрито стрічку) ──
+      // Активна — та, у якій його останній допис: не позначка в базі,
+      // а сам факт, що після неї він більше нікуди не писав.
+      openArc: (e) => {
+        const arc = e.currentTarget && e.currentTarget.dataset ? e.currentTarget.dataset.arc : '';
+        this.setState({
+          postsPreArc: arc || '',
+          postsPreChar: (sc && sc.name) || '',
+          postsPreCharId: (sc && String(sc.id)) || '',
+        }, () => this._nav('posts'));
+      },
+      ...(() => {
+        const off = { charArcsVisible: false, charArcsLoading: false, charArcsFailed: false, charArcsEmpty: false, charArcs: [] };
+        if (!sc || !postsApproved) return off;
+        const rows = (s.charArcs || {})[String(sc.id)];
+        if (!rows && (s.charArcsFail || {})[String(sc.id)]) return { ...off, charArcsVisible: true, charArcsFailed: true };
+        if (!rows) return { ...off, charArcsVisible: true, charArcsLoading: true };
+        const m = new Map();
+        (rows || []).forEach(r => {
+          const a = String(r.tag_arc || '').trim();
+          if (!a) return;
+          const t = new Date(r.created_at).getTime() || 0;
+          const cur = m.get(a) || { arc: a, n: 0, first: t, last: t };
+          cur.n += 1;
+          if (t > cur.last) cur.last = t;
+          if (t && t < cur.first) cur.first = t;
+          m.set(a, cur);
+        });
+        const list = [...m.values()].sort((x, y) => y.last - x.last);
+        const nWord = (n) => {
+          const m10 = n % 10, m100 = n % 100;
+          if (m10 === 1 && m100 !== 11) return 'допис';
+          if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'дописи';
+          return 'дописів';
+        };
+        const day = (t) => t ? new Date(t).toLocaleDateString('uk-UA', { timeZone: 'Europe/Kyiv', day: 'numeric', month: 'long' }) : '';
+        return {
+          charArcsVisible: true,
+          charArcsLoading: false,
+          charArcsFailed: false,
+          charArcsEmpty: !list.length,
+          charArcs: list.map((a, i) => ({
+            arc: a.arc,
+            count: a.n + ' ' + nWord(a.n),
+            when: day(a.first) === day(a.last) ? day(a.last) : day(a.first) + ' — ' + day(a.last),
+            live: i === 0,
+            title: 'Відкрити стрічку: ' + a.arc,
+            bg:     i === 0 ? 'rgba(255,215,0,0.09)' : 'rgba(255,255,255,0.05)',
+            border: i === 0 ? 'rgba(255,215,0,0.42)' : 'rgba(255,255,255,0.12)',
+            ink:    i === 0 ? '#ffd700' : 'rgba(255,255,255,0.72)',
+          })),
+        };
+      })(),
+      postsPreChar:   s.postsPreChar   || '',
+      postsPreCharId: s.postsPreCharId || '',
+      postsPreArc:    s.postsPreArc    || '',
 
       // ── Ефект відкриття анкети ─────────────────────────────
       charFxEffect:      pc ? charOpenEffect : 'sparks',

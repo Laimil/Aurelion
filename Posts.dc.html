@@ -139,7 +139,33 @@ class Component extends DCLogic {
   _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
   _h() { return { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` }; }
 
-  componentDidMount() { this._load(); }
+  componentDidMount() {
+    // Прийшли з анкети персонажа («арки» під портретом) — стрічка
+    // відкривається вже відібраною. Фільтр показуємо розгорнутим, щоб
+    // видно було, чому дописів мало, і можна було скинути.
+    const pc = String(this.props.preChar || '').trim();
+    const pa = String(this.props.preArc || '').trim();
+    if (pc || pa) {
+      this.setState(
+        { fChar: pc ? [pc] : [], fArc: pa ? [pa] : [], filtOpen: true },
+        () => { this._tags(); this._load(); },
+      );
+      return;
+    }
+    this._load();
+  }
+
+  // Пропси читаються не лише на монтуванні: сторінка живе між переходами,
+  // тому спорожнілий відбір (пішли зі стрічки) або інша арка (другий клік
+  // в анкеті) мусять доїхати сюди, інакше стрічка лишається відібраною.
+  componentDidUpdate(prevProps) {
+    const was = [prevProps.preChar || '', prevProps.preArc || ''].join('|');
+    const now = [this.props.preChar || '', this.props.preArc || ''].join('|');
+    if (was === now) return;
+    const pc = String(this.props.preChar || '').trim();
+    const pa = String(this.props.preArc || '').trim();
+    this._setFilt({ fChar: pc ? [pc] : [], fArc: pa ? [pa] : [] });
+  }
 
   async _load() {
     const tok = this._tok();
@@ -168,7 +194,16 @@ class Component extends DCLogic {
     // Кілька позначених теґів — це «або»: показуємо все, що підпадає
     // хоч під один. Відбирає база (in.(…)), а не браузер.
     const inList = (v) => 'in.(' + v.map((x) => '"' + encodeURIComponent(x) + '"').join(',') + ')';
-    if (s.fChar.length) url += `&tag_name=${inList(s.fChar)}`;
+    // Прийшли з анкети: там арки зібрані і за текою, і за іменем у тегу,
+    // тому й стрічку відбираємо так само — інакше в шапці «5 дописів», а
+    // в стрічці три (допис звірений з текою, але підписаний інакше).
+    const cid = String(this.props.preCharId || '').trim();
+    const one = s.fChar.length === 1 && s.fChar[0] === String(this.props.preChar || '').trim();
+    if (cid && one) {
+      url += '&or=' + encodeURIComponent('(character_id.eq.' + cid + ',tag_name.eq."' + s.fChar[0] + '")');
+    } else if (s.fChar.length) {
+      url += `&tag_name=${inList(s.fChar)}`;
+    }
     if (s.fArc.length)  url += `&tag_arc=${inList(s.fArc)}`;
     try {
       const r = await fetch(url, { headers: this._h() });
