@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="font-family:Arial,sans-serif;">
+  <sc-if value="{{ isLoad }}" hint-placeholder-val="{{ true }}">
+    <p style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.9rem;padding:40px 0;">Відчиняю стрічку…</p>
+  </sc-if>
+  <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
+    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);margin-bottom:16px;">Стрічка — для тих, хто увійшов у кабінет.</p>
+      <a href="#cabinet" style="display:inline-block;padding:9px 20px;border-radius:999px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:#ffd700;text-decoration:none;font-size:0.85rem;">Увійти в кабінет</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isLocked }}" hint-placeholder-val="{{ false }}">
+    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);margin-bottom:16px;">Доступ до стрічки ще на розгляді. Щойно рецепція відкриє кабінет — пости з'являться тут.</p>
+      <a href="#cabinet" style="display:inline-block;padding:9px 20px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.7);text-decoration:none;font-size:0.85rem;">До кабінету</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+    <p style="text-align:center;color:rgba(255,77,77,0.75);font-size:0.9rem;padding:40px 0;">Не вдалося завантажити стрічку. Спробуйте пізніше.</p>
+  </sc-if>
+  <sc-if value="{{ isOk }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:24px;">
+        <select value="{{ fChar }}" onChange="{{ setFChar }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:8px;color:#fff;font-size:0.85rem;padding:8px 12px;">
+          <option value="">Усі персонажі</option>
+          <sc-for list="{{ chars }}" as="c" hint-placeholder-count="0">
+            <option value="{{ c }}">{{ c }}</option>
+          </sc-for>
+        </select>
+        <select value="{{ fArc }}" onChange="{{ setFArc }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:8px;color:#fff;font-size:0.85rem;padding:8px 12px;">
+          <option value="">Усі арки</option>
+          <sc-for list="{{ arcs }}" as="a" hint-placeholder-count="0">
+            <option value="{{ a }}">{{ a }}</option>
+          </sc-for>
+        </select>
+        <sc-if value="{{ hasFilters }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ clearFilters }}" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.82rem;cursor:pointer;text-decoration:underline;">Скинути</button>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ hasPosts }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <sc-for list="{{ rows }}" as="p" hint-placeholder-count="4">
+            <article style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:15px;padding:20px 22px;">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+                <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}">
+                  <img src="{{ p.img }}" alt="{{ p.name }}" style="width:36px;height:36px;border-radius:999px;object-fit:cover;border:1px solid rgba(255,215,0,0.3);flex-shrink:0;" />
+                </sc-if>
+                <sc-if value="{{ p.linked }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ p.href }}" style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;letter-spacing:0.02em;color:#ffd700;text-decoration:none;">{{ p.name }}</a>
+                </sc-if>
+                <sc-if value="{{ p.unlinked }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;letter-spacing:0.02em;color:rgba(255,215,0,0.8);">{{ p.name }}</span>
+                </sc-if>
+                <span style="flex:1;"></span>
+                <sc-if value="{{ p.hasArc }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:0.68rem;letter-spacing:0.06em;padding:4px 11px;border-radius:999px;background:rgba(100,149,237,0.14);border:1px solid rgba(100,149,237,0.35);color:#8fb0ff;">{{ p.arc }}</span>
+                </sc-if>
+                <span style="font-size:0.72rem;color:rgba(255,255,255,0.32);">{{ p.when }}</span>
+              </div>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.7;color:rgba(255,255,255,0.82);white-space:pre-wrap;margin:0;">{{ p.body }}</p>
+            </article>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ hasPosts }}" hint-placeholder-val="{{ true }}">
+        <p style="text-align:center;color:rgba(255,255,255,0.32);font-size:0.9rem;padding:40px 0;">✦ Дописів із цими тегами ще не було.</p>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:720}}">
+const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const BASE_H    = { apikey: SUPA_KEY };
+
+class Component extends DCLogic {
+  state = { phase: 'load', posts: [], err: '', fChar: '', fArc: '' };
+
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _h() { return { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` }; }
+
+  componentDidMount() { this._load(); }
+
+  async _load() {
+    const tok = this._tok();
+    if (!tok) { this.setState({ phase: 'guest' }); return; }
+    try {
+      const ur = await fetch(`${SUPA_AUTH}/user`, { headers: this._h() });
+      if (!ur.ok) { this.setState({ phase: 'guest' }); return; }
+      const u = await ur.json();
+      const sr = await fetch(`${SUPA_URL}/site_users?id=eq.${u.id}&select=status`, { headers: this._h() });
+      const prof = sr.ok ? (await sr.json())[0] : null;
+      if (!prof || prof.status !== 'approved') { this.setState({ phase: 'locked' }); return; }
+      const pr = await fetch(`${SUPA_URL}/marta_posts?select=*,characters(image)&order=created_at.desc&limit=150`, { headers: this._h() });
+      if (!pr.ok) { this.setState({ phase: 'error', err: await pr.text() }); return; }
+      const posts = await pr.json();
+      this.setState({ phase: 'ok', posts });
+    } catch (e) {
+      this.setState({ phase: 'error', err: String(e) });
+    }
+  }
+
+  _fmt(iso) {
+    try {
+      const d = new Date(iso);
+      const day = d.toLocaleDateString('uk-UA', { timeZone: 'Europe/Kyiv', day: 'numeric', month: 'long' });
+      const time = d.toLocaleTimeString('uk-UA', { timeZone: 'Europe/Kyiv', hour: '2-digit', minute: '2-digit' });
+      return `${day}, ${time}`;
+    } catch (e) { return ''; }
+  }
+
+  renderVals() {
+    const s = this.state;
+    const posts = s.posts || [];
+    const chars = [...new Set(posts.map((p) => p.character_name || p.tag_name))].sort((a, b) => a.localeCompare(b, 'uk'));
+    const arcs = [...new Set(posts.filter((p) => p.tag_arc).map((p) => p.tag_arc))].sort((a, b) => a.localeCompare(b, 'uk'));
+    const filtered = posts.filter((p) => {
+      const nm = p.character_name || p.tag_name;
+      if (s.fChar && nm !== s.fChar) return false;
+      if (s.fArc && p.tag_arc !== s.fArc) return false;
+      return true;
+    });
+    const rows = filtered.map((p) => ({
+      id: p.id,
+      name: p.character_name || p.tag_name,
+      hasArc: !!p.tag_arc,
+      arc: p.tag_arc || '',
+      when: this._fmt(p.created_at),
+      body: p.body,
+      hasImg: !!(p.characters && p.characters.image),
+      img: (p.characters && p.characters.image) || '',
+      linked: !!p.character_id,
+      unlinked: !p.character_id,
+      href: p.character_id ? `#characters/${p.character_id}` : '#',
+    }));
+    return {
+      isLoad: s.phase === 'load',
+      isGuest: s.phase === 'guest',
+      isLocked: s.phase === 'locked',
+      isError: s.phase === 'error',
+      isOk: s.phase === 'ok',
+      hasPosts: rows.length > 0,
+      rows, chars, arcs,
+      fChar: s.fChar, fArc: s.fArc,
+      setFChar: (e) => this.setState({ fChar: e.target.value }),
+      setFArc: (e) => this.setState({ fArc: e.target.value }),
+      clearFilters: () => this.setState({ fChar: '', fArc: '' }),
+      hasFilters: !!(s.fChar || s.fArc),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

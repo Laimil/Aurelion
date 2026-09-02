@@ -1903,6 +1903,18 @@ a:hover{color:#a8c4f7;}
   </main>
 </sc-if>
 
+<!-- ═══ ПОСТИ (стрічка дописів з рольового чату) ═══ -->
+<sc-if value="{{ showPosts }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:760px;margin:0 auto;">
+    <header style="text-align:center;margin-bottom:32px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Зі штабу</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Пости</h1>
+      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:460px;margin-left:auto;margin-right:auto;">Дописи з рольового чату, підписані тегами — за персонажем і аркою.</p>
+    </header>
+    <dc-import name="Posts" embedded="{{ true }}" hint-size="100%,720px"></dc-import>
+  </main>
+</sc-if>
+
 <!-- ═══ ЦИТАТНИК ═══ -->
 <sc-if value="{{ showQuotes }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 90px;max-width:880px;margin:0 auto;">
@@ -2756,7 +2768,7 @@ const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
 // `cabinet` і `intake` — той самий кабінет, різниця лише в тому, яка
 // вкладка відкриється. `gossip` лишили живим: посилання на віконце
 // вже розіслані по чатах.
-const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake'].concat(ARCHIVE_SEGS);
+const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake', 'posts'].concat(ARCHIVE_SEGS);
 
 // ── Галерея персонажа ──────────────────────────────────────
 // Головний портрет лишається в characters.image; усе інше (арти від
@@ -4583,14 +4595,17 @@ class Component extends DCLogic {
   }
 
   _readUser = () => {
-    let nick = '';
+    let nick = '', status = '';
     try {
       if (localStorage.getItem('au_user_token')) {
         const p = JSON.parse(localStorage.getItem('au_user_card') || 'null');
         nick = (p && p.nick) ? String(p.nick) : 'Віконце';
+        status = (p && p.status) ? String(p.status) : '';
       }
     } catch (e) {}
-    if (nick !== this.state.userNick) this.setState({ userNick: nick });
+    if (nick !== this.state.userNick || status !== this.state.userStatus) {
+      this.setState({ userNick: nick, userStatus: status });
+    }
   };
 
   componentDidMount() {
@@ -5906,7 +5921,11 @@ class Component extends DCLogic {
     // показаний усім: інакше на тестах треба було б кидати посилання руками.
     const signedIn = !!s.userNick;
     const gossipNav = gossipOn || signedIn;
-    const pageT = (s.page === 'tests' && !testsOn) ? 'home' : s.page;
+    // «Пости» — стрічка дописів із рольового чату; бачать лише ті, кому
+    // рецепція вже відкрила доступ (approved), а не всі увійшлі.
+    const postsApproved = s.userStatus === 'approved';
+    const pageT = (s.page === 'tests' && !testsOn) ? 'home'
+      : (s.page === 'posts' && !postsApproved) ? 'home' : s.page;
     // Маршрут #gossip відкритий завжди — інакше вийшло б замкнене коло:
     // щоб увійти, треба потрапити у віконце, а воно показується тільки тим, хто
     // ввійшов. Схований розділ не згадується ні в ряду розділів, ні на Головній —
@@ -6004,6 +6023,7 @@ class Component extends DCLogic {
       showDice:        page === 'dice',
       showTests:       page === 'tests',
       showGossip:      page === 'gossip',
+      showPosts:       page === 'posts' && postsApproved,
       // Вкладка кабінету береться з сегмента: #gossip — віконце (такі
       // посилання вже розіслані), #cabinet і #intake — анкета.
       cabinetTab:      this._parseHash().seg === 'gossip' ? 'gossip' : 'intake',
@@ -6398,6 +6418,7 @@ class Component extends DCLogic {
       })()),
 
       navItems: [
+        ...(postsApproved ? [{ id: 'posts', label: 'Пости', active: page === 'posts' }] : []),
         { id: 'home',        label: 'Головна',    active: page === 'home' },
         { id: 'lore',        label: 'Архів',      active: ARCHIVE_SEGS.indexOf(page) !== -1 },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
