@@ -2610,13 +2610,83 @@ const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
 const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
 const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 
-const POST_TAG_RE = /^[ \t]*(#\S+(?:[ \t]+#\S+){0,2})[ \t]*(?:\n+|$)/u;
-function parsePostTags(text) {
+// ── Розбір дописів з експорту (той самий, що в боті) ──────────
+// Один із тегів завжди персонаж, але не обов'язково перший, і часто це
+// лише ім'я без прізвища («#Дарен» → «Дарен Мороз»). Тому котрий тег
+// персонаж, вирішує картотека, а не порядок; решта — арка.
+const POST_TAG_RE = /^[ \t]*(#\S+(?:[ \t]+#\S+){0,3})[ \t]*(?:\n+|$)/u;
+const POST_MIN = 0.72;
+
+const pfold = (s) => String(s || '').toLowerCase()
+  .replace(/[ʼ'’`´ь]/g, '').replace(/[іїий]/g, 'и').replace(/[еє]/g, 'е')
+  .replace(/ґ/g, 'г').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+
+function plev(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m || !n) return m || n;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+
+function ptok(q, w) {
+  if (q === w) return 1;
+  const m = Math.min(q.length, w.length);
+  if (m >= 3 && q.slice(0, m) === w.slice(0, m)) return m >= 4 ? 0.92 : 0.78;
+  const d = plev(q, w);
+  if (d === 1 && m >= 4) return 0.82;
+  if (d === 1 && m >= 3) return 0.75;
+  if (d === 2 && m >= 8) return 0.74;
+  if (d === 2 && m >= 6) return 0.62;
+  return 0;
+}
+
+function pscore(query, label) {
+  if (!label) return 0;
+  const qs = pfold(query).split(' ').filter(Boolean);
+  const ls = pfold(label).split(' ').filter(Boolean);
+  if (!qs.length || !ls.length) return 0;
+  let sum = 0;
+  for (const q of qs) {
+    let best = 0;
+    for (const l of ls) best = Math.max(best, ptok(q, l));
+    sum += best;
+  }
+  let s = sum / qs.length;
+  if (qs.length === ls.length) s += 0.04;
+  return Math.min(1, s);
+}
+
+function postMatch(tag, roster) {
+  let bc = null, bs = 0;
+  (roster || []).forEach((c) => {
+    const s = Math.max(pscore(tag, c.name), pscore(tag, c.alias) * 0.98);
+    if (s > bs || (s === bs && bc && !bc.is_active && c.is_active)) { bc = c; bs = s; }
+  });
+  return bs >= POST_MIN ? { c: bc, s: bs } : null;
+}
+
+function parsePostTags(text, roster) {
   const m = text.match(POST_TAG_RE);
   if (!m) return null;
   const tags = m[1].split(/\s+/).map((t) => t.replace(/^#/, '').replace(/_/g, ' ').trim()).filter(Boolean);
   if (!tags.length) return null;
-  return { name: tags[0], arc: tags[1] || null, body: text.slice(m[0].length).trim() };
+  const body = text.slice(m[0].length).trim();
+  let bi = -1, bc = null, bs = 0;
+  tags.forEach((t, i) => {
+    const hit = postMatch(t, roster);
+    if (hit && hit.s > bs) { bi = i; bc = hit.c; bs = hit.s; }
+  });
+  const i = bi >= 0 ? bi : 0;
+  const rest = tags.filter((_, k) => k !== i);
+  return { name: bc ? bc.name : tags[i], tag: tags[i], arc: rest[0] || null, match: bc, body };
 }
 const SUPA_FUNCS = 'https://ztltzghfkppuwixhylng.supabase.co/functions/v1';
 
@@ -4089,7 +4159,7 @@ class Component extends DCLogic {
         const seen = new Set();
         const found = [];
         for (const b of blocks) {
-          const t = parsePostTags(String(b.text || '').trim());
+          const t = parsePostTags(String(b.text || '').trim(), this.state.data.characters || []);
           if (!t || !t.body) continue;
           const key = t.name + '|' + t.body.slice(0, 60);
           if (seen.has(key)) continue;
@@ -4097,7 +4167,7 @@ class Component extends DCLogic {
           found.push({ ...t, day: b.day });
         }
         if (!found.length) {
-          this.setState({ postsBusy: false, postsErr: 'У файлі не знайдено дописів із тегами #Ім\'я #Арка на початку.' });
+          this.setState({ postsBusy: false, postsErr: 'У файлі не знайдено дописів із хештегами на початку (персонаж + арка).' });
           return;
         }
         this.setState({ postsBusy: false, postsRows: found });
@@ -4119,16 +4189,13 @@ class Component extends DCLogic {
     if (!rows.length) return;
     this.setState({ postsBusy: true, postsErr: '' });
     try {
-      const roster = this.state.data.characters || [];
-      const fold = (s) => String(s || '').trim().toLowerCase();
       const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Kyiv' });
-      const payload = rows.map((t) => {
-        const m = roster.find((c) => fold(c.name) === fold(t.name));
-        return {
-          tag_name: t.name, tag_arc: t.arc, body: t.body, day: t.day || today,
-          character_id: m ? m.id : null, character_name: m ? m.name : null,
-        };
-      });
+      const payload = rows.map((t) => ({
+        tag_name: t.match ? t.match.name : t.tag,
+        tag_arc: t.arc, body: t.body, day: t.day || today,
+        character_id: t.match ? t.match.id : null,
+        character_name: t.match ? t.match.name : null,
+      }));
       await this._insert('marta_posts', payload);
       this.setState({ postsBusy: false, postsRows: [], postsExisting: null });
       this._toast('✓ Додано: ' + payload.length);
@@ -4142,7 +4209,7 @@ class Component extends DCLogic {
     const rows = (s.postsRows || []).map((t, i) => {
       const dup = this._postsIsDup(t);
       return {
-        key: i, name: t.name, hasArc: !!t.arc, arc: t.arc || '',
+        key: i, name: t.name + (t.match ? '' : ' (не в картотеці)'), hasArc: !!t.arc, arc: t.arc || '',
         preview: t.body.slice(0, 90) + (t.body.length > 90 ? '…' : ''),
         bg: dup ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)',
         op: dup ? '0.4' : '1',
