@@ -2738,6 +2738,42 @@ function ownWords(body) {
   return String(body || '').split('\n').filter((l) => !/^\s*>/u.test(l)).join(' ').trim();
 }
 
+// ── Написання арок ────────────────────────────────
+// Дзеркало `snapArc` у боті: тег із друкарською помилкою зводиться до
+// написання, яке вже є в базі або в цьому ж файлі (найчастіше).
+function arcKey(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[ʼ'’`´ь]/g, '')
+    .replace(/[iіїйиы]/g, 'и')
+    .replace(/[eеє]/g, 'е').replace(/[aа]/g, 'а').replace(/[oо]/g, 'о')
+    .replace(/[cс]/g, 'с').replace(/[pр]/g, 'р').replace(/[xх]/g, 'х')
+    .replace(/[yу]/g, 'у').replace(/ґ/g, 'г')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+}
+
+function editDist(a, b) {
+  if (a === b) return 0;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = prev[0];
+    prev[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cur = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diag = prev[j];
+      prev[j] = cur;
+    }
+  }
+  return prev[b.length];
+}
+
+function nearArc(a, b) {
+  const x = arcKey(a), y = arcKey(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  if (Math.abs(x.length - y.length) > 2) return false;
+  return editDist(x, y) <= (Math.min(x.length, y.length) <= 8 ? 1 : 2);
+}
+
 function stitchBody(a, b) {
   const l = String(a || '').replace(/\s+$/u, '');
   const r = stripCont(String(b || '').replace(/^\s+/u, ''));
@@ -4251,7 +4287,7 @@ class Component extends DCLogic {
 
   async _ensurePostsExisting() {
     if (this.state.postsExisting) return this.state.postsExisting;
-    const rows = await this._get('marta_posts?select=id,character_name,tag_name,body');
+    const rows = await this._get('marta_posts?select=id,character_name,tag_name,tag_arc,body');
     this.setState({ postsExisting: rows || [] });
     return rows || [];
   }
@@ -4292,6 +4328,28 @@ class Component extends DCLogic {
           found.push(head);
         }
         if (glued) console.log('пости: доклеєно хвостів —', glued);
+        // Опічатки в арках зводимо до найчастішого написання — спершу того,
+        // що вже в базі, а потім того, що в цьому ж файлі.
+        const seenArcs = new Map();
+        (this.state.postsExisting || []).forEach((p) => {
+          const v = String(p.tag_arc || '').trim();
+          if (v) seenArcs.set(v, (seenArcs.get(v) || 0) + 100);
+        });
+        found.forEach((t) => {
+          const v = String(t.arc || '').trim();
+          if (v) seenArcs.set(v, (seenArcs.get(v) || 0) + 1);
+        });
+        const known = [...seenArcs.entries()].sort((a, b) => b[1] - a[1]).map((e) => e[0]);
+        let snapped = 0;
+        found.forEach((t) => {
+          const v = String(t.arc || '').trim();
+          if (!v) return;
+          const hit = known.find((k) => k !== v && nearArc(k, v));
+          if (hit && (seenArcs.get(hit) || 0) > (seenArcs.get(v) || 0)) {
+            t.arcWas = v; t.arc = hit; snapped++;
+          }
+        });
+        if (snapped) console.log('арки: зведено написань —', snapped);
         if (!found.length) {
           this.setState({ postsBusy: false, postsErr: 'У файлі не знайдено дописів із хештегами на початку (персонаж + арка).' });
           return;
@@ -4374,7 +4432,8 @@ class Component extends DCLogic {
       const fix = !!this._postsFix(t);
       const note = fix
         ? 'доповнить наявний'
-        : ((t.parts || 1) > 1 ? t.parts + ' частини' : '');
+        : (t.arcWas ? 'арка: «' + t.arcWas + '» → «' + t.arc + '»'
+          : ((t.parts || 1) > 1 ? t.parts + ' частини' : ''));
       return {
         key: i, name: t.name + (t.match ? '' : ' (не в картотеці)'), hasArc: !!t.arc, arc: t.arc || '',
         hasNote: !!note, note,

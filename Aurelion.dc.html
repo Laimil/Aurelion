@@ -170,9 +170,14 @@ a:hover{color:#a8c4f7;}
 .char-reader-grid{display:grid;grid-template-columns:300px 1fr;gap:44px;align-items:start;max-width:1060px;margin:0 auto;}
 /* Липка колонка, вища за екран, свій низ прокручуванням не показує — тому
    на низьких вікнах вона перестає бути липкою і їде разом зі сторінкою. */
-.char-reader-aside{position:sticky;top:84px;}
-@media(max-height:900px){.char-reader-aside{position:static;}}
-@media(max-width:820px){.char-reader-grid{grid-template-columns:1fr;gap:26px;}.char-reader-aside{position:static;max-width:340px;margin:0 auto;}}
+/* Липка ліва колонка з власною смужкою: портрет, кнопки й арки разом
+   вищі за екран, а без свого скрола її низ показати було ніяк. */
+.char-reader-aside{position:sticky;top:84px;max-height:calc(100vh - 104px);overflow-y:auto;overscroll-behavior:contain;padding-right:8px;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,0.3) rgba(255,255,255,0.05);}
+.char-reader-aside::-webkit-scrollbar{width:6px}
+.char-reader-aside::-webkit-scrollbar-track{background:rgba(255,255,255,0.04);border-radius:99px}
+.char-reader-aside::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.24);border-radius:99px}
+.char-reader-aside::-webkit-scrollbar-thumb:hover{background:rgba(255,215,0,0.44)}
+@media(max-width:820px){.char-reader-grid{grid-template-columns:1fr;gap:26px;}.char-reader-aside{position:static;max-height:none;overflow:visible;padding-right:0;max-width:340px;margin:0 auto;}}
 /* ── Лінійка зросту: своя смужка прокручування, бо шеренга ширша за екран ── */
 .ruler-scroll::-webkit-scrollbar{height:9px}
 .ruler-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,0.04);border-radius:99px}
@@ -1180,14 +1185,14 @@ a:hover{color:#a8c4f7;}
                 </sc-if>
                 <div style="display:flex;flex-direction:column;gap:6px;">
                   <sc-for list="{{ charArcs }}" as="a" hint-placeholder-count="0">
-                    <button data-arc="{{ a.arc }}" onClick="{{ openArc }}" title="{{ a.title }}" style="display:block;width:100%;text-align:left;cursor:pointer;background:{{ a.bg }};border:1px solid {{ a.border }};border-radius:10px;padding:9px 12px;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);">
+                    <button data-arc="{{ a.arc }}" data-arcs="{{ a.arcs }}" onClick="{{ openArc }}" title="{{ a.title }}" style="display:block;width:100%;text-align:left;cursor:pointer;background:{{ a.bg }};border:1px solid {{ a.border }};border-radius:10px;padding:9px 12px;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);">
                       <span style="display:flex;align-items:center;gap:8px;">
                         <span style="font-family:'Cinzel',Georgia,serif;font-size:0.84rem;font-weight:700;letter-spacing:0.03em;color:{{ a.ink }};flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ a.arc }}</span>
                         <sc-if value="{{ a.live }}" hint-placeholder-val="{{ false }}">
                           <span style="flex-shrink:0;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:#1a1a1a;background:#ffd700;border-radius:999px;padding:2px 8px;font-weight:700;">активна</span>
                         </sc-if>
                       </span>
-                      <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.4);margin-top:3px;">{{ a.count }} · {{ a.when }}</span>
+                      <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.4);margin-top:3px;">{{ a.count }} · {{ a.when }}<sc-if value="{{ a.hasForms }}" hint-placeholder-val="{{ false }}"><span style="color:rgba(255,215,0,0.5);"> · ✎ {{ a.formsLabel }}</span></sc-if></span>
                     </button>
                   </sc-for>
                 </div>
@@ -2795,6 +2800,44 @@ const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
 // `cabinet` і `intake` — той самий кабінет, різниця лише в тому, яка
 // вкладка відкриється. `gossip` лишили живим: посилання на віконце
 // вже розіслані по чатах.
+// ── Написання арок ────────────────────────────────
+// Теги набирають руками, тому та сама арка лежить у базі кількома
+// написаннями — і під портретом виходило два «Нових світанки».
+// Ключ згортає те, що гуляє на письмі; різницю в одну-дві літери зводить
+// `nearArc` — цього досить для опічатки й замало, щоб склеїти різні арки.
+function arcKey(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[ʼ'’`´ь]/g, '')
+    .replace(/[iіїйиы]/g, 'и')
+    .replace(/[eеє]/g, 'е').replace(/[aа]/g, 'а').replace(/[oо]/g, 'о')
+    .replace(/[cс]/g, 'с').replace(/[pр]/g, 'р').replace(/[xх]/g, 'х')
+    .replace(/[yу]/g, 'у').replace(/ґ/g, 'г')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+}
+
+function editDist(a, b) {
+  if (a === b) return 0;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = prev[0];
+    prev[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cur = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diag = prev[j];
+      prev[j] = cur;
+    }
+  }
+  return prev[b.length];
+}
+
+function nearArc(a, b) {
+  const x = arcKey(a), y = arcKey(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  if (Math.abs(x.length - y.length) > 2) return false;
+  return editDist(x, y) <= (Math.min(x.length, y.length) <= 8 ? 1 : 2);
+}
+
 const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake', 'posts'].concat(ARCHIVE_SEGS);
 
 // ── Галерея персонажа ──────────────────────────────────────
@@ -7237,9 +7280,11 @@ class Component extends DCLogic {
       // Активна — та, у якій його останній допис: не позначка в базі,
       // а сам факт, що після неї він більше нікуди не писав.
       openArc: (e) => {
-        const arc = e.currentTarget && e.currentTarget.dataset ? e.currentTarget.dataset.arc : '';
+        const ds = (e.currentTarget && e.currentTarget.dataset) || {};
+        // Передаємо всі написання арки, а не лише канонічне: інакше дописи,
+        // де в тегу опічатка, у стрічку не потраплять.
         this.setState({
-          postsPreArc: arc || '',
+          postsPreArc: ds.arcs || ds.arc || '',
           postsPreChar: (sc && sc.name) || '',
           postsPreCharId: (sc && String(sc.id)) || '',
         }, () => this._nav('posts'));
@@ -7255,11 +7300,16 @@ class Component extends DCLogic {
           const a = String(r.tag_arc || '').trim();
           if (!a) return;
           const t = new Date(r.created_at).getTime() || 0;
-          const cur = m.get(a) || { arc: a, n: 0, first: t, last: t };
+          // Одна арка — один рядок, навіть якщо в тегах вона написана
+          // по-різному. Канонічне написання вибираємо нижче — за частотою.
+          let key = a;
+          for (const k of m.keys()) { if (nearArc(k, a)) { key = k; break; } }
+          const cur = m.get(key) || { arc: key, n: 0, first: t, last: t, forms: new Map() };
           cur.n += 1;
+          cur.forms.set(a, (cur.forms.get(a) || 0) + 1);
           if (t > cur.last) cur.last = t;
           if (t && t < cur.first) cur.first = t;
-          m.set(a, cur);
+          m.set(key, cur);
         });
         const list = [...m.values()].sort((x, y) => y.last - x.last);
         const nWord = (n) => {
@@ -7274,16 +7324,26 @@ class Component extends DCLogic {
           charArcsLoading: false,
           charArcsFailed: false,
           charArcsEmpty: !list.length,
-          charArcs: list.map((a, i) => ({
-            arc: a.arc,
+          charArcs: list.map((a, i) => {
+            const forms = [...(a.forms || new Map()).entries()]
+              .sort((x, y) => y[1] - x[1] || y[0].length - x[0].length);
+            const label = forms.length ? forms[0][0] : a.arc;
+            return {
+            arc: label,
+            arcs: forms.map((f) => f[0]).join('\u0001') || label,
+            hasForms: forms.length > 1,
+            formsLabel: forms.length + ' написання',
             count: a.n + ' ' + nWord(a.n),
             when: day(a.first) === day(a.last) ? day(a.last) : day(a.first) + ' — ' + day(a.last),
             live: i === 0,
-            title: 'Відкрити стрічку: ' + a.arc,
+            title: forms.length > 1
+              ? 'Звела написання: ' + forms.map((f) => f[0]).join(' · ') + '. Відкрити стрічку.'
+              : 'Відкрити стрічку: ' + label,
             bg:     i === 0 ? 'rgba(255,215,0,0.09)' : 'rgba(255,255,255,0.05)',
             border: i === 0 ? 'rgba(255,215,0,0.42)' : 'rgba(255,255,255,0.12)',
             ink:    i === 0 ? '#ffd700' : 'rgba(255,255,255,0.72)',
-          })),
+            };
+          }),
         };
       })(),
       postsPreChar:   s.postsPreChar   || '',

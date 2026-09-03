@@ -59,7 +59,12 @@
                   <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin:0 0 8px;">Арка</p>
                   <div style="display:flex;flex-wrap:wrap;gap:8px;">
                     <sc-for list="{{ arcChips }}" as="a" hint-placeholder-count="3">
-                      <button onClick="{{ pickArc }}" data-v="{{ a.name }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:{{ a.bg }};border:1px solid {{ a.border }};color:{{ a.color }};">{{ a.name }}</button>
+                      <button onClick="{{ pickArc }}" data-v="{{ a.name }}" title="{{ a.title }}" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:{{ a.bg }};border:1px solid {{ a.border }};color:{{ a.color }};">
+                        {{ a.name }}
+                        <sc-if value="{{ a.hasAlt }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size:0.66rem;opacity:0.55;">✎ {{ a.altLabel }}</span>
+                        </sc-if>
+                      </button>
                     </sc-for>
                     <sc-if value="{{ moreArcs }}" hint-placeholder-val="{{ false }}">
                       <button onClick="{{ allArcs }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:none;border:1px dashed rgba(255,255,255,0.2);color:rgba(255,255,255,0.45);">{{ moreArcsLabel }}</button>
@@ -142,9 +147,65 @@ const POST_SEL = 'id,tag_name,tag_arc,character_id,character_name,body,parts,cre
 // без неї стрічка мусить працювати, а не лягати на помилку запиту.
 const POST_SEL_LEAN = POST_SEL.replace(',parts', '');
 
+// ── Написання арок ──────────────────────────────────
+// Теги набирають руками, тому та сама арка лежить у базі кількома
+// написаннями — і в анкеті виходить два «Нових світанки». `arcKey` згортає
+// те, що гуляє на письмі (регістр, апостроф, і/ї/й, е/є, латинські
+// двійники літер), а `nearArc` зводить різницю в одну-дві літери: цього досить
+// для друкарської помилки й замало, щоб склеїти дві справді різні арки.
+function arcKey(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[ʼ'’`´ь]/g, '')
+    .replace(/[iіїйиы]/g, 'и')
+    .replace(/[eеє]/g, 'е').replace(/[aа]/g, 'а').replace(/[oо]/g, 'о')
+    .replace(/[cс]/g, 'с').replace(/[pр]/g, 'р').replace(/[xх]/g, 'х')
+    .replace(/[yу]/g, 'у').replace(/ґ/g, 'г')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+}
+
+function editDist(a, b) {
+  if (a === b) return 0;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = prev[0];
+    prev[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cur = Math.min(
+        prev[j] + 1, prev[j - 1] + 1,
+        diag + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+      diag = prev[j];
+      prev[j] = cur;
+    }
+  }
+  return prev[b.length];
+}
+
+function nearArc(a, b) {
+  const x = arcKey(a), y = arcKey(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  if (Math.abs(x.length - y.length) > 2) return false;
+  return editDist(x, y) <= (Math.min(x.length, y.length) <= 8 ? 1 : 2);
+}
+
+// Написання одної арки — в один кошик. Канонічне — найчастіше, а при
+// рівності довше: обрізане написання здебільшого й є промах.
+function groupArcs(counts) {
+  const list = [...counts].map(([v, n]) => ({ v, n }))
+    .sort((a, b) => b.n - a.n || b.v.length - a.v.length);
+  const out = [];
+  for (const it of list) {
+    const box = out.find((o) => o.all.some((v) => nearArc(v, it.v)));
+    if (box) { box.all.push(it.v); box.n += it.n; }
+    else out.push({ name: it.v, all: [it.v], n: it.n });
+  }
+  return out.sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, 'uk'));
+}
+
 class Component extends DCLogic {
   state = {
-    phase: 'load', posts: [], err: '', fChar: [], fArc: [],
+    phase: 'load', posts: [], err: '', fChar: [], fArc: [], arcAlt: {},
     off: 0, more: false, busy: false, noParts: false, asc: false,
     filtOpen: false, tagsPhase: 'none', chars: [], arcs: [], q: '',
     allChars: false, allArcs: false, open: {},
@@ -163,10 +224,12 @@ class Component extends DCLogic {
     // відкривається вже відібраною. Фільтр показуємо розгорнутим, щоб
     // видно було, чому дописів мало, і можна було скинути.
     const pc = String(this.props.preChar || '').trim();
-    const pa = String(this.props.preArc || '').trim();
-    if (pc || pa) {
+    // Анкета передає ВСІ написання арки (розділені \u0001), інакше частина
+    // дописів арки лишалась би за бортом через одну літеру в тегу.
+    const pa = String(this.props.preArc || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
+    if (pc || pa.length) {
       this.setState(
-        { fChar: pc ? [pc] : [], fArc: pa ? [pa] : [], filtOpen: true },
+        { fChar: pc ? [pc] : [], fArc: pa, filtOpen: true },
         () => { this._tags(); this._load(); },
       );
       return;
@@ -182,8 +245,8 @@ class Component extends DCLogic {
     const now = [this.props.preChar || '', this.props.preArc || ''].join('|');
     if (was === now) return;
     const pc = String(this.props.preChar || '').trim();
-    const pa = String(this.props.preArc || '').trim();
-    this._setFilt({ fChar: pc ? [pc] : [], fArc: pa ? [pa] : [] });
+    const pa = String(this.props.preArc || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
+    this._setFilt({ fChar: pc ? [pc] : [], fArc: pa });
   }
 
   async _load() {
@@ -224,7 +287,8 @@ class Component extends DCLogic {
     } else if (s.fChar.length) {
       url += `&tag_name=${inList(s.fChar)}`;
     }
-    if (s.fArc.length)  url += `&tag_arc=${inList(s.fArc)}`;
+    // Відбираємо за всіма написаннями обраної арки — база про опічатки не знає.
+    if (s.fArc.length)  url += `&tag_arc=${inList(this._arcAll(s.fArc))}`;
     try {
       const r = await fetch(url, { headers: this._h() });
       if (!r.ok) {
@@ -254,16 +318,35 @@ class Component extends DCLogic {
         { headers: this._h() },
       );
       const rows = r.ok ? await r.json() : [];
-      const tally = (key) => {
+      const count = (key) => {
         const m = new Map();
         rows.forEach((p) => { const v = p[key]; if (v) m.set(v, (m.get(v) || 0) + 1); });
-        return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'uk')).map((e) => e[0]);
+        return m;
       };
-      this.setState({ tagsPhase: 'ready', chars: tally('tag_name'), arcs: tally('tag_arc') });
+      const tally = (key) => [...count(key).entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'uk')).map((e) => e[0]);
+      // Арки — одна плитка на арку, а не на написання.
+      const boxes = groupArcs(count('tag_arc'));
+      const alt = {};
+      boxes.forEach((b) => { alt[b.name] = b.all; });
+      this.setState({
+        tagsPhase: 'ready', chars: tally('tag_name'),
+        arcs: boxes.map((b) => b.name), arcAlt: alt,
+      });
     } catch (e) {
       console.warn('пости: перелік тегів', e);
       this.setState({ tagsPhase: 'ready' });
     }
+  }
+
+  // Всі написання позначених арок. Кошики приходять з `_tags()`, але відбір з
+  // анкети працює й без них — тоді беремо те, що передали.
+  _arcAll(list) {
+    const out = [];
+    (list || []).forEach((v) => {
+      ((this.state.arcAlt || {})[v] || [v]).forEach((x) => { if (!out.includes(x)) out.push(x); });
+    });
+    return out;
   }
 
   _setFilt(patch) {
@@ -390,7 +473,16 @@ class Component extends DCLogic {
       tagsBusy: s.filtOpen && s.tagsPhase !== 'ready',
       tagsReady: s.tagsPhase === 'ready',
       charChips: chars.map((c) => ({ name: c, ...this._pill(s.fChar.includes(c)) })),
-      arcChips: arcs.map((a) => ({ name: a, ...this._pill(s.fArc.includes(a)) })),
+      arcChips: arcs.map((a) => {
+        const all = (s.arcAlt || {})[a] || [a];
+        return {
+          name: a,
+          hasAlt: all.length > 1,
+          altLabel: all.length + ' написання',
+          title: all.length > 1 ? 'Зведено написання: ' + all.join(' · ') : a,
+          ...this._pill(s.fArc.includes(a)),
+        };
+      }),
       hasArcs: s.arcs.length > 0,
       q: s.q,
       setQ: (e) => this.setState({ q: e.target.value }),
