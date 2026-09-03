@@ -2451,7 +2451,7 @@ button{font-family:inherit;cursor:pointer}
 <sc-if value="{{ showPosts }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:760px;margin:0 auto;padding:28px 24px 80px;">
     <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:6px;">📰 Пости — довантаження з Telegram</h2>
-    <p style="font-size:0.8rem;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:20px;">Дописи з тегами <code>#Ім'я #Арка</code> Марта кладе в стрічку сама. Тут — довантаження історичних дописів із файлу «Експорт історії чату» (Telegram Desktop, HTML). Дата береться з самого повідомлення.</p>
+    <p style="font-size:0.8rem;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:20px;">Дописи з тегами <code>#Ім'я #Арка</code> Марта кладе в стрічку сама. Тут — довантаження історичних дописів із файлу «Експорт історії чату» (Telegram Desktop, HTML). Дата береться з самого повідомлення. Допис, розрізаний межею Телеграма на два-три повідомлення, зшивається в один пост.</p>
     <input type="file" accept=".html,.htm,text/html" onChange="{{ postsOnFile }}" style="color:rgba(255,255,255,0.6);font-size:0.82rem;margin-bottom:10px;" />
     <sc-if value="{{ postsBusy }}" hint-placeholder-val="{{ false }}">
       <p style="color:rgba(255,255,255,0.4);font-size:0.82rem;">Розбираю файл…</p>
@@ -2461,7 +2461,7 @@ button{font-family:inherit;cursor:pointer}
     </sc-if>
     <sc-if value="{{ postsHasRows }}" hint-placeholder-val="{{ false }}">
       <div style="margin-top:14px;">
-        <p style="font-size:0.82rem;color:rgba(255,255,255,0.55);margin-bottom:10px;">Знайдено {{ postsCount }}. Позначені сірим уже є в стрічці (за автором і початком тексту) — не додадуться повторно.</p>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.55);margin-bottom:10px;">Знайдено {{ postsCount }}. Позначені сірим уже є в стрічці (за автором і початком тексту) — не додадуться повторно. Синюваті — у стрічці лежать обрізані: текст буде доповнено хвостом із файлу.</p>
         <div style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;margin-bottom:14px;">
           <sc-for list="{{ postsRows }}" as="r" hint-placeholder-count="3">
             <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:{{ r.bg }};border:1px solid rgba(255,255,255,0.1);opacity:{{ r.op }};">
@@ -2470,11 +2470,14 @@ button{font-family:inherit;cursor:pointer}
                 <span style="font-size:0.68rem;color:#8fb0ff;flex-shrink:0;">{{ r.arc }}</span>
               </sc-if>
               <span style="font-size:0.82rem;color:rgba(255,255,255,0.55);flex:1;">{{ r.preview }}</span>
+              <sc-if value="{{ r.hasNote }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:0.68rem;color:rgba(100,149,237,0.8);flex-shrink:0;">{{ r.note }}</span>
+              </sc-if>
               <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);flex-shrink:0;">{{ r.when }}</span>
             </div>
           </sc-for>
         </div>
-        <button onClick="{{ postsDoImport }}" disabled="{{ postsBusy }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:9px 20px;font-size:0.85rem;">Додати {{ postsNewCount }} нових</button>
+        <button onClick="{{ postsDoImport }}" disabled="{{ postsBusy }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:9px 20px;font-size:0.85rem;">Додати {{ postsNewCount }}</button>
       </div>
     </sc-if>
   </div>
@@ -2709,6 +2712,33 @@ function parsePostTags(text, roster) {
   const i = bi >= 0 ? bi : 0;
   const rest = tags.filter((_, k) => k !== i);
   return { name: bc ? bc.name : tags[i], tag: tags[i], arc: rest[0] || null, match: bc, body };
+}
+
+// ── Один пост, кілька повідомлень ────────────────────────────
+// Те саме правило, що в боті: довгий допис ріжуть по межі Телеграма
+// (4096 символів). Теги стоять лише на першому куснi — або повторені на
+// кожному; в експорті це кілька .message підряд від тієї самої руки.
+// Хвіст не заводить новий рядок, а доклеюється до попереднього.
+const SPLIT_NEAR = 2500;                 // попередній кусень стояв упритул до межі
+const FAST_WIN   = 90 * 1000;            // «слідом за секунди» — так ріжуть насправді
+const STITCH_WIN = 10 * 60 * 1000;       // без позначки — тільки слідом
+const MARK_WIN   = 6 * 60 * 60 * 1000;   // позначка/реплай — довіри більше
+const CONT_MARK =
+  /^(?:\.{2,}|…|[([]?\s*(?:прод\p{L}*|part\b|ч(?:астина)?\s*\d+)|\d{1,2}\s*\/\s*\d{1,2})/iu;
+
+function stripCont(s) {
+  const m = String(s || '').match(CONT_MARK);
+  if (!m) return String(s || '');
+  return String(s).slice(m[0].length).replace(/^[)\]\s:—–-]+/u, '');
+}
+
+function stitchBody(a, b) {
+  const l = String(a || '').replace(/\s+$/u, '');
+  const r = stripCont(String(b || '').replace(/^\s+/u, ''));
+  if (!r) return l;
+  if (/[-–—]$/u.test(l) && /^\p{Ll}/u.test(r)) return l.replace(/[-–—]$/u, '') + r;
+  const soft = !/[.!?…»"”')\]]$/u.test(l) && /^\p{Ll}/u.test(r);
+  return l + (soft ? ' ' : '\n\n') + r;
 }
 const SUPA_FUNCS = 'https://ztltzghfkppuwixhylng.supabase.co/functions/v1';
 
@@ -4164,14 +4194,50 @@ class Component extends DCLogic {
           if (!isNaN(new Date(iso).getTime())) at = new Date(iso).toISOString();
         }
       }
-      out.push({ text, day, at });
+      // Автор і номер повідомлення потрібні для зшивання: хвіст довгого
+      // допису — це наступний .message тієї самої руки, часом реплаєм на
+      // перший кусень («.reply_to a[href=#go_to_message123]»).
+      const rt = m.querySelector('.reply_to a');
+      const rh = rt ? String(rt.getAttribute('href') || '') : '';
+      out.push({
+        text, day, at,
+        who: lastName,
+        mid: String(m.getAttribute('id') || '').replace(/\D+/g, ''),
+        reply: (rh.match(/(\d+)/) || [])[1] || '',
+      });
     });
     return out;
   }
 
+  // Чи цей блок — хвіст попереднього допису. Дзеркало stitchPost у боті;
+  // причина повертається рядком, щоб її було видно в переліку.
+  _postsCont(head, b, t) {
+    if (!head) return null;
+    const text = String((t ? t.body : b.text) || '').replace(/^\s+/u, '');
+    if (!text) return null;
+    if ((b.who || '') !== (head.who || '')) return null;
+    const gap = (b.at && head.at) ? (new Date(b.at) - new Date(head.at)) : 0;
+    if (gap < 0) return null;
+    const near = String(head.body || '').length >= SPLIT_NEAR;
+    const marked = CONT_MARK.test(text);
+    const isReply = !!head.mid && b.reply === head.mid;
+    const sameTags = !!t && !!head.name &&
+      pscore([t.tag, t.arc].filter(Boolean).join(' '), [head.tag, head.arc].filter(Boolean).join(' ')) >= POST_MIN;
+    if (isReply && gap < MARK_WIN && (marked || near)) return 'реплай на свій же допис';
+    if (marked && gap < MARK_WIN) return 'позначка продовження';
+    // Слідом за секунди — лише коли час відомий на обох блоках: без часу
+    // «gap = 0» є незнанням, а не моментальністю.
+    const fast = !!b.at && !!head.at && gap < FAST_WIN;
+    if (!t && fast) return 'слідом за секунди, без тегів';
+    if (sameTags && fast) return 'слідом за секунди, ті самі теги';
+    if (sameTags && near && gap < MARK_WIN) return 'ті самі теги, попередній кусень упритул до межі';
+    if (!t && near && gap < STITCH_WIN && text.length >= 200) return 'хвіст без тегів слідом за повним куснем';
+    return null;
+  }
+
   async _ensurePostsExisting() {
     if (this.state.postsExisting) return this.state.postsExisting;
-    const rows = await this._get('marta_posts?select=character_name,tag_name,body');
+    const rows = await this._get('marta_posts?select=id,character_name,tag_name,body');
     this.setState({ postsExisting: rows || [] });
     return rows || [];
   }
@@ -4191,14 +4257,27 @@ class Component extends DCLogic {
           : (doc.body ? (doc.body.textContent || '') : '').split(/\n\s*\n+/).map((t) => ({ text: t, day: null, at: null }));
         const seen = new Set();
         const found = [];
+        let head = null;      // остання прийнята тека — до неї може доклеїтися хвіст
+        let glued = 0;
         for (const b of blocks) {
           const t = parsePostTags(String(b.text || '').trim(), this.state.data.characters || []);
+          const why = this._postsCont(head, b, t);
+          if (why) {
+            head.body = stitchBody(head.body, (t ? t.body : b.text) || '');
+            head.parts = (head.parts || 1) + 1;
+            head.at = b.at || head.at;
+            head.mid = b.mid || head.mid;
+            glued++;
+            continue;
+          }
           if (!t || !t.body) continue;
           const key = t.name + '|' + t.body.slice(0, 60);
           if (seen.has(key)) continue;
           seen.add(key);
-          found.push({ ...t, day: b.day, at: b.at });
+          head = { ...t, day: b.day, at: b.at, who: b.who, mid: b.mid, parts: 1 };
+          found.push(head);
         }
+        if (glued) console.log('пости: доклеєно хвостів —', glued);
         if (!found.length) {
           this.setState({ postsBusy: false, postsErr: 'У файлі не знайдено дописів із хештегами на початку (персонаж + арка).' });
           return;
@@ -4212,14 +4291,30 @@ class Component extends DCLogic {
     reader.readAsText(file, 'utf-8');
   };
 
-  _postsIsDup(t) {
-    return (this.state.postsExisting || []).some((p) =>
-      (p.character_name || p.tag_name) === t.name && String(p.body || '').slice(0, 60) === t.body.slice(0, 60));
+  _postsFind(t) {
+    return (this.state.postsExisting || []).find((p) =>
+      (p.character_name || p.tag_name) === t.name && String(p.body || '').slice(0, 60) === t.body.slice(0, 60)) || null;
   }
 
+  // Наявний рядок, якому в базі бракує хвоста: початок той самий, а в файлі
+  // допис довший. Такі не пропускаємо як дублі, а доповнюємо — саме так
+  // лікуються дописи, обрізані ще до зшивання.
+  _postsFix(t) {
+    const ex = this._postsFind(t);
+    if (!ex || !ex.id) return null;
+    const has = String(ex.body || '');
+    if (t.body.length <= has.length + 40) return null;
+    if (!has || !t.body.startsWith(has.slice(0, Math.min(200, has.length)))) return null;
+    return ex;
+  }
+
+  _postsIsDup(t) { return !!this._postsFind(t) && !this._postsFix(t); }
+
   postsDoImport = async () => {
-    const rows = (this.state.postsRows || []).filter((t) => !this._postsIsDup(t));
-    if (!rows.length) return;
+    const all = this.state.postsRows || [];
+    const fixes = all.map((t) => ({ t, ex: this._postsFix(t) })).filter((r) => r.ex);
+    const rows = all.filter((t) => !this._postsFind(t));
+    if (!rows.length && !fixes.length) return;
     this.setState({ postsBusy: true, postsErr: '' });
     try {
       const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Kyiv' });
@@ -4230,10 +4325,29 @@ class Component extends DCLogic {
         ...(t.at ? { created_at: t.at } : {}),
         character_id: t.match ? t.match.id : null,
         character_name: t.match ? t.match.name : null,
+        ...((t.parts || 1) > 1 ? { parts: t.parts } : {}),
       }));
-      await this._insert('marta_posts', payload);
+      if (payload.length) {
+        try {
+          await this._insert('marta_posts', payload);
+        } catch (e) {
+          // Графи parts ще немає (міграція не прогнана) — кладемо без неї,
+          // бо сам текст дописів важливіший за лічильник частин.
+          if (!payload.some((p) => p.parts != null)) throw e;
+          console.warn('пости: parts не прийнявся —', e.message || e);
+          await this._insert('marta_posts', payload.map(({ parts, ...r }) => r));
+        }
+      }
+      for (const { t, ex } of fixes) {
+        try {
+          await this._patch('marta_posts', ex.id, { body: t.body, parts: t.parts || 2 });
+        } catch (e) {
+          try { await this._patch('marta_posts', ex.id, { body: t.body }); }
+          catch (e2) { console.warn('пости: хвіст не доклеївся до №' + ex.id, e2.message || e2); }
+        }
+      }
       this.setState({ postsBusy: false, postsRows: [], postsExisting: null });
-      this._toast('✓ Додано: ' + payload.length);
+      this._toast('✓ Додано: ' + payload.length + (fixes.length ? ' · доповнено: ' + fixes.length : ''));
     } catch (e) {
       this.setState({ postsBusy: false, postsErr: String(e.message || e) });
     }
@@ -4243,17 +4357,23 @@ class Component extends DCLogic {
     const s = this.state;
     const rows = (s.postsRows || []).map((t, i) => {
       const dup = this._postsIsDup(t);
+      const fix = !!this._postsFix(t);
+      const note = fix
+        ? 'доповнить наявний'
+        : ((t.parts || 1) > 1 ? t.parts + ' частини' : '');
       return {
         key: i, name: t.name + (t.match ? '' : ' (не в картотеці)'), hasArc: !!t.arc, arc: t.arc || '',
+        hasNote: !!note, note,
         when: t.at
           ? new Date(t.at).toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
           : (t.day || 'без дати'),
         preview: t.body.slice(0, 90) + (t.body.length > 90 ? '…' : ''),
-        bg: dup ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)',
+        bg: dup ? 'rgba(255,255,255,0.02)' : (fix ? 'rgba(100,149,237,0.07)' : 'rgba(255,255,255,0.05)'),
         op: dup ? '0.4' : '1',
       };
     });
-    const newCount = (s.postsRows || []).filter((t) => !this._postsIsDup(t)).length;
+    const newCount = (s.postsRows || []).filter((t) => !this._postsFind(t)).length;
+    const fixCount = (s.postsRows || []).filter((t) => !!this._postsFix(t)).length;
     return {
       postsOnFile: this.postsOnFile,
       postsBusy: s.postsBusy,
@@ -4261,7 +4381,7 @@ class Component extends DCLogic {
       postsHasRows: rows.length > 0,
       postsRows: rows,
       postsCount: String(rows.length),
-      postsNewCount: String(newCount),
+      postsNewCount: String(newCount) + ' нових' + (fixCount ? ' · доповнити ' + fixCount : ''),
       postsDoImport: this.postsDoImport,
     };
   }

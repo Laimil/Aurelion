@@ -90,6 +90,9 @@
                   <span style="font-size:0.68rem;letter-spacing:0.06em;padding:4px 11px;border-radius:999px;background:rgba(100,149,237,0.14);border:1px solid rgba(100,149,237,0.35);color:#8fb0ff;">{{ p.arc }}</span>
                 </sc-if>
                 <span style="font-size:0.72rem;color:rgba(255,255,255,0.32);">{{ p.when }}</span>
+                <sc-if value="{{ p.multi }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:0.68rem;color:rgba(255,255,255,0.24);">· {{ p.parts }}</span>
+                </sc-if>
               </div>
               <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.7;color:rgba(255,255,255,0.82);white-space:pre-wrap;margin:0;">{{ p.text }}</p>
               <sc-if value="{{ p.clipped }}" hint-placeholder-val="{{ false }}">
@@ -126,12 +129,15 @@ const BASE_H    = { apikey: SUPA_KEY };
 const PAGE = 12;      // дописів за раз
 const CAP  = 10;      // тегів у фільтрі, поки не попросили більше
 const CLIP = 700;     // символів допису, поки не натиснули «Читати далі»
-const POST_SEL = 'id,tag_name,tag_arc,character_id,character_name,body,created_at,characters(image)';
+const POST_SEL = 'id,tag_name,tag_arc,character_id,character_name,body,parts,created_at,characters(image)';
+// Графа parts з’являється лише після supabase_marta_posts_parts_migration.sql —
+// без неї стрічка мусить працювати, а не лягати на помилку запиту.
+const POST_SEL_LEAN = POST_SEL.replace(',parts', '');
 
 class Component extends DCLogic {
   state = {
     phase: 'load', posts: [], err: '', fChar: [], fArc: [],
-    off: 0, more: false, busy: false,
+    off: 0, more: false, busy: false, noParts: false,
     filtOpen: false, tagsPhase: 'none', chars: [], arcs: [], q: '',
     allChars: false, allArcs: false, open: {},
   };
@@ -189,7 +195,7 @@ class Component extends DCLogic {
     const s = this.state;
     const off = reset ? 0 : s.off;
     this.setState({ busy: true });
-    let url = `${SUPA_URL}/marta_posts?select=${POST_SEL}&order=created_at.desc`
+    let url = `${SUPA_URL}/marta_posts?select=${s.noParts ? POST_SEL_LEAN : POST_SEL}&order=created_at.desc`
       + `&limit=${PAGE + 1}&offset=${off}`;
     // Кілька позначених теґів — це «або»: показуємо все, що підпадає
     // хоч під один. Відбирає база (in.(…)), а не браузер.
@@ -207,7 +213,10 @@ class Component extends DCLogic {
     if (s.fArc.length)  url += `&tag_arc=${inList(s.fArc)}`;
     try {
       const r = await fetch(url, { headers: this._h() });
-      if (!r.ok) { this.setState({ phase: 'error', busy: false, err: await r.text() }); return; }
+      if (!r.ok) {
+        if (!s.noParts) { this.setState({ noParts: true }, () => this._page(reset)); return; }
+        this.setState({ phase: 'error', busy: false, err: await r.text() }); return;
+      }
       const got = await r.json();
       const more = got.length > PAGE;
       const rows = more ? got.slice(0, PAGE) : got;
@@ -280,6 +289,9 @@ class Component extends DCLogic {
         hasArc: !!p.tag_arc,
         arc: p.tag_arc || '',
         when: this._fmt(p.created_at),
+        // Один допис часто не влазить у одне повідомлення — тут він зшитий.
+        multi: Number(p.parts || 1) > 1,
+        parts: Number(p.parts || 1) + ' ' + (Number(p.parts) % 10 >= 5 || Number(p.parts) % 10 === 0 || (Number(p.parts) % 100 > 10 && Number(p.parts) % 100 < 20) ? 'частин' : 'частини'),
         text: cl.text,
         clipped: cl.clipped,
         open: () => this.setState((st) => ({ open: { ...st.open, [p.id]: true } })),
