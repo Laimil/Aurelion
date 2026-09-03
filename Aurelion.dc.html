@@ -1943,7 +1943,7 @@ a:hover{color:#a8c4f7;}
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Пости</h1>
       <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:460px;margin-left:auto;margin-right:auto;">Дописи з рольового чату, підписані тегами — за персонажем і аркою.</p>
     </header>
-    <dc-import name="Posts" embedded="{{ true }}" pre-char="{{ postsPreChar }}" pre-char-id="{{ postsPreCharId }}" pre-arc="{{ postsPreArc }}" hint-size="100%,720px"></dc-import>
+    <dc-import name="Posts" embedded="{{ true }}" pre-char="{{ postsPreChar }}" pre-char-id="{{ postsPreCharId }}" pre-arc="{{ postsPreArc }}" pre-asc="{{ postsPreAsc }}" pre-open-id="{{ postsOpenId }}" hint-size="100%,720px"></dc-import>
   </main>
 </sc-if>
 
@@ -4127,6 +4127,21 @@ class Component extends DCLogic {
       else if (seg === 'stories')    patch.selectedHistory   = find(data.stories);
       else if (seg === 'chronicles') patch.selectedChronicle = find(data.chronicles);
     }
+    // Пости: адреса може нести і фільтр (?char=…&arc=…&asc=1), і конкретний
+    // допис (#posts/<id>) — так стрічку можна лишити посиланням, а не лише
+    // переходом з анкети. Query читаємо лише коли він щось несе, інакше не
+    // затираємо fChar/fArc, які вже прийшли з кліку в анкеті персонажа.
+    if (patch.page === 'posts') {
+      try {
+        const qp = new URLSearchParams(window.location.search);
+        const chars = qp.getAll('char').filter(Boolean);
+        const arcs = qp.getAll('arc').filter(Boolean);
+        if (chars.length) patch.postsPreChar = chars.join('\u0001');
+        if (arcs.length) patch.postsPreArc = arcs.join('\u0001');
+        if (qp.has('asc')) patch.postsPreAsc = qp.get('asc');
+      } catch (e) { /* немає адресного рядка — не біда */ }
+      if (seg === 'posts' && id) patch.postsOpenId = id;
+    }
     return patch;
   }
 
@@ -4661,7 +4676,7 @@ class Component extends DCLogic {
       // Відбір, з яким прийшли з анкети, живе рівно поки відкрита стрічка:
       // інакше наступний захід у «Пости» з меню теж був би відібраним.
       if (prevPage === 'posts' && (s.postsPreArc || s.postsPreChar)) {
-        this.setState({ postsPreArc: '', postsPreChar: '', postsPreCharId: '' });
+        this.setState({ postsPreArc: '', postsPreChar: '', postsPreCharId: '', postsPreAsc: '', postsOpenId: '' });
       }
     }
     // Відкрили запис, а текст ще не доїхав — тягнемо саме його.
@@ -7349,6 +7364,8 @@ class Component extends DCLogic {
       postsPreChar:   s.postsPreChar   || '',
       postsPreCharId: s.postsPreCharId || '',
       postsPreArc:    s.postsPreArc    || '',
+      postsPreAsc:    s.postsPreAsc    || '',
+      postsOpenId:    s.postsOpenId    || '',
 
       // ── Ефект відкриття анкети ─────────────────────────────
       charFxEffect:      pc ? charOpenEffect : 'sparks',

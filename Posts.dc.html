@@ -80,7 +80,7 @@
       <sc-if value="{{ hasPosts }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;flex-direction:column;gap:16px;">
           <sc-for list="{{ rows }}" as="p" hint-placeholder-count="4">
-            <article style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:15px;padding:20px 22px;">
+            <article id="post-{{ p.id }}" style="background:rgba(255,255,255,0.07);{{ p.cardExtra }}border-radius:15px;padding:20px 22px;">
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
                 <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}">
                   <div style="{{ p.imgBg }}width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,215,0,0.3);flex-shrink:0;"></div>
@@ -99,6 +99,7 @@
                 <sc-if value="{{ p.multi }}" hint-placeholder-val="{{ false }}">
                   <span style="font-size:0.68rem;color:rgba(255,255,255,0.24);">· {{ p.parts }}</span>
                 </sc-if>
+                <button onClick="{{ p.copyLink }}" title="Скопіювати посилання на цей допис" style="cursor:pointer;border:none;background:none;padding:0;color:rgba(255,255,255,0.28);font-size:0.7rem;text-decoration:underline;">{{ p.linkLabel }}</button>
               </div>
               <sc-for list="{{ p.blocks }}" as="b" hint-placeholder-count="1">
                 <sc-if value="{{ b.plain }}" hint-placeholder-val="{{ true }}">
@@ -209,6 +210,7 @@ class Component extends DCLogic {
     off: 0, more: false, busy: false, noParts: false, asc: false,
     filtOpen: false, tagsPhase: 'none', chars: [], arcs: [], q: '',
     allChars: false, allArcs: false, open: {},
+    hashPostId: null, linkCopiedId: null,
   };
 
   _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
@@ -220,21 +222,30 @@ class Component extends DCLogic {
     try {
       if (localStorage.getItem('au_posts_asc') === '1') this.state.asc = true;
     } catch (e) { /* приватне вікно — лишаємо типове */ }
-    // Прийшли з анкети персонажа («арки» під портретом) — стрічка
-    // відкривається вже відібраною. Фільтр показуємо розгорнутим, щоб
-    // видно було, чому дописів мало, і можна було скинути.
-    const pc = String(this.props.preChar || '').trim();
-    // Анкета передає ВСІ написання арки (розділені \u0001), інакше частина
-    // дописів арки лишалась би за бортом через одну літеру в тегу.
+    // Прийшли з анкети персонажа («арки» під портретом) чи з посилання з
+    // адресного рядка (?char=…&arc=…) — стрічка відкривається вже
+    // відібраною. Фільтр показуємо розгорнутим, щоб видно було, чому
+    // дописів мало, і можна було скинути.
+    // Кілька значень (і з анкети, і з ?char=&char=…) приходять зшитими
+    // через \u0001, інакше частина дописів лишалась би за бортом.
+    const pc = String(this.props.preChar || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
     const pa = String(this.props.preArc || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
-    if (pc || pa.length) {
+    const preAsc = String(this.props.preAsc || '').trim();
+    if (preAsc === '1') this.state.asc = true;
+    else if (preAsc === '0') this.state.asc = false;
+    // Посилання на конкретний допис (#posts/<id>) — розгортаємо й
+    // прогортаємо до нього, щойно стрічка довантажиться.
+    const openId = String(this.props.preOpenId || '').trim();
+    if (openId) this.state.hashPostId = openId;
+    const afterLoad = () => { if (openId) this._ensureTarget(openId); };
+    if (pc.length || pa.length) {
       this.setState(
-        { fChar: pc ? [pc] : [], fArc: pa, filtOpen: true },
-        () => { this._tags(); this._load(); },
+        { fChar: pc, fArc: pa, filtOpen: true },
+        () => { this._tags(); this._load().then(afterLoad); },
       );
       return;
     }
-    this._load();
+    this._load().then(afterLoad);
   }
 
   // Пропси читаються не лише на монтуванні: сторінка живе між переходами,
@@ -244,9 +255,85 @@ class Component extends DCLogic {
     const was = [prevProps.preChar || '', prevProps.preArc || ''].join('|');
     const now = [this.props.preChar || '', this.props.preArc || ''].join('|');
     if (was === now) return;
-    const pc = String(this.props.preChar || '').trim();
+    const pc = String(this.props.preChar || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
     const pa = String(this.props.preArc || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
-    this._setFilt({ fChar: pc ? [pc] : [], fArc: pa });
+    this._setFilt({ fChar: pc, fArc: pa });
+  }
+
+  // Допис, на який дали посилання: якщо його вже нема у завантаженому
+  // вікні (інша сторінка, інший фільтр) — тягнемо саме його окремим
+  // запитом, а не гортаємо стрічку в пошуках.
+  async _ensureTarget(id) {
+    if (this.state.posts.some((p) => String(p.id) === String(id))) { this._openAndScroll(id); return; }
+    try {
+      const url = `${SUPA_URL}/marta_posts?id=eq.${encodeURIComponent(id)}&select=${this.state.noParts ? POST_SEL_LEAN : POST_SEL}`;
+      const r = await fetch(url, { headers: this._h() });
+      if (!r.ok) return;
+      const got = await r.json();
+      if (!got.length) return;
+      this.setState((st) => ({
+        posts: [got[0]].concat(st.posts.filter((p) => String(p.id) !== String(id))),
+      }), () => this._openAndScroll(id));
+    } catch (e) { console.warn('пости: не знайшла допис за посиланням', e); }
+  }
+
+  _openAndScroll(id) {
+    this.setState((st) => ({ open: { ...st.open, [id]: true }, hashPostId: id }), () => {
+      this._syncUrl(id);
+      requestAnimationFrame(() => {
+        const el = document.getElementById('post-' + id);
+        if (!el) return;
+        const top = el.getBoundingClientRect().top + window.pageYOffset - 90;
+        window.scrollTo({ top, behavior: 'smooth' });
+      });
+    });
+  }
+
+  // Фільтр і порядок читання — в адресний рядок, а не лише в стан: щоб
+  // посилання на стрічку відкривало те саме, що бачив той, хто його кинув.
+  _queryString() {
+    const s = this.state;
+    const params = [];
+    s.fChar.forEach((c) => params.push('char=' + encodeURIComponent(c)));
+    s.fArc.forEach((a) => params.push('arc=' + encodeURIComponent(a)));
+    if (s.asc) params.push('asc=1');
+    return params.join('&');
+  }
+
+  _permalink(id) {
+    const base = window.location.href.split('#')[0].split('?')[0];
+    const qs = this._queryString();
+    return base + (qs ? '?' + qs : '') + '#posts/' + encodeURIComponent(id);
+  }
+
+  _syncUrl(openId) {
+    try {
+      const qs = this._queryString();
+      const hash = openId != null ? '#posts/' + encodeURIComponent(openId) : (window.location.hash || '#posts');
+      const url = window.location.pathname + (qs ? '?' + qs : '') + hash;
+      window.history.replaceState(null, '', url);
+    } catch (e) { /* немає адресного рядка — не біда */ }
+  }
+
+  _copyLink(id) {
+    const url = this._permalink(id);
+    this.setState({ hashPostId: id }, () => this._syncUrl(id));
+    const done = (ok) => {
+      this.setState({ linkCopiedId: ok ? id : null });
+      clearTimeout(this._copyTimer);
+      this._copyTimer = setTimeout(() => this.setState({ linkCopiedId: null }), 1800);
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => done(true), () => done(false));
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand('copy');
+        ta.remove(); done(ok);
+      }
+    } catch (e) { done(false); }
   }
 
   async _load() {
@@ -281,7 +368,8 @@ class Component extends DCLogic {
     // тому й стрічку відбираємо так само — інакше в шапці «5 дописів», а
     // в стрічці три (допис звірений з текою, але підписаний інакше).
     const cid = String(this.props.preCharId || '').trim();
-    const one = s.fChar.length === 1 && s.fChar[0] === String(this.props.preChar || '').trim();
+    const pcRaw = String(this.props.preChar || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
+    const one = s.fChar.length === 1 && pcRaw.length === 1 && s.fChar[0] === pcRaw[0];
     if (cid && one) {
       url += '&or=' + encodeURIComponent('(character_id.eq.' + cid + ',tag_name.eq."' + s.fChar[0] + '")');
     } else if (s.fChar.length) {
@@ -360,7 +448,7 @@ class Component extends DCLogic {
   }
 
   _setFilt(patch) {
-    this.setState({ ...patch, off: 0, open: {} }, () => this._page(true));
+    this.setState({ ...patch, off: 0, open: {} }, () => { this._page(true); this._syncUrl(this.state.hashPostId); });
   }
 
   _fmt(iso) {
@@ -419,7 +507,12 @@ class Component extends DCLogic {
         text: cl.text,
         blocks: this._blocks(cl.text),
         clipped: cl.clipped,
-        open: () => this.setState((st) => ({ open: { ...st.open, [p.id]: true } })),
+        open: () => this._openAndScroll(p.id),
+        cardExtra: String(p.id) === String(s.hashPostId)
+          ? 'border:1px solid rgba(255,215,0,0.55);box-shadow:0 0 0 1px rgba(255,215,0,0.12);'
+          : 'border:1px solid rgba(255,255,255,0.13);',
+        copyLink: () => this._copyLink(p.id),
+        linkLabel: String(s.linkCopiedId) === String(p.id) ? 'скопійовано' : 'посилання',
         hasImg: !!(p.characters && p.characters.image),
         imgBg: (p.characters && p.characters.image)
           ? 'background-image:url(' + JSON.stringify(p.characters.image) + ');background-size:cover;background-position:center top;'
@@ -480,7 +573,7 @@ class Component extends DCLogic {
       flipAsc: () => {
         const next = !this.state.asc;
         try { localStorage.setItem('au_posts_asc', next ? '1' : '0'); } catch (e) { /* не біда */ }
-        this.setState({ asc: next, off: 0, open: {} }, () => this._page(true));
+        this.setState({ asc: next, off: 0, open: {} }, () => { this._page(true); this._syncUrl(this.state.hashPostId); });
       },
       filtLabel: s.filtOpen ? 'Згорнути фільтр' : 'Фільтр за теґами',
       toggleFilt: () => {
