@@ -30,6 +30,7 @@
     <div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
         <button onClick="{{ toggleFilt }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.82rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">{{ filtLabel }}</button>
+        <button onClick="{{ flipAsc }}" title="Порядок читання" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.82rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">{{ ascLabel }}</button>
         <sc-if value="{{ hasPick }}" hint-placeholder-val="{{ false }}">
           <span style="font-size:0.78rem;color:rgba(255,215,0,0.75);">{{ pickLabel }}</span>
           <button onClick="{{ clearFilt }}" style="cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.4);font-size:0.78rem;text-decoration:underline;padding:0;">скинути</button>
@@ -94,7 +95,14 @@
                   <span style="font-size:0.68rem;color:rgba(255,255,255,0.24);">· {{ p.parts }}</span>
                 </sc-if>
               </div>
-              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.7;color:rgba(255,255,255,0.82);white-space:pre-wrap;margin:0;">{{ p.text }}</p>
+              <sc-for list="{{ p.blocks }}" as="b" hint-placeholder-count="1">
+                <sc-if value="{{ b.plain }}" hint-placeholder-val="{{ true }}">
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.7;color:rgba(255,255,255,0.82);white-space:pre-wrap;margin:0 0 10px;">{{ b.text }}</p>
+                </sc-if>
+                <sc-if value="{{ b.quote }}" hint-placeholder-val="{{ false }}">
+                  <blockquote style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.6;color:rgba(255,255,255,0.55);font-style:italic;white-space:pre-wrap;margin:0 0 10px;padding:2px 0 2px 14px;border-left:2px solid rgba(255,215,0,0.3);">{{ b.text }}</blockquote>
+                </sc-if>
+              </sc-for>
               <sc-if value="{{ p.clipped }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ p.open }}" style="cursor:pointer;margin-top:10px;border:none;background:none;padding:0;color:rgba(255,215,0,0.7);font-size:0.8rem;">Читати далі →</button>
               </sc-if>
@@ -137,7 +145,7 @@ const POST_SEL_LEAN = POST_SEL.replace(',parts', '');
 class Component extends DCLogic {
   state = {
     phase: 'load', posts: [], err: '', fChar: [], fArc: [],
-    off: 0, more: false, busy: false, noParts: false,
+    off: 0, more: false, busy: false, noParts: false, asc: false,
     filtOpen: false, tagsPhase: 'none', chars: [], arcs: [], q: '',
     allChars: false, allArcs: false, open: {},
   };
@@ -146,6 +154,11 @@ class Component extends DCLogic {
   _h() { return { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` }; }
 
   componentDidMount() {
+    // Порядок читання — це вибір читача, і він мусить жити між заходами:
+    // арку читають від початку за кілька вечорів.
+    try {
+      if (localStorage.getItem('au_posts_asc') === '1') this.state.asc = true;
+    } catch (e) { /* приватне вікно — лишаємо типове */ }
     // Прийшли з анкети персонажа («арки» під портретом) — стрічка
     // відкривається вже відібраною. Фільтр показуємо розгорнутим, щоб
     // видно було, чому дописів мало, і можна було скинути.
@@ -195,7 +208,8 @@ class Component extends DCLogic {
     const s = this.state;
     const off = reset ? 0 : s.off;
     this.setState({ busy: true });
-    let url = `${SUPA_URL}/marta_posts?select=${s.noParts ? POST_SEL_LEAN : POST_SEL}&order=created_at.desc`
+    let url = `${SUPA_URL}/marta_posts?select=${s.noParts ? POST_SEL_LEAN : POST_SEL}`
+      + `&order=created_at.${s.asc ? 'asc' : 'desc'}`
       + `&limit=${PAGE + 1}&offset=${off}`;
     // Кілька позначених теґів — це «або»: показуємо все, що підпадає
     // хоч під один. Відбирає база (in.(…)), а не браузер.
@@ -279,6 +293,23 @@ class Component extends DCLogic {
     return { text: (stop > CLIP * 0.5 ? cut.slice(0, stop + 1) : cut) + ' …', clipped: true };
   }
 
+  // Цитата в тілі допису зберігається рядками з `> ` (так її кладе й бот, і
+  // довантаження з експорту). Тут розкладаємо на блоки, щоб чужі слова
+  // було видно як чужі, а не як абзац автора.
+  _blocks(text) {
+    const out = [];
+    String(text || '').split('\n').forEach((line) => {
+      const q = /^\s*>\s?/u.test(line);
+      const t = q ? line.replace(/^\s*>\s?/u, '') : line;
+      const last = out[out.length - 1];
+      if (last && last.quote === q) last.text += '\n' + t;
+      else out.push({ quote: q, text: t });
+    });
+    return out
+      .map((b) => ({ quote: b.quote, plain: !b.quote, text: b.text.replace(/^\n+|\n+$/g, '') }))
+      .filter((b) => b.text.trim());
+  }
+
   renderVals() {
     const s = this.state;
     const rows = (s.posts || []).map((p) => {
@@ -293,6 +324,7 @@ class Component extends DCLogic {
         multi: Number(p.parts || 1) > 1,
         parts: Number(p.parts || 1) + ' ' + (Number(p.parts) % 10 >= 5 || Number(p.parts) % 10 === 0 || (Number(p.parts) % 100 > 10 && Number(p.parts) % 100 < 20) ? 'частин' : 'частини'),
         text: cl.text,
+        blocks: this._blocks(cl.text),
         clipped: cl.clipped,
         open: () => this.setState((st) => ({ open: { ...st.open, [p.id]: true } })),
         hasImg: !!(p.characters && p.characters.image),
@@ -340,6 +372,12 @@ class Component extends DCLogic {
       loadMore: () => { if (!s.busy) this._page(false); },
 
       filtOpen: s.filtOpen,
+      ascLabel: s.asc ? '↑ Спершу давніші' : '↓ Спершу новіші',
+      flipAsc: () => {
+        const next = !this.state.asc;
+        try { localStorage.setItem('au_posts_asc', next ? '1' : '0'); } catch (e) { /* не біда */ }
+        this.setState({ asc: next, off: 0, open: {} }, () => this._page(true));
+      },
       filtLabel: s.filtOpen ? 'Згорнути фільтр' : 'Фільтр за теґами',
       toggleFilt: () => {
         this.setState((st) => ({ filtOpen: !st.filtOpen }));

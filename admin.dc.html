@@ -2732,6 +2732,12 @@ function stripCont(s) {
   return String(s).slice(m[0].length).replace(/^[)\]\s:—–-]+/u, '');
 }
 
+// Слова автора — це все, що не цитата (рядки з `> `). Повідомлення, в якому
+// свого немає нічого, — коментар до чужого рядка, а не допис.
+function ownWords(body) {
+  return String(body || '').split('\n').filter((l) => !/^\s*>/u.test(l)).join(' ').trim();
+}
+
 function stitchBody(a, b) {
   const l = String(a || '').replace(/\s+$/u, '');
   const r = stripCont(String(b || '').replace(/^\s+/u, ''));
@@ -4178,6 +4184,13 @@ class Component extends DCLogic {
       if (!textEl) return;
       const tmp = doc.createElement('div');
       tmp.innerHTML = textEl.innerHTML.replace(/<br\s*\/?>/gi, '\n');
+      // Цитата в експорті — <blockquote>. Без позначки чужі слова зливалися
+      // з авторськими; зберігаємо так само, як бот — рядками з `> `.
+      tmp.querySelectorAll('blockquote').forEach((q) => {
+        const qt = (q.textContent || '').replace(/\u00a0/g, ' ').trim()
+          .split('\n').map((l) => '> ' + l.trim()).join('\n');
+        q.replaceWith(doc.createTextNode('\n' + qt + '\n'));
+      });
       const text = (tmp.textContent || '').replace(/\u00a0/g, ' ').trim();
       if (!text) return;
       const dateEl = m.querySelector('.date.details');
@@ -4215,6 +4228,7 @@ class Component extends DCLogic {
     if (!head) return null;
     const text = String((t ? t.body : b.text) || '').replace(/^\s+/u, '');
     if (!text) return null;
+    if (!ownWords(text)) return null;      // цілком цитата — це не хвіст допису
     if ((b.who || '') !== (head.who || '')) return null;
     const gap = (b.at && head.at) ? (new Date(b.at) - new Date(head.at)) : 0;
     if (gap < 0) return null;
@@ -4270,7 +4284,7 @@ class Component extends DCLogic {
             glued++;
             continue;
           }
-          if (!t || !t.body) continue;
+          if (!t || !t.body || !ownWords(t.body)) continue;
           const key = t.name + '|' + t.body.slice(0, 60);
           if (seen.has(key)) continue;
           seen.add(key);
