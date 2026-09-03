@@ -2640,9 +2640,10 @@ a:hover{color:#a8c4f7;}
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
-const SUPA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
-const SUPA_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
-const SUPA_H   = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` };
+const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const SUPA_H    = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` };
 
 // ── Двофазне завантаження ────────────────────────────────────────────────
 // Фаза 1 — тільки поля, потрібні спискам і карткам (без важкого `content`).
@@ -4699,18 +4700,66 @@ class Component extends DCLogic {
 
   }
 
+  // ── Токен віконця: те саме оновлення заздалегідь + повтор на 401, що
+  // й у кабінеті (Gossip.dc.html) — інакше застарілий (>1 год) ключ у
+  // localStorage читався тут напряму, і арки/пости мовчки требували
+  // повторного входу в кабінет щогодини, хоч сесія була жива.
+  _userTok()  { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _userRef()  { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
+  _userExp()  { try { return Number(localStorage.getItem('au_user_exp')) || 0; } catch (e) { return 0; } }
+  _userSave(d) {
+    try {
+      if (!d || !d.access_token) return;
+      localStorage.setItem('au_user_token', d.access_token);
+      if (d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+      const ttl = Math.max(60, Number(d.expires_in) || 3600);
+      localStorage.setItem('au_user_exp', String(Date.now() + ttl * 1000));
+    } catch (e) {}
+  }
+  async _userRenew(force) {
+    if (this._userRenewJob) return this._userRenewJob;
+    const done = (ok) => { this._userRenewJob = null; return ok; };
+    this._userRenewJob = (async () => {
+      const rt = this._userRef();
+      if (!rt) return !!this._userTok();
+      if (!force && this._userExp() - Date.now() > 5 * 60 * 1000) return true;
+      try {
+        const r = await fetch(`${SUPA_AUTH}/token?grant_type=refresh_token`, {
+          method: 'POST', headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: rt }),
+        });
+        let d = null;
+        try { d = await r.json(); } catch (e) {}
+        if (d && d.access_token) { this._userSave(d); return true; }
+        if (r.status === 400 || r.status === 401 || r.status === 403) {
+          try {
+            localStorage.removeItem('au_user_token');
+            localStorage.removeItem('au_user_refresh');
+            localStorage.removeItem('au_user_exp');
+          } catch (e) {}
+        }
+      } catch (e) {}
+      return !!this._userTok();
+    })().then(done, () => done(false));
+    return this._userRenewJob;
+  }
+  async _userFresh() {
+    if (!this._userRef()) return;
+    const at = this._userExp();
+    if (at && at - Date.now() > 5 * 60 * 1000) return;
+    await this._userRenew(true);
+  }
+
   // ── Арки персонажа (з дописів рольового чату) ───────────────
   // Дописи лежать у `marta_posts`, і RLS віддає їх лише увійшлим із
   // відкритим доступом — тому запит іде з токеном віконця, а не з
   // анонімним ключем, як решта сайту. Раз на персонажа, ліниво.
-  _loadArcs(ch) {
+  async _loadArcs(ch) {
     if (!ch || this.state.userStatus !== 'approved') return;
     const key = String(ch.id);
     this._arcReq = this._arcReq || {};
     if (this._arcReq[key]) return;
-    let tok = '';
-    try { tok = localStorage.getItem('au_user_token') || ''; } catch (e) {}
-    if (!tok) return;
+    if (!this._userTok() && !this._userRef()) return;
     this._arcReq[key] = 1;
     // Тег бота не завжди звірений з картоткою (`character_id` порожній),
     // тому беремо і за текою, і за самим ім'ям з тегу.
@@ -4719,17 +4768,21 @@ class Component extends DCLogic {
     if (name) parts.push('tag_name.eq."' + name + '"');
     const q = 'marta_posts?select=tag_arc,created_at&or=' + encodeURIComponent('(' + parts.join(',') + ')')
       + '&order=created_at.desc&limit=800';
-    fetch(`${SUPA_URL}/${q}`, { headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + tok } })
-      .then(r => r.ok ? r.json() : r.text().then(t => Promise.reject(new Error('HTTP ' + r.status + ' ' + t))))
-      .then(rows => this.setState(st => ({ charArcs: { ...(st.charArcs || {}), [key]: rows || [] } })))
+    const go = () => fetch(`${SUPA_URL}/${q}`, { headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + (this._userTok() || SUPA_KEY) } });
+    try {
+      await this._userFresh();
+      let r = await go();
+      if (r.status === 401 && await this._userRenew(true)) r = await go();
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + await r.text());
+      const rows = await r.json();
+      this.setState(st => ({ charArcs: { ...(st.charArcs || {}), [key]: rows || [] } }));
+    } catch (e) {
       // Прапорець запиту НЕ скидаємо: `componentDidUpdate` смикає це на
       // кожну зміну стану, і скинутий прапорець означав би нескінченне
-      // повторення того самого невдалого запиту. Прострочений токен у
-      // localStorage — стан звичайний, а не аварія: показуємо рядок.
-      .catch(e => {
-        console.warn('арки персонажа:', e && e.message);
-        this.setState(st => ({ charArcsFail: { ...(st.charArcsFail || {}), [key]: 1 } }));
-      });
+      // повторення того самого невдалого запиту.
+      console.warn('арки персонажа:', e && e.message);
+      this.setState(st => ({ charArcsFail: { ...(st.charArcsFail || {}), [key]: 1 } }));
+    }
   }
 
   _readUser = () => {

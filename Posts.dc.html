@@ -220,8 +220,66 @@ class Component extends DCLogic {
     hashPostId: null, linkCopiedId: null,
   };
 
+  // Ключ доступу живе годину, а стрічку відкривають і без кабінету у
+  // фокусі — тому тут те саме оновлення заздалегідь + повтор на 401,
+  // що й у кабінеті (Gossip.dc.html), інакше «увійдіть знову» вилазило б
+  // щогодини саме тут, хоч людина нікуди не виходила.
   _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _ref() { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
+  _exp() { try { return Number(localStorage.getItem('au_user_exp')) || 0; } catch (e) { return 0; } }
   _h() { return { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` }; }
+  _save(d) {
+    try {
+      if (!d || !d.access_token) return;
+      localStorage.setItem('au_user_token', d.access_token);
+      if (d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+      const ttl = Math.max(60, Number(d.expires_in) || 3600);
+      localStorage.setItem('au_user_exp', String(Date.now() + ttl * 1000));
+    } catch (e) {}
+  }
+  _drop() {
+    try {
+      localStorage.removeItem('au_user_token');
+      localStorage.removeItem('au_user_refresh');
+      localStorage.removeItem('au_user_exp');
+      localStorage.removeItem('au_user_card');
+    } catch (e) {}
+  }
+  async _refresh(force) {
+    const rt = this._ref();
+    if (!rt) return !!this._tok();
+    if (!force && this._exp() - Date.now() > 5 * 60 * 1000) return true;
+    try {
+      const r = await fetch(`${SUPA_AUTH}/token?grant_type=refresh_token`, {
+        method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: rt }),
+      });
+      let d = null;
+      try { d = await r.json(); } catch (e) {}
+      if (d && d.access_token) { this._save(d); return true; }
+      if (r.status === 400 || r.status === 401 || r.status === 403) this._drop();
+    } catch (e) {}
+    return !!this._tok();
+  }
+  _renew(force) {
+    if (this._renewJob) return this._renewJob;
+    const done = (ok) => { this._renewJob = null; return ok; };
+    this._renewJob = this._refresh(force).then(done, () => done(false));
+    return this._renewJob;
+  }
+  async _fresh() {
+    if (!this._ref()) return;
+    const at = this._exp();
+    if (at && at - Date.now() > 5 * 60 * 1000) return;
+    await this._renew(true);
+  }
+  async _api(url, opt = {}) {
+    await this._fresh();
+    const go = () => fetch(url, { ...opt, headers: { ...(opt.headers || {}), ...this._h() } });
+    let r = await go();
+    if (r.status === 401 && await this._renew(true)) r = await go();
+    return r;
+  }
 
   componentDidMount() {
     // Порядок читання — це вибір читача, і він мусить жити між заходами:
@@ -274,7 +332,7 @@ class Component extends DCLogic {
     if (this.state.posts.some((p) => String(p.id) === String(id))) { this._openAndScroll(id); return; }
     try {
       const url = `${SUPA_URL}/marta_posts?id=eq.${encodeURIComponent(id)}&select=${this.state.noParts ? POST_SEL_LEAN : POST_SEL}`;
-      const r = await fetch(url, { headers: this._h() });
+      const r = await this._api(url);
       if (!r.ok) return;
       const got = await r.json();
       if (!got.length) return;
@@ -344,13 +402,12 @@ class Component extends DCLogic {
   }
 
   async _load() {
-    const tok = this._tok();
-    if (!tok) { this.setState({ phase: 'guest' }); return; }
+    if (!this._tok() && !this._ref()) { this.setState({ phase: 'guest' }); return; }
     try {
-      const ur = await fetch(`${SUPA_AUTH}/user`, { headers: this._h() });
+      const ur = await this._api(`${SUPA_AUTH}/user`);
       if (!ur.ok) { this.setState({ phase: 'guest' }); return; }
       const u = await ur.json();
-      const sr = await fetch(`${SUPA_URL}/site_users?id=eq.${u.id}&select=status`, { headers: this._h() });
+      const sr = await this._api(`${SUPA_URL}/site_users?id=eq.${u.id}&select=status`);
       const prof = sr.ok ? (await sr.json())[0] : null;
       if (!prof || prof.status !== 'approved') { this.setState({ phase: 'locked' }); return; }
       await this._page(true);
@@ -385,7 +442,7 @@ class Component extends DCLogic {
     // Відбираємо за всіма написаннями обраної арки — база про опічатки не знає.
     if (s.fArc.length)  url += `&tag_arc=${inList(this._arcAll(s.fArc))}`;
     try {
-      const r = await fetch(url, { headers: this._h() });
+      const r = await this._api(url);
       if (!r.ok) {
         if (!s.noParts) { this.setState({ noParts: true }, () => this._page(reset)); return; }
         this.setState({ phase: 'error', busy: false, err: await r.text() }); return;
@@ -408,9 +465,8 @@ class Component extends DCLogic {
     if (this.state.tagsPhase !== 'none') return;
     this.setState({ tagsPhase: 'busy' });
     try {
-      const r = await fetch(
+      const r = await this._api(
         `${SUPA_URL}/marta_posts?select=tag_name,tag_arc&order=created_at.desc&limit=600`,
-        { headers: this._h() },
       );
       const rows = r.ok ? await r.json() : [];
       const nameCount = new Map();
