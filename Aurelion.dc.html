@@ -7297,11 +7297,13 @@ class Component extends DCLogic {
       openArc: (e) => {
         const ds = (e.currentTarget && e.currentTarget.dataset) || {};
         // Передаємо всі написання арки, а не лише канонічне: інакше дописи,
-        // де в тегу опічатка, у стрічку не потраплять.
+        // де в тегу опічатка, у стрічку не потраплять. Персонажа НЕ передаємо —
+        // клік з анкети мусить показати всю арку (усіх причетних), а не лише
+        // цього одного персонажа в ній.
         this.setState({
           postsPreArc: ds.arcs || ds.arc || '',
-          postsPreChar: (sc && sc.name) || '',
-          postsPreCharId: (sc && String(sc.id)) || '',
+          postsPreChar: '',
+          postsPreCharId: '',
         }, () => this._nav('posts'));
       },
       ...(() => {
