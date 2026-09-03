@@ -208,6 +208,46 @@ a:hover{color:#a8c4f7;}
 .q-card:hover{background:rgba(255,255,255,0.09)}
 .q-author span:first-of-type{transition:color 0.2s ease}
 .q-author:hover span{color:#fff!important;border-color:rgba(255,215,0,0.45)!important}
+/* ── Телефон ──────────────────────────────────────────────────────────
+   Правки тільки для вузьких екранів; на десктопі нічого не змінюється.
+   Розмітка тут інлайнова, тому чіпляємося за самі значення в style —
+   так один блок покриває всі однакові сітки, не розставляючи класи. */
+@media(max-width:620px){
+  /* Сітки, чия мінімальна колонка ширша за екран: браузер лишає їй
+     повну ширину, і сторінка починає їхати вбік. Ставимо один стовпчик. */
+  [style*="minmax(320px"],[style*="minmax(300px"],[style*="minmax(258px"],
+  [style*="minmax(255px"],[style*="minmax(160px"],[style*="minmax(150px"],
+  [style*="minmax(148px"],[style*="minmax(126px"]{grid-template-columns:1fr!important}
+  /* Картки персонажів лишаються по дві: один стовпчик робить із галереї
+     нескінченну шпальту. */
+  [style*="minmax(178px"]{grid-template-columns:repeat(2,1fr)!important}
+  /* «Коли ми пишемо»: підпис дня забирав третину рядка.
+     ⚠ Значення тут пишемо так, як їх СЕРІАЛІЗУЄ React (пробіл після
+     кожної двокрапки й коми, «0» → «0px»), інакше добірка не збігається
+     ні з чим і правило тихо не діє. */
+  [style*="grid-template-columns: 92px"]{grid-template-columns:52px 1fr auto!important}
+  /* Перемикачі-пігулки (гравці/НПС, сортування) ширші за екран —
+     хай переносяться, а не ховаються за краєм. */
+  [style*="display: inline-flex; gap: 4px"]{flex-wrap:wrap!important;justify-content:center}
+  /* Бічні поля: 24px на 360-піксельному екрані — це десята частина ширини. */
+  [style*="padding: 0px 24px"],[style*="padding: 20px 24px"]{padding-left:14px!important;padding-right:14px!important}
+  /* Дотик: 26-піксельний чип пальцем не взяти. Абсолютні хрестики та
+     квадратні нігтики галереї від цього не страждають. */
+  button{min-height:38px}
+  /* Довгі назви й посилання не розпирають картку. */
+  h1,h2,h3,p,span,a{overflow-wrap:break-word}
+  /* Шапка: пошуковий рядок у ній лишався 140-піксельним і виштовхував
+     за край плашку входу й «поділитися». На телефоні шукати є де —
+     велике віконце стоїть на головній, — тому в шапці його прибираємо. */
+  .au-navsearch{display:none!important}
+  nav a[data-cta="true"]{padding:6px 9px!important;font-size:0.8rem!important;margin-left:4px!important}
+  .au-navburger{padding:7px 13px!important}
+}
+/* Наведення на телефоні не існує — воно не має бути єдиним способом
+   щось побачити; підказки з :hover лишаються, але нічого не приховують. */
+@media(hover:none){
+  .lore-card:hover,.char-card:hover{transform:none!important}
+}
 </style>
 </helmet>
 
@@ -247,7 +287,7 @@ a:hover{color:#a8c4f7;}
     <button class="au-navburger" onClick="{{ toggleNav }}" aria-label="Розділи" aria-expanded="{{ navOpen }}" style="margin-right:auto;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.72);border-radius:999px;padding:7px 16px;font-size:0.82rem;letter-spacing:0.02em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">{{ navBurgerLabel }}</button>
     <a href="#contacts" data-active="{{ navJoinActive }}" data-cta="true" style="flex-shrink:0;margin-left:10px;padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;text-decoration:none;">Долучитися</a>
     <sc-if value="{{ showNavSearch }}" hint-placeholder-val="{{ false }}">
-      <div style="position:relative;flex-shrink:0;margin-left:12px;">
+      <div class="au-navsearch" style="position:relative;flex-shrink:0;margin-left:12px;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
         <input value="{{ homeSearchVal }}" onInput="{{ setHomeSearch }}" onKeyDown="{{ homeSearchKey }}" placeholder="Пошук…" style="width:140px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:7px 12px 7px 33px;font-size:0.8rem;color:#fff;outline:none;transition:all 0.25s;" style-focus="width:220px;border-color:rgba(255,215,0,0.45);background:rgba(255,255,255,0.09);">
         <sc-if value="{{ homeSearchActive }}" hint-placeholder-val="{{ false }}">
