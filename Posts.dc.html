@@ -92,9 +92,9 @@
                   <span style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;letter-spacing:0.02em;color:rgba(255,215,0,0.8);">{{ p.name }}</span>
                 </sc-if>
                 <span style="flex:1;"></span>
-                <sc-if value="{{ p.hasArc }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-size:0.68rem;letter-spacing:0.06em;padding:4px 11px;border-radius:999px;background:rgba(100,149,237,0.14);border:1px solid rgba(100,149,237,0.35);color:#8fb0ff;">{{ p.arc }}</span>
-                </sc-if>
+                <sc-for list="{{ p.arcs }}" as="pa" hint-placeholder-count="0">
+                  <span style="font-size:0.68rem;letter-spacing:0.06em;padding:4px 11px;border-radius:999px;background:rgba(100,149,237,0.14);border:1px solid rgba(100,149,237,0.35);color:#8fb0ff;">{{ pa }}</span>
+                </sc-for>
                 <span style="font-size:0.72rem;color:rgba(255,255,255,0.32);">{{ p.when }}</span>
                 <sc-if value="{{ p.multi }}" hint-placeholder-val="{{ false }}">
                   <span style="font-size:0.68rem;color:rgba(255,255,255,0.24);">· {{ p.parts }}</span>
@@ -164,6 +164,13 @@ function arcKey(s) {
     .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 }
 
+// Один допис іноді носить дві арки одразу — бот кладе їх одним рядком,
+// зшитим через ARC_SEP. Скрізь, де арку читають з бази, спершу розшиваємо.
+const ARC_SEP = ' / ';
+function splitArcs(v) {
+  return String(v || '').split(ARC_SEP).map((s) => s.trim()).filter(Boolean);
+}
+
 function editDist(a, b) {
   if (a === b) return 0;
   const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
@@ -206,7 +213,7 @@ function groupArcs(counts) {
 
 class Component extends DCLogic {
   state = {
-    phase: 'load', posts: [], err: '', fChar: [], fArc: [], arcAlt: {}, arcChars: {},
+    phase: 'load', posts: [], err: '', fChar: [], fArc: [], arcAlt: {}, rawAlt: {}, arcChars: {},
     off: 0, more: false, busy: false, noParts: false, asc: false,
     filtOpen: false, tagsPhase: 'none', chars: [], arcs: [], q: '',
     allChars: false, allArcs: false, open: {},
@@ -406,30 +413,41 @@ class Component extends DCLogic {
         { headers: this._h() },
       );
       const rows = r.ok ? await r.json() : [];
-      const count = (key) => {
-        const m = new Map();
-        rows.forEach((p) => { const v = p[key]; if (v) m.set(v, (m.get(v) || 0) + 1); });
-        return m;
-      };
-      const tally = (key) => [...count(key).entries()]
+      const nameCount = new Map();
+      rows.forEach((p) => { const v = p.tag_name; if (v) nameCount.set(v, (nameCount.get(v) || 0) + 1); });
+      const tally = (m) => [...m.entries()]
         .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'uk')).map((e) => e[0]);
-      // Арки — одна плитка на арку, а не на написання.
-      const boxes = groupArcs(count('tag_arc'));
+      // Допис може нести кілька арок одразу («А / Б») — рахуємо й групуємо
+      // кожну окремо, інакше комбінований запис осідав би як власна дивна
+      // «арка» замість підживити обидві.
+      const arcCount = new Map();
+      rows.forEach((p) => {
+        splitArcs(p.tag_arc).forEach((name) => arcCount.set(name, (arcCount.get(name) || 0) + 1));
+      });
+      const boxes = groupArcs(arcCount);
       const alt = {};
       boxes.forEach((b) => { alt[b.name] = b.all; });
-      // Хто відзначений у дописах кожної арки — щоб вибір арки одразу
-      // підхоплював усіх причетних персонажів у фільтр імен.
+      // Хто відзначений у дописах кожної арки (для підхоплення персонажів) і
+      // якими сирими рядками бази її насправді відбирати — рядок може бути
+      // суцільним («А») або складеним («А / Б»), а фільтр іде за сирим текстом.
       const arcChars = {};
+      const rawAlt = {};
       rows.forEach((p) => {
-        if (!p.tag_arc || !p.tag_name) return;
-        const box = boxes.find((b) => b.all.includes(p.tag_arc));
-        const key = box ? box.name : p.tag_arc;
-        const list = arcChars[key] || (arcChars[key] = []);
-        if (!list.includes(p.tag_name)) list.push(p.tag_name);
+        if (!p.tag_arc) return;
+        splitArcs(p.tag_arc).forEach((name) => {
+          const box = boxes.find((b) => b.all.includes(name));
+          const key = box ? box.name : name;
+          const raws = rawAlt[key] || (rawAlt[key] = []);
+          if (!raws.includes(p.tag_arc)) raws.push(p.tag_arc);
+          if (p.tag_name) {
+            const list = arcChars[key] || (arcChars[key] = []);
+            if (!list.includes(p.tag_name)) list.push(p.tag_name);
+          }
+        });
       });
       this.setState({
-        tagsPhase: 'ready', chars: tally('tag_name'),
-        arcs: boxes.map((b) => b.name), arcAlt: alt, arcChars,
+        tagsPhase: 'ready', chars: tally(nameCount),
+        arcs: boxes.map((b) => b.name), arcAlt: alt, rawAlt, arcChars,
       });
     } catch (e) {
       console.warn('пости: перелік тегів', e);
@@ -437,12 +455,14 @@ class Component extends DCLogic {
     }
   }
 
-  // Всі написання позначених арок. Кошики приходять з `_tags()`, але відбір з
-  // анкети працює й без них — тоді беремо те, що передали.
+  // Сирі рядки бази, що відбирають позначені арки (кошики приходять з
+  // `_tags()`, але відбір з анкети працює й без них — тоді беремо те, що
+  // передали). Рядок може бути складеним («А / Б») — така сама опір, як
+  // самостійна арка, і мусить лишитись у списку, а не розсипатись.
   _arcAll(list) {
     const out = [];
     (list || []).forEach((v) => {
-      ((this.state.arcAlt || {})[v] || [v]).forEach((x) => { if (!out.includes(x)) out.push(x); });
+      ((this.state.rawAlt || {})[v] || [v]).forEach((x) => { if (!out.includes(x)) out.push(x); });
     });
     return out;
   }
@@ -498,8 +518,7 @@ class Component extends DCLogic {
       return {
         id: p.id,
         name: p.character_name || p.tag_name,
-        hasArc: !!p.tag_arc,
-        arc: p.tag_arc || '',
+        arcs: splitArcs(p.tag_arc),
         when: this._fmt(p.created_at),
         // Один допис часто не влазить у одне повідомлення — тут він зшитий.
         multi: Number(p.parts || 1) > 1,

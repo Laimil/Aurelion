@@ -2838,6 +2838,12 @@ function nearArc(a, b) {
   return editDist(x, y) <= (Math.min(x.length, y.length) <= 8 ? 1 : 2);
 }
 
+// Один допис може нести дві арки одразу — в базі вони зшиті через ARC_SEP.
+const ARC_SEP = ' / ';
+function splitArcs(v) {
+  return String(v || '').split(ARC_SEP).map((s) => s.trim()).filter(Boolean);
+}
+
 const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake', 'posts'].concat(ARCHIVE_SEGS);
 
 // ── Галерея персонажа ──────────────────────────────────────
@@ -7314,19 +7320,21 @@ class Component extends DCLogic {
         if (!rows) return { ...off, charArcsVisible: true, charArcsLoading: true };
         const m = new Map();
         (rows || []).forEach(r => {
-          const a = String(r.tag_arc || '').trim();
-          if (!a) return;
           const t = new Date(r.created_at).getTime() || 0;
-          // Одна арка — один рядок, навіть якщо в тегах вона написана
-          // по-різному. Канонічне написання вибираємо нижче — за частотою.
-          let key = a;
-          for (const k of m.keys()) { if (nearArc(k, a)) { key = k; break; } }
-          const cur = m.get(key) || { arc: key, n: 0, first: t, last: t, forms: new Map() };
-          cur.n += 1;
-          cur.forms.set(a, (cur.forms.get(a) || 0) + 1);
-          if (t > cur.last) cur.last = t;
-          if (t && t < cur.first) cur.first = t;
-          m.set(key, cur);
+          // Один допис може тримати декілька арок одразу — розкладаємо кожну
+          // окремо, інакше складений тег осів би власною дивною «аркою».
+          splitArcs(r.tag_arc).forEach((a) => {
+            // Одна арка — один рядок, навіть якщо в тегах вона написана
+            // по-різному. Канонічне написання вибираємо нижче — за частотою.
+            let key = a;
+            for (const k of m.keys()) { if (nearArc(k, a)) { key = k; break; } }
+            const cur = m.get(key) || { arc: key, n: 0, first: t, last: t, forms: new Map() };
+            cur.n += 1;
+            cur.forms.set(a, (cur.forms.get(a) || 0) + 1);
+            if (t > cur.last) cur.last = t;
+            if (t && t < cur.first) cur.first = t;
+            m.set(key, cur);
+          });
         });
         const list = [...m.values()].sort((x, y) => y.last - x.last);
         const nWord = (n) => {

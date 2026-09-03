@@ -2711,7 +2711,7 @@ function parsePostTags(text, roster) {
   });
   const i = bi >= 0 ? bi : 0;
   const rest = tags.filter((_, k) => k !== i);
-  return { name: bc ? bc.name : tags[i], tag: tags[i], arc: rest[0] || null, match: bc, body };
+  return { name: bc ? bc.name : tags[i], tag: tags[i], arc: rest.length ? rest.join(ARC_SEP) : null, match: bc, body };
 }
 
 // ── Один пост, кілька повідомлень ────────────────────────────
@@ -2772,6 +2772,12 @@ function nearArc(a, b) {
   if (x === y) return true;
   if (Math.abs(x.length - y.length) > 2) return false;
   return editDist(x, y) <= (Math.min(x.length, y.length) <= 8 ? 1 : 2);
+}
+
+// Допис може тримати декілька арок одразу — в базі вони зшиті через ARC_SEP.
+const ARC_SEP = ' / ';
+function splitArcs(v) {
+  return String(v || '').split(ARC_SEP).map((s) => s.trim()).filter(Boolean);
 }
 
 function stitchBody(a, b) {
@@ -4329,25 +4335,27 @@ class Component extends DCLogic {
         }
         if (glued) console.log('пости: доклеєно хвостів —', glued);
         // Опічатки в арках зводимо до найчастішого написання — спершу того,
-        // що вже в базі, а потім того, що в цьому ж файлі.
+        // що вже в базі, а потім того, що в цьому ж файлі. Кожен рядок
+        // (у т.ч. складений «А / Б») розкладаємо на окремі арки.
         const seenArcs = new Map();
         (this.state.postsExisting || []).forEach((p) => {
-          const v = String(p.tag_arc || '').trim();
-          if (v) seenArcs.set(v, (seenArcs.get(v) || 0) + 100);
+          splitArcs(p.tag_arc).forEach((v) => seenArcs.set(v, (seenArcs.get(v) || 0) + 100));
         });
         found.forEach((t) => {
-          const v = String(t.arc || '').trim();
-          if (v) seenArcs.set(v, (seenArcs.get(v) || 0) + 1);
+          splitArcs(t.arc).forEach((v) => seenArcs.set(v, (seenArcs.get(v) || 0) + 1));
         });
         const known = [...seenArcs.entries()].sort((a, b) => b[1] - a[1]).map((e) => e[0]);
         let snapped = 0;
         found.forEach((t) => {
-          const v = String(t.arc || '').trim();
-          if (!v) return;
-          const hit = known.find((k) => k !== v && nearArc(k, v));
-          if (hit && (seenArcs.get(hit) || 0) > (seenArcs.get(v) || 0)) {
-            t.arcWas = v; t.arc = hit; snapped++;
-          }
+          const parts = splitArcs(t.arc);
+          if (!parts.length) return;
+          let changed = false;
+          const next = parts.map((v) => {
+            const hit = known.find((k) => k !== v && nearArc(k, v));
+            if (hit && (seenArcs.get(hit) || 0) > (seenArcs.get(v) || 0)) { changed = true; return hit; }
+            return v;
+          });
+          if (changed) { t.arcWas = t.arc; t.arc = next.join(ARC_SEP); snapped++; }
         });
         if (snapped) console.log('арки: зведено написань —', snapped);
         if (!found.length) {
