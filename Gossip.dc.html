@@ -155,9 +155,9 @@ a:hover{color:#fff}
                 <textarea class="gos-field" value="{{ tgRaw }}" onChange="{{ setTgRaw }}" placeholder="…або вставте сюди всю анкету текстом" rows="4" style="width:100%;box-sizing:border-box;margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.9rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
                 <button onClick="{{ doParse }}" class="gos-go" data-busy="{{ tgBusy }}" style="margin-top:12px;cursor:pointer;background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.35);border-radius:999px;padding:9px 20px;font-size:0.82rem;">{{ parseBtn }}</button>
                 <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.09);">
-                  <p style="font-size:0.86rem;color:rgba(160,190,255,0.9);font-family:'Cinzel',serif;letter-spacing:0.04em;margin-bottom:8px;">✦ …або файл .docx</p>
-                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.44);margin-bottom:10px;text-wrap:pretty;">Word-файл читається тут, у вашому браузері. Заголовки стануть розділами анкети, картинки зсередини — ілюстраціями в тексті. Старий .doc і .rtf не читаються.</p>
-                  <input class="gos-file" type="file" accept=".docx" onChange="{{ onDocx }}" style="font-size:0.82rem;color:rgba(255,255,255,0.4);" />
+                  <p style="font-size:0.86rem;color:rgba(160,190,255,0.9);font-family:'Cinzel',serif;letter-spacing:0.04em;margin-bottom:8px;">✦ …або файл .docx / .md</p>
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.44);margin-bottom:10px;text-wrap:pretty;">Файл читається тут, у вашому браузері. Заголовки стануть розділами анкети, а картинки зсередини .docx — ілюстраціями в тексті. Старий .doc і .rtf не читаються.</p>
+                  <input class="gos-file" type="file" accept=".docx,.md,.markdown,.txt" onChange="{{ onDocx }}" style="font-size:0.82rem;color:rgba(255,255,255,0.4);" />
                 </div>
                 <sc-if value="{{ hasTgMsg }}" hint-placeholder-val="{{ false }}">
                   <p style="margin-top:10px;font-size:0.84rem;line-height:1.5;color:{{ tgMsgColor }};">{{ tgMsg }}</p>
@@ -1234,11 +1234,11 @@ class Component extends DCLogic {
     if (!file) return;
     const TI = window.TelegraphImport, DX = window.DocxImport;
     if (!TI || !DX) { this.setState({ tgMsg: 'Розбирач не завантажився — оновіть сторінку.', tgBad: true }); return; }
-    if (!DX.isDocx(file)) { this.setState({ tgMsg: 'Це не .docx. Збережіть у Word як .docx — старий .doc і .rtf не читаються.', tgBad: true }); return; }
+    if (!DX.isDocx(file) && !DX.isMd(file)) { this.setState({ tgMsg: 'Читаю лише .docx і .md. Старий .doc і .rtf не читаються — збережіть у Word як .docx.', tgBad: true }); return; }
     if (file.size > 25 * 1024 * 1024) { this.setState({ tgMsg: 'Файл важчий за 25 МБ — це забагато для анкети.', tgBad: true }); return; }
     this.setState({ tgBusy: true, tgBad: false, tgMsg: 'Читаю файл…' });
     try {
-      const doc = await DX.parseFile(file);
+      const doc = await DX.parseAny(file);
       if (!String(doc.text || '').trim()) throw new Error('у файлі не знайшлося тексту');
       const urls = {};
       let gone = 0;

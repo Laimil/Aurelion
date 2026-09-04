@@ -137,18 +137,30 @@
     return out;
   }
 
-  function imgOf(run, rels) {
-    let id = '', alt = '';
+  // Картинка в руні буває описана двічі: сучасним `a:blip` і старим
+  // `v:imagedata` в `mc:Fallback`. Збираємо ВСЕ номери: перший часто веде
+  // на .emf/.wmf/.bin (так Word кладе вставлене з буфера), а поряд лежить
+  // той самий малюнок звичайним PNG.
+  function imgOf(run, rels, ctx) {
+    const ids = [];
+    let alt = '';
     Array.from(run.getElementsByTagName('*')).forEach(el => {
       const n = nameOf(el);
-      if (n === 'blip' && !id) id = relAttr(el, 'embed') || relAttr(el, 'link');
-      if (n === 'imagedata' && !id) id = relAttr(el, 'id');
-      if (n === 'docPr' && !alt) alt = clean(el.getAttribute('descr') || '');
+      if (n === 'blip') { const v = relAttr(el, 'embed') || relAttr(el, 'link'); ids.push(v || ''); }
+      else if (n === 'imagedata') { const v = relAttr(el, 'id') || relAttr(el, 'href'); ids.push(v || ''); }
+      else if ((n === 'docPr' || n === 'cNvPr') && !alt) alt = clean(el.getAttribute('descr') || el.getAttribute('title') || '');
     });
-    if (!id) return null;
-    const target = rels.get(id) || '';
-    if (!target) return null;
-    return { path: target.replace(/^\.?\/?/, '').replace(/^word\//, ''), alt };
+    if (!ids.length) return null;
+    if (ctx) ctx.tags += 1;
+    const paths = [];
+    ids.forEach(id => {
+      const t = id ? (rels.get(id) || '') : '';
+      if (!t) return;
+      const p = t.replace(/^\.?\/?/, '').replace(/^word\//, '');
+      if (paths.indexOf(p) === -1) paths.push(p);
+    });
+    if (!paths.length) return { path: '', paths: [], alt, blind: true };
+    return { path: paths[0], paths, alt };
   }
 
   function paraText(p, ctx) {
@@ -160,7 +172,7 @@
     const pB = pRPr ? flagOn(kid(pRPr, 'b')) : false;
     const pI = pRPr ? flagOn(kid(pRPr, 'i')) : false;
     runsOf(p, []).forEach(({ run, link }) => {
-      const pic = imgOf(run, rels);
+      const pic = imgOf(run, rels, ctx);
       if (pic) { segs.push({ img: pic }); return; }
       let txt = '';
       Array.from(run.children || []).forEach(c => {
@@ -278,8 +290,33 @@
     return out;
   }
 
-  const EXT_OK = { png: 'png', jpg: 'jpg', jpeg: 'jpg', gif: 'gif', webp: 'webp', bmp: 'bmp' };
+  const EXT_OK = { png: 'png', jpg: 'jpg', jpeg: 'jpg', jpe: 'jpg', gif: 'gif', webp: 'webp', bmp: 'bmp' };
   const MIME = { png: 'image/png', jpg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp' };
+  // Магічні байти надійніші за розширення: Word зве вставлене з буфера
+  // і image1.emf, і image1.bin, а всередині звичайний PNG.
+  function sniff(b) {
+    if (!b || b.length < 12) return '';
+    if (b[0] === 0x89 && b[1] === 0x50) return 'png';
+    if (b[0] === 0xff && b[1] === 0xd8) return 'jpg';
+    if (b[0] === 0x47 && b[1] === 0x49) return 'gif';
+    if (b[0] === 0x42 && b[1] === 0x4d) return 'bmp';
+    if (b[0] === 0x52 && b[1] === 0x49 && b[8] === 0x57 && b[9] === 0x45) return 'webp';
+    return '';
+  }
+
+  async function bytesOf(zip, path) {
+    const entry = zip.get('word/' + path) || zip.get(path);
+    if (!entry) return { why: 'немає в архіві' };
+    let bytes;
+    try { bytes = await unpack(entry); } catch (e) { return { why: 'не розпакувалося' }; }
+    const ext = sniff(bytes) || EXT_OK[(path.split('.').pop() || '').toLowerCase()];
+    if (!ext) return { why: 'формат .' + (path.split('.').pop() || '?') + ', браузер такого не покаже' };
+    return { bytes, ext };
+  }
+  const fileOf = (r, n, alt) => {
+    const nm = 'docx-' + n + '.' + r.ext;
+    return { n, alt: alt || '', name: nm, file: new File([r.bytes], nm, { type: MIME[r.ext] }) };
+  };
 
   async function parseFile(file) {
     const buf = await file.arrayBuffer();
@@ -290,16 +327,33 @@
     const rels = readRels(await unpack(zip.get('word/_rels/document.xml.rels')));
     const styles = readStyles(await unpack(zip.get('word/styles.xml')));
 
-    const picked = [];   // {path, alt, n}
+    // Усе, що лежить у word/media/ — запасний шлях і міра того, чи ми взагалі
+    // все знайшли. Сортуємо числом у назві: image10 не має йти перед image2.
+    const media = Array.from(zip.keys())
+      .filter(k => /^word\/media\//i.test(k))
+      .sort((x, y) => (parseInt((x.match(/(\d+)/) || [])[1] || '0', 10) - parseInt((y.match(/(\d+)/) || [])[1] || '0', 10)) || x.localeCompare(y))
+      .map(k => k.replace(/^word\//, ''));
+
+    const picked = [];
     const seen = new Map();
+    let blind = 0;
     const ctx = {
-      rels, styles,
+      rels, styles, tags: 0,
       pushImage: (pic) => {
-        const has = seen.get(pic.path);
+        // Звʼязок не прочитався — беремо наступний файл із word/media/ по
+        // порядку: у дев'яти випадках з десяти Word кладе їх саме так.
+        let paths = (pic.paths && pic.paths.length) ? pic.paths : null;
+        if (!paths) {
+          const guess = media[blind++];
+          if (!guess) return 0;
+          paths = [guess];
+        }
+        const key = paths[0];
+        const has = seen.get(key);
         if (has) return has;
         const n = picked.length + 1;
-        picked.push({ path: pic.path, alt: pic.alt, n });
-        seen.set(pic.path, n);
+        picked.push({ path: key, paths, alt: pic.alt, n });
+        seen.set(key, n);
         return n;
       },
     };
@@ -311,35 +365,147 @@
     const images = [];
     const warnings = [];
     for (const pic of picked) {
-      const entry = zip.get('word/' + pic.path) || zip.get(pic.path);
-      const ext = EXT_OK[(pic.path.split('.').pop() || '').toLowerCase()];
-      if (!entry || !ext) { warnings.push('Картинку ' + pic.path + ' пропущено'); continue; }
-      try {
-        const bytes = await unpack(entry);
-        images.push({
-          n: pic.n, alt: pic.alt, name: 'docx-' + pic.n + '.' + ext,
-          file: new File([bytes], 'docx-' + pic.n + '.' + ext, { type: MIME[ext] }),
-        });
-      } catch (e) { warnings.push('Картинку ' + pic.path + ' не вдалося розпакувати'); }
+      let done = null, why = '';
+      for (const path of pic.paths) {
+        const r = await bytesOf(zip, path);
+        if (r.why) { why = r.why; continue; }
+        done = fileOf(r, pic.n, pic.alt);
+        break;
+      }
+      if (done) images.push(done);
+      else warnings.push('Картинку ' + (pic.path || '?') + ' пропущено (' + (why || 'не вийшло') + ')');
     }
     const gone = picked.filter(p => !images.some(i => i.n === p.n)).map(p => p.n);
 
     let text = joinLines(lines);
     if (gone.length) text = drop(text, gone);
 
+    // Картинки в архіві є, а в тексті ні одної — кладемо в кінець, а не
+    // викидаємо: краще не на тому місці, ніж безслідно.
+    if (!images.length && media.length) {
+      for (const path of media) {
+        const r = await bytesOf(zip, path);
+        if (r.why) continue;
+        const n = images.length + 1;
+        images.push(fileOf(r, n, ''));
+        text += '\n\n![](docx:' + n + ')';
+      }
+      if (images.length) warnings.push('Місце картинок у тексті не розібралося — ставлю всі в кінець, переставте вручну.');
+    }
+
     const heads = lines.filter(l => /^#{2,4}\s/.test(l)).length;
     const first = lines.find(l => /^#{2,4}\s/.test(l));
+    const counts = {
+      blocks: lines.length, heads, images: images.length,
+      media: media.length, tags: ctx.tags,
+      letters: text.replace(/\s+/g, ' ').length,
+    };
+    try {
+      console.log('[docx]', file.name, counts, '\n  звʼязків:', rels.size,
+        '\n  media:', media, '\n  взято:', picked.map(p => p.path),
+        '\n  попередження:', warnings);
+    } catch (e) {}
     return {
       text,
       title: first ? clean(first.replace(/^#+\s*/, '')) : clean(String(file.name || '').replace(/\.docx$/i, '')),
-      images, warnings,
-      counts: {
-        blocks: lines.length,
-        heads,
-        images: images.length,
-        letters: text.replace(/\s+/g, ' ').length,
-      },
+      images, warnings, counts,
     };
+  }
+
+  // ── Markdown ───────────────────────────────────────
+  // .md розмітка й так майже та сама, що в сайті, — приводимо до ладу лише
+  // те, що `parseMarkdown` не читає: H1, setext-заголовки, «*» і нумеровані
+  // списки, `__жирний__`, таблиці й огорожі коду.
+  const MD_EXT = /\.(md|markdown|mdown|mkd|txt)$/i;
+  const isMd = (file) => !!file && (MD_EXT.test(file.name || '')
+    || file.type === 'text/markdown' || file.type === 'text/plain');
+
+  const MD_SEP = /^\|?[\s:|-]*\|[\s:|-]*$/;
+  const isSep = (t) => t.indexOf('|') !== -1 && /-/.test(t) && MD_SEP.test(t);
+  // GFM дозволяє писати таблиці без крайніх труб, і так пишуть часто —
+  // тому рядок таблиці це просто «є `|` і це не розділювач».
+  const isRow = (t) => t.indexOf('|') !== -1 && !isSep(t) && !/^[>#]/.test(t);
+
+  function mdRow(line) {
+    const cells = line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => clean(c));
+    const filled = cells.filter(Boolean);
+    if (!filled.length) return '';
+    if (cells.length === 2 && filled.length === 2) {
+      return '**' + cells[0].replace(/\*\*/g, '').replace(/:\s*$/, '') + ':** ' + cells[1];
+    }
+    return filled.join(' · ');
+  }
+
+  function mdToWiki(raw) {
+    const src = String(raw || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').split('\n');
+    const out = [];
+    let fence = false, front = false, tbl = false;
+    for (let i = 0; i < src.length; i++) {
+      let l = src[i];
+      // На початку буває YAML-шапка — це мета, не текст.
+      if (!out.length && !front && /^---\s*$/.test(l) && i === 0) { front = true; continue; }
+      if (front) { if (/^---\s*$/.test(l)) front = false; continue; }
+      if (/^\s*(```|~~~)/.test(l)) { fence = !fence; continue; }
+      if (fence) { out.push(l.trim()); continue; }
+
+      const t = l.trim();
+      if (!t) { out.push(''); tbl = false; continue; }
+      const nxt = (src[i + 1] || '').trim();
+      // Рядок з трубою — таблиця лише всередині таблиці: інакше звичайне
+      // речення з «|» розірвалось би на графи. Початок видно з розділювача
+      // під шапкою — саму шапку не пишемо, це назви граф, а не твердження.
+      if (isSep(t)) { tbl = true; continue; }
+      if (isRow(t) && (tbl || isSep(nxt))) {
+        if (tbl) { const r = mdRow(t); if (r) out.push(r); }
+        continue;
+      }
+      tbl = false;
+      // setext: підкреслення під рядком робить його заголовком.
+      if (nxt && /^={2,}$/.test(nxt)) { out.push('## ' + t); i++; continue; }
+      if (nxt && /^-{2,}$/.test(nxt) && !/^[-*+>#]/.test(t)) { out.push('### ' + t); i++; continue; }
+      if (/^(\*{3,}|_{3,}|-{3,})$/.test(t)) { out.push('---'); continue; }
+
+      let s = t;
+      const h = s.match(/^(#{1,6})\s+(.*)$/);
+      if (h) {
+        const lvl = Math.min(4, Math.max(2, h[1].length + 1)); // # → ## , ## → ###
+        out.push('#'.repeat(lvl) + ' ' + h[2].replace(/\s+#+\s*$/, '').trim());
+        continue;
+      }
+      s = s.replace(/^\s*[*+\u2022\u2023\u25aa]\s+/, '- ').replace(/^\s*\d+[.)]\s+/, '- ');
+      s = s.replace(/^\s*>\s?/, '> ');
+      s = s.replace(/__([^_]+)__/g, '**$1**').replace(/(^|[\s(])_([^_\n]+)_(?=[\s.,;:!?)]|$)/g, '$1*$2*');
+      s = s.replace(/~~([^~]+)~~/g, '$1');
+      out.push(s);
+    }
+    // Списки мусять лишитися одним блоком — тому збираємо тим самим
+    // joinLines, що й для Word, а не простим злиттям рядків.
+    return joinLines(out.map(clean).filter(Boolean));
+  }
+
+  async function parseMd(file) {
+    const text = mdToWiki(await file.text());
+    if (!text.trim()) throw new Error('у файлі не знайшлося тексту');
+    const lines = text.split('\n').filter(Boolean);
+    const first = lines.find(l => /^#{2,4}\s/.test(l));
+    // Картинки в .md — це готові адреси, завантажувати нічого не треба.
+    const shown = (text.match(/!\[[^\]]*\]\([^)]+\)/g) || []).length;
+    const warnings = [];
+    if (/!\[[^\]]*\]\((?!https?:\/\/|\/|data:image\/)/.test(text)) {
+      warnings.push('У файлі є картинки за місцевим шляхом — такі не відкриються. Завантажте їх у галерею й вставте кнопкою «→ у текст».');
+    }
+    return {
+      text, images: [], warnings, kind: 'md',
+      title: first ? clean(first.replace(/^#+\s*/, '')) : clean(String(file.name || '').replace(MD_EXT, '')),
+      counts: { blocks: lines.length, heads: lines.filter(l => /^#{2,4}\s/.test(l)).length, images: shown, media: 0, tags: 0, letters: text.replace(/\s+/g, ' ').length },
+    };
+  }
+
+  // Одні двері для обох форматів: той, хто імпортує, розбірностей не знає.
+  async function parseAny(file) {
+    if (isDocx(file)) return parseFile(file);
+    if (isMd(file)) return parseMd(file);
+    throw new Error('читаю лише .docx і .md');
   }
 
   // ── Заготовки → справжні адреси ────────────────────────────
@@ -361,5 +527,5 @@
   const isDocx = (file) => !!file && (/\.docx$/i.test(file.name || '')
     || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
 
-  global.DocxImport = { parseFile, fill, drop, isDocx, readZip, unpack };
+  global.DocxImport = { parseFile, parseMd, parseAny, mdToWiki, fill, drop, isDocx, isMd, readZip, unpack };
 })(window);

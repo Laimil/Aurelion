@@ -1131,9 +1131,9 @@ button{font-family:inherit;cursor:pointer}
         </div>
         <!-- Імпорт .docx -->
         <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(100,149,237,0.05);border:1px solid rgba(100,149,237,0.2);border-radius:9px;">
-          <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#9db8f5;letter-spacing:0.06em;margin-bottom:5px;">✦ Імпорт з .docx</h4>
+          <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#9db8f5;letter-spacing:0.06em;margin-bottom:5px;">✦ Імпорт з .docx або .md</h4>
           <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">{{ dxIntro }}</p>
-          <input type="file" accept=".docx" onChange="{{ dxPick }}" data-docxpick="1" style="display:none;" />
+          <input type="file" accept=".docx,.md,.markdown,.txt" onChange="{{ dxPick }}" data-docxpick="1" style="display:none;" />
           <div class="drop-zone" data-over="{{ dxOver }}" onDragOver="{{ dxDragOver }}" onDragLeave="{{ dxDragLeave }}" onDrop="{{ dxDrop }}" onClick="{{ dxOpen }}" style="padding:14px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;">
             <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">{{ dxDropLabel }}</p>
           </div>
@@ -1419,9 +1419,9 @@ button{font-family:inherit;cursor:pointer}
         </div>
         <!-- Імпорт .docx -->
         <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(100,149,237,0.05);border:1px solid rgba(100,149,237,0.2);border-radius:9px;">
-          <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#9db8f5;letter-spacing:0.06em;margin-bottom:5px;">✦ Імпорт з .docx</h4>
+          <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#9db8f5;letter-spacing:0.06em;margin-bottom:5px;">✦ Імпорт з .docx або .md</h4>
           <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">{{ dxIntro }}</p>
-          <input type="file" accept=".docx" onChange="{{ dxPick }}" data-docxpick="1" style="display:none;" />
+          <input type="file" accept=".docx,.md,.markdown,.txt" onChange="{{ dxPick }}" data-docxpick="1" style="display:none;" />
           <div class="drop-zone" data-over="{{ dxOver }}" onDragOver="{{ dxDragOver }}" onDragLeave="{{ dxDragLeave }}" onDrop="{{ dxDrop }}" onClick="{{ dxOpen }}" style="padding:14px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;">
             <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">{{ dxDropLabel }}</p>
           </div>
@@ -3532,13 +3532,13 @@ class Component extends DCLogic {
     const DX = window.DocxImport;
     if (!file) return;
     if (!DX) { this.setState({ dxMsg: '✗ Розбирач .docx не завантажився — оновіть сторінку.', dxBad: true }); return; }
-    if (!DX.isDocx(file)) {
-      this.setState({ dxRes: null, dxBad: true, dxMsg: '✗ Це не .docx. Старий .doc, .rtf і .odt не читаються — збережіть у Word як .docx.' });
+    if (!DX.isDocx(file) && !DX.isMd(file)) {
+      this.setState({ dxRes: null, dxBad: true, dxMsg: '✗ Читаю лише .docx і .md. Старий .doc, .rtf і .odt не читаються — збережіть у Word як .docx.' });
       return;
     }
     this.setState({ dxBusy: true, dxBad: false, dxRes: null, dxMsg: 'Читаю файл…' });
     try {
-      const res = await DX.parseFile(file);
+      const res = await DX.parseAny(file);
       if (!String(res.text || '').trim()) throw new Error('у файлі не знайшлося тексту');
       this.setState({ dxBusy: false, dxRes: res, dxBad: false, dxMsg: (res.warnings || []).join('; ') });
     } catch (e) {
@@ -6567,10 +6567,10 @@ class Component extends DCLogic {
         const wide = pill(!side), left = pill(!!side);
         const noId = !s.form.id;
         return {
-          dxIntro: 'Файл читається тут, у браузері — нікуди не надсилається. Заголовки Word стають ## і ###, жирний і курсив лишаються, списки й таблиці зводяться в рядки. Картинки зсередини файла лягають у галерею вище й стають у тексті на своїх місцях.'
-            + (noId ? ' Цей матеріал ще не збережений — спершу збережіть його, інакше картинки класти нікуди.' : ''),
+          dxIntro: 'Файл читається тут, у браузері — нікуди не надсилається. З .docx: заголовки Word стають ## і ###, жирний і курсив лишаються, списки й таблиці зводяться в рядки, а картинки зсередини лягають у галерею вище й стають у тексті на своїх місцях. З .md: розмітка й так майже наша — приводжу до ладу заголовки, списки й таблиці.'
+            + (noId ? ' Цей матеріал ще не збережений — спершу збережіть його, інакше картинки з .docx класти нікуди.' : ''),
           dxOver: !!s.dxOver,
-          dxDropLabel: s.dxBusy ? 'Читаю…' : 'Перетягни .docx або клікни',
+          dxDropLabel: s.dxBusy ? 'Читаю…' : 'Перетягни .docx або .md — чи клікни',
           dxOpen: () => this._dxOpen(),
           dxPick: (e) => this._dxRead((e.target.files || [])[0]),
           dxDragOver: (e) => { e.preventDefault(); if (!s.dxOver) this.setState({ dxOver: true }); },
@@ -6584,7 +6584,10 @@ class Component extends DCLogic {
           dxMsg: s.dxMsg || '',
           dxMsgColor: s.dxBad ? 'rgba(255,120,120,0.9)' : 'rgba(160,190,245,0.85)',
           dxHasRes: !!res,
-          dxSummary: c ? ('Розібрала: ' + c.heads + ' заголовків · ' + c.blocks + ' абзаців · ' + c.images + ' картинок · ' + c.letters + ' знаків. Нижче — як це виглядатиме на сайті (картинки стануть на свої місця після перенесення).') : '',
+          dxSummary: c ? ((res.kind === 'md' ? 'Розібрала .md: ' : 'Розібрала .docx: ') + c.heads + ' заголовків · ' + c.blocks + ' абзаців · '
+            + c.images + ' картинок' + (c.media && c.media !== c.images ? ' (у файлі лежить ' + c.media + ')' : '')
+            + ' · ' + c.letters + ' знаків. Нижче — як це виглядатиме на сайті'
+            + ((res.images || []).length ? ' (картинки стануть на свої місця після перенесення)' : '') + '.') : '',
           dxPreviewEl: res ? React.createElement('div', {
             dangerouslySetInnerHTML: { __html: parseMarkdown(DX ? DX.drop(res.text) : res.text) },
           }) : null,
