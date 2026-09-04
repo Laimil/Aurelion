@@ -237,7 +237,7 @@
 
   function shortBio(text) {
     if (!text) return '';
-    const plain = text.replace(/\*\*/g, '').replace(/\*/g, '').split(/\n+/).find(l => clean(l).length > 40) || '';
+    const plain = text.replace(/!\[[^\]]*\]\([^)]*\)/g, '').replace(/\*\*/g, '').replace(/\*/g, '').split(/\n+/).find(l => clean(l).length > 40) || '';
     const sents = plain.match(/[^.!?…]+[.!?…]+/g) || [plain];
     let out = '';
     for (const s of sents) { if (out && (out + s).length > 260) break; out += s; }
@@ -349,9 +349,12 @@
   }
 
   function parseText(raw, opts) {
+    const o = opts || {};
     const lines = String(raw || '').split(/\r?\n/).map(clean).filter(Boolean);
     const images = [];
-    const kept = lines.filter(l => {
+    // keepImages: рядок-картинку лишаємо в тексті (це вже вставлена в статтю
+    // ілюстрація, а не портрет, який треба витягти окремо).
+    const kept = o.keepImages ? lines : lines.filter(l => {
       const m = l.match(/^!?\[[^\]]*\]\((https?:\/\/\S+)\)$/);
       if (m && /\.(jpe?g|png|webp|gif)/i.test(m[1])) { images.push(m[1]); return false; }
       if (/^https?:\/\/\S+\.(jpe?g|png|webp|gif)(\?\S*)?$/i.test(l)) { images.push(l); return false; }

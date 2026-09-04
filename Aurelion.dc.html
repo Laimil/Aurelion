@@ -127,6 +127,13 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .lore-md a.md-wiki{cursor:pointer;}
 .lore-md a.md-wiki:hover{color:#a8c4f7;border-bottom-color:rgba(168,196,247,0.65);background:rgba(100,149,237,0.1);}
 .lore-md .md-wiki-off{color:rgba(255,255,255,0.4);border-bottom:1px dashed rgba(255,255,255,0.22);cursor:help;}
+.lore-md figure.md-fig{margin:1.7em 0;}
+.lore-md figure.md-fig img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.14);box-shadow:0 14px 34px rgba(0,0,0,0.45);}
+.lore-md figure.md-fig figcaption{font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.86rem;line-height:1.5;color:rgba(255,255,255,0.42);margin-top:0.55em;text-align:center;}
+.lore-md figure.md-fig-left{float:left;width:min(42%,340px);margin:0.5em 1.7em 1.1em 0;}
+.lore-md figure.md-fig-left figcaption{text-align:left;}
+.lore-md::after{content:'';display:block;clear:both;}
+@media (max-width:640px){.lore-md figure.md-fig-left{float:none;width:100%;margin:1.5em 0;}}
 .lore-md a.md-link{color:#6495ed;text-decoration:none;border-bottom:1px solid rgba(100,149,237,0.28);transition:all 0.25s ease;}
 .lore-md a.md-link:hover{color:#a8c4f7;border-bottom-color:rgba(168,196,247,0.65);}
 .lore-md a.md-link::after{content:'↗';font-size:0.7em;margin-left:0.18em;vertical-align:0.4em;opacity:0.65;}
@@ -2761,15 +2768,36 @@ function _mdInl(t){
     .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
     .replace(/`([^`]+)`/g,'<code>$1</code>');
 }
+// ── Картинки в тексті ──────────────────────────────────────
+// ![Підпис](адреса) — на всю ширину колонки; ![Підпис](адреса|left) — врізка
+// ліворуч, текст обтікає. Адресу беремо з галереї матеріалу, тому окремого
+// сховища тут немає.
+const MD_IMG = /!\[([^\]\n]*)\]\(([^)\s|]+)(?:\|(left))?\)/;
+const MD_IMG_SPLIT = /(!\[[^\]\n]*\]\([^)\s|]+(?:\|left)?\))/g;
+const _imgOk = (v) => /^(https?:\/\/|\/|data:image\/)/i.test(String(v || '').trim());
+function _mdFig(alt, src, side){
+  if(!_imgOk(src)) return '';
+  // Врізку позначають і так: ![Підпис|left](адреса) — приймаємо обидві форми.
+  const pipe = String(alt || '').match(/^([\s\S]*)\|\s*(left)\s*$/);
+  const cap = String(pipe ? pipe[1] : (alt || '')).trim();
+  if (pipe && !side) side = pipe[2];
+  return '<figure class="md-fig' + (side === 'left' ? ' md-fig-left' : '') + '">'
+    + '<img src="' + _attr(src) + '" alt="' + _attr(cap) + '" loading="lazy">'
+    + (cap ? '<figcaption>' + _mdInl(cap) + '</figcaption>' : '')
+    + '</figure>';
+}
 function parseMarkdown(raw){
   if(!raw) return '';
-  const lines=raw.split('\n'),out=[];let lb=[],pb=[],hc=0;
+  // Картинка посеред абзацу стає власним блоком: <figure> у <p> ламає обтікання.
+  const lines=raw.split('\n').reduce((a,l)=>a.concat(l.indexOf('![')===-1?[l]:l.split(MD_IMG_SPLIT).filter(x=>x!=='')),[]),out=[];let lb=[],pb=[],hc=0;
   const fl=()=>{if(!lb.length)return;out.push('<ul>'+lb.map(l=>'<li>'+l+'</li>').join('')+'</ul>');lb=[];};
   const fp=()=>{if(!pb.length)return;out.push('<p>'+pb.join('<br>')+'</p>');pb=[];};
   for(const line of lines){
     const t=line.trim();
     if(!t){fl();fp();continue;}
     if(/^-{3,}$/.test(t)){fl();fp();out.push('<hr>');continue;}
+    const im=t.match(MD_IMG);
+    if(im&&im[0]===t){fl();fp();const fig=_mdFig(im[1],im[2],im[3]);if(fig)out.push(fig);continue;}
     const hm=t.match(/^(#{1,4})\s+(.+)/);
     if(hm){fl();fp();const lv=Math.min(hm[1].length+1,5);const hid='lh'+(hc++);out.push('<h'+lv+' data-hid="'+hid+'">'+_mdInl(hm[2])+'</h'+lv+'>');continue;}
     if(t.startsWith('> ')){fl();fp();out.push('<blockquote>'+_mdInl(t.slice(2))+'</blockquote>');continue;}
@@ -2783,6 +2811,7 @@ function parseMarkdown(raw){
 function stripMarkdown(raw){
   if(!raw) return '';
   return raw
+    .replace(/!\[[^\]\n]*\]\([^)\s|]+(?:\|left)?\)/g,'')
     .replace(/\*\*\*([^*]+)\*\*\*/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1')
     .replace(/\[\[([^\]|\n]+)(?:\|([^\]\n]+))?\]\]/g,(m,x,y)=>y||x)
     .replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g,'$1').replace(/\[([^\]\n]+)\]\[([^\]\n]+)\]/g,'$1')

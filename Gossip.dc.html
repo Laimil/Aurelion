@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <script src="./telegraph-import.js"></script>
+<script src="./docx-import.js"></script>
 <style>
 body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;margin:0}
 a{color:#ffd700;text-decoration:none}
@@ -153,6 +154,11 @@ a:hover{color:#fff}
                 <input class="gos-field" value="{{ tgUrl }}" onChange="{{ setTgUrl }}" placeholder="https://telegra.ph/…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.9rem;outline:none;transition:all 0.2s ease;" />
                 <textarea class="gos-field" value="{{ tgRaw }}" onChange="{{ setTgRaw }}" placeholder="…або вставте сюди всю анкету текстом" rows="4" style="width:100%;box-sizing:border-box;margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.9rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
                 <button onClick="{{ doParse }}" class="gos-go" data-busy="{{ tgBusy }}" style="margin-top:12px;cursor:pointer;background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.35);border-radius:999px;padding:9px 20px;font-size:0.82rem;">{{ parseBtn }}</button>
+                <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.09);">
+                  <p style="font-size:0.86rem;color:rgba(160,190,255,0.9);font-family:'Cinzel',serif;letter-spacing:0.04em;margin-bottom:8px;">✦ …або файл .docx</p>
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.44);margin-bottom:10px;text-wrap:pretty;">Word-файл читається тут, у вашому браузері. Заголовки стануть розділами анкети, картинки зсередини — ілюстраціями в тексті. Старий .doc і .rtf не читаються.</p>
+                  <input class="gos-file" type="file" accept=".docx" onChange="{{ onDocx }}" style="font-size:0.82rem;color:rgba(255,255,255,0.4);" />
+                </div>
                 <sc-if value="{{ hasTgMsg }}" hint-placeholder-val="{{ false }}">
                   <p style="margin-top:10px;font-size:0.84rem;line-height:1.5;color:{{ tgMsgColor }};">{{ tgMsg }}</p>
                 </sc-if>
@@ -1209,6 +1215,57 @@ class Component extends DCLogic {
     this.setState({ tgBusy: true, tgMsg: '', tgBad: false });
     try {
       const res = url ? await TI.parseUrl(url) : TI.parseText(raw);
+      this._applyParsed(res, url);
+    } catch (err) {
+      this.setState({
+        tgBusy: false, tgBad: true,
+        tgMsg: `Не вийшло: ${String((err && err.message) || err)}. Спробуйте вставити текст вручну.`,
+      });
+    }
+  }
+
+  // Анкета з .docx — той самий шлях, що й Telegraph: файл читається в
+  // браузері, стає розміткою, і вже її розкладає на графи той самий розбирач.
+  // Картинки зсередини йдуть у ту саму теку, що й портрет, і лишаються в
+  // тексті на своїх місцях; перша стає портретом, якщо його ще немає.
+  async _docx(e) {
+    const file = e && e.target && e.target.files && e.target.files[0];
+    if (e && e.target) e.target.value = '';
+    if (!file) return;
+    const TI = window.TelegraphImport, DX = window.DocxImport;
+    if (!TI || !DX) { this.setState({ tgMsg: 'Розбирач не завантажився — оновіть сторінку.', tgBad: true }); return; }
+    if (!DX.isDocx(file)) { this.setState({ tgMsg: 'Це не .docx. Збережіть у Word як .docx — старий .doc і .rtf не читаються.', tgBad: true }); return; }
+    if (file.size > 25 * 1024 * 1024) { this.setState({ tgMsg: 'Файл важчий за 25 МБ — це забагато для анкети.', tgBad: true }); return; }
+    this.setState({ tgBusy: true, tgBad: false, tgMsg: 'Читаю файл…' });
+    try {
+      const doc = await DX.parseFile(file);
+      if (!String(doc.text || '').trim()) throw new Error('у файлі не знайшлося тексту');
+      const urls = {};
+      let gone = 0;
+      if ((doc.images || []).length) {
+        this.setState({ tgMsg: `Несу картинки в теку: ${doc.images.length}…` });
+        for (const im of doc.images) {
+          try { urls[im.n] = await this._upload(im.file); } catch (err) { gone++; }
+        }
+      }
+      const res = TI.parseText(DX.fill(doc.text, urls), { keepImages: true, title: doc.title });
+      const first = Object.keys(urls).map(Number).sort((a, b) => a - b)[0];
+      if (first && !this.state.f.portrait) this._setF('portrait', urls[first]);
+      const kept = Object.keys(urls).length;
+      this._applyParsed(res, '', {
+        extra: (kept ? ` Картинок у тексті: ${kept}.` : '') + (gone ? ` Не завантажилося: ${gone}.` : ''),
+      });
+    } catch (err) {
+      this.setState({
+        tgBusy: false, tgBad: true,
+        tgMsg: `Файл не розібрала: ${String((err && err.message) || err)}. Спробуйте вставити текст вручну.`,
+      });
+    }
+  }
+
+  _applyParsed(res, url, opts) {
+      const s = this.state;
+      const o = opts || {};
       const sec = { ...(s.f.sec || {}) };
       const open = [...s.open];
       (res.sections || []).forEach((x) => {
@@ -1234,14 +1291,8 @@ class Component extends DCLogic {
       const miss = (res.deity && !god) ? ` Покровительку «${res.deity}» у пантеоні не знайшла — виберіть самі.` : '';
       this.setState({
         f, open, tgBusy: false, tgBad: false,
-        tgMsg: `✦ Розібрано: ${(res.sections || []).length} розділів. Перевірте бланк нижче.${miss}`,
+        tgMsg: `✦ Розібрано: ${(res.sections || []).length} розділів. Перевірте бланк нижче.${miss}${o.extra || ''}`,
       });
-    } catch (err) {
-      this.setState({
-        tgBusy: false, tgBad: true,
-        tgMsg: `Не вийшло: ${String((err && err.message) || err)}. Спробуйте вставити текст вручну.`,
-      });
-    }
   }
 
   _matchGod(name) {
@@ -2121,6 +2172,7 @@ class Component extends DCLogic {
       tgRaw: s.tgRaw, setTgRaw: (e) => this.setState({ tgRaw: e.target.value }),
       tgBusy: s.tgBusy, parseBtn: s.tgBusy ? 'Читаю…' : 'Розібрати',
       doParse: () => this._parse(),
+      onDocx: (e) => this._docx(e),
       tgMsg: s.tgMsg, hasTgMsg: !!s.tgMsg,
       tgMsgColor: s.tgBad ? '#ff8080' : 'rgba(160,190,255,0.85)',
 

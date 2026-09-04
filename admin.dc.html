@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <script src="./telegraph-import.js"></script>
+<script src="./docx-import.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:#141414;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
@@ -49,6 +50,12 @@ button{font-family:inherit;cursor:pointer}
 .lore-md li::before{content:'✦';position:absolute;left:0;color:rgba(255,215,0,0.4);font-size:0.58em;top:0.4em;}
 .lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.25);cursor:help;}
 .lore-md .md-wiki-off{color:rgba(255,255,255,0.4);border-bottom:1px dashed rgba(255,255,255,0.22);cursor:help;}
+.lore-md figure.md-fig{margin:1.5em 0;}
+.lore-md figure.md-fig img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.14);}
+.lore-md figure.md-fig figcaption{font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.84rem;color:rgba(255,255,255,0.4);margin-top:0.5em;text-align:center;}
+.lore-md figure.md-fig-left{float:left;width:min(42%,300px);margin:0.4em 1.5em 1em 0;}
+.lore-md figure.md-fig-left figcaption{text-align:left;}
+.lore-md::after{content:'';display:block;clear:both;}
 .lore-md a.md-link{color:#6495ed;text-decoration:none;border-bottom:1px solid rgba(100,149,237,0.25);}
 .lore-md a.md-link::after{content:'↗';font-size:0.7em;margin-left:0.18em;vertical-align:0.4em;opacity:0.65;}
 .lore-md code{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:3px;padding:1px 5px;font-family:monospace;font-size:0.86em;color:rgba(255,215,0,0.75);}
@@ -1099,6 +1106,8 @@ button{font-family:inherit;cursor:pointer}
                           </sc-for>
                         </select>
                         <button type="button" data-id="{{ g.id }}" onClick="{{ cgToggleSens }}" title="Делікатне: на сайті розмите, відкривається кліком" style="background:{{ g.sensBg }};border:1px solid {{ g.sensBd }};color:{{ g.sensCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.sensLabel }}</button>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgToText }}" title="Поставити в текст на всю ширину колонки — там, де стоїть курсор" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">→ у текст</button>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgToLeft }}" title="Поставити врізкою ліворуч — текст обтікає" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:#6495ed;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">→ врізка</button>
                         <sc-if value="{{ g.isDraft }}" hint-placeholder-val="{{ false }}">
                           <button type="button" data-id="{{ g.id }}" onClick="{{ cgPublish }}" title="Чернетка: на сайті не видно" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">Чернетка → опублікувати</button>
                         </sc-if>
@@ -1120,6 +1129,36 @@ button{font-family:inherit;cursor:pointer}
             </sc-if>
           </sc-if>
         </div>
+        <!-- Імпорт .docx -->
+        <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(100,149,237,0.05);border:1px solid rgba(100,149,237,0.2);border-radius:9px;">
+          <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#9db8f5;letter-spacing:0.06em;margin-bottom:5px;">✦ Імпорт з .docx</h4>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">{{ dxIntro }}</p>
+          <input type="file" accept=".docx" onChange="{{ dxPick }}" data-docxpick="1" style="display:none;" />
+          <div class="drop-zone" data-over="{{ dxOver }}" onDragOver="{{ dxDragOver }}" onDragLeave="{{ dxDragLeave }}" onDrop="{{ dxDrop }}" onClick="{{ dxOpen }}" style="padding:14px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;">
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">{{ dxDropLabel }}</p>
+          </div>
+          <sc-if value="{{ dxHasMsg }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.75rem;line-height:1.5;color:{{ dxMsgColor }};margin-top:10px;">{{ dxMsg }}</p>
+          </sc-if>
+          <sc-if value="{{ dxHasRes }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:14px;">
+              <p style="font-size:0.72rem;color:rgba(255,215,0,0.75);margin-bottom:8px;">{{ dxSummary }}</p>
+              <div class="lore-md" style="max-height:280px;overflow:auto;padding:14px 16px;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:0.86rem;">{{ dxPreviewEl }}</div>
+              <sc-if value="{{ dxHasImages }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                  <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);">Картинки з файлу:</span>
+                  <button type="button" onClick="{{ dxSideWide }}" data-active="{{ dxSideIsWide }}" style="background:{{ dxWideBg }};border:1px solid {{ dxWideBd }};color:{{ dxWideCol }};border-radius:999px;padding:4px 12px;font-size:0.72rem;cursor:pointer;">на всю ширину</button>
+                  <button type="button" onClick="{{ dxSideLeft }}" data-active="{{ dxSideIsLeft }}" style="background:{{ dxLeftBg }};border:1px solid {{ dxLeftBd }};color:{{ dxLeftCol }};border-radius:999px;padding:4px 12px;font-size:0.72rem;cursor:pointer;">врізкою ліворуч</button>
+                </div>
+              </sc-if>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+                <button type="button" onClick="{{ dxReplace }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:7px;padding:7px 16px;font-size:0.78rem;cursor:pointer;">{{ dxReplaceLabel }}</button>
+                <button type="button" onClick="{{ dxAppend }}" style="background:rgba(100,149,237,0.12);border:1px solid rgba(100,149,237,0.3);color:#6495ed;border-radius:7px;padding:7px 16px;font-size:0.78rem;cursor:pointer;">Дописати в кінець</button>
+                <button type="button" onClick="{{ dxCancel }}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.45);border-radius:7px;padding:7px 16px;font-size:0.78rem;cursor:pointer;">Скасувати</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
         <div style="margin-bottom:18px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
             <label style="margin-bottom:0;">Повний текст</label>
@@ -1134,6 +1173,7 @@ button{font-family:inherit;cursor:pointer}
               <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
               <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Назва матеріалу]] — посилання в архів">[[]]</button>
               <button type="button" class="md-tb" onClick="{{ mdLink }}" title="[текст](адреса) — зовнішнє посилання">🔗</button>
+              <button type="button" class="md-tb" onClick="{{ mdImg }}" title="![Підпис](адреса) — картинка в тексті; |left = врізка ліворуч, текст обтікає">🖼</button>
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" data-active="{{ lorePreviewActive }}" onClick="{{ toggleLorePreview }}">{{ lorePreviewLabel }}</button>
             </div>
@@ -1354,6 +1394,8 @@ button{font-family:inherit;cursor:pointer}
                           </sc-for>
                         </select>
                         <button type="button" data-id="{{ g.id }}" onClick="{{ cgToggleSens }}" title="Делікатне: на сайті розмите, відкривається кліком" style="background:{{ g.sensBg }};border:1px solid {{ g.sensBd }};color:{{ g.sensCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.sensLabel }}</button>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgToText }}" title="Поставити в текст на всю ширину колонки — там, де стоїть курсор" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">→ у текст</button>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgToLeft }}" title="Поставити врізкою ліворуч — текст обтікає" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:#6495ed;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">→ врізка</button>
                         <sc-if value="{{ g.isDraft }}" hint-placeholder-val="{{ false }}">
                           <button type="button" data-id="{{ g.id }}" onClick="{{ cgPublish }}" title="Чернетка: на сайті не видно" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">Чернетка → опублікувати</button>
                         </sc-if>
@@ -1375,6 +1417,36 @@ button{font-family:inherit;cursor:pointer}
             </sc-if>
           </sc-if>
         </div>
+        <!-- Імпорт .docx -->
+        <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(100,149,237,0.05);border:1px solid rgba(100,149,237,0.2);border-radius:9px;">
+          <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#9db8f5;letter-spacing:0.06em;margin-bottom:5px;">✦ Імпорт з .docx</h4>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.55;margin-bottom:14px;">{{ dxIntro }}</p>
+          <input type="file" accept=".docx" onChange="{{ dxPick }}" data-docxpick="1" style="display:none;" />
+          <div class="drop-zone" data-over="{{ dxOver }}" onDragOver="{{ dxDragOver }}" onDragLeave="{{ dxDragLeave }}" onDrop="{{ dxDrop }}" onClick="{{ dxOpen }}" style="padding:14px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;">
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.38);">{{ dxDropLabel }}</p>
+          </div>
+          <sc-if value="{{ dxHasMsg }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.75rem;line-height:1.5;color:{{ dxMsgColor }};margin-top:10px;">{{ dxMsg }}</p>
+          </sc-if>
+          <sc-if value="{{ dxHasRes }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:14px;">
+              <p style="font-size:0.72rem;color:rgba(255,215,0,0.75);margin-bottom:8px;">{{ dxSummary }}</p>
+              <div class="lore-md" style="max-height:280px;overflow:auto;padding:14px 16px;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:0.86rem;">{{ dxPreviewEl }}</div>
+              <sc-if value="{{ dxHasImages }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                  <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);">Картинки з файлу:</span>
+                  <button type="button" onClick="{{ dxSideWide }}" data-active="{{ dxSideIsWide }}" style="background:{{ dxWideBg }};border:1px solid {{ dxWideBd }};color:{{ dxWideCol }};border-radius:999px;padding:4px 12px;font-size:0.72rem;cursor:pointer;">на всю ширину</button>
+                  <button type="button" onClick="{{ dxSideLeft }}" data-active="{{ dxSideIsLeft }}" style="background:{{ dxLeftBg }};border:1px solid {{ dxLeftBd }};color:{{ dxLeftCol }};border-radius:999px;padding:4px 12px;font-size:0.72rem;cursor:pointer;">врізкою ліворуч</button>
+                </div>
+              </sc-if>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+                <button type="button" onClick="{{ dxReplace }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:7px;padding:7px 16px;font-size:0.78rem;cursor:pointer;">{{ dxReplaceLabel }}</button>
+                <button type="button" onClick="{{ dxAppend }}" style="background:rgba(100,149,237,0.12);border:1px solid rgba(100,149,237,0.3);color:#6495ed;border-radius:7px;padding:7px 16px;font-size:0.78rem;cursor:pointer;">Дописати в кінець</button>
+                <button type="button" onClick="{{ dxCancel }}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.45);border-radius:7px;padding:7px 16px;font-size:0.78rem;cursor:pointer;">Скасувати</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
         <div style="margin-bottom:18px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
             <label style="margin-bottom:0;">Повний текст статті</label>
@@ -1389,6 +1461,7 @@ button{font-family:inherit;cursor:pointer}
               <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
               <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Назва матеріалу]] — посилання в архів">[[]]</button>
               <button type="button" class="md-tb" onClick="{{ mdLink }}" title="[текст](адреса) — зовнішнє посилання">🔗</button>
+              <button type="button" class="md-tb" onClick="{{ mdImg }}" title="![Підпис](адреса) — картинка в тексті; |left = врізка ліворуч, текст обтікає">🖼</button>
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" data-active="{{ storiesPreviewActive }}" onClick="{{ toggleStoriesPreview }}">{{ storiesPreviewLabel }}</button>
             </div>
@@ -1583,6 +1656,7 @@ button{font-family:inherit;cursor:pointer}
               <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
               <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Назва матеріалу]] — посилання в архів">[[]]</button>
               <button type="button" class="md-tb" onClick="{{ mdLink }}" title="[текст](адреса) — зовнішнє посилання">🔗</button>
+              <button type="button" class="md-tb" onClick="{{ mdImg }}" title="![Підпис](адреса) — картинка в тексті; |left = врізка ліворуч, текст обтікає">🖼</button>
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" data-active="{{ storiesPreviewActive }}" onClick="{{ toggleStoriesPreview }}">{{ storiesPreviewLabel }}</button>
             </div>
@@ -1883,6 +1957,8 @@ button{font-family:inherit;cursor:pointer}
                           </sc-for>
                         </select>
                         <button type="button" data-id="{{ g.id }}" onClick="{{ cgToggleSens }}" title="Делікатне: на сайті розмите, відкривається кліком" style="background:{{ g.sensBg }};border:1px solid {{ g.sensBd }};color:{{ g.sensCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.sensLabel }}</button>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgToText }}" title="Поставити в текст на всю ширину колонки — там, де стоїть курсор" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">→ у текст</button>
+                        <button type="button" data-id="{{ g.id }}" onClick="{{ cgToLeft }}" title="Поставити врізкою ліворуч — текст обтікає" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:#6495ed;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">→ врізка</button>
                         <sc-if value="{{ g.isDraft }}" hint-placeholder-val="{{ false }}">
                           <button type="button" data-id="{{ g.id }}" onClick="{{ cgPublish }}" title="Чернетка: на сайті не видно" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">Чернетка → опублікувати</button>
                         </sc-if>
@@ -1985,6 +2061,7 @@ button{font-family:inherit;cursor:pointer}
               <button type="button" class="md-tb" onClick="{{ mdHr }}" title="розділювач">—</button>
               <button type="button" class="md-tb" onClick="{{ mdWiki }}" title="[[Назва матеріалу]] — посилання в архів">[[]]</button>
               <button type="button" class="md-tb" onClick="{{ mdLink }}" title="[текст](адреса) — зовнішнє посилання">🔗</button>
+              <button type="button" class="md-tb" onClick="{{ mdImg }}" title="![Підпис](адреса) — картинка в тексті; |left = врізка ліворуч, текст обтікає">🖼</button>
               <div style="width:1px;height:14px;background:rgba(255,255,255,0.1);margin:0 2px;flex-shrink:0;align-self:center;"></div>
               <button type="button" class="md-tb" data-active="{{ storiesPreviewActive }}" onClick="{{ toggleStoriesPreview }}">{{ storiesPreviewLabel }}</button>
             </div>
@@ -2870,15 +2947,31 @@ function _mdInl(t){
     .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
     .replace(/`([^`]+)`/g,'<code>$1</code>');
 }
+const MD_IMG = /!\[([^\]\n]*)\]\(([^)\s|]+)(?:\|(left))?\)/;
+const MD_IMG_SPLIT = /(!\[[^\]\n]*\]\([^)\s|]+(?:\|left)?\))/g;
+const _imgOk = (v) => /^(https?:\/\/|\/|data:image\/)/i.test(String(v || '').trim());
+function _mdFig(alt, src, side){
+  if(!_imgOk(src)) return '';
+  // Врізку позначають і так: ![Підпис|left](адреса) — приймаємо обидві форми.
+  const pipe = String(alt || '').match(/^([\s\S]*)\|\s*(left)\s*$/);
+  const cap = String(pipe ? pipe[1] : (alt || '')).trim();
+  if (pipe && !side) side = pipe[2];
+  return '<figure class="md-fig' + (side === 'left' ? ' md-fig-left' : '') + '">'
+    + '<img src="' + _attr(src) + '" alt="' + _attr(cap) + '" loading="lazy">'
+    + (cap ? '<figcaption>' + _mdInl(cap) + '</figcaption>' : '')
+    + '</figure>';
+}
 function parseMarkdown(raw){
   if(!raw) return '';
-  const lines=raw.split('\n'),out=[];let lb=[],pb=[];
+  const lines=raw.split('\n').reduce((a,l)=>a.concat(l.indexOf('![')===-1?[l]:l.split(MD_IMG_SPLIT).filter(x=>x!=='')),[]),out=[];let lb=[],pb=[];
   const fl=()=>{if(!lb.length)return;out.push('<ul>'+lb.map(l=>'<li>'+l+'</li>').join('')+'</ul>');lb=[];};
   const fp=()=>{if(!pb.length)return;out.push('<p>'+pb.join('<br>')+'</p>');pb=[];};
   for(const line of lines){
     const t=line.trim();
     if(!t){fl();fp();continue;}
     if(/^-{3,}$/.test(t)){fl();fp();out.push('<hr>');continue;}
+    const im=t.match(MD_IMG);
+    if(im&&im[0]===t){fl();fp();const fig=_mdFig(im[1],im[2],im[3]);if(fig)out.push(fig);continue;}
     const hm=t.match(/^(#{1,4})\s+(.+)/);
     if(hm){fl();fp();const lv=Math.min(hm[1].length+1,5);out.push('<h'+lv+'>'+_mdInl(hm[2])+'</h'+lv+'>');continue;}
     if(t.startsWith('> ')){fl();fp();out.push('<blockquote>'+_mdInl(t.slice(2))+'</blockquote>');continue;}
@@ -3427,6 +3520,83 @@ class Component extends DCLogic {
     await this._loadGalImages(ctx.section, ctx.id);
     if (ok) { this._cgPing(); this._toast('✓ Додано: ' + ok); }
     if (err) this._toast('✗ ' + err);
+  }
+
+  // ── Імпорт .docx ───────────────────────────────────
+  // Розбір цілком у браузері (docx-import.js): файл нікуди не йде.
+  // Спершу показуємо, що вишло, і лише тоді чіпаємо текст форми — бо
+  // документ приносять і замість тексту, і на додачу до нього.
+  _dxOpen() { const el = document.querySelector('[data-docxpick]'); if (el) el.click(); }
+
+  async _dxRead(file) {
+    const DX = window.DocxImport;
+    if (!file) return;
+    if (!DX) { this.setState({ dxMsg: '✗ Розбирач .docx не завантажився — оновіть сторінку.', dxBad: true }); return; }
+    if (!DX.isDocx(file)) {
+      this.setState({ dxRes: null, dxBad: true, dxMsg: '✗ Це не .docx. Старий .doc, .rtf і .odt не читаються — збережіть у Word як .docx.' });
+      return;
+    }
+    this.setState({ dxBusy: true, dxBad: false, dxRes: null, dxMsg: 'Читаю файл…' });
+    try {
+      const res = await DX.parseFile(file);
+      if (!String(res.text || '').trim()) throw new Error('у файлі не знайшлося тексту');
+      this.setState({ dxBusy: false, dxRes: res, dxBad: false, dxMsg: (res.warnings || []).join('; ') });
+    } catch (e) {
+      this.setState({ dxBusy: false, dxRes: null, dxBad: true, dxMsg: '✗ Не вийшло: ' + (e.message || 'файл не читається') });
+    }
+  }
+
+  // Картинки з файла лягають у ту саму галерею, що й ручні: другого
+  // сховища для того самого матеріалу бути не має.
+  async _dxImages(images) {
+    const ctx = this.state.galCtx;
+    if (!ctx || !images.length) return {};
+    const sp = galSpec(ctx.section);
+    const own = ctx.section === 'characters'
+      ? { character_id: ctx.id }
+      : { material_type: ctx.section, material_id: ctx.id };
+    let base = (this.state.galRows || []).reduce((m, r) => Math.max(m, r.sort_order || 0), 0);
+    const urls = {};
+    let err = 0;
+    for (const im of images) {
+      try {
+        const url = await this._uploadImage(im.file, sp.bucket);
+        await this._insert(sp.table, { ...own, url, caption: im.alt || null, kind: sp.fallback, sort_order: ++base });
+        urls[im.n] = url;
+      } catch (e) { err++; }
+    }
+    await this._loadGalImages(ctx.section, ctx.id);
+    this._cgPing();
+    if (err) this._toast('⚠ Не завантажилося картинок: ' + err);
+    return urls;
+  }
+
+  async _dxApply(mode) {
+    const DX = window.DocxImport;
+    const res = this.state.dxRes;
+    if (!DX || !res) return;
+    const side = this.state.dxSide === 'left' ? 'left' : '';
+    let urls = {};
+    if ((res.images || []).length) {
+      if (!this.state.galCtx) {
+        this._toast('⚠ Матеріал ще не збережений — картинки пропущено');
+      } else {
+        this.setState({ dxBusy: true, dxMsg: 'Несу картинки в галерею…', dxBad: false });
+        urls = await this._dxImages(res.images);
+      }
+    }
+    const text = DX.fill(res.text, urls, { side });
+    const cur  = String(this.state.form.content || '');
+    const next = (mode === 'append' && cur.trim()) ? cur.replace(/\s+$/, '') + '\n\n' + text : text;
+    this.setState(st => ({
+      form: {
+        ...st.form,
+        content: next,
+        title: String(st.form.title || '').trim() ? st.form.title : (res.title || ''),
+      },
+      dxRes: null, dxBusy: false, dxMsg: '', dxOver: false,
+    }));
+    this._toast(mode === 'append' ? '✓ Дописано з .docx' : '✓ Текст з .docx перенесено');
   }
 
   async _cgPatch(id, body) {
@@ -5062,6 +5232,20 @@ class Component extends DCLogic {
     this.setState(st => ({ form: { ...st.form, content: next } }));
     setTimeout(() => { el.focus(); el.setSelectionRange(s + text.length, s + text.length); }, 0);
   }
+  // Адреса з галереї — у текст, на місце курсора. З відкритого перегляду
+  // вставляти нікуди — тому спершу вертаємося в редагування.
+  _mdImage(id, side, again) {
+    const row = (this.state.galRows || []).find(r => String(r.id) === String(id));
+    if (!row || !row.url) return;
+    if (!document.querySelector('[data-field="content"]')) {
+      if (again) { this._toast('✗ Немає поля тексту'); return; }
+      this.setState({ lorePreview: false, storiesPreview: false });
+      setTimeout(() => this._mdImage(id, side, true), 60);
+      return;
+    }
+    this._mdInsert('\n\n![' + (row.caption || '') + '](' + row.url + (side ? '|' + side : '') + ')\n\n');
+    this._toast(side ? '✓ Стала врізкою в тексті' : '✓ Стала в тексті');
+  }
   componentDidMount() { this._checkSession(); }
 
   // ── Render ─────────────────────────────────────────────────
@@ -6160,7 +6344,7 @@ class Component extends DCLogic {
 
       startAdd: (e) => {
         const section = e.currentTarget.dataset.section;
-        this.setState({ editing: { section, index: -1 }, form: {}, linkManual: [], linkSearch: '' });
+        this.setState({ editing: { section, index: -1 }, form: {}, linkManual: [], linkSearch: '', dxRes: null, dxMsg: '', dxBad: false, dxBusy: false });
         this.setState({ galRows: [], galCtx: null });
         this._scrollToForm();
       },
@@ -6181,13 +6365,13 @@ class Component extends DCLogic {
           });
           form.connections = [...cur].join(',');
         }
-        this.setState({ editing: { section, index }, form, linkManual: [], linkSearch: '' });
+        this.setState({ editing: { section, index }, form, linkManual: [], linkSearch: '', dxRes: null, dxMsg: '', dxBad: false, dxBusy: false });
         this._loadManualLinks(section, item.id);
         if (section === 'characters') this._loadCharLinks(item.id);
         this._loadGalImages(section, item.id);
         this._scrollToForm();
       },
-      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false, linkManual: [], linkSearch: '', galRows: [], galCtx: null }),
+      cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false, linkManual: [], linkSearch: '', galRows: [], galCtx: null, dxRes: null, dxMsg: '', dxBad: false, dxBusy: false }),
       saveItem,
       deleteItem,
 
@@ -6364,6 +6548,56 @@ class Component extends DCLogic {
           },
           cgMove:    (e) => this._cgMove(e.currentTarget.dataset.id, parseInt(e.currentTarget.dataset.d)),
           cgDel:     (e) => this._cgDelete(e.currentTarget.dataset.id),
+          cgToText:  (e) => this._mdImage(e.currentTarget.dataset.id, ''),
+          cgToLeft:  (e) => this._mdImage(e.currentTarget.dataset.id, 'left'),
+        };
+      })(),
+      // ── Панель «Імпорт з .docx» (довідник, історії) ─────
+      ...(() => {
+        const section = ed ? ed.section : '';
+        const off = { dxHasRes: false, dxHasMsg: false, dxHasImages: false, dxIntro: '', dxDropLabel: '' };
+        if (['lore', 'stories'].indexOf(section) === -1) return off;
+        const DX = window.DocxImport;
+        const res = s.dxRes;
+        const side = s.dxSide === 'left' ? 'left' : '';
+        const c = res ? res.counts : null;
+        const pill = (on) => on
+          ? { bg: 'rgba(255,215,0,0.14)', bd: 'rgba(255,215,0,0.4)', col: '#ffd700' }
+          : { bg: 'rgba(255,255,255,0.04)', bd: 'rgba(255,255,255,0.12)', col: 'rgba(255,255,255,0.45)' };
+        const wide = pill(!side), left = pill(!!side);
+        const noId = !s.form.id;
+        return {
+          dxIntro: 'Файл читається тут, у браузері — нікуди не надсилається. Заголовки Word стають ## і ###, жирний і курсив лишаються, списки й таблиці зводяться в рядки. Картинки зсередини файла лягають у галерею вище й стають у тексті на своїх місцях.'
+            + (noId ? ' Цей матеріал ще не збережений — спершу збережіть його, інакше картинки класти нікуди.' : ''),
+          dxOver: !!s.dxOver,
+          dxDropLabel: s.dxBusy ? 'Читаю…' : 'Перетягни .docx або клікни',
+          dxOpen: () => this._dxOpen(),
+          dxPick: (e) => this._dxRead((e.target.files || [])[0]),
+          dxDragOver: (e) => { e.preventDefault(); if (!s.dxOver) this.setState({ dxOver: true }); },
+          dxDragLeave: () => this.setState({ dxOver: false }),
+          dxDrop: (e) => {
+            e.preventDefault();
+            this.setState({ dxOver: false });
+            this._dxRead([...(e.dataTransfer?.files || [])][0]);
+          },
+          dxHasMsg: !!s.dxMsg,
+          dxMsg: s.dxMsg || '',
+          dxMsgColor: s.dxBad ? 'rgba(255,120,120,0.9)' : 'rgba(160,190,245,0.85)',
+          dxHasRes: !!res,
+          dxSummary: c ? ('Розібрала: ' + c.heads + ' заголовків · ' + c.blocks + ' абзаців · ' + c.images + ' картинок · ' + c.letters + ' знаків. Нижче — як це виглядатиме на сайті (картинки стануть на свої місця після перенесення).') : '',
+          dxPreviewEl: res ? React.createElement('div', {
+            dangerouslySetInnerHTML: { __html: parseMarkdown(DX ? DX.drop(res.text) : res.text) },
+          }) : null,
+          dxHasImages: !!(res && (res.images || []).length),
+          dxSideIsWide: !side, dxSideIsLeft: !!side,
+          dxWideBg: wide.bg, dxWideBd: wide.bd, dxWideCol: wide.col,
+          dxLeftBg: left.bg, dxLeftBd: left.bd, dxLeftCol: left.col,
+          dxSideWide: () => this.setState({ dxSide: '' }),
+          dxSideLeft: () => this.setState({ dxSide: 'left' }),
+          dxReplaceLabel: String(s.form.content || '').trim() ? 'Замінити текст' : 'Поставити текст',
+          dxReplace: () => this._dxApply('replace'),
+          dxAppend:  () => this._dxApply('append'),
+          dxCancel:  () => this.setState({ dxRes: null, dxMsg: '', dxBad: false }),
         };
       })(),
       // ── Панель «Зв'язки матеріалу» ──────────────────────────
@@ -6445,6 +6679,7 @@ class Component extends DCLogic {
       mdHr:     () => this._mdInsert('\n\n---\n\n'),
       mdWiki:   () => this._mdWrap('[[', ']]'),
       mdLink:   () => this._mdWrap('[', '](https://)'),
+      mdImg:    () => this._mdInsert('\n\n![Підпис](https://)\n\n'),
       toggleLorePreview: () => this.setState(st => ({ lorePreview: !st.lorePreview })),
       // ── Карта (Admin) ──────────────────────────────────────
       adminMapPinList: (s.data.map_locations || []).map(loc => ({
