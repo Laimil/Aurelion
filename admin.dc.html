@@ -3526,7 +3526,16 @@ class Component extends DCLogic {
   // Розбір цілком у браузері (docx-import.js): файл нікуди не йде.
   // Спершу показуємо, що вишло, і лише тоді чіпаємо текст форми — бо
   // документ приносять і замість тексту, і на додачу до нього.
-  _dxOpen() { const el = document.querySelector('[data-docxpick]'); if (el) el.click(); }
+  _dxOpen() {
+    // У DOM буває кілька таких полів (довідник і історії) — беремо видиме,
+    // інакше клік йшов би в поле з іншої, прихованої закладки.
+    const all = [...document.querySelectorAll('[data-docxpick]')];
+    const el = all.find(x => x.closest('div') && x.offsetParent !== null)
+      || all.find(x => x.parentElement && x.parentElement.getBoundingClientRect().height > 0)
+      || all[0];
+    if (el) el.click();
+    else this._toast('✗ Не знайшла поля вибору файла');
+  }
 
   async _dxRead(file) {
     const DX = window.DocxImport;
@@ -3536,53 +3545,118 @@ class Component extends DCLogic {
       this.setState({ dxRes: null, dxBad: true, dxMsg: '✗ Читаю лише .docx і .md. Старий .doc, .rtf і .odt не читаються — збережіть у Word як .docx.' });
       return;
     }
-    this.setState({ dxBusy: true, dxBad: false, dxRes: null, dxMsg: 'Читаю файл…' });
+    this.setState({ dxBusy: true, dxBad: false, dxRes: null, dxMsg: `Читаю ${file.name}…` });
     try {
       const res = await DX.parseAny(file);
       if (!String(res.text || '').trim()) throw new Error('у файлі не знайшлося тексту');
       this.setState({ dxBusy: false, dxRes: res, dxBad: false, dxMsg: (res.warnings || []).join('; ') });
     } catch (e) {
-      this.setState({ dxBusy: false, dxRes: null, dxBad: true, dxMsg: '✗ Не вийшло: ' + (e.message || 'файл не читається') });
+      console.warn('[docx] розбір впав', e);
+      this.setState({ dxBusy: false, dxRes: null, dxBad: true, dxMsg: '✗ Не вийшло: ' + this._short(e) });
     }
   }
 
   // Картинки з файла лягають у ту саму галерею, що й ручні: другого
   // сховища для того самого матеріалу бути не має.
   async _dxImages(images) {
+    if (!images.length) return {};
     const ctx = this.state.galCtx;
-    if (!ctx || !images.length) return {};
-    const sp = galSpec(ctx.section);
-    const own = ctx.section === 'characters'
+    // Матеріал ще не збережений — рядок у галереї поставити нікуди (галерея
+    // живе при номері), але СХОВИЩЕ номера не вимагає. Тому файли несемо
+    // туди все одно й лишаємо їх у тексті: раніше така картинка гинула
+    // безслідно, і з нового .md/.docx не приходило ні одної.
+    const section = (ctx && ctx.section) || ((this.state.editing || {}).section) || 'lore';
+    const sp = galSpec(section);
+    const own = !ctx ? null : (section === 'characters'
       ? { character_id: ctx.id }
-      : { material_type: ctx.section, material_id: ctx.id };
+      : { material_type: section, material_id: ctx.id });
     let base = (this.state.galRows || []).reduce((m, r) => Math.max(m, r.sort_order || 0), 0);
     const urls = {};
-    let err = 0;
+    const fails = [];
     for (const im of images) {
+      this.setState({ dxMsg: `Несу картинки${own ? ' в галерею' : ' у сховище'}: ${im.n} з ${images.length}…`, dxBad: false });
+      let url = '';
+      try { url = await this._uploadImage(im.file, sp.bucket); }
+      catch (e) { fails.push(`${im.name}: сховище — ${this._short(e)}`); continue; }
       try {
-        const url = await this._uploadImage(im.file, sp.bucket);
-        await this._insert(sp.table, { ...own, url, caption: im.alt || null, kind: sp.fallback, sort_order: ++base });
-        urls[im.n] = url;
-      } catch (e) { err++; }
+        if (own) await this._insert(sp.table, { ...own, url, caption: im.alt || null, kind: sp.fallback, sort_order: ++base });
+      } catch (e) {
+        // Файл уже в сховищі — краще показати його в тексті без рядка в галереї,
+        // ніж викинути картинку зовсім.
+        fails.push(`${im.name}: галерея (${sp.table}) — ${this._short(e)}`);
+      }
+      urls[im.n] = url;
     }
-    await this._loadGalImages(ctx.section, ctx.id);
-    this._cgPing();
-    if (err) this._toast('⚠ Не завантажилося картинок: ' + err);
-    return urls;
+    try { if (ctx) await this._loadGalImages(ctx.section, ctx.id); } catch (e) {}
+    try { this._cgPing(); } catch (e) {}
+    if (fails.length) console.warn('[docx] картинки з проблемами:', fails);
+    return { urls, fails };
+  }
+
+  // Картинки, що вже стоять у тексті, підшиваємо в галерею матеріалу після
+  // першого збереження: під час імпорту в нову статтю номера ще не було,
+  // тому файли пішли лише у сховище. Двічі не підшиваємо — звіряємо адреси.
+  async _adoptImages(section, id, text) {
+    if (GAL_SECTIONS.indexOf(section) === -1 || !id) return 0;
+    const urls = [];
+    String(text || '').replace(/!\[([^\]]*)\]\((https?:\/\/[^)|\s]+)(\|[a-z]+)?\)/g, (m, alt, url) => {
+      if (/\/storage\/v1\//.test(url) && urls.every(u => u.url !== url)) urls.push({ url, alt: alt || '' });
+      return m;
+    });
+    if (!urls.length) return 0;
+    const sp = galSpec(section);
+    const own = section === 'characters'
+      ? { character_id: String(id) }
+      : { material_type: section, material_id: String(id) };
+    const q = section === 'characters'
+      ? `${sp.table}?select=url,sort_order&character_id=eq.${id}`
+      : `${sp.table}?select=url,sort_order&material_type=eq.${section}&material_id=eq.${id}`;
+    let have = [];
+    try { have = await this._get(q); } catch (e) { console.warn('[docx] галерея не прочиталася', e); return 0; }
+    let base = (have || []).reduce((m, r) => Math.max(m, r.sort_order || 0), 0);
+    const seen = new Set((have || []).map(r => r.url));
+    let n = 0;
+    for (const im of urls) {
+      if (seen.has(im.url)) continue;
+      try {
+        await this._insert(sp.table, { ...own, url: im.url, caption: im.alt || null, kind: sp.fallback, sort_order: ++base });
+        n++;
+      } catch (e) { console.warn('[docx] не підшилося в галерею:', im.url, e); }
+    }
+    return n;
+  }
+
+  _short(e) {
+    const t = String((e && e.message) || e || '');
+    return t.replace(/\s+/g, ' ').slice(0, 140);
   }
 
   async _dxApply(mode) {
     const DX = window.DocxImport;
     const res = this.state.dxRes;
-    if (!DX || !res) return;
+    if (!DX || !res) { this._toast('✗ Немає розбору — перетягніть файл знову'); return; }
     const side = this.state.dxSide === 'left' ? 'left' : '';
-    let urls = {};
+    let urls = {}, note = '';
+    // Текст мусить стати в форму за всяких обставин: раніше будь-який збій у
+    // галереї тихо гасив усю гілку, і клік не робив нічого взагалі.
     if ((res.images || []).length) {
-      if (!this.state.galCtx) {
-        this._toast('⚠ Матеріал ще не збережений — картинки пропущено');
-      } else {
-        this.setState({ dxBusy: true, dxMsg: 'Несу картинки в галерею…', dxBad: false });
-        urls = await this._dxImages(res.images);
+      const saved = !!this.state.galCtx;
+      this.setState({ dxBusy: true, dxMsg: saved ? 'Несу картинки в галерею…' : 'Несу картинки у сховище…', dxBad: false });
+      try {
+        const r = await this._dxImages(res.images);
+        urls = r.urls || {};
+        const got = Object.keys(urls).length;
+        if (got < res.images.length) {
+          note = ` Завантажилося ${got} з ${res.images.length}.`
+            + ((r.fails || []).length ? ' Причина: ' + r.fails[0] : '');
+        } else if ((r.fails || []).length) {
+          note = ' У галереї не все лягло: ' + r.fails[0];
+        } else if (!saved) {
+          note = ' Картинки стали в текст, але в галерею не підшиті: матеріал ще без номера. Після збереження додайте їх у галерею вручну, якщо потрібно.';
+        }
+      } catch (e) {
+        note = ' Картинки не вийшли: ' + this._short(e);
+        console.warn('[docx] _dxImages впав', e);
       }
     }
     const text = DX.fill(res.text, urls, { side });
@@ -3594,9 +3668,11 @@ class Component extends DCLogic {
         content: next,
         title: String(st.form.title || '').trim() ? st.form.title : (res.title || ''),
       },
-      dxRes: null, dxBusy: false, dxMsg: '', dxOver: false,
+      dxRes: null, dxBusy: false, dxOver: false,
+      dxBad: !!note, dxMsg: note ? note.trim() : '',
     }));
-    this._toast(mode === 'append' ? '✓ Дописано з .docx' : '✓ Текст з .docx перенесено');
+    this._toast((mode === 'append' ? '✓ Дописано' : '✓ Текст перенесено')
+      + ' — не забудьте натиснути «Зберегти»');
   }
 
   async _cgPatch(id, body) {
@@ -5812,10 +5888,17 @@ class Component extends DCLogic {
             this._toast('⚠ Анкету збережено, типи ниток — ні (міграція character_links?)');
           }
         }
+        // Картинки з тексту → галерея. Тільки-но створений матеріал уперше
+        // отримав номер, тому саме тут це й можливо.
+        let adopted = 0;
+        if (savedId) {
+          try { adopted = await this._adoptImages(section, savedId, body.content || ''); }
+          catch (ae) { console.warn('adoptImages:', ae); }
+        }
         await this._refreshTable(section);
         this.setState({ editing: null, form: {}, saving: false, lorePreview: false, linkManual: [], linkSearch: '' });
         localStorage.setItem('aurelion-refresh', Date.now().toString());
-        this._toast('✓ Збережено!');
+        this._toast(adopted ? `✓ Збережено! Картинок у галерею: ${adopted}` : '✓ Збережено!');
       } catch(e) {
         this.setState({ saving: false });
         this._toast('✗ ' + (e.message || 'Помилка збереження'));
