@@ -436,8 +436,37 @@
     return filled.join(' · ');
   }
 
+  // Google Docs експортує картинки **посилально**: `![][image1]` у тексті, а
+  // внизу файлу `[image1]: <data:image/png;base64,…>`. Збираємо визначення,
+  // підставляємо в місця вживання й викидаємо самі рядки-визначення.
+  const REF_DEF = /^\s{0,3}\[([^\]^][^\]]*)\]:\s*(.+?)\s*$/;
+  function refs(lines) {
+    const map = new Map();
+    const kept = [];
+    lines.forEach(l => {
+      const m = l.match(REF_DEF);
+      if (m) {
+        const addr = m[2].replace(/^<([\s\S]*)>$/, '$1').replace(/\s+["'(].*$/, '').trim();
+        if (addr) { map.set(m[1].trim().toLowerCase(), addr); return; }
+      }
+      kept.push(l);
+    });
+    return { map, kept };
+  }
+  function useRefs(line, map) {
+    if (!map.size || line.indexOf('][') === -1 && line.indexOf('[]') === -1) return line;
+    // ![alt][label] і ![alt][] (коли мітка = alt), той самий вигляд для посилань.
+    return line.replace(/(!?)\[([^\]]*)\]\[([^\]]*)\]/g, (m, bang, txt, label) => {
+      const addr = map.get((label || txt).trim().toLowerCase());
+      if (!addr) return bang ? '' : txt;
+      return bang + '[' + txt + '](' + addr + ')';
+    });
+  }
+
   function mdToWiki(raw) {
-    const src = String(raw || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').split('\n');
+    const all = String(raw || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').split('\n');
+    const { map, kept } = refs(all);
+    const src = kept;
     const out = [];
     let fence = false, front = false, tbl = false;
     for (let i = 0; i < src.length; i++) {
@@ -448,7 +477,7 @@
       if (/^\s*(```|~~~)/.test(l)) { fence = !fence; continue; }
       if (fence) { out.push(l.trim()); continue; }
 
-      const t = l.trim();
+      const t = useRefs(l.trim(), map);
       if (!t) { out.push(''); tbl = false; continue; }
       const nxt = (src[i + 1] || '').trim();
       // Рядок з трубою — таблиця лише всередині таблиці: інакше звичайне
@@ -466,16 +495,24 @@
       if (/^(\*{3,}|_{3,}|-{3,})$/.test(t)) { out.push('---'); continue; }
 
       let s = t;
+      // Google Docs екранує знаки (`\=`, `\+`, `1\.`) — у нашій розмітці це сміття.
+      s = s.replace(/\\([\\`*_{}\[\]()#+\-.!|~<>="'$&%^:;,?\/])/g, '$1');
       const h = s.match(/^(#{1,6})\s+(.*)$/);
       if (h) {
         const lvl = Math.min(4, Math.max(2, h[1].length + 1)); // # → ## , ## → ###
-        out.push('#'.repeat(lvl) + ' ' + h[2].replace(/\s+#+\s*$/, '').trim());
+        // Заголовки з Google Docs приходять як `## **Назва**` — жирний тут
+        // зайвий: заголовок і так заголовок, а зірочки видно в тексті.
+        const head = h[2].replace(/\s+#+\s*$/, '').trim().replace(/^\*{1,3}([\s\S]*?)\*{1,3}$/, '$1').trim();
+        out.push('#'.repeat(lvl) + ' ' + head);
         continue;
       }
       s = s.replace(/^\s*[*+\u2022\u2023\u25aa]\s+/, '- ').replace(/^\s*\d+[.)]\s+/, '- ');
       s = s.replace(/^\s*>\s?/, '> ');
       s = s.replace(/__([^_]+)__/g, '**$1**').replace(/(^|[\s(])_([^_\n]+)_(?=[\s.,;:!?)]|$)/g, '$1*$2*');
       s = s.replace(/~~([^~]+)~~/g, '$1');
+      // Картинка в жирному (`**![](…)**` — частий вивід Google Docs) мусить
+      // лишитися голою: інакше це вже не рядок-картинка, а текст.
+      s = s.replace(/^\*{1,3}\s*(!\[[^\]]*\]\([^)]+\))\s*\*{1,3}$/, '$1');
       out.push(s);
     }
     // Списки мусять лишитися одним блоком — тому збираємо тим самим
@@ -483,21 +520,57 @@
     return joinLines(out.map(clean).filter(Boolean));
   }
 
+  // data:image/…;base64 — це самі байти картинки всередині тексту. Залишати їх у
+  // `content` не можна — одна стаття роздулася б до мегабайтів у базі; тому
+  // вони йдуть тим самим шляхом, що й картинки з Word: файлом у галерею.
+  const DATA_URI = /^data:image\/([a-z0-9.+-]+);base64,([\s\S]+)$/i;
+  function dataFile(uri, n) {
+    const m = String(uri).match(DATA_URI);
+    if (!m) return null;
+    let bin;
+    try { bin = atob(m[2].replace(/\s+/g, '')); } catch (e) { return null; }
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const ext = sniff(bytes) || EXT_OK[m[1].toLowerCase()] || 'png';
+    const nm = 'md-' + n + '.' + ext;
+    return { name: nm, file: new File([bytes], nm, { type: MIME[ext] || 'image/png' }) };
+  }
+
   async function parseMd(file) {
-    const text = mdToWiki(await file.text());
+    let text = mdToWiki(await file.text());
     if (!text.trim()) throw new Error('у файлі не знайшлося тексту');
+    const warnings = [];
+
+    // Вбудовані картинки → заготовки docx:N + файли (як у Word).
+    const images = [];
+    let bad = 0;
+    text = text.replace(/!\[([^\]]*)\]\((data:image\/[^)]+)\)/gi, (m, alt, uri) => {
+      const n = images.length + 1;
+      const f = dataFile(uri, n);
+      if (!f) { bad++; return ''; }
+      images.push({ n, alt: clean(alt), name: f.name, file: f.file });
+      return '![' + clean(alt) + '](docx:' + n + ')';
+    });
+    if (bad) warnings.push('Не вдалося розкодувати картинок: ' + bad);
+
     const lines = text.split('\n').filter(Boolean);
     const first = lines.find(l => /^#{2,4}\s/.test(l));
-    // Картинки в .md — це готові адреси, завантажувати нічого не треба.
-    const shown = (text.match(/!\[[^\]]*\]\([^)]+\)/g) || []).length;
-    const warnings = [];
-    if (/!\[[^\]]*\]\((?!https?:\/\/|\/|data:image\/)/.test(text)) {
+    const linked = (text.match(/!\[[^\]]*\]\((?!docx:)[^)]+\)/g) || []).length;
+    if (/!\[[^\]]*\]\((?!https?:\/\/|\/|docx:|data:image\/)/.test(text)) {
       warnings.push('У файлі є картинки за місцевим шляхом — такі не відкриються. Завантажте їх у галерею й вставте кнопкою «→ у текст».');
     }
+    const counts = {
+      blocks: lines.length,
+      heads: lines.filter(l => /^#{2,4}\s/.test(l)).length,
+      images: images.length + linked,
+      media: 0, tags: 0,
+      letters: text.replace(/\s+/g, ' ').length,
+    };
+    try { console.log('[md]', file.name, counts, '\n  вбудованих:', images.length, '\n  адресами:', linked, '\n  попередження:', warnings); } catch (e) {}
     return {
-      text, images: [], warnings, kind: 'md',
+      text, images, warnings, kind: 'md',
       title: first ? clean(first.replace(/^#+\s*/, '')) : clean(String(file.name || '').replace(MD_EXT, '')),
-      counts: { blocks: lines.length, heads: lines.filter(l => /^#{2,4}\s/.test(l)).length, images: shown, media: 0, tags: 0, letters: text.replace(/\s+/g, ' ').length },
+      counts,
     };
   }
 
