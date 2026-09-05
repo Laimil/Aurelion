@@ -104,6 +104,14 @@
   }
 
   const HEAD_RE = /^(?:heading|title|subtitle|заголовок|назва|подзаголовок|підзаголовок)/i;
+  // Заголовок називає, а не розповідає: коротко, без крапки всередині,
+  // без двокрапки й без знаків формули («Артефакт = основа + …» — це текст).
+  function headish(t) {
+    const s = String(t || '').replace(/\*/g, '').trim();
+    if (!s || s.length > 60) return false;
+    if (/[.!?;:,=+—]/.test(s.slice(0, -1)) || /[.!?;:,]$/.test(s)) return false;
+    return s.split(/\s+/).length <= 8;
+  }
   function headLevel(styleId, styleName, outline) {
     const src = String(styleName || styleId || '');
     let lvl = null;
@@ -262,7 +270,11 @@
           return;
         }
         let lvl = headLevel(st, style && style.name, outline || (style && style.out) || '');
-        if (!lvl && allBold && text.length <= 90 && !/[.!?;]$/.test(text)) lvl = 3;
+        // Жирний рядок — ще не заголовок. У текстах із Word жирним виділяють
+        // правила, формули й важливі речення — раніше кожне таке ставало
+        // підзаголовком, і зміст розростався втрое. На заголовок тягне
+        // лише короткий рядок без реченнєвої пунктуації й без формул.
+        if (!lvl && allBold && headish(text)) lvl = 3;
         if (lvl) { out.push('#'.repeat(lvl) + ' ' + text.replace(/\*\*/g, '').replace(/^\*|\*$/g, '')); return; }
         if (/quote|цитат/i.test(String((style && style.name) || st))) { out.push('> ' + text); return; }
         if (pPr && kid(pPr, 'numPr')) { out.push('- ' + text.replace(/^[-•–—]\s*/, '')); return; }

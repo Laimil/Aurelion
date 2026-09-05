@@ -51,7 +51,7 @@ button{font-family:inherit;cursor:pointer}
 .lore-md .md-wiki{color:#6495ed;border-bottom:1px solid rgba(100,149,237,0.25);cursor:help;}
 .lore-md .md-wiki-off{color:rgba(255,255,255,0.4);border-bottom:1px dashed rgba(255,255,255,0.22);cursor:help;}
 .lore-md figure.md-fig{margin:1.5em 0;}
-.lore-md figure.md-fig img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.14);}
+.lore-md figure.md-fig img{display:block;width:auto;max-width:100%;height:auto;margin:0 auto;border-radius:8px;border:1px solid rgba(255,255,255,0.14);}
 .lore-md figure.md-fig figcaption{font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.84rem;color:rgba(255,255,255,0.4);margin-top:0.5em;text-align:center;}
 .lore-md figure.md-fig-left{float:left;width:min(42%,300px);margin:0.4em 1.5em 1em 0;}
 .lore-md figure.md-fig-left figcaption{text-align:left;}
@@ -3652,7 +3652,7 @@ class Component extends DCLogic {
         } else if ((r.fails || []).length) {
           note = ' У галереї не все лягло: ' + r.fails[0];
         } else if (!saved) {
-          note = ' Картинки стали в текст, але в галерею не підшиті: матеріал ще без номера. Після збереження додайте їх у галерею вручну, якщо потрібно.';
+          note = ' Картинки стали в текст. У галерею вони підшиються самі, коли натиснете «Зберегти» — матеріал доти без номера, а галерея живе при ньому.';
         }
       } catch (e) {
         note = ' Картинки не вийшли: ' + this._short(e);
