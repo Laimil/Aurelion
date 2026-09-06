@@ -205,6 +205,19 @@ a:hover{color:#a8c4f7;}
   /* Поки висить статус — підпис повертається, щоб дотик мав видиму відповідь. */
   .au-sharebtn[data-msg="true"] .au-share-label{display:inline!important}}
 @media(max-width:340px){.au-sharebtn{margin-left:2px!important;padding:5px 8px!important}.au-navburger{padding:7px 12px!important}}
+.home-jump-arrow{display:inline-block;animation:jumpNudge 2.6s ease-in-out infinite}
+@keyframes jumpNudge{0%,72%,100%{transform:translateY(0)}82%{transform:translateY(3px)}}
+@media(prefers-reduced-motion:reduce){.home-jump-arrow{animation:none}}
+/* ── Свіже й найближчі дати (Головна) ── */
+.fresh-grid{display:grid;grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:900px){.fresh-grid{grid-template-columns:1fr}}
+.fresh-box{background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:20px 20px 14px}
+.fresh-row{display:flex;align-items:center;gap:13px;padding:9px 8px;border-radius:9px;text-decoration:none;color:inherit;transition:background 0.2s ease,border-color 0.2s ease}
+.fresh-row:hover{background:rgba(255,255,255,0.055)}
+.fresh-row:focus-visible{outline:1px solid rgba(255,215,0,0.55);outline-offset:1px}
+.fresh-row + .fresh-row{border-top:1px solid rgba(255,255,255,0.06)}
+.fresh-thumb{width:42px;height:54px;border-radius:6px;flex-shrink:0;overflow:hidden;background:#141414;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center}
+@media(max-width:520px){.fresh-thumb{width:36px;height:46px}.fresh-box{padding:16px 15px 10px}}
 /* ── Пульс спільноти ── */
 /* Лінію графіка малює CSS-перехід, а не setState на кожен кадр. */
 .pulse-line{transition:stroke-dashoffset 1.9s cubic-bezier(0.215,0.61,0.355,1);}
@@ -306,6 +319,9 @@ a:hover{color:#a8c4f7;}
                 <span style="min-width:0;flex:1;">
                   <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;color:#fff;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.title }}</span>
                   <span style="display:block;font-size:0.74rem;color:rgba(255,255,255,0.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.sub }}</span>
+                  <sc-if value="{{ r.hasSnip }}" hint-placeholder-val="{{ false }}">
+                    <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;color:rgba(255,255,255,0.44);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">{{ r.snipA }}<mark style="background:rgba(255,215,0,0.15);color:#ffd700;border-radius:3px;padding:0 2px;">{{ r.snipHit }}</mark>{{ r.snipB }}</span>
+                  </sc-if>
                 </span>
                 <span style="flex-shrink:0;color:rgba(255,255,255,0.25);font-size:0.85rem;">→</span>
               </button>
@@ -357,6 +373,9 @@ a:hover{color:#a8c4f7;}
                 <span style="min-width:0;flex:1;">
                   <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;color:#fff;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.title }}</span>
                   <span style="display:block;font-size:0.74rem;color:rgba(255,255,255,0.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.sub }}</span>
+                  <sc-if value="{{ r.hasSnip }}" hint-placeholder-val="{{ false }}">
+                    <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;color:rgba(255,255,255,0.44);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">{{ r.snipA }}<mark style="background:rgba(255,215,0,0.15);color:#ffd700;border-radius:3px;padding:0 2px;">{{ r.snipHit }}</mark>{{ r.snipB }}</span>
+                  </sc-if>
                 </span>
                 <span style="flex-shrink:0;color:rgba(255,255,255,0.25);font-size:0.85rem;">→</span>
               </button>
@@ -367,8 +386,80 @@ a:hover{color:#a8c4f7;}
           </div>
         </sc-if>
       </div>
-      <div style="max-width:620px;animation:fadeUp 0.55s ease 0.26s both;">{{ homeWelcomeEl }}</div>
+      <div style="max-width:620px;animation:fadeUp 0.55s ease 0.26s both;">
+        {{ homeWelcomeEl }}
+        <sc-if value="{{ homeWelcomeOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:0.9em;">{{ homeWelcomeRestEl }}</div>
+        </sc-if>
+        <sc-if value="{{ homeWelcomeHasMore }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ toggleWelcome }}" style="margin-top:14px;background:none;border:none;padding:4px 0;font-family:'Cinzel',Georgia,serif;font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.7);cursor:pointer;transition:color 0.25s ease;" style-hover="color:#ffd700;">{{ homeWelcomeMoreLabel }}</button>
+        </sc-if>
+      </div>
+      <sc-if value="{{ freshHas }}" hint-placeholder-val="{{ false }}">
+        <a href="#home" onClick="{{ scrollToFresh }}" class="home-jump" style="margin-top:34px;display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:9px 20px;font-size:0.8rem;letter-spacing:0.03em;color:rgba(255,255,255,0.66);text-decoration:none;animation:fadeUp 0.55s ease 0.34s both;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">Що нового <span class="home-jump-arrow" style="opacity:0.7;">↓</span></a>
+      </sc-if>
     </section>
+
+    <!-- ═══ СВІЖЕ ═══ -->
+    <sc-if value="{{ freshHas }}" hint-placeholder-val="{{ false }}">
+    <section ref="{{ freshRef }}" style="max-width:1200px;margin:0 auto;padding:8px 24px 46px;scroll-margin-top:74px;">
+      <div class="fresh-grid">
+        <div class="fresh-box">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:12px;">
+            <div>
+              <p style="font-size:0.66rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:7px;">✦ Свіже</p>
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.12rem;font-weight:700;color:#fff;letter-spacing:0.05em;">Що зʼявилося останнім</h2>
+            </div>
+            <a href="#pulse" style="flex-shrink:0;font-size:0.78rem;color:rgba(255,255,255,0.42);text-decoration:none;white-space:nowrap;transition:color 0.25s ease;" style-hover="color:#ffd700;">Літопис <span style="opacity:0.6;">→</span></a>
+          </div>
+          <sc-for list="{{ freshItems }}" as="f" hint-placeholder-count="5">
+            <a href="{{ f.href }}" class="fresh-row">
+              <span class="fresh-thumb">
+                <sc-if value="{{ f.hasImg }}" hint-placeholder-val="{{ true }}">
+                  <img src="{{ f.img }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:center top;" />
+                </sc-if>
+                <sc-if value="{{ f.noImg }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-family:'Cinzel',serif;font-size:0.68rem;color:rgba(255,215,0,0.45);">{{ f.initials }}</span>
+                </sc-if>
+              </span>
+              <span style="min-width:0;flex:1;">
+                <span style="display:block;font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:{{ f.accent }};margin-bottom:3px;">{{ f.kind }}</span>
+                <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:0.92rem;color:#fff;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ f.title }}</span>
+                <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.58);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ f.sub }}</span>
+              </span>
+              <span style="flex-shrink:0;font-size:0.72rem;color:rgba(255,255,255,0.5);white-space:nowrap;">{{ f.whenLabel }}</span>
+            </a>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ bdayHas }}" hint-placeholder-val="{{ false }}">
+          <div class="fresh-box">
+            <p style="font-size:0.66rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:7px;">✦ Найближчі дати</p>
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.12rem;font-weight:700;color:#fff;letter-spacing:0.05em;">Дні народжень</h2>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.88rem;color:rgba(255,255,255,0.42);margin:6px 0 10px;">{{ bdayNote }}</p>
+            <sc-for list="{{ bdayItems }}" as="b" hint-placeholder-count="3">
+              <a href="{{ b.href }}" class="fresh-row">
+                <span class="fresh-thumb" style="width:34px;height:34px;border-radius:999px;">
+                  <sc-if value="{{ b.hasImg }}" hint-placeholder-val="{{ true }}">
+                    <img src="{{ b.img }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:center top;" />
+                  </sc-if>
+                  <sc-if value="{{ b.noImg }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,215,0,0.45);">{{ b.initials }}</span>
+                  </sc-if>
+                </span>
+                <span style="min-width:0;flex:1;">
+                  <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:0.88rem;color:#fff;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ b.name }}</span>
+                  <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.84rem;color:rgba(255,255,255,0.45);">{{ b.date }}</span>
+                </span>
+                <span style="flex-shrink:0;font-size:0.72rem;color:rgba(255,215,0,0.62);white-space:nowrap;">{{ b.whenLabel }}</span>
+              </a>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+    </sc-if>
+
     <section style="max-width:1200px;margin:0 auto;padding:20px 24px 100px;">
       <p style="text-align:center;font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-bottom:40px;">— Розділи —</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px;">
@@ -2704,6 +2795,85 @@ const LIST_SELECT = {
   characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,build,bio,character_type,connections,sort_order,open_effect,card_caption,is_active,deity',
 };
 const HEAVY_TABLES = ['characters', 'lore', 'stories', 'chronicles'];
+
+// ── Мʼякий збіг слів ───────────────────────────────────────
+// Той самий підхід, що в Марти в лічці: звіряємо КОРЕНІ слів, а не підрядок,
+// інакше «Ноктою», «у храмі», «магічна квірка» не знаходяться. Згортання
+// довжину рядка не міняє (апостроф і мʼякий знак стають «·», а не зникають):
+// інакше позиція збігу розійшлася б із текстом, з якого ріжемо уривок.
+function auFold(v) {
+  return String(v == null ? '' : v).toLowerCase()
+    .replace(/[ʼ'’`´ьъ]/g, '·').replace(/[іїй]/g, 'и').replace(/[еє]/g, 'е').replace(/ґ/g, 'г');
+}
+function auStem(w) {
+  const s = auFold(w);
+  return s.length <= 4 ? s : s.slice(0, Math.max(4, s.length - 2));
+}
+function auTerms(q) {
+  return String(q || '').split(/[^\p{L}\p{N}ʼ'’]+/u).filter(w => w.length >= 2);
+}
+const AU_WORD_RE = {};
+// Збіг мусить бути СЛОВОМ: «пост» не має знаходитися в «постать» і «постійно».
+// Хвіст не довший за закінчення — довшому кореню дозволено більше.
+function auWordHit(hay, root) {
+  if (!hay || !root) return false;
+  let re = AU_WORD_RE[root];
+  if (!re) {
+    const tail = root.length >= 6 ? 4 : (root.length >= 5 ? 3 : 2);
+    re = new RegExp('(?:^|[^\\p{L}\\p{N}·])' + root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      + '[\\p{L}·]{0,' + tail + '}(?:$|[^\\p{L}·])', 'u');
+    AU_WORD_RE[root] = re;
+  }
+  return re.test(hay);
+}
+
+// ── Дати ───────────────────────────────────────────────────
+const AU_MONTHS = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня',
+  'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+const AU_MONTH_KEYS = [['січ', 1], ['лют', 2], ['бер', 3], ['квіт', 4], ['трав', 5], ['черв', 6],
+  ['лип', 7], ['серп', 8], ['вер', 9], ['жовт', 10], ['лист', 11], ['груд', 12]];
+// Розбирач той самий, що в `telegram-report.ts`: дата народження живе в тексті
+// анкети («Вік/Дата народження: 23 / 13.02»), окремої графи в базі немає.
+function auParseBday(raw) {
+  const s = String(raw == null ? '' : raw).trim();
+  if (!s) return null;
+  const ok = (d, m) => (d >= 1 && d <= 31 && m >= 1 && m <= 12 ? { d, m } : null);
+  for (const g of s.matchAll(/(\d{1,2})\s*[.\-]\s*(\d{1,2})/g)) {
+    const got = ok(+g[1], +g[2]);
+    if (got) return got;
+  }
+  for (const g of s.matchAll(/(\d{1,2})\s*(?:-?го)?\s+(\p{L}{3,})/gu)) {
+    const key = g[2].toLowerCase();
+    for (const [k, m] of AU_MONTH_KEYS) {
+      if (key.startsWith(k)) {
+        const got = ok(+g[1], m);
+        if (got) return got;
+      }
+    }
+  }
+  for (const g of s.matchAll(/(\d{1,2})\s*\/\s*(\d{1,2})/g)) {
+    const got = ok(+g[1], +g[2]);
+    if (got) return got;
+  }
+  return null;
+}
+const AU_BDAY_LINE = /(?:^|[^\p{L}])(?:вік[^\n:<]{0,30}|дата\s+народж\p{L}*[^\n:<]{0,20})\s*:\s*([^\n<]{1,60})/imu;
+function auBdayFromText(raw) {
+  if (!raw) return null;
+  const line = String(raw).replace(/<br\s*\/?>/gi, '\n').replace(/&nbsp;/gi, ' ').match(AU_BDAY_LINE);
+  return line ? auParseBday(line[1]) : null;
+}
+// «сьогодні» / «вчора» / «3 дні тому» / «12 серпня» — свіже читається датою,
+// давнє — числом місяця.
+function auWhen(ts) {
+  const t = new Date(ts);
+  if (isNaN(t.getTime())) return '';
+  const d = Math.floor((Date.now() - t.getTime()) / 86400000);
+  if (d <= 0) return 'сьогодні';
+  if (d === 1) return 'вчора';
+  if (d < 7) return d + ' ' + (d < 5 ? 'дні' : 'днів') + ' тому';
+  return t.getDate() + ' ' + AU_MONTHS[t.getMonth()];
+}
 const CACHE_KEY = 'au_cache_v1';
 const CACHE_VER = 2;
 const CACHE_MAX_AGE = 7 * 24 * 3600 * 1000;
@@ -3083,24 +3253,100 @@ class Component extends DCLogic {
   // ── Глобальний пошук з Головної ──
   _openSearchTarget(type, id) {
     const map = { char: 'characters', lore: 'lore', story: 'stories', chron: 'chronicles' };
+    // Окремого маршруту на бога немає — ведемо на розділ.
+    if (type === 'god') { this._nav('pantheon'); return; }
     const seg = map[type];
     if (seg) this._nav(seg, id);
   }
 
+  // Уривок з тим словом, яке справді стоїть у тексті: ріжемо по межі слова,
+  // а не по кількості символів, і віддаємо трьома частинами — щоб підсвітити
+  // збіг без вставляння HTML у розмітку.
+  _snippet(src, root) {
+    const none = { hasSnip: false, snipA: '', snipHit: '', snipB: '' };
+    if (!src || !root) return none;
+    const plain = String(src)
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+      .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
+      .replace(/[#*_>`]/g, '')
+      .replace(/\s+/g, ' ').trim();
+    const hay = auFold(plain);
+    let i = hay.indexOf(root);
+    if (i === -1) return none;
+    while (i > 0 && /[\p{L}\p{N}]/u.test(plain[i - 1])) i--;
+    let j = i;
+    while (j < plain.length && /[\p{L}\p{N}ʼ'’\-]/u.test(plain[j])) j++;
+    // Ліворуч беремо мало: рядок один і обрізається з правого краю, тому
+    // підсвічене слово мусить стояти близько до початку, а не в кінці.
+    const from = Math.max(0, i - 24);
+    let a = plain.slice(from, i);
+    if (from > 0) a = '…' + a.replace(/^\S*\s/, '');
+    let b = plain.slice(j, j + 130);
+    if (j + 130 < plain.length) b = b.replace(/\s\S*$/, '') + '…';
+    return { hasSnip: true, snipA: a, snipHit: plain.slice(i, j), snipB: b };
+  }
+
+  // Пошук по коренях слів і по ВСІХ графах, включно з біографією та текстом:
+  // раніше персонажі шукалися лише за іменем, псевдонімом і роллю, а пантеону
+  // в пошуку не було взагалі — тому «Нокта» не знаходила богиню.
   _homeSearch(data) {
     const raw = this.state.homeSearch || '';
-    const q = raw.trim().toLowerCase();
-    const active = q.length >= 2;
+    const words = auTerms(raw);
+    const roots = words.map(auStem);
+    const sub = auFold(raw.trim());
+    const active = sub.length >= 2 && roots.length > 0;
+    // На трьох і більше словах достатньо зачепити всі, крім одного: інакше
+    // довге питання не знаходить нічого.
+    const need = roots.length >= 3 ? roots.length - 1 : roots.length;
     const res = [];
     if (active) {
-      const push = (type, typeLabel, accent, it, title, sub, hay) => {
-        if (res.length >= 9 || !title) return;
-        if (hay.some(h => (h || '').toLowerCase().includes(q))) res.push({ key: type + '-' + it.id, type, id: String(it.id), typeLabel, accent, title, sub: sub || '' });
+      const push = (type, typeLabel, accent, it, title, subLabel, fields) => {
+        if (!title) return;
+        let score = 0, hits = 0, snipSrc = '', snipRoot = '';
+        for (const root of roots) {
+          let best = 0, bestSnip = null;
+          for (const f of fields) {
+            if (!f || !f.v) continue;
+            const hay = auFold(f.v);
+            const w = auWordHit(hay, root) ? f.w : (hay.indexOf(root) !== -1 ? f.w / 2 : 0);
+            if (w > best) { best = w; bestSnip = f.snip ? f.v : null; }
+          }
+          if (best) {
+            hits++;
+            score += best;
+            if (bestSnip && !snipSrc) { snipSrc = String(bestSnip); snipRoot = root; }
+          }
+        }
+        if (hits < need) return;
+        if (auFold(title).indexOf(sub) === 0) score += 8;
+        res.push({
+          key: type + '-' + it.id, type, id: String(it.id), typeLabel, accent,
+          title, sub: subLabel || '', score, ...this._snippet(snipSrc, snipRoot),
+        });
       };
-      (data.characters || []).forEach(ch => push('char', 'Персонаж', '#e587a4', ch, ch.name, ch.role, [ch.name, ch.alias, ch.role, ch.tags]));
-      (data.lore || []).forEach(it => push('lore', 'Довідник', '#ffd76b', it, it.title, it.category, [it.title, it.category, it.excerpt, it.content]));
-      (data.stories || []).forEach(it => push('story', 'Історія', '#7aa8f5', it, it.title, it.author_name ? (it.author_label || 'авторка') + ' ' + it.author_name : '', [it.title, it.author_name, it.content]));
-      (data.chronicles || []).forEach(it => push('chron', 'Хроніка', '#6fcfbf', it, it.title, it.subtitle, [it.title, it.subtitle, it.tags]));
+      (data.characters || []).forEach(ch => push('char', 'Персонаж', '#e587a4', ch, ch.name, ch.alias ? '«' + ch.alias + '»' : ch.role, [
+        { v: ch.name, w: 6 }, { v: ch.alias, w: 5 }, { v: ch.role, w: 3 }, { v: ch.tags, w: 2 },
+        { v: ch.bio, w: 2, snip: true }, { v: ch.content, w: 1, snip: true },
+      ]));
+      (data.lore || []).forEach(it => push('lore', 'Довідник', '#ffd76b', it, it.title, it.category, [
+        { v: it.title, w: 6 }, { v: it.category, w: 3 },
+        { v: it.excerpt, w: 2, snip: true }, { v: it.content, w: 1, snip: true },
+      ]));
+      (data.stories || []).forEach(it => push('story', 'Історія', '#7aa8f5', it, it.title, it.author_name ? (it.author_label || 'авторка') + ' ' + it.author_name : '', [
+        { v: it.title, w: 6 }, { v: it.author_name, w: 2 }, { v: it.tags, w: 2 },
+        { v: it.description, w: 2, snip: true }, { v: it.content, w: 1, snip: true },
+      ]));
+      (data.chronicles || []).forEach(it => push('chron', 'Хроніка', '#6fcfbf', it, it.title, it.subtitle, [
+        { v: it.title, w: 6 }, { v: it.subtitle, w: 3 }, { v: it.tags, w: 2 },
+        { v: it.summary, w: 2, snip: true }, { v: it.content, w: 1, snip: true },
+      ]));
+      (data.pantheon || []).forEach(g => push('god', 'Пантеон', '#c8ccd8', g, g.name, g.domain, [
+        { v: g.name, w: 6 }, { v: g.god, w: 4 }, { v: g.domain, w: 3 },
+        { v: g.description, w: 2, snip: true },
+      ]));
+      res.sort((a, b) => b.score - a.score);
+      if (res.length > 12) res.length = 12;
     }
     return {
       homeSearchVal: raw,
@@ -3115,6 +3361,175 @@ class Component extends DCLogic {
         else if (e.key === 'Enter' && res.length) this._openSearchTarget(res[0].type, res[0].id);
       },
       openSearchResult: (e) => this._openSearchTarget(e.currentTarget.dataset.type, e.currentTarget.dataset.id),
+    };
+  }
+
+  // ── Вступне слово: коротко, решта під «Читати далі» ────────
+  // Текст пишеться в адмінці й буває довгим, а перший екран мусить лишати
+  // місце тому, що під ним. Ріжемо по першому орнаменту (`---`), а якщо його
+  // немає — по другому абзацу; коли текст і так короткий, кнопки немає.
+  _homeWelcome(data) {
+    const raw = String((data.site && data.site.welcome) || 'Ласкаво просимо до Ауреліону.');
+    const el = (md) => React.createElement('div', {
+      className: 'home-welcome', dangerouslySetInnerHTML: { __html: parseMarkdown(md) },
+    });
+    const byHr = raw.split(/\n\s*(?:---|\*\*\*|___)\s*(?:\n|$)/);
+    const chunks = (byHr.length > 1 ? byHr : raw.split(/\n\s*\n/)).map(s => s.trim()).filter(Boolean);
+    const sep = byHr.length > 1 ? '\n\n---\n\n' : '\n\n';
+    const bulk = (s) => s.replace(/[^\p{L}\p{N}]/gu, '').length;
+    // Перший заголовок сам собою не вступ: набираємо, доки не набереться
+    // абзац, який справді щось каже.
+    let head = '', i = 0;
+    for (; i < chunks.length; i++) {
+      head = head ? head + sep + chunks[i] : chunks[i];
+      if (bulk(head) >= 260) { i++; break; }
+    }
+    let tail = chunks.slice(i).join(sep);
+    // Обрізати заради двох рядків не варто — кнопка коштувала б більше, ніж
+    // зекономлене місце.
+    if (tail.replace(/\s/g, '').length < 160) { head = raw; tail = ''; }
+    const open = !!this.state.homeWelcomeOpen;
+    return {
+      homeWelcomeEl: el(head),
+      homeWelcomeHasMore: !!tail,
+      homeWelcomeOpen: open && !!tail,
+      homeWelcomeRestEl: tail ? el(tail) : null,
+      homeWelcomeMoreLabel: open ? 'Згорнути' : 'Читати далі',
+      toggleWelcome: () => this.setState({ homeWelcomeOpen: !this.state.homeWelcomeOpen }),
+      scrollToFresh: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const n = this._freshRef;
+        if (!n) return;
+        const y = n.getBoundingClientRect().top + window.pageYOffset - 74;
+        window.scrollTo({ top: y, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      },
+      freshRef: (n) => { this._freshRef = n; },
+    };
+  }
+
+  // ── Свіже + найближчі дати ─────────────────────────────────
+  // Головна показувала числа й перелік розділів, тобто нічого з того, що
+  // змінилося. Нових запитів у базу тут нуль: усе це вже завантажено.
+  _freshFeed(data) {
+    const rows = [];
+    const add = (o) => { if (o.when && o.title) rows.push(o); };
+    const chById = {};
+    (data.characters || []).forEach(c => { chById[String(c.id)] = c; });
+
+    (data.characters || []).forEach(c => add({
+      kind: 'Нова тека', accent: '#e587a4', title: c.name || '',
+      sub: c.alias ? '«' + c.alias + '»' : (c.role || ''),
+      img: c.image || '', href: '#characters/' + encodeURIComponent(c.id), when: c.created_at,
+    }));
+    // Арт носять пачками: пʼять файлів однієї доби на одну теку — це одна
+    // новина, а не пʼять однакових рядків. Групуємо по «тека + доба».
+    const artPacks = {};
+    (data.character_images || []).forEach(g => {
+      const c = chById[String(g.character_id)];
+      if (!c || !g.created_at) return;
+      const key = String(g.character_id) + '|' + String(g.created_at).slice(0, 10);
+      const p = artPacks[key];
+      if (!p) {
+        artPacks[key] = {
+          c, n: 1, when: g.created_at, caption: g.caption || '',
+          // Делікатне в стрічку прев'ю не віддаємо: розмиття живе в галереї.
+          img: g.is_sensitive ? '' : (g.url || ''),
+        };
+        return;
+      }
+      p.n++;
+      if (new Date(g.created_at).getTime() > new Date(p.when).getTime()) p.when = g.created_at;
+      if (!p.img && !g.is_sensitive) p.img = g.url || '';
+      if (!p.caption && g.caption) p.caption = g.caption;
+    });
+    Object.keys(artPacks).forEach(k => {
+      const p = artPacks[k];
+      add({
+        kind: 'Новий арт', accent: '#ffd76b', title: p.c.name || '',
+        sub: p.n > 1
+          ? p.n + ' ' + uaPlural(p.n, 'нове зображення', 'нових зображення', 'нових зображень')
+          : (p.caption || 'нове зображення'),
+        img: p.img, href: '#characters/' + encodeURIComponent(p.c.id), when: p.when,
+      });
+    });
+    (data.lore || []).forEach(it => add({
+      kind: 'Довідник', accent: '#ffd76b', title: it.title || '', sub: it.category || '',
+      img: it.cover || '', href: '#lore/' + encodeURIComponent(it.id), when: it.created_at,
+    }));
+    (data.stories || []).forEach(it => add({
+      kind: 'Історія', accent: '#7aa8f5', title: it.title || '',
+      sub: it.author_name ? (it.author_label || 'авторка') + ' ' + it.author_name : '',
+      img: '', href: '#stories/' + encodeURIComponent(it.id), when: it.created_at,
+    }));
+    (data.chronicles || []).forEach(it => add({
+      kind: 'Хроніка', accent: '#6fcfbf', title: it.title || '', sub: it.subtitle || '',
+      img: it.cover || '', href: '#chronicles/' + encodeURIComponent(it.id), when: it.created_at,
+    }));
+    (data.quotes || []).forEach(q => {
+      const t = String(q.text || '').trim();
+      if (!t) return;
+      add({
+        kind: 'Цитата', accent: '#c8ccd8',
+        title: '«' + (t.length > 74 ? t.slice(0, 74).trim() + '…' : t) + '»',
+        sub: q.author ? '— ' + q.author : '', img: '', href: '#quotes', when: q.created_at,
+        mark: '✦',
+      });
+    });
+
+    rows.sort((a, b) => new Date(b.when).getTime() - new Date(a.when).getTime());
+    // Не більше двох рядків одного роду: цитатник наповнюють пачками, і без
+    // цієї межі стрічка «що нового» була б стрічкою цитат.
+    const seen = {};
+    const picked = [];
+    const rest = [];
+    for (const r of rows) {
+      const n = (seen[r.kind] || 0);
+      if (n < 2 && picked.length < 7) { seen[r.kind] = n + 1; picked.push(r); }
+      else rest.push(r);
+    }
+    while (picked.length < 7 && rest.length) picked.push(rest.shift());
+    const fresh = picked.map((r, i) => {
+      const parts = String(r.title).replace(/[«»]/g, '').trim().split(/\s+/);
+      return {
+        ...r, key: 'fr' + i, whenLabel: auWhen(r.when),
+        hasImg: !!r.img, noImg: !r.img,
+        initials: r.mark || parts.slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '✦',
+      };
+    });
+
+    // Дні народжень: дата лежить у тексті анкети, окремої графи немає —
+    // розбираємо тим самим порядком, що Марта у привітаннях.
+    const now = new Date();
+    const today0 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    const bd = [];
+    (data.characters || []).forEach(c => {
+      if (c.is_active === false) return;
+      const b = auBdayFromText(c.content) || auBdayFromText(c.bio) || auParseBday(c.age);
+      if (!b) return;
+      let t = Date.UTC(now.getFullYear(), b.m - 1, b.d);
+      if (t < today0) t = Date.UTC(now.getFullYear() + 1, b.m - 1, b.d);
+      const days = Math.round((t - today0) / 86400000);
+      if (days > 92) return;
+      const parts = String(c.name || '').trim().split(/\s+/);
+      bd.push({
+        key: 'bd' + c.id, days,
+        name: c.name || '', href: '#characters/' + encodeURIComponent(c.id),
+        img: c.image || '', hasImg: !!c.image, noImg: !c.image,
+        initials: parts.slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '✦',
+        date: b.d + ' ' + AU_MONTHS[b.m - 1],
+        whenLabel: days === 0 ? 'сьогодні' : (days === 1 ? 'завтра' : 'за ' + days + ' ' + uaPlural(days, 'день', 'дні', 'днів')),
+        isToday: days === 0,
+      });
+    });
+    bd.sort((a, b) => a.days - b.days);
+    const bdays = bd.slice(0, 5);
+
+    return {
+      freshItems: fresh,
+      freshHas: fresh.length > 0,
+      bdayItems: bdays,
+      bdayHas: bdays.length > 0,
+      bdayNote: bdays.length ? (bdays[0].isToday ? 'Сьогодні є кого вітати.' : 'Найближче свято — ' + bdays[0].date + '.') : '',
     };
   }
 
@@ -6721,7 +7136,7 @@ class Component extends DCLogic {
       siteTitle:    data.site?.title    || 'AURELION',
       siteSubtitle: data.site?.subtitle || 'Темне фентезі. Живі легенди.',
       siteWelcome:  data.site?.welcome  || 'Ласкаво просимо до Ауреліону.',
-      homeWelcomeEl: React.createElement('div', { className: 'home-welcome', dangerouslySetInnerHTML: { __html: parseMarkdown(data.site?.welcome || 'Ласкаво просимо до Ауреліону.') } }),
+      ...this._homeWelcome(data),
       contactsAbout: data.site?.contactsAbout || '',
       joinHasIntro:  !!(data.site && data.site.contactsAbout && String(data.site.contactsAbout).trim()) && (data.site.join_show_intro !== '0'),
       joinIntroEl:   (data.site && data.site.contactsAbout && String(data.site.contactsAbout).trim())
@@ -6809,6 +7224,7 @@ class Component extends DCLogic {
       })(),
 
       ...this._homeSearch(data),
+      ...this._freshFeed(data),
       showNavSearch: page !== 'home',
 
       ...(() => {
