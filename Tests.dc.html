@@ -57,7 +57,24 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
         <button onClick="{{ pickChar }}" style="cursor:pointer;border-radius:999px;padding:13px 18px;font-size:0.88rem;font-family:'Cinzel',serif;letter-spacing:0.05em;transition:all 0.2s ease;background:{{ charBg }};border:1px solid {{ charBorder }};color:{{ charColor }};">За персонажа</button>
       </div>
       <sc-if value="{{ isForChar }}" hint-placeholder-val="{{ false }}">
-        <input value="{{ charName }}" onChange="{{ setCharName }}" placeholder="Імʼя персонажа" style="width:100%;margin-top:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:12px 18px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;outline:none;" />
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
+          <sc-if value="{{ hasCharList }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <input value="{{ charQuery }}" onChange="{{ setCharQuery }}" placeholder="Пошук у картотеці" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:11px 18px;color:#fff;font-size:0.9rem;font-family:'EB Garamond',Georgia,serif;outline:none;" />
+              <div style="max-height:186px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:7px;padding:2px;">
+                <sc-for list="{{ charOptions }}" as="opt" hint-placeholder-count="6">
+                  <button class="test-chip" onClick="{{ opt.onPick }}" style="cursor:pointer;border-radius:999px;padding:8px 14px;font-size:0.84rem;font-family:'EB Garamond',Georgia,serif;transition:all 0.2s ease;background:{{ opt.bg }};border:1px solid {{ opt.border }};color:{{ opt.color }};">{{ opt.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ manualName }}" hint-placeholder-val="{{ false }}">
+            <input value="{{ charName }}" onChange="{{ setCharName }}" placeholder="Імʼя персонажа" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:12px 18px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;outline:none;" />
+          </sc-if>
+          <sc-if value="{{ hasPickedName }}" hint-placeholder-val="{{ false }}">
+            <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,215,0,0.7);">За {{ charName }}</p>
+          </sc-if>
+        </div>
       </sc-if>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:24px;flex-wrap:wrap;">
         <button class="test-go" onClick="{{ startQuiz }}" disabled="{{ startOff }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px 32px;font-family:'Cinzel',serif;font-size:0.85rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;opacity:{{ startOpacity }};">Далі</button>
@@ -79,11 +96,37 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
       </div>
       <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:34px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
         <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.24rem;line-height:1.6;color:#fff;text-align:center;text-wrap:pretty;">{{ questionText }}</p>
-        <div style="display:flex;flex-direction:column;gap:9px;margin-top:26px;">
-          <sc-for list="{{ answerOptions }}" as="opt" hint-placeholder-count="5">
-            <button class="test-ans" onClick="{{ opt.onPick }}" style="cursor:pointer;width:100%;min-height:46px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.13);border-radius:10px;padding:12px 16px;font-size:0.92rem;color:rgba(255,255,255,0.72);transition:all 0.2s ease;">{{ opt.label }}</button>
-          </sc-for>
-        </div>
+        <sc-if value="{{ isScaleQ }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:9px;margin-top:26px;">
+            <sc-for list="{{ answerOptions }}" as="opt" hint-placeholder-count="5">
+              <button class="test-ans" onClick="{{ opt.onPick }}" style="cursor:pointer;width:100%;min-height:46px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.13);border-radius:10px;padding:12px 16px;font-size:0.92rem;color:rgba(255,255,255,0.72);transition:all 0.2s ease;">{{ opt.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isAllocQ }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:9px;margin-top:22px;">
+            <p style="text-align:center;font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ allocHintColor }};">{{ allocHint }}</p>
+            <sc-for list="{{ allocOptions }}" as="opt" hint-placeholder-count="5">
+              <div style="display:flex;align-items:center;gap:10px;background:{{ opt.bg }};border:1px solid {{ opt.border }};border-radius:10px;padding:10px 14px;transition:all 0.2s ease;">
+                <sc-if value="{{ opt.isPick }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ opt.onToggle }}" style="flex:1;min-width:0;text-align:left;cursor:pointer;background:transparent;border:none;padding:4px 0;font-size:0.92rem;font-family:inherit;color:{{ opt.color }};">{{ opt.mark }}  {{ opt.label }}</button>
+                </sc-if>
+                <sc-if value="{{ opt.isPoints }}" hint-placeholder-val="{{ false }}">
+                  <span style="flex:1;min-width:0;font-size:0.92rem;color:{{ opt.color }};">{{ opt.label }}</span>
+                </sc-if>
+                <sc-if value="{{ opt.isPoints }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:9px;flex-shrink:0;">
+                    <button class="test-ghost" onClick="{{ opt.onMinus }}" style="cursor:pointer;width:30px;height:30px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.6);font-size:1rem;line-height:1;transition:all 0.2s ease;">−</button>
+                    <span style="min-width:16px;text-align:center;font-family:'Cinzel',serif;font-size:0.95rem;color:{{ opt.countColor }};">{{ opt.count }}</span>
+                    <button class="test-ghost" onClick="{{ opt.onPlus }}" style="cursor:pointer;width:30px;height:30px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.6);font-size:1rem;line-height:1;transition:all 0.2s ease;">+</button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+            <button class="test-go" onClick="{{ allocNext }}" disabled="{{ allocOff }}" style="cursor:pointer;margin-top:8px;align-self:center;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:12px 34px;font-family:'Cinzel',serif;font-size:0.84rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;opacity:{{ allocOpacity }};">{{ allocNextLabel }}</button>
+          </div>
+        </sc-if>
       </div>
       <div style="display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;">
         <button class="test-ghost" onClick="{{ goBack }}" disabled="{{ backOff }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:11px 20px;font-size:0.84rem;transition:all 0.2s ease;opacity:{{ backOpacity }};">← Попереднє</button>
@@ -97,9 +140,18 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
       <div style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:22px;padding:36px 28px;border-radius:15px;background:rgba(255,255,255,0.05);box-shadow:0 18px 48px rgba(0,0,0,0.5);border:1px solid {{ topColor }};">
         <p style="text-align:center;font-size:0.64rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);">{{ cardOverline }}</p>
         <div style="text-align:center;display:flex;flex-direction:column;gap:12px;">
+          <sc-if value="{{ hasCode }}" hint-placeholder-val="{{ false }}">
+            <span style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;font-weight:700;letter-spacing:0.42em;color:{{ topColor }};opacity:0.8;">{{ resultCode }}</span>
+          </sc-if>
           <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.75rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:{{ topColor }};">{{ topName }}</h2>
+          <sc-if value="{{ hasRarity }}" hint-placeholder-val="{{ false }}">
+            <span style="align-self:center;border-radius:999px;padding:4px 13px;font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;background:{{ rarityBg }};border:1px solid {{ rarityBorder }};color:{{ rarityColor }};">{{ rarityLabel }}</span>
+          </sc-if>
           <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.55);">{{ topTagline }}</p>
           <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.7;color:rgba(255,255,255,0.78);text-wrap:pretty;">{{ topDesc }}</p>
+          <sc-if value="{{ hasQuote }}" hint-placeholder-val="{{ false }}">
+            <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.02rem;line-height:1.6;color:{{ quoteColor }};border-top:1px solid rgba(255,255,255,0.09);border-bottom:1px solid rgba(255,255,255,0.09);padding:13px 6px;margin-top:2px;text-wrap:pretty;">«{{ topQuote }}»</p>
+          </sc-if>
         </div>
         <div style="display:flex;justify-content:center;gap:6px;">
           <sc-for list="{{ chartPicks }}" as="pick" hint-placeholder-count="3">
@@ -125,7 +177,7 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 
         <sc-if value="{{ isRadar }}" hint-placeholder-val="{{ false }}">
           <div style="position:relative;width:100%;">
-          <svg viewBox="-48 -28 396 356" style="width:100%;height:auto;display:block;">
+          <svg viewBox="{{ radarBox }}" style="width:100%;height:auto;display:block;">
             <sc-for list="{{ radarRings }}" as="ring" hint-placeholder-count="4">
               <polygon points="{{ ring.points }}" fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="1"></polygon>
             </sc-for>
@@ -192,14 +244,29 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:700,&quot;height&quot;:760},&quot;tests&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{test_id:string,title:string,tagline?:string,description?:string,result_label?:string,scale:Array&lt;{value:number,label:string}&gt;,traits:Record&lt;string,{name:string,tagline?:string,desc:string,accent:string}&gt;,questions:Array&lt;{text:string,trait:string}&gt;}&gt;&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;chart&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bars&quot;,&quot;radar&quot;,&quot;cols&quot;],&quot;default&quot;:&quot;bars&quot;,&quot;tsType&quot;:&quot;'bars'|'radar'|'cols'&quot;,&quot;section&quot;:&quot;Картка результату&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:700,&quot;height&quot;:760},&quot;tests&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{test_id:string,kind?:'likert'|'axes'|'alloc',title:string,tagline?:string,description?:string,result_label?:string,scale?:Array&lt;{value:number,label:string}&gt;,traits?:Record&lt;string,{name:string,tagline?:string,desc:string,accent:string,quote?:string,rarity?:number}&gt;,axes?:Array&lt;{key:string,accent?:string,left:object,right:object}&gt;,results?:Record&lt;string,object&gt;,rules?:Array&lt;object&gt;,questions:Array&lt;object&gt;}&gt;&quot;},&quot;characters&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{id:string,name?:string,alias?:string,is_active?:boolean}&gt;&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;chart&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bars&quot;,&quot;radar&quot;,&quot;cols&quot;],&quot;default&quot;:&quot;bars&quot;,&quot;tsType&quot;:&quot;'bars'|'radar'|'cols'&quot;,&quot;section&quot;:&quot;Картка результату&quot;}}">
 const ACCENT = {
   gold: '#ffd700', azure: '#6495ed', light: '#ffd76b',
   dark: '#8f7ee8', fate: '#d2607a', nature: '#5fbfb0', magic: '#cdd2db',
 };
 
-// viewBox SVG-пелюсток; з нього рахуються відсоткові координати підписів.
-const RADAR_VB = { x: -48, y: -28, w: 396, h: 356 };
+// Коли автор не дав accent (ось, зібраний з полюсів) — беремо по черзі,
+// а не все золотом: графік з одного кольору не читається.
+const PALETTE = ['#ffd700', '#6495ed', '#5fbfb0', '#d2607a', '#8f7ee8', '#cdd2db', '#ffd76b'];
+
+// Формати: твердження зі шкалою · осі-дихотомії (код) · розподіл балів.
+const KINDS = ['likert', 'axes', 'alloc'];
+
+// Поле пелюсток рахується під КІЛЬКІСТЬ променів: сталий viewBox був
+// розмічений під 5–6 типів, і на трьох осях під трикутником лишалася
+// дірка на півкартки. Межі — з кола сітки й з підписів, плюс відступ.
+const radarBox = (labels) => {
+  const pad = 30;
+  const xs = labels.map(l => l.ax).concat([55, 245]);
+  const ys = labels.map(l => l.ay).concat([55, 245]);
+  const x = Math.min(...xs) - pad, y = Math.min(...ys) - pad - 8;
+  return { x, y, w: Math.max(...xs) + pad - x, h: Math.max(...ys) + pad + 8 - y };
+};
 
 const CHARTS = [
   { id: 'bars',  label: 'Смужки' },
@@ -211,7 +278,7 @@ class Component extends DCLogic {
   state = {
     fallback: null,
     stage: 'hub', activeId: null,
-    forWhom: 'self', charName: '',
+    forWhom: 'self', charName: '', charQuery: '',
     qIndex: 0, answers: {},
     sharing: false, shareMsg: '',
     chart: null,   // null → береться з пропа `chart`, типово смужки
@@ -262,8 +329,9 @@ class Component extends DCLogic {
     if (!this.props.embedded && !(this.props.tests || []).length) {
       import('./tests-data.js')
         .then(m => this.setState({ fallback: (m.TESTS || []).map(t => ({
-          test_id: t.id, title: t.title, tagline: t.tagline, description: t.description,
+          test_id: t.id, kind: t.kind, title: t.title, tagline: t.tagline, description: t.description,
           result_label: t.resultLabel, scale: t.scale, traits: t.traits, questions: t.questions,
+          axes: t.axes, results: t.results, rules: t.rules,
         })) }))
         .catch(() => {});
     }
@@ -271,16 +339,29 @@ class Component extends DCLogic {
 
   _tests() {
     const rows = (this.props.tests && this.props.tests.length) ? this.props.tests : (this.state.fallback || []);
+    const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
     return rows.map(r => ({
       id: String(r.test_id || r.id || ''),
+      kind: KINDS.includes(String(r.kind || '').trim()) ? String(r.kind).trim() : 'likert',
       title: r.title || 'Без назви',
       tagline: r.tagline || '',
       description: r.description || '',
       resultLabel: r.result_label || r.resultLabel || 'результат',
       scale: Array.isArray(r.scale) ? r.scale : [],
-      traits: (r.traits && typeof r.traits === 'object' && !Array.isArray(r.traits)) ? r.traits : {},
+      traits: obj(r.traits),
+      axes: Array.isArray(r.axes) ? r.axes : [],
+      results: obj(r.results),
+      rules: Array.isArray(r.rules) ? r.rules : [],
       questions: Array.isArray(r.questions) ? r.questions : [],
-    })).filter(t => t.id && t.questions.length && t.scale.length && Object.keys(t.traits).length);
+    })).filter(t => {
+      if (!t.id || !t.questions.length) return false;
+      // Шкала потрібна лише там, де є твердження: тест на чистому
+      // розподілі без неї повноцінний, а не битий.
+      const needsScale = t.questions.some(q => q && !(Array.isArray(q.options) && q.options.length));
+      if (needsScale && !t.scale.length) return false;
+      if (t.kind === 'axes') return t.axes.length > 0;
+      return Object.keys(t.traits).length > 0;
+    });
   }
 
   _active() {
@@ -294,26 +375,150 @@ class Component extends DCLogic {
     return n + ' ' + w;
   }
 
-  _breakdown(test) {
-    const counts = {}, sums = {};
-    test.questions.forEach((q, i) => {
-      const k = q && q.trait;
-      if (!k || !test.traits[k]) return;
-      counts[k] = (counts[k] || 0) + 1;
-      sums[k] = (sums[k] || 0) + (this.state.answers[i] ?? 3);
-    });
-    const rows = Object.keys(test.traits).map(k => {
-      const info = test.traits[k] || {};
-      const n = counts[k] || 0;
-      const pct = n ? Math.round((sums[k] / (n * 5)) * 100) : 0;
-      const color = ACCENT[String(info.accent || '').trim()] || '#ffd700';
+  // ════════ ПІДРАХУНОК ════════
+  // У рядку розбивки два числа: `value` — справжнє (його видно в
+  // підписі), `pct` — геометрія графіка. Для часток вони різні: 24% від
+  // цілого малюється повною смужкою лідера, інакше картка виглядає порожньою.
+
+  _resInfo(info, key) {
+    const o = info || {};
+    const accent = String(o.accent || '').trim();
+    return {
+      key: key || '',
+      name: o.name || key || '',
+      tagline: o.tagline || '',
+      desc: o.desc || '',
+      quote: String(o.quote || '').replace(/^[«"„]|[»"“]$/g, '').trim(),
+      rarity: Number(o.rarity) > 0 ? Math.round(Number(o.rarity)) : 0,
+      accent,
+      color: ACCENT[accent] || '',
+    };
+  }
+
+  _geom(rows, shares) {
+    const max = rows.reduce((m, r) => Math.max(m, r.value), 0) || 1;
+    return rows.map((r, i) => {
+      const pct = shares ? Math.round((r.value / max) * 100) : r.value;
       return {
-        key: k, name: info.name || k, tagline: info.tagline || '', desc: info.desc || '',
-        color, pct, pctLabel: pct + '%', width: pct + '%',
+        ...r,
+        color: r.color || PALETTE[i % PALETTE.length],
+        pct, pctLabel: r.value + '%', width: pct + '%',
       };
     });
-    rows.sort((a, b) => b.pct - a.pct);
-    return rows;
+  }
+
+  _rows(test) {
+    return test.kind === 'axes' ? this._axisRows(test) : this._traitRows(test);
+  }
+
+  // Типи: твердження зі шкалою дають відсоток згоди (є стеля n×5),
+  // розподіл — частку від усіх розданих балів. Коли тип має й те, й те,
+  // виграє шкала: в неї чесна стеля (адмінка на таке змішування свариться).
+  _traitRows(test) {
+    const A = this.state.answers;
+    const sums = {}, cnt = {}, pts = {};
+    let given = 0;
+    test.questions.forEach((q, i) => {
+      if (!q) return;
+      if (Array.isArray(q.options) && q.options.length) {
+        const got = (A[i] && A[i].alloc) || {};
+        Object.keys(got).forEach(j => {
+          const o = q.options[Number(j)];
+          const n = Number(got[j]) || 0;
+          const k = String((o && o.trait) || '');
+          if (!o || !n || !test.traits[k]) return;
+          pts[k] = (pts[k] || 0) + n;
+          given += n;
+        });
+        return;
+      }
+      const k = String(q.trait || '');
+      if (!test.traits[k]) return;
+      cnt[k] = (cnt[k] || 0) + 1;
+      sums[k] = (sums[k] || 0) + (typeof A[i] === 'number' ? A[i] : 3);
+    });
+    const anyScale = Object.keys(cnt).length > 0;
+    const rows = Object.keys(test.traits).map(k => {
+      const n = cnt[k] || 0;
+      const value = n ? Math.round((sums[k] / (n * 5)) * 100)
+                      : (given ? Math.round(((pts[k] || 0) / given) * 100) : 0);
+      return { ...this._resInfo(test.traits[k], k), value };
+    });
+    rows.sort((a, b) => b.value - a.value);
+    return this._geom(rows, !anyScale);
+  }
+
+  // Осі: відповідь тягне до полюса, проти якого стоїть питання («pole»).
+  // Порядок осей — авторський і НЕ сортується: з нього читається код.
+  _axisRows(test) {
+    const A = this.state.answers;
+    const rows = test.axes.map((a, idx) => {
+      const key = String((a && a.key) || ('axis' + idx));
+      const L = (a && a.left) || {}, R = (a && a.right) || {};
+      let score = 0, n = 0;
+      test.questions.forEach((q, i) => {
+        if (!q || String(q.axis || '') !== key) return;
+        const v = (typeof A[i] === 'number' ? A[i] : 3) - 3;
+        score += String(q.pole || 'left') === 'right' ? v : -v;
+        n += 1;
+      });
+      const rightPct = n ? 50 + (score / (2 * n)) * 50 : 50;
+      const right = rightPct >= 50;
+      const pole = right ? R : L;
+      const info = this._resInfo(pole, key);
+      const axisAccent = String((a && a.accent) || '').trim();
+      return {
+        ...info,
+        value: Math.round(right ? rightPct : 100 - rightPct),
+        color: ACCENT[axisAccent] || info.color,
+        code: String(pole.code || (pole.name || '?').slice(0, 1)).toUpperCase(),
+        pair: [L.name || '?', R.name || '?'].join(' ↔ '),
+      };
+    });
+    return this._geom(rows, false);
+  }
+
+  // Правила результату — пороги й комбінації. Перше, що зішлося,
+  // забирає картку: так з'являються рідкісні типи, яких немає в переліку.
+  _applyRules(test, rows, code) {
+    const by = {};
+    rows.forEach(r => { by[r.key] = r.value; });
+    const lead = rows.slice().sort((a, b) => b.value - a.value)[0] || {};
+    for (const rule of test.rules) {
+      const conds = Array.isArray(rule && rule.if) ? rule.if : [];
+      if (!conds.length || !rule.result) continue;
+      const ok = conds.every(c => {
+        if (!c) return false;
+        if (c.code) return String(c.code).toUpperCase() === code;
+        if (c.top) return lead.key === String(c.top);
+        const v = by[String(c.trait || c.axis || '')];
+        if (typeof v !== 'number') return false;
+        if (c.min != null && v < Number(c.min)) return false;
+        if (c.max != null && v > Number(c.max)) return false;
+        return true;
+      });
+      if (ok) return this._resInfo(rule.result, '');
+    }
+    return null;
+  }
+
+  _resolve(test, rows) {
+    const code = test.kind === 'axes' ? rows.map(r => r.code || '').join('') : '';
+    const ruled = this._applyRules(test, rows, code);
+    const paint = (res) => ({ ...res, code, color: res.color || (rows[0] || {}).color || '#ffd700' });
+    if (ruled) return paint(ruled);
+    if (test.kind === 'axes') {
+      const found = test.results[code] || test.results[code.toUpperCase()];
+      if (found) return paint(this._resInfo(found, code));
+      // Опису на цей код автор не дав — збираємо з полюсів, а не мовчимо.
+      return paint(this._resInfo({
+        name: rows.map(r => r.name).join(' · '),
+        tagline: rows.map(r => r.pair).filter(Boolean).join(' · '),
+        desc: rows.map(r => r.desc).filter(Boolean).join(' '),
+        accent: (rows[0] || {}).accent,
+      }, code));
+    }
+    return paint(rows.slice().sort((a, b) => b.value - a.value)[0] || {});
   }
 
   _answer(test, value) {
@@ -321,6 +526,38 @@ class Component extends DCLogic {
     const answers = { ...this.state.answers, [i]: value };
     if (i + 1 < test.questions.length) this.setState({ answers, qIndex: i + 1 });
     else this.setState({ answers, stage: 'result' });
+  }
+
+  // Розподіл: відповідь — об'єкт {номер варіанта: бали}. Перехід далі
+  // тут ручний: автоматичний забирав би право передумати.
+  // Стелю й наявне число беремо З СТАНУ, а не з замикання рендеру: два
+  // швидкі натискання потрапляють в одну пачку React, і старе `n` губить бал.
+  _allocBump(idx, delta, cap) {
+    const i = this.state.qIndex;
+    const cur = { ...(((this.state.answers[i] || {}).alloc) || {}) };
+    const used = Object.keys(cur).reduce((n, k) => n + (Number(cur[k]) || 0), 0);
+    const now = Number(cur[idx]) || 0;
+    if (delta > 0 && used >= cap) return;
+    const next = Math.max(0, now + delta);
+    if (next === now) return;
+    if (next > 0) cur[idx] = next; else delete cur[idx];
+    this.setState({ answers: { ...this.state.answers, [i]: { alloc: cur } } });
+  }
+
+  _allocToggle(idx, cap) {
+    const i = this.state.qIndex;
+    const cur = { ...(((this.state.answers[i] || {}).alloc) || {}) };
+    if (cur[idx]) this._allocBump(idx, -Number(cur[idx]), cap);
+    else this._allocBump(idx, 1, cap);
+  }
+
+  _allocNext(test, cap) {
+    const i = this.state.qIndex;
+    const got = ((this.state.answers[i] || {}).alloc) || {};
+    const used = Object.keys(got).reduce((n, k) => n + (Number(got[k]) || 0), 0);
+    if (used !== cap) return;
+    if (i + 1 < test.questions.length) this.setState({ qIndex: i + 1 });
+    else this.setState({ stage: 'result' });
   }
 
   // ════════ КАРТКА РЕЗУЛЬТАТУ (PNG) ════════
@@ -338,8 +575,8 @@ class Component extends DCLogic {
 
   // Малюємо в два заходи однією функцією: перший (g === null) лише набирає
   // висоту, другий малює. Так висота картки не розходиться з розміткою.
-  _renderResultCanvas(H, test, rows, name) {
-    const top = rows[0] || {};
+  _renderResultCanvas(H, test, rows, res, name) {
+    const top = res || rows[0] || {};
     const W = 900, dpr = 2, cw = 640, cx = W / 2, left = (W - cw) / 2;
     const accent = top.color || '#ffd700';
     const probe = document.createElement('canvas').getContext('2d');
@@ -347,6 +584,7 @@ class Component extends DCLogic {
     const F_NAME = '700 52px "Cinzel", Georgia, serif';
     const F_TAG  = 'italic 400 30px "EB Garamond", Georgia, serif';
     const F_DESC = '400 27px "EB Garamond", Georgia, serif';
+    const F_QUOTE = 'italic 400 26px "EB Garamond", Georgia, serif';
     const lines = (font, text, max, cap) => {
       if (!String(text || '').trim()) return [];
       probe.font = font;
@@ -355,6 +593,9 @@ class Component extends DCLogic {
     const nameLines = lines(F_NAME, (top.name || '').toUpperCase(), cw - 40, 2);
     const tagLines  = lines(F_TAG, top.tagline, cw - 60, 2);
     const descLines = lines(F_DESC, top.desc, cw, 10);
+    const quoteLines = lines(F_QUOTE, top.quote ? ('«' + top.quote + '»') : '', cw - 80, 3);
+    const codeText = String(top.code || '');
+    const rarityText = top.rarity ? ('РІДКІСТЬ ~' + top.rarity + '%') : '';
     const kind = this._chartKind();
     const overline = name
       ? ('✦ ' + name.toUpperCase() + ' · ' + String(test.resultLabel || '').toUpperCase())
@@ -363,22 +604,26 @@ class Component extends DCLogic {
     // off — зсув, яким вміст центрується по висоті картки (портрет 3:4).
     const paint = (g, off) => {
       let y = 104 + (off || 0);
-      if (g) {
-        g.textAlign = 'center';
-        g.fillStyle = 'rgba(255,215,0,0.78)';
-        g.font = '600 19px "Cinzel", Georgia, serif';
-        H.trackedText(g, overline, cx, y, 5);
-      }
+      if (g) g.textAlign = 'center';
+      const one = (font, fill, text, track) => {
+        if (g) { g.fillStyle = fill; g.font = font; H.trackedText(g, text, cx, y, track); }
+      };
+      one('600 19px "Cinzel", Georgia, serif', 'rgba(255,215,0,0.78)', overline, 5);
       y += 34;
-      if (g) {
-        g.fillStyle = 'rgba(255,255,255,0.32)';
-        g.font = '600 20px "Cinzel", Georgia, serif';
-        H.trackedText(g, (test.title || '').toUpperCase(), cx, y, 3);
+      one('600 20px "Cinzel", Georgia, serif', 'rgba(255,255,255,0.32)', (test.title || '').toUpperCase(), 3);
+      y += codeText ? 56 : 66;
+      if (codeText) {
+        one('700 32px "Cinzel", Georgia, serif', accent, codeText, 16);
+        y += 54;
       }
-      y += 66;
       if (g) { g.fillStyle = accent; g.font = F_NAME; }
       nameLines.forEach((ln, i) => { if (g) g.fillText(ln, cx, y + i * 58); });
-      y += (nameLines.length - 1) * 58 + (tagLines.length ? 40 : 32);
+      y += (nameLines.length - 1) * 58 + 34;
+      if (rarityText) {
+        one('600 17px "Cinzel", Georgia, serif', 'rgba(255,255,255,0.42)', rarityText, 4);
+        y += 34;
+      }
+      y += tagLines.length ? 6 : 0;
       if (tagLines.length) {
         if (g) { g.fillStyle = 'rgba(255,255,255,0.55)'; g.font = F_TAG; }
         tagLines.forEach((ln, i) => { if (g) g.fillText(ln, cx, y + i * 36); });
@@ -388,6 +633,18 @@ class Component extends DCLogic {
         if (g) { g.fillStyle = 'rgba(255,255,255,0.78)'; g.font = F_DESC; }
         descLines.forEach((ln, i) => { if (g) g.fillText(ln, cx, y + i * 40); });
         y += (descLines.length - 1) * 40 + 44;
+      }
+      if (quoteLines.length) {
+        if (g) {
+          g.strokeStyle = H.withAlpha(accent, 0.22);
+          g.lineWidth = 1;
+          g.beginPath(); g.moveTo(left + 160, y - 12); g.lineTo(left + cw - 160, y - 12); g.stroke();
+          g.fillStyle = H.withAlpha(accent, 0.85);
+          g.font = F_QUOTE;
+        }
+        y += 22;
+        quoteLines.forEach((ln, i) => { if (g) g.fillText(ln, cx, y + i * 38); });
+        y += (quoteLines.length - 1) * 38 + 46;
       }
       if (g) { g.fillStyle = 'rgba(255,255,255,0.10)'; g.fillRect(left + 110, y, cw - 220, 1); }
       y += 38;
@@ -516,15 +773,17 @@ class Component extends DCLogic {
     if (!test) throw new Error('no-test');
     const H = await this._cardHelpers();
     await H.ensureCardFonts();
-    const canvas = this._renderResultCanvas(H, test, this._breakdown(test), this._cardName());
+    const rows = this._rows(test);
+    const canvas = this._renderResultCanvas(H, test, rows, this._resolve(test, rows), this._cardName());
     return await new Promise(res => canvas.toBlob(res, 'image/png'));
   }
 
   _resultFileName() {
     const test = this._active();
     if (!test) return 'aurelion-test.png';
-    const top = this._breakdown(test)[0] || {};
-    const key = String(top.key || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const rows = this._rows(test);
+    const res = this._resolve(test, rows);
+    const key = String(res.key || res.code || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     return 'aurelion-test-' + test.id + (key ? '-' + key : '') + '.png';
   }
 
@@ -595,10 +854,29 @@ class Component extends DCLogic {
 
     const total = test ? test.questions.length : 0;
     const q = test ? test.questions[s.qIndex] : null;
-    const rows = (stage === 'result' && test) ? this._breakdown(test) : [];
-    const top = rows[0] || {};
+    const rows = (stage === 'result' && test) ? this._rows(test) : [];
+    const top = (stage === 'result' && test) ? this._resolve(test, rows) : {};
     const kind = this._chartKind();
+
+    // Форму питання диктує саме питання, а не тип тесту: є варіанти —
+    // розподіл (вибрати N або розкинути бали), немає — шкала згоди.
+    // Тому в одному тесті можуть стояти й ті, й ті.
+    const alloc = (q && Array.isArray(q.options) && q.options.length) ? q : null;
+    const aPoints = alloc ? Math.max(0, Math.round(Number(alloc.points) || 0)) : 0;
+    const aCap = alloc ? Math.max(1, aPoints || Math.round(Number(alloc.pick) || 0) || 1) : 0;
+    const aGot = (alloc && (s.answers[s.qIndex] || {}).alloc) || {};
+    const aUsed = Object.keys(aGot).reduce((n, k) => n + (Number(aGot[k]) || 0), 0);
+    const aLeft = aCap - aUsed;
+
+    // Картотека з сайту: імʼя персонажа береться зі списку, а не з рук.
+    // Немає пропа (файл відкрито окремо) — лишається поле для вводу.
+    const chars = (Array.isArray(this.props.characters) ? this.props.characters : [])
+      .filter(c => c && (c.name || c.alias) && c.is_active !== false);
+    const cq = (s.charQuery || '').trim().toLowerCase();
+    const hit = (v) => String(v || '').toLowerCase().includes(cq);
+    const charHits = chars.filter(c => !cq || hit(c.name) || hit(c.alias)).slice(0, 60);
     const radar = (kind === 'radar' && rows.length) ? this._radarGeom(rows, 150, 150, 95, 117) : null;
+    const rbox = radar ? radarBox(radar.labels) : null;
     const alpha = (hex, a) => {
       const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
       if (!m) return 'rgba(255,215,0,' + a + ')';
@@ -626,8 +904,15 @@ class Component extends DCLogic {
         title: t.title,
         tagline: t.tagline,
         description: t.description,
-        meta: [this._plural(t.questions.length, 'твердження', 'твердження', 'тверджень'),
-               this._plural(Object.keys(t.traits).length, 'тип', 'типи', 'типів')].join(' · '),
+        // Підпис під назвою каже, що це за тест, ще до першого питання:
+        // осі й коди читаються інакше, ніж «14 тверджень, 5 типів».
+        meta: (t.kind === 'axes'
+          ? [this._plural(t.questions.length, 'твердження', 'твердження', 'тверджень'),
+             this._plural(t.axes.length, 'вісь', 'осі', 'осей'),
+             this._plural(Object.keys(t.results).length || Math.pow(2, t.axes.length), 'фінал', 'фінали', 'фіналів')]
+          : [this._plural(t.questions.length, 'питання', 'питання', 'питань'),
+             this._plural(Object.keys(t.traits).length, 'тип', 'типи', 'типів')]
+        ).filter(Boolean).join(' · '),
         onStart: () => this.setState({ activeId: t.id, stage: 'who', forWhom: 'self', charName: '', qIndex: 0, answers: {} }),
       })),
 
@@ -638,6 +923,22 @@ class Component extends DCLogic {
       pickSelf: () => this.setState({ forWhom: 'self' }),
       pickChar: () => this.setState({ forWhom: 'character' }),
       setCharName: (e) => this.setState({ charName: e.target.value }),
+      hasCharList: chars.length > 0,
+      manualName: !chars.length || (!!cq && !charHits.length),
+      hasPickedName: chars.length > 0 && !!name,
+      charQuery: s.charQuery,
+      setCharQuery: (e) => this.setState({ charQuery: e.target.value }),
+      charOptions: charHits.map(c => {
+        const nm = String(c.name || c.alias || '').trim();
+        const on = nm === name;
+        return {
+          label: nm,
+          bg: on ? 'rgba(255,215,0,0.16)' : 'rgba(255,255,255,0.04)',
+          border: on ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.13)',
+          color: on ? '#ffd700' : 'rgba(255,255,255,0.6)',
+          onPick: () => this.setState({ charName: on ? '' : nm }),
+        };
+      }),
       startOff,
       startOpacity: startOff ? '0.45' : '1',
       startQuiz: () => { if (!startOff) this.setState({ stage: 'quiz', qIndex: 0, answers: {} }); },
@@ -647,10 +948,38 @@ class Component extends DCLogic {
       qNumber: s.qIndex + 1,
       questionText: q ? q.text : '',
       progressPct: total ? Math.round((s.qIndex / total) * 100) + '%' : '0%',
+      isScaleQ: !!q && !alloc,
+      isAllocQ: !!alloc,
       answerOptions: test ? test.scale.map(o => ({
         label: (o && o.label) || '',
         onPick: () => this._answer(test, Number((o && o.value) || 3)),
       })) : [],
+
+      allocHint: !alloc ? '' : (aPoints
+        ? ('Розкиньте ' + aCap + ' · лишилось ' + Math.max(0, aLeft))
+        : ('Виберіть ' + aCap + ' з ' + alloc.options.length + ' · вибрано ' + aUsed)),
+      allocHintColor: aLeft === 0 ? 'rgba(255,215,0,0.75)' : 'rgba(255,255,255,0.38)',
+      allocOptions: !alloc ? [] : alloc.options.map((o, j) => {
+        const n = Number(aGot[j]) || 0;
+        const on = n > 0;
+        return {
+          label: (o && o.label) || '',
+          isPick: !aPoints, isPoints: !!aPoints,
+          count: n,
+          countColor: on ? '#ffd700' : 'rgba(255,255,255,0.3)',
+          mark: on ? '✦' : '○',
+          bg: on ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.04)',
+          border: on ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.13)',
+          color: on ? '#fff' : 'rgba(255,255,255,0.72)',
+          onToggle: () => this._allocToggle(j, aCap),
+          onPlus: () => this._allocBump(j, 1, aCap),
+          onMinus: () => this._allocBump(j, -1, aCap),
+        };
+      }),
+      allocOff: aLeft !== 0,
+      allocOpacity: aLeft === 0 ? '1' : '0.45',
+      allocNextLabel: (alloc && s.qIndex + 1 >= total) ? 'Показати результат' : 'Далі',
+      allocNext: () => { if (test) this._allocNext(test, aCap); },
       backOff: s.qIndex === 0,
       backOpacity: s.qIndex === 0 ? '0.35' : '1',
       goBack: () => { if (s.qIndex > 0) this.setState({ qIndex: s.qIndex - 1 }); },
@@ -660,6 +989,16 @@ class Component extends DCLogic {
       topTagline: top.tagline || '',
       topDesc: top.desc || '',
       topColor: top.color || '#ffd700',
+      topQuote: top.quote || '',
+      hasQuote: !!top.quote,
+      quoteColor: alpha(top.color, 0.88),
+      resultCode: top.code || '',
+      hasCode: !!top.code,
+      hasRarity: !!top.rarity,
+      rarityLabel: top.rarity ? ('Рідкість ~' + top.rarity + '%') : '',
+      rarityBg: alpha(top.color, 0.12),
+      rarityBorder: alpha(top.color, 0.4),
+      rarityColor: alpha(top.color, 0.95),
       breakdown: rows,
 
       chartPicks: CHARTS.map(c => {
@@ -683,13 +1022,14 @@ class Component extends DCLogic {
       radarLabels: radar ? radar.labels.map(l => ({
         text: l.text,
         pctLabel: l.pctLabel,
-        left: (((l.ax - RADAR_VB.x) / RADAR_VB.w) * 100).toFixed(2) + '%',
-        top: (((l.ay - RADAR_VB.y) / RADAR_VB.h) * 100).toFixed(2) + '%',
+        left: (((l.ax - rbox.x) / rbox.w) * 100).toFixed(2) + '%',
+        top: (((l.ay - rbox.y) / rbox.h) * 100).toFixed(2) + '%',
         shift: l.anchor === 'middle' ? 'translate(-50%,-50%)'
              : l.anchor === 'start' ? 'translate(0,-50%)' : 'translate(-100%,-50%)',
         align: l.anchor === 'middle' ? 'center' : (l.anchor === 'start' ? 'left' : 'right'),
       })) : [],
       radarPoints: radar ? radar.points : '',
+      radarBox: rbox ? [rbox.x, rbox.y, rbox.w, rbox.h].map(n => Math.round(n)).join(' ') : '0 0 300 300',
       radarFill: alpha(top.color, 0.16),
       radarStroke: alpha(top.color, 0.9),
       cols: rows.map(r => ({ name: r.name, pctLabel: r.pctLabel, color: r.color, height: Math.max(3, r.pct) + '%' })),
@@ -703,7 +1043,7 @@ class Component extends DCLogic {
       shareCard: () => this.shareResultCard(),
 
       retake: () => this.setState({ stage: 'quiz', qIndex: 0, answers: {}, shareMsg: '' }),
-      toHub: () => this.setState({ stage: 'hub', activeId: null, forWhom: 'self', charName: '', qIndex: 0, answers: {}, shareMsg: '' }),
+      toHub: () => this.setState({ stage: 'hub', activeId: null, forWhom: 'self', charName: '', charQuery: '', qIndex: 0, answers: {}, shareMsg: '' }),
     };
   }
 }

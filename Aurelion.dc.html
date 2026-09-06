@@ -2058,7 +2058,7 @@ a:hover{color:#a8c4f7;}
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Тести</h1>
       <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:440px;margin-left:auto;margin-right:auto;">Пройдіть за себе — або за свого персонажа, і подивіться, чим він відрізняється від вас.</p>
     </header>
-    <dc-import name="Tests" tests="{{ testsData }}" embedded="{{ true }}" hint-size="100%,620px"></dc-import>
+    <dc-import name="Tests" tests="{{ testsData }}" characters="{{ testsChars }}" embedded="{{ true }}" hint-size="100%,620px"></dc-import>
   </main>
 </sc-if>
 
@@ -6719,6 +6719,9 @@ class Component extends DCLogic {
         ? 'Що почули — то й принесіть. Марта запише, а далі воно саме розійдеться чатом.'
         : 'Анкета нового персонажа й віконце пліток — в Марти одна рецепція на обидві справи.',
       testsData:       (data.tests || []),
+      // «За персонажа» — імʼя зі списку картотеки, а не з рук: там робили
+      // описки в іменах, і картка результату виходила про нікого.
+      testsChars:      (data.characters || []).map(c => ({ id: c.id, name: c.name, alias: c.alias, is_active: c.is_active })),
       showContacts:    page === 'contacts',
       showMap:         page === 'map',
 

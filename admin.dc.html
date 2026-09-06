@@ -4401,9 +4401,17 @@ class Component extends DCLogic {
     return arr;
   }
 
+  // Перевірка тесту. Три формати: likert (твердження + шкала),
+  // axes (осі-дихотомії → код), alloc (вибір/розкидання балів).
+  // Помилки блокують збереження, зауваження лише показуються:
+  // у базі не може лежати тест, який рушій не зможе посчитати.
   _testCheck(t) {
     const errors = [], warns = [];
     const S = v => (typeof v === 'string' ? v.trim() : '');
+    const ACC = Object.keys(TEST_ACCENTS).join(', ');
+    const kind = S(t.kind) || 'likert';
+    if (!['likert', 'axes', 'alloc'].includes(kind)) errors.push('kind «' + kind + '» — має бути likert, axes або alloc');
+
     if (!S(t.id)) errors.push('немає id (slug латиницею)');
     else if (!/^[a-z0-9-]+$/.test(S(t.id))) errors.push('id «' + S(t.id) + '» — лише малі латинські літери, цифри й дефіс');
     if (!S(t.title)) errors.push('немає назви (title)');
@@ -4411,51 +4419,180 @@ class Component extends DCLogic {
     if (!S(t.description)) warns.push('немає опису для екрана вступу (description)');
     if (!S(t.resultLabel)) warns.push('немає resultLabel — картка результату підпишеться загально');
 
+    const qs = Array.isArray(t.questions) ? t.questions : [];
+    const isAlloc = (q) => !!(q && Array.isArray(q.options) && q.options.length);
+    const plainQs = qs.filter(q => !isAlloc(q));
+    const allocQs = qs.filter(isAlloc);
+    if (!qs.length) errors.push('немає питань');
+
+    // Шкала потрібна лише там, де є твердження.
     const scale = Array.isArray(t.scale) ? t.scale : [];
-    if (scale.length !== 5) errors.push('шкала має бути з 5 пунктів, а тут ' + scale.length);
-    else if (scale.some((x, i) => !x || Number(x.value) !== i + 1 || !S(x.label))) errors.push('пункти шкали мусять мати value 1..5 по порядку і непорожній label');
+    if (plainQs.length) {
+      if (scale.length !== 5) errors.push('шкала має бути з 5 пунктів, а тут ' + scale.length);
+      else if (scale.some((x, i) => !x || Number(x.value) !== i + 1 || !S(x.label))) errors.push('пункти шкали мусять мати value 1..5 по порядку і непорожній label');
+    } else if (scale.length) warns.push('шкала є, але жодного питання зі шкалою — вона ніде не згодиться');
+
+    // Окремий результат (тип, полюс, фінал, правило) — одна перевірка на всіх.
+    const seenAcc = {};
+    const chkRes = (r, what, opts) => {
+      const o = r || {};
+      if (!S(o.name)) errors.push(what + ': немає name');
+      if (!S(o.desc)) errors.push(what + ': немає desc');
+      else if (S(o.desc).length < 60) warns.push(what + ': опис короткий (' + S(o.desc).length + ' символів)');
+      if (!S(o.tagline) && (opts || {}).wantTag) warns.push(what + ': немає tagline');
+      const a = S(o.accent);
+      if (!a) { if ((opts || {}).wantAccent) errors.push(what + ': немає accent'); }
+      else if (!TEST_ACCENTS[a]) errors.push(what + ': accent «' + a + '» не з переліку (' + ACC + ')');
+      else if ((opts || {}).uniqueAccent) {
+        if (seenAcc[a]) errors.push('accent «' + a + '» повторюється: «' + seenAcc[a] + '» і ' + what);
+        else seenAcc[a] = what;
+      }
+      const rar = o.rarity;
+      if (rar != null && !(Number(rar) > 0 && Number(rar) <= 100)) warns.push(what + ': rarity мусить бути відсотком 1–100');
+      if (S(o.quote).length > 120) warns.push(what + ': цитата довга (' + S(o.quote).length + ') — на картці влізе три рядки');
+    };
 
     const traits = (t.traits && typeof t.traits === 'object' && !Array.isArray(t.traits)) ? t.traits : null;
-    const keys = traits ? Object.keys(traits) : [];
-    if (!keys.length) errors.push('немає типів результату (traits)');
-    else {
-      if (keys.length < 3) errors.push('типів лише ' + keys.length + ' — потрібно від 3');
-      if (keys.length > 6) warns.push('типів ' + keys.length + ' — понад 6 картка результату читається важко');
-      const seen = {};
+    const keys = (kind === 'axes') ? [] : (traits ? Object.keys(traits) : []);
+    const axes = Array.isArray(t.axes) ? t.axes : [];
+    const axisKeys = axes.map((a, i) => S(a && a.key) || ('axis' + i));
+    const perTrait = {};
+
+    if (kind === 'axes') {
+      if (axes.length < 2) errors.push('осей ' + axes.length + ' — потрібно від 2 (найліпше 3–4)');
+      if (axes.length > 4) warns.push('осей ' + axes.length + ' — це ' + Math.pow(2, axes.length) + ' фіналів, описати всі важко');
+      const codes = {};
+      axes.forEach((a, i) => {
+        const k = axisKeys[i];
+        if (!S(a && a.key)) errors.push('вісь ' + (i + 1) + ': немає key');
+        ['left', 'right'].forEach(side => {
+          const p = (a || {})[side];
+          if (!p) { errors.push('вісь «' + k + '»: немає полюса ' + side); return; }
+          chkRes(p, 'вісь «' + k + '», полюс ' + side, {});
+          const c = S(p.code);
+          if (!c) errors.push('вісь «' + k + '», полюс ' + side + ': немає code (одна літера)');
+          else if (c.length > 1) warns.push('вісь «' + k + '», полюс ' + side + ': code «' + c + '» довший за літеру');
+          else if (codes[c]) warns.push('літера «' + c + '» уже зайнята (' + codes[c] + ') — коди буде не відрізнити');
+          else codes[c] = 'вісь «' + k + '»';
+        });
+      });
+      qs.forEach((q, i) => {
+        if (isAlloc(q)) { warns.push('питання ' + (i + 1) + ': розподіл у тесті на осях нічого не дає — бали нікуди не лягають'); return; }
+        if (!q || !S(q.text)) errors.push('питання ' + (i + 1) + ': немає тексту');
+        const k = S(q && q.axis);
+        if (!k) errors.push('питання ' + (i + 1) + ': немає axis');
+        else if (axisKeys.length && !axisKeys.includes(k)) errors.push('питання ' + (i + 1) + ': axis «' + k + '» немає серед осей');
+        else perTrait[k] = (perTrait[k] || 0) + 1;
+        const pole = S(q && q.pole);
+        if (!['left', 'right'].includes(pole)) errors.push('питання ' + (i + 1) + ': pole мусить бути left або right');
+      });
+      axisKeys.forEach(k => {
+        const n = perTrait[k] || 0;
+        if (n < 2) errors.push('вісь «' + k + '»: ' + n + ' питань — потрібно від 3, і в обидва боки');
+        else if (n < 3) warns.push('вісь «' + k + '»: лише ' + n + ' питання — полюс визначиться хитко');
+        const sides = { left: 0, right: 0 };
+        qs.forEach(q => { if (q && S(q.axis) === k) sides[S(q.pole)] = (sides[S(q.pole)] || 0) + 1; });
+        if (!sides.left || !sides.right) warns.push('вісь «' + k + '»: усі твердження тягнуть в один бік — це згода, а не вибір');
+      });
+      const results = (t.results && typeof t.results === 'object' && !Array.isArray(t.results)) ? t.results : {};
+      const rkeys = Object.keys(results);
+      const full = Math.pow(2, axes.length);
+      if (!rkeys.length) errors.push('немає results — коду нічого не відповідає');
+      rkeys.forEach(code => {
+        if (code.length !== axes.length) errors.push('фінал «' + code + '»: у коді ' + code.length + ' літер, а осей ' + axes.length);
+        else {
+          const bad = code.split('').some((ch, i) => {
+            const a = axes[i] || {};
+            const l = S((a.left || {}).code).toUpperCase(), r = S((a.right || {}).code).toUpperCase();
+            return ch.toUpperCase() !== l && ch.toUpperCase() !== r;
+          });
+          if (bad) errors.push('фінал «' + code + '»: літери не збігаються з кодами полюсів у тому самому порядку');
+        }
+        chkRes(results[code], 'фінал «' + code + '»', { wantTag: true });
+      });
+      if (rkeys.length && rkeys.length < full) warns.push('описано ' + rkeys.length + ' фіналів із ' + full + ' — решта збереться з описів полюсів');
+    } else {
+      if (!keys.length) errors.push('немає типів результату (traits)');
+      else {
+        if (keys.length < 3) errors.push('типів лише ' + keys.length + ' — потрібно від 3');
+        if (keys.length > 6) warns.push('типів ' + keys.length + ' — понад 6 картка результату читається важко');
+        keys.forEach(k => chkRes(traits[k], 'тип «' + k + '»', { wantTag: true, wantAccent: true, uniqueAccent: true }));
+      }
+      // Твердження
+      plainQs.forEach((q) => {
+        const i = qs.indexOf(q);
+        if (!q || !S(q.text)) errors.push('питання ' + (i + 1) + ': немає тексту');
+        const k = S(q && q.trait);
+        if (!k) errors.push('питання ' + (i + 1) + ': немає trait');
+        else if (keys.length && !traits[k]) errors.push('питання ' + (i + 1) + ': trait «' + k + '» немає серед типів');
+        else perTrait[k] = (perTrait[k] || 0) + 1;
+      });
+      // Розподіл
+      const allocTraits = {};
+      allocQs.forEach((q) => {
+        const i = qs.indexOf(q);
+        const pre = 'питання ' + (i + 1);
+        if (!S(q.text)) errors.push(pre + ': немає тексту');
+        const opts = q.options;
+        const pick = Math.round(Number(q.pick) || 0);
+        const pts = Math.round(Number(q.points) || 0);
+        if (!pick && !pts) errors.push(pre + ': потрібен pick (скільки вибрати) або points (скільки балів розкинути)');
+        if (pick && pts) errors.push(pre + ': pick і points разом — рушій візьме points');
+        if (opts.length < 3) errors.push(pre + ': варіантів ' + opts.length + ' — потрібно від 3');
+        if (pick && pick >= opts.length) errors.push(pre + ': pick ' + pick + ' із ' + opts.length + ' — вибору не лишається');
+        if (pts > 12) warns.push(pre + ': ' + pts + ' балів — розкидати стомлює, тримайтесь у межах 4–7');
+        opts.forEach((o, j) => {
+          if (!o || !S(o.label)) errors.push(pre + ', варіант ' + (j + 1) + ': немає label');
+          const k = S(o && o.trait);
+          if (!k) errors.push(pre + ', варіант ' + (j + 1) + ': немає trait');
+          else if (keys.length && !traits[k]) errors.push(pre + ', варіант ' + (j + 1) + ': trait «' + k + '» немає серед типів');
+          else { allocTraits[k] = (allocTraits[k] || 0) + 1; perTrait[k] = (perTrait[k] || 0) + 1; }
+        });
+      });
       keys.forEach(k => {
-        const tr = traits[k] || {};
-        if (!S(tr.name)) errors.push('тип «' + k + '»: немає name');
-        if (!S(tr.desc)) errors.push('тип «' + k + '»: немає desc');
-        else if (S(tr.desc).length < 60) warns.push('тип «' + k + '»: опис короткий (' + S(tr.desc).length + ' символів)');
-        if (!S(tr.tagline)) warns.push('тип «' + k + '»: немає tagline');
-        const a = S(tr.accent);
-        if (!a) errors.push('тип «' + k + '»: немає accent');
-        else if (!TEST_ACCENTS[a]) errors.push('тип «' + k + '»: accent «' + a + '» не з переліку (' + Object.keys(TEST_ACCENTS).join(', ') + ')');
-        else if (seen[a]) errors.push('accent «' + a + '» повторюється: «' + seen[a] + '» і «' + k + '»');
-        else seen[a] = k;
+        const scaleN = plainQs.filter(q => S(q && q.trait) === k).length;
+        const allocN = allocTraits[k] || 0;
+        if (!scaleN && !allocN) errors.push('тип «' + k + '» не покритий ні питанням, ні варіантом');
+        else if (scaleN && allocN) warns.push('тип «' + k + '» є й у твердженнях, й у розподілі — рушій візьме відсоток зі шкали, бали згорять');
+        else if (scaleN === 1) warns.push('тип «' + k + '» має лише 1 питання — результат буде хитким');
+        else if (!scaleN && allocN === 1) warns.push('тип «' + k + '» стоїть лише в одному варіанті — частка вийде випадковою');
       });
     }
 
-    const qs = Array.isArray(t.questions) ? t.questions : [];
-    if (!qs.length) errors.push('немає питань');
-    const perTrait = {};
-    qs.forEach((q, i) => {
-      if (!q || !S(q.text)) errors.push('питання ' + (i + 1) + ': немає тексту');
-      const k = S(q && q.trait);
-      if (!k) errors.push('питання ' + (i + 1) + ': немає trait');
-      else if (keys.length && !traits[k]) errors.push('питання ' + (i + 1) + ': trait «' + k + '» немає серед типів');
-      else perTrait[k] = (perTrait[k] || 0) + 1;
+    // Правила результату — необовʼязкові, але криве правило ніколи не зійдеться,
+    // і це не видно ніде, крім відсутності рідкісного типу в житті.
+    const rules = Array.isArray(t.rules) ? t.rules : [];
+    const known = kind === 'axes' ? axisKeys : keys;
+    rules.forEach((r, i) => {
+      const pre = 'правило ' + (i + 1);
+      const conds = Array.isArray(r && r.if) ? r.if : [];
+      if (!conds.length) { errors.push(pre + ': немає умов (if)'); return; }
+      if (!r.result) { errors.push(pre + ': немає result'); return; }
+      conds.forEach((c, j) => {
+        const cp = pre + ', умова ' + (j + 1);
+        if (!c || typeof c !== 'object') { errors.push(cp + ': не обʼєкт'); return; }
+        if (c.code) {
+          if (kind !== 'axes') errors.push(cp + ': умова code працює лише в тесті на осях');
+          return;
+        }
+        if (c.top) {
+          if (!known.includes(String(c.top))) errors.push(cp + ': top «' + c.top + '» невідомий');
+          return;
+        }
+        const k = String(c.trait || c.axis || '');
+        if (!k) errors.push(cp + ': потрібен trait/axis, top або code');
+        else if (known.length && !known.includes(k)) errors.push(cp + ': «' + k + '» немає серед ' + (kind === 'axes' ? 'осей' : 'типів'));
+        if (c.min == null && c.max == null) warns.push(cp + ': ні min, ні max — умова зійдеться завжди');
+      });
+      chkRes(r.result, pre + ' (результат)', { wantTag: true });
     });
-    keys.forEach(k => {
-      const n = perTrait[k] || 0;
-      if (n === 0) errors.push('тип «' + k + '» не покритий жодним питанням');
-      else if (n === 1) warns.push('тип «' + k + '» має лише 1 питання — результат буде хитким');
-    });
-    if (qs.length && qs.length < 12) warns.push('питань ' + qs.length + ' — за схемою 12–16');
-    if (qs.length > 20) warns.push('питань ' + qs.length + ' — довго проходити');
+
+    // Довжина й повтори — спільне для всіх форматів.
+    if (plainQs.length && plainQs.length < 12 && !allocQs.length) warns.push('тверджень ' + plainQs.length + ' — за схемою 12–16');
+    if (qs.length > 26) warns.push('питань ' + qs.length + ' — довго проходити');
     const texts = qs.map(q => S(q && q.text).toLowerCase()).filter(Boolean);
     if (new Set(texts).size !== texts.length) warns.push('є питання з однаковим текстом');
-    return { errors, warns, perTrait, qCount: qs.length, traitKeys: keys };
+    return { errors, warns, perTrait, qCount: qs.length, traitKeys: keys, kind, axisKeys, allocCount: allocQs.length };
   }
 
   // Telegram Desktop («Експорт історії чату» → HTML): .message з
@@ -4735,21 +4872,39 @@ class Component extends DCLogic {
     if (first) {
       const t = first.test, c = first.check;
       const traits = (t.traits && typeof t.traits === 'object') ? t.traits : {};
+      const axes = Array.isArray(t.axes) ? t.axes : [];
+      const kindWord = { likert: 'твердження + шкала', axes: 'осі → код', alloc: 'розподіл балів' }[c.kind] || c.kind;
       prevTitle   = String(t.title || '(без назви)');
       prevTagline = String(t.tagline || '');
-      prevMeta    = [String(t.id || 'без id'), c.qCount + ' питань', c.traitKeys.length + ' типів'].join(' · ');
+      prevMeta    = [String(t.id || 'без id'), kindWord, c.qCount + ' питань',
+        c.kind === 'axes'
+          ? (c.axisKeys.length + ' осей · ' + Object.keys(t.results || {}).length + ' фіналів')
+          : (c.traitKeys.length + ' типів'),
+        (Array.isArray(t.rules) && t.rules.length) ? (t.rules.length + ' правил') : '',
+      ].filter(Boolean).join(' · ');
       prevScale   = (Array.isArray(t.scale) ? t.scale : []).map(x => String((x && x.label) || '?')).join(' · ');
-      prevTraits  = c.traitKeys.map(k => {
-        const tr = traits[k] || {};
-        const acc = TEST_ACCENTS[String(tr.accent || '').trim()] || 'rgba(255,255,255,0.3)';
-        return {
-          key: k,
-          name: String(tr.name || k),
-          tagline: String(tr.tagline || ''),
-          color: acc,
-          qLabel: (c.perTrait[k] || 0) + ' пит.',
-        };
-      });
+      prevTraits  = c.kind === 'axes'
+        ? axes.map((a, i) => {
+            const k = String((a && a.key) || ('axis' + i));
+            const L = (a && a.left) || {}, R = (a && a.right) || {};
+            return {
+              key: k,
+              name: String(L.name || '?') + ' ↔ ' + String(R.name || '?'),
+              tagline: [L.code, R.code].filter(Boolean).join(' / '),
+              color: TEST_ACCENTS[String((a && a.accent) || L.accent || '').trim()] || 'rgba(255,255,255,0.3)',
+              qLabel: (c.perTrait[k] || 0) + ' пит.',
+            };
+          })
+        : c.traitKeys.map(k => {
+            const tr = traits[k] || {};
+            return {
+              key: k,
+              name: String(tr.name || k),
+              tagline: String(tr.tagline || ''),
+              color: TEST_ACCENTS[String(tr.accent || '').trim()] || 'rgba(255,255,255,0.3)',
+              qLabel: (c.perTrait[k] || 0) + ' пит.',
+            };
+          });
       const dup = rows.find(r => r.test_id === String(t.id || '').trim());
       prevExists = dup ? ('Тест з id «' + dup.test_id + '» уже в базі — збереження його оновить (видимість і порядок лишаться).') : '';
     }
@@ -4798,12 +4953,18 @@ class Component extends DCLogic {
       tstList: rows.map((r, i) => {
         const qn = Array.isArray(r.questions) ? r.questions.length : 0;
         const tn = (r.traits && typeof r.traits === 'object') ? Object.keys(r.traits).length : 0;
+        const an = Array.isArray(r.axes) ? r.axes.length : 0;
+        const kd = String(r.kind || 'likert');
         const pub = !!r.is_published;
         return {
           id: r.id,
           _index: i,
           title: r.title || '(без назви)',
-          meta: [String(r.test_id || '—'), qn + ' питань', tn + ' типів'].join(' · '),
+          meta: [String(r.test_id || '—'),
+            { likert: 'шкала', axes: 'осі', alloc: 'розподіл' }[kd] || kd,
+            qn + ' питань',
+            kd === 'axes' ? (an + ' осей') : (tn + ' типів'),
+          ].join(' · '),
           pubLabel: pub ? '● На сайті' : '○ Чернетка',
           pubNext: pub ? 'false' : 'true',
           pubBg: pub ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.05)',
@@ -4844,12 +5005,16 @@ class Component extends DCLogic {
             const t = p.test;
             const body = {
               test_id:      String(t.id || '').trim(),
+              kind:         ['likert', 'axes', 'alloc'].includes(String(t.kind || '').trim()) ? String(t.kind).trim() : 'likert',
               title:        String(t.title || '').trim(),
               tagline:      String(t.tagline || '').trim(),
               description:  String(t.description || '').trim(),
               result_label: String(t.resultLabel || '').trim(),
-              scale:        t.scale,
-              traits:       t.traits,
+              scale:        Array.isArray(t.scale) ? t.scale : [],
+              traits:       (t.traits && typeof t.traits === 'object' && !Array.isArray(t.traits)) ? t.traits : {},
+              axes:         Array.isArray(t.axes) ? t.axes : [],
+              results:      (t.results && typeof t.results === 'object' && !Array.isArray(t.results)) ? t.results : {},
+              rules:        Array.isArray(t.rules) ? t.rules : [],
               questions:    t.questions,
             };
             const cur = (this.state.data.tests || []).find(r => r.test_id === body.test_id);
@@ -4865,7 +5030,7 @@ class Component extends DCLogic {
           this._toast('✓ ' + [added ? ('нових ' + added) : '', updated ? ('оновлено ' + updated) : ''].filter(Boolean).join(', '));
         } catch (e) {
           this.setState({ saving: false });
-          this._toast('✗ ' + (e.message || 'Помилка') + ' — чи прогнано supabase_tests_migration.sql?');
+          this._toast('✗ ' + (e.message || 'Помилка') + ' — чи прогнано supabase_tests_migration.sql і supabase_tests_v2_migration.sql?');
           console.error('tests save error:', e);
         }
       },
@@ -4905,9 +5070,19 @@ class Component extends DCLogic {
         const id = e.currentTarget.dataset.id;
         const r = (this.state.data.tests || []).find(x => String(x.id) === String(id));
         if (!r) return;
+        // Порядок граф — як у схемі промпта, щоб правка в полі вставки
+        // читалася так само, як те, що прислав Клод. Порожні графи
+        // не пишемо: в likert-тесті немає чого показувати порожнім `axes`.
         const obj = {
-          id: r.test_id, title: r.title, tagline: r.tagline || '', description: r.description || '',
-          resultLabel: r.result_label || '', scale: r.scale || [], traits: r.traits || {}, questions: r.questions || [],
+          id: r.test_id, kind: r.kind || 'likert', title: r.title,
+          tagline: r.tagline || '', description: r.description || '',
+          resultLabel: r.result_label || '',
+          ...((r.scale && r.scale.length) ? { scale: r.scale } : {}),
+          ...((r.traits && Object.keys(r.traits).length) ? { traits: r.traits } : {}),
+          ...((r.axes && r.axes.length) ? { axes: r.axes } : {}),
+          ...((r.results && Object.keys(r.results).length) ? { results: r.results } : {}),
+          ...((r.rules && r.rules.length) ? { rules: r.rules } : {}),
+          questions: r.questions || [],
         };
         this.setState({ tstPaste: JSON.stringify(obj, null, 2), tstParsed: null, tstError: '' });
         this._toast('✦ Тест у полі вставки — правь і тисни «Розібрати»');
