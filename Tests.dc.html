@@ -58,11 +58,22 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
       </div>
       <sc-if value="{{ isForChar }}" hint-placeholder-val="{{ false }}">
         <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
+          <sc-if value="{{ charLocked }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.16);border-radius:12px;padding:20px;text-align:center;">
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:0.9rem;letter-spacing:0.05em;color:rgba(255,215,0,0.72);">✦ {{ lockTitle }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.65;color:rgba(255,255,255,0.5);max-width:390px;text-wrap:pretty;">{{ lockText }}</p>
+              <sc-if value="{{ lockHasLink }}" hint-placeholder-val="{{ false }}">
+                <a class="test-chip" href="#cabinet" style="text-decoration:none;border-radius:999px;padding:10px 22px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.07em;transition:all 0.2s ease;">До кабінету</a>
+              </sc-if>
+            </div>
+          </sc-if>
           <sc-if value="{{ hasCharList }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;flex-direction:column;gap:10px;">
-              <input value="{{ charQuery }}" onChange="{{ setCharQuery }}" placeholder="Пошук у картотеці" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:11px 18px;color:#fff;font-size:0.9rem;font-family:'EB Garamond',Georgia,serif;outline:none;" />
+              <sc-if value="{{ charSearch }}" hint-placeholder-val="{{ false }}">
+                <input value="{{ charQuery }}" onChange="{{ setCharQuery }}" placeholder="Пошук серед ваших" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:11px 18px;color:#fff;font-size:0.9rem;font-family:'EB Garamond',Georgia,serif;outline:none;" />
+              </sc-if>
               <div style="max-height:186px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:7px;padding:2px;">
-                <sc-for list="{{ charOptions }}" as="opt" hint-placeholder-count="6">
+                <sc-for list="{{ charOptions }}" as="opt" hint-placeholder-count="3">
                   <button class="test-chip" onClick="{{ opt.onPick }}" style="cursor:pointer;border-radius:999px;padding:8px 14px;font-size:0.84rem;font-family:'EB Garamond',Georgia,serif;transition:all 0.2s ease;background:{{ opt.bg }};border:1px solid {{ opt.border }};color:{{ opt.color }};">{{ opt.label }}</button>
                 </sc-for>
               </div>
@@ -71,8 +82,19 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
           <sc-if value="{{ manualName }}" hint-placeholder-val="{{ false }}">
             <input value="{{ charName }}" onChange="{{ setCharName }}" placeholder="Імʼя персонажа" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:12px 18px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;outline:none;" />
           </sc-if>
-          <sc-if value="{{ hasPickedName }}" hint-placeholder-val="{{ false }}">
-            <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,215,0,0.7);">За {{ charName }}</p>
+          <sc-if value="{{ hasPickedChar }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:12px;border-radius:12px;padding:11px 14px;background:{{ charWash }};border:1px solid {{ charRing }};">
+              <sc-if value="{{ hasCharImg }}" hint-placeholder-val="{{ false }}">
+                <img src="{{ charImg }}" alt="" style="flex:0 0 auto;width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:center top;border:1px solid {{ charRing }};" />
+              </sc-if>
+              <sc-if value="{{ noCharImg }}" hint-placeholder-val="{{ true }}">
+                <span style="flex:0 0 auto;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:1px solid {{ charRing }};font-family:'Cinzel',serif;font-size:0.88rem;color:{{ charInk }};">{{ charInitials }}</span>
+              </sc-if>
+              <span style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+                <span style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;letter-spacing:0.04em;color:#fff;">{{ charName }}</span>
+                <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.45);text-wrap:pretty;">{{ charSub }}</span>
+              </span>
+            </div>
           </sc-if>
         </div>
       </sc-if>
@@ -137,7 +159,21 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 
   <sc-if value="{{ isResult }}" hint-placeholder-val="{{ false }}">
     <div class="test-stage" style="display:flex;flex-direction:column;align-items:center;gap:22px;">
-      <div style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:22px;padding:36px 28px;border-radius:15px;background:rgba(255,255,255,0.05);box-shadow:0 18px 48px rgba(0,0,0,0.5);border:1px solid {{ topColor }};">
+      <div style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:22px;padding:36px 28px;border-radius:15px;background:{{ cardBg }};box-shadow:0 18px 48px rgba(0,0,0,0.5);border:1px solid {{ topColor }};">
+        <sc-if value="{{ hasCharBand }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:13px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);">
+            <sc-if value="{{ hasCharImg }}" hint-placeholder-val="{{ false }}">
+              <img src="{{ charImg }}" alt="" style="flex:0 0 auto;width:54px;height:54px;border-radius:50%;object-fit:cover;object-position:center top;border:1px solid {{ charRing }};" />
+            </sc-if>
+            <sc-if value="{{ noCharImg }}" hint-placeholder-val="{{ true }}">
+              <span style="flex:0 0 auto;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:1px solid {{ charRing }};font-family:'Cinzel',serif;font-size:1rem;color:{{ charInk }};">{{ charInitials }}</span>
+            </sc-if>
+            <span style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:1rem;letter-spacing:0.05em;color:#fff;">{{ charName }}</span>
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;color:rgba(255,255,255,0.45);text-wrap:pretty;">{{ charSub }}</span>
+            </span>
+          </div>
+        </sc-if>
         <p style="text-align:center;font-size:0.64rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);">{{ cardOverline }}</p>
         <div style="text-align:center;display:flex;flex-direction:column;gap:12px;">
           <sc-if value="{{ hasCode }}" hint-placeholder-val="{{ false }}">
@@ -244,7 +280,7 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:700,&quot;height&quot;:760},&quot;tests&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{test_id:string,kind?:'likert'|'axes'|'alloc',title:string,tagline?:string,description?:string,result_label?:string,scale?:Array&lt;{value:number,label:string}&gt;,traits?:Record&lt;string,{name:string,tagline?:string,desc:string,accent:string,quote?:string,rarity?:number}&gt;,axes?:Array&lt;{key:string,accent?:string,left:object,right:object}&gt;,results?:Record&lt;string,object&gt;,rules?:Array&lt;object&gt;,questions:Array&lt;object&gt;}&gt;&quot;},&quot;characters&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{id:string,name?:string,alias?:string,is_active?:boolean}&gt;&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;chart&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bars&quot;,&quot;radar&quot;,&quot;cols&quot;],&quot;default&quot;:&quot;bars&quot;,&quot;tsType&quot;:&quot;'bars'|'radar'|'cols'&quot;,&quot;section&quot;:&quot;Картка результату&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:700,&quot;height&quot;:760},&quot;tests&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{test_id:string,kind?:'likert'|'axes'|'alloc',title:string,tagline?:string,description?:string,result_label?:string,scale?:Array&lt;{value:number,label:string}&gt;,traits?:Record&lt;string,{name:string,tagline?:string,desc:string,accent:string,quote?:string,rarity?:number}&gt;,axes?:Array&lt;{key:string,accent?:string,left:object,right:object}&gt;,results?:Record&lt;string,object&gt;,rules?:Array&lt;object&gt;,questions:Array&lt;object&gt;}&gt;&quot;},&quot;characters&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{id:string,name?:string,alias?:string,role?:string,image?:string,deity?:string,accent?:string,caption?:string,is_active?:boolean}&gt;&quot;},&quot;signedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Хто проходить&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;chart&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bars&quot;,&quot;radar&quot;,&quot;cols&quot;],&quot;default&quot;:&quot;bars&quot;,&quot;tsType&quot;:&quot;'bars'|'radar'|'cols'&quot;,&quot;section&quot;:&quot;Картка результату&quot;}}">
 const ACCENT = {
   gold: '#ffd700', azure: '#6495ed', light: '#ffd76b',
   dark: '#8f7ee8', fate: '#d2607a', nature: '#5fbfb0', magic: '#cdd2db',
@@ -278,7 +314,7 @@ class Component extends DCLogic {
   state = {
     fallback: null,
     stage: 'hub', activeId: null,
-    forWhom: 'self', charName: '', charQuery: '',
+    forWhom: 'self', charId: '', charName: '', charQuery: '',
     qIndex: 0, answers: {},
     sharing: false, shareMsg: '',
     chart: null,   // null → береться з пропа `chart`, типово смужки
@@ -569,13 +605,59 @@ class Component extends DCLogic {
     return this._helpersP;
   }
 
+  // ── Хто проходить ──────────────────────────────────────
+  // Список приходить із сайту вже звіреним: тільки анкети, записані
+  // на того, хто ввійшов (`characters.owner_id`). Тут лишається межа тієї
+  // самої думки: вибрати можна лише зі списку, а не набрати руками.
+  _ownChars() {
+    return (Array.isArray(this.props.characters) ? this.props.characters : [])
+      .filter(c => c && (c.name || c.alias) && c.is_active !== false);
+  }
+
+  // Поле для вводу імені лишилось тільки для автономного перегляду файлу:
+  // на сайті входу не обійти, а поза сайтом його немає взагалі.
+  _manualName() {
+    return !this.props.embedded && !this._ownChars().length;
+  }
+
+  _picked() {
+    if (this.state.forWhom !== 'character') return null;
+    const id = String(this.state.charId || '');
+    return id ? (this._ownChars().find(c => String(c.id) === id) || null) : null;
+  }
+
+  _charLabel(c) { return String((c && (c.name || c.alias)) || '').trim(); }
+
+  _charSub(c) {
+    if (!c) return '';
+    return [
+      (c.alias && c.name) ? '«' + c.alias + '»' : '',
+      c.role || '',
+      c.deity ? 'під рукою ' + c.deity : '',
+    ].filter(Boolean).join(' · ');
+  }
+
+  _charInitials(c) {
+    const parts = this._charLabel(c).split(/\s+/).filter(Boolean);
+    return parts.slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '✦';
+  }
+
+  // Колір персонажа — від покровительки, а не від типу результату:
+  // так картка одного тесту виглядає по-різному в різних руках.
+  _charColor(c) {
+    return (c && ACCENT[String(c.accent || '').trim()]) || '';
+  }
+
   _cardName() {
-    return this.state.forWhom === 'character' ? (this.state.charName || '').trim() : '';
+    const c = this._picked();
+    if (c) return this._charLabel(c);
+    return (this.state.forWhom === 'character' && this._manualName())
+      ? (this.state.charName || '').trim() : '';
   }
 
   // Малюємо в два заходи однією функцією: перший (g === null) лише набирає
   // висоту, другий малює. Так висота картки не розходиться з розміткою.
-  _renderResultCanvas(H, test, rows, res, name) {
+  _renderResultCanvas(H, test, rows, res, name, hero) {
     const top = res || rows[0] || {};
     const W = 900, dpr = 2, cw = 640, cx = W / 2, left = (W - cw) / 2;
     const accent = top.color || '#ffd700';
@@ -608,6 +690,33 @@ class Component extends DCLogic {
       const one = (font, fill, text, track) => {
         if (g) { g.fillStyle = fill; g.font = font; H.trackedText(g, text, cx, y, track); }
       };
+      // Портрет того, за кого проходили: це й його картка також.
+      if (hero) {
+        const R = 58, ccy = y + R - 10;
+        if (g) {
+          g.save();
+          g.beginPath(); g.arc(cx, ccy, R, 0, Math.PI * 2); g.closePath(); g.clip();
+          if (hero.img) {
+            const k = Math.max((R * 2) / hero.img.width, (R * 2) / hero.img.height);
+            const w = hero.img.width * k, h = hero.img.height * k;
+            g.drawImage(hero.img, cx - w / 2, ccy - R, w, h);
+          } else {
+            g.fillStyle = 'rgba(255,255,255,0.06)';
+            g.fillRect(cx - R, ccy - R, R * 2, R * 2);
+            g.fillStyle = H.withAlpha(hero.color, 0.9);
+            g.font = '700 38px "Cinzel", Georgia, serif';
+            g.fillText(hero.initials, cx, ccy + 13);
+          }
+          g.restore();
+          g.beginPath(); g.arc(cx, ccy, R, 0, Math.PI * 2);
+          g.strokeStyle = H.withAlpha(hero.color, 0.6); g.lineWidth = 2; g.stroke();
+        }
+        y += R * 2 + 26;
+        if (hero.sub) {
+          one('italic 400 24px "EB Garamond", Georgia, serif', 'rgba(255,255,255,0.45)', hero.sub, 0);
+          y += 40;
+        }
+      }
       one('600 19px "Cinzel", Georgia, serif', 'rgba(255,215,0,0.78)', overline, 5);
       y += 34;
       one('600 20px "Cinzel", Georgia, serif', 'rgba(255,255,255,0.32)', (test.title || '').toUpperCase(), 3);
@@ -665,7 +774,7 @@ class Component extends DCLogic {
     g.fillStyle = '#161514';
     g.fillRect(0, 0, W, height);
     const glow = g.createRadialGradient(cx, 250, 0, cx, 250, 560);
-    glow.addColorStop(0, H.withAlpha(accent, 0.13));
+    glow.addColorStop(0, H.withAlpha((hero && hero.color) || accent, 0.13));
     glow.addColorStop(1, 'rgba(22,21,20,0)');
     g.fillStyle = glow;
     g.fillRect(0, 0, W, height);
@@ -774,7 +883,19 @@ class Component extends DCLogic {
     const H = await this._cardHelpers();
     await H.ensureCardFonts();
     const rows = this._rows(test);
-    const canvas = this._renderResultCanvas(H, test, rows, this._resolve(test, rows), this._cardName());
+    const c = this._picked();
+    let hero = null;
+    if (c) {
+      const sub = this._charSub(c);
+      hero = {
+        img: c.image ? await H.loadImageSafe(c.image) : null,
+        color: this._charColor(c) || '#ffd700',
+        initials: this._charInitials(c),
+        // Підпис малюється одним рядком і не переноситься — ріжемо тут.
+        sub: sub.length > 52 ? sub.slice(0, 51).trim() + '…' : sub,
+      };
+    }
+    const canvas = this._renderResultCanvas(H, test, rows, this._resolve(test, rows), this._cardName(), hero);
     return await new Promise(res => canvas.toBlob(res, 'image/png'));
   }
 
@@ -850,7 +971,7 @@ class Component extends DCLogic {
     const test = this._active();
     const stage = test ? s.stage : 'hub';
     const isForChar = s.forWhom === 'character';
-    const name = (s.charName || '').trim();
+    const name = this._cardName();
 
     const total = test ? test.questions.length : 0;
     const q = test ? test.questions[s.qIndex] : null;
@@ -868,10 +989,16 @@ class Component extends DCLogic {
     const aUsed = Object.keys(aGot).reduce((n, k) => n + (Number(aGot[k]) || 0), 0);
     const aLeft = aCap - aUsed;
 
-    // Картотека з сайту: імʼя персонажа береться зі списку, а не з рук.
-    // Немає пропа (файл відкрито окремо) — лишається поле для вводу.
-    const chars = (Array.isArray(this.props.characters) ? this.props.characters : [])
-      .filter(c => c && (c.name || c.alias) && c.is_active !== false);
+    // Картотека: за персонажа проходять лише СВОЇМИ анкетами — список
+    // приходить із сайту вже звіреним по `owner_id`, і лише для того, хто
+    // ввійшов. Не ввійшов або нічого не записано — замок з поясненням,
+    // а не порожній список: порожнеча читається як поламаний розділ.
+    const chars = this._ownChars();
+    const manual = this._manualName();
+    const signed = !!this.props.signedIn;
+    const locked = !manual && (!signed || !chars.length);
+    const picked = this._picked();
+    const charColor = this._charColor(picked);
     const cq = (s.charQuery || '').trim().toLowerCase();
     const hit = (v) => String(v || '').toLowerCase().includes(cq);
     const charHits = chars.filter(c => !cq || hit(c.name) || hit(c.alias)).slice(0, 60);
@@ -913,30 +1040,53 @@ class Component extends DCLogic {
           : [this._plural(t.questions.length, 'питання', 'питання', 'питань'),
              this._plural(Object.keys(t.traits).length, 'тип', 'типи', 'типів')]
         ).filter(Boolean).join(' · '),
-        onStart: () => this.setState({ activeId: t.id, stage: 'who', forWhom: 'self', charName: '', qIndex: 0, answers: {} }),
+        onStart: () => this.setState({ activeId: t.id, stage: 'who', forWhom: 'self', charId: '', charName: '', qIndex: 0, answers: {} }),
       })),
 
       selfBg: selfP.bg, selfBorder: selfP.border, selfColor: selfP.color,
       charBg: charP.bg, charBorder: charP.border, charColor: charP.color,
       isForChar,
-      charName: s.charName,
+      charName: name,
       pickSelf: () => this.setState({ forWhom: 'self' }),
       pickChar: () => this.setState({ forWhom: 'character' }),
       setCharName: (e) => this.setState({ charName: e.target.value }),
-      hasCharList: chars.length > 0,
-      manualName: !chars.length || (!!cq && !charHits.length),
-      hasPickedName: chars.length > 0 && !!name,
+
+      charLocked: locked,
+      lockTitle: signed ? 'На вас нікого не записано' : 'Спершу вхід',
+      lockText: signed
+        ? 'За персонажа проходять тільки своїми анкетами, а за вами в картотеці ще нікого не записано. Це робить рецепція — напишіть у віконечко. А за себе тест можна пройти зараз.'
+        : 'Картка за персонажа підписується його іменем, тому відкривається лише власникам анкет. Увійдіть у кабінет — або проходьте за себе, це без умов.',
+      lockHasLink: locked && !signed,
+
+      hasCharList: !locked && chars.length > 0,
+      // Пошук — лише коли своїх багато. На трьох анкетах це поле —
+      // завада, а не допомога.
+      charSearch: chars.length > 8,
+      manualName: manual,
+      hasPickedChar: !!picked,
+      charSub: this._charSub(picked),
+      charImg: picked ? (picked.image || '') : '',
+      hasCharImg: !!(picked && picked.image),
+      noCharImg: !!(picked && !picked.image),
+      charInitials: picked ? this._charInitials(picked) : '',
+      charRing: alpha(charColor || '#ffd700', 0.42),
+      charWash: alpha(charColor || '#ffd700', 0.08),
+      charInk: alpha(charColor || '#ffd700', 0.85),
+      // Шапка на картці результату й легкий перелив кольором покровительки.
+      hasCharBand: stage === 'result' && !!picked,
+      cardBg: (stage === 'result' && picked && charColor)
+        ? ('linear-gradient(180deg,' + alpha(charColor, 0.13) + ' 0%,rgba(255,255,255,0.05) 44%)')
+        : 'rgba(255,255,255,0.05)',
       charQuery: s.charQuery,
       setCharQuery: (e) => this.setState({ charQuery: e.target.value }),
       charOptions: charHits.map(c => {
-        const nm = String(c.name || c.alias || '').trim();
-        const on = nm === name;
+        const on = !!picked && String(picked.id) === String(c.id);
         return {
-          label: nm,
+          label: this._charLabel(c),
           bg: on ? 'rgba(255,215,0,0.16)' : 'rgba(255,255,255,0.04)',
           border: on ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.13)',
           color: on ? '#ffd700' : 'rgba(255,255,255,0.6)',
-          onPick: () => this.setState({ charName: on ? '' : nm }),
+          onPick: () => this.setState({ charId: on ? '' : String(c.id) }),
         };
       }),
       startOff,
@@ -1043,7 +1193,7 @@ class Component extends DCLogic {
       shareCard: () => this.shareResultCard(),
 
       retake: () => this.setState({ stage: 'quiz', qIndex: 0, answers: {}, shareMsg: '' }),
-      toHub: () => this.setState({ stage: 'hub', activeId: null, forWhom: 'self', charName: '', charQuery: '', qIndex: 0, answers: {}, shareMsg: '' }),
+      toHub: () => this.setState({ stage: 'hub', activeId: null, forWhom: 'self', charId: '', charName: '', charQuery: '', qIndex: 0, answers: {}, shareMsg: '' }),
     };
   }
 }

@@ -2058,7 +2058,7 @@ a:hover{color:#a8c4f7;}
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Тести</h1>
       <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:440px;margin-left:auto;margin-right:auto;">Пройдіть за себе — або за свого персонажа, і подивіться, чим він відрізняється від вас.</p>
     </header>
-    <dc-import name="Tests" tests="{{ testsData }}" characters="{{ testsChars }}" embedded="{{ true }}" hint-size="100%,620px"></dc-import>
+    <dc-import name="Tests" tests="{{ testsData }}" characters="{{ testsChars }}" signed-in="{{ testsSignedIn }}" embedded="{{ true }}" hint-size="100%,620px"></dc-import>
   </main>
 </sc-if>
 
@@ -2792,7 +2792,7 @@ const LIST_SELECT = {
   lore:       'id,title,category,excerpt,cover,sort_order,created_at',
   stories:    'id,title,status,description,sort_order,created_at,author_name,author_telegram,telegraph_url,chapters,tags,status_label,status_color,cover_color,cover_ornament,cover_icon,author_label',
   chronicles: 'id,title,subtitle,character_id,cover,period,gm,status,summary,tags,sort_order,created_at',
-  characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,build,bio,character_type,connections,sort_order,open_effect,card_caption,is_active,deity',
+  characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,build,bio,character_type,connections,sort_order,open_effect,card_caption,is_active,deity,owner_id',
 };
 const HEAVY_TABLES = ['characters', 'lore', 'stories', 'chronicles'];
 
@@ -4838,13 +4838,22 @@ class Component extends DCLogic {
         this._get(`lore?select=${LIST_SELECT.lore}&order=sort_order.asc,created_at.asc`),
         this._get(`stories?select=${LIST_SELECT.stories}&order=sort_order.asc,created_at.asc`),
         this._get(`chronicles?select=${LIST_SELECT.chronicles}&order=sort_order.asc,created_at.asc`),
-        // Двозахідно: `build` зʼявиться лише після міграції, і одна відсутня
-        // колонка не має гасити цілий сайт екраном «щось пішло не так».
-        this._get(`characters?select=${LIST_SELECT.characters}&order=sort_order.asc,created_at.asc`)
-          .catch((e) => {
-            console.warn('характери: без графи build —', e && e.message);
-            return this._get(`characters?select=${LIST_SELECT.characters.replace(',build', '')}&order=sort_order.asc,created_at.asc`);
-          }),
+        // Тризахідно: `build` і `owner_id` зʼявляються лише по своїх
+        // міграціях, і одна відсутня колонка не має гасити цілий сайт
+        // екраном «щось пішло не так».
+        (() => {
+          const chars = (sel) => this._get(`characters?select=${sel}&order=sort_order.asc,created_at.asc`);
+          const noOwner = LIST_SELECT.characters.replace(',owner_id', '');
+          return chars(LIST_SELECT.characters)
+            .catch((e) => {
+              console.warn('характери: без графи owner_id —', e && e.message);
+              return chars(noOwner);
+            })
+            .catch((e) => {
+              console.warn('характери: без графи build —', e && e.message);
+              return chars(noOwner.replace(',build', ''));
+            });
+        })(),
         this._get('pantheon?select=*&order=sort_order.asc'),
         this._get('contacts?select=*&order=sort_order.asc'),
         this._get('site_settings?select=*'),
@@ -5274,20 +5283,21 @@ class Component extends DCLogic {
   }
 
   _readUser = () => {
-    let nick = '', status = '';
+    let nick = '', status = '', uid = '';
     try {
       if (localStorage.getItem('au_user_token')) {
         const p = JSON.parse(localStorage.getItem('au_user_card') || 'null');
         nick = (p && p.nick) ? String(p.nick) : 'Віконце';
         status = (p && p.status) ? String(p.status) : '';
+        uid = (p && p.uid) ? String(p.uid) : '';
       }
     } catch (e) {}
-    if (nick !== this.state.userNick || status !== this.state.userStatus) {
+    if (nick !== this.state.userNick || status !== this.state.userStatus || uid !== this.state.userId) {
       // Новий вхід — новий токен, тобто нова спроба для арок: інакше рядок
       // «увійдіть у віконце знову» обіцяв би те, чого без перезавантаження
       // сторінки не буває. Це одна спроба на вхід, а не повторення по колу.
       this._arcReq = {};
-      this.setState({ userNick: nick, userStatus: status, charArcsFail: {} });
+      this.setState({ userNick: nick, userStatus: status, userId: uid, charArcsFail: {} });
     }
   };
 
@@ -6719,9 +6729,31 @@ class Component extends DCLogic {
         ? 'Що почули — то й принесіть. Марта запише, а далі воно саме розійдеться чатом.'
         : 'Анкета нового персонажа й віконце пліток — в Марти одна рецепція на обидві справи.',
       testsData:       (data.tests || []),
-      // «За персонажа» — імʼя зі списку картотеки, а не з рук: там робили
-      // описки в іменах, і картка результату виходила про нікого.
-      testsChars:      (data.characters || []).map(c => ({ id: c.id, name: c.name, alias: c.alias, is_active: c.is_active })),
+      // «За персонажа» — лише СВОЇ анкети й лише тому, хто ввійшов:
+      // картка результату підписується імʼям персонажа, а підписувати чужого —
+      // це не гра, а підміна. Власника призначає адмін (`characters.owner_id`),
+      // тому список тут не вгадується. Портрет і покровителька йдуть разом:
+      // картка результату оформлюється під того, за кого проходять.
+      testsChars: (() => {
+        const uid = String(s.userId || '');
+        if (!uid) return [];
+        const gk = (v) => {
+          const k = String(v == null ? '' : v).trim().toLowerCase();
+          if (!k) return '';
+          const g = (data.pantheon || []).find(x => String(x.god || '').trim().toLowerCase() === k
+            || String(x.name || '').trim().toLowerCase() === k);
+          return g ? String(g.god || '').trim().toLowerCase() : '';
+        };
+        return (data.characters || [])
+          .filter(c => c && c.owner_id && String(c.owner_id) === uid)
+          .map(c => ({
+            id: c.id, name: c.name, alias: c.alias, role: c.role,
+            image: c.image || '', is_active: c.is_active,
+            caption: c.card_caption || '',
+            deity: this._deityName(c.deity), accent: gk(c.deity),
+          }));
+      })(),
+      testsSignedIn:   signedIn,
       showContacts:    page === 'contacts',
       showMap:         page === 'map',
 

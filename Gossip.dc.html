@@ -796,12 +796,14 @@ class Component extends DCLogic {
   }
 
   // Шапка сайту тримає плашку кабінету — тож про вхід і вихід їй треба
-  // сказати. Картка тут навмисно мінімальна: нік і статус.
+  // сказати. Картка тут навмисно мінімальна: нік, статус і `uid`.
+  // `uid` потрібен тестам: «за персонажа» проходять лише своїми анкетами
+  // (`characters.owner_id`), а без номера аркуша звірити «свій» нема з чим.
   _card(prof) {
     try {
       if (prof && prof.nick) {
         localStorage.setItem('au_user_card', JSON.stringify({
-          nick: prof.nick, status: prof.status || 'pending',
+          nick: prof.nick, status: prof.status || 'pending', uid: prof.id || null,
         }));
       } else localStorage.removeItem('au_user_card');
     } catch (e) {}
