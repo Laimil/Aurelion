@@ -976,6 +976,25 @@ button{font-family:inherit;cursor:pointer}
       </sc-if>
     </div>
 
+    <sc-if value="{{ tstHasQueue }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;padding:14px;background:rgba(100,149,237,0.07);border:1px solid rgba(100,149,237,0.28);border-radius:9px;">
+        <p style="font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(157,188,247,0.8);">Подали гравці</p>
+        <sc-for list="{{ tstQueue }}" as="q" hint-placeholder-count="1">
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:7px;background:rgba(255,255,255,0.03);">
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:0.88rem;color:#fff;">{{ q.title }}</p>
+              <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:1px;">{{ q.meta }}</p>
+              <p style="font-size:0.74rem;margin-top:3px;color:{{ q.checkColor }};">{{ q.checkLine }}</p>
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
+              <button data-id="{{ q.id }}" onClick="{{ tstApprove }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:5px;padding:4px 12px;font-size:0.76rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.22);">Пропустити</button>
+              <button data-id="{{ q.id }}" onClick="{{ tstReject }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:5px;padding:4px 12px;font-size:0.76rem;cursor:pointer;" style-hover="background:rgba(255,77,77,0.18);">Повернути</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ tstHasList }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;gap:2px;">
         <sc-for list="{{ tstList }}" as="t" hint-placeholder-count="2">
@@ -4964,7 +4983,12 @@ class Component extends DCLogic {
             { likert: 'шкала', axes: 'осі', alloc: 'розподіл' }[kd] || kd,
             qn + ' питань',
             kd === 'axes' ? (an + ' осей') : (tn + ' типів'),
-          ].join(' · '),
+            // Чий тест і в якому він стані — інакше подане гравцем не
+            // відрізнити від власної чернетки рецепції.
+            r.author_nick ? ('від ' + r.author_nick) : '',
+            r.author_id ? ({ draft: 'чернетка автора', pending: 'на розгляді', rejected: 'повернуто' }[String(r.status || '')] || '') : '',
+            r.plays ? (r.plays + ' проходжень') : '',
+          ].filter(Boolean).join(' · '),
           pubLabel: pub ? '● На сайті' : '○ Чернетка',
           pubNext: pub ? 'false' : 'true',
           pubBg: pub ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.05)',
@@ -4984,6 +5008,32 @@ class Component extends DCLogic {
       }),
       tstHasList: rows.length > 0,
       tstEmpty: rows.length === 0,
+
+      // Подане гравцями. Стоїть окремим блоком, а не в спільному списку:
+      // там рядки перетягуються за sort_order, і чуже подане в тому порядку
+      // не має місця, поки його не пропустили.
+      tstQueue: rows.filter(r => r.author_id && String(r.status || '') === 'pending').map(r => {
+        const c = this._testCheck({
+          id: r.test_id, kind: r.kind, title: r.title, tagline: r.tagline,
+          description: r.description, resultLabel: r.result_label, scale: r.scale,
+          traits: r.traits, axes: r.axes, results: r.results, rules: r.rules, questions: r.questions,
+        });
+        const qn = Array.isArray(r.questions) ? r.questions.length : 0;
+        return {
+          id: r.id,
+          title: r.title || '(без назви)',
+          meta: ['від ' + (r.author_nick || 'гравця'),
+            { likert: 'шкала', axes: 'осі', alloc: 'розподіл' }[String(r.kind || 'likert')] || r.kind,
+            qn + ' питань',
+            r.submitted_at ? new Date(r.submitted_at).toLocaleDateString('uk-UA') : '',
+          ].filter(Boolean).join(' · '),
+          checkLine: c.errors.length
+            ? ('✕ рушій не порахує: ' + c.errors.slice(0, 2).join('; '))
+            : (c.warns.length ? ('⚠ ' + c.warns.slice(0, 2).join('; ')) : '✓ формат чистий'),
+          checkColor: c.errors.length ? 'rgba(255,77,77,0.85)' : (c.warns.length ? 'rgba(255,215,0,0.62)' : 'rgba(95,191,176,0.85)'),
+        };
+      }),
+      tstHasQueue: rows.some(r => r.author_id && String(r.status || '') === 'pending'),
 
       tstSetPaste: (e) => this.setState({ tstPaste: e.target.value }),
       tstClear: () => this.setState({ tstPaste: '', tstParsed: null, tstError: '' }),
@@ -5033,6 +5083,29 @@ class Component extends DCLogic {
           this._toast('✗ ' + (e.message || 'Помилка') + ' — чи прогнано supabase_tests_migration.sql і supabase_tests_v2_migration.sql?');
           console.error('tests save error:', e);
         }
+      },
+      // Черга від гравців. Пропустити = поставити на сайт (status і
+      // is_published разом: у конструкторі автор ці графи виставити не може,
+      // тому обидві ставить рецепція одним рухом). Повернути = чернетка з
+      // поясненням: суха відмова без слова гірша за будь-яке слово.
+      tstApprove: async (e) => {
+        const id = e.currentTarget.dataset.id;
+        try {
+          await this._patch('tests', id, { status: 'published', is_published: true, review_note: null });
+          await this._refreshTable('tests');
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast('✓ Тест на сайті');
+        } catch (ex) { this._toast('✗ Не вдалося пропустити'); }
+      },
+      tstReject: async (e) => {
+        const id = e.currentTarget.dataset.id;
+        const note = window.prompt('Що передати авторові? (побачить у конструкторі)');
+        if (note == null) return;
+        try {
+          await this._patch('tests', id, { status: 'rejected', is_published: false, review_note: note.trim() || null });
+          await this._refreshTable('tests');
+          this._toast('✓ Повернуто авторові');
+        } catch (ex) { this._toast('✗ Не вдалося повернути'); }
       },
       tstTogglePub: async (e) => {
         const id = e.currentTarget.dataset.id;

@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;margin:0}
+a{color:#ffd700;text-decoration:none}
+a:hover{color:#fff}
+@keyframes tbIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.tb-stage{animation:tbIn 0.3s ease both}
+.tb-go:hover{box-shadow:0 0 22px rgba(255,215,0,0.4)}
+.tb-ghost:hover{color:#fff!important;border-color:rgba(255,255,255,0.32)!important}
+.tb-chip:hover{color:#fff!important;border-color:rgba(255,215,0,0.4)!important}
+.tb-row:hover{background:rgba(255,255,255,0.075)!important}
+.tb-in:focus{border-color:rgba(255,215,0,0.45)!important}
+.tb-del:hover{color:#ff4d4d!important;border-color:rgba(255,77,77,0.45)!important}
+</style>
+</helmet>
+
+<div style="width:100%;max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+
+  <sc-if value="{{ isLocked }}" hint-placeholder-val="{{ false }}">
+    <div class="tb-stage" style="text-align:center;padding:52px 26px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.16);border-radius:15px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <p style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.05em;color:rgba(255,215,0,0.72);">✦ {{ lockTitle }}</p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.7;color:rgba(255,255,255,0.5);max-width:430px;text-wrap:pretty;">{{ lockText }}</p>
+      <a class="tb-chip" href="#cabinet" style="border-radius:999px;padding:11px 24px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.07em;transition:all 0.2s ease;">До кабінету</a>
+    </div>
+  </sc-if>
+
+  <!-- ── Мої тести ────────────────────────────────────────── -->
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+    <div class="tb-stage" style="display:flex;flex-direction:column;gap:16px;">
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ Конструктор</p>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.7;color:rgba(255,255,255,0.6);text-wrap:pretty;">Тест пишете ви, на сайт його пускає рецепція. Чернетка живе у вашому браузері й у базі — тому вийти з половини роботи не страшно.</p>
+      </div>
+
+      <sc-if value="{{ hasStash }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:14px 16px;">
+          <span style="flex:1;min-width:180px;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.75);text-wrap:pretty;">{{ stashLine }}</span>
+          <button class="tb-go" onClick="{{ stashResume }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:9px 20px;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.07em;transition:box-shadow 0.25s ease;">Продовжити</button>
+          <button class="tb-ghost tb-del" onClick="{{ stashDrop }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.45);border-radius:999px;padding:9px 16px;font-size:0.8rem;transition:all 0.2s ease;">Викинути</button>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;flex-direction:column;gap:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:18px;">
+        <span style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;letter-spacing:0.05em;color:#fff;">Новий тест</span>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <sc-for list="{{ kindPicks }}" as="k" hint-placeholder-count="3">
+            <button class="tb-row" onClick="{{ k.onPick }}" style="cursor:pointer;text-align:left;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.13);border-radius:10px;padding:13px 15px;transition:all 0.2s ease;display:flex;flex-direction:column;gap:4px;">
+              <span style="font-family:'Cinzel',serif;font-size:0.88rem;letter-spacing:0.04em;color:#ffd700;">{{ k.label }}</span>
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.55;color:rgba(255,255,255,0.55);text-wrap:pretty;">{{ k.hint }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+          <button class="tb-chip" onClick="{{ goPaste }}" style="cursor:pointer;border-radius:999px;padding:9px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.8rem;transition:all 0.2s ease;">Вставити готовий JSON</button>
+          <button class="tb-chip" onClick="{{ goHelp }}" style="cursor:pointer;border-radius:999px;padding:9px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.8rem;transition:all 0.2s ease;">Інструкція для ШІ</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <span style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Мої тести · {{ rowsCount }}</span>
+          <sc-for list="{{ myRows }}" as="r" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:16px;">
+              <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:9px;">
+                <span style="flex:1;min-width:140px;font-family:'Cinzel',Georgia,serif;font-size:1.02rem;letter-spacing:0.04em;color:#fff;">{{ r.title }}</span>
+                <span style="border-radius:999px;padding:3px 11px;font-size:0.64rem;letter-spacing:0.12em;text-transform:uppercase;background:{{ r.badgeBg }};border:1px solid {{ r.badgeBorder }};color:{{ r.badgeColor }};">{{ r.badge }}</span>
+              </div>
+              <span style="font-size:0.8rem;color:rgba(255,255,255,0.42);">{{ r.meta }}</span>
+              <sc-if value="{{ r.hasNote }}" hint-placeholder-val="{{ false }}">
+                <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.6;color:rgba(255,77,77,0.85);border-left:2px solid rgba(255,77,77,0.4);padding-left:11px;text-wrap:pretty;">{{ r.note }}</span>
+              </sc-if>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <sc-for list="{{ r.actions }}" as="a" hint-placeholder-count="3">
+                  <button class="tb-chip" onClick="{{ a.onDo }}" style="cursor:pointer;border-radius:999px;padding:8px 15px;background:{{ a.bg }};border:1px solid {{ a.border }};color:{{ a.color }};font-size:0.78rem;font-family:'Cinzel',serif;letter-spacing:0.04em;transition:all 0.2s ease;">{{ a.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasLibrary }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <span style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Взяти чужий за основу</span>
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.94rem;line-height:1.6;color:rgba(255,255,255,0.45);text-wrap:pretty;">Копія стає вашою чернеткою — оригінал не змінюється. Зручно, коли до формату є звичка, а тема інша.</span>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;">
+            <sc-for list="{{ libraryPicks }}" as="l" hint-placeholder-count="2">
+              <button class="tb-chip" onClick="{{ l.onCopy }}" style="cursor:pointer;border-radius:999px;padding:8px 15px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.8rem;font-family:'EB Garamond',Georgia,serif;transition:all 0.2s ease;">{{ l.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}">
+        <span style="font-size:0.9rem;color:rgba(255,77,77,0.9);font-family:'EB Garamond',Georgia,serif;">{{ err }}</span>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ── Редактор ─────────────────────────────────────────── -->
+  <sc-if value="{{ isEdit }}" hint-placeholder-val="{{ false }}">
+    <div class="tb-stage" style="display:flex;flex-direction:column;gap:16px;">
+
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
+        <button class="tb-ghost" onClick="{{ goList }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 16px;font-size:0.8rem;transition:all 0.2s ease;">← Мої тести</button>
+        <span style="flex:1;min-width:120px;font-family:'Cinzel',Georgia,serif;font-size:1rem;letter-spacing:0.04em;color:#fff;">{{ editTitle }}</span>
+        <span style="font-size:0.74rem;color:{{ saveColor }};font-family:'EB Garamond',Georgia,serif;">{{ saveLine }}</span>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <sc-for list="{{ secTabs }}" as="t" hint-placeholder-count="5">
+          <button class="tb-chip" onClick="{{ t.onPick }}" style="cursor:pointer;border-radius:999px;padding:8px 15px;font-size:0.78rem;font-family:'Cinzel',serif;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.color }};">{{ t.label }}</button>
+        </sc-for>
+      </div>
+
+      <!-- Обкладинка -->
+      <sc-if value="{{ showCover }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px;">
+          <sc-for list="{{ coverFields }}" as="f" hint-placeholder-count="5">
+            <label style="display:flex;flex-direction:column;gap:6px;">
+              <span style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.42);">{{ f.label }}</span>
+              <sc-if value="{{ f.isArea }}" hint-placeholder-val="{{ false }}">
+                <textarea class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 13px;color:#fff;font-size:0.95rem;line-height:1.6;font-family:'EB Garamond',Georgia,serif;outline:none;resize:vertical;transition:border-color 0.2s ease;"></textarea>
+              </sc-if>
+              <sc-if value="{{ f.isText }}" hint-placeholder-val="{{ true }}">
+                <input class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:10px 13px;color:#fff;font-size:0.95rem;font-family:'EB Garamond',Georgia,serif;outline:none;transition:border-color 0.2s ease;" />
+              </sc-if>
+              <sc-if value="{{ f.hasHint }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.34);text-wrap:pretty;">{{ f.hint }}</span>
+              </sc-if>
+            </label>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- Типи результату -->
+      <sc-if value="{{ showTraits }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.5);text-wrap:pretty;">Від 3 до 6 типів. Колір у межах тесту не повторюється — з нього збирається графік на картці.</span>
+          <sc-for list="{{ traitCards }}" as="c" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,0.04);border:1px solid {{ c.ring }};border-radius:15px;padding:18px;">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:9px;">
+                <span style="width:11px;height:11px;border-radius:50%;background:{{ c.hex }};flex:0 0 auto;"></span>
+                <span style="flex:1;min-width:80px;font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">{{ c.head }}</span>
+                <button class="tb-ghost tb-del" onClick="{{ c.onRemove }}" disabled="{{ c.removeOff }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 13px;font-size:0.74rem;transition:all 0.2s ease;opacity:{{ c.removeOpacity }};">Прибрати</button>
+              </div>
+              <sc-for list="{{ c.fields }}" as="f" hint-placeholder-count="4">
+                <label style="display:flex;flex-direction:column;gap:6px;">
+                  <span style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.42);">{{ f.label }}</span>
+                  <sc-if value="{{ f.isArea }}" hint-placeholder-val="{{ false }}">
+                    <textarea class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 13px;color:#fff;font-size:0.95rem;line-height:1.6;font-family:'EB Garamond',Georgia,serif;outline:none;resize:vertical;transition:border-color 0.2s ease;"></textarea>
+                  </sc-if>
+                  <sc-if value="{{ f.isText }}" hint-placeholder-val="{{ true }}">
+                    <input class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:10px 13px;color:#fff;font-size:0.95rem;font-family:'EB Garamond',Georgia,serif;outline:none;transition:border-color 0.2s ease;" />
+                  </sc-if>
+                  <sc-if value="{{ f.hasHint }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.34);text-wrap:pretty;">{{ f.hint }}</span>
+                  </sc-if>
+                </label>
+              </sc-for>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <span style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.42);">Колір</span>
+                <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                  <sc-for list="{{ c.accents }}" as="a" hint-placeholder-count="7">
+                    <button onClick="{{ a.onPick }}" title="{{ a.label }}" style="cursor:pointer;width:30px;height:30px;border-radius:50%;background:{{ a.hex }};border:2px solid {{ a.ring }};box-shadow:{{ a.glow }};transition:all 0.2s ease;"></button>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+          <button class="tb-chip" onClick="{{ addTrait }}" disabled="{{ addTraitOff }}" style="cursor:pointer;align-self:flex-start;border-radius:999px;padding:10px 20px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.35);color:#ffd700;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.2s ease;opacity:{{ addTraitOpacity }};">+ Ще тип</button>
+        </div>
+      </sc-if>
+
+      <!-- Осі -->
+      <sc-if value="{{ showAxes }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.5);text-wrap:pretty;">Кожна вісь — два полюси з однією літерою коду. Порядок осей = порядок літер у результаті, тому переставляти їх потім не варто.</span>
+          <sc-for list="{{ axisCards }}" as="c" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:18px;">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:9px;">
+                <span style="flex:1;min-width:80px;font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.6);">{{ c.head }}</span>
+                <button class="tb-ghost tb-del" onClick="{{ c.onRemove }}" disabled="{{ c.removeOff }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 13px;font-size:0.74rem;transition:all 0.2s ease;opacity:{{ c.removeOpacity }};">Прибрати</button>
+              </div>
+              <sc-for list="{{ c.poles }}" as="p" hint-placeholder-count="2">
+                <div style="display:flex;flex-direction:column;gap:11px;border-left:2px solid {{ p.hex }};padding-left:14px;">
+                  <span style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);">{{ p.head }}</span>
+                  <sc-for list="{{ p.fields }}" as="f" hint-placeholder-count="4">
+                    <label style="display:flex;flex-direction:column;gap:6px;">
+                      <span style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.42);">{{ f.label }}</span>
+                      <sc-if value="{{ f.isArea }}" hint-placeholder-val="{{ false }}">
+                        <textarea class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 13px;color:#fff;font-size:0.95rem;line-height:1.6;font-family:'EB Garamond',Georgia,serif;outline:none;resize:vertical;transition:border-color 0.2s ease;"></textarea>
+                      </sc-if>
+                      <sc-if value="{{ f.isText }}" hint-placeholder-val="{{ true }}">
+                        <input class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:10px 13px;color:#fff;font-size:0.95rem;font-family:'EB Garamond',Georgia,serif;outline:none;transition:border-color 0.2s ease;" />
+                      </sc-if>
+                      <sc-if value="{{ f.hasHint }}" hint-placeholder-val="{{ false }}">
+                        <span style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.34);text-wrap:pretty;">{{ f.hint }}</span>
+                      </sc-if>
+                    </label>
+                  </sc-for>
+                  <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                    <sc-for list="{{ p.accents }}" as="a" hint-placeholder-count="7">
+                      <button onClick="{{ a.onPick }}" title="{{ a.label }}" style="cursor:pointer;width:26px;height:26px;border-radius:50%;background:{{ a.hex }};border:2px solid {{ a.ring }};box-shadow:{{ a.glow }};transition:all 0.2s ease;"></button>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+          <button class="tb-chip" onClick="{{ addAxis }}" disabled="{{ addAxisOff }}" style="cursor:pointer;align-self:flex-start;border-radius:999px;padding:10px 20px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.35);color:#ffd700;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.2s ease;opacity:{{ addAxisOpacity }};">+ Ще вісь</button>
+        </div>
+      </sc-if>
+
+      <!-- Питання -->
+      <sc-if value="{{ showQs }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.5);text-wrap:pretty;">{{ qsHint }}</span>
+          <sc-for list="{{ qCards }}" as="q" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:11px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:16px;">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
+                <span style="flex:1;min-width:70px;font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">{{ q.head }}</span>
+                <button class="tb-ghost" onClick="{{ q.onUp }}" disabled="{{ q.upOff }}" style="cursor:pointer;width:28px;height:28px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.45);font-size:0.8rem;line-height:1;transition:all 0.2s ease;opacity:{{ q.upOpacity }};">↑</button>
+                <button class="tb-ghost" onClick="{{ q.onDown }}" disabled="{{ q.downOff }}" style="cursor:pointer;width:28px;height:28px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.45);font-size:0.8rem;line-height:1;transition:all 0.2s ease;opacity:{{ q.downOpacity }};">↓</button>
+                <button class="tb-ghost tb-del" onClick="{{ q.onRemove }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 13px;font-size:0.74rem;transition:all 0.2s ease;">Прибрати</button>
+              </div>
+              <textarea class="tb-in" value="{{ q.text }}" onChange="{{ q.onText }}" placeholder="{{ q.ph }}" rows="2" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 13px;color:#fff;font-size:1rem;line-height:1.55;font-family:'EB Garamond',Georgia,serif;outline:none;resize:vertical;transition:border-color 0.2s ease;"></textarea>
+
+              <sc-if value="{{ q.isPlain }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:7px;">
+                  <span style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.42);">{{ q.pickLabel }}</span>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <sc-for list="{{ q.keyPicks }}" as="k" hint-placeholder-count="3">
+                      <button class="tb-chip" onClick="{{ k.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 13px;font-size:0.8rem;font-family:'EB Garamond',Georgia,serif;transition:all 0.2s ease;background:{{ k.bg }};border:1px solid {{ k.border }};color:{{ k.color }};">{{ k.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ q.isAxes }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:7px;">
+                  <span style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.42);">Згода тягне до полюса</span>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <sc-for list="{{ q.polePicks }}" as="p" hint-placeholder-count="2">
+                      <button class="tb-chip" onClick="{{ p.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 13px;font-size:0.8rem;font-family:'EB Garamond',Georgia,serif;transition:all 0.2s ease;background:{{ p.bg }};border:1px solid {{ p.border }};color:{{ p.color }};">{{ p.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ q.isAlloc }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:11px;">
+                  <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;">
+                    <sc-for list="{{ q.modePicks }}" as="m" hint-placeholder-count="2">
+                      <button class="tb-chip" onClick="{{ m.onPick }}" style="cursor:pointer;border-radius:999px;padding:8px 14px;font-size:0.78rem;font-family:'Cinzel',serif;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ m.bg }};border:1px solid {{ m.border }};color:{{ m.color }};">{{ m.label }}</button>
+                    </sc-for>
+                    <label style="display:flex;flex-direction:column;gap:5px;">
+                      <span style="font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);">{{ q.numLabel }}</span>
+                      <input class="tb-in" value="{{ q.numValue }}" onChange="{{ q.onNum }}" inputmode="numeric" style="width:74px;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.95rem;font-family:'Cinzel',serif;outline:none;transition:border-color 0.2s ease;" />
+                    </label>
+                  </div>
+                  <sc-for list="{{ q.options }}" as="o" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:7px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;">
+                      <div style="display:flex;gap:8px;align-items:center;">
+                        <input class="tb-in" value="{{ o.label }}" onChange="{{ o.onLabel }}" placeholder="Варіант відповіді" style="flex:1;min-width:0;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;outline:none;transition:border-color 0.2s ease;" />
+                        <button class="tb-ghost tb-del" onClick="{{ o.onRemove }}" style="cursor:pointer;flex:0 0 auto;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;width:28px;height:28px;font-size:0.9rem;line-height:1;transition:all 0.2s ease;">×</button>
+                      </div>
+                      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        <sc-for list="{{ o.keyPicks }}" as="k" hint-placeholder-count="3">
+                          <button class="tb-chip" onClick="{{ k.onPick }}" style="cursor:pointer;border-radius:999px;padding:6px 12px;font-size:0.76rem;font-family:'EB Garamond',Georgia,serif;transition:all 0.2s ease;background:{{ k.bg }};border:1px solid {{ k.border }};color:{{ k.color }};">{{ k.label }}</button>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <button class="tb-chip" onClick="{{ q.onAddOption }}" style="cursor:pointer;align-self:flex-start;border-radius:999px;padding:8px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.78rem;transition:all 0.2s ease;">+ Варіант</button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button class="tb-chip" onClick="{{ addQuestion }}" style="cursor:pointer;border-radius:999px;padding:10px 20px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.35);color:#ffd700;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.2s ease;">+ Твердження</button>
+            <sc-if value="{{ canAddAlloc }}" hint-placeholder-val="{{ false }}">
+              <button class="tb-chip" onClick="{{ addAllocQuestion }}" style="cursor:pointer;border-radius:999px;padding:10px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.2s ease;">+ Питання з варіантами</button>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- Шкала -->
+      <sc-if value="{{ showScale }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px;">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.5);text-wrap:pretty;">Пʼять сходинок згоди — саме пʼять, рушій рахує від 1 до 5. Підписи можна переписати під тему.</span>
+          <sc-for list="{{ scaleRows }}" as="s" hint-placeholder-count="5">
+            <label style="display:flex;align-items:center;gap:11px;">
+              <span style="flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);font-family:'Cinzel',serif;font-size:0.8rem;color:#ffd700;">{{ s.value }}</span>
+              <input class="tb-in" value="{{ s.label }}" onChange="{{ s.onInput }}" style="flex:1;min-width:0;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:10px 13px;color:#fff;font-size:0.95rem;font-family:'EB Garamond',Georgia,serif;outline:none;transition:border-color 0.2s ease;" />
+            </label>
+          </sc-for>
+          <button class="tb-chip" onClick="{{ resetScale }}" style="cursor:pointer;align-self:flex-start;border-radius:999px;padding:8px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);font-size:0.78rem;transition:all 0.2s ease;">Повернути типові підписи</button>
+        </div>
+      </sc-if>
+
+      <!-- Фінали (осі) -->
+      <sc-if value="{{ showResults }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.5);text-wrap:pretty;">{{ resultsHint }}</span>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;">
+            <sc-for list="{{ codePicks }}" as="c" hint-placeholder-count="4">
+              <button class="tb-chip" onClick="{{ c.onAdd }}" style="cursor:pointer;border-radius:999px;padding:8px 14px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.14em;transition:all 0.2s ease;background:{{ c.bg }};border:1px solid {{ c.border }};color:{{ c.color }};">{{ c.label }}</button>
+            </sc-for>
+          </div>
+          <sc-for list="{{ resultCards }}" as="c" hint-placeholder-count="1">
+            <div style="display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,0.04);border:1px solid {{ c.ring }};border-radius:15px;padding:18px;">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:9px;">
+                <span style="flex:1;min-width:80px;font-family:'Cinzel',serif;font-size:0.95rem;letter-spacing:0.28em;color:{{ c.hex }};">{{ c.code }}</span>
+                <button class="tb-ghost tb-del" onClick="{{ c.onRemove }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 13px;font-size:0.74rem;transition:all 0.2s ease;">Прибрати</button>
+              </div>
+              <sc-for list="{{ c.fields }}" as="f" hint-placeholder-count="4">
+                <label style="display:flex;flex-direction:column;gap:6px;">
+                  <span style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.42);">{{ f.label }}</span>
+                  <sc-if value="{{ f.isArea }}" hint-placeholder-val="{{ false }}">
+                    <textarea class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 13px;color:#fff;font-size:0.95rem;line-height:1.6;font-family:'EB Garamond',Georgia,serif;outline:none;resize:vertical;transition:border-color 0.2s ease;"></textarea>
+                  </sc-if>
+                  <sc-if value="{{ f.isText }}" hint-placeholder-val="{{ true }}">
+                    <input class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:10px 13px;color:#fff;font-size:0.95rem;font-family:'EB Garamond',Georgia,serif;outline:none;transition:border-color 0.2s ease;" />
+                  </sc-if>
+                  <sc-if value="{{ f.hasHint }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.34);text-wrap:pretty;">{{ f.hint }}</span>
+                  </sc-if>
+                </label>
+              </sc-for>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <sc-for list="{{ c.accents }}" as="a" hint-placeholder-count="7">
+                  <button onClick="{{ a.onPick }}" title="{{ a.label }}" style="cursor:pointer;width:26px;height:26px;border-radius:50%;background:{{ a.hex }};border:2px solid {{ a.ring }};box-shadow:{{ a.glow }};transition:all 0.2s ease;"></button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- Правила -->
+      <sc-if value="{{ showRules }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.5);text-wrap:pretty;">Необовʼязкове. Правило перехоплює картку, коли всі його умови зійшлися — так зʼявляються рідкісні типи, яких немає в переліку. Перше правило, що зійшлося, забирає результат, тому найрідкісніше ставте першим.</span>
+          <sc-for list="{{ ruleCards }}" as="r" hint-placeholder-count="1">
+            <div style="display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:18px;">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:9px;">
+                <span style="flex:1;min-width:80px;font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.6);">{{ r.head }}</span>
+                <button class="tb-ghost tb-del" onClick="{{ r.onRemove }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 13px;font-size:0.74rem;transition:all 0.2s ease;">Прибрати</button>
+              </div>
+              <sc-for list="{{ r.conds }}" as="c" hint-placeholder-count="1">
+                <div style="display:flex;flex-direction:column;gap:9px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;">
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <sc-for list="{{ c.kindPicks }}" as="k" hint-placeholder-count="3">
+                      <button class="tb-chip" onClick="{{ k.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 13px;font-size:0.76rem;font-family:'Cinzel',serif;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ k.bg }};border:1px solid {{ k.border }};color:{{ k.color }};">{{ k.label }}</button>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ c.hasKeys }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                      <sc-for list="{{ c.keyPicks }}" as="k" hint-placeholder-count="3">
+                        <button class="tb-chip" onClick="{{ k.onPick }}" style="cursor:pointer;border-radius:999px;padding:6px 12px;font-size:0.76rem;font-family:'EB Garamond',Georgia,serif;transition:all 0.2s ease;background:{{ k.bg }};border:1px solid {{ k.border }};color:{{ k.color }};">{{ k.label }}</button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ c.hasRange }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                      <label style="display:flex;flex-direction:column;gap:5px;">
+                        <span style="font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Від, %</span>
+                        <input class="tb-in" value="{{ c.min }}" onChange="{{ c.onMin }}" inputmode="numeric" placeholder="—" style="width:74px;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.92rem;font-family:'Cinzel',serif;outline:none;transition:border-color 0.2s ease;" />
+                      </label>
+                      <label style="display:flex;flex-direction:column;gap:5px;">
+                        <span style="font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);">До, %</span>
+                        <input class="tb-in" value="{{ c.max }}" onChange="{{ c.onMax }}" inputmode="numeric" placeholder="—" style="width:74px;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.92rem;font-family:'Cinzel',serif;outline:none;transition:border-color 0.2s ease;" />
+                      </label>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ c.hasCode }}" hint-placeholder-val="{{ false }}">
+                    <input class="tb-in" value="{{ c.code }}" onChange="{{ c.onCode }}" placeholder="Код, напр. ТГС" style="width:160px;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.92rem;font-family:'Cinzel',serif;letter-spacing:0.2em;outline:none;transition:border-color 0.2s ease;" />
+                  </sc-if>
+                  <button class="tb-ghost tb-del" onClick="{{ c.onRemove }}" style="cursor:pointer;align-self:flex-start;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.35);border-radius:999px;padding:5px 12px;font-size:0.72rem;transition:all 0.2s ease;">Прибрати умову</button>
+                </div>
+              </sc-for>
+              <button class="tb-chip" onClick="{{ r.onAddCond }}" style="cursor:pointer;align-self:flex-start;border-radius:999px;padding:8px 15px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.78rem;transition:all 0.2s ease;">+ Умова</button>
+              <sc-for list="{{ r.fields }}" as="f" hint-placeholder-count="3">
+                <label style="display:flex;flex-direction:column;gap:6px;">
+                  <span style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.42);">{{ f.label }}</span>
+                  <sc-if value="{{ f.isArea }}" hint-placeholder-val="{{ false }}">
+                    <textarea class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 13px;color:#fff;font-size:0.95rem;line-height:1.6;font-family:'EB Garamond',Georgia,serif;outline:none;resize:vertical;transition:border-color 0.2s ease;"></textarea>
+                  </sc-if>
+                  <sc-if value="{{ f.isText }}" hint-placeholder-val="{{ true }}">
+                    <input class="tb-in" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.ph }}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:10px 13px;color:#fff;font-size:0.95rem;font-family:'EB Garamond',Georgia,serif;outline:none;transition:border-color 0.2s ease;" />
+                  </sc-if>
+                  <sc-if value="{{ f.hasHint }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.34);text-wrap:pretty;">{{ f.hint }}</span>
+                  </sc-if>
+                </label>
+              </sc-for>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                <sc-for list="{{ r.accents }}" as="a" hint-placeholder-count="7">
+                  <button onClick="{{ a.onPick }}" title="{{ a.label }}" style="cursor:pointer;width:26px;height:26px;border-radius:50%;background:{{ a.hex }};border:2px solid {{ a.ring }};box-shadow:{{ a.glow }};transition:all 0.2s ease;"></button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+          <button class="tb-chip" onClick="{{ addRule }}" style="cursor:pointer;align-self:flex-start;border-radius:999px;padding:10px 20px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.35);color:#ffd700;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.2s ease;">+ Правило</button>
+        </div>
+      </sc-if>
+
+      <!-- JSON -->
+      <sc-if value="{{ showJson }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px;">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:rgba(255,255,255,0.5);text-wrap:pretty;">Те саме, що у формі, тільки текстом. Зручно віддати в чат моделі («допиши два твердження») і повернути назад.</span>
+          <textarea class="tb-in" value="{{ jsonText }}" onChange="{{ onJsonEdit }}" rows="14" spellcheck="false" style="width:100%;box-sizing:border-box;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:13px;color:rgba(255,255,255,0.8);font-size:0.82rem;line-height:1.55;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;outline:none;resize:vertical;transition:border-color 0.2s ease;"></textarea>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button class="tb-chip" onClick="{{ applyJson }}" style="cursor:pointer;border-radius:999px;padding:9px 18px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.35);color:#ffd700;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.2s ease;">Прийняти зміни</button>
+            <button class="tb-chip" onClick="{{ copyJson }}" style="cursor:pointer;border-radius:999px;padding:9px 18px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.8rem;transition:all 0.2s ease;">Копіювати</button>
+          </div>
+          <sc-if value="{{ hasJsonMsg }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:0.9rem;font-family:'EB Garamond',Georgia,serif;color:{{ jsonMsgColor }};">{{ jsonMsg }}</span>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- Перевірка -->
+      <div style="display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,0.03);border:1px solid {{ checkRing }};border-radius:15px;padding:18px;">
+        <span style="font-family:'Cinzel',Georgia,serif;font-size:0.9rem;letter-spacing:0.05em;color:{{ checkColor }};">{{ checkHead }}</span>
+        <sc-for list="{{ checkErrors }}" as="e" hint-placeholder-count="1">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.94rem;line-height:1.55;color:rgba(255,120,120,0.9);text-wrap:pretty;">✗ {{ e.text }}</span>
+        </sc-for>
+        <sc-for list="{{ checkWarns }}" as="w" hint-placeholder-count="1">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.55;color:rgba(255,215,0,0.62);text-wrap:pretty;">· {{ w.text }}</span>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:9px;align-items:center;">
+        <button class="tb-go" onClick="{{ saveDraft }}" disabled="{{ busy }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:12px 26px;font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;letter-spacing:0.07em;transition:box-shadow 0.25s ease;opacity:{{ busyOpacity }};">Зберегти чернетку</button>
+        <button class="tb-chip" onClick="{{ goPreview }}" style="cursor:pointer;border-radius:999px;padding:12px 22px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.65);font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.2s ease;">Приміряти</button>
+        <button class="tb-chip" onClick="{{ submit }}" disabled="{{ submitOff }}" style="cursor:pointer;border-radius:999px;padding:12px 22px;background:rgba(100,149,237,0.14);border:1px solid rgba(100,149,237,0.45);color:#9dbcf7;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.2s ease;opacity:{{ submitOpacity }};">{{ submitLabel }}</button>
+      </div>
+      <sc-if value="{{ hasMsg }}" hint-placeholder-val="{{ false }}">
+        <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.6;color:{{ msgColor }};text-wrap:pretty;">{{ msg }}</span>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ── Вставка JSON ─────────────────────────────────────── -->
+  <sc-if value="{{ isPaste }}" hint-placeholder-val="{{ false }}">
+    <div class="tb-stage" style="display:flex;flex-direction:column;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px;">
+      <button class="tb-ghost" onClick="{{ goList }}" style="cursor:pointer;align-self:flex-start;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 16px;font-size:0.8rem;transition:all 0.2s ease;">← Мої тести</button>
+      <span style="font-family:'Cinzel',Georgia,serif;font-size:1rem;letter-spacing:0.05em;color:#fff;">Вставити готовий тест</span>
+      <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.65;color:rgba(255,255,255,0.5);text-wrap:pretty;">Сюди йде те, що віддала модель за інструкцією, — JSON або JS-обʼєкт, з дужками ```` чи без. Після розбору тест відкриється у формі, і його можна доробити руками.</span>
+      <textarea class="tb-in" value="{{ pasteText }}" onChange="{{ onPaste }}" rows="12" spellcheck="false" placeholder="{ &quot;id&quot;: &quot;…&quot;, &quot;title&quot;: &quot;…&quot; }" style="width:100%;box-sizing:border-box;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:13px;color:rgba(255,255,255,0.8);font-size:0.82rem;line-height:1.55;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;outline:none;resize:vertical;transition:border-color 0.2s ease;"></textarea>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <button class="tb-go" onClick="{{ doPaste }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:11px 24px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.07em;transition:box-shadow 0.25s ease;">Розібрати</button>
+        <button class="tb-chip" onClick="{{ goHelp }}" style="cursor:pointer;border-radius:999px;padding:11px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.8rem;transition:all 0.2s ease;">Інструкція для ШІ</button>
+      </div>
+      <sc-if value="{{ hasPasteMsg }}" hint-placeholder-val="{{ false }}">
+        <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.6;color:{{ pasteMsgColor }};text-wrap:pretty;">{{ pasteMsg }}</span>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ── Інструкція для ШІ ────────────────────────────────── -->
+  <sc-if value="{{ isHelp }}" hint-placeholder-val="{{ false }}">
+    <div class="tb-stage" style="display:flex;flex-direction:column;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px;">
+      <button class="tb-ghost" onClick="{{ goBack }}" style="cursor:pointer;align-self:flex-start;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 16px;font-size:0.8rem;transition:all 0.2s ease;">← Назад</button>
+      <span style="font-family:'Cinzel',Georgia,serif;font-size:1rem;letter-spacing:0.05em;color:#fff;">Якщо писати з моделлю</span>
+      <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.7;color:rgba(255,255,255,0.55);text-wrap:pretty;">Скопіюйте це у свій чат — з Клодом, ChatGPT, будь-яким. У кінці допишіть тему. Що прийде у відповідь — несіть у «Вставити готовий JSON». Формат тут ніхто не вгадує: інструкція складена під той самий рушій, що потім рахує результат.</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <sc-for list="{{ helpKinds }}" as="k" hint-placeholder-count="3">
+          <button class="tb-chip" onClick="{{ k.onPick }}" style="cursor:pointer;border-radius:999px;padding:8px 15px;font-size:0.78rem;font-family:'Cinzel',serif;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ k.bg }};border:1px solid {{ k.border }};color:{{ k.color }};">{{ k.label }}</button>
+        </sc-for>
+      </div>
+      <pre style="margin:0;white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:15px;color:rgba(255,255,255,0.72);font-size:0.8rem;line-height:1.6;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;max-height:420px;overflow:auto;">{{ helpText }}</pre>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <button class="tb-go" onClick="{{ copyHelp }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:11px 24px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.07em;transition:box-shadow 0.25s ease;">Копіювати інструкцію</button>
+        <button class="tb-chip" onClick="{{ goPaste }}" style="cursor:pointer;border-radius:999px;padding:11px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.8rem;transition:all 0.2s ease;">Вставити відповідь</button>
+      </div>
+      <sc-if value="{{ hasHelpMsg }}" hint-placeholder-val="{{ false }}">
+        <span style="font-size:0.9rem;font-family:'EB Garamond',Georgia,serif;color:rgba(255,215,0,0.85);">{{ helpMsg }}</span>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ── Приміряти ────────────────────────────────────────── -->
+  <sc-if value="{{ isPreview }}" hint-placeholder-val="{{ false }}">
+    <div class="tb-stage" style="display:flex;flex-direction:column;gap:16px;">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
+        <button class="tb-ghost" onClick="{{ goEdit }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 16px;font-size:0.8rem;transition:all 0.2s ease;">← До редактора</button>
+        <span style="font-size:0.74rem;color:rgba(255,255,255,0.4);font-family:'EB Garamond',Georgia,serif;">Це чернетка — проходження нікуди не йде.</span>
+      </div>
+      <dc-import name="Tests" tests="{{ previewRows }}" characters="{{ noChars }}" signed-in="{{ false }}" embedded="{{ true }}" hint-size="100%,620px"></dc-import>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:900},&quot;userId&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;preview&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Хто автор&quot;},&quot;userNick&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Хто автор&quot;},&quot;approved&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Хто автор&quot;},&quot;tests&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{id?:string,test_id:string,title?:string,kind?:string,questions?:Array&lt;object&gt;}&gt;&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const BASE_H    = { 'apikey': SUPA_KEY };
+
+// Робота автора не має залежати від того, чи дожив токен до кнопки
+// «Зберегти»: кожна правка одразу лягає в браузер, а вже потім, окремою
+// дією, — у базу. Один ключ на один недописаний тест: у списку видно,
+// що саме лежить незбережене, і його можна або доробити, або викинути.
+const STASH = 'au_test_build';
+
+const S = (v) => (typeof v === 'string' ? v.trim() : '');
+const clone = (v) => JSON.parse(JSON.stringify(v == null ? null : v));
+
+const STATUS_WORD = {
+  draft:     { label: 'Чернетка',    hex: 'rgba(255,255,255,0.55)', bg: 'rgba(255,255,255,0.06)', ring: 'rgba(255,255,255,0.18)' },
+  pending:   { label: 'На розгляді', hex: '#9dbcf7',                bg: 'rgba(100,149,237,0.14)', ring: 'rgba(100,149,237,0.45)' },
+  published: { label: 'На сайті',    hex: '#ffd700',                bg: 'rgba(255,215,0,0.13)',   ring: 'rgba(255,215,0,0.45)' },
+  rejected:  { label: 'Повернуто',   hex: '#ff8080',                bg: 'rgba(255,77,77,0.12)',   ring: 'rgba(255,77,77,0.4)' },
+};
+
+const KEY_ORDER = ['t1', 't2', 't3', 't4', 't5', 't6'];
+
+class Component extends DCLogic {
+  state = {
+    M: null,                       // словник формату (tests-check.js)
+    view: 'list', sec: 'cover',
+    rows: [], busy: false,
+    draft: null, rowId: null, status: 'draft', reviewNote: '',
+    msg: '', msgBad: false, err: '',
+    savedAt: 0, dirty: false, localOnly: false,
+    stash: null,
+    pasteText: '', pasteMsg: '', pasteBad: false,
+    jsonText: '', jsonMsg: '', jsonBad: false, jsonDirty: false,
+    helpKind: 'likert', helpMsg: '',
+    backTo: 'list',
+  };
+
+  // ── Словник формату вантажимо ліниво ───────────────────────
+  // Він потрібен лише тому, хто справді відкрив конструктор, — а це
+  // кілька людей із сотні відвідувачів розділу.
+  async componentDidMount() {
+    try {
+      const M = await import('./tests-check.js');
+      this.setState({ M });
+    } catch (e) {
+      console.warn('конструктор: не вантажиться tests-check.js', e);
+      this.setState({ err: 'Не вдалося завантажити словник формату — перезавантажте сторінку.' });
+      return;
+    }
+    this._readStash();
+    if (this._uid()) this._load();
+    this._onHide = () => this._writeStash();
+    document.addEventListener('visibilitychange', this._onHide);
+    window.addEventListener('beforeunload', this._onHide);
+  }
+
+  componentWillUnmount() {
+    this._writeStash();
+    if (this._onHide) {
+      document.removeEventListener('visibilitychange', this._onHide);
+      window.removeEventListener('beforeunload', this._onHide);
+    }
+    clearTimeout(this._msgTimer);
+  }
+
+  // ── Чернетка в браузері ────────────────────────────────────
+  _readStash() {
+    try {
+      const raw = localStorage.getItem(STASH);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d && d.test) this.setState({ stash: d });
+    } catch (e) {}
+  }
+
+  _writeStash() {
+    const s = this.state;
+    if (!s.draft || s.view === 'list') return;
+    try {
+      localStorage.setItem(STASH, JSON.stringify({
+        test: s.draft, rowId: s.rowId, status: s.status, ts: Date.now(),
+      }));
+    } catch (e) {}
+  }
+
+  _clearStash() {
+    try { localStorage.removeItem(STASH); } catch (e) {}
+    this.setState({ stash: null });
+  }
+
+  // ── Ключ доступу ───────────────────────────────────────────
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _exp() { try { return Number(localStorage.getItem('au_user_exp') || 0) * 1000; } catch (e) { return 0; } }
+
+  async _renew() {
+    let rt = '';
+    try { rt = localStorage.getItem('au_user_refresh') || ''; } catch (e) {}
+    if (!rt) return false;
+    try {
+      const r = await fetch(`${SUPA_AUTH}/token?grant_type=refresh_token`, {
+        method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: rt }),
+      });
+      const d = await r.json();
+      if (!d || !d.access_token) return false;
+      localStorage.setItem('au_user_token', d.access_token);
+      if (d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+      if (d.expires_at) localStorage.setItem('au_user_exp', String(d.expires_at));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // Один прохід із поновленням ключа: прокислий токен не має коштувати
+  // авторові тексту, тому перед відмовою пробуємо оновитися й повторити.
+  async _api(url, opt) {
+    const send = () => fetch(url, {
+      ...(opt || {}),
+      headers: {
+        ...BASE_H,
+        'Authorization': `Bearer ${this._tok() || SUPA_KEY}`,
+        'Content-Type': 'application/json',
+        ...((opt || {}).headers || {}),
+      },
+    });
+    if (this._tok() && this._exp() && this._exp() - Date.now() < 60 * 1000) await this._renew();
+    let r = await send();
+    if (r.status === 401 || r.status === 403) {
+      if (await this._renew()) r = await send();
+    }
+    return r;
+  }
+
+  // Файл, відкритий сам собою (без сайту), теж має бути робочим: там
+  // немає ні входу, ні номера аркуша, тому в базу ми не ходимо взагалі —
+  // конструктор працює на чернетці в браузері.
+  _uid() {
+    const u = String(this.props.userId || '');
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(u) ? u : '';
+  }
+
+  async _load() {
+    const uid = this._uid();
+    if (!uid) return;
+    this.setState({ busy: true });
+    try {
+      const r = await this._api(`${SUPA_URL}/tests?author_id=eq.${uid}&select=*&order=updated_at.desc`);
+      if (!r.ok) {
+        const t = await r.text();
+        console.warn('конструктор: список тестів', r.status, t);
+        this.setState({ busy: false, err: /tests_status_chk|author_id/.test(t) ? 'Схоже, міграцію supabase_tests_builder_migration.sql ще не прогнали.' : '' });
+        return;
+      }
+      this.setState({ rows: await r.json(), busy: false, err: '' });
+    } catch (e) {
+      this.setState({ busy: false });
+    }
+  }
+
+  _flash(msg, bad) {
+    this.setState({ msg, msgBad: !!bad });
+    clearTimeout(this._msgTimer);
+    if (!bad) this._msgTimer = setTimeout(() => this.setState({ msg: '' }), 6000);
+  }
+
+  // ── Правка чернетки ────────────────────────────────────────
+  // Один вхід на всі поля: кожна зміна одразу летить у браузер, тому
+  // «зникло, бо не натиснув Зберегти» тут не буває.
+  _upd(fn) {
+    const draft = clone(this.state.draft) || {};
+    fn(draft);
+    this.setState({ draft, dirty: true, jsonDirty: false }, () => this._writeStash());
+  }
+
+  _field(get, set, meta) {
+    return {
+      label: meta.label, ph: meta.ph || '', hint: meta.hint || '', hasHint: !!meta.hint,
+      isArea: !!meta.area, isText: !meta.area,
+      value: get() == null ? '' : String(get()),
+      onInput: (e) => { const v = e.target.value; this._upd(d => set(d, v)); },
+    };
+  }
+
+  _accentRow(get, set) {
+    const M = this.state.M;
+    return M.ACCENT_KEYS.map(k => {
+      const on = get() === k;
+      return {
+        label: M.ACCENTS[k].label, hex: M.ACCENTS[k].hex,
+        ring: on ? '#fff' : 'rgba(0,0,0,0.35)',
+        glow: on ? '0 0 12px ' + M.ACCENTS[k].hex : 'none',
+        onPick: () => this._upd(d => set(d, k)),
+      };
+    });
+  }
+
+  _pill(on) {
+    return on
+      ? { bg: 'rgba(255,215,0,0.16)', border: 'rgba(255,215,0,0.5)', color: '#ffd700' }
+      : { bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.55)' };
+  }
+
+  // ── Відкриття / створення ──────────────────────────────────
+  _new(kind) {
+    const M = this.state.M;
+    this.setState({
+      draft: M.blankTest(kind), rowId: null, status: 'draft', reviewNote: '',
+      view: 'edit', sec: 'cover', msg: '', err: '', dirty: true, localOnly: false, savedAt: 0,
+    }, () => this._writeStash());
+  }
+
+  _edit(row) {
+    const M = this.state.M;
+    this.setState({
+      draft: M.rowToTest(row), rowId: row.id, status: S(row.status) || 'draft',
+      reviewNote: S(row.review_note), view: 'edit', sec: 'cover',
+      msg: '', err: '', dirty: false, localOnly: false, savedAt: 0,
+    }, () => this._writeStash());
+  }
+
+  // Копія — завжди нова чернетка з новою адресою: оригінал (свій чи
+  // чужий) лишається на місці, а люди, що вже проходили, не отримують
+  // підмінених питань.
+  _copy(row, mine) {
+    const M = this.state.M;
+    const t = M.rowToTest(row);
+    t.id = M.slugify((t.id || 'test') + '-' + Math.random().toString(36).slice(2, 5));
+    t.title = mine ? t.title + ' (копія)' : t.title;
+    this.setState({
+      draft: t, rowId: null, status: 'draft', reviewNote: '',
+      view: 'edit', sec: 'cover', msg: 'Копія відкрита як ваша чернетка.', msgBad: false,
+      dirty: true, localOnly: false, savedAt: 0,
+    }, () => this._writeStash());
+  }
+
+  // ── Збереження в базу ──────────────────────────────────────
+  async _save(status) {
+    const s = this.state, M = s.M;
+    if (!s.draft) return;
+    const uid = this._uid();
+    if (!uid) {
+      this.setState({ localOnly: true, dirty: false });
+      this._writeStash();
+      this._flash('Це конструктор без входу — робота лежить у вашому браузері. Щоб подати тест, зайдіть у кабінет на сайті.', true);
+      return false;
+    }
+
+    const draft = clone(s.draft);
+    if (!S(draft.id)) draft.id = M.slugify(draft.title || 'test');
+    const body = {
+      ...M.testToRow(draft),
+      author_id: uid,
+      author_nick: S(this.props.userNick) || 'Гравець',
+      status,
+      is_published: false,
+    };
+    if (status === 'pending') body.submitted_at = new Date().toISOString();
+
+    this.setState({ busy: true, draft, msg: '' });
+    try {
+      let rowId = s.rowId;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const r = rowId
+          ? await this._api(`${SUPA_URL}/tests?id=eq.${rowId}`, {
+              method: 'PATCH', headers: { 'Prefer': 'return=representation' }, body: JSON.stringify(body),
+            })
+          : await this._api(`${SUPA_URL}/tests`, {
+              method: 'POST', headers: { 'Prefer': 'return=representation' }, body: JSON.stringify(body),
+            });
+        if (r.ok) {
+          let row = null;
+          try { row = (await r.json())[0] || null; } catch (e) {}
+          if (row && row.id) rowId = row.id;
+          this.setState({
+            busy: false, rowId, status, localOnly: false, dirty: false,
+            savedAt: Date.now(), draft: { ...draft, id: body.test_id },
+          });
+          this._clearStash();
+          this._load();
+          return true;
+        }
+        const txt = await r.text();
+        // Адреса вже зайнята — беремо наступну й пробуємо ще раз: людина
+        // не мусить вгадувати, який slug вільний.
+        if (r.status === 409 && /test_id/.test(txt) && attempt === 0) {
+          body.test_id = body.test_id + '-' + Math.random().toString(36).slice(2, 5);
+          draft.id = body.test_id;
+          continue;
+        }
+        console.warn('конструктор: збереження', r.status, txt);
+        this.setState({ busy: false, localOnly: true });
+        // Непрогнана міграція виглядає як звичайна помилка бази, і людина
+        // шукає провину в собі. Тому колонки, яких немає, називаємо прямо.
+        const noCols = /author_id|author_nick|review_note|submitted_at|column .* does not exist|PGRST204/i.test(txt);
+        this._flash(
+          noCols
+            ? 'База ще не знає про авторські тести — рецепції треба прогнати міграцію supabase_tests_builder_migration.sql. Робота лежить у вашому браузері й нікуди не зникне.'
+            : r.status === 401 || r.status === 403
+            ? 'База не пустила — схоже, вхід протух. Робота лежить у браузері: увійдіть у кабінет в іншій вкладці й натисніть «Зберегти чернетку» знову.'
+            : 'Не збереглося в базі (' + r.status + '). Робота лежить у браузері — спробуйте ще раз за хвилину.',
+          true,
+        );
+        this._writeStash();
+        return false;
+      }
+    } catch (e) {
+      this.setState({ busy: false, localOnly: true });
+      this._flash('Мережа не відповіла. Робота лежить у браузері — спробуйте ще раз.', true);
+      this._writeStash();
+    }
+    return false;
+  }
+
+  async _setStatus(row, status) {
+    this.setState({ busy: true });
+    const body = { status };
+    if (status === 'pending') body.submitted_at = new Date().toISOString();
+    try {
+      const r = await this._api(`${SUPA_URL}/tests?id=eq.${row.id}`, {
+        method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify(body),
+      });
+      if (!r.ok) { console.warn('конструктор: статус', r.status, await r.text()); this._flash('Не вдалося змінити стан.', true); }
+      else this._flash(status === 'pending' ? 'Подано на розгляд.' : 'Повернуто в чернетки.');
+    } catch (e) { this._flash('Мережа не відповіла.', true); }
+    this.setState({ busy: false });
+    this._load();
+  }
+
+  async _del(row) {
+    if (!window.confirm(`Видалити тест «${row.title || row.test_id}»? Це назавжди.`)) return;
+    this.setState({ busy: true });
+    try {
+      const r = await this._api(`${SUPA_URL}/tests?id=eq.${row.id}`, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
+      if (!r.ok) { console.warn('конструктор: видалення', r.status, await r.text()); this._flash('Не вдалося видалити.', true); }
+    } catch (e) { this._flash('Мережа не відповіла.', true); }
+    this.setState({ busy: false });
+    this._load();
+  }
+
+  // ── Інструкція для чужого чату ─────────────────────────────
+  // Формат тут не переказується «приблизно»: інструкція друкує ту саму
+  // схему, яку потім читає рушій, тому відповідь моделі не треба
+  // перекладати руками.
+  _helpText(kind) {
+    const M = this.state.M;
+    const acc = M.ACCENT_KEYS.map(k => k + ' (' + M.ACCENTS[k].label.toLowerCase() + ')').join(', ');
+    const head = [
+      'Напиши психологічний тест для сайту Ауреліон — це українська темнофентезійна настільна рольова гра.',
+      '',
+      'Мова — українська. Твердження від першої особи, конкретні побутові чи ігрові ситуації, без жаргону й без слова «зазвичай».',
+      'Описи типів — 2-3 речення, звертання на «ви», літературно, але без пафосу й без загальних психологічних фраз.',
+      'Кожен тип має цитату-епіграф (одне речення, до 120 символів) і рідкість — твою оцінку у відсотках, 1–100.',
+      'Кольори (accent) — лише з переліку: ' + acc + '. У межах тесту не повторювати.',
+      '',
+    ];
+    const tail = [
+      '',
+      'Віддай ГОТОВИЙ JSON-обʼєкт, без пояснень до і після, без коментарів усередині.',
+      'Тема тесту: ',
+    ];
+    const likert = [
+      'Формат — твердження зі шкалою згоди (kind: "likert"). Схема:',
+      '{',
+      '  "id": "slug-latynkoiu", "kind": "likert",',
+      '  "title": "Назва", "tagline": "Один рядок курсивом",',
+      '  "description": "2-3 речення на екран вступу", "resultLabel": "Ваш тип",',
+      '  "scale": [{"value":1,"label":"Зовсім не про мене"}, … рівно 5 пунктів, value 1..5],',
+      '  "traits": {',
+      '    "t1": {"name":"Назва типу","tagline":"пів рядка","desc":"2-3 речення","accent":"gold","quote":"…","rarity":18},',
+      '    … від 3 до 6 типів, ключі t1…t6',
+      '  },',
+      '  "questions": [{"text":"Твердження","trait":"t1"}, … 12–16 штук, на кожен тип від 2]',
+      '}',
+    ];
+    const axes = [
+      'Формат — осі-дихотомії (kind: "axes"), результат виходить кодом із літер, як у MBTI. Схема:',
+      '{',
+      '  "id": "slug-latynkoiu", "kind": "axes",',
+      '  "title": "Назва", "tagline": "…", "description": "…", "resultLabel": "Ваш код",',
+      '  "scale": [ … рівно 5 пунктів, value 1..5 ],',
+      '  "axes": [',
+      '    {"key":"axis1",',
+      '     "left":  {"code":"Т","name":"Полюс","tagline":"…","desc":"2-3 речення","accent":"azure"},',
+      '     "right": {"code":"С","name":"Полюс","tagline":"…","desc":"2-3 речення","accent":"fate"}},',
+      '    … 3 або 4 осі; літери коду не повторюються в жодному полюсі',
+      '  ],',
+      '  "questions": [{"text":"Твердження","axis":"axis1","pole":"left"}, … на кожну вісь від 3, і в ОБИДВА боки],',
+      '  "results": {',
+      '    "ТС…": {"name":"Назва фіналу","tagline":"…","desc":"2-3 речення","accent":"gold","quote":"…","rarity":9},',
+      '    … код = по одній літері з кожної осі, у порядку осей; опиши всі комбінації',
+      '  }',
+      '}',
+    ];
+    const alloc = [
+      'Формат — розподіл (kind: "alloc"): людина вибирає N варіантів або розкидає бали. Схема:',
+      '{',
+      '  "id": "slug-latynkoiu", "kind": "alloc",',
+      '  "title": "Назва", "tagline": "…", "description": "…", "resultLabel": "Ваш тип",',
+      '  "traits": { "t1": {"name":"…","tagline":"…","desc":"…","accent":"gold","quote":"…","rarity":14}, … 3–6 },',
+      '  "questions": [',
+      '    {"text":"Виберіть три, що найбільше про вас", "pick":3,',
+      '     "options":[{"label":"Варіант","trait":"t1"}, … від 5 варіантів]},',
+      '    {"text":"Розкиньте 5 балів", "points":5,',
+      '     "options":[{"label":"Варіант","trait":"t2"}, …]},',
+      '    … 4–8 питань; pick і points в одному питанні разом НЕ ставити',
+      '  ]',
+      '}',
+      '',
+      'Можна домішати звичайні твердження зі шкалою — тоді додай "scale" з 5 пунктів і питання вигляду {"text":"…","trait":"t1"}.',
+    ];
+    const body = kind === 'axes' ? axes : kind === 'alloc' ? alloc : likert;
+    const extra = [
+      '',
+      'Необовʼязково: "rules" — рідкісні результати за порогами.',
+      '[{"if":[{"' + (kind === 'axes' ? 'axis":"axis1' : 'trait":"t1') + '","min":45},{"' + (kind === 'axes' ? 'axis":"axis2' : 'trait":"t2') + '","max":15}],',
+      '  "result":{"name":"Рідкісний тип","tagline":"…","desc":"…","accent":"magic","quote":"…","rarity":3}}]',
+      'Перше правило, що зійшлося, забирає картку — тому найрідкісніше ставиться першим.',
+    ];
+    return head.concat(body).concat(extra).concat(tail).join('\n');
+  }
+
+  async _copyText(text, done) {
+    try {
+      await navigator.clipboard.writeText(text);
+      done('Скопійовано.');
+    } catch (e) {
+      done('Браузер не дав скопіювати — виділіть текст руками.');
+    }
+  }
+
+  // ── Питання: службові дії ──────────────────────────────────
+  _firstKey(d) {
+    if (d.kind === 'axes') return S((d.axes[0] || {}).key) || 'axis1';
+    return Object.keys(d.traits || {})[0] || 't1';
+  }
+
+  _addQuestion(alloc) {
+    this._upd(d => {
+      if (alloc) d.questions.push({ text: '', pick: 3, options: [] });
+      else if (d.kind === 'axes') d.questions.push({ text: '', axis: this._firstKey(d), pole: 'left' });
+      else d.questions.push({ text: '', trait: this._firstKey(d) });
+    });
+  }
+
+  renderVals() {
+    const s = this.state, M = s.M;
+    const approved = !!this.props.approved;
+    const signed = !!this.props.userId;
+
+    if (!M) {
+      return {
+        isLocked: true, isList: false, isEdit: false, isPaste: false, isHelp: false, isPreview: false,
+        lockTitle: s.err ? 'Не вийшло' : 'Хвилинку',
+        lockText: s.err || 'Готую конструктор…',
+      };
+    }
+
+    // ── Замок ────────────────────────────────────────────────
+    if (!signed || !approved) {
+      return {
+        isLocked: true, isList: false, isEdit: false, isPaste: false, isHelp: false, isPreview: false,
+        lockTitle: signed ? 'Доступ ще на розгляді' : 'Спершу вхід',
+        lockText: signed
+          ? 'Тести пишуть ті, кому рецепція вже відкрила доступ. Ваш аркуш на розгляді — а поки що тести можна проходити.'
+          : 'Свій тест видно під вашим імʼям, тому конструктор відкривається лише після входу. Проходити тести можна й без нього.',
+      };
+    }
+
+    const d = s.draft;
+    const kind = d ? (S(d.kind) || 'likert') : 'likert';
+    const isAxes = kind === 'axes';
+    const traitKeys = d ? Object.keys(d.traits || {}) : [];
+    const check = d ? M.checkTest(d) : { errors: [], warns: [] };
+    const okToSubmit = !check.errors.length;
+
+    // ── Список ───────────────────────────────────────────────
+    const rowActions = (row) => {
+      const st = S(row.status) || 'draft';
+      const a = [];
+      const dim = { bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.6)' };
+      const gold = { bg: 'rgba(255,215,0,0.12)', border: 'rgba(255,215,0,0.4)', color: '#ffd700' };
+      if (st === 'draft' || st === 'rejected') {
+        a.push({ label: 'Правити', ...gold, onDo: () => this._edit(row) });
+        a.push({ label: 'Подати на розгляд', ...dim, onDo: () => this._setStatus(row, 'pending') });
+      }
+      if (st === 'pending') {
+        a.push({ label: 'Правити', ...gold, onDo: () => this._edit(row) });
+        a.push({ label: 'Відкликати', ...dim, onDo: () => this._setStatus(row, 'draft') });
+      }
+      if (st === 'published') a.push({ label: 'Копія для правок', ...gold, onDo: () => this._copy(row, true) });
+      else a.push({ label: 'Видалити', ...dim, onDo: () => this._del(row) });
+      return a;
+    };
+
+    const myRows = (s.rows || []).map(row => {
+      const st = S(row.status) || 'draft';
+      const w = STATUS_WORD[st] || STATUS_WORD.draft;
+      const qs = Array.isArray(row.questions) ? row.questions.length : 0;
+      const kindLabel = (M.KINDS.find(k => k.id === (S(row.kind) || 'likert')) || {}).label || '';
+      const meta = [kindLabel, qs + ' пит.', row.plays ? row.plays + ' проходжень' : ''].filter(Boolean).join(' · ');
+      return {
+        title: S(row.title) || S(row.test_id) || 'Без назви',
+        badge: w.label, badgeBg: w.bg, badgeBorder: w.ring, badgeColor: w.hex,
+        meta, hasNote: st === 'rejected' && !!S(row.review_note), note: S(row.review_note),
+        actions: rowActions(row),
+      };
+    });
+
+    const library = (Array.isArray(this.props.tests) ? this.props.tests : []).slice(0, 12);
+
+    // ── Розділи редактора ────────────────────────────────────
+    const secs = [
+      { id: 'cover', label: 'Обкладинка' },
+      isAxes ? { id: 'axes', label: 'Осі' } : { id: 'traits', label: 'Типи' },
+      { id: 'questions', label: 'Питання' },
+      { id: 'scale', label: 'Шкала' },
+    ];
+    if (isAxes) secs.push({ id: 'results', label: 'Фінали' });
+    secs.push({ id: 'rules', label: 'Правила' });
+    secs.push({ id: 'json', label: 'JSON' });
+
+    // ── Обкладинка ───────────────────────────────────────────
+    const coverFields = d ? [
+      this._field(() => d.title, (x, v) => {
+        const auto = !S(x.id) || x.id === M.slugify(x.title || '');
+        x.title = v;
+        if (auto) x.id = M.slugify(v);
+      }, { label: 'Назва', ph: 'Чиє серце ви носите' }),
+      this._field(() => d.tagline, (x, v) => { x.tagline = v; }, { label: 'Підзаголовок', ph: 'Один рядок курсивом під назвою' }),
+      this._field(() => d.description, (x, v) => { x.description = v; }, { label: 'Опис на вступі', area: true, ph: '2-3 речення: про що тест і навіщо його проходити' }),
+      this._field(() => d.resultLabel, (x, v) => { x.resultLabel = v; }, { label: 'Підпис результату', ph: 'Ваш тип', hint: 'Стоїть над назвою типу на картці результату.' }),
+      this._field(() => d.id, (x, v) => { x.id = M.slugify(v); }, { label: 'Адреса', ph: 'heart-styles', hint: 'Латинкою — це посилання на тест. Якщо зайнята, рецепція допише хвостик.' }),
+    ] : [];
+
+    // ── Типи ─────────────────────────────────────────────────
+    const traitCards = (!d || isAxes) ? [] : traitKeys.map((k, i) => {
+      const t = d.traits[k] || {};
+      const hex = (M.ACCENTS[S(t.accent)] || {}).hex || '#ffd700';
+      return {
+        head: 'Тип ' + (i + 1), hex, ring: 'rgba(255,255,255,0.12)',
+        removeOff: traitKeys.length <= 3, removeOpacity: traitKeys.length <= 3 ? '0.4' : '1',
+        onRemove: () => this._upd(x => {
+          const keys = Object.keys(x.traits);
+          if (keys.length <= 3) return;
+          delete x.traits[k];
+          const first = Object.keys(x.traits)[0];
+          x.questions.forEach(q => {
+            if (S(q.trait) === k) q.trait = first;
+            (q.options || []).forEach(o => { if (S(o.trait) === k) o.trait = first; });
+          });
+          x.rules = (x.rules || []).filter(r => !(r.if || []).some(c => S(c.trait) === k || S(c.top) === k));
+        }),
+        fields: [
+          this._field(() => t.name, (x, v) => { x.traits[k].name = v; }, { label: 'Назва типу', ph: 'Сторож' }),
+          this._field(() => t.tagline, (x, v) => { x.traits[k].tagline = v; }, { label: 'Підзаголовок', ph: 'той, хто тримає двері' }),
+          this._field(() => t.desc, (x, v) => { x.traits[k].desc = v; }, { label: 'Опис', area: true, ph: '2-3 речення на «ви»' }),
+          this._field(() => t.quote, (x, v) => { x.traits[k].quote = v; }, { label: 'Цитата-епіграф', ph: 'Одне речення, до 120 символів' }),
+          this._field(() => (t.rarity == null ? '' : t.rarity), (x, v) => {
+            const n = parseInt(String(v).replace(/[^0-9]/g, ''), 10);
+            x.traits[k].rarity = isNaN(n) ? null : Math.min(100, n);
+          }, { label: 'Рідкість, %', ph: '18', hint: 'Ваша оцінка, скільком людям випадає цей тип. У базі нічого не рахується.' }),
+        ],
+        accents: this._accentRow(() => S(t.accent), (x, v) => { x.traits[k].accent = v; }),
+      };
+    });
+
+    // ── Осі ──────────────────────────────────────────────────
+    const axisCards = (!d || !isAxes) ? [] : (d.axes || []).map((a, i) => ({
+      head: 'Вісь ' + (i + 1) + ' · літера ' + (i + 1) + ' у коді',
+      removeOff: (d.axes || []).length <= 2, removeOpacity: (d.axes || []).length <= 2 ? '0.4' : '1',
+      onRemove: () => this._upd(x => {
+        if ((x.axes || []).length <= 2) return;
+        const key = S((x.axes[i] || {}).key);
+        x.axes.splice(i, 1);
+        x.questions = x.questions.filter(q => S(q.axis) !== key);
+        x.results = {};
+        x.rules = (x.rules || []).filter(r => !(r.if || []).some(c => S(c.axis) === key || S(c.top) === key || c.code));
+      }),
+      poles: ['left', 'right'].map(side => {
+        const p = (a || {})[side] || {};
+        return {
+          head: side === 'left' ? 'Лівий полюс' : 'Правий полюс',
+          hex: (M.ACCENTS[S(p.accent)] || {}).hex || 'rgba(255,255,255,0.2)',
+          fields: [
+            this._field(() => p.code, (x, v) => { x.axes[i][side].code = String(v || '').slice(0, 1).toUpperCase(); }, { label: 'Літера коду', ph: 'Т' }),
+            this._field(() => p.name, (x, v) => { x.axes[i][side].name = v; }, { label: 'Назва полюса', ph: 'Тінь' }),
+            this._field(() => p.tagline, (x, v) => { x.axes[i][side].tagline = v; }, { label: 'Підзаголовок', ph: 'пів рядка' }),
+            this._field(() => p.desc, (x, v) => { x.axes[i][side].desc = v; }, { label: 'Опис', area: true, ph: '2-3 речення' }),
+          ],
+          accents: this._accentRow(() => S(p.accent), (x, v) => { x.axes[i][side].accent = v; }),
+        };
+      }),
+    }));
+
+    // ── Питання ──────────────────────────────────────────────
+    const keyLabel = (k) => {
+      if (isAxes) {
+        const ax = (d.axes || []).find(a => S(a.key) === k) || {};
+        const l = S((ax.left || {}).name) || S((ax.left || {}).code);
+        const r = S((ax.right || {}).name) || S((ax.right || {}).code);
+        return (l || r) ? (l + ' / ' + r) : k;
+      }
+      return S((d.traits[k] || {}).name) || k;
+    };
+    const allKeys = d ? (isAxes ? (d.axes || []).map((a, i) => S(a.key) || ('axis' + i)) : traitKeys) : [];
+
+    const qCards = !d ? [] : (d.questions || []).map((q, i) => {
+      const isAlloc = Array.isArray(q.options) && q.options.length >= 0 && (q.pick != null || q.points != null || (q.options || []).length > 0);
+      const usePoints = Number(q.points) > 0;
+      const pillFor = (on) => this._pill(on);
+      return {
+        head: 'Питання ' + (i + 1),
+        text: S(q.text), ph: isAlloc ? 'Питання з варіантами' : 'Твердження від першої особи',
+        onText: (e) => { const v = e.target.value; this._upd(x => { x.questions[i].text = v; }); },
+        upOff: i === 0, upOpacity: i === 0 ? '0.35' : '1',
+        downOff: i === (d.questions.length - 1), downOpacity: i === (d.questions.length - 1) ? '0.35' : '1',
+        onUp: () => this._upd(x => { if (i > 0) { const t = x.questions[i - 1]; x.questions[i - 1] = x.questions[i]; x.questions[i] = t; } }),
+        onDown: () => this._upd(x => { if (i < x.questions.length - 1) { const t = x.questions[i + 1]; x.questions[i + 1] = x.questions[i]; x.questions[i] = t; } }),
+        onRemove: () => this._upd(x => { x.questions.splice(i, 1); }),
+
+        isPlain: !isAlloc && !isAxes,
+        isAxes: !isAlloc && isAxes,
+        isAlloc,
+        pickLabel: isAxes ? 'Вісь' : 'Який тип міряє',
+        keyPicks: allKeys.map(k => {
+          const on = S(isAxes ? q.axis : q.trait) === k;
+          return { label: keyLabel(k), ...pillFor(on), onPick: () => this._upd(x => { if (isAxes) x.questions[i].axis = k; else x.questions[i].trait = k; }) };
+        }),
+        polePicks: ['left', 'right'].map(side => {
+          const ax = (d.axes || []).find(a => S(a.key) === S(q.axis)) || {};
+          const p = ax[side] || {};
+          const on = S(q.pole) === side;
+          return { label: (S(p.name) || (side === 'left' ? 'лівий' : 'правий')) + (S(p.code) ? ' · ' + S(p.code) : ''), ...pillFor(on), onPick: () => this._upd(x => { x.questions[i].pole = side; }) };
+        }),
+
+        modePicks: [
+          { label: 'Вибрати N', on: !usePoints, mode: 'pick' },
+          { label: 'Розкинути бали', on: usePoints, mode: 'points' },
+        ].map(m => ({
+          label: m.label, ...pillFor(m.on),
+          onPick: () => this._upd(x => {
+            const cur = Math.max(1, Math.round(Number(x.questions[i].pick || x.questions[i].points) || 3));
+            if (m.mode === 'points') { x.questions[i].points = cur; delete x.questions[i].pick; }
+            else { x.questions[i].pick = cur; delete x.questions[i].points; }
+          }),
+        })),
+        numLabel: usePoints ? 'Балів' : 'Вибрати',
+        numValue: String(usePoints ? (q.points || '') : (q.pick || '')),
+        onNum: (e) => {
+          const n = parseInt(String(e.target.value).replace(/[^0-9]/g, ''), 10);
+          this._upd(x => {
+            const v = isNaN(n) ? '' : Math.min(20, n);
+            if (usePoints) x.questions[i].points = v; else x.questions[i].pick = v;
+          });
+        },
+        options: (q.options || []).map((o, j) => ({
+          label: S(o.label),
+          onLabel: (e) => { const v = e.target.value; this._upd(x => { x.questions[i].options[j].label = v; }); },
+          onRemove: () => this._upd(x => { x.questions[i].options.splice(j, 1); }),
+          keyPicks: traitKeys.map(k => {
+            const on = S(o.trait) === k;
+            return { label: keyLabel(k), ...pillFor(on), onPick: () => this._upd(x => { x.questions[i].options[j].trait = k; }) };
+          }),
+        })),
+        onAddOption: () => this._upd(x => {
+          x.questions[i].options = x.questions[i].options || [];
+          x.questions[i].options.push({ label: '', trait: this._firstKey(x) });
+        }),
+      };
+    });
+
+    // ── Шкала ────────────────────────────────────────────────
+    const scaleRows = !d ? [] : (d.scale || []).map((x0, i) => ({
+      value: String(i + 1), label: S(x0.label),
+      onInput: (e) => { const v = e.target.value; this._upd(x => { x.scale[i] = { value: i + 1, label: v }; }); },
+    }));
+
+    // ── Фінали ───────────────────────────────────────────────
+    const codeCombos = () => {
+      if (!d || !isAxes) return [];
+      let out = [''];
+      (d.axes || []).forEach(a => {
+        const l = S((a.left || {}).code).toUpperCase() || '?';
+        const r = S((a.right || {}).code).toUpperCase() || '?';
+        const next = [];
+        out.forEach(pre => { next.push(pre + l); next.push(pre + r); });
+        out = next;
+      });
+      return out.slice(0, 16);
+    };
+    const results = (d && d.results) || {};
+    const codePicks = codeCombos().map(code => {
+      const have = !!results[code];
+      const p = this._pill(have);
+      return {
+        label: code, ...p,
+        onAdd: () => this._upd(x => {
+          if (x.results[code]) { this.setState({ sec: 'results' }); return; }
+          x.results[code] = { name: '', tagline: '', desc: '', accent: 'gold', quote: '', rarity: null };
+        }),
+      };
+    });
+    const resultCards = Object.keys(results).map(code => {
+      const r = results[code] || {};
+      const hex = (M.ACCENTS[S(r.accent)] || {}).hex || '#ffd700';
+      return {
+        code, hex, ring: 'rgba(255,255,255,0.12)',
+        onRemove: () => this._upd(x => { delete x.results[code]; }),
+        fields: [
+          this._field(() => r.name, (x, v) => { x.results[code].name = v; }, { label: 'Назва фіналу', ph: 'Тихий вартовий' }),
+          this._field(() => r.tagline, (x, v) => { x.results[code].tagline = v; }, { label: 'Підзаголовок', ph: 'пів рядка' }),
+          this._field(() => r.desc, (x, v) => { x.results[code].desc = v; }, { label: 'Опис', area: true, ph: '2-3 речення' }),
+          this._field(() => r.quote, (x, v) => { x.results[code].quote = v; }, { label: 'Цитата-епіграф', ph: 'Одне речення' }),
+          this._field(() => (r.rarity == null ? '' : r.rarity), (x, v) => {
+            const n = parseInt(String(v).replace(/[^0-9]/g, ''), 10);
+            x.results[code].rarity = isNaN(n) ? null : Math.min(100, n);
+          }, { label: 'Рідкість, %', ph: '9' }),
+        ],
+        accents: this._accentRow(() => S(r.accent), (x, v) => { x.results[code].accent = v; }),
+      };
+    });
+
+    // ── Правила ──────────────────────────────────────────────
+    const condKind = (c) => (c.code ? 'code' : c.top ? 'top' : 'range');
+    const ruleCards = !d ? [] : (d.rules || []).map((r, i) => {
+      const res = r.result || {};
+      return {
+        head: 'Правило ' + (i + 1),
+        onRemove: () => this._upd(x => { x.rules.splice(i, 1); }),
+        onAddCond: () => this._upd(x => {
+          x.rules[i].if = x.rules[i].if || [];
+          x.rules[i].if.push(isAxes ? { axis: allKeys[0] || 'axis1', min: 60 } : { trait: allKeys[0] || 't1', min: 40 });
+        }),
+        conds: (r.if || []).map((c, j) => {
+          const ck = condKind(c);
+          const kinds = [
+            { id: 'range', label: isAxes ? 'Частка осі' : 'Частка типу' },
+            { id: 'top', label: 'Лідер' },
+          ].concat(isAxes ? [{ id: 'code', label: 'Код' }] : []);
+          return {
+            kindPicks: kinds.map(k => ({
+              label: k.label, ...this._pill(ck === k.id),
+              onPick: () => this._upd(x => {
+                const key = allKeys[0] || (isAxes ? 'axis1' : 't1');
+                if (k.id === 'range') x.rules[i].if[j] = isAxes ? { axis: key, min: 60 } : { trait: key, min: 40 };
+                if (k.id === 'top') x.rules[i].if[j] = { top: key };
+                if (k.id === 'code') x.rules[i].if[j] = { code: '' };
+              }),
+            })),
+            hasKeys: ck !== 'code',
+            keyPicks: allKeys.map(k => {
+              const cur = S(c.trait || c.axis || c.top);
+              return {
+                label: keyLabel(k), ...this._pill(cur === k),
+                onPick: () => this._upd(x => {
+                  const cc = x.rules[i].if[j];
+                  if (cc.top) cc.top = k;
+                  else if (isAxes) cc.axis = k;
+                  else cc.trait = k;
+                }),
+              };
+            }),
+            hasRange: ck === 'range',
+            min: c.min == null ? '' : String(c.min),
+            max: c.max == null ? '' : String(c.max),
+            onMin: (e) => { const v = e.target.value; this._upd(x => { const n = parseInt(String(v).replace(/[^0-9]/g, ''), 10); x.rules[i].if[j].min = isNaN(n) ? null : Math.min(100, n); }); },
+            onMax: (e) => { const v = e.target.value; this._upd(x => { const n = parseInt(String(v).replace(/[^0-9]/g, ''), 10); x.rules[i].if[j].max = isNaN(n) ? null : Math.min(100, n); }); },
+            hasCode: ck === 'code',
+            code: S(c.code),
+            onCode: (e) => { const v = e.target.value; this._upd(x => { x.rules[i].if[j].code = String(v).toUpperCase(); }); },
+            onRemove: () => this._upd(x => { x.rules[i].if.splice(j, 1); }),
+          };
+        }),
+        fields: [
+          this._field(() => res.name, (x, v) => { x.rules[i].result.name = v; }, { label: 'Назва результату', ph: 'Рідкісний тип' }),
+          this._field(() => res.tagline, (x, v) => { x.rules[i].result.tagline = v; }, { label: 'Підзаголовок', ph: 'пів рядка' }),
+          this._field(() => res.desc, (x, v) => { x.rules[i].result.desc = v; }, { label: 'Опис', area: true, ph: '2-3 речення' }),
+          this._field(() => res.quote, (x, v) => { x.rules[i].result.quote = v; }, { label: 'Цитата-епіграф', ph: 'Одне речення' }),
+          this._field(() => (res.rarity == null ? '' : res.rarity), (x, v) => {
+            const n = parseInt(String(v).replace(/[^0-9]/g, ''), 10);
+            x.rules[i].result.rarity = isNaN(n) ? null : Math.min(100, n);
+          }, { label: 'Рідкість, %', ph: '3' }),
+        ],
+        accents: this._accentRow(() => S(res.accent), (x, v) => { x.rules[i].result.accent = v; }),
+      };
+    });
+
+    const saveLine = s.busy ? 'Зберігаю…'
+      : s.localOnly ? 'Лежить тільки в браузері'
+      : s.dirty ? 'Є незбережені правки'
+      : s.savedAt ? 'Збережено в базі'
+      : (STATUS_WORD[s.status] || STATUS_WORD.draft).label;
+
+    return {
+      isLocked: false,
+      isList: s.view === 'list',
+      isEdit: s.view === 'edit' && !!d,
+      isPaste: s.view === 'paste',
+      isHelp: s.view === 'help',
+      isPreview: s.view === 'preview' && !!d,
+
+      // список
+      kindPicks: M.KINDS.map(k => ({ label: k.label, hint: k.hint, onPick: () => this._new(k.id) })),
+      hasRows: myRows.length > 0, rowsCount: String(myRows.length), myRows,
+      hasLibrary: library.length > 0,
+      libraryPicks: library.map(row => ({
+        label: S(row.title) || S(row.test_id),
+        onCopy: () => this._copy(row, false),
+      })),
+      hasStash: !!s.stash && s.view === 'list',
+      stashLine: s.stash
+        ? 'Незбережена робота: «' + (S((s.stash.test || {}).title) || 'без назви') + '» — лежить у вашому браузері.'
+        : '',
+      stashResume: () => {
+        const st = s.stash || {};
+        this.setState({ draft: st.test, rowId: st.rowId || null, status: st.status || 'draft', view: 'edit', sec: 'cover', dirty: true, localOnly: true, msg: '' });
+      },
+      stashDrop: () => { if (window.confirm('Викинути незбережену чернетку?')) this._clearStash(); },
+      hasErr: !!s.err, err: s.err,
+
+      // редактор
+      editTitle: d ? (S(d.title) || 'Новий тест') : '',
+      saveLine, saveColor: s.localOnly ? 'rgba(255,215,0,0.8)' : s.dirty ? 'rgba(255,255,255,0.5)' : 'rgba(95,191,176,0.85)',
+      secTabs: secs.map(x => ({ label: x.label, ...this._pill(s.sec === x.id), onPick: () => this.setState({ sec: x.id, jsonText: x.id === 'json' ? JSON.stringify(d, null, 2) : s.jsonText, jsonMsg: '' }) })),
+      showCover: s.sec === 'cover',
+      showTraits: s.sec === 'traits' && !isAxes,
+      showAxes: s.sec === 'axes' && isAxes,
+      showQs: s.sec === 'questions',
+      showScale: s.sec === 'scale',
+      showResults: s.sec === 'results' && isAxes,
+      showRules: s.sec === 'rules',
+      showJson: s.sec === 'json',
+
+      coverFields, traitCards, axisCards, qCards, scaleRows, codePicks, resultCards, ruleCards,
+      addTrait: () => this._upd(x => {
+        const keys = Object.keys(x.traits);
+        if (keys.length >= 6) return;
+        const free = KEY_ORDER.find(k => !x.traits[k]) || ('t' + (keys.length + 1));
+        const used = keys.map(k => S(x.traits[k].accent));
+        const acc = M.ACCENT_KEYS.find(a => used.indexOf(a) === -1) || 'gold';
+        x.traits[free] = M.blankTrait(acc);
+      }),
+      addTraitOff: traitKeys.length >= 6, addTraitOpacity: traitKeys.length >= 6 ? '0.4' : '1',
+      addAxis: () => this._upd(x => {
+        if ((x.axes || []).length >= 4) return;
+        x.axes.push({ key: 'axis' + ((x.axes || []).length + 1), left: M.blankPole(''), right: M.blankPole('') });
+        x.results = {};
+      }),
+      addAxisOff: d && isAxes ? (d.axes || []).length >= 4 : true,
+      addAxisOpacity: d && isAxes && (d.axes || []).length >= 4 ? '0.4' : '1',
+      qsHint: isAxes
+        ? 'На кожну вісь — від трьох тверджень, і обовʼязково в обидва боки: інакше вісь міряє згоду, а не вибір.'
+        : 'Твердження зі шкалою — 12–16 штук, на кожен тип від двох. Питання з варіантами можна домішати: форму диктує саме питання.',
+      addQuestion: () => this._addQuestion(false),
+      addAllocQuestion: () => this._addQuestion(true),
+      canAddAlloc: !isAxes,
+      resetScale: () => this._upd(x => { x.scale = M.SCALE_5.map(v => ({ ...v })); }),
+      resultsHint: 'Код — по одній літері з кожної осі, у порядку осей. Натисніть код, щоб описати фінал; неописаний рушій збере з полюсів, але власна назва читається краше.',
+      addRule: () => this._upd(x => {
+        x.rules = x.rules || [];
+        x.rules.push({
+          if: [isAxes ? { axis: allKeys[0] || 'axis1', min: 60 } : { trait: allKeys[0] || 't1', min: 40 }],
+          result: { name: '', tagline: '', desc: '', accent: 'magic', quote: '', rarity: null },
+        });
+      }),
+
+      // JSON
+      jsonText: s.jsonText || (d ? JSON.stringify(d, null, 2) : ''),
+      onJsonEdit: (e) => this.setState({ jsonText: e.target.value, jsonDirty: true, jsonMsg: '' }),
+      applyJson: () => {
+        try {
+          const arr = M.parseTestSource(s.jsonText);
+          this.setState({ draft: M.rowToTest(M.testToRow(arr[0])), dirty: true, jsonMsg: 'Прийнято.', jsonBad: false }, () => this._writeStash());
+        } catch (e) {
+          this.setState({ jsonMsg: e.message || 'Не розібрала', jsonBad: true });
+        }
+      },
+      copyJson: () => this._copyText(s.jsonText || JSON.stringify(d, null, 2), (m) => this.setState({ jsonMsg: m, jsonBad: false })),
+      hasJsonMsg: !!s.jsonMsg, jsonMsg: s.jsonMsg, jsonMsgColor: s.jsonBad ? 'rgba(255,120,120,0.9)' : 'rgba(255,215,0,0.85)',
+
+      // перевірка
+      checkHead: check.errors.length
+        ? 'Перевірка: ' + check.errors.length + ' — це доробити перед поданням'
+        : check.warns.length ? 'Перевірка: усе рахується, є ' + check.warns.length + ' зауваг' : 'Перевірка: усе на місці',
+      checkColor: check.errors.length ? '#ff8080' : check.warns.length ? 'rgba(255,215,0,0.8)' : 'rgba(95,191,176,0.9)',
+      checkRing: check.errors.length ? 'rgba(255,77,77,0.3)' : 'rgba(255,255,255,0.1)',
+      checkErrors: check.errors.map(text => ({ text })),
+      checkWarns: check.warns.map(text => ({ text })),
+
+      // дії
+      busy: s.busy, busyOpacity: s.busy ? '0.5' : '1',
+      saveDraft: () => this._save(s.status === 'pending' ? 'pending' : 'draft'),
+      submit: () => {
+        if (!okToSubmit) return;
+        if (!window.confirm('Подати тест на розгляд? Правити його можна й далі, поки рецепція не поставила на сайт.')) return;
+        // «Подано» тільки тоді, коли рядок справді ліг у базу: `_save`
+        // резолвиться й на шляху помилки (прокислий вхід, непрогнана
+        // міграція, мережа), і зелений рядок перебивав би її пояснення.
+        this._save('pending').then((ok) => {
+          if (ok) this._flash('Подано. Рецепція подивиться й поставить на сайт — або поверне з поясненням.');
+        });
+      },
+      submitOff: !okToSubmit || s.busy,
+      submitOpacity: (!okToSubmit || s.busy) ? '0.45' : '1',
+      submitLabel: s.status === 'pending' ? 'Уже на розгляді' : 'Подати на розгляд',
+      hasMsg: !!s.msg, msg: s.msg, msgColor: s.msgBad ? 'rgba(255,120,120,0.9)' : 'rgba(255,215,0,0.85)',
+
+      goList: () => { this._writeStash(); this.setState({ view: 'list', msg: '' }); this._load(); },
+      goEdit: () => this.setState({ view: 'edit' }),
+      goPreview: () => { this._writeStash(); this.setState({ view: 'preview' }); },
+      goPaste: () => this.setState({ view: 'paste', backTo: s.view, pasteMsg: '' }),
+      goHelp: () => this.setState({ view: 'help', backTo: s.view === 'help' ? 'list' : s.view, helpKind: kind, helpMsg: '' }),
+      goBack: () => this.setState({ view: s.backTo === 'help' ? 'list' : s.backTo, helpMsg: '' }),
+
+      // вставка
+      pasteText: s.pasteText,
+      onPaste: (e) => this.setState({ pasteText: e.target.value, pasteMsg: '' }),
+      doPaste: () => {
+        try {
+          const arr = M.parseTestSource(s.pasteText);
+          const t = M.rowToTest(M.testToRow(arr[0]));
+          if (!S(t.id)) t.id = M.slugify(t.title || 'test');
+          const c = M.checkTest(t);
+          this.setState({
+            draft: t, rowId: null, status: 'draft', view: 'edit', sec: 'cover',
+            dirty: true, localOnly: false, pasteText: '', pasteMsg: '',
+            msg: c.errors.length ? 'Розібрала, але є ' + c.errors.length + ' помилок — дивіться перевірку нижче.' : 'Розібрала. Перегляньте й подавайте.',
+            msgBad: !!c.errors.length,
+          }, () => this._writeStash());
+        } catch (e) {
+          this.setState({ pasteMsg: e.message || 'Не розібрала вставку', pasteBad: true });
+        }
+      },
+      hasPasteMsg: !!s.pasteMsg, pasteMsg: s.pasteMsg,
+      pasteMsgColor: s.pasteBad ? 'rgba(255,120,120,0.9)' : 'rgba(255,215,0,0.85)',
+
+      // інструкція
+      helpKinds: M.KINDS.map(k => ({ label: k.label, ...this._pill(s.helpKind === k.id), onPick: () => this.setState({ helpKind: k.id, helpMsg: '' }) })),
+      helpText: this._helpText(s.helpKind),
+      copyHelp: () => this._copyText(this._helpText(s.helpKind), (m) => this.setState({ helpMsg: m })),
+      hasHelpMsg: !!s.helpMsg, helpMsg: s.helpMsg,
+
+      // приміряти
+      previewRows: d ? [{ ...M.testToRow(d), id: 'preview', is_published: true }] : [],
+      noChars: [],
+    };
+  }
+}
+</script>
+</body>
+</html>

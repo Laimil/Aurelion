@@ -35,6 +35,9 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
           <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.35rem;font-weight:700;color:#fff;letter-spacing:0.05em;">{{ card.title }}</h2>
           <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;color:rgba(255,255,255,0.5);margin-top:6px;">{{ card.tagline }}</p>
           <p style="font-size:0.88rem;line-height:1.6;color:rgba(255,255,255,0.62);margin-top:12px;text-wrap:pretty;">{{ card.description }}</p>
+          <sc-if value="{{ card.hasAuthor }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-size:0.88rem;color:rgba(255,255,255,0.38);">{{ card.authorLine }}</p>
+          </sc-if>
           <span style="display:inline-block;margin-top:18px;background:#ffd700;color:#1a1a1a;border-radius:999px;padding:11px 26px;font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;letter-spacing:0.08em;">Почати</span>
         </div>
       </sc-for>
@@ -281,6 +284,11 @@ body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,Bl
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:700,&quot;height&quot;:760},&quot;tests&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{test_id:string,kind?:'likert'|'axes'|'alloc',title:string,tagline?:string,description?:string,result_label?:string,scale?:Array&lt;{value:number,label:string}&gt;,traits?:Record&lt;string,{name:string,tagline?:string,desc:string,accent:string,quote?:string,rarity?:number}&gt;,axes?:Array&lt;{key:string,accent?:string,left:object,right:object}&gt;,results?:Record&lt;string,object&gt;,rules?:Array&lt;object&gt;,questions:Array&lt;object&gt;}&gt;&quot;},&quot;characters&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{id:string,name?:string,alias?:string,role?:string,image?:string,deity?:string,accent?:string,caption?:string,is_active?:boolean}&gt;&quot;},&quot;signedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Хто проходить&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;chart&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bars&quot;,&quot;radar&quot;,&quot;cols&quot;],&quot;default&quot;:&quot;bars&quot;,&quot;tsType&quot;:&quot;'bars'|'radar'|'cols'&quot;,&quot;section&quot;:&quot;Картка результату&quot;}}">
+// Лічильник проходжень ходить у базу сам (rpc/test_played) — це єдине,
+// по що рушій туди звертається; усе інше приходить пропом із сайту.
+const SUPA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+
 const ACCENT = {
   gold: '#ffd700', azure: '#6495ed', light: '#ffd76b',
   dark: '#8f7ee8', fate: '#d2607a', nature: '#5fbfb0', magic: '#cdd2db',
@@ -389,6 +397,10 @@ class Component extends DCLogic {
       results: obj(r.results),
       rules: Array.isArray(r.rules) ? r.rules : [],
       questions: Array.isArray(r.questions) ? r.questions : [],
+      // Авторські тести стоять поряд з офіційними, але підписані: чий
+      // це погляд — частина тесту, а не дрібниця в кінці.
+      author: String(r.author_nick || '').trim(),
+      plays: Math.max(0, Math.round(Number(r.plays) || 0)),
     })).filter(t => {
       if (!t.id || !t.questions.length) return false;
       // Шкала потрібна лише там, де є твердження: тест на чистому
@@ -557,11 +569,32 @@ class Component extends DCLogic {
     return paint(rows.slice().sort((a, b) => b.value - a.value)[0] || {});
   }
 
+  // Лічильник проходжень. Пишеться окремою функцією бази (`test_played`),
+  // бо тести проходять і ті, хто не входив, — писати в рядок з браузера ми
+  // не даємо нікому. Раз на дійшле до кінця проходження, тихо: збій
+  // лічильника не має псувати картку результату.
+  _countPlay(test) {
+    if (!this.props.embedded || !test || !test.id || test.id === 'preview') return;
+    this._counted = this._counted || {};
+    if (this._counted[test.id]) return;
+    this._counted[test.id] = true;
+    try {
+      const H = { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' };
+      let tok = '';
+      try { tok = localStorage.getItem('au_user_token') || ''; } catch (e) {}
+      fetch(`${SUPA_URL}/rpc/test_played`, {
+        method: 'POST',
+        headers: { ...H, 'Authorization': `Bearer ${tok || SUPA_KEY}` },
+        body: JSON.stringify({ p_test_id: test.id }),
+      }).catch(() => {});
+    } catch (e) {}
+  }
+
   _answer(test, value) {
     const i = this.state.qIndex;
     const answers = { ...this.state.answers, [i]: value };
     if (i + 1 < test.questions.length) this.setState({ answers, qIndex: i + 1 });
-    else this.setState({ answers, stage: 'result' });
+    else { this._countPlay(test); this.setState({ answers, stage: 'result' }); }
   }
 
   // Розподіл: відповідь — об'єкт {номер варіанта: бали}. Перехід далі
@@ -593,7 +626,7 @@ class Component extends DCLogic {
     const used = Object.keys(got).reduce((n, k) => n + (Number(got[k]) || 0), 0);
     if (used !== cap) return;
     if (i + 1 < test.questions.length) this.setState({ qIndex: i + 1 });
-    else this.setState({ stage: 'result' });
+    else { this._countPlay(test); this.setState({ stage: 'result' }); }
   }
 
   // ════════ КАРТКА РЕЗУЛЬТАТУ (PNG) ════════
@@ -1040,6 +1073,10 @@ class Component extends DCLogic {
           : [this._plural(t.questions.length, 'питання', 'питання', 'питань'),
              this._plural(Object.keys(t.traits).length, 'тип', 'типи', 'типів')]
         ).filter(Boolean).join(' · '),
+        // Підпис — тільки в авторських: під офіційним «від рецепції» стояло б
+        // дивно, а порожній рядок ламав би ритм плитки.
+        hasAuthor: !!(t.author || t.plays),
+        authorLine: [t.author ? '— ' + t.author : '', t.plays ? this._plural(t.plays, 'проходження', 'проходження', 'проходжень') : ''].filter(Boolean).join(' · '),
         onStart: () => this.setState({ activeId: t.id, stage: 'who', forWhom: 'self', charId: '', charName: '', qIndex: 0, answers: {} }),
       })),
 

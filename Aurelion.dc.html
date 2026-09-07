@@ -2058,7 +2058,17 @@ a:hover{color:#a8c4f7;}
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Тести</h1>
       <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:440px;margin-left:auto;margin-right:auto;">Пройдіть за себе — або за свого персонажа, і подивіться, чим він відрізняється від вас.</p>
     </header>
-    <dc-import name="Tests" tests="{{ testsData }}" characters="{{ testsChars }}" signed-in="{{ testsSignedIn }}" embedded="{{ true }}" hint-size="100%,620px"></dc-import>
+    <sc-if value="{{ canBuildTests }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;justify-content:center;margin-bottom:28px;">
+        <button onClick="{{ toggleTestsBuild }}" style-hover="filter:brightness(1.15)" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:{{ buildBtnBg }};border:1px solid {{ buildBtnBorder }};border-radius:999px;padding:11px 24px;color:{{ buildBtnColor }};font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;letter-spacing:0.06em;white-space:nowrap;transition:all 0.25s ease;">{{ buildBtnLabel }}</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showTestsBuild }}" hint-placeholder-val="{{ false }}">
+      <dc-import name="Test Builder" user-id="{{ userId }}" user-nick="{{ userNick }}" approved="{{ canBuildTests }}" tests="{{ testsData }}" embedded="{{ true }}" hint-size="100%,720px"></dc-import>
+    </sc-if>
+    <sc-if value="{{ showTestsEngine }}" hint-placeholder-val="{{ true }}">
+      <dc-import name="Tests" tests="{{ testsData }}" characters="{{ testsChars }}" signed-in="{{ testsSignedIn }}" embedded="{{ true }}" hint-size="100%,620px"></dc-import>
+    </sc-if>
   </main>
 </sc-if>
 
@@ -3215,6 +3225,7 @@ class Component extends DCLogic {
     page: this._getPage(),
     data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [], tests: [], material_links: [], character_links: [], character_images: [], material_images: [] },
     webOpen: false,
+    testsBuild: false,
     galOpen: false, galKind: null, galIndex: -1, galShown: {},
     quotesAuthor: null, quoteSpot: null,
     loading: true,
@@ -6729,6 +6740,17 @@ class Component extends DCLogic {
         ? 'Що почули — то й принесіть. Марта запише, а далі воно саме розійдеться чатом.'
         : 'Анкета нового персонажа й віконце пліток — в Марти одна рецепція на обидві справи.',
       testsData:       (data.tests || []),
+      // Свій тест пишуть ті, кому рецепція вже відкрила доступ: під ним
+      // стоїть імʼя автора, тому конструктор — не для випадкового гостя.
+      canBuildTests:   s.userStatus === 'approved',
+      showTestsBuild:  !!s.testsBuild && s.userStatus === 'approved',
+      showTestsEngine: !(s.testsBuild && s.userStatus === 'approved'),
+      buildBtnLabel:   s.testsBuild ? '← До тестів' : '✦ Створити тест',
+      buildBtnBg:      s.testsBuild ? 'rgba(255,255,255,0.06)' : 'rgba(255,215,0,0.12)',
+      buildBtnBorder:  s.testsBuild ? 'rgba(255,255,255,0.18)' : 'rgba(255,215,0,0.42)',
+      buildBtnColor:   s.testsBuild ? 'rgba(255,255,255,0.6)' : '#ffd700',
+      toggleTestsBuild: () => this.setState({ testsBuild: !s.testsBuild }),
+      userId:          s.userId || '',
       // «За персонажа» — лише СВОЇ анкети й лише тому, хто ввійшов:
       // картка результату підписується імʼям персонажа, а підписувати чужого —
       // це не гра, а підміна. Власника призначає адмін (`characters.owner_id`),
