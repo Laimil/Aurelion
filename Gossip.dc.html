@@ -1675,6 +1675,11 @@ class Component extends DCLogic {
     // Дописи рахує база тим самим способом, що й місця: у браузер їх не
     // тягнемо — стрічка чату це тисячі рядків, а потрібні числа.
     const [stand, posts] = await Promise.all([rpc('my_standing'), rpc('my_posts')]);
+    // Нуль у діаграмі має дві різні причини — «запит не вийшов» і «дописів
+    // за цими персонажами справді немає». З екрана вони на вигляд однакові.
+    console.log('аркуш: дописи —', posts && posts.error ? `помилка: ${posts.error}`
+      : posts && posts.missing ? 'таблиці marta_posts немає'
+      : posts ? `персонажів ${(posts.chars || []).length}, дописів ${posts.mine}, у стрічці ${posts.feed}` : 'запит не вийшов', posts);
 
     const ids = (this.state.owned || []).map((c) => String(c.id)).filter(Boolean);
     const bits = { gal: {}, links: {}, ment: {} };
