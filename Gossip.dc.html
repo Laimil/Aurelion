@@ -1668,9 +1668,14 @@ class Component extends DCLogic {
       try {
         const r = await this._api(`${SUPA_URL}/rpc/${fn}`, { method: 'POST', body: '{}' }, true);
         if (r.ok) return await r.json();
-        console.warn(`${fn}:`, r.status, await r.text());
-      } catch (e) { console.warn(`${fn}:`, e); }
-      return null;
+        const t = await r.text();
+        console.warn(`${fn}:`, r.status, t);
+        // Саме цей рядок і показуємо в аркуші: «не змогла
+        // порахувати» без причини посилає шукати в логах, яких ніхто не відкриває.
+        let why = '';
+        try { const j = JSON.parse(t); why = j.message || j.hint || j.details || ''; } catch (e) { why = String(t || '').slice(0, 160); }
+        return { error: `HTTP ${r.status}${why ? ` · ${why}` : ''}` };
+      } catch (e) { console.warn(`${fn}:`, e); return { error: String(e && e.message || e) }; }
     };
     // Дописи рахує база тим самим способом, що й місця: у браузер їх не
     // тягнемо — стрічка чату це тисячі рядків, а потрібні числа.
@@ -1743,7 +1748,9 @@ class Component extends DCLogic {
           ? 'Рахую дописи…'
           : (s.posts && s.posts.missing
             ? 'Стрічку дописів ще не заведено — числа з’являться, коли бот почне ловити дописи з тегами.'
-            : 'Рецепція не змогла порахувати дописи — схоже, міграцію supabase_cabinet_posts_migration.sql ще не прогнали.'),
+            : (s.posts && s.posts.error
+              ? `Рецепція не змогла порахувати дописи: ${s.posts.error}. Якщо міграцію вже прогнано, лишилося сказати PostgREST перечитати схему — у кінці supabase_cabinet_posts_migration.sql є рядок NOTIFY.`
+              : 'Рецепція не змогла порахувати дописи — схоже, міграцію supabase_cabinet_posts_migration.sql ще не прогнали.')),
       };
     }
 
