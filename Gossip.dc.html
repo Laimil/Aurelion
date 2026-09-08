@@ -423,6 +423,101 @@ a:hover{color:#fff}
           </div>
 
           <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Дописи за персонажів</p>
+            <sc-if value="{{ hasPostSummary }}" hint-placeholder-val="{{ false }}">
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:18px;text-wrap:pretty;">{{ postSummary }}</p>
+            </sc-if>
+
+            <sc-if value="{{ hasPosts }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:22px;">
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;">
+                  <sc-for list="{{ postTiles }}" as="t" hint-placeholder-count="4">
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:14px 12px;">
+                      <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:#ffd700;letter-spacing:0.02em;">{{ t.num }}</p>
+                      <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-top:6px;">{{ t.cap }}</p>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <div>
+                  <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:14px;">За місяцями · останні 12</p>
+                  <div style="padding-top:22px;">
+                  <div style="display:flex;align-items:flex-end;gap:6px;height:150px;padding:0 2px;border-bottom:1px solid rgba(255,255,255,0.1);">
+                    <sc-for list="{{ postMonths }}" as="m" hint-placeholder-count="12">
+                      <div style="flex:1;min-width:0;height:100%;position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;">
+                        <sc-if value="{{ m.hasTop }}" hint-placeholder-val="{{ true }}">
+                          <p style="position:absolute;left:0;right:0;bottom:calc({{ m.h }} + 4px);text-align:center;font-size:0.66rem;color:rgba(255,255,255,0.42);">{{ m.top }}</p>
+                        </sc-if>
+                        <div style="height:{{ m.h }};display:flex;flex-direction:column;justify-content:flex-end;border-radius:5px 5px 0 0;overflow:hidden;background:rgba(255,255,255,0.05);">
+                          <sc-for list="{{ m.parts }}" as="p" hint-placeholder-count="1">
+                            <div style="height:{{ p.h }};background:{{ p.color }};"></div>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  </div>
+                  <div style="display:flex;gap:6px;padding:8px 2px 0;">
+                    <sc-for list="{{ postMonths }}" as="m" hint-placeholder-count="12">
+                      <p style="flex:1;min-width:0;text-align:center;font-size:0.62rem;letter-spacing:0.04em;color:rgba(255,255,255,0.28);">{{ m.label }}</p>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px;">
+                    <sc-for list="{{ postLegend }}" as="l" hint-placeholder-count="2">
+                      <div style="display:flex;align-items:center;gap:7px;white-space:nowrap;">
+                        <span style="width:10px;height:10px;border-radius:3px;background:{{ l.color }};display:inline-block;"></span>
+                        <p style="font-size:0.76rem;color:rgba(255,255,255,0.5);">{{ l.name }} · {{ l.num }}</p>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <sc-if value="{{ hasPostBars }}" hint-placeholder-val="{{ true }}">
+                  <div>
+                    <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:14px;">За кожним персонажем</p>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                      <sc-for list="{{ postBars }}" as="c" hint-placeholder-count="2">
+                        <div>
+                          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:baseline;justify-content:space-between;">
+                            <p style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:#fff;letter-spacing:0.03em;">{{ c.name }}</p>
+                            <p style="font-size:0.78rem;color:rgba(255,215,0,0.7);">{{ c.num }}</p>
+                          </div>
+                          <div style="height:8px;border-radius:4px;background:rgba(255,255,255,0.06);margin-top:9px;overflow:hidden;">
+                            <div style="height:8px;border-radius:4px;background:{{ c.color }};width:{{ c.pct }};"></div>
+                          </div>
+                          <p style="font-size:0.74rem;color:rgba(255,255,255,0.3);margin-top:7px;line-height:1.5;">{{ c.meta }}</p>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ hasPostArcs }}" hint-placeholder-val="{{ false }}">
+                  <div>
+                    <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:14px;">За арками</p>
+                    <div style="display:flex;flex-direction:column;gap:9px;">
+                      <sc-for list="{{ postArcs }}" as="a" hint-placeholder-count="3">
+                        <div style="display:flex;gap:14px;align-items:center;">
+                          <p style="flex:0 0 34%;font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.4;">{{ a.arc }}</p>
+                          <div style="flex:1;min-width:0;height:7px;border-radius:4px;background:rgba(255,255,255,0.06);overflow:hidden;">
+                            <div style="height:7px;border-radius:4px;background:rgba(100,149,237,0.75);width:{{ a.pct }};"></div>
+                          </div>
+                          <p style="flex:0 0 auto;font-size:0.74rem;color:rgba(255,255,255,0.34);">{{ a.num }}</p>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-if>
+
+              </div>
+            </sc-if>
+            <sc-if value="{{ noPosts }}" hint-placeholder-val="{{ true }}">
+              <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">{{ postsNote }}</p>
+            </sc-if>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:16px;">✦ Ваші заявки</p>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;">
               <sc-for list="{{ subTiles }}" as="t" hint-placeholder-count="6">
@@ -1569,12 +1664,17 @@ class Component extends DCLogic {
       } catch (e) { console.warn('аркуш:', q, e); return []; }
     };
 
-    let stand = null;
-    try {
-      const r = await this._api(`${SUPA_URL}/rpc/my_standing`, { method: 'POST', body: '{}' }, true);
-      if (r.ok) stand = await r.json();
-      else console.warn('my_standing:', r.status, await r.text());
-    } catch (e) { console.warn('my_standing:', e); }
+    const rpc = async (fn) => {
+      try {
+        const r = await this._api(`${SUPA_URL}/rpc/${fn}`, { method: 'POST', body: '{}' }, true);
+        if (r.ok) return await r.json();
+        console.warn(`${fn}:`, r.status, await r.text());
+      } catch (e) { console.warn(`${fn}:`, e); }
+      return null;
+    };
+    // Дописи рахує база тим самим способом, що й місця: у браузер їх не
+    // тягнемо — стрічка чату це тисячі рядків, а потрібні числа.
+    const [stand, posts] = await Promise.all([rpc('my_standing'), rpc('my_posts')]);
 
     const ids = (this.state.owned || []).map((c) => String(c.id)).filter(Boolean);
     const bits = { gal: {}, links: {}, ment: {} };
@@ -1592,7 +1692,7 @@ class Component extends DCLogic {
       mTo.forEach((m) => bump(bits.ment, m.to_id));
       mFrom.forEach((m) => bump(bits.ment, m.from_id));
     }
-    this.setState({ stand, bits, statsBusy: false });
+    this.setState({ stand, posts, bits, statsBusy: false });
   }
 
   _ago(iso) {
@@ -1619,6 +1719,116 @@ class Component extends DCLogic {
   _place(rank, of) {
     if (!rank || !of) return '';
     return `${rank}-те місце з ${of}`;
+  }
+
+  // ── дописи за персонажів ──────────────────────────────────
+  // Один рядок з тегом у чаті — один допис; хто саме писав, видно з
+  // тегу. Тому це єдине число в аркуші, що показує не обсяг анкети, а
+  // те, чи персонажем справді грають.
+  _postVals() {
+    const s = this.state;
+    const p = s.posts && !s.posts.error && !s.posts.missing ? s.posts : null;
+    const num = (v) => Number(v || 0).toLocaleString('uk-UA');
+    if (!p) {
+      return {
+        hasPosts: false, noPosts: true, postsBy: {},
+        postTiles: [], postBars: [], postMonths: [], postLegend: [], postArcs: [],
+        hasPostArcs: false, hasPostBars: false, postSummary: '', hasPostSummary: false, postTotalNum: '0',
+        postsNote: s.statsBusy
+          ? 'Рахую дописи…'
+          : (s.posts && s.posts.missing
+            ? 'Стрічку дописів ще не заведено — числа з’являться, коли бот почне ловити дописи з тегами.'
+            : 'Рецепція не змогла порахувати дописи — схоже, міграцію supabase_cabinet_posts_migration.sql ще не прогнали.'),
+      };
+    }
+
+    // Колір закріплюється за персонажем один раз і тримається в обох
+    // діаграмах — інакше стовпчик і смужка кажуть про різних людей.
+    const PAL = ['#ffd700', '#6495ed', '#4fb3a5', '#c05070', '#b9bec9', '#8a7bd8', '#e0a24a'];
+    const chars = (p.chars || []).slice();
+    const color = {};
+    chars.forEach((c, i) => { color[String(c.id)] = PAL[i % PAL.length]; });
+
+    const total = chars.reduce((a, c) => a + (c.posts || 0), 0);
+    const peak = Math.max(1, ...chars.map((c) => c.posts || 0));
+    const postsBy = {};
+    chars.forEach((c) => { postsBy[String(c.id)] = c.posts || 0; });
+
+    const postBars = chars.map((c) => ({
+      key: String(c.id),
+      name: `${c.name}${c.alias ? ` «${c.alias}»` : ''}`,
+      num: `${num(c.posts)} ${this._plural(c.posts || 0, 'допис', 'дописи', 'дописів')}`,
+      pct: `${Math.round(((c.posts || 0) / peak) * 100)}%`,
+      share: total ? `${Math.round(((c.posts || 0) / total) * 100)}%` : '—',
+      color: color[String(c.id)],
+      meta: (c.posts || 0)
+        ? [
+          `${c.arcs || 0} ${this._plural(c.arcs || 0, 'арка', 'арки', 'арок')}`,
+          c.last ? `останній ${this._ago(c.last)}` : '',
+          total ? `${Math.round(((c.posts || 0) / total) * 100)}% ваших дописів` : '',
+        ].filter(Boolean).join(' · ')
+        : 'жодного допису з тегом — персонаж поки що тільки в теці',
+    }));
+
+    const MON = ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру'];
+    const months = p.months || [];
+    const mpeak = Math.max(1, ...months.map((m) => m.total || 0));
+    const postMonths = months.map((m) => {
+      const tt = m.total || 0;
+      const parts = (m.parts || []).slice().sort((a, b) => (b.n || 0) - (a.n || 0));
+      return {
+        key: String(m.m),
+        label: MON[Number(String(m.m).slice(5, 7)) - 1] || String(m.m),
+        h: `${tt ? Math.max(3, Math.round((tt / mpeak) * 100)) : 0}%`,
+        top: tt ? String(tt) : '',
+        hasTop: tt > 0,
+        parts: parts.map((x) => ({
+          key: String(m.m) + ':' + String(x.id),
+          h: `${((x.n || 0) / (tt || 1)) * 100}%`,
+          color: color[String(x.id)] || 'rgba(255,255,255,0.28)',
+        })),
+      };
+    });
+
+    const lastMonth = months.length ? (months[months.length - 1].total || 0) : 0;
+    const live = chars.filter((c) => (c.posts || 0) > 0).length;
+    const arcs = (p.arcs || []).filter((a) => (a.n || 0) > 0);
+    const apeak = Math.max(1, ...arcs.map((a) => a.n || 0));
+
+    const summary = [];
+    if (total) {
+      summary.push(`Усього ${num(total)} ${this._plural(total, 'допис', 'дописи', 'дописів')} за ${live} ${this._plural(live, 'персонажа', 'персонажів', 'персонажів')}.`);
+      if (p.last) summary.push(`Останній — ${this._ago(p.last)}.`);
+      if (p.all) summary.push(`У стрічці всього ${num(p.all)} дописів із тегами.`);
+    } else {
+      summary.push('За вашими персонажами дописів із тегами ще не ловили. Тег ставиться двома хештегами на початку допису: #Ім’я_персонажа #Назва_арки.');
+    }
+
+    return {
+      hasPosts: true, noPosts: false, postsBy,
+      postTotalNum: num(total),
+      postTiles: [
+        { key: 'p1', num: num(total), cap: 'дописів усього' },
+        { key: 'p2', num: String(live), cap: 'персонажів у грі' },
+        { key: 'p3', num: String(arcs.length), cap: 'арок' },
+        { key: 'p4', num: num(lastMonth), cap: 'цього місяця' },
+      ],
+      postBars, hasPostBars: postBars.length > 0,
+      postMonths,
+      postLegend: chars.filter((c) => (c.posts || 0) > 0).map((c) => ({
+        key: String(c.id), name: c.name, color: color[String(c.id)],
+        num: `${num(c.posts)}`,
+      })),
+      postArcs: arcs.map((a) => ({
+        key: String(a.arc), arc: String(a.arc),
+        num: `${num(a.n)} ${this._plural(a.n, 'допис', 'дописи', 'дописів')}`,
+        pct: `${Math.round(((a.n || 0) / apeak) * 100)}%`,
+      })),
+      hasPostArcs: arcs.length > 0,
+      postSummary: summary.join(' '),
+      hasPostSummary: true,
+      postsNote: '',
+    };
   }
 
   _meVals() {
@@ -1663,6 +1873,12 @@ class Component extends DCLogic {
       { key: 'li', num: String(sum('links')), cap: 'ниток' },
       { key: 'go', num: String(st ? st.gossip.mine : posted), cap: 'пліток у чаті' },
     ];
+    const pv = this._postVals();
+    if (pv.hasPosts) meTotals.push({ key: 'po', num: pv.postTotalNum, cap: 'дописів у чаті' });
+    if (pv.hasPosts) rows.forEach((r) => {
+      const n = pv.postsBy[r.key] || 0;
+      r.meta += ` · ${n} ${this._plural(n, 'допис', 'дописи', 'дописів')} у чаті`;
+    });
 
     // Заявки. `decided_at` ставить адмін — тому середній час рахуємо
     // тільки по вирішених, а по тих, що лежать, показуємо найдовше чекання.
@@ -1697,6 +1913,11 @@ class Component extends DCLogic {
       { key: 'l', label: 'За обсягом написаного',
         value: st.letters.rank ? `${this._place(st.letters.rank, st.chars.of)} · ${num(st.letters.mine)} літер` : '—' },
     ] : [];
+    const pp = s.posts && !s.posts.error && !s.posts.missing ? s.posts : null;
+    if (pp) standRows.push({
+      key: 'p', label: 'За дописами в чаті',
+      value: pp.rank ? `${this._place(pp.rank, pp.of)} · ${pp.mine} з ${pp.all}` : 'ще жодного',
+    });
 
     const STATUS = { approved: 'доступ відкрито', pending: 'аркуш на розгляді', blocked: 'кабінет зачинено' };
     const nick = prof.nick || 'Гість';
@@ -1713,6 +1934,7 @@ class Component extends DCLogic {
         : 'Усе, що записано за вами в картотеці. Ці числа бачите тільки ви.',
       meTotals, meRows: rows, hasMeRows: rows.length > 0, noMeRows: rows.length === 0,
       subTiles, subNote: parts.join(' '),
+      ...pv,
       standRows, hasStand: standRows.length > 0, noStand: standRows.length === 0,
       standNote: s.statsBusy
         ? 'Рахую…'
