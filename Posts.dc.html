@@ -7,6 +7,10 @@
 </head>
 <body>
 <x-dc>
+<helmet>
+  <!-- Плеєр живе поза цим деревом і не гасне на перемалюваннях стрічки. -->
+  <script src="./au-player.js"></script>
+</helmet>
 <div style="font-family:Arial,sans-serif;">
   <sc-if value="{{ isLoad }}" hint-placeholder-val="{{ true }}">
     <p style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.9rem;padding:40px 0;">Відчиняю стрічку…</p>
@@ -112,6 +116,22 @@
               <sc-if value="{{ p.clipped }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ p.open }}" style="cursor:pointer;margin-top:10px;border:none;background:none;padding:0;color:rgba(255,215,0,0.7);font-size:0.8rem;">Читати далі →</button>
               </sc-if>
+              <!-- Музика допису: клік підхоплює трек у панель унизу,
+                   а чергою стає вся завантажена стрічка — дальше грає само. -->
+              <sc-if value="{{ p.hasTracks }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;padding-top:13px;border-top:1px solid rgba(255,255,255,0.07);">
+                  <sc-for list="{{ p.tracks }}" as="t" hint-placeholder-count="1">
+                    <div style="display:flex;align-items:center;gap:12px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:10px;padding:9px 12px 9px 10px;">
+                      <button onClick="{{ t.play }}" title="{{ t.hint }}" style="cursor:pointer;flex:none;width:34px;height:34px;border-radius:999px;background:rgba(255,215,0,0.13);border:1px solid rgba(255,215,0,0.42);color:#ffd700;font-size:0.82rem;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.24);box-shadow:0 0 16px rgba(255,215,0,0.28);">{{ t.icon }}</button>
+                      <div style="flex:1;min-width:0;">
+                        <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.35;color:{{ t.ink }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ t.title }}</p>
+                        <p style="margin:2px 0 0;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);">{{ t.meta }}</p>
+                      </div>
+                      <a href="{{ t.url }}" target="_blank" rel="noopener" title="Відкрити на YouTube" style="flex:none;font-size:0.7rem;color:rgba(255,255,255,0.26);text-decoration:none;">↷</a>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
             </article>
           </sc-for>
         </div>
@@ -147,6 +167,10 @@ const POST_SEL = 'id,tag_name,tag_arc,character_id,character_name,body,parts,cre
 // Графа parts з’являється лише після supabase_marta_posts_parts_migration.sql —
 // без неї стрічка мусить працювати, а не лягати на помилку запиту.
 const POST_SEL_LEAN = POST_SEL.replace(',parts', '');
+// Музика допису — окремим запитом на вже завантажену сторінку: треки є
+// далеко не в кожному дописі, і тягнути їх разом із тілом усіх дописів —
+// це більше полотна заради двох рядків.
+const TRACK_SEL = 'id,post_id,video_id,url,title,author,tag_name,tag_arc';
 
 // ── Написання арок ──────────────────────────────────
 // Теги набирають руками, тому та сама арка лежить у базі кількома
@@ -218,6 +242,8 @@ class Component extends DCLogic {
     filtOpen: false, tagsPhase: 'none', chars: [], arcs: [], q: '',
     allChars: false, allArcs: false, open: {},
     hashPostId: null, linkCopiedId: null,
+    // треки: postId → [рядки]; порожній масив означає «питали, музики немає»
+    tracks: {}, noAudio: false, nowVid: null, nowPlay: false,
   };
 
   // Ключ доступу живе годину, а стрічку відкривають і без кабінету у
@@ -282,6 +308,9 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
+    // Плеєр під'їжджає окремим файлом і може ще не бути тут на момент
+    // монтування — чекаємо його кілька секунд, а не один кадр.
+    this._hookPlayer();
     // Порядок читання — це вибір читача, і він мусить жити між заходами:
     // арку читають від початку за кілька вечорів.
     try {
@@ -316,6 +345,81 @@ class Component extends DCLogic {
   // Пропси читаються не лише на монтуванні: сторінка живе між переходами,
   // тому спорожнілий відбір (пішли зі стрічки) або інша арка (другий клік
   // в анкеті) мусять доїхати сюди, інакше стрічка лишається відібраною.
+  componentWillUnmount() {
+    clearInterval(this._hookTimer);
+    clearTimeout(this._copyTimer);
+  }
+
+  // Позначка «грає» у стрічці йде від панелі, а не від кліку: трек можуть
+  // переключити з самої панелі або з аудіотеки — і стрічка мусить це бачити.
+  _hookPlayer() {
+    let left = 30;
+    const tie = () => {
+      if (!window.AuPlayer) return --left > 0;
+      window.AuPlayer.onChange((vid, on) => this.setState({ nowVid: vid, nowPlay: on }));
+      const cur = window.AuPlayer.current();
+      if (cur) this.setState({ nowVid: cur.vid, nowPlay: cur.playing });
+      return false;
+    };
+    if (!tie()) return;
+    this._hookTimer = setInterval(() => { if (!tie()) clearInterval(this._hookTimer); }, 200);
+  }
+
+  // Музика для тілько що принесених дописів. Таблиці може ще не бути
+  // (міграція не прогнана) — тоді стрічка працює як раніше, без музики,
+  // і більше не питає.
+  async _loadTracks(rows) {
+    if (this.state.noAudio) return;
+    const have = this.state.tracks || {};
+    const ids = (rows || []).map((p) => String(p.id)).filter((id) => !(id in have));
+    if (!ids.length) return;
+    try {
+      const r = await this._api(
+        `${SUPA_URL}/marta_tracks?select=${TRACK_SEL}&hidden=is.false`
+        + `&post_id=in.(${ids.join(',')})&order=id.asc`,
+      );
+      if (!r.ok) {
+        console.warn('музика: треки не відповіли —', await r.text(),
+          '(прогнати supabase_audio_migration.sql)');
+        this.setState({ noAudio: true });
+        return;
+      }
+      const got = await r.json();
+      const add = {};
+      ids.forEach((id) => { add[id] = []; });
+      got.forEach((t) => { (add[String(t.post_id)] || (add[String(t.post_id)] = [])).push(t); });
+      this.setState((st) => ({ tracks: { ...st.tracks, ...add } }));
+    } catch (e) {
+      console.warn('музика:', e);
+      this.setState({ noAudio: true });
+    }
+  }
+
+  // Черга — уся завантажена стрічка в порядку читання: натискаючи на пісню
+  // в середині арки, людина чекає, що далі заграє наступна сцена, а не тиша.
+  _queue() {
+    const map = this.state.tracks || {};
+    const out = [];
+    (this.state.posts || []).forEach((p) => {
+      (map[String(p.id)] || []).forEach((t) => out.push({
+        vid: t.video_id, title: t.title || '', author: t.author || '',
+        name: p.character_name || p.tag_name || '', arc: splitArcs(p.tag_arc).join(' / '),
+        postId: p.id,
+      }));
+    });
+    return out;
+  }
+
+  _play(vid, postId) {
+    if (!window.AuPlayer) return;
+    const cur = window.AuPlayer.current();
+    // Клік по тому, що вже грає, — це пауза, а не початок з нуля.
+    if (cur && cur.vid === vid) { window.AuPlayer.toggle(); return; }
+    const q = this._queue();
+    const hit = q.find((t) => t.vid === vid && String(t.postId) === String(postId));
+    window.AuPlayer.play(hit || { vid: vid, postId: postId }, q);
+  }
+
   componentDidUpdate(prevProps) {
     const was = [prevProps.preChar || '', prevProps.preArc || ''].join('|');
     const now = [this.props.preChar || '', this.props.preArc || ''].join('|');
@@ -338,7 +442,7 @@ class Component extends DCLogic {
       if (!got.length) return;
       this.setState((st) => ({
         posts: [got[0]].concat(st.posts.filter((p) => String(p.id) !== String(id))),
-      }), () => this._openAndScroll(id));
+      }), () => { this._openAndScroll(id); this._loadTracks(got); });
     } catch (e) { console.warn('пости: не знайшла допис за посиланням', e); }
   }
 
@@ -454,7 +558,7 @@ class Component extends DCLogic {
         phase: 'ok', busy: false, more,
         off: off + rows.length,
         posts: reset ? rows : st.posts.concat(rows),
-      }));
+      }), () => this._loadTracks(rows));
     } catch (e) {
       this.setState({ phase: 'error', busy: false, err: String(e) });
     }
@@ -571,8 +675,25 @@ class Component extends DCLogic {
     const s = this.state;
     const rows = (s.posts || []).map((p) => {
       const cl = this._clip(p);
+      const mine = (s.tracks || {})[String(p.id)] || [];
       return {
         id: p.id,
+        hasTracks: mine.length > 0,
+        tracks: mine.map((t) => {
+          const on = s.nowVid === t.video_id;
+          return {
+            title: t.title || 'Пісня з допису',
+            meta: on && s.nowPlay ? '♦ грає зараз'
+              : t.author ? t.author : 'музика сцени',
+            icon: on && s.nowPlay ? '❙❙' : '▶',
+            hint: on && s.nowPlay ? 'Пауза' : 'Грати з цього треку й далі стрічкою',
+            url: t.url || ('https://youtu.be/' + t.video_id),
+            bg: on ? 'rgba(255,215,0,0.07)' : 'rgba(0,0,0,0.22)',
+            border: on ? 'rgba(255,215,0,0.42)' : 'rgba(255,255,255,0.1)',
+            ink: on ? '#fff' : 'rgba(255,255,255,0.72)',
+            play: () => this._play(t.video_id, p.id),
+          };
+        }),
         name: p.character_name || p.tag_name,
         arcs: splitArcs(p.tag_arc),
         when: this._fmt(p.created_at),

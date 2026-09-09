@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="./au-player.js"></script>
+</helmet>
+<div style="font-family:Arial,sans-serif;">
+  <sc-if value="{{ isLoad }}" hint-placeholder-val="{{ true }}">
+    <p style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.9rem;padding:40px 0;">Заводжу грамофон…</p>
+  </sc-if>
+  <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
+    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);margin-bottom:16px;">Аудіотека — для тих, хто увійшов у кабінет.</p>
+      <a href="#cabinet" style="display:inline-block;padding:9px 20px;border-radius:999px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:#ffd700;text-decoration:none;font-size:0.85rem;">Увійти в кабінет</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isLocked }}" hint-placeholder-val="{{ false }}">
+    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);margin-bottom:16px;">Доступ ще на розгляді. Щойно рецепція відкриє кабінет — музика зі стрічки з'явиться тут.</p>
+      <a href="#cabinet" style="display:inline-block;padding:9px 20px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.7);text-decoration:none;font-size:0.85rem;">До кабінету</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isNone }}" hint-placeholder-val="{{ false }}">
+    <div style="text-align:center;padding:56px 24px;border:1px dashed rgba(255,255,255,0.12);border-radius:15px;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;font-style:italic;color:rgba(255,255,255,0.45);margin-bottom:12px;">Полиця порожня.</p>
+      <p style="font-size:0.9rem;color:rgba(255,255,255,0.3);line-height:1.7;">Кидайте посилання на пісню просто в допис рольового чату —<br>Марта підшиє її сюди сама, під ту саму арку.</p>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+    <p style="text-align:center;color:rgba(255,77,77,0.75);font-size:0.9rem;padding:40px 0;">Аудіотека не відповіла. {{ errHint }}</p>
+  </sc-if>
+
+  <sc-if value="{{ isOk }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <button onClick="{{ playAll }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:10px 22px;font-family:'Cinzel',Georgia,serif;font-size:0.84rem;font-weight:700;letter-spacing:0.05em;background:rgba(255,215,0,0.13);border:1px solid rgba(255,215,0,0.42);color:#ffd700;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.24);box-shadow:0 0 20px rgba(255,215,0,0.28);">▶ {{ playAllLabel }}</button>
+        <button onClick="{{ shuffle }}" title="Навмання" style="cursor:pointer;border-radius:999px;padding:10px 18px;font-size:0.82rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">⇄ Навмання</button>
+        <button onClick="{{ flipSort }}" style="cursor:pointer;border-radius:999px;padding:10px 18px;font-size:0.82rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">{{ sortLabel }}</button>
+        <span style="flex:1;"></span>
+        <span style="font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.28);">{{ stats }}</span>
+      </div>
+
+      <input type="text" value="{{ q }}" onInput="{{ setQ }}" placeholder="Пісня, персонаж, арка…" style="width:100%;box-sizing:border-box;margin-bottom:14px;border-radius:999px;padding:10px 18px;font-size:0.86rem;font-family:Arial,sans-serif;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.85);outline:none;">
+
+      <sc-if value="{{ hasArcs }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-bottom:10px;">
+          <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 8px;">Арка</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <sc-for list="{{ arcChips }}" as="a" hint-placeholder-count="3">
+              <button onClick="{{ pickArc }}" data-v="{{ a.name }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:{{ a.bg }};border:1px solid {{ a.border }};color:{{ a.color }};">{{ a.name }} <span style="opacity:0.5;">{{ a.n }}</span></button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasChars }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-bottom:22px;">
+          <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin:0 0 8px;">Персонаж</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <sc-for list="{{ charChips }}" as="c" hint-placeholder-count="4">
+              <button onClick="{{ pickChar }}" data-v="{{ c.name }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:{{ c.bg }};border:1px solid {{ c.border }};color:{{ c.color }};">{{ c.name }} <span style="opacity:0.5;">{{ c.n }}</span></button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasPick }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0 0 18px;font-size:0.8rem;color:rgba(255,215,0,0.72);">{{ pickLabel }} <button onClick="{{ clearFilt }}" style="cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.4);font-size:0.78rem;text-decoration:underline;padding:0 0 0 8px;">скинути</button></p>
+      </sc-if>
+
+      <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:16px;">
+          <sc-for list="{{ rows }}" as="t" hint-placeholder-count="6">
+            <article style="background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:15px;overflow:hidden;display:flex;flex-direction:column;transition:all 0.3s ease;box-shadow:0 10px 30px rgba(0,0,0,0.35);" style-hover="transform:translateY(-5px);box-shadow:0 18px 44px rgba(0,0,0,0.5);">
+              <div onClick="{{ t.play }}" title="{{ t.hint }}" style="position:relative;aspect-ratio:16/9;background-image:url({{ t.thumbUrl }});background-size:cover;background-position:center;cursor:pointer;">
+                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,12,0.92) 0%,rgba(12,12,12,0.15) 62%,rgba(12,12,12,0) 100%);"></div>
+                <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:999px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,215,0,0.5);color:#ffd700;display:flex;align-items:center;justify-content:center;font-size:1rem;">{{ t.icon }}</div>
+                <sc-if value="{{ t.many }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;right:8px;top:8px;font-size:0.64rem;letter-spacing:0.08em;padding:3px 9px;border-radius:999px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);">{{ t.timesLabel }}</span>
+                </sc-if>
+              </div>
+              <div style="padding:13px 15px 15px;display:flex;flex-direction:column;gap:7px;flex:1;">
+                <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;line-height:1.4;letter-spacing:0.02em;color:{{ t.ink }};text-wrap:pretty;">{{ t.title }}</p>
+                <sc-if value="{{ t.hasAuthor }}" hint-placeholder-val="{{ false }}">
+                  <p style="margin:0;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);">{{ t.author }}</p>
+                </sc-if>
+                <span style="flex:1;"></span>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <sc-for list="{{ t.arcs }}" as="ta" hint-placeholder-count="1">
+                    <span style="font-size:0.66rem;letter-spacing:0.05em;padding:3px 10px;border-radius:999px;background:rgba(100,149,237,0.14);border:1px solid rgba(100,149,237,0.32);color:#8fb0ff;">{{ ta }}</span>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+                  <a href="{{ t.postHref }}" style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.88rem;color:rgba(255,215,0,0.8);text-decoration:none;">{{ t.who }} ↗</a>
+                  <span style="font-size:0.68rem;color:rgba(255,255,255,0.24);">{{ t.when }}</span>
+                </div>
+              </div>
+            </article>
+          </sc-for>
+        </div>
+        <sc-if value="{{ hasMore }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:26px 0 6px;">
+            <button onClick="{{ loadMore }}" style="cursor:pointer;border-radius:999px;padding:9px 22px;font-size:0.84rem;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;">{{ moreLabel }}</button>
+          </div>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}">
+        <p style="text-align:center;color:rgba(255,255,255,0.32);font-size:0.9rem;padding:40px 0;">✦ Під цей відбір музики немає.</p>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:760}}">
+const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const BASE_H    = { apikey: SUPA_KEY };
+
+const PAGE = 60;   // рядків треків за раз (пісень виходить менше — вони склеюються)
+const SEL  = 'id,post_id,video_id,url,title,author,tag_name,tag_arc,character_id,character_name,day,created_at';
+
+const ARC_SEP = ' / ';
+function splitArcs(v) {
+  return String(v || '').split(ARC_SEP).map((s) => s.trim()).filter(Boolean);
+}
+const fold = (x) => String(x || '').toLowerCase()
+  .replace(/[ʼ'’`ь]/g, '').replace(/[іїий]/g, 'и').replace(/[еє]/g, 'е');
+
+class Component extends DCLogic {
+  state = {
+    phase: 'load', err: '', raw: [], off: 0, more: false, busy: false,
+    fArc: [], fChar: [], q: '', sort: 'new',
+    nowVid: null, nowPlay: false,
+  };
+
+  // ── Ключ доступу: те саме оновлення заздалегідь + повтор на 401, що в
+  // стрічці й кабінеті. Аудіотеку відкривають окремо від кабінету, тому
+  // без цього «увійдіть знову» вилазило б щогодини саме тут.
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _ref() { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
+  _exp() { try { return Number(localStorage.getItem('au_user_exp')) || 0; } catch (e) { return 0; } }
+  _h() { return { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` }; }
+  _save(d) {
+    try {
+      if (!d || !d.access_token) return;
+      localStorage.setItem('au_user_token', d.access_token);
+      if (d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+      const ttl = Math.max(60, Number(d.expires_in) || 3600);
+      localStorage.setItem('au_user_exp', String(Date.now() + ttl * 1000));
+    } catch (e) {}
+  }
+  async _refresh(force) {
+    const rt = this._ref();
+    if (!rt) return !!this._tok();
+    if (!force && this._exp() - Date.now() > 5 * 60 * 1000) return true;
+    try {
+      const r = await fetch(`${SUPA_AUTH}/token?grant_type=refresh_token`, {
+        method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: rt }),
+      });
+      let d = null;
+      try { d = await r.json(); } catch (e) {}
+      if (d && d.access_token) { this._save(d); return true; }
+    } catch (e) {}
+    return !!this._tok();
+  }
+  _renew(force) {
+    if (this._job) return this._job;
+    const done = (ok) => { this._job = null; return ok; };
+    this._job = this._refresh(force).then(done, () => done(false));
+    return this._job;
+  }
+  async _api(url) {
+    if (this._ref() && (!this._exp() || this._exp() - Date.now() < 5 * 60 * 1000)) await this._renew(true);
+    const go = () => fetch(url, { headers: this._h() });
+    let r = await go();
+    if (r.status === 401 && await this._renew(true)) r = await go();
+    return r;
+  }
+
+  componentDidMount() {
+    this._hookPlayer();
+    this._load();
+  }
+  componentWillUnmount() { clearInterval(this._hookTimer); }
+
+  _hookPlayer() {
+    let left = 30;
+    const tie = () => {
+      if (!window.AuPlayer) return --left > 0;
+      window.AuPlayer.onChange((vid, on) => this.setState({ nowVid: vid, nowPlay: on }));
+      const cur = window.AuPlayer.current();
+      if (cur) this.setState({ nowVid: cur.vid, nowPlay: cur.playing });
+      return false;
+    };
+    if (!tie()) return;
+    this._hookTimer = setInterval(() => { if (!tie()) clearInterval(this._hookTimer); }, 200);
+  }
+
+  async _load() {
+    if (!this._tok() && !this._ref()) { this.setState({ phase: 'guest' }); return; }
+    try {
+      const ur = await this._api(`${SUPA_AUTH}/user`);
+      if (!ur.ok) { this.setState({ phase: 'guest' }); return; }
+      const u = await ur.json();
+      const sr = await this._api(`${SUPA_URL}/site_users?id=eq.${u.id}&select=status`);
+      const prof = sr.ok ? (await sr.json())[0] : null;
+      if (!prof || prof.status !== 'approved') { this.setState({ phase: 'locked' }); return; }
+      await this._page(true);
+    } catch (e) {
+      this.setState({ phase: 'error', err: String(e) });
+    }
+  }
+
+  // Відбір рахує браузер, а не база: пісня склеюється з кількох рядків
+  // (той самий трек у трьох дописах), і фільтр по арці мусить бачити всі
+  // три — інакше «звучала 3 рази» перетворювалося б на три різні картки.
+  async _page(reset) {
+    const off = reset ? 0 : this.state.off;
+    this.setState({ busy: true });
+    try {
+      const r = await this._api(
+        `${SUPA_URL}/marta_tracks?select=${SEL}&hidden=is.false`
+        + `&order=created_at.desc&limit=${PAGE + 1}&offset=${off}`,
+      );
+      if (!r.ok) {
+        const txt = await r.text();
+        console.warn('аудіотека:', txt);
+        this.setState({
+          phase: 'error', busy: false,
+          err: /marta_tracks/.test(txt) ? 'migration' : txt,
+        });
+        return;
+      }
+      const got = await r.json();
+      const more = got.length > PAGE;
+      const rows = more ? got.slice(0, PAGE) : got;
+      this.setState((st) => {
+        const raw = reset ? rows : st.raw.concat(rows);
+        return {
+          phase: raw.length ? 'ok' : 'none', busy: false, more,
+          off: off + rows.length, raw,
+        };
+      });
+    } catch (e) {
+      this.setState({ phase: 'error', busy: false, err: String(e) });
+    }
+  }
+
+  // Пісня = video_id. Рядки з різних дописів зливаються в одну картку, а
+  // кожна поява лишається в `uses` — з неї й беруться арки, персонажі й
+  // «звучала N разів».
+  _songs() {
+    const box = new Map();
+    (this.state.raw || []).forEach((t) => {
+      const key = t.video_id;
+      let s = box.get(key);
+      if (!s) {
+        s = {
+          vid: key, url: t.url || ('https://youtu.be/' + key),
+          title: t.title || '', author: t.author || '',
+          arcs: [], who: [], uses: [], last: t.created_at,
+        };
+        box.set(key, s);
+      }
+      if (!s.title && t.title) s.title = t.title;
+      if (!s.author && t.author) s.author = t.author;
+      const name = t.character_name || t.tag_name || '';
+      if (name && !s.who.includes(name)) s.who.push(name);
+      splitArcs(t.tag_arc).forEach((a) => { if (!s.arcs.includes(a)) s.arcs.push(a); });
+      s.uses.push({ postId: t.post_id, name, arc: splitArcs(t.tag_arc).join(ARC_SEP), when: t.created_at });
+      if (new Date(t.created_at) > new Date(s.last)) s.last = t.created_at;
+    });
+    return [...box.values()];
+  }
+
+  _shown() {
+    const s = this.state;
+    const q = fold(s.q);
+    let list = this._songs().filter((t) => {
+      if (s.fArc.length && !t.arcs.some((a) => s.fArc.includes(a))) return false;
+      if (s.fChar.length && !t.who.some((w) => s.fChar.includes(w))) return false;
+      if (q) {
+        const hay = fold([t.title, t.author, t.who.join(' '), t.arcs.join(' ')].join(' '));
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    if (s.sort === 'often') list.sort((a, b) => b.uses.length - a.uses.length || new Date(b.last) - new Date(a.last));
+    else list.sort((a, b) => new Date(b.last) - new Date(a.last));
+    return list;
+  }
+
+  _queue(list) {
+    return list.map((t) => ({
+      vid: t.vid, title: t.title, author: t.author,
+      name: t.who.join(', '), arc: t.arcs.join(ARC_SEP),
+      postId: t.uses.length ? t.uses[t.uses.length - 1].postId : null,
+    }));
+  }
+
+  _play(vid) {
+    if (!window.AuPlayer) return;
+    const cur = window.AuPlayer.current();
+    if (cur && cur.vid === vid) { window.AuPlayer.toggle(); return; }
+    const q = this._queue(this._shown());
+    const i = q.findIndex((t) => t.vid === vid);
+    window.AuPlayer.playQueue(q, i < 0 ? 0 : i);
+  }
+
+  _fmt(iso) {
+    try {
+      return new Date(iso).toLocaleDateString('uk-UA', {
+        timeZone: 'Europe/Kyiv', day: 'numeric', month: 'long',
+      });
+    } catch (e) { return ''; }
+  }
+
+  _pill(on) {
+    return on
+      ? { bg: 'rgba(255,215,0,0.14)', border: 'rgba(255,215,0,0.5)', color: '#ffd700' }
+      : { bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.6)' };
+  }
+
+  _tally(pick) {
+    const n = new Map();
+    this._songs().forEach((t) => pick(t).forEach((v) => n.set(v, (n.get(v) || 0) + 1)));
+    return [...n.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'uk'));
+  }
+
+  _flip(key, v) {
+    const cur = this.state[key];
+    this.setState({ [key]: cur.includes(v) ? cur.filter((x) => x !== v) : cur.concat(v) });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const list = s.phase === 'ok' ? this._shown() : [];
+    const songs = s.phase === 'ok' ? this._songs() : [];
+    const plural = (n, a, b, c) => n % 10 === 1 && n % 100 !== 11 ? a
+      : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? b : c);
+    const posts = new Set(); const arcs = new Set();
+    songs.forEach((t) => { t.uses.forEach((u) => posts.add(u.postId)); t.arcs.forEach((a) => arcs.add(a)); });
+    const pick = s.fArc.concat(s.fChar).join(' · ');
+
+    return {
+      isLoad: s.phase === 'load',
+      isGuest: s.phase === 'guest',
+      isLocked: s.phase === 'locked',
+      isError: s.phase === 'error',
+      isNone: s.phase === 'none',
+      isOk: s.phase === 'ok',
+      errHint: s.err === 'migration'
+        ? 'Схоже, полиця ще не збита — треба прогнати supabase_audio_migration.sql.'
+        : 'Спробуйте пізніше.',
+
+      stats: `${songs.length} ${plural(songs.length, 'пісня', 'пісні', 'пісень')} · `
+        + `${posts.size} ${plural(posts.size, 'допис', 'дописи', 'дописів')} · `
+        + `${arcs.size} ${plural(arcs.size, 'арка', 'арки', 'арок')}`,
+
+      playAllLabel: pick || s.q ? 'Грати відібране' : 'Грати все',
+      playAll: () => { if (list.length) window.AuPlayer && window.AuPlayer.playQueue(this._queue(list), 0); },
+      shuffle: () => {
+        if (!list.length || !window.AuPlayer) return;
+        const q = this._queue(list);
+        for (let i = q.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [q[i], q[j]] = [q[j], q[i]];
+        }
+        window.AuPlayer.playQueue(q, 0);
+      },
+      sortLabel: s.sort === 'often' ? '♻ Найчастіші' : '↓ Спершу нові',
+      flipSort: () => this.setState({ sort: s.sort === 'often' ? 'new' : 'often' }),
+
+      q: s.q,
+      setQ: (e) => this.setState({ q: e.target.value }),
+      arcChips: this._tally((t) => t.arcs).slice(0, 14)
+        .map(([name, n]) => ({ name, n, ...this._pill(s.fArc.includes(name)) })),
+      charChips: this._tally((t) => t.who).slice(0, 14)
+        .map(([name, n]) => ({ name, n, ...this._pill(s.fChar.includes(name)) })),
+      hasArcs: arcs.size > 0,
+      hasChars: songs.some((t) => t.who.length),
+      pickArc: (e) => this._flip('fArc', e.currentTarget.dataset.v),
+      pickChar: (e) => this._flip('fChar', e.currentTarget.dataset.v),
+      hasPick: !!pick,
+      pickLabel: pick,
+      clearFilt: () => this.setState({ fArc: [], fChar: [], q: '' }),
+
+      hasRows: list.length > 0,
+      noRows: s.phase === 'ok' && list.length === 0,
+      rows: list.map((t) => {
+        const on = s.nowVid === t.vid;
+        const last = t.uses[t.uses.length - 1] || {};
+        return {
+          title: t.title || 'Пісня з допису',
+          hasAuthor: !!t.author,
+          author: t.author,
+          arcs: t.arcs.slice(0, 3),
+          who: t.who.slice(0, 2).join(', ') || 'у стрічці',
+          when: this._fmt(t.last),
+          many: t.uses.length > 1,
+          timesLabel: t.uses.length + '×',
+          // Обкладинка — кадр із самого відео, свого малюнка тут не буває.
+          thumbUrl: `https://i.ytimg.com/vi/${t.vid}/mqdefault.jpg`,
+          postHref: last.postId != null ? '#posts/' + encodeURIComponent(last.postId) : '#posts',
+          icon: on && s.nowPlay ? '❙❙' : '▶',
+          hint: on && s.nowPlay ? 'Пауза' : 'Грати з цієї пісні й далі полицею',
+          bg: on ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.07)',
+          border: on ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.13)',
+          ink: on ? '#fff' : 'rgba(255,255,255,0.86)',
+          play: () => this._play(t.vid),
+        };
+      }),
+      hasMore: s.more,
+      moreLabel: s.busy ? 'Гортаю…' : 'Показати ще',
+      loadMore: () => { if (!s.busy) this._page(false); },
+    };
+  }
+}
+</script>
+</body>
+</html>
