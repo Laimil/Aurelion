@@ -341,4 +341,55 @@
   } else {
     setTimeout(function () { window.AuPlayer.restore(); }, 0);
   }
+
+  /* ── Назви треків ──────────────────────────────────────────
+     Назву в базу кладе бот, а старий архів вилито міграцією — там її
+     немає взагалі. Виявилося, що YouTube віддає oEmbed і в браузер (CORS
+     відкритий), тому сторінка добирає назви сама й не чекає на
+     /telegram-report?tracks=1. Свій кеш у localStorage: та сама пісня
+     стоїть у десятках дописів, і платити за неї щоразу немає за що. */
+  var TKEY = 'au_titles';
+  var mem = null;
+
+  function shelf() {
+    if (mem) return mem;
+    try { mem = JSON.parse(localStorage.getItem(TKEY) || '{}'); } catch (e) { mem = {}; }
+    return mem;
+  }
+  function keep(vid, rec) {
+    var s = shelf();
+    s[vid] = rec;
+    try { localStorage.setItem(TKEY, JSON.stringify(s)); } catch (e) {}
+  }
+
+  function one(vid) {
+    return fetch(
+      'https://www.youtube.com/oembed?format=json&url=' +
+      encodeURIComponent('https://www.youtube.com/watch?v=' + vid)
+    ).then(function (r) {
+      // Знято або приватне — записуємо заглушку, інакше кожен захід
+      // сторінки бився б об ті самі мертві посилання.
+      if (!r.ok) { keep(vid, { t: r.status === 404 || r.status === 401 ? 'Відео недоступне' : '', a: '' }); return; }
+      return r.json().then(function (d) {
+        keep(vid, { t: (d && d.title) || '', a: (d && d.author_name) || '' });
+      });
+    }).catch(function () { /* мережа — спробуємо наступного разу */ });
+  }
+
+  window.AuTitles = {
+    known: function () { return shelf(); },
+    // Пачками по п'ять: сотня карток одним залпом виглядає для YouTube
+    // як напад, а нам потрібні лише ті, що на видноті.
+    fetch: function (vids, done) {
+      var need = (vids || []).filter(function (v) { return v && !shelf()[v]; });
+      if (!need.length) { if (done) done(shelf(), false); return; }
+      var i = 0;
+      var lane = function () {
+        if (i >= need.length) return Promise.resolve();
+        return one(need[i++]).then(lane);
+      };
+      Promise.all([lane(), lane(), lane(), lane(), lane()])
+        .then(function () { if (done) done(shelf(), true); });
+    },
+  };
 })();

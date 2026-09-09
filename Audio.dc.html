@@ -137,7 +137,7 @@ class Component extends DCLogic {
   state = {
     phase: 'load', err: '', raw: [], off: 0, more: false, busy: false,
     fArc: [], fChar: [], q: '', sort: 'new',
-    nowVid: null, nowPlay: false,
+    nowVid: null, nowPlay: false, titles: {},
   };
 
   // ── Ключ доступу: те саме оновлення заздалегідь + повтор на 401, що в
@@ -248,10 +248,51 @@ class Component extends DCLogic {
           phase: raw.length ? 'ok' : 'none', busy: false, more,
           off: off + rows.length, raw,
         };
-      });
+      }, () => this._titles());
     } catch (e) {
       this.setState({ phase: 'error', busy: false, err: String(e) });
     }
+  }
+
+  // Назви, яких немає в базі (архів вилито міграцією, а до YouTube з SQL не
+  // сходиш), бере сама сторінка — `AuTitles` тримає кеш на весь сайт.
+  // Адмінові RLS дозволяє UPDATE, тому з його заходу назва осідає в базі
+  // для всіх інших; звичайному читачеві відмова не шкодить — він бачить
+  // назву зі свого кешу.
+  _titles() {
+    if (!window.AuTitles) return;
+    const need = [...new Set((this.state.raw || [])
+      .filter((t) => !t.title).map((t) => t.video_id))];
+    if (!need.length) return;
+    window.AuTitles.fetch(need, (shelf, fresh) => {
+      this.setState({ titles: { ...shelf } });
+      if (fresh) this._push(shelf, need);
+    });
+  }
+
+  async _push(shelf, vids) {
+    if (this._pushed) return;
+    this._pushed = true;
+    for (const vid of vids) {
+      const rec = shelf[vid];
+      if (!rec || !rec.t) continue;
+      try {
+        const r = await fetch(
+          `${SUPA_URL}/marta_tracks?video_id=eq.${encodeURIComponent(vid)}&title=is.null`,
+          {
+            method: 'PATCH',
+            headers: { ...this._h(), 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+            body: JSON.stringify({ title: rec.t, author: rec.a || null }),
+          },
+        );
+        // 401/403 — це не адмін. Не біда й не помилка: дальше не пробуємо.
+        if (r.status === 401 || r.status === 403) {
+          console.log('аудіотека: назви лишаються в кеші браузера (прав на запис немає)');
+          return;
+        }
+      } catch (e) { return; }
+    }
+    console.log('аудіотека: назви дописано в базу');
   }
 
   // Пісня = video_id. Рядки з різних дописів зливаються в одну картку, а
@@ -262,16 +303,17 @@ class Component extends DCLogic {
     (this.state.raw || []).forEach((t) => {
       const key = t.video_id;
       let s = box.get(key);
+      const known = (this.state.titles || {})[key] || {};
       if (!s) {
         s = {
           vid: key, url: t.url || ('https://youtu.be/' + key),
-          title: t.title || '', author: t.author || '',
+          title: t.title || known.t || '', author: t.author || known.a || '',
           arcs: [], who: [], uses: [], last: t.created_at,
         };
         box.set(key, s);
       }
-      if (!s.title && t.title) s.title = t.title;
-      if (!s.author && t.author) s.author = t.author;
+      if (!s.title && (t.title || known.t)) s.title = t.title || known.t;
+      if (!s.author && (t.author || known.a)) s.author = t.author || known.a;
       const name = t.character_name || t.tag_name || '';
       if (name && !s.who.includes(name)) s.who.push(name);
       splitArcs(t.tag_arc).forEach((a) => { if (!s.arcs.includes(a)) s.arcs.push(a); });

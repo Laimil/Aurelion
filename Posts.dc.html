@@ -243,7 +243,7 @@ class Component extends DCLogic {
     allChars: false, allArcs: false, open: {},
     hashPostId: null, linkCopiedId: null,
     // треки: postId → [рядки]; порожній масив означає «питали, музики немає»
-    tracks: {}, noAudio: false, nowVid: null, nowPlay: false,
+    tracks: {}, noAudio: false, nowVid: null, nowPlay: false, titles: {},
   };
 
   // Ключ доступу живе годину, а стрічку відкривають і без кабінету у
@@ -388,11 +388,21 @@ class Component extends DCLogic {
       const add = {};
       ids.forEach((id) => { add[id] = []; });
       got.forEach((t) => { (add[String(t.post_id)] || (add[String(t.post_id)] = [])).push(t); });
-      this.setState((st) => ({ tracks: { ...st.tracks, ...add } }));
+      this.setState((st) => ({ tracks: { ...st.tracks, ...add } }), () => this._titles(got));
     } catch (e) {
       console.warn('музика:', e);
       this.setState({ noAudio: true });
     }
+  }
+
+  // Назва треку буває порожня (старий архів вилито міграцією, а SQL до
+  // YouTube не ходить) — тоді її добирає сама сторінка через спільний
+  // кеш `AuTitles` (той самий, що в аудіотеці — одна пісня, один запит).
+  _titles(rows) {
+    if (!window.AuTitles) return;
+    const need = [...new Set((rows || []).filter((t) => !t.title).map((t) => t.video_id))];
+    if (!need.length) return;
+    window.AuTitles.fetch(need, (shelf) => this.setState({ titles: { ...shelf } }));
   }
 
   // Черга — уся завантажена стрічка в порядку читання: натискаючи на пісню
@@ -402,7 +412,9 @@ class Component extends DCLogic {
     const out = [];
     (this.state.posts || []).forEach((p) => {
       (map[String(p.id)] || []).forEach((t) => out.push({
-        vid: t.video_id, title: t.title || '', author: t.author || '',
+        vid: t.video_id,
+        title: t.title || (((this.state.titles || {})[t.video_id] || {}).t) || '',
+        author: t.author || (((this.state.titles || {})[t.video_id] || {}).a) || '',
         name: p.character_name || p.tag_name || '', arc: splitArcs(p.tag_arc).join(' / '),
         postId: p.id,
       }));
@@ -681,10 +693,13 @@ class Component extends DCLogic {
         hasTracks: mine.length > 0,
         tracks: mine.map((t) => {
           const on = s.nowVid === t.video_id;
+          const known = (s.titles || {})[t.video_id] || {};
+          const title = t.title || known.t || '';
+          const author = t.author || known.a || '';
           return {
-            title: t.title || 'Пісня з допису',
+            title: title || 'Пісня з допису',
             meta: on && s.nowPlay ? '♦ грає зараз'
-              : t.author ? t.author : 'музика сцени',
+              : author ? author : 'музика сцени',
             icon: on && s.nowPlay ? '❙❙' : '▶',
             hint: on && s.nowPlay ? 'Пауза' : 'Грати з цього треку й далі стрічкою',
             url: t.url || ('https://youtu.be/' + t.video_id),
