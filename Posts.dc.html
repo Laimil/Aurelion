@@ -195,6 +195,11 @@ function splitArcs(v) {
   return String(v || '').split(ARC_SEP).map((s) => s.trim()).filter(Boolean);
 }
 
+// Значення умови в `and=(…)`/`or(…)` беруться в лапки: у назвах арок є і
+// пробіли, і коси, і коми. Свої лапки з назви прибираємо — PostgREST їх
+// не екранує, а не назва це поламала б цілий запит.
+const qv = (x) => '"' + String(x == null ? '' : x).replace(/["\\]/g, '') + '"';
+
 function editDist(a, b) {
   if (a === b) return 0;
   const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
@@ -237,7 +242,7 @@ function groupArcs(counts) {
 
 class Component extends DCLogic {
   state = {
-    phase: 'load', posts: [], err: '', fChar: [], fArc: [], arcAlt: {}, rawAlt: {}, arcChars: {},
+    phase: 'load', posts: [], err: '', fChar: [], fArc: [], arcAlt: {}, arcChars: {},
     off: 0, more: false, busy: false, noParts: false, asc: false,
     filtOpen: false, tagsPhase: 'none', chars: [], arcs: [], q: '',
     allChars: false, allArcs: false, open: {},
@@ -433,6 +438,17 @@ class Component extends DCLogic {
   }
 
   componentDidUpdate(prevProps) {
+    // Номер допису з адреси (#posts/<id>) приходить ПІЗНІШЕ за монтування:
+    // сторінка відкривається за сегментом хеша відразу, а розбір адреси доїжджає
+    // по завантаженні даних. Без цього посилання на конкретний допис
+    // (зокрема «до допису ↗» з аудіотеки) відкривало просто початок стрічки.
+    const wantWas = String(prevProps.preOpenId || '').trim();
+    const wantNow = String(this.props.preOpenId || '').trim();
+    if (wantNow && wantNow !== wantWas) {
+      this._want = wantNow;
+      this.setState({ hashPostId: wantNow });
+      if (this.state.phase === 'ok') this._openWanted();
+    }
     const was = [prevProps.preChar || '', prevProps.preArc || ''].join('|');
     const now = [this.props.preChar || '', this.props.preArc || ''].join('|');
     if (was === now) return;
@@ -441,17 +457,32 @@ class Component extends DCLogic {
     this._setFilt({ fChar: pc, fArc: pa });
   }
 
+  _openWanted() {
+    const id = this._want;
+    if (!id) return;
+    this._want = null;
+    this._ensureTarget(id);
+  }
+
   // Допис, на який дали посилання: якщо його вже нема у завантаженому
   // вікні (інша сторінка, інший фільтр) — тягнемо саме його окремим
   // запитом, а не гортаємо стрічку в пошуках.
   async _ensureTarget(id) {
     if (this.state.posts.some((p) => String(p.id) === String(id))) { this._openAndScroll(id); return; }
     try {
-      const url = `${SUPA_URL}/marta_posts?id=eq.${encodeURIComponent(id)}&select=${this.state.noParts ? POST_SEL_LEAN : POST_SEL}`;
-      const r = await this._api(url);
-      if (!r.ok) return;
+      // Два заходи, повний і без `parts`, — і НЕ через state.noParts: той
+      // прапорець ставить `_page()` своїм коллбеком, тому тут він то вже
+      // стоїть (і повний select не пробується взагалі), то ще ні (і запит
+      // падає на 400) — залежно від того, чий коллбек прийшов першим.
+      let r = null;
+      for (const sel of [POST_SEL, POST_SEL_LEAN]) {
+        r = await this._api(`${SUPA_URL}/marta_posts?id=eq.${encodeURIComponent(id)}&select=${sel}`);
+        if (r.ok) break;
+        console.warn('пости: допис №' + id + ` (${sel === POST_SEL ? 'повний' : 'без parts'}) —`, await r.text());
+      }
+      if (!r || !r.ok) return;
       const got = await r.json();
-      if (!got.length) return;
+      if (!got.length) { console.warn('пости: допису №' + id + ' немає в базі'); return; }
       this.setState((st) => ({
         posts: [got[0]].concat(st.posts.filter((p) => String(p.id) !== String(id))),
       }), () => { this._openAndScroll(id); this._loadTracks(got); });
@@ -542,8 +573,10 @@ class Component extends DCLogic {
       + `&order=created_at.${s.asc ? 'asc' : 'desc'}`
       + `&limit=${PAGE + 1}&offset=${off}`;
     // Кілька позначених теґів — це «або»: показуємо все, що підпадає
-    // хоч під один. Відбирає база (in.(…)), а не браузер.
-    const inList = (v) => 'in.(' + v.map((x) => '"' + encodeURIComponent(x) + '"').join(',') + ')';
+    // хоч під один. Відбирає база, а не браузер. Усі умови йдуть одним
+    // параметром `and=(…)`: арка тепер відбирається кількома `like`, а два
+    // окремих `or=` в одній адресі PostgREST зводить докупи непередбачувано.
+    const conds = [];
     // Прийшли з анкети: там арки зібрані і за текою, і за іменем у тегу,
     // тому й стрічку відбираємо так само — інакше в шапці «5 дописів», а
     // в стрічці три (допис звірений з текою, але підписаний інакше).
@@ -551,12 +584,12 @@ class Component extends DCLogic {
     const pcRaw = String(this.props.preChar || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
     const one = s.fChar.length === 1 && pcRaw.length === 1 && s.fChar[0] === pcRaw[0];
     if (cid && one) {
-      url += '&or=' + encodeURIComponent('(character_id.eq.' + cid + ',tag_name.eq."' + s.fChar[0] + '")');
+      conds.push('or(character_id.eq.' + cid + ',tag_name.eq.' + qv(s.fChar[0]) + ')');
     } else if (s.fChar.length) {
-      url += `&tag_name=${inList(s.fChar)}`;
+      conds.push('tag_name.in.(' + s.fChar.map(qv).join(',') + ')');
     }
-    // Відбираємо за всіма написаннями обраної арки — база про опічатки не знає.
-    if (s.fArc.length)  url += `&tag_arc=${inList(this._arcAll(s.fArc))}`;
+    if (s.fArc.length) conds.push('or(' + this._arcConds(s.fArc).join(',') + ')');
+    if (conds.length) url += '&and=' + encodeURIComponent('(' + conds.join(',') + ')');
     try {
       const r = await this._api(url);
       if (!r.ok) {
@@ -570,10 +603,46 @@ class Component extends DCLogic {
         phase: 'ok', busy: false, more,
         off: off + rows.length,
         posts: reset ? rows : st.posts.concat(rows),
-      }), () => this._loadTracks(rows));
+      }), () => { this._loadTracks(rows); this._openWanted(); });
     } catch (e) {
       this.setState({ phase: 'error', busy: false, err: String(e) });
     }
+  }
+
+  // Перелік тегів рахує база — supabase_post_tags_rpc.sql: арки розшиті по
+  // роздільнику, поруч кількість дописів і причетні. Одна відповідь на
+  // сотню з чимось рядків замість тисячі дописів у браузер, і — головне —
+  // бачить УСІ арки, а не ті, що влізли у вікно.
+  // Немає функції (міграцію ще не прогнали) — нижче лишився старий скан.
+  async _tagsRpc() {
+    const r = await this._api(`${SUPA_URL}/rpc/marta_post_tags`);
+    if (!r.ok) {
+      console.warn('пости: перелік тегів рахує браузер —', await r.text(),
+        '(прогнати supabase_post_tags_rpc.sql)');
+      return false;
+    }
+    const rows = await r.json();
+    const arcCount = new Map(), nameCount = new Map(), who = new Map();
+    (rows || []).forEach((t) => {
+      if (!t || !t.name) return;
+      if (t.kind === 'arc') { arcCount.set(t.name, Number(t.n) || 0); who.set(t.name, t.chars || []); }
+      else nameCount.set(t.name, Number(t.n) || 0);
+    });
+    const boxes = groupArcs(arcCount);
+    const alt = {}, arcChars = {};
+    boxes.forEach((b) => {
+      alt[b.name] = b.all;
+      const list = [];
+      b.all.forEach((v) => (who.get(v) || []).forEach((c) => { if (c && !list.includes(c)) list.push(c); }));
+      arcChars[b.name] = list;
+    });
+    const chars = [...nameCount.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'uk')).map((e) => e[0]);
+    console.log(`пости: теги з бази — ${chars.length} імен, ${boxes.length} арок`);
+    this.setState({
+      tagsPhase: 'ready', chars, arcs: boxes.map((b) => b.name), arcAlt: alt, arcChars,
+    });
+    return true;
   }
 
   // Перелік тегів — окремим лінивим запитом, і лише коли фільтр відкрили.
@@ -581,8 +650,13 @@ class Component extends DCLogic {
     if (this.state.tagsPhase !== 'none') return;
     this.setState({ tagsPhase: 'busy' });
     try {
+      if (await this._tagsRpc()) return;
+      // Запасний шлях — скан останніх дописів у браузері. PostgREST не
+      // віддає більше 1000 рядків за раз, а дописів уже майже три тисячі,
+      // тому арок глибше вікна тут не видно: саме для них вище стоїть
+      // функція бази.
       const r = await this._api(
-        `${SUPA_URL}/marta_posts?select=tag_name,tag_arc&order=created_at.desc&limit=600`,
+        `${SUPA_URL}/marta_posts?select=tag_name,tag_arc&order=created_at.desc&limit=1000`,
       );
       const rows = r.ok ? await r.json() : [];
       const nameCount = new Map();
@@ -599,27 +673,21 @@ class Component extends DCLogic {
       const boxes = groupArcs(arcCount);
       const alt = {};
       boxes.forEach((b) => { alt[b.name] = b.all; });
-      // Хто відзначений у дописах кожної арки (для підхоплення персонажів) і
-      // якими сирими рядками бази її насправді відбирати — рядок може бути
-      // суцільним («А») або складеним («А / Б»), а фільтр іде за сирим текстом.
+      // Хто відзначений у дописах кожної арки — щоб разом з аркою
+      // підхоплювались і причетні.
       const arcChars = {};
-      const rawAlt = {};
       rows.forEach((p) => {
-        if (!p.tag_arc) return;
+        if (!p.tag_arc || !p.tag_name) return;
         splitArcs(p.tag_arc).forEach((name) => {
           const box = boxes.find((b) => b.all.includes(name));
           const key = box ? box.name : name;
-          const raws = rawAlt[key] || (rawAlt[key] = []);
-          if (!raws.includes(p.tag_arc)) raws.push(p.tag_arc);
-          if (p.tag_name) {
-            const list = arcChars[key] || (arcChars[key] = []);
-            if (!list.includes(p.tag_name)) list.push(p.tag_name);
-          }
+          const list = arcChars[key] || (arcChars[key] = []);
+          if (!list.includes(p.tag_name)) list.push(p.tag_name);
         });
       });
       this.setState({
         tagsPhase: 'ready', chars: tally(nameCount),
-        arcs: boxes.map((b) => b.name), arcAlt: alt, rawAlt, arcChars,
+        arcs: boxes.map((b) => b.name), arcAlt: alt, arcChars,
       });
     } catch (e) {
       console.warn('пости: перелік тегів', e);
@@ -627,14 +695,29 @@ class Component extends DCLogic {
     }
   }
 
-  // Сирі рядки бази, що відбирають позначені арки (кошики приходять з
-  // `_tags()`, але відбір з анкети працює й без них — тоді беремо те, що
-  // передали). Рядок може бути складеним («А / Б») — така сама опір, як
-  // самостійна арка, і мусить лишитись у списку, а не розсипатись.
-  _arcAll(list) {
+  // Умови, якими відбираються позначені арки. Арку пишуть і самостійним
+  // тегом, і в парі з іншими («Зіїрум / Облога»), причому в будь-якому
+  // порядку — тому точний збіг знаходив одиниці з сотень: «Зіїрум» стоїть
+  // сам лише в одному дописі з 257, а «Прибуття До Маєтку» — ні в одному з
+  // 38. Звідси й «арка є, а дописів у ній немає». Шукаємо арку як слово в
+  // зшитому рядку: сама, першою, останньою або посередині.
+  //
+  // Написання одної арки (регістр, опічатки) знає `_tags()`; прийшли з
+  // анкети чи з адреси — маємо лише те, що передали, і цього досить: межа
+  // тепер у роздільнику, а не в точному збігу цілого рядка.
+  _arcConds(list) {
     const out = [];
+    const push = (c) => { if (!out.includes(c)) out.push(c); };
     (list || []).forEach((v) => {
-      ((this.state.rawAlt || {})[v] || [v]).forEach((x) => { if (!out.includes(x)) out.push(x); });
+      ((this.state.arcAlt || {})[v] || [v]).forEach((name) => {
+        push('tag_arc.eq.' + qv(name));
+        // `*` або `%` у назві зробили б із неї власний шаблон — таку арку
+        // шукаємо лише точним збігом.
+        if (/[*%]/.test(name)) return;
+        push('tag_arc.ilike.' + qv(name + ARC_SEP + '*'));
+        push('tag_arc.ilike.' + qv('*' + ARC_SEP + name));
+        push('tag_arc.ilike.' + qv('*' + ARC_SEP + name + ARC_SEP + '*'));
+      });
     });
     return out;
   }
@@ -753,15 +836,11 @@ class Component extends DCLogic {
       const cur = this.state[key];
       const on = cur.includes(v);
       const nextArr = on ? cur.filter((x) => x !== v) : cur.concat(v);
-      // Обрали арку — разом з нею підтягуються всі її причетні: арка —
-      // це завжди кілька людей, и шукати кожну руказа було б зайвим. Зняття
-      // арки склад не торкає — обрані персонажі лишаються обраними.
-      if (key === 'fArc' && !on) {
-        const extra = (this.state.arcChars || {})[v] || [];
-        const nextChars = s.fChar.concat(extra.filter((c) => !s.fChar.includes(c)));
-        this._setFilt({ fArc: nextArr, fChar: nextChars });
-        return;
-      }
+      // Причетних до арки більше НЕ підтягуємо. Задум був показати, що арка
+      // це кілька людей, але персонаж і арка в запиті стоять через «і»:
+      // обрана арка звужувалася до тих, кого встиг побачити перелік теґів,
+      // і з 257 дописів «Зіїруму» лишалося кілька. Хто в арці — видно з
+      // самих карток; кому потрібен один голос, той позначить його руками.
       this._setFilt({ [key]: nextArr });
     };
 
@@ -800,11 +879,18 @@ class Component extends DCLogic {
       charChips: chars.map((c) => ({ name: c, ...this._pill(s.fChar.includes(c)) })),
       arcChips: arcs.map((a) => {
         const all = (s.arcAlt || {})[a] || [a];
+        // Причетні до арки — у підказці, а не в самому відборі: у запиті
+        // персонаж і арка стоять через «і», тому позначені імена звужували
+        // б арку до них (див. `flip`).
+        const who = (s.arcChars || {})[a] || [];
+        const bits = [];
+        if (all.length > 1) bits.push('Зведено написання: ' + all.join(' · '));
+        if (who.length) bits.push('Причетні: ' + who.join(', '));
         return {
           name: a,
           hasAlt: all.length > 1,
           altLabel: all.length + ' написання',
-          title: all.length > 1 ? 'Зведено написання: ' + all.join(' · ') : a,
+          title: bits.length ? bits.join('\n') : a,
           ...this._pill(s.fArc.includes(a)),
         };
       }),
