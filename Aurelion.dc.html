@@ -29,7 +29,7 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&amp;family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased}
@@ -222,6 +222,21 @@ a:hover{color:#a8c4f7;}
 /* Лінію графіка малює CSS-перехід, а не setState на кожен кадр. */
 .pulse-line{transition:stroke-dashoffset 1.9s cubic-bezier(0.215,0.61,0.355,1);}
 @media(prefers-reduced-motion:reduce){.pulse-line{transition:none;}}
+/* ── Забави: спільна смужка вкладок (дайс, тести, пліткарка, цитатник) ── */
+.fun-tab{padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5)}
+.fun-tab:hover{color:#fff}
+/* ── Аудіотека: вушко на правому краю, доступне з будь-якої сторінки ── */
+.audio-dock{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:99;display:flex;align-items:center;gap:9px;padding:14px 16px 14px 15px;background:rgba(255,215,0,0.14);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,215,0,0.55);border-right:none;border-radius:14px 0 0 14px;color:#ffd700;font-family:'Cinzel',Georgia,serif;font-size:0.74rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;box-shadow:-6px 0 26px rgba(0,0,0,0.55),0 0 22px rgba(255,215,0,0.18);transition:all 0.25s ease}
+.audio-dock{cursor:pointer;-webkit-appearance:none;appearance:none}
+.audio-dock span:first-of-type{font-family:Georgia,serif;font-size:1.15rem;line-height:1;letter-spacing:0}
+.audio-dock span:last-of-type{writing-mode:vertical-rl;text-orientation:mixed}
+.audio-dock:hover{background:rgba(255,215,0,0.24);border-color:#ffd700;color:#fff;box-shadow:-6px 0 30px rgba(0,0,0,0.6),0 0 34px rgba(255,215,0,0.4)}
+@media(max-width:620px){.audio-dock{padding:11px 11px 11px 10px;font-size:0}.audio-dock span:last-of-type{display:none}.audio-dock span:first-of-type{font-size:1.05rem}}
+/* Смужка «Архіву» на мапі: угорі по центру вона лягає на підпис «Мапа світу»
+   щойно вікно вужче ~760px — там опускаємо її під підпис. */
+.map-tabs{top:70px}
+@media(max-width:760px){.map-tabs{top:118px!important}}
+.fun-tab[data-active="true"]{background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.32);color:#fff}
 /* ── Цитатник ── */
 .q-chip{cursor:pointer;transition:all 0.22s ease}
 .q-chip:hover{background:rgba(255,255,255,0.1);color:#fff}
@@ -308,7 +323,7 @@ a:hover{color:#a8c4f7;}
         <a href="#{{ item.id }}" data-active="{{ item.active }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
       </sc-for>
     </div>
-    <button class="au-navburger" onClick="{{ toggleNav }}" aria-label="Розділи" aria-expanded="{{ navOpen }}" style="margin-right:auto;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.72);border-radius:999px;padding:7px 16px;font-size:0.82rem;letter-spacing:0.02em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">{{ navBurgerLabel }}</button>
+    <button class="au-navburger" onClick="{{ toggleNav }}" aria-label="Розділи" aria-expanded="{{ navOpen }}" style="margin-right:auto;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.72);border-radius:999px;padding:7px 16px;font-size:0.82rem;letter-spacing:0.02em;cursor:pointer;transition:all 0.2s ease;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">{{ navBurgerLabel }}</button>
     <a href="#contacts" data-active="{{ navJoinActive }}" data-cta="true" style="flex-shrink:0;margin-left:10px;padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;text-decoration:none;">Долучитися</a>
     <sc-if value="{{ showNavSearch }}" hint-placeholder-val="{{ false }}">
       <div class="au-navsearch" style="position:relative;flex-shrink:0;margin-left:12px;">
@@ -351,6 +366,12 @@ a:hover{color:#a8c4f7;}
     </div>
   </sc-if>
 </nav>
+
+<!-- Вушко аудіотеки: музику слухають фоном, тому вхід до неї має бути
+     з будь-якої сторінки, а не лише з меню. -->
+<sc-if value="{{ audioDockShow }}" hint-placeholder-val="{{ false }}">
+  <button onClick="{{ toggleAudioDock }}" class="audio-dock" title="Плеєр" aria-label="Плеєр"><span>♪</span><span>Плеєр</span></button>
+</sc-if>
 
 <!-- ═══ HOME ═══ -->
 <sc-if value="{{ showHome }}" hint-placeholder-val="{{ true }}">
@@ -419,7 +440,7 @@ a:hover{color:#a8c4f7;}
             <a href="{{ f.href }}" class="fresh-row">
               <span class="fresh-thumb">
                 <sc-if value="{{ f.hasImg }}" hint-placeholder-val="{{ true }}">
-                  <img src="{{ f.img }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:center top;" />
+                  <img src="{{ f.img }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:center top;">
                 </sc-if>
                 <sc-if value="{{ f.noImg }}" hint-placeholder-val="{{ false }}">
                   <span style="font-family:'Cinzel',serif;font-size:0.68rem;color:rgba(255,215,0,0.45);">{{ f.initials }}</span>
@@ -444,7 +465,7 @@ a:hover{color:#a8c4f7;}
               <a href="{{ b.href }}" class="fresh-row">
                 <span class="fresh-thumb" style="width:34px;height:34px;border-radius:999px;">
                   <sc-if value="{{ b.hasImg }}" hint-placeholder-val="{{ true }}">
-                    <img src="{{ b.img }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:center top;" />
+                    <img src="{{ b.img }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:center top;">
                   </sc-if>
                   <sc-if value="{{ b.noImg }}" hint-placeholder-val="{{ false }}">
                     <span style="font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,215,0,0.45);">{{ b.initials }}</span>
@@ -469,7 +490,7 @@ a:hover{color:#a8c4f7;}
         <sc-for list="{{ homeTiles }}" as="tile" hint-placeholder-count="6">
           <a href="#{{ tile.id }}" class="glass" style="display:block;padding:28px;text-decoration:none;color:inherit;border-radius:10px;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;">
-              <div style="font-size:1.8rem;line-height:1;">{{ tile.icon }}</div>
+              <svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="rgba(255,215,0,0.62)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;pointer-events:none;"><path d="{{ tile.iconPath }}"></path></svg>
               <sc-if value="{{ tile.hasCount }}" hint-placeholder-val="{{ false }}">
                 <span style="font-size:0.66rem;letter-spacing:0.07em;color:rgba(255,215,0,0.6);background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.18);border-radius:999px;padding:3px 11px;white-space:nowrap;">{{ tile.countLabel }}</span>
               </sc-if>
@@ -570,7 +591,7 @@ a:hover{color:#a8c4f7;}
           <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Довідник</a>
           <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
           <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
-          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
+          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a><a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Мапа</a>
         </div>
       </div>
     </div>
@@ -774,7 +795,7 @@ a:hover{color:#a8c4f7;}
           <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Довідник</a>
           <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Історії</a>
           <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
-          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
+          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a><a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Мапа</a>
         </div>
       </div>
     </div>
@@ -923,7 +944,7 @@ a:hover{color:#a8c4f7;}
               <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Довідник</a>
               <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
               <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Хроніки</a>
-              <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
+              <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a><a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Мапа</a>
             </div>
           </div>
         </div>
@@ -988,7 +1009,7 @@ a:hover{color:#a8c4f7;}
 
         <sc-if value="{{ chroniclesEmpty }}" hint-placeholder-val="{{ false }}">
           <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
-            <p style="font-size:1.5rem;margin-bottom:12px;">🪶</p>
+            <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
             <p>Хронік ще не додано. <a href="admin.dc.html" style="color:#6495ed;">Адмін-панель →</a></p>
           </div>
         </sc-if>
@@ -1077,17 +1098,17 @@ a:hover{color:#a8c4f7;}
         <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Персонажі</h1>
         <div style="display:flex;justify-content:center;margin-top:18px;">
           <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
-            <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🎭 Галерея</button>
-            <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
-            <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">📏 Лінійка</button>
+            <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">Галерея</button>
+            <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Зв'язки</button>
+            <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Лінійка</button>
           </div>
         </div>
       </header>
 
       <!-- Пошук -->
       <div style="max-width:420px;margin:0 auto 28px;position:relative;">
-        <input value="{{ charSearch }}" onChange="{{ handleCharSearch }}" placeholder="Пошук персонажа…" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:11px 40px 11px 42px;font-size:0.9rem;color:#fff;outline:none;transition:border-color 0.18s;" />
-        <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1rem;opacity:0.4;pointer-events:none;">🔍</span>
+        <input value="{{ charSearch }}" onChange="{{ handleCharSearch }}" placeholder="Пошук персонажа…" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:11px 40px 11px 42px;font-size:0.9rem;color:#fff;outline:none;transition:border-color 0.18s;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:17px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
         <sc-if value="{{ hasCharSearch }}" hint-placeholder-val="{{ false }}">
           <button onClick="{{ clearCharSearch }}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.85rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
         </sc-if>
@@ -1096,8 +1117,8 @@ a:hover{color:#a8c4f7;}
       <!-- Таб + Сортування -->
       <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:32px;">
         <div style="display:flex;justify-content:center;gap:8px;">
-          <button data-tab="player" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ playerTabActive }}">🎭 Гравці</button>
-          <button data-tab="npc" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ npcTabActive }}">👤 НПЦ</button>
+          <button data-tab="player" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ playerTabActive }}">Гравці</button>
+          <button data-tab="npc" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ npcTabActive }}">НПЦ</button>
         </div>
         <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
           <button data-filter="active" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterActiveOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 16px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">✦ Активні</button>
@@ -1406,7 +1427,7 @@ a:hover{color:#a8c4f7;}
 
         <!-- ── Мережа зв'язків: куток стіни ── -->
         <sc-if value="{{ relHasConns }}" hint-placeholder-val="{{ false }}">
-          <div data-conns-anchor style="max-width:1060px;margin:58px auto 0;">
+          <div data-conns-anchor="" style="max-width:1060px;margin:58px auto 0;">
             <div style="height:1px;background:rgba(255,255,255,0.09);margin-bottom:34px;"></div>
             <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
               <div>
@@ -1536,6 +1557,7 @@ a:hover{color:#a8c4f7;}
           <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
           <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
           <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Пантеон</a>
+          <a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Мапа</a>
         </div>
       </div>
     </div>
@@ -1588,7 +1610,7 @@ a:hover{color:#a8c4f7;}
                   <sc-for list="{{ f.followers }}" as="fw" hint-placeholder-count="0">
                     <div data-id="{{ fw.id }}" onClick="{{ openCharacter }}" style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;cursor:pointer;" style-hover="background:rgba(255,255,255,0.06);">
                       <sc-if value="{{ fw.hasImage }}" hint-placeholder-val="{{ true }}">
-                        <img src="{{ fw.imgSrc }}" alt="{{ fw.name }}" loading="lazy" decoding="async" style="width:30px;height:40px;object-fit:cover;object-position:center top;border-radius:5px;flex-shrink:0;background:#111;" />
+                        <img src="{{ fw.imgSrc }}" alt="{{ fw.name }}" loading="lazy" decoding="async" style="width:30px;height:40px;object-fit:cover;object-position:center top;border-radius:5px;flex-shrink:0;background:#111;">
                       </sc-if>
                       <sc-if value="{{ fw.noImage }}" hint-placeholder-val="{{ false }}">
                         <div style="width:30px;height:40px;border-radius:5px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.12);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,215,0,0.45);flex-shrink:0;">{{ fw.initials }}</div>
@@ -1626,9 +1648,9 @@ a:hover{color:#a8c4f7;}
 
     <div style="display:flex;justify-content:center;margin-bottom:16px;padding:0 24px;">
       <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
-        <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
-        <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🕸 Зв'язки</button>
-        <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">📏 Лінійка</button>
+        <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Галерея</button>
+        <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Зв'язки</button>
+        <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">Лінійка</button>
       </div>
     </div>
 
@@ -1639,8 +1661,8 @@ a:hover{color:#a8c4f7;}
     </header>
 
     <div style="max-width:420px;margin:0 auto 14px;padding:0 24px;position:relative;">
-      <input value="{{ rulerQuery }}" onChange="{{ setRulerQuery }}" placeholder="Знайти в шерензі…" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 40px 10px 42px;font-size:0.88rem;color:#fff;outline:none;transition:border-color 0.18s;" />
-      <span style="position:absolute;left:40px;top:50%;transform:translateY(-50%);font-size:0.95rem;opacity:0.4;pointer-events:none;">🔍</span>
+      <input value="{{ rulerQuery }}" onChange="{{ setRulerQuery }}" placeholder="Знайти в шерензі…" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 40px 10px 42px;font-size:0.88rem;color:#fff;outline:none;transition:border-color 0.18s;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:41px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
       <sc-if value="{{ rulerHasQuery }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ clearRulerQuery }}" style="position:absolute;right:38px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.85rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
       </sc-if>
@@ -1664,7 +1686,7 @@ a:hover{color:#a8c4f7;}
         <button onClick="{{ toggleRulerAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:7px 16px;font-size:0.78rem;font-family:'Cinzel',Georgia,serif;letter-spacing:0.02em;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;" style-hover="background:rgba(255,215,0,0.16);">+ Додати особу</button>
         <sc-if value="{{ rulerAddOpen }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:280px;max-height:380px;overflow:hidden;background:rgba(26,26,26,0.97);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.14);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.5);padding:8px;z-index:40;display:flex;flex-direction:column;gap:6px;">
-            <input value="{{ rulerAddQuery }}" onChange="{{ setRulerAddQuery }}" placeholder="Пошук особи…" autoFocus="{{ true }}" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:8px 10px;font-size:0.8rem;color:#fff;outline:none;flex-shrink:0;" />
+            <input value="{{ rulerAddQuery }}" onChange="{{ setRulerAddQuery }}" placeholder="Пошук особи…" autoFocus="{{ true }}" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:8px 10px;font-size:0.8rem;color:#fff;outline:none;flex-shrink:0;">
             <div style="overflow-y:auto;max-height:290px;display:flex;flex-direction:column;gap:4px;">
               <sc-if value="{{ rulerAddEmpty }}" hint-placeholder-val="{{ false }}">
                 <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.35);padding:14px 6px;">{{ rulerAddEmptyMsg }}</p>
@@ -1780,9 +1802,9 @@ a:hover{color:#a8c4f7;}
 
     <div style="display:flex;justify-content:center;margin-bottom:16px;padding:0 24px;">
       <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
-        <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">🎭 Галерея</button>
-        <button data-mode="conn" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">🕸 Зв'язки</button>
-        <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">📏 Лінійка</button>
+        <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Галерея</button>
+        <button data-mode="conn" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">Зв'язки</button>
+        <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Лінійка</button>
       </div>
     </div>
 
@@ -1794,8 +1816,8 @@ a:hover{color:#a8c4f7;}
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 20px 18px;">
       <div style="position:relative;width:100%;max-width:360px;">
-        <input value="{{ boardSearch }}" onInput="{{ setBoardSearch }}" placeholder="Знайти теку на стіні…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:9px 34px;font-size:0.86rem;color:#fff;outline:none;transition:border-color 0.18s;" style-focus="border-color:rgba(255,215,0,0.5);" />
-        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:0.85rem;opacity:0.4;pointer-events:none;">🔍</span>
+        <input value="{{ boardSearch }}" onInput="{{ setBoardSearch }}" placeholder="Знайти теку на стіні…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:9px 34px;font-size:0.86rem;color:#fff;outline:none;transition:border-color 0.18s;" style-focus="border-color:rgba(255,215,0,0.5);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
         <sc-if value="{{ hasBoardSearch }}" hint-placeholder-val="{{ false }}">
           <button onClick="{{ clearBoardSearch }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.82rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
         </sc-if>
@@ -1870,8 +1892,7 @@ a:hover{color:#a8c4f7;}
             </div>
           </sc-for>
           <sc-for list="{{ wallCards }}" as="n" hint-placeholder-count="0">
-            <div data-card="{{ n.id }}" onClick="{{ setWallFocus }}" onDoubleClick="{{ shelveCard }}"
-                 style="position:absolute;left:{{ n.left }};top:{{ n.top }};width:62px;transform:translate(-50%,-50%) rotate({{ n.rot }});cursor:pointer;opacity:{{ n.op }};z-index:{{ n.z }};transition:opacity 0.3s ease;touch-action:{{ n.touch }};">
+            <div data-card="{{ n.id }}" onClick="{{ setWallFocus }}" onDoubleClick="{{ shelveCard }}" style="position:absolute;left:{{ n.left }};top:{{ n.top }};width:62px;transform:translate(-50%,-50%) rotate({{ n.rot }});cursor:pointer;opacity:{{ n.op }};z-index:{{ n.z }};transition:opacity 0.3s ease;touch-action:{{ n.touch }};">
               <div style="background:#e8e0cd;padding:4px;border-radius:2px;box-shadow:{{ n.shadow }};border:{{ n.ring }};">
                 <div style="width:100%;height:70px;border-radius:1px;overflow:hidden;background:#2a2724;">
                   <sc-if value="{{ n.hasImg }}" hint-placeholder-val="{{ false }}">
@@ -1963,6 +1984,16 @@ a:hover{color:#a8c4f7;}
 <!-- ═══ ДАЙС ═══ -->
 <sc-if value="{{ showDice }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забави</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
+            <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}">{{ t.label }}</a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
     <header style="text-align:center;margin-bottom:44px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Воля богів</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Дайс-роллер</h1>
@@ -2012,7 +2043,7 @@ a:hover{color:#a8c4f7;}
       <button onClick="{{ roll }}" disabled="{{ isRolling }}" class="roll-btn" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:15px 58px;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(255,215,0,0.22);" style-hover="transform:scale(1.05);box-shadow:0 6px 32px rgba(255,215,0,0.44);">{{ rollBtnLabel }}</button>
     </div>
     <div style="max-width:330px;margin:0 auto;">
-      <input value="{{ diceName }}" onInput="{{ setDiceName }}" placeholder="Ім'я персонажа або гравця (для картки)" maxlength="40" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:11px 20px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;text-align:center;outline:none;transition:all 0.2s ease;" style-focus="border-color:rgba(255,215,0,0.5);background:rgba(255,255,255,0.08);" />
+      <input value="{{ diceName }}" onInput="{{ setDiceName }}" placeholder="Ім'я персонажа або гравця (для картки)" maxlength="40" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:11px 20px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;text-align:center;outline:none;transition:all 0.2s ease;" style-focus="border-color:rgba(255,215,0,0.5);background:rgba(255,255,255,0.08);">
     </div>
     </section>
     <sc-if value="{{ canShareCard }}" hint-placeholder-val="{{ false }}">
@@ -2056,6 +2087,16 @@ a:hover{color:#a8c4f7;}
 <!-- ═══ ТЕСТИ ═══ -->
 <sc-if value="{{ showTests }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забави</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
+            <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}">{{ t.label }}</a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
     <header style="text-align:center;margin-bottom:40px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Дзеркало</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Тести</h1>
@@ -2078,6 +2119,18 @@ a:hover{color:#a8c4f7;}
 <!-- ═══ КАБІНЕТ (анкета на розгляд + віконце пліток) ═══ -->
 <sc-if value="{{ showGossip }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
+    <sc-if value="{{ cabinetOnlyGossip }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+        <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забави</p>
+        <div style="max-width:100%;overflow-x:auto;display:flex;">
+          <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+            <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
+              <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}">{{ t.label }}</a>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
     <header style="text-align:center;margin-bottom:40px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">{{ cabinetKicker }}</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">{{ cabinetTitle }}</h1>
@@ -2090,6 +2143,16 @@ a:hover{color:#a8c4f7;}
 <!-- ═══ ПОСТИ (стрічка дописів з рольового чату) ═══ -->
 <sc-if value="{{ showPosts }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:760px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Спільнота</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <sc-for list="{{ lifeTabs }}" as="t" hint-placeholder-count="3">
+            <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}">{{ t.label }}</a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
     <header style="text-align:center;margin-bottom:32px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Зі штабу</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Пости</h1>
@@ -2102,6 +2165,16 @@ a:hover{color:#a8c4f7;}
 <!-- ═══ АУДІОТЕКА (музика, підшита з дописів) ═══ -->
 <sc-if value="{{ showAudio }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1000px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Спільнота</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <sc-for list="{{ lifeTabs }}" as="t" hint-placeholder-count="3">
+            <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}">{{ t.label }}</a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
     <header style="text-align:center;margin-bottom:30px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Полиця зі стрічки</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Аудіотека</h1>
@@ -2114,6 +2187,16 @@ a:hover{color:#a8c4f7;}
 <!-- ═══ ЦИТАТНИК ═══ -->
 <sc-if value="{{ showQuotes }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 90px;max-width:880px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забави</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
+            <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}">{{ t.label }}</a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
     <header style="text-align:center;margin-bottom:30px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Записано на рецепції</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Цитатник</h1>
@@ -2525,6 +2608,17 @@ a:hover{color:#a8c4f7;}
       <p style="font-size:0.6rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">✦ Мапа Світу</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;font-weight:700;color:rgba(255,255,255,0.75);letter-spacing:0.1em;">AURELION</h1>
     </div>
+    <!-- Смужка «Архіву»: мапа тепер один із його розділів, а сторінка
+         на весь екран — тому вкладки плавають угорі, а не в шапці сторінки. -->
+    <div class="map-tabs" style="position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:21;max-width:calc(100vw - 40px);overflow-x:auto;display:flex;">
+      <div style="display:inline-flex;gap:4px;background:rgba(15,13,10,0.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+        <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Довідник</a>
+        <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
+        <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
+        <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
+        <a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Мапа</a>
+      </div>
+    </div>
     <!-- Zoom controls -->
     <div style="position:absolute;bottom:28px;right:24px;z-index:20;display:flex;flex-direction:column;gap:5px;">
       <button onClick="{{ mapZoomIn }}" style="width:36px;height:36px;background:rgba(15,13,10,0.88);border:1px solid rgba(255,255,255,0.15);border-radius:7px;color:rgba(255,255,255,0.75);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.18s;" style-hover="border-color:rgba(255,215,0,0.5);color:#ffd700;">+</button>
@@ -2536,22 +2630,12 @@ a:hover{color:#a8c4f7;}
       <p style="font-size:0.58rem;letter-spacing:0.1em;color:rgba(255,255,255,0.18);">Scroll — zoom · Drag — pan · ✦ — локація</p>
     </div>
     <!-- Pan/Zoom stage -->
-    <div style="position:absolute;inset:0;cursor:{{ mapCursor }};touch-action:none;"
-         onMouseDown="{{ handleMapMouseDown }}"
-         onMouseMove="{{ handleMapMouseMove }}"
-         onMouseUp="{{ handleMapMouseUp }}"
-         onMouseLeave="{{ handleMapMouseLeave }}"
-         onClick="{{ handleMapClick }}"
-         onTouchStart="{{ handleMapTouchStart }}"
-         onTouchMove="{{ handleMapTouchMove }}"
-         onTouchEnd="{{ handleMapTouchEnd }}">
+    <div style="position:absolute;inset:0;cursor:{{ mapCursor }};touch-action:none;" onMouseDown="{{ handleMapMouseDown }}" onMouseMove="{{ handleMapMouseMove }}" onMouseUp="{{ handleMapMouseUp }}" onMouseLeave="{{ handleMapMouseLeave }}" onClick="{{ handleMapClick }}" onTouchStart="{{ handleMapTouchStart }}" onTouchMove="{{ handleMapTouchMove }}" onTouchEnd="{{ handleMapTouchEnd }}">
       <div style="position:absolute;top:0;left:0;transform:{{ mapTransform }};transform-origin:0 0;will-change:transform;user-select:none;">
         {{ mapImageEl }}
         <!-- Pins -->
         <sc-for list="{{ mapPins }}" as="pin" hint-placeholder-count="0">
-          <div data-id="{{ pin.id }}"
-               onClick="{{ openMapPin }}"
-               style="position:absolute;left:{{ pin.x_percent }}%;top:{{ pin.y_percent }}%;transform:translate(-50%,-100%);cursor:pointer;z-index:10;pointer-events:auto;">
+          <div data-id="{{ pin.id }}" onClick="{{ openMapPin }}" style="position:absolute;left:{{ pin.x_percent }}%;top:{{ pin.y_percent }}%;transform:translate(-50%,-100%);cursor:pointer;z-index:10;pointer-events:auto;">
             <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
               <div style="width:11px;height:11px;background:#ffd700;transform:rotate(45deg);border-radius:2px;border:1.5px solid rgba(255,255,255,0.5);box-shadow:0 0 8px rgba(255,215,0,0.9),0 0 18px rgba(255,215,0,0.4);"></div>
               <p style="font-family:'Cinzel',Georgia,serif;font-size:0.5rem;color:#fff;white-space:nowrap;letter-spacing:0.07em;text-shadow:0 1px 6px rgba(0,0,0,1),0 0 12px rgba(0,0,0,0.9);font-weight:600;background:rgba(0,0,0,0.65);padding:1px 4px;border-radius:2px;">{{ pin.name }}</p>
@@ -3065,7 +3149,13 @@ const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице
 
 // Розділи «Архіву»: у хеші лишаються власні сегменти (старі посилання й /s/*.html
 // працюють як раніше) — парасолька живе лише в шапці та на смужці вкладок.
-const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
+const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon', 'map'];
+// «Забави» — та сама парасолька для дрібних послуг рецепції: кубик, тести,
+// віконце пліток і цитатник. Хеші лишилися власні, змінилася лише шапка.
+const FUN_SEGS = ['dice', 'tests', 'gossip', 'quotes'];
+// «Спільнота» — те, що росте з рольового чату й відкрите лише своїм:
+// стрічка дописів і аудіотека. Пульс бачать усі, тому він окремим пунктом.
+const LIFE_SEGS = ['posts', 'audio'];
 // `cabinet` і `intake` — той самий кабінет, різниця лише в тому, яка
 // вкладка відкриється. `gossip` лишили живим: посилання на віконце
 // вже розіслані по чатах.
@@ -5229,6 +5319,47 @@ class Component extends DCLogic {
   // повторного входу в кабінет щогодини, хоч сесія була жива.
   _userTok()  { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
   _userRef()  { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
+
+  // ── Вушко плеєра ──────────────────────────────────────────
+  // Панель уже має чергу (або її пам'ятає) — просто висуваємо. Ні —
+  // самі беремо полицю аудіотеки, мішаємо й кладемо трек напоготові:
+  // вушко мусить давати музику з будь-якої сторінки, а не вести кудись.
+  async _dockPlayer() {
+    const P = window.AuPlayer;
+    if (!P) return;
+    if (P.open && P.open()) return;
+    if (this._dockBusy) return;
+    this._dockBusy = true;
+    try {
+      await this._userFresh();
+      const r = await fetch(
+        `${SUPA_URL}/marta_tracks?select=video_id,title,author,tag_name,tag_arc,post_id`
+        + `&hidden=is.false&order=created_at.desc&limit=150`,
+        { headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + (this._userTok() || SUPA_KEY) } },
+      );
+      if (!r.ok) throw new Error('marta_tracks ' + r.status);
+      const seen = new Set(), q = [];
+      for (const t of await r.json()) {
+        if (!t.video_id || seen.has(t.video_id)) continue;   // та сама пісня стоїть у десятках дописів
+        seen.add(t.video_id);
+        q.push({
+          vid: t.video_id, title: t.title || '', author: t.author || '',
+          name: t.tag_name || '', arc: t.tag_arc || '', postId: t.post_id || null,
+        });
+      }
+      if (!q.length) { this._nav('audio'); return; }
+      for (let i = q.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [q[i], q[j]] = [q[j], q[i]];
+      }
+      P.cueQueue ? P.cueQueue(q, 0) : P.playQueue(q, 0);
+    } catch (e) {
+      console.warn('вушко плеєра:', String(e));
+      this._nav('audio');
+    } finally {
+      this._dockBusy = false;
+    }
+  }
   _userExp()  { try { return Number(localStorage.getItem('au_user_exp')) || 0; } catch (e) { return 0; } }
   _userSave(d) {
     try {
@@ -7179,16 +7310,26 @@ class Component extends DCLogic {
         { id: 'home',        label: 'Головна',    active: page === 'home' },
         { id: 'lore',        label: 'Архів',      active: ARCHIVE_SEGS.indexOf(page) !== -1 },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
-        { id: 'dice',        label: 'Дайс',       active: page === 'dice' },
+        { id: 'dice',        label: 'Забавки\n',     active: FUN_SEGS.indexOf(page) !== -1 },
+        { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
+        ...(postsApproved ? [{ id: 'posts', label: 'Спільнота', active: LIFE_SEGS.indexOf(page) !== -1 }] : []),
+      ],
+      // Смужка вкладок «Забав» — стоїть на всіх чотирьох сторінках, тому
+      // склад той самий, що був у шапці (тести й пліткарка — за прапорцями).
+      funTabs: [
+        { id: 'dice',   label: 'Дайс',      active: page === 'dice' },
         ...(testsOn ? [{ id: 'tests', label: 'Тести', active: page === 'tests' }] : []),
         ...(gossipNav ? [{ id: 'gossip', label: 'Пліткарка', active: page === 'gossip' }] : []),
-        { id: 'quotes',      label: 'Цитатник',   active: page === 'quotes' },
-        { id: 'map',         label: 'Мапа',       active: page === 'map' },
-        { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
-        // «Пости» — в кінці: це стрічка для своїх, а не головний вхід.
-        ...(postsApproved ? [{ id: 'posts', label: 'Пости', active: page === 'posts' }] : []),
-        ...(postsApproved ? [{ id: 'audio', label: 'Аудіотека', active: page === 'audio' }] : []),
+        { id: 'quotes', label: 'Цитатник',  active: page === 'quotes' },
       ],
+      // Смужка «Спільноти» — лише для своїх: стрічка й аудіотека.
+      lifeTabs: [
+        { id: 'posts', label: 'Пости', active: page === 'posts' },
+        { id: 'audio', label: 'Аудіотека', active: page === 'audio' },
+      ],
+      // Вушко аудіотеки — усюди, крім самої аудіотеки й мапи (там свої кнопки).
+      audioDockShow: postsApproved && page !== 'audio' && page !== 'map',
+      toggleAudioDock: () => this._dockPlayer(),
       navJoinActive: page === 'contacts',
       copyShareLink: () => this.copyShareLink(),
       shareLinkLabel: s.shareLinkLabel || 'Поділитися',
@@ -7199,7 +7340,7 @@ class Component extends DCLogic {
       signedIn,
       userNick: s.userNick || '',
       userChipLabel: signedIn ? 'Мій кабінет' : 'Увійти',
-      userChipGlyph: signedIn ? '✉' : '✦',
+      userChipGlyph: signedIn ? '' : '✦',
       userChipTitle: signedIn ? 'Мій кабінет — анкети й плітки' : 'Увійти або записатися',
       userChipBg: signedIn ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.04)',
       userChipBorder: signedIn ? 'rgba(255,215,0,0.22)' : 'rgba(255,255,255,0.12)',
@@ -7260,10 +7401,10 @@ class Component extends DCLogic {
         } catch (e) { done(); }
       },
       joinTemplateOpen:        !!s.joinTemplateOpen,
-      joinTemplateToggleLabel: s.joinTemplateOpen ? '▲ Згорнути' : '👁 Переглянути',
+      joinTemplateToggleLabel: s.joinTemplateOpen ? '▲ Згорнути' : '✦ Переглянути',
       toggleJoinTemplate: () => this.setState(st => ({ joinTemplateOpen: !st.joinTemplateOpen })),
       joinRulesOpen:        (s.joinRulesOpen == null) ? (data.site?.join_rules_open === '1') : !!s.joinRulesOpen,
-      joinRulesToggleLabel: ((s.joinRulesOpen == null) ? (data.site?.join_rules_open === '1') : !!s.joinRulesOpen) ? '▲ Згорнути' : '👁 Читати правила',
+      joinRulesToggleLabel: ((s.joinRulesOpen == null) ? (data.site?.join_rules_open === '1') : !!s.joinRulesOpen) ? '▲ Згорнути' : '✦ Читати правила',
       toggleJoinRules: () => this.setState(st => ({ joinRulesOpen: !((st.joinRulesOpen == null) ? ((st.data.site || {}).join_rules_open === '1') : st.joinRulesOpen) })),
       downloadJoinTemplate: () => {
         const t = (this.state.data.site && this.state.data.site.join_template) || '';
@@ -7285,17 +7426,32 @@ class Component extends DCLogic {
           return n + ' ' + w;
         };
         const mk = (n, one, few, many) => n > 0 ? { hasCount: true, countLabel: pl(n, one, few, many) } : { hasCount: false, countLabel: '' };
+        // Плитки розділів малюємо тонкою лінією, як решта значків на сайті
+        // (2px, круглі кінці). Емодзі тут були єдиним кольоровим елементом
+        // поза палітрою, а частина з них ще й падала в порожній квадрат.
+        const TILE = {
+          lore:       'M12 6.4C10.4 4.9 7.8 4.3 4 4.3v12.8c3.8 0 6.4.6 8 2.1 1.6-1.5 4.2-2.1 8-2.1V4.3c-3.8 0-6.4.6-8 2.1ZM12 6.4v12.8',
+          stories:    'M7 3h7l4 4v14H7ZM14 3v4h4M10 12h5M10 16h5',
+          chronicles: 'M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5ZM16 8 2 22M17.5 15H9',
+          characters: 'M9.5 11a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8ZM3 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5M16.8 5.2a3.4 3.4 0 0 1 0 6.6M21 20.5c0-2.9-1.8-5.2-4.3-6.1',
+          pantheon:   'M12 2v20M2 12h20M5.2 5.2l13.6 13.6M18.8 5.2 5.2 18.8',
+          dice:       'M3.4 3.8h17.2v17.2H3.4ZM8 8h.8M15.4 16.8h.8M11.7 12.4h.8',
+          tests:      'M12 3.8c4 0 7 2.8 7 6.3s-3 6.3-7 6.3-7-2.8-7-6.3 3-6.3 7-6.3ZM12 16.4v4.1M9.2 20.5h5.6',
+          gossip:     'M3 6h18v12H3ZM3.6 6.6l8.4 6 8.4-6',
+          map:        'M9 4 3 6.2v14L9 18l6 2 6-2.2v-14L15 6 9 4ZM9 4v14M15 6v14',
+          contacts:   'M4 20h4L20 8a2.83 2.83 0 0 0-4-4L4 16v4ZM14.5 5.5 18.5 9.5',
+        };
         return { homeTiles: [
-          { id: 'lore',       icon: '📜', title: 'Довідник',  desc: 'Лор, географія, магія і закони', ...mk((data.lore||[]).length, 'запис', 'записи', 'записів') },
-          { id: 'stories',    icon: '📖', title: 'Історії', desc: 'Авторські статті та серії від гравців спільноти', ...mk((data.stories||[]).length, 'історія', 'історії', 'історій') },
-          { id: 'chronicles', icon: '🪶', title: 'Хроніки', desc: 'Літописи відіграшів — зведені хроніки персонажів та арок', ...mk((data.chronicles||[]).length, 'хроніка', 'хроніки', 'хронік') },
-          { id: 'characters', icon: '🎭', title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв', ...mk((data.characters||[]).length, 'персонаж', 'персонажі', 'персонажів') },
-          { id: 'pantheon',   icon: '🐉', title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу', ...mk((data.pantheon||[]).length, 'бог', 'боги', 'богів') },
-          { id: 'dice',       icon: '⚄', title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20', hasCount: false, countLabel: '' },
-          ...(testsOn ? [{ id: 'tests', icon: '🧠', title: 'Тести', desc: 'Дзеркало для вас і для вашого персонажа', ...mk((data.tests||[]).length, 'тест', 'тести', 'тестів') }] : []),
-          ...(gossipOn ? [{ id: 'gossip', icon: '✉', title: 'Пліткарка', desc: 'Віконце пліток — принесіть Марті те, що почули', hasCount: false, countLabel: '' }] : []),
-          { id: 'map',        icon: '🗺', title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону', ...mk((data.map_locations||[]).length, 'локація', 'локації', 'локацій') },
-          { id: 'contacts',   icon: '✍️', title: 'Долучитися',  desc: 'Правила, анкета — і як стати частиною світу', hasCount: false, countLabel: '' },
+          { id: 'lore',       iconPath: TILE.lore, title: 'Довідник',  desc: 'Лор, географія, магія і закони', ...mk((data.lore||[]).length, 'запис', 'записи', 'записів') },
+          { id: 'stories',    iconPath: TILE.stories, title: 'Історії', desc: 'Авторські статті та серії від гравців спільноти', ...mk((data.stories||[]).length, 'історія', 'історії', 'історій') },
+          { id: 'chronicles', iconPath: TILE.chronicles, title: 'Хроніки', desc: 'Літописи відіграшів — зведені хроніки персонажів та арок', ...mk((data.chronicles||[]).length, 'хроніка', 'хроніки', 'хронік') },
+          { id: 'characters', iconPath: TILE.characters, title: 'Персонажі',    desc: 'Галерея гравецьких та ключових героїв', ...mk((data.characters||[]).length, 'персонаж', 'персонажі', 'персонажів') },
+          { id: 'pantheon',   iconPath: TILE.pantheon, title: 'Пантеон',      desc: 'П\'ятеро богів, що тримають рівновагу', ...mk((data.pantheon||[]).length, 'бог', 'боги', 'богів') },
+          { id: 'dice',       iconPath: TILE.dice, title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20', hasCount: false, countLabel: '' },
+          ...(testsOn ? [{ id: 'tests', iconPath: TILE.tests, title: 'Тести', desc: 'Дзеркало для вас і для вашого персонажа', ...mk((data.tests||[]).length, 'тест', 'тести', 'тестів') }] : []),
+          ...(gossipOn ? [{ id: 'gossip', iconPath: TILE.gossip, title: 'Пліткарка', desc: 'Віконце пліток — принесіть Марті те, що почули', hasCount: false, countLabel: '' }] : []),
+          { id: 'map',        iconPath: TILE.map, title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону', ...mk((data.map_locations||[]).length, 'локація', 'локації', 'локацій') },
+          { id: 'contacts',   iconPath: TILE.contacts, title: 'Долучитися',  desc: 'Правила, анкета — і як стати частиною світу', hasCount: false, countLabel: '' },
         ]};
       })(),
 
