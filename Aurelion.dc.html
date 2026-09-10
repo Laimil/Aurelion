@@ -222,7 +222,7 @@ a:hover{color:#a8c4f7;}
 /* Лінію графіка малює CSS-перехід, а не setState на кожен кадр. */
 .pulse-line{transition:stroke-dashoffset 1.9s cubic-bezier(0.215,0.61,0.355,1);}
 @media(prefers-reduced-motion:reduce){.pulse-line{transition:none;}}
-/* ── Забави: спільна смужка вкладок (дайс, тести, пліткарка, цитатник) ── */
+/* ── Забавки: спільна смужка вкладок (тести, пліткарка, цитатник) ── */
 .fun-tab{padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5)}
 .fun-tab:hover{color:#fff}
 /* ── Аудіотека: вушко на правому краю, доступне з будь-якої сторінки ── */
@@ -232,10 +232,6 @@ a:hover{color:#a8c4f7;}
 .audio-dock span:last-of-type{writing-mode:vertical-rl;text-orientation:mixed}
 .audio-dock:hover{background:rgba(255,215,0,0.24);border-color:#ffd700;color:#fff;box-shadow:-6px 0 30px rgba(0,0,0,0.6),0 0 34px rgba(255,215,0,0.4)}
 @media(max-width:620px){.audio-dock{padding:11px 11px 11px 10px;font-size:0}.audio-dock span:last-of-type{display:none}.audio-dock span:first-of-type{font-size:1.05rem}}
-/* Смужка «Архіву» на мапі: угорі по центру вона лягає на підпис «Мапа світу»
-   щойно вікно вужче ~760px — там опускаємо її під підпис. */
-.map-tabs{top:70px}
-@media(max-width:760px){.map-tabs{top:118px!important}}
 .fun-tab[data-active="true"]{background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.32);color:#fff}
 /* ── Цитатник ── */
 .q-chip{cursor:pointer;transition:all 0.22s ease}
@@ -591,7 +587,7 @@ a:hover{color:#a8c4f7;}
           <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Довідник</a>
           <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
           <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
-          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a><a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Мапа</a>
+          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
         </div>
       </div>
     </div>
@@ -795,7 +791,7 @@ a:hover{color:#a8c4f7;}
           <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Довідник</a>
           <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Історії</a>
           <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
-          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a><a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Мапа</a>
+          <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
         </div>
       </div>
     </div>
@@ -944,7 +940,7 @@ a:hover{color:#a8c4f7;}
               <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Довідник</a>
               <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
               <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Хроніки</a>
-              <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a><a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Мапа</a>
+              <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
             </div>
           </div>
         </div>
@@ -1557,7 +1553,7 @@ a:hover{color:#a8c4f7;}
           <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
           <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
           <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Пантеон</a>
-          <a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Мапа</a>
+          
         </div>
       </div>
     </div>
@@ -1984,16 +1980,6 @@ a:hover{color:#a8c4f7;}
 <!-- ═══ ДАЙС ═══ -->
 <sc-if value="{{ showDice }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
-      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забави</p>
-      <div style="max-width:100%;overflow-x:auto;display:flex;">
-        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
-          <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
-            <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}">{{ t.label }}</a>
-          </sc-for>
-        </div>
-      </div>
-    </div>
     <header style="text-align:center;margin-bottom:44px;">
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Воля богів</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Дайс-роллер</h1>
@@ -2088,7 +2074,7 @@ a:hover{color:#a8c4f7;}
 <sc-if value="{{ showTests }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
     <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
-      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забави</p>
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забавки</p>
       <div style="max-width:100%;overflow-x:auto;display:flex;">
         <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
           <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
@@ -2121,7 +2107,7 @@ a:hover{color:#a8c4f7;}
   <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
     <sc-if value="{{ cabinetOnlyGossip }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
-        <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забави</p>
+        <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забавки</p>
         <div style="max-width:100%;overflow-x:auto;display:flex;">
           <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
             <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
@@ -2188,7 +2174,7 @@ a:hover{color:#a8c4f7;}
 <sc-if value="{{ showQuotes }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 90px;max-width:880px;margin:0 auto;">
     <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
-      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забави</p>
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забавки</p>
       <div style="max-width:100%;overflow-x:auto;display:flex;">
         <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
           <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
@@ -2608,18 +2594,7 @@ a:hover{color:#a8c4f7;}
       <p style="font-size:0.6rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">✦ Мапа Світу</p>
       <h1 style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;font-weight:700;color:rgba(255,255,255,0.75);letter-spacing:0.1em;">AURELION</h1>
     </div>
-    <!-- Смужка «Архіву»: мапа тепер один із його розділів, а сторінка
-         на весь екран — тому вкладки плавають угорі, а не в шапці сторінки. -->
-    <div class="map-tabs" style="position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:21;max-width:calc(100vw - 40px);overflow-x:auto;display:flex;">
-      <div style="display:inline-flex;gap:4px;background:rgba(15,13,10,0.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
-        <a href="#lore" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Довідник</a>
-        <a href="#stories" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Історії</a>
-        <a href="#chronicles" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Хроніки</a>
-        <a href="#pantheon" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;border:1px solid transparent;color:rgba(255,255,255,0.5);" style-hover="color:#fff;">Пантеон</a>
-        <a href="#map" style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;">Мапа</a>
-      </div>
-    </div>
-    <!-- Zoom controls -->
+<!-- Zoom controls -->
     <div style="position:absolute;bottom:28px;right:24px;z-index:20;display:flex;flex-direction:column;gap:5px;">
       <button onClick="{{ mapZoomIn }}" style="width:36px;height:36px;background:rgba(15,13,10,0.88);border:1px solid rgba(255,255,255,0.15);border-radius:7px;color:rgba(255,255,255,0.75);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.18s;" style-hover="border-color:rgba(255,215,0,0.5);color:#ffd700;">+</button>
       <button onClick="{{ mapZoomOut }}" style="width:36px;height:36px;background:rgba(15,13,10,0.88);border:1px solid rgba(255,255,255,0.15);border-radius:7px;color:rgba(255,255,255,0.75);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.18s;" style-hover="border-color:rgba(255,215,0,0.5);color:#ffd700;">−</button>
@@ -3149,10 +3124,10 @@ const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице
 
 // Розділи «Архіву»: у хеші лишаються власні сегменти (старі посилання й /s/*.html
 // працюють як раніше) — парасолька живе лише в шапці та на смужці вкладок.
-const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon', 'map'];
-// «Забави» — та сама парасолька для дрібних послуг рецепції: кубик, тести,
-// віконце пліток і цитатник. Хеші лишилися власні, змінилася лише шапка.
-const FUN_SEGS = ['dice', 'tests', 'gossip', 'quotes'];
+const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
+// «Забавки» — парасолька для дрібних послуг рецепції: тести, віконце пліток
+// і цитатник. Дайс і мапа лишилися окремими пунктами — так попросили гравці.
+const FUN_SEGS = ['tests', 'gossip', 'quotes'];
 // «Спільнота» — те, що росте з рольового чату й відкрите лише своїм:
 // стрічка дописів і аудіотека. Пульс бачать усі, тому він окремим пунктом.
 const LIFE_SEGS = ['posts', 'audio'];
@@ -7310,14 +7285,15 @@ class Component extends DCLogic {
         { id: 'home',        label: 'Головна',    active: page === 'home' },
         { id: 'lore',        label: 'Архів',      active: ARCHIVE_SEGS.indexOf(page) !== -1 },
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
-        { id: 'dice',        label: 'Забавки\n',     active: FUN_SEGS.indexOf(page) !== -1 },
+        { id: 'dice',        label: 'Дайс',       active: page === 'dice' },
+        { id: 'quotes',      label: 'Забавки',    active: FUN_SEGS.indexOf(page) !== -1 },
+        { id: 'map',         label: 'Мапа',       active: page === 'map' },
         { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
         ...(postsApproved ? [{ id: 'posts', label: 'Спільнота', active: LIFE_SEGS.indexOf(page) !== -1 }] : []),
       ],
-      // Смужка вкладок «Забав» — стоїть на всіх чотирьох сторінках, тому
-      // склад той самий, що був у шапці (тести й пліткарка — за прапорцями).
+      // Смужка вкладок «Забавок» — на трьох сторінках; тести й пліткарка
+      // показуються за тими самими прапорцями, що були в шапці.
       funTabs: [
-        { id: 'dice',   label: 'Дайс',      active: page === 'dice' },
         ...(testsOn ? [{ id: 'tests', label: 'Тести', active: page === 'tests' }] : []),
         ...(gossipNav ? [{ id: 'gossip', label: 'Пліткарка', active: page === 'gossip' }] : []),
         { id: 'quotes', label: 'Цитатник',  active: page === 'quotes' },
