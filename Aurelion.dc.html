@@ -208,6 +208,81 @@ a:hover{color:#a8c4f7;}
 .home-jump-arrow{display:inline-block;animation:jumpNudge 2.6s ease-in-out infinite}
 @keyframes jumpNudge{0%,72%,100%{transform:translateY(0)}82%{transform:translateY(3px)}}
 @media(prefers-reduced-motion:reduce){.home-jump-arrow{animation:none}}
+/* ── Інтро першого заходу: портрети → напис → штамп рецепції ── */
+.au-intro{position:fixed;inset:0;z-index:900;background:#0d0c0a;cursor:pointer;overflow:hidden;animation:introOut 0.8s ease 6.1s both}
+.au-intro::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 48%,rgba(255,215,0,0.07),transparent 70%);pointer-events:none}
+.au-intro-ports{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:206px;height:262px}
+.au-port{position:absolute;inset:0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,215,0,0.22);box-shadow:0 18px 60px rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;background:#15130f;opacity:0;animation:portBlink 0.86s ease both}
+.au-port:nth-child(1){animation-delay:0.2s}
+.au-port:nth-child(2){animation-delay:0.78s}
+.au-port:nth-child(3){animation-delay:1.36s}
+.au-port:nth-child(4){animation-delay:1.94s}
+.au-port:nth-child(5){animation-delay:2.52s}
+.au-port:nth-child(6){animation-delay:3.1s}
+.au-port-img{width:100%;height:100%;object-fit:cover;object-position:center top}
+.au-port-ini{font-family:'Cinzel',Georgia,serif;font-size:1.7rem;color:rgba(255,215,0,0.4)}
+.au-port-name{position:absolute;left:0;right:0;bottom:0;padding:24px 10px 8px;background:linear-gradient(transparent,rgba(10,9,7,0.94));font-family:'Cinzel',Georgia,serif;font-size:0.72rem;letter-spacing:0.09em;color:rgba(255,255,255,0.82);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.au-intro-word{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Cinzel',Georgia,serif;font-size:clamp(1.9rem,8vw,5.4rem);font-weight:900;color:#ffd700;letter-spacing:0.12em;white-space:nowrap;opacity:0;animation:wordIgnite 1.2s ease 3.7s both}
+.au-intro-stamp{position:absolute;left:50%;top:50%;padding:10px 22px;border:2px solid rgba(255,215,0,0.55);outline:1px solid rgba(255,215,0,0.2);outline-offset:3px;border-radius:4px;text-align:center;opacity:0;animation:stampDown 0.4s cubic-bezier(0.2,0.75,0.3,1) 4.9s both}
+.au-stamp-top{display:block;font-family:'Cinzel',Georgia,serif;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7)}
+.au-stamp-no{display:block;font-family:'Cinzel',Georgia,serif;font-size:1.02rem;letter-spacing:0.1em;color:#ffd700;margin-top:3px}
+.au-intro-sign{position:absolute;left:50%;top:50%;transform:translate(-50%,calc(-50% + 188px));font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.45);opacity:0;animation:fadeUp 0.5s ease 5.4s both}
+.au-stamp-tot{display:block;font-size:0.6rem;letter-spacing:0.12em;color:rgba(255,255,255,0.4);margin-top:4px}
+.au-intro-skip{position:absolute;right:20px;bottom:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:8px 18px;font-size:0.76rem;letter-spacing:0.06em;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.25s ease}
+.au-intro-skip:hover{color:#ffd700;border-color:rgba(255,215,0,0.4)}
+@keyframes portBlink{0%{opacity:0;transform:scale(1.06)}22%{opacity:1;transform:scale(1)}78%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.985)}}
+@keyframes wordIgnite{0%{opacity:0;letter-spacing:0.4em;text-shadow:none}55%{opacity:1;letter-spacing:0.17em;text-shadow:0 0 60px rgba(255,215,0,0.85)}100%{opacity:1;letter-spacing:0.12em;text-shadow:0 0 28px rgba(255,215,0,0.45)}}
+@keyframes stampDown{0%{opacity:0;transform:translate(-50%,calc(-50% + 96px)) rotate(-14deg) scale(1.7)}100%{opacity:1;transform:translate(-50%,calc(-50% + 118px)) rotate(-6deg) scale(1)}}
+@keyframes stampDownSm{0%{opacity:0;transform:translate(-50%,calc(-50% + 78px)) rotate(-14deg) scale(1.7)}100%{opacity:1;transform:translate(-50%,calc(-50% + 96px)) rotate(-6deg) scale(1)}}
+@keyframes introOut{from{opacity:1}to{opacity:0}}
+@media(max-width:640px){
+  .au-intro{animation-delay:3.6s}
+  .au-intro-ports{width:170px;height:214px}
+  .au-port{animation-duration:0.72s}
+  .au-port:nth-child(n+4){display:none}
+  .au-port:nth-child(1){animation-delay:0.15s}
+  .au-port:nth-child(2){animation-delay:0.65s}
+  .au-port:nth-child(3){animation-delay:1.15s}
+  .au-intro-word{animation-delay:1.75s}
+  .au-intro-stamp{animation-name:stampDownSm;animation-delay:2.6s}
+  .au-intro-sign{animation-delay:3s;transform:translate(-50%,calc(-50% + 154px))}
+}
+/* ── Штамп, що лишається на Головній ── */
+/* На ПК штамп висить у куті поверх сторінки — як печатка на склі віконця.
+   На вузьких екранах його немає: там кожен піксель потрібен вмісту. */
+.au-keep-stamp{position:fixed;left:20px;bottom:20px;z-index:80;background:rgba(13,12,10,0.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transform:rotate(-5deg);padding:9px 20px;border:1.5px solid rgba(255,215,0,0.28);outline:1px solid rgba(255,215,0,0.11);outline-offset:3px;border-radius:4px;text-align:center;opacity:0.55;transition:opacity 0.3s ease}
+.au-keep-stamp:hover{opacity:1}
+.au-keep-top{display:block;font-family:'Cinzel',Georgia,serif;font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6)}
+.au-keep-no{display:block;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;letter-spacing:0.09em;color:rgba(255,215,0,0.9);margin-top:2px}
+.au-keep-sign{display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.72rem;color:rgba(255,255,255,0.38);margin-top:3px}
+@media(max-width:900px){.au-keep-stamp{display:none}}
+/* ── Колода випадкових матеріалів на Головній ── */
+.au-hero-word{font-family:'Cinzel',Georgia,serif;font-size:clamp(1.75rem,5.4vw,3.4rem);font-weight:900;color:#ffd700;letter-spacing:0.13em;line-height:1.04;max-width:100%;margin-bottom:10px;animation:fadeUp 0.55s ease 0.06s both,goldPulse 4.5s ease infinite}
+.au-hero-word.rise{animation:wordRise 1.25s cubic-bezier(0.22,0.72,0.24,1) both,goldPulse 4.5s ease 1.3s infinite}
+@keyframes wordRise{0%{transform:scale(2.35) translateY(26vh);opacity:0}28%{opacity:1}100%{transform:scale(1) translateY(0);opacity:1}}
+.au-deck{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:14px;width:100%;max-width:940px;margin:0 auto}
+.au-deck.rise > *{animation:fadeUp 0.6s ease both}
+.au-deck.rise > *:nth-child(1){animation-delay:1.1s}
+.au-deck.rise > *:nth-child(2){animation-delay:1.22s}
+.au-deck.rise > *:nth-child(3){animation-delay:1.34s}
+.au-deck.rise > *:nth-child(4){animation-delay:1.46s}
+.au-card{display:block;text-align:left;text-decoration:none;color:inherit;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);box-shadow:0 12px 34px rgba(0,0,0,0.45);transition:transform 0.3s ease,background 0.3s ease,border-color 0.3s ease}
+.au-card:hover{transform:translateY(-5px);background:rgba(255,255,255,0.1);border-color:rgba(255,215,0,0.42)}
+.au-card-art{position:relative;height:196px;background:linear-gradient(150deg,#241d12,#141312 72%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.au-card-art img{width:100%;height:100%;object-fit:cover;object-position:center 22%}
+.au-card-orn{font-size:2.2rem;color:rgba(255,215,0,0.26)}
+.au-card-body{display:block;padding:11px 14px 13px}
+.au-card-kind{display:block;font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:6px}
+/* Висота рядків задана числом, а не клемпом: `-webkit-line-clamp` у цьому
+   рендері не бере (computed display виходить `flow-root`), і довга назва
+   робила картки різної висоти, а `overflow:hidden` різав підпис навпіл. */
+.au-card-title{display:block;height:2.64em;overflow:hidden;font-family:'Cinzel',Georgia,serif;font-size:0.86rem;color:#fff;letter-spacing:0.03em;line-height:1.32}
+.au-card-sub{display:block;height:2.8em;overflow:hidden;font-family:'EB Garamond',Georgia,serif;font-size:0.86rem;line-height:1.4;color:rgba(255,255,255,0.46);margin-top:4px}
+.au-card[data-flip="0"] .au-card-in{animation:cardInA 0.55s ease both}
+.au-card[data-flip="1"] .au-card-in{animation:cardInB 0.55s ease both}
+@keyframes cardInA{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+@keyframes cardInB{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.au-hero-word.rise,.au-deck.rise > *,.au-card-in{animation:none!important}}
 /* ── Свіже й найближчі дати (Головна) ── */
 .fresh-grid{display:grid;grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);gap:16px;align-items:start}
 @media(max-width:900px){.fresh-grid{grid-template-columns:1fr}}
@@ -369,14 +444,29 @@ a:hover{color:#a8c4f7;}
   <button onClick="{{ toggleAudioDock }}" class="audio-dock" title="Плеєр" aria-label="Плеєр"><span>♪</span><span>Плеєр</span></button>
 </sc-if>
 
+<!-- ═══ ІНТРО ПЕРШОГО ЗАХОДУ ═══ -->
+<sc-if value="{{ introOn }}" hint-placeholder-val="{{ false }}">
+  <div class="au-intro" onClick="{{ endIntro }}">
+    <div class="au-intro-ports">{{ introPortsEl }}</div>
+    <div class="au-intro-word">{{ siteTitle }}</div>
+    <div class="au-intro-stamp">
+      <span class="au-stamp-top">Рецепція Ауреліону · прийнято</span>
+      <span class="au-stamp-no">вх. № {{ entryNo }}</span>
+      <span class="au-stamp-tot">{{ entryTotalLabel }}</span>
+    </div>
+    <div class="au-intro-sign">Записала й пускаю. — М.</div>
+    <button class="au-intro-skip" onClick="{{ endIntro }}">Пропустити ✦</button>
+  </div>
+</sc-if>
+
 <!-- ═══ HOME ═══ -->
 <sc-if value="{{ showHome }}" hint-placeholder-val="{{ true }}">
   <main class="au-page" style="min-height:100vh;background:#1a1a1a;">
     <section style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 56px;position:relative;overflow:hidden;">
       <div style="position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 44%,rgba(255,215,0,0.05) 0%,transparent 68%);pointer-events:none;"></div>
       <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:18px;animation:fadeUp 0.5s ease both;">✦ Темне фентезі · Україна</p>
-      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,9vw,6.5rem);font-weight:900;color:#ffd700;letter-spacing:0.12em;max-width:100%;line-height:1;margin-bottom:18px;animation:fadeUp 0.55s ease 0.06s both,goldPulse 4.5s ease infinite;">{{ siteTitle }}</h1>
-      <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(0.8rem,2.2vw,1.2rem);color:rgba(255,255,255,0.42);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:36px;animation:fadeUp 0.55s ease 0.12s both;">{{ siteSubtitle }}</p>
+      <h1 class="au-hero-word {{ heroRise }}">{{ siteTitle }}</h1>
+      <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(0.72rem,1.8vw,0.98rem);color:rgba(255,255,255,0.4);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:30px;animation:fadeUp 0.55s ease 0.12s both;">{{ siteSubtitle }}</p>
       <div style="position:relative;z-index:40;width:100%;max-width:540px;margin:0 auto 44px;text-align:left;animation:fadeUp 0.55s ease 0.18s both;">
         <div style="position:relative;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:18px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
@@ -406,6 +496,21 @@ a:hover{color:#a8c4f7;}
           </div>
         </sc-if>
       </div>
+      <!-- «Уперше тут?» живе під пошуком; вітання розгортається на місці -->
+      <sc-if value="{{ welcomeBanner }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;max-width:680px;width:100%;animation:fadeUp 0.55s ease 0.22s both;">
+        <div style="display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;justify-content:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);border-radius:999px;padding:7px 18px;">
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:0.72rem;letter-spacing:0.12em;color:rgba(255,215,0,0.72);white-space:nowrap;">✦ Уперше тут?</span>
+          <button onClick="{{ toggleWelcome }}" style="background:none;border:none;padding:0;font-size:0.83rem;color:rgba(255,255,255,0.62);cursor:pointer;white-space:nowrap;transition:color 0.25s ease;" style-hover="color:#ffd700;">{{ welcomeBannerLabel }}</button>
+          <span style="width:1px;height:13px;background:rgba(255,255,255,0.14);"></span>
+          <button onClick="{{ replayIntro }}" style="background:none;border:none;padding:0;font-size:0.83rem;color:rgba(255,255,255,0.62);cursor:pointer;white-space:nowrap;transition:color 0.25s ease;" style-hover="color:#ffd700;">Показати вступ</button>
+        </div>
+        <sc-if value="{{ welcomeBannerOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="animation:fadeUp 0.4s ease both;">{{ homeWelcomeFullEl }}</div>
+        </sc-if>
+      </div>
+      </sc-if>
+      <sc-if value="{{ welcomeInline }}" hint-placeholder-val="{{ true }}">
       <div style="max-width:620px;animation:fadeUp 0.55s ease 0.26s both;">
         {{ homeWelcomeEl }}
         <sc-if value="{{ homeWelcomeOpen }}" hint-placeholder-val="{{ false }}">
@@ -415,9 +520,41 @@ a:hover{color:#a8c4f7;}
           <button onClick="{{ toggleWelcome }}" style="margin-top:14px;background:none;border:none;padding:4px 0;font-family:'Cinzel',Georgia,serif;font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.7);cursor:pointer;transition:color 0.25s ease;" style-hover="color:#ffd700;">{{ homeWelcomeMoreLabel }}</button>
         </sc-if>
       </div>
+      </sc-if>
+      <sc-if value="{{ deckHas }}" hint-placeholder-val="{{ false }}">
+        <div class="au-deck {{ heroRise }}" onMouseEnter="{{ deckHold }}" onMouseLeave="{{ deckGo }}" style="margin-top:34px;">
+          <sc-for list="{{ deckCards }}" as="c" hint-placeholder-count="4">
+            <a href="{{ c.href }}" class="au-card" data-flip="{{ c.flip }}">
+              <span class="au-card-in" style="display:block;">
+                <span class="au-card-art">
+                  <sc-if value="{{ c.hasImg }}" hint-placeholder-val="{{ false }}">
+                    <img data-au-src="{{ c.img }}" alt="" loading="lazy" decoding="async">
+                  </sc-if>
+                  <sc-if value="{{ c.hasIcon }}" hint-placeholder-val="{{ false }}">
+                    <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="{{ c.accent }}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.55;"><path d="{{ c.iconPath }}"></path></svg>
+                  </sc-if>
+                  <sc-if value="{{ c.plainOrn }}" hint-placeholder-val="{{ false }}">
+                    <span class="au-card-orn">{{ c.orn }}</span>
+                  </sc-if>
+                </span>
+                <span class="au-card-body">
+                  <span class="au-card-kind" style="color:{{ c.accent }};">{{ c.kind }}</span>
+                  <span class="au-card-title">{{ c.title }}</span>
+                  <sc-if value="{{ c.hasSub }}" hint-placeholder-val="{{ false }}">
+                    <span class="au-card-sub">{{ c.sub }}</span>
+                  </sc-if>
+                </span>
+              </span>
+            </a>
+          </sc-for>
+        </div>
+      </sc-if>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">
       <sc-if value="{{ freshHas }}" hint-placeholder-val="{{ false }}">
         <a href="#home" onClick="{{ scrollToFresh }}" class="home-jump" style="margin-top:34px;display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:9px 20px;font-size:0.8rem;letter-spacing:0.03em;color:rgba(255,255,255,0.66);text-decoration:none;animation:fadeUp 0.55s ease 0.34s both;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">Що нового <span class="home-jump-arrow" style="opacity:0.7;">↓</span></a>
       </sc-if>
+      <a href="#home" onClick="{{ scrollToTiles }}" class="home-jump" style="margin-top:34px;display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:9px 20px;font-size:0.8rem;letter-spacing:0.03em;color:rgba(255,255,255,0.66);text-decoration:none;animation:fadeUp 0.55s ease 0.38s both;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">Розділи <span class="home-jump-arrow" style="opacity:0.7;">↓</span></a>
+      </div>
     </section>
 
     <!-- ═══ СВІЖЕ ═══ -->
@@ -480,7 +617,7 @@ a:hover{color:#a8c4f7;}
     </section>
     </sc-if>
 
-    <section style="max-width:1200px;margin:0 auto;padding:20px 24px 100px;">
+    <section ref="{{ tilesRef }}" style="max-width:1200px;margin:0 auto;padding:20px 24px 100px;scroll-margin-top:74px;">
       <p style="text-align:center;font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-bottom:40px;">— Розділи —</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px;">
         <sc-for list="{{ homeTiles }}" as="tile" hint-placeholder-count="6">
@@ -497,6 +634,47 @@ a:hover{color:#a8c4f7;}
         </sc-for>
       </div>
     </section>
+
+    <!-- ═══ НАВМАННЯ ═══ -->
+    <sc-if value="{{ rndHas }}" hint-placeholder-val="{{ false }}">
+    <section style="max-width:1200px;margin:0 auto;padding:0 24px 96px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;">
+        <p style="font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.22);">— Навмання —</p>
+        <button onClick="{{ rerollRandom }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:6px 16px;font-size:0.76rem;letter-spacing:0.04em;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">↻ Інше</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start;">
+        <sc-if value="{{ rndCharHas }}" hint-placeholder-val="{{ false }}">
+          <a href="{{ rndCharHref }}" class="glass" style="display:block;padding:22px;border-radius:12px;text-decoration:none;color:inherit;">
+            <p style="font-size:0.64rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:14px;">✦ {{ rndCharNote }}</p>
+            <div style="display:flex;align-items:center;gap:15px;">
+              <span style="flex-shrink:0;width:64px;height:64px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,215,0,0.3);background:rgba(255,255,255,0.05);display:inline-flex;align-items:center;justify-content:center;">
+                <sc-if value="{{ rndCharHasImg }}" hint-placeholder-val="{{ true }}">
+                  <img src="{{ rndCharImg }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:center top;">
+                </sc-if>
+                <sc-if value="{{ rndCharNoImg }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:1.1rem;color:rgba(255,215,0,0.45);">{{ rndCharIni }}</span>
+                </sc-if>
+              </span>
+              <span style="min-width:0;">
+                <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:1.06rem;color:#fff;letter-spacing:0.04em;">{{ rndCharName }}</span>
+                <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.45);">{{ rndCharSub }}</span>
+              </span>
+            </div>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.97rem;line-height:1.6;color:rgba(255,255,255,0.56);margin-top:14px;text-wrap:pretty;">{{ rndCharLine }}</p>
+            <p style="margin-top:14px;font-size:0.78rem;color:rgba(255,215,0,0.72);">Відкрити теку <span style="opacity:0.7;">→</span></p>
+          </a>
+        </sc-if>
+        <sc-if value="{{ rndLoreHas }}" hint-placeholder-val="{{ false }}">
+          <a href="{{ rndLoreHref }}" class="glass" style="display:block;padding:22px;border-radius:12px;text-decoration:none;color:inherit;">
+            <p style="font-size:0.64rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:12px;">✦ Уривок з довідника · {{ rndLoreCat }}</p>
+            <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.06rem;color:#fff;letter-spacing:0.04em;margin-bottom:10px;">{{ rndLoreTitle }}</h3>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.66;color:rgba(255,255,255,0.56);text-wrap:pretty;">{{ rndLoreText }}</p>
+            <p style="margin-top:14px;font-size:0.78rem;color:rgba(255,215,0,0.72);">Читати розділ <span style="opacity:0.7;">→</span></p>
+          </a>
+        </sc-if>
+      </div>
+    </section>
+    </sc-if>
 
     <!-- ═══ ПУЛЬС СПІЛЬНОТИ ═══ -->
     <sc-if value="{{ showPulse }}" hint-placeholder-val="{{ false }}">
@@ -572,6 +750,7 @@ a:hover{color:#a8c4f7;}
       </div>
     </section>
     </sc-if>
+
   </main>
 </sc-if>
 <!-- ═══ ПУТІВНИК ═══ -->
@@ -2743,6 +2922,17 @@ a:hover{color:#a8c4f7;}
   </div>
 </sc-if>
 
+<!-- ═══ ШТАМП РЕЦЕПЦІЇ — у куті поверх сторінки (ПК, лише Головна) ═══ -->
+<!-- Стоїть на корені, а не в <main>: у сторінки є анімація з transform,
+     а вона робить із себе контейнер, і position:fixed усередині перестає
+     триматися вікна (штамп їхав у низ документа). -->
+<sc-if value="{{ entryStamp }}" hint-placeholder-val="{{ false }}">
+  <div class="au-keep-stamp" title="{{ entryTitle }}">
+    <span class="au-keep-top">Рецепція · прийнято</span>
+    <span class="au-keep-no">вх. № {{ entryNo }}</span>
+    <span class="au-keep-sign">— М.</span>
+  </div>
+</sc-if>
 <sc-if value="{{ showToTop }}" hint-placeholder-val="{{ false }}">
   <button onClick="{{ scrollToTop }}" title="Нагору" aria-label="Нагору" style="position:fixed;right:22px;bottom:22px;z-index:9999;width:48px;height:48px;border-radius:999px;border:1px solid rgba(255,215,0,0.4);background:rgba(26,24,20,0.82);backdrop-filter:blur(10px);color:#ffd700;font-size:1.3rem;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.8);box-shadow:0 0 22px rgba(255,215,0,0.35);transform:translateY(-3px);">↑</button>
 </sc-if>
@@ -2872,6 +3062,25 @@ const SUPA_H    = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` };
 // Фаза 1 — тільки поля, потрібні спискам і карткам (без важкого `content`).
 // Фаза 2 — тексти, у фоні. Якщо в таблицю додано нову колонку, її треба
 // дописати сюди, інакше сайт її не побачить.
+// Версія інтро першого заходу: піднята — заслона грає ще раз усім.
+const INTRO_VER = '2';
+
+// Піктограми обкладинок сюжетів. Лежать на рівні модуля, бо їх читає і розділ
+// «Історії», і колода на Головній (у сюжетів картинки немає — іде піктограма).
+const STORY_ICONS = {
+  sword:   'M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2',
+  crown:   'M2 5l3 12h14l3-12-6 7-4-7-4 7-6-7ZM5 21h14',
+  moon:    'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z',
+  flame:   'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5Z',
+  leaf:    'M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10ZM2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12',
+  eye:     'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
+  key:     'M14 10l7-7M18 6l2 2M12.5 11.5a5 5 0 1 1-7.07 7.07 5 5 0 0 1 7.07-7.07Z',
+  feather: 'M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5ZM16 8 2 22M17.5 15H9',
+  star:    'M12 2l2.9 6.3 6.6 1-4.8 4.8 1.2 6.9L12 17.8 6.1 21l1.2-6.9L2.5 9.3l6.6-1Z',
+  shield:  'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z',
+  chalice: 'M8 21h8M12 17v4M17 3H7v5a5 5 0 0 0 10 0V3Z',
+};
+
 const LIST_SELECT = {
   lore:       'id,title,category,excerpt,cover,sort_order,created_at',
   stories:    'id,title,status,description,sort_order,created_at,author_name,author_telegram,telegraph_url,chapters,tags,status_label,status_color,cover_color,cover_ornament,cover_icon,author_label',
@@ -3319,6 +3528,19 @@ class Component extends DCLogic {
     rollHistory: [], selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null,
     relHoverId: null, relPinId: null, relMx: 0, relMy: 0,
     charTab: 'player', charSearch: '', homeSearch: '',
+    // Інтро грає лише при першому заході (`au_seen_intro`); вітання з другого
+    // разу ховається під банер (`au_seen_welcome`), тому прапорець читається
+    // ДО того, як componentDidMount його поставить.
+    introOn: false, introPorts: [], heroEntered: false,
+    // Вхідний № — справжній: рецепція видає його раз і назавжди
+    // (RPC `visit_no`, міграція supabase_visits_migration.sql). Локальна копія
+    // потрібна, щоб штамп стояв одразу, ще до відповіді бази.
+    entryNo: (() => { try { return localStorage.getItem('au_entry_no') || ''; } catch (e) { return ''; } })(),
+    entryTotal: null,
+    deckIdx: [0, 1, 2, 3], deckTurn: 0, deckHold: false,
+    deckBase: Math.floor(Math.random() * 9973),
+    welcomeSeen: (() => { try { return !!localStorage.getItem('au_seen_welcome'); } catch (e) { return false; } })(),
+    rndSeed: Math.floor(Math.random() * 997),
     charMode: this._initMode(),
     selectedBoardChar: null, wallTypes: WALL_ORDER.slice(),
     boardSearch: '',
@@ -3455,6 +3677,289 @@ class Component extends DCLogic {
     };
   }
 
+  // ── Інтро першого заходу ───────────────────────────────────
+  // Грає РАЗ назавжди і лише коли зайшли на Головну без адреси розділу:
+  // інакше поділене посилання на теку відкривалося б через заслону.
+  // Версія інтро. Піднімаєш число — і заслона грає ще раз УСІМ (раз), хай
+  // навіть вони бачили попередню: це показ оновлення, а не привітання нових.
+  _introOk() {
+    try {
+      if (String(localStorage.getItem('au_seen_intro') || '') === INTRO_VER) return false;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+      const h = String(location.hash || '').replace(/^#\/?/, '').split('/')[0];
+      return !h || h === 'home';
+    } catch (e) { return false; }
+  }
+  _introMaybe() {
+    if (!this._introOk()) return;
+    // Портрети — половина інтро, тому чекаємо картотеку (з кешу вона приходить
+    // одразу), але не довше трьох секунд: заслона без портретів усе одно
+    // краща за порожній екран.
+    let tries = 0;
+    const go = () => {
+      const n = (((this.state.data || {}).characters) || []).length;
+      if (n || tries++ > 24) this._introGo();
+      else setTimeout(go, 125);
+    };
+    go();
+  }
+  // ── Книга відвідувачів ────────────────────────────────────
+  // Номер видає база (`visit_no`), а не Math.random: штамп на екрані мусить
+  // означати щось справжнє. Не відповіла — стоїть «б/н», а не вигаданий номер.
+  _visitNo() {
+    try {
+      fetch(SUPA_URL + '/rpc/visit_no', {
+        method: 'POST',
+        headers: { ...SUPA_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ v: this._visitorId() }),
+      })
+        .then(r => (r.ok ? r.json() : null))
+        .then(d => {
+          const row = Array.isArray(d) ? d[0] : d;
+          if (!row || row.no == null) return;
+          const no = String(row.no);
+          try { localStorage.setItem('au_entry_no', no); } catch (e) {}
+          this.setState({ entryNo: no, entryTotal: row.total != null ? Number(row.total) : null });
+        })
+        .catch(() => {});
+    } catch (e) {}
+  }
+
+  _introGo() {
+    try { localStorage.setItem('au_seen_intro', INTRO_VER); } catch (e) {}
+    const pool = (((this.state.data || {}).characters) || []).filter(c => c.image && c.name);
+    const rest = pool.slice(), pick = [];
+    while (pick.length < 6 && rest.length) pick.push(rest.splice(Math.floor(Math.random() * rest.length), 1)[0]);
+    clearTimeout(this._introTimer);
+    try { document.documentElement.style.overflow = 'hidden'; } catch (e) {}
+    window.scrollTo({ top: 0 });
+    this.setState({
+      introOn: true, heroEntered: false,
+      introPorts: pick.map(c => ({ id: c.id, name: c.name, img: c.image })),
+    });
+    // Тривалість мусить збігатися з `animation-delay` заслони в CSS:
+    // на телефоні інтро спрощене й коротше.
+    const short = (window.innerWidth || 1200) <= 640;
+    this._introTimer = setTimeout(() => this.endIntro(), short ? 4500 : 7000);
+  }
+  // Заслона зійшла — напис приїжджає з центру під верх, за ним колода.
+  endIntro() {
+    clearTimeout(this._introTimer);
+    try { document.documentElement.style.overflow = ''; } catch (e) {}
+    if (this.state.introOn) this.setState({ introOn: false, heroEntered: true });
+  }
+
+  // ── Колода випадкових матеріалів ──────────────────────────
+  // Кожен захід — інша четвірка (`deckBase`), і кожні 3,6 с одна картка
+  // перегортається. Кошики перемішані по колу, інакше персонажів у базі
+  // більше, і в колоді були б тільки вони.
+  // Які кошики взагалі йдуть у стрічку й колоду на Головній. Поки що це
+  // список у налаштуваннях сайту (`home_feed_off`), типово вимкнені цитатник
+  // і хроніки; коли в адмінці зʼявиться поле — правити код не доведеться.
+  _kindOn(data, kind) {
+    const raw = ((data || {}).site || {}).home_feed_off;
+    const off = String(raw == null ? 'quotes,chronicles' : raw).split(/[,\s]+/).filter(Boolean);
+    return off.indexOf(kind) === -1;
+  }
+  _deckPool(data) {
+    const g = [];
+    const push = (arr) => { if (arr.length) g.push(arr); };
+    const flat = (t, n) => {
+      const s = String(t || '').replace(/!\[[^\]]*\]\([^)]*\)/g, '').replace(/\[([^\]]*)\]\(([^)]*)\)/g, '$1')
+        .replace(/[#>*_`~|]+/g, ' ').replace(/\s+/g, ' ').trim();
+      return s.length > n ? s.slice(0, n).replace(/[\s,;:.—-]+\S*$/, '') + '…' : s;
+    };
+    push((data.characters || []).filter(c => c && c.name).map(c => ({
+      kind: 'Тека', accent: '#e587a4', orn: '✦', title: c.name,
+      sub: c.alias ? '«' + c.alias + '»' : (c.role || flat(c.card_caption, 70)),
+      img: c.image || '', href: '#characters/' + encodeURIComponent(c.id),
+    })));
+    push((data.lore || []).filter(it => it && it.title).map(it => ({
+      kind: 'Довідник', accent: '#ffd76b', orn: '❖', title: it.title,
+      sub: flat(it.excerpt || it.content, 74) || (it.category || ''),
+      img: it.cover || '', href: '#lore/' + encodeURIComponent(it.id),
+    })));
+    push((data.stories || []).filter(it => it && it.title).map(it => ({
+      kind: 'Сюжет', accent: (it.cover_color || '').trim() || '#6495ed',
+      orn: (it.cover_ornament || '').trim() || '❧',
+      iconPath: STORY_ICONS[(it.cover_icon || '').trim()] || '',
+      title: it.title,
+      sub: flat(it.description, 74), img: '', href: '#stories/' + encodeURIComponent(it.id),
+    })));
+    if (this._kindOn(data, 'chronicles')) push((data.chronicles || []).filter(it => it && it.title).map(it => ({
+      kind: 'Хроніка', accent: '#8fd6c0', orn: '⚜', title: it.title,
+      sub: flat(it.subtitle || it.summary, 74) || (it.period || ''),
+      img: it.cover || '', href: '#chronicles/' + encodeURIComponent(it.id),
+    })));
+    if (this._kindOn(data, 'quotes')) push((data.quotes || []).filter(q => q && q.text).map(q => ({
+      kind: 'Цитатник', accent: '#c8ccd8', orn: '❞', title: '«' + flat(q.text, 92) + '»',
+      sub: q.author ? '— ' + q.author : '', img: '', href: '#quotes',
+    })));
+    const chById = {};
+    (data.characters || []).forEach(c => { chById[String(c.id)] = c; });
+    push((data.character_images || []).filter(r => r && r.url && !r.is_sensitive && !r.is_draft).map(r => {
+      const c = chById[String(r.character_id)];
+      return {
+        kind: 'Малюнок', accent: '#f0a76b', orn: '✧',
+        title: flat(r.caption, 64) || (c ? c.name : 'З галереї'),
+        sub: c ? c.name : '', img: r.url,
+        href: c ? '#characters/' + encodeURIComponent(c.id) : '#characters',
+      };
+    }));
+    // По колу з кошиків, зі зсувом усередині кошика — щоб щоразу інші рядки.
+    const base = this.state.deckBase || 0;
+    const out = [];
+    const max = Math.max(0, ...g.map(a => a.length));
+    for (let i = 0; i < max; i++) {
+      g.forEach((a, k) => { if (a.length) out.push(a[(base * (k + 3) + i) % a.length]); });
+    }
+    return out;
+  }
+  _deck(data) {
+    const pool = this._deckPool(data);
+    const idx = this.state.deckIdx || [];
+    const n = Math.min(4, pool.length);
+    const cards = [];
+    const taken = {};
+    for (let i = 0; i < n; i++) {
+      // Не допускаємо двох карток про ОДНУ особу (тека + її малюнок — різні
+      // рядки пулу, але для глядача це виглядає як збій): беремо наступний.
+      let k = (idx[i] || 0) % pool.length, item = null;
+      for (let hop = 0; hop < pool.length; hop++) {
+        const cand = pool[(k + hop) % pool.length];
+        if (cand && !taken[cand.href]) { item = cand; break; }
+      }
+      if (!item) continue;
+      taken[item.href] = 1;
+      cards.push({
+        ...item, hasImg: !!item.img, noImg: !item.img, hasSub: !!String(item.sub || '').trim(),
+        // Немає картинки — іде піктограма обкладинки (сюжети), а якщо й її
+        // немає, то орнамент.
+        hasIcon: !item.img && !!item.iconPath,
+        plainOrn: !item.img && !item.iconPath,
+        iconPath: item.iconPath || '',
+        flip: String((idx[i] || 0) % 2),
+      });
+    }
+    return {
+      deckHas: cards.length >= 2,
+      deckCards: cards,
+      deckHold: () => { if (!this.state.deckHold) this.setState({ deckHold: true }); },
+      deckGo: () => { if (this.state.deckHold) this.setState({ deckHold: false }); },
+    };
+  }
+  // Одна картка за раз, по колу. Наступний рядок колоди — той, якого зараз
+  // немає на екрані, тому чотири картки ніколи не дублюються.
+  _deckStep() {
+    if (this.state.page !== 'home' || this.state.introOn || this.state.deckHold) return;
+    if (document.hidden) return;
+    const idx = (this.state.deckIdx || []).slice();
+    if (idx.length < 2) return;
+    const turn = this.state.deckTurn || 0;
+    const slot = turn % idx.length;
+    idx[slot] = Math.max.apply(null, idx) + 1;
+    this.setState({ deckIdx: idx, deckTurn: turn + 1 });
+  }
+  // Картинки карток підставляються ПІСЛЯ рендера: `src="{{ c.img }}"` у
+  // заготовці лишався літералом, і браузер просив адресу з холом (404).
+  _deckImgs() {
+    try {
+      document.querySelectorAll('img[data-au-src]').forEach((n) => {
+        const v = n.getAttribute('data-au-src') || '';
+        if (!v || v.indexOf('{{') === 0) return;
+        if (n.getAttribute('src') !== v) n.setAttribute('src', v);
+      });
+    } catch (e) {}
+  }
+  _intro() {
+    const no = this.state.entryNo || '';
+    const tot = this.state.entryTotal;
+    return {
+      introOn: !!this.state.introOn,
+      entryNo: no || 'б/н',
+      entryHas: !!no,
+      entryStamp: !!no && this.state.page === 'home' && !this.state.introOn,
+      entryTotalLabel: tot ? ('записаних у книзі — ' + tot) : 'книга відвідувачів',
+      entryTitle: 'Ваш номер у книзі відвідувачів Ауреліону — видається раз і назавжди',
+      // Клас, а не інлайн: приїзд напису грає лише в того, хто щойно
+      // подивився інтро; решта одразу бачить готову головну.
+      heroRise: this.state.heroEntered ? 'rise' : '',
+      // Портрети йдуть через createElement, а не шаблоном: `src="{{ p.img }}"`
+      // у заготовці (доки значень ще немає) лишався літералом, і браузер на
+      // КОЖНОМУ заході просив картинку за адресою з нерозібраним холом — 404
+      // у консолі й у логах сервера.
+      introPortsEl: React.createElement(React.Fragment, null,
+        ...(this.state.introPorts || []).map((p, i) => React.createElement('div',
+          { className: 'au-port', key: 'ip' + i },
+          p.img
+            ? React.createElement('img', { src: p.img, alt: '', className: 'au-port-img', decoding: 'async' })
+            : React.createElement('span', { className: 'au-port-ini' }, String(p.name || '✦').slice(0, 1)),
+          React.createElement('span', { className: 'au-port-name' }, p.name || ''),
+        )),
+      ),
+      endIntro: () => this.endIntro(),
+      replayIntro: () => this._introGo(),
+    };
+  }
+
+  // ── Навмання: тека, якої ще не відкривали, і уривок довідника ──
+  // «Свіже» показує те саме, що вчора; тут — випадкове, а персонаж береться
+  // з тих, кого ця людина ще не читала (`au_read_chars`).
+  _readChars() {
+    if (this._readCache) return this._readCache;
+    let m = {};
+    try { m = JSON.parse(localStorage.getItem('au_read_chars') || '{}') || {}; } catch (e) { m = {}; }
+    this._readCache = m;
+    return m;
+  }
+  _markRead(id) {
+    if (!id) return;
+    const m = this._readChars();
+    if (m[String(id)]) return;
+    m[String(id)] = 1;
+    const keys = Object.keys(m);
+    if (keys.length > 300) delete m[keys[0]];
+    this._readCache = m;
+    try { localStorage.setItem('au_read_chars', JSON.stringify(m)); } catch (e) {}
+  }
+  _random(data) {
+    const seed = this.state.rndSeed || 0;
+    const read = this._readChars();
+    const all = (data.characters || []).filter(c => c && c.name);
+    const fresh = all.filter(c => !read[String(c.id)]);
+    const pool = fresh.length ? fresh : all;
+    const c = pool.length ? pool[seed % pool.length] : null;
+    const lores = (data.lore || []).filter(it => it && it.title && (it.excerpt || it.content));
+    const l = lores.length ? lores[(seed * 7 + 3) % lores.length] : null;
+    // Уривок читається як проза, тому розмітку зрізаємо, а рядок ріжемо по
+    // межі слова — обірваний склад виглядає як збій.
+    const flat = (t, n) => {
+      const s = String(t || '')
+        .replace(/!\[[^\]]*\]\([^)]*\)/g, '').replace(/\[([^\]]*)\]\(([^)]*)\)/g, '$1')
+        .replace(/[#>*_`~|]+/g, ' ').replace(/\s+/g, ' ').trim();
+      return s.length > n ? s.slice(0, n).replace(/[\s,;:.—-]+\S*$/, '') + '…' : s;
+    };
+    return {
+      rndHas: !!(c || l),
+      rndCharHas: !!c,
+      rndLoreHas: !!l,
+      rndCharName: c ? c.name : '',
+      rndCharSub: c ? (c.alias ? '«' + c.alias + '»' : (c.role || '')) : '',
+      rndCharLine: c ? flat(c.card_caption || c.bio, 150) : '',
+      rndCharHref: c ? '#characters/' + encodeURIComponent(c.id) : '#home',
+      rndCharImg: c && c.image ? c.image : '',
+      rndCharHasImg: !!(c && c.image),
+      rndCharNoImg: !!(c && !c.image),
+      rndCharIni: c ? String(c.name).slice(0, 1) : '✦',
+      rndCharNote: fresh.length ? 'Тека, якої ви ще не відкривали' : 'Ви відкривали вже всі теки — ось будь-яка',
+      rndLoreTitle: l ? l.title : '',
+      rndLoreCat: l ? (l.category || 'Довідник') : '',
+      rndLoreText: l ? flat(l.excerpt || l.content, 260) : '',
+      rndLoreHref: l ? '#lore/' + encodeURIComponent(l.id) : '#home',
+      rerollRandom: () => this.setState({ rndSeed: (this.state.rndSeed || 0) + 1 }),
+    };
+  }
+
   // ── Вступне слово: коротко, решта під «Читати далі» ────────
   // Текст пишеться в адмінці й буває довгим, а перший екран мусить лишати
   // місце тому, що під ним. Ріжемо по першому орнаменту (`---`), а якщо його
@@ -3480,10 +3985,18 @@ class Component extends DCLogic {
     // зекономлене місце.
     if (tail.replace(/\s/g, '').length < 160) { head = raw; tail = ''; }
     const open = !!this.state.homeWelcomeOpen;
+    // Першого разу вітання стоїть на обкладинці; далі головна мусить
+    // починатися з навігації, тому текст іде під банер над розділами.
+    const seen = !!this.state.welcomeSeen;
     return {
+      welcomeInline: !seen,
+      welcomeBanner: seen,
+      welcomeBannerOpen: seen && open,
+      welcomeBannerLabel: open ? 'Згорнути вітання' : '✦ Прочитати вітання →',
+      homeWelcomeFullEl: el(raw),
       homeWelcomeEl: el(head),
-      homeWelcomeHasMore: !!tail,
-      homeWelcomeOpen: open && !!tail,
+      homeWelcomeHasMore: !seen && !!tail,
+      homeWelcomeOpen: !seen && open && !!tail,
       homeWelcomeRestEl: tail ? el(tail) : null,
       homeWelcomeMoreLabel: open ? 'Згорнути' : 'Читати далі',
       toggleWelcome: () => this.setState({ homeWelcomeOpen: !this.state.homeWelcomeOpen }),
@@ -3495,6 +4008,14 @@ class Component extends DCLogic {
         window.scrollTo({ top: y, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
       },
       freshRef: (n) => { this._freshRef = n; },
+      tilesRef: (n) => { this._tilesRef = n; },
+      scrollToTiles: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const n = this._tilesRef;
+        if (!n) return;
+        const y = n.getBoundingClientRect().top + window.pageYOffset - 74;
+        window.scrollTo({ top: y, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      },
     };
   }
 
@@ -3552,11 +4073,11 @@ class Component extends DCLogic {
       sub: it.author_name ? (it.author_label || 'авторка') + ' ' + it.author_name : '',
       img: '', href: '#stories/' + encodeURIComponent(it.id), when: it.created_at,
     }));
-    (data.chronicles || []).forEach(it => add({
+    if (this._kindOn(data, 'chronicles')) (data.chronicles || []).forEach(it => add({
       kind: 'Хроніка', accent: '#6fcfbf', title: it.title || '', sub: it.subtitle || '',
       img: it.cover || '', href: '#chronicles/' + encodeURIComponent(it.id), when: it.created_at,
     }));
-    (data.quotes || []).forEach(q => {
+    if (this._kindOn(data, 'quotes')) (data.quotes || []).forEach(q => {
       const t = String(q.text || '').trim();
       if (!t) return;
       add({
@@ -4708,7 +5229,7 @@ class Component extends DCLogic {
     };
     if (id) {
       const find = (arr) => (arr || []).find(x => String(x.id) === String(id)) || null;
-      if (seg === 'characters')      patch.selectedChar      = find(data.characters);
+      if (seg === 'characters')      { patch.selectedChar = find(data.characters); if (patch.selectedChar) this._markRead(id); }
       else if (seg === 'lore')       patch.selectedLore      = find(data.lore);
       else if (seg === 'stories')    patch.selectedHistory   = find(data.stories);
       else if (seg === 'chronicles') patch.selectedChronicle = find(data.chronicles);
@@ -5260,6 +5781,7 @@ class Component extends DCLogic {
   componentDidUpdate(prevProps, prevState) {
     const s = this.state;
     this._trackCurrent();
+    this._deckImgs();
     // Цей runtime не передає другим аргументом попередній стан, тому будь-яке
     // порівняння з `prevState` тут — мертвий код (саме через це не спрацьовував
     // ні лічильник кубика, ні скидання відбору стрічки). Попередню сторінку
@@ -5443,6 +5965,12 @@ class Component extends DCLogic {
     window.addEventListener('au-user', this._readUser);
     window.addEventListener('storage', this._readUser);
     this._loadAll();
+    this._introMaybe();
+    this._visitNo();
+    this._deckImgs();
+    this._deckTimer = setInterval(() => this._deckStep(), 9000);
+    // Вітання бачили — з наступного заходу воно живе під банером.
+    try { localStorage.setItem('au_seen_welcome', '1'); } catch (e) {}
     // Аналітика не має конкурувати з даними за перше з'єднання.
     const trackFirst = () => this._trackCurrent();
     if (window.requestIdleCallback) window.requestIdleCallback(trackFirst, { timeout: 3000 });
@@ -7433,6 +7961,9 @@ class Component extends DCLogic {
 
       ...this._homeSearch(data),
       ...this._freshFeed(data),
+      ...this._intro(),
+      ...this._random(data),
+      ...this._deck(data),
       showNavSearch: page !== 'home',
 
       ...(() => {
@@ -7577,19 +8108,7 @@ class Component extends DCLogic {
         const BOOK_PALETTE = ['#7a5cc2','#3c6bd6','#b0485a','#3f9c8a','#c9a227','#5a5ad0'];
         const _SC = { active:'#ffd700', completed:'#6fcf8e', planned:'#6495ed' };
         const _LEGACY_ST = { active:'пишеться', completed:'завершена' }; // planned — не показуємо
-        const STORY_ICON_PATHS = {
-          sword:   'M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2',
-          crown:   'M2 5l3 12h14l3-12-6 7-4-7-4 7-6-7ZM5 21h14',
-          moon:    'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z',
-          flame:   'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5Z',
-          leaf:    'M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10ZM2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12',
-          eye:     'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
-          key:     'M14 10l7-7M18 6l2 2M12.5 11.5a5 5 0 1 1-7.07 7.07 5 5 0 0 1 7.07-7.07Z',
-          feather: 'M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5ZM16 8 2 22M17.5 15H9',
-          star:    'M12 2l2.9 6.3 6.6 1-4.8 4.8 1.2 6.9L12 17.8 6.1 21l1.2-6.9L2.5 9.3l6.6-1Z',
-          shield:  'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z',
-          chalice: 'M8 21h8M12 17v4M17 3H7v5a5 5 0 0 0 10 0V3Z',
-        };
+        const STORY_ICON_PATHS = STORY_ICONS;
         const _rgba = (hx,a) => 'rgba(' + parseInt(hx.slice(1,3),16) + ',' + parseInt(hx.slice(3,5),16) + ',' + parseInt(hx.slice(5,7),16) + ',' + a + ')';
         const _pl = (n) => { const m10=n%10, m100=n%100; if(m10===1&&m100!==11) return n+' розділ'; if(m10>=2&&m10<=4&&(m100<12||m100>14)) return n+' розділи'; return n+' розділів'; };
         const _sm = filteredStoriesData.map((arc, _si) => {
