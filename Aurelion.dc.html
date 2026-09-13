@@ -3878,7 +3878,11 @@ class Component extends DCLogic {
       introOn: !!this.state.introOn,
       entryNo: no || 'б/н',
       entryHas: !!no,
-      entryStamp: !!no && this.state.page === 'home' && !this.state.introOn,
+      // Штамп тепер на всіх розділах — печатка рецепції на склі віконця.
+      // Не показуємо лише під заслоною інтро (там свій штамп) і в кабінеті,
+      // віконці пліток та адмінських лічках, де внизу свої панелі.
+      entryStamp: !!no && !this.state.introOn
+        && ['gossip', 'cabinet', 'intake', 'posts', 'audio'].indexOf(this.state.page) === -1,
       entryTotalLabel: tot ? ('записаних у книзі — ' + tot) : 'книга відвідувачів',
       entryTitle: 'Ваш номер у книзі відвідувачів Ауреліону — видається раз і назавжди',
       // Клас, а не інлайн: приїзд напису грає лише в того, хто щойно
