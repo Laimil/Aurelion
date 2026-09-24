@@ -2085,7 +2085,6 @@ button{font-family:inherit;cursor:pointer}
           </sc-if>
           <div style="display:flex;gap:5px;padding:7px 8px 8px;margin-top:auto;">
             <button data-id="{{ char.id }}" title="Привітати в чаті" onClick="{{ greetChar }}" style="flex:1;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:999px;padding:4px 8px;font-size:0.7rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.2);">Привітати</button>
-            <button data-section="characters" data-index="{{ char._index }}" onClick="{{ deleteItem }}" title="Видалити" style="background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.7);border-radius:999px;padding:4px 10px;font-size:0.7rem;cursor:pointer;" style-hover="background:rgba(255,77,77,0.18);">✕</button>
           </div>
         </div>
       </sc-for>
@@ -2408,6 +2407,18 @@ button{font-family:inherit;cursor:pointer}
 
             <button type="button" onClick="{{ linkRebuild }}" title="Перечитати вікі-посилання в усіх матеріалах" style="margin-top:14px;background:none;border:none;color:rgba(100,149,237,0.6);font-size:0.7rem;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;">{{ linkRebuildLabel }}</button>
           </div>
+        </sc-if>
+        <sc-if value="{{ charCanDelete }}" hint-placeholder-val="{{ false }}">
+          <details style="margin:26px 0 18px;border:1px solid rgba(255,77,77,0.22);border-radius:9px;background:rgba(255,77,77,0.03);">
+            <summary style="cursor:pointer;padding:11px 16px;font-size:0.76rem;color:rgba(255,77,77,0.75);">Видалити персонажа…</summary>
+            <div style="padding:4px 16px 16px;">
+              <p style="font-size:0.74rem;color:rgba(255,255,255,0.45);line-height:1.55;margin-bottom:10px;">Анкета, галерея й нитки зникнуть із сайту назавжди. Якщо персонаж просто вибув із гри — краще зробити його «⊘ Неактивним». Щоб видалити, введіть ім'я: <span style="color:#fff;">{{ charDelName }}</span></p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <input value="{{ charDelTyped }}" onChange="{{ charDelType }}" placeholder="{{ charDelName }}" style="flex:1;min-width:200px;" />
+                <button onClick="{{ charDelete }}" disabled="{{ charDelLocked }}" style="background:rgba(255,77,77,{{ charDelAlpha }});border:1px solid rgba(255,77,77,0.45);color:#fff;border-radius:6px;padding:8px 16px;font-size:0.8rem;cursor:{{ charDelCursor }};opacity:{{ charDelOpacity }};">Видалити назавжди</button>
+              </div>
+            </div>
+          </details>
         </sc-if>
         <div style="position:sticky;bottom:0;z-index:20;display:flex;gap:8px;align-items:center;margin:0 -22px -22px;padding:12px 22px;background:rgba(24,24,24,0.97);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.09);border-radius:0 0 10px 10px;">
           <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
@@ -7218,6 +7229,28 @@ class Component extends DCLogic {
       showLoreForm: showFor('lore'), showStoriesForm: showFor('stories'),
       showCharForm: showFor('characters'), showPanForm: showFor('pantheon'),
       charListOn: !showFor('characters'),
+      ...(() => {
+        const ed = s.editing;
+        const ch = ed && ed.section === 'characters' && ed.index >= 0 ? (data.characters || [])[ed.index] : null;
+        const name = ch ? String(ch.name || '').trim() : '';
+        const typed = String(s.charDelTyped || '').trim();
+        const ok = !!name && typed.toLowerCase() === name.toLowerCase();
+        return {
+          charCanDelete: !!(ch && ch.id), charDelName: name, charDelTyped: s.charDelTyped || '',
+          charDelType: (e) => this.setState({ charDelTyped: e.target.value }),
+          charDelLocked: !ok, charDelAlpha: ok ? 0.55 : 0.08, charDelCursor: ok ? 'pointer' : 'not-allowed', charDelOpacity: ok ? 1 : 0.5,
+          charDelete: async () => {
+            if (!ok) return;
+            try {
+              await this._remove('characters', ch.id);
+              await this._refreshTable('characters');
+              localStorage.setItem('aurelion-refresh', Date.now().toString());
+              this.setState({ editing: null, charDelTyped: '' });
+              this._toast('✓ Видалено: ' + name);
+            } catch (err) { this._toast('✗ Помилка видалення'); }
+          },
+        };
+      })(),
       charJump: (e) => {
         const el = document.querySelector('[data-csa="' + e.currentTarget.dataset.cs + '"]');
         if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 150), behavior: 'smooth' });
