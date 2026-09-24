@@ -129,14 +129,89 @@ button{font-family:inherit;cursor:pointer}
 </div>
 
 <!-- TAB BAR -->
-<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:0 24px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;">
-  <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="6">
-    <button data-tab="{{ tab.id }}" data-active="{{ tab.active }}" onClick="{{ setTab }}" class="tab-btn" style="background:transparent;border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;padding:10px 16px;font-size:0.8rem;color:rgba(255,255,255,0.45);white-space:nowrap;flex-shrink:0;transition:all 0.18s;margin-bottom:-1px;">{{ tab.label }}</button>
+<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:10px 24px 0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;align-items:flex-end;">
+  <sc-for list="{{ tabGroups }}" as="grp" hint-placeholder-count="5">
+    <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;padding-right:10px;border-right:1px solid rgba(255,255,255,0.06);">
+      <span style="font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.25);padding-left:8px;">{{ grp.label }}</span>
+      <div style="display:flex;gap:2px;">
+        <sc-for list="{{ grp.tabs }}" as="tab" hint-placeholder-count="3">
+          <button data-tab="{{ tab.id }}" data-active="{{ tab.active }}" onClick="{{ setTab }}" class="tab-btn" style="background:transparent;border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;padding:8px 13px;font-size:0.8rem;color:rgba(255,255,255,0.45);white-space:nowrap;flex-shrink:0;transition:all 0.18s;margin-bottom:-1px;display:flex;align-items:center;gap:7px;">
+            <span>{{ tab.label }}</span>
+            <sc-if value="{{ tab.hasCount }}" hint-placeholder-val="{{ false }}">
+              <span style="min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.66rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">{{ tab.count }}</span>
+            </sc-if>
+          </button>
+        </sc-for>
+      </div>
+    </div>
   </sc-for>
 </div>
 
+<!-- DESK TAB -->
+<sc-if value="{{ showDesk }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:1100px;margin:0 auto;padding:28px 24px 80px;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px;">
+      <div>
+        <h2 style="font-family:'Cinzel',serif;font-size:1.15rem;color:#ffd700;letter-spacing:0.08em;margin-bottom:6px;">✦ Стіл</h2>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);">{{ deskHead }}</p>
+      </div>
+      <button onClick="{{ deskReload }}" style="cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 16px;font-size:0.76rem;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">↺ Оновити черги</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:28px;">
+      <sc-for list="{{ deskCards }}" as="c" hint-placeholder-count="6">
+        <button onClick="{{ c.onGo }}" style="cursor:pointer;text-align:left;background:rgba(255,255,255,0.04);border:1px solid {{ c.border }};border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;opacity:{{ c.opacity }};transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.08);transform:translateY(-2px);">
+          <span style="font-family:'Cinzel',serif;font-size:1.7rem;line-height:1;color:{{ c.color }};">{{ c.n }}</span>
+          <span style="font-size:0.78rem;color:rgba(255,255,255,0.8);line-height:1.35;">{{ c.title }}</span>
+          <span style="font-size:0.68rem;color:{{ c.subColor }};">{{ c.sub }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:22px;align-items:start;">
+      <div>
+        <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">Чекає рішення · від найдавнішого</p>
+        <sc-if value="{{ deskNoRows }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.4);padding:18px 0;">Ні анкет, ні правок, ні людей під дверима. Можна й чаю.</p>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <sc-for list="{{ deskRows }}" as="r" hint-placeholder-count="4">
+            <button onClick="{{ r.onGo }}" style="cursor:pointer;text-align:left;background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 14px;display:grid;grid-template-columns:78px minmax(0,1fr) auto;gap:12px;align-items:center;transition:all 0.2s ease;" style-hover="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.16);">
+              <span style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ r.color }};">{{ r.tag }}</span>
+              <span style="display:flex;flex-direction:column;gap:2px;min-width:0;">
+                <span style="font-size:0.86rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.title }}</span>
+                <span style="font-size:0.7rem;color:rgba(255,255,255,0.38);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.sub }}</span>
+              </span>
+              <span style="font-size:0.7rem;color:{{ r.ageColor }};white-space:nowrap;">{{ r.age }} →</span>
+            </button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ deskHasGosReady }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ deskGoGossip }}" style="cursor:pointer;margin-top:12px;background:transparent;border:none;padding:0;font-size:0.74rem;color:rgba(100,149,237,0.9);" style-hover="color:#fff;">{{ deskGosReady }} →</button>
+        </sc-if>
+      </div>
+
+      <div>
+        <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">Змінилося за тиждень</p>
+        <sc-if value="{{ deskNoFeed }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.4);padding:18px 0;">Тиждень без правок у картотеці.</p>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;">
+          <sc-for list="{{ deskFeed }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.onGo }}" style="cursor:pointer;text-align:left;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.06);padding:9px 4px;display:grid;grid-template-columns:78px minmax(0,1fr) auto;gap:12px;align-items:baseline;" style-hover="background:rgba(255,255,255,0.04);">
+              <span style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);">{{ f.tag }}</span>
+              <span style="font-size:0.84rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ f.name }} <span style="color:rgba(255,255,255,0.35);font-size:0.72rem;">· {{ f.what }}</span></span>
+              <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);white-space:nowrap;">{{ f.age }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
 <!-- SITE TAB -->
-<sc-if value="{{ showSite }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ showSite }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:720px;margin:0 auto;padding:32px 24px 80px;">
     <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:24px;">⚙ Налаштування сайту</h2>
     <div style="display:flex;flex-direction:column;gap:18px;">
@@ -671,24 +746,42 @@ button{font-family:inherit;cursor:pointer}
         <button onClick="{{ f.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.78rem;transition:all 0.2s ease;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};">{{ f.label }}</button>
       </sc-for>
       <button onClick="{{ gosReload }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:999px;padding:7px 15px;font-size:0.78rem;">↻ Оновити</button>
+      <span style="flex:1;"></span>
+      <div style="display:flex;gap:2px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
+        <button onClick="{{ pplViewTiles }}" style="cursor:pointer;border:none;border-radius:999px;padding:5px 13px;font-size:0.74rem;background:{{ pplTileBtnBg }};color:{{ pplTileBtnColor }};">▦ Плитки</button>
+        <button onClick="{{ pplViewList }}" style="cursor:pointer;border:none;border-radius:999px;padding:5px 13px;font-size:0.74rem;background:{{ pplListBtnBg }};color:{{ pplListBtnColor }};">☰ Списком</button>
+      </div>
     </div>
     <input value="{{ gosPQ }}" onChange="{{ gosSetPQ }}" placeholder="Пошук: нік, телеграм, пошта або персонаж" style="width:100%;box-sizing:border-box;margin-bottom:14px;" />
     <sc-if value="{{ gosNoPeople }}" hint-placeholder-val="{{ true }}">
       <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);">{{ pplEmpty }}</p>
     </sc-if>
 
-    <div style="display:flex;flex-direction:column;gap:12px;">
+    <div id="ppl-detail" style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px;">
       <sc-for list="{{ gosPeople }}" as="p" hint-placeholder-count="0">
         <div style="background:rgba(255,255,255,0.035);border:1px solid {{ p.cardBorder }};border-radius:10px;padding:16px 18px;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-            <div style="min-width:0;">
+            <div style="min-width:0;display:flex;gap:14px;align-items:center;">
+              <sc-if value="{{ p.hasArt }}" hint-placeholder-val="{{ false }}">
+                <div title="{{ p.artTitle }}" style="width:52px;height:52px;border-radius:50%;flex-shrink:0;border:2px solid {{ p.ring }};box-shadow:0 4px 14px rgba(0,0,0,0.45);background:{{ p.artBg }};"></div>
+              </sc-if>
+              <sc-if value="{{ p.noArt }}" hint-placeholder-val="{{ false }}">
+                <div style="width:52px;height:52px;border-radius:50%;flex-shrink:0;border:2px solid {{ p.ring }};background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:1.2rem;color:rgba(255,255,255,0.55);">{{ p.initial }}</div>
+              </sc-if>
+              <div style="min-width:0;">
               <p style="font-family:'Cinzel',serif;font-size:1rem;color:#fff;">{{ p.nick }}</p>
               <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-top:4px;">{{ p.meta }}</p>
+              </div>
             </div>
+            <div style="display:flex;gap:8px;align-items:center;">
             <div style="display:flex;gap:2px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
               <sc-for list="{{ p.statuses }}" as="st" hint-placeholder-count="3">
                 <button onClick="{{ st.onPick }}" style="cursor:pointer;border:none;border-radius:999px;padding:5px 13px;font-size:0.74rem;transition:all 0.2s ease;background:{{ st.bg }};color:{{ st.color }};">{{ st.label }}</button>
               </sc-for>
+            </div>
+            <sc-if value="{{ p.showClose }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ p.onClose }}" title="Згорнути" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.45);border-radius:999px;width:30px;height:30px;font-size:0.8rem;" style-hover="color:#fff;">✕</button>
+            </sc-if>
             </div>
           </div>
           <p style="font-size:0.72rem;color:rgba(255,255,255,0.28);margin-top:6px;">{{ p.decided }}</p>
@@ -753,6 +846,42 @@ button{font-family:inherit;cursor:pointer}
         </div>
       </sc-for>
     </div>
+
+    <sc-if value="{{ pplTilesOn }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;">
+        <sc-for list="{{ pplTiles }}" as="t" hint-placeholder-count="8">
+          <div onClick="{{ t.onOpen }}" style="cursor:pointer;background:{{ t.tileBg }};border:1px solid {{ t.tileBorder }};border-radius:10px;padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.07);transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,0.4);">
+            <div style="position:relative;width:64px;height:64px;">
+              <sc-if value="{{ t.hasArt }}" hint-placeholder-val="{{ false }}">
+                <div title="{{ t.artTitle }}" style="width:64px;height:64px;border-radius:50%;border:2px solid {{ t.ring }};box-shadow:0 4px 14px rgba(0,0,0,0.45);background:{{ t.artBg }};"></div>
+              </sc-if>
+              <sc-if value="{{ t.noArt }}" hint-placeholder-val="{{ true }}">
+                <div style="width:64px;height:64px;border-radius:50%;border:2px solid {{ t.ring }};background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:1.4rem;color:rgba(255,255,255,0.5);">{{ t.initial }}</div>
+              </sc-if>
+              <sc-if value="{{ t.hasMore }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;right:-8px;bottom:-4px;display:flex;">
+                  <sc-for list="{{ t.more }}" as="m" hint-placeholder-count="1">
+                    <div title="{{ m.name }}" style="width:24px;height:24px;border-radius:50%;border:2px solid #1a1a1a;margin-left:-8px;background:{{ m.bg }};"></div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+            <p style="font-family:'Cinzel',serif;font-size:0.86rem;color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ t.nick }}</p>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.4);line-height:1.35;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ t.charLine }}</p>
+            <span style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:{{ t.stColor }};">{{ t.stLabel }}</span>
+            <sc-if value="{{ t.hasWait }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:0.64rem;color:rgba(255,190,130,0.9);">чекає: {{ t.waitLine }}</span>
+            </sc-if>
+            <sc-if value="{{ t.isPending }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px;margin-top:2px;">
+                <button onClick="{{ t.onApprove }}" title="Відкрити доступ" style="cursor:pointer;background:rgba(120,220,150,0.12);border:1px solid rgba(120,220,150,0.35);color:rgba(150,230,170,0.95);border-radius:999px;padding:3px 10px;font-size:0.68rem;">✓ Свій</button>
+                <button onClick="{{ t.onBlock }}" title="Відмовити" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,130,130,0.85);border-radius:999px;padding:3px 9px;font-size:0.68rem;">✕</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
   </div>
 </sc-if>
 
@@ -951,6 +1080,9 @@ button{font-family:inherit;cursor:pointer}
             </sc-if>
             <sc-if value="{{ e.canDecide }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ e.onReject }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,120,120,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відхилити</button>
+            </sc-if>
+            <sc-if value="{{ e.canDecide }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ e.onKnock }}" title="{{ e.knockTitle }}" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,0,0.22);color:rgba(255,215,0,0.75);border-radius:999px;padding:6px 16px;font-size:0.76rem;">{{ e.knockLabel }}</button>
             </sc-if>
             <sc-if value="{{ e.canOpen }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ e.onOpen }}" style="cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.7);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відкрити анкету</button>
@@ -3301,7 +3433,7 @@ class Component extends DCLogic {
     inRows: [], inFilter: 'pending', inBusy: false,
     userEmail: '',
     // admin
-    tab: 'site',
+    tab: 'desk',
     postsBusy: false, postsErr: '', postsRows: [], postsExisting: null,
     // власники й правки
     edRows: [], edFilter: 'pending', edBusy: false, ownQ: '', ownWho: 'all', gosPQ: '',
@@ -4379,6 +4511,24 @@ class Component extends DCLogic {
           hasAdminNote: !!r.admin_note, adminNote: r.admin_note || '',
           canDecide: r.status === 'pending',
           canOpen: !!ch,
+          knockLabel: r.notified_at ? '✉ Постукати ще раз' : '✉ Марта не постукала — постукати',
+          knockTitle: r.notified_at
+            ? ('Марта писала в лічку ' + new Date(r.notified_at).toLocaleString('uk-UA'))
+            : 'Повідомлення в лічку адмінам не дійшло або не відправлялось',
+          onKnock: async () => {
+            try {
+              const res = await fetch(`${SUPA_FUNCS}/telegram-report?knock=edit&id=${encodeURIComponent(r.id)}&force=1`, {
+                method: 'POST', headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken() || ''}` },
+              });
+              const t = (await res.text()).trim();
+              if (res.ok && t === 'ok') {
+                this._toast('✓ Марта постукала в лічку');
+                this._loadEdits();
+              } else {
+                this._toast('✗ ' + (t.slice(0, 200) || res.status));
+              }
+            } catch (ex) { this._toast('✗ ' + (ex.message || 'Не вийшло')); }
+          },
           onApply: () => this._editApply(r),
           onAdvise: () => {
             const t = window.prompt('Що сказати авторові? Він побачить це у своєму кабінеті:', r.admin_note || '');
@@ -4406,6 +4556,197 @@ class Component extends DCLogic {
           },
         };
       }),
+    };
+  }
+
+  // Відкрити запис на правку — спільне для кнопки «✎» у списках і для Столу.
+  _openEdit(section, index) {
+      const item    = (this.state.data[section] || [])[index] || {};
+      const form    = { ...item };
+      // Вхідні знайомства (хтось відмітив цю анкету, а вона його — ні)
+      // показуємо відміченими; збереження допише їх і з цього боку.
+      if (section === 'characters' && item.id != null) {
+        const me  = String(item.id);
+        const cur = new Set(String(form.connections || '').split(',').map(x => x.trim()).filter(Boolean));
+        (this.state.data.characters || []).forEach(c => {
+          if (String(c.id) === me) return;
+          const his = String(c.connections || '').split(',').map(x => x.trim()).filter(Boolean);
+          if (his.indexOf(me) !== -1) cur.add(String(c.id));
+        });
+        form.connections = [...cur].join(',');
+      }
+      this.setState({ editing: { section, index }, form, linkManual: [], linkSearch: '', dxRes: null, dxMsg: '', dxBad: false, dxBusy: false });
+      this._loadManualLinks(section, item.id);
+      if (section === 'characters') this._loadCharLinks(item.id);
+      this._loadGalImages(section, item.id);
+      this._scrollToForm();
+  }
+
+  // ── Навігація: вкладки згруповані за тим, що з ними роблять ──
+  _navVals(tab) {
+    const c = this._deskCounts();
+    const T = (id, label, n) => ({ id, label, active: tab === id, hasCount: !!n, count: n || 0 });
+    const groups = [
+      { key: 'desk', label: 'Огляд', tabs: [T('desk', '✦ Стіл', c.total)] },
+      { key: 'req', label: 'Запити', tabs: [
+        T('people', '👥 Люди', c.people), T('intake', '📥 Анкети', c.intake),
+        T('owners', '✎ Правки', c.owners), T('gossip', '✉ Плітки', c.gossip),
+      ] },
+      { key: 'world', label: 'Картотека й світ', tabs: [
+        T('characters', '🎭 Персонажі', c.characters), T('lore', '📜 Довідник'), T('stories', '📖 Історії'),
+        T('chronicles', '🪶 Хроніки'), T('pantheon', '🐉 Пантеон'), T('map', '🗺 Мапа'),
+      ] },
+      { key: 'play', label: 'Гра', tabs: [
+        T('tests', '🧠 Тести', c.tests), T('posts', '📰 Пости'), T('dice', '🎲 Дайс'),
+      ] },
+      { key: 'site', label: 'Сайт', tabs: [
+        T('site', '⚙ Налаштування'), T('contacts', '✍️ Долучитися'), T('stats', '📊 Пульс'),
+      ] },
+    ];
+    return { tabGroups: groups };
+  }
+
+  // ── Стіл: усе незакрите одним списком + що змінилося ──
+  _deskOpen() {
+    const s = this.state, d = s.data || {};
+    const out = [];
+    const clip = (v, n) => { const t = String(v == null ? '' : v).replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+    (s.gosPeople || []).filter(p => p.status === 'pending').forEach(p => out.push({
+      kind: 'people', key: 'p' + p.id, at: p.created_at, go: { pplFilter: 'pending' },
+      title: p.nick || 'без ніку', sub: [p.tg_nick, p.about ? clip(p.about, 70) : ''].filter(Boolean).join(' · ') || 'завів аркуш у кабінеті',
+    }));
+    (s.inRows || []).filter(r => r.status === 'pending').forEach(r => out.push({
+      kind: 'intake', key: 'i' + r.id, at: r.created_at, go: { inFilter: 'pending' },
+      title: `№${r.num} · ${r.name || 'без імені'}`, sub: `подав ${r.author_nick || 'невідомо хто'}`,
+    }));
+    (s.edRows || []).filter(r => r.status === 'pending').forEach(r => out.push({
+      kind: 'owners', key: 'e' + r.id, at: r.created_at, go: { edFilter: 'pending' },
+      title: `№${r.num} · ${r.char_name || 'персонаж'}`,
+      sub: `просить ${r.author_nick || 'невідомо хто'}` + (r.notified_at ? '' : ' · Марта не постукала'),
+      warn: !r.notified_at,
+    }));
+    (s.gosRows || []).filter(g => g.status === 'pending').forEach(g => out.push({
+      kind: 'gossip', key: 'g' + g.id, at: g.created_at, go: { gosFilter: 'pending' },
+      title: clip(g.text, 90) || 'плітка', sub: g.sign === 'secret' ? 'таємно' : `від ${g.author_nick || '?'}`,
+    }));
+    (d.tests || []).filter(t => t.status === 'pending').forEach(t => out.push({
+      kind: 'tests', key: 't' + t.id, at: t.submitted_at || t.updated_at || t.created_at,
+      title: t.title || 'тест без назви', sub: `автор ${t.author_nick || 'невідомо хто'}`,
+    }));
+    (d.characters || []).forEach((c, i) => { if (c.is_draft === true) out.push({
+      kind: 'characters', key: 'c' + c.id, at: c.intake_at || c.created_at, edit: { section: 'characters', index: i },
+      title: c.name || 'без імені', sub: 'чернетка — на сайті не видно' + (c.intake_by ? ` · з анкети ${c.intake_by}` : ''),
+    }); });
+    return out.sort((a, b) => new Date(a.at || 0) - new Date(b.at || 0));
+  }
+
+  _deskCounts() {
+    const c = { total: 0, people: 0, intake: 0, owners: 0, gossip: 0, tests: 0, characters: 0 };
+    this._deskOpen().forEach(x => { c[x.kind]++; c.total++; });
+    return c;
+  }
+
+  _deskVals() {
+    const s = this.state, d = s.data || {};
+    const open = this._deskOpen();
+    const now = Date.now();
+    const ago = (ts) => {
+      const t = ts ? new Date(ts).getTime() : NaN;
+      if (isNaN(t)) return '';
+      const m = Math.max(0, Math.round((now - t) / 60000));
+      if (m < 2) return 'щойно';
+      if (m < 60) return `${m} хв`;
+      const h = Math.round(m / 60);
+      if (h < 24) return `${h} год`;
+      return `${Math.round(h / 24)} дн`;
+    };
+    const days = (ts) => ts ? (now - new Date(ts).getTime()) / 86400000 : 0;
+    const K = {
+      people:     { tag: 'Людина',   tab: 'people',     color: '#ffd700',                  title: 'Люди чекають доступу',  empty: 'нових немає' },
+      intake:     { tag: 'Анкета',   tab: 'intake',     color: '#9dbcf7',                  title: 'Анкети на розгляді',     empty: 'нових немає' },
+      owners:     { tag: 'Правка',   tab: 'owners',     color: '#c9a7ff',                  title: 'Правки від власників',   empty: 'нових немає' },
+      gossip:     { tag: 'Плітка',   tab: 'gossip',     color: 'rgba(255,190,130,0.95)',   title: 'Плітки на столі',        empty: 'стіл чистий' },
+      tests:      { tag: 'Тест',     tab: 'tests',      color: 'rgba(120,220,170,0.95)',   title: 'Тести на розгляді',      empty: 'нових немає' },
+      characters: { tag: 'Чернетка', tab: 'characters', color: 'rgba(255,255,255,0.7)',    title: 'Чернетки персонажів',    empty: 'усі на сайті' },
+    };
+    const go = (x) => {
+      const k = K[x.kind];
+      if (x.edit) { this.setState({ tab: k.tab }); this._openEdit(x.edit.section, x.edit.index); return; }
+      this.setState({ tab: k.tab, editing: null, form: {}, ...(x.go || {}) });
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+    };
+    const cards = Object.keys(K).map(kind => {
+      const list = open.filter(x => x.kind === kind);
+      const n = list.length, k = K[kind];
+      const oldest = list[0];
+      const late = oldest && days(oldest.at) > 3;
+      return {
+        key: kind, n, title: k.title, color: n ? k.color : 'rgba(255,255,255,0.25)',
+        sub: n ? `найдавніше — ${ago(oldest.at)}` : k.empty,
+        subColor: late ? 'rgba(255,170,110,0.9)' : 'rgba(255,255,255,0.35)',
+        border: n ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.06)',
+        opacity: n ? '1' : '0.55',
+        onGo: () => go({ kind, go: (list[0] && list[0].go) || {} }),
+      };
+    });
+    const gosReady = (s.gosRows || []).filter(g => g.status === 'ready').length;
+
+    const rows = open.map(x => {
+      const k = K[x.kind], late = days(x.at) > 3;
+      return {
+        key: x.key, tag: k.tag, color: k.color, title: x.title, sub: x.sub,
+        age: ago(x.at), ageColor: (late || x.warn) ? 'rgba(255,170,110,0.9)' : 'rgba(255,255,255,0.3)',
+        onGo: () => go(x),
+      };
+    });
+
+    // Що змінилося за тиждень — по датах, які база вже тримає.
+    const SEC = [
+      ['characters', 'Персонаж', 'characters', r => r.name],
+      ['lore', 'Довідник', 'lore', r => r.title],
+      ['stories', 'Історія', 'stories', r => r.title],
+      ['chronicles', 'Хроніка', 'chronicles', r => r.title],
+      ['pantheon', 'Пантеон', 'pantheon', r => r.name || r.god],
+      ['tests', 'Тест', 'tests', r => r.title],
+    ];
+    const WEEK = 7;
+    const feed = [];
+    SEC.forEach(([sec, tag, tab, nm]) => (d[sec] || []).forEach((r, i) => {
+      const made = r.created_at && days(r.created_at) <= WEEK;
+      const touched = r.updated_at && days(r.updated_at) <= WEEK && (!r.created_at || Math.abs(new Date(r.updated_at) - new Date(r.created_at)) > 60000);
+      if (!made && !touched) return;
+      const at = touched ? r.updated_at : r.created_at;
+      feed.push({ sec, tab, i, tag, at, name: nm(r) || 'без назви', what: made ? 'додано' : 'змінено', draft: r.is_draft === true });
+    }));
+    (s.gosPeople || []).forEach(p => {
+      if (p.decided_at && p.status === 'approved' && days(p.decided_at) <= WEEK) feed.push({ tab: 'people', tag: 'Людина', at: p.decided_at, name: p.nick || 'без ніку', what: 'отримала доступ' });
+    });
+    feed.sort((a, b) => new Date(b.at) - new Date(a.at));
+    const feedRows = feed.slice(0, 14).map((f, j) => ({
+      key: 'f' + j, tag: f.tag, name: f.name, what: f.what + (f.draft ? ' · чернетка' : ''), age: ago(f.at),
+      onGo: () => {
+        if (f.sec) { this.setState({ tab: f.tab }); this._openEdit(f.sec, f.i); }
+        else this.setState({ tab: f.tab, editing: null, form: {} });
+      },
+    }));
+
+    const late = open.filter(x => days(x.at) > 3).length;
+    return {
+      showDesk: s.tab === 'desk',
+      deskHead: open.length
+        ? `Незакритого — ${open.length}` + (late ? ` · ${late} чекають довше трьох днів` : '')
+        : 'Усе розібрано',
+      deskCards: cards,
+      deskHasRows: rows.length > 0,
+      deskNoRows: rows.length === 0,
+      deskRows: rows,
+      deskHasFeed: feedRows.length > 0,
+      deskNoFeed: feedRows.length === 0,
+      deskFeed: feedRows,
+      deskGosReady: gosReady ? `У черзі пліток готових до появи — ${gosReady}` : '',
+      deskHasGosReady: gosReady > 0,
+      deskGoGossip: () => this.setState({ tab: 'gossip', gosFilter: 'ready' }),
+      deskReload: () => { this._loadGossipAdmin(); this._loadIntake(); this._loadEdits(); this._refreshTable('tests'); this._refreshTable('characters'); this._toast('↺ Оновлюю'); },
     };
   }
 
@@ -5692,9 +6033,15 @@ class Component extends DCLogic {
       gosPQ: s.gosPQ || '',
       gosSetPQ: (e) => this.setState({ gosPQ: e.target.value }),
 
-      gosPeople: shown.map(p => {
+      ...(() => {
+      const tiles = s.pplView !== 'list';
+      const cards = shown.map(p => {
         const status = ST[p.status] ? p.status : 'pending';
         const own = ownOf(p.id);
+        // Аватарка — портрет першого її персонажа, в якого він є; нема — літера ніку.
+        const withArt = own.filter(c => c.image);
+        const art = withArt[0];
+        const open = String(s.pplOpen || '') === String(p.id);
         const ins = by(s.inRows, p.id), eds = by(s.edRows, p.id), gos = by(s.gosRows, p.id);
         const insWait = ins.filter(r => r.status === 'pending').length;
         const edWait = eds.filter(r => r.status === 'pending').length;
@@ -5754,8 +6101,43 @@ class Component extends DCLogic {
           onEdit: () => this.setState({ pEdit: String(p.id), pForm: { nick: p.nick || '', tg_nick: p.tg_nick || '', about: p.about || '' } }),
           onCancel: () => this.setState({ pEdit: '', pForm: {} }),
           onSave: () => this._savePerson(p.id),
+          // плитка
+          open, showClose: tiles,
+          onClose: () => this.setState({ pplOpen: '', pEdit: '', pForm: {} }),
+          onOpen: () => {
+            this.setState({ pplOpen: open ? '' : String(p.id), pEdit: '', pForm: {} });
+            if (!open) { try { const el = document.getElementById('ppl-detail'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' }); } catch (e) {} }
+          },
+          hasArt: !!art, noArt: !art,
+          artBg: art ? `url('${art.image}') center/cover no-repeat` : 'transparent',
+          artTitle: art ? art.name : '',
+          initial: String(p.nick || '?').trim().charAt(0).toUpperCase() || '?',
+          ring: open ? '#ffd700' : ST[status].color,
+          tileBorder: open ? 'rgba(255,215,0,0.55)' : status === 'pending' ? 'rgba(255,215,0,0.28)' : 'rgba(255,255,255,0.09)',
+          tileBg: open ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.035)',
+          stLabel: ST[status].label, stColor: ST[status].color,
+          more: withArt.slice(1, 4).map(c => ({ key: c.id, bg: `url('${c.image}') center/cover no-repeat`, name: c.name })),
+          hasMore: withArt.length > 1,
+          charLine: own.length ? own.map(c => c.name).join(', ') : (p.tg_nick || 'без персонажа'),
+          waitLine: [insWait ? `анкет ${insWait}` : '', edWait ? `правок ${edWait}` : ''].filter(Boolean).join(' · '),
+          hasWait: !!(insWait || edWait),
+          isPending: status === 'pending',
+          onApprove: (e) => { e.stopPropagation(); setStatus(p, 'approved'); },
+          onBlock: (e) => { e.stopPropagation(); setStatus(p, 'blocked'); },
         };
-      }),
+      });
+      return {
+        pplTilesOn: tiles, pplListOn: !tiles,
+        pplViewTiles: () => this.setState({ pplView: 'tiles' }),
+        pplViewList: () => this.setState({ pplView: 'list', pplOpen: '' }),
+        pplTileBtnBg: tiles ? 'rgba(255,215,0,0.14)' : 'transparent',
+        pplTileBtnColor: tiles ? '#ffd700' : 'rgba(255,255,255,0.45)',
+        pplListBtnBg: tiles ? 'transparent' : 'rgba(255,215,0,0.14)',
+        pplListBtnColor: tiles ? 'rgba(255,255,255,0.45)' : '#ffd700',
+        pplTiles: tiles ? cards : [],
+        gosPeople: tiles ? cards.filter(c => c.open) : cards,
+      };
+      })(),
     };
   }
 
@@ -6565,24 +6947,8 @@ class Component extends DCLogic {
 
       saving: s.saving, saveLabel: s.saving ? 'Збереження…' : 'Зберегти',
 
-      ...((pplPending) => ({ tabs: [
-        { id: 'site',       label: '⚙ Сайт',       active: tab === 'site' },
-        { id: 'stats',      label: '📊 Пульс',      active: tab === 'stats' },
-        { id: 'lore',       label: '📜 Довідник',    active: tab === 'lore' },
-        { id: 'stories',    label: '📖 Історії',      active: tab === 'stories' },
-        { id: 'chronicles', label: '🪶 Хроніки',     active: tab === 'chronicles' },
-        { id: 'characters', label: '🎭 Персонажі',   active: tab === 'characters' },
-        { id: 'pantheon',   label: '🐉 Пантеон',     active: tab === 'pantheon' },
-        { id: 'map',        label: '🗺 Мапа',        active: tab === 'map' },
-        { id: 'dice',       label: '🎲 Дайс',        active: tab === 'dice' },
-        { id: 'tests',      label: '🧠 Тести',       active: tab === 'tests' },
-        { id: 'people',     label: pplPending ? `👥 Люди · ${pplPending}` : '👥 Люди', active: tab === 'people' },
-        { id: 'gossip',     label: '✉ Плітки',      active: tab === 'gossip' },
-        { id: 'intake',     label: '📥 Анкети',      active: tab === 'intake' },
-        { id: 'owners',     label: '✎ Правки',      active: tab === 'owners' },
-        { id: 'contacts',   label: '✍️ Долучитися',    active: tab === 'contacts' },
-        { id: 'posts',      label: '📰 Пости',        active: tab === 'posts' },
-      ] }))((s.gosPeople || []).filter(p => p.status === 'pending').length),
+      ...this._navVals(tab),
+      ...this._deskVals(),
       setTab: (e) => {
         const id = e.currentTarget.dataset.tab;
         if (id) this.setState({ tab: id, editing: null, form: {} });
@@ -7061,27 +7427,7 @@ class Component extends DCLogic {
         this._scrollToForm();
       },
       startEdit: (e) => {
-        const section = e.currentTarget.dataset.section;
-        const index   = parseInt(e.currentTarget.dataset.index);
-        const item    = (this.state.data[section] || [])[index] || {};
-        const form    = { ...item };
-        // Вхідні знайомства (хтось відмітив цю анкету, а вона його — ні)
-        // показуємо відміченими; збереження допише їх і з цього боку.
-        if (section === 'characters' && item.id != null) {
-          const me  = String(item.id);
-          const cur = new Set(String(form.connections || '').split(',').map(x => x.trim()).filter(Boolean));
-          (this.state.data.characters || []).forEach(c => {
-            if (String(c.id) === me) return;
-            const his = String(c.connections || '').split(',').map(x => x.trim()).filter(Boolean);
-            if (his.indexOf(me) !== -1) cur.add(String(c.id));
-          });
-          form.connections = [...cur].join(',');
-        }
-        this.setState({ editing: { section, index }, form, linkManual: [], linkSearch: '', dxRes: null, dxMsg: '', dxBad: false, dxBusy: false });
-        this._loadManualLinks(section, item.id);
-        if (section === 'characters') this._loadCharLinks(item.id);
-        this._loadGalImages(section, item.id);
-        this._scrollToForm();
+        this._openEdit(e.currentTarget.dataset.section, parseInt(e.currentTarget.dataset.index));
       },
       cancelEdit: () => this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false, linkManual: [], linkSearch: '', galRows: [], galCtx: null, dxRes: null, dxMsg: '', dxBad: false, dxBusy: false }),
       saveItem,

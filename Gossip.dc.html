@@ -1623,7 +1623,9 @@ class Component extends DCLogic {
       if (row && row.id) {
         fetch(`${SUPA_FUNCS}/telegram-report?knock=edit&id=${row.id}`, {
           method: 'POST', headers: this._h(),
-        }).catch(() => {});
+        }).then(async (k) => {
+          if (!k.ok) console.warn('стук про правку:', k.status, await k.text());
+        }).catch((e) => console.warn('стук про правку:', e));
       }
       this.setState({ eBusy: false, eId: '', eGal: [], eLinks: [], eNote: '' });
       this._loadOwned(s.uid);
