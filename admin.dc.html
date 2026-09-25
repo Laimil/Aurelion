@@ -2999,6 +2999,29 @@ button{font-family:inherit;cursor:pointer}
 
 </sc-if><!-- end showAdmin -->
 
+<!-- NOTE DIALOG -->
+<sc-if value="{{ noteOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.72);overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;justify-content:center;align-items:flex-start;padding:max(12px,4vh) 12px 40vh;box-sizing:border-box">
+    <div style="width:100%;max-width:640px;background:#1e1e1e;border:1px solid rgba(255,255,255,0.18);border-radius:15px;box-shadow:0 20px 60px rgba(0,0,0,0.6);padding:18px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+          <div style="font-family:'Cinzel',Georgia,serif;color:#ffd700;font-size:1.05rem;letter-spacing:0.04em;text-wrap:pretty">{{ noteTitle }}</div>
+          <div style="font-size:0.85rem;color:rgba(255,255,255,0.55)">{{ noteHint }}</div>
+        </div>
+        <button onClick="{{ onNoteCancel }}" aria-label="Закрити" style="cursor:pointer;flex:none;width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.7);font-size:1.1rem">✕</button>
+      </div>
+      <textarea value="{{ noteText }}" onChange="{{ onNoteInput }}" onKeyDown="{{ onNoteKey }}" autoFocus="{{ true }}" rows="7" placeholder="Напишіть тут…" style="width:100%;box-sizing:border-box;min-height:170px;max-height:50vh;resize:vertical;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:12px 14px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:16px;line-height:1.55;outline:none"></textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <span style="font-size:0.78rem;color:rgba(255,255,255,0.4)">{{ noteCount }} · Ctrl+Enter — надіслати</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-left:auto">
+          <button onClick="{{ onNoteCancel }}" style="cursor:pointer;border-radius:999px;padding:12px 20px;min-height:46px;font-size:1rem;background:transparent;border:1px solid rgba(255,255,255,0.22);color:rgba(255,255,255,0.75)">Скасувати</button>
+          <button onClick="{{ onNoteOk }}" style="{{ noteOkStyle }}">{{ noteOk }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
 <!-- TOAST -->
 <sc-if value="{{ showToast }}" hint-placeholder-val="{{ false }}">
   <div style="position:fixed;bottom:24px;right:24px;background:#1e1e1e;border:1px solid rgba(255,215,0,0.35);border-radius:8px;padding:12px 20px;font-size:0.85rem;color:#ffd700;z-index:300;animation:toastIn 0.25s ease;box-shadow:0 4px 16px rgba(0,0,0,0.5);">{{ toastMsg }}</div>
@@ -4309,13 +4332,13 @@ class Component extends DCLogic {
             } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
           },
           onAccept: () => this._intakeAccept(r),
-          onAdvise: () => {
-            const t = window.prompt('Що сказати авторові? Він побачить це у своєму кабінеті:', r.admin_note || '');
+          onAdvise: async () => {
+            const t = await this._askText({ title: `Порада авторові «${r.name}»`, hint: 'Він побачить це у своєму кабінеті.', text: r.admin_note || '', ok: 'Передати' });
             if (t == null) return;
             this._intakePatch(r.id, { admin_note: t.trim() }, '✓ Слово передано');
           },
-          onReject: () => {
-            const t = window.prompt(`Чому «${r.name}» не підходить? Автор побачить причину:`, '');
+          onReject: async () => {
+            const t = await this._askText({ title: `Чому «${r.name}» не підходить?`, hint: 'Автор побачить причину.', ok: 'Відхилити', danger: true });
             if (t == null) return;
             this._intakePatch(r.id, { status: 'rejected', admin_note: t.trim() }, '✓ Відхилено');
           },
@@ -4632,13 +4655,13 @@ class Component extends DCLogic {
             } catch (ex) { this._toast('✗ ' + (ex.message || 'Не вийшло')); }
           },
           onApply: () => this._editApply(r),
-          onAdvise: () => {
-            const t = window.prompt('Що сказати авторові? Він побачить це у своєму кабінеті:', r.admin_note || '');
+          onAdvise: async () => {
+            const t = await this._askText({ title: `Порада до правки «${r.char_name || ''}»`, hint: 'Автор побачить це у своєму кабінеті.', text: r.admin_note || '', ok: 'Передати' });
             if (t == null) return;
             this._editPatch(r.id, { admin_note: t.trim() }, '✓ Слово передано');
           },
-          onReject: () => {
-            const t = window.prompt(`Чому правку до «${r.char_name || ''}» не внести? Автор побачить причину:`, '');
+          onReject: async () => {
+            const t = await this._askText({ title: `Чому правку до «${r.char_name || ''}» не внести?`, hint: 'Автор побачить причину.', ok: 'Відхилити', danger: true });
             if (t == null) return;
             this._editPatch(r.id, { status: 'rejected', admin_note: t.trim() }, '✓ Відхилено');
           },
@@ -5866,7 +5889,7 @@ class Component extends DCLogic {
       },
       tstReject: async (e) => {
         const id = e.currentTarget.dataset.id;
-        const note = window.prompt('Що передати авторові? (побачить у конструкторі)');
+        const note = await this._askText({ title: 'Що передати авторові тесту?', hint: 'Побачить у конструкторі.', ok: 'Повернути' });
         if (note == null) return;
         try {
           await this._patch('tests', id, { status: 'rejected', is_published: false, review_note: note.trim() || null });
@@ -6911,6 +6934,22 @@ class Component extends DCLogic {
       statsColdMore: cold.length > 10 ? '…і ще ' + (cold.length - 10) : '',
       statsNoCold: cold.length === 0,
     };
+  }
+
+  // Замість window.prompt: крихітне системне віконце на телефоні ховало кнопку
+  // під клавіатурою. Тут поле велике, а кнопки стоять одразу під ним, угорі екрана.
+  _askText({ title = '', hint = '', text = '', ok = 'Надіслати', danger = false } = {}) {
+    if (this._noteResolve) this._noteResolve(null);
+    return new Promise((res) => {
+      this._noteResolve = res;
+      this.setState({ noteDlg: { title, hint, ok, danger }, noteText: text || '' });
+    });
+  }
+  _closeNote(val) {
+    const res = this._noteResolve;
+    this._noteResolve = null;
+    this.setState({ noteDlg: null, noteText: '' });
+    if (res) res(val);
   }
 
   renderVals() {
@@ -8019,6 +8058,26 @@ class Component extends DCLogic {
 
       showToast: !!(s.toast),
       toastMsg:  s.toast,
+
+      noteOpen:  !!s.noteDlg,
+      noteTitle: s.noteDlg ? s.noteDlg.title : '',
+      noteHint:  s.noteDlg ? s.noteDlg.hint : '',
+      noteOk:    s.noteDlg ? s.noteDlg.ok : '',
+      noteText:  s.noteText || '',
+      noteCount: (s.noteText || '').length + ' зн.',
+      noteOkStyle: {
+        cursor: 'pointer', borderRadius: '999px', padding: '12px 24px', fontSize: '1rem', fontWeight: 600, minHeight: '46px',
+        ...(s.noteDlg && s.noteDlg.danger
+          ? { background: 'rgba(255,77,77,0.14)', border: '1px solid rgba(255,77,77,0.5)', color: '#ff8a8a' }
+          : { background: '#ffd700', border: '1px solid #ffd700', color: '#1a1a1a' }),
+      },
+      onNoteInput: (e) => this.setState({ noteText: e.target.value }),
+      onNoteKey: (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); this._closeNote(null); }
+        else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); this._closeNote(this.state.noteText || ''); }
+      },
+      onNoteOk: () => this._closeNote(this.state.noteText || ''),
+      onNoteCancel: () => this._closeNote(null),
     };
   }
 }
