@@ -839,8 +839,23 @@ button{font-family:inherit;cursor:pointer}
             </div>
           </sc-if>
           <sc-if value="{{ p.canEdit }}" hint-placeholder-val="{{ true }}">
-            <div style="display:flex;gap:8px;margin-top:12px;">
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
               <button onClick="{{ p.onEdit }}" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.3);color:rgba(140,175,255,0.85);border-radius:999px;padding:6px 16px;font-size:0.76rem;">✎ Правити аркуш</button>
+              <button onClick="{{ p.onTempPw }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,215,0,0.28);color:rgba(255,215,0,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">{{ p.pwBtn }}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ p.hasPwNote }}" hint-placeholder-val="{{ false }}">
+            <p style="margin-top:10px;font-size:0.74rem;color:rgba(255,215,0,0.6);">{{ p.pwNote }}</p>
+          </sc-if>
+          <sc-if value="{{ p.hasPw }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:12px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.3);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+              <p style="font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.7);">✦ Тимчасовий пароль для «{{ p.nick }}»</p>
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <code style="font-family:ui-monospace,Menlo,monospace;font-size:1.05rem;letter-spacing:0.06em;color:#fff;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 14px;user-select:all;">{{ p.pw }}</code>
+                <button onClick="{{ p.onCopyPw }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:7px 16px;font-size:0.76rem;font-weight:700;">Копіювати</button>
+                <button onClick="{{ p.onHidePw }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.45);border-radius:999px;padding:7px 14px;font-size:0.76rem;">Сховати</button>
+              </div>
+              <p style="font-size:0.78rem;line-height:1.55;color:rgba(255,255,255,0.5);text-wrap:pretty;">Пошта для входу: {{ p.email }}. Передайте пароль особисто (у лічку, не в загальний чат). Після входу кабінет попросить задати свій. Старі входи гравця вже закрито. Більше цей пароль ніде не покажеться.</p>
             </div>
           </sc-if>
         </div>
@@ -4335,6 +4350,42 @@ class Component extends DCLogic {
   // Аркуш людини править адмін: нік у кабінеті, @нік у чаті, «про себе».
   // Нік іде ще й у зліпки — на картках персонажів (`owner_nick`), інакше
   // виправлене імʼя лишилося б старим усюди, крім самого аркуша.
+  // Тимчасовий пароль: функція в базі (supabase_temp_password_migration.sql) сама
+  // перевіряє is_admin(), закриває старі сесії й ставить must_change_pw.
+  // Пароль існує лише в стані цієї вкладки — у базі тільки хеш.
+  async _tempPass(p) {
+    if (this.state.pwBusy) return;
+    if (!window.confirm(`Видати «${p.nick || p.email}» тимчасовий пароль?\n\nСтарий перестане працювати одразу, усі входи гравця закриються.`)) return;
+    const abc = 'abcdefghjkmnpqrstuvwxyz23456789';
+    const buf = new Uint32Array(8);
+    crypto.getRandomValues(buf);
+    const raw = Array.from(buf, n => abc[n % abc.length]).join('');
+    const pw = `au-${raw.slice(0, 4)}-${raw.slice(4)}`;
+    this.setState({ pwBusy: String(p.id) });
+    try {
+      const r = await fetch(`${SUPA_URL}/rpc/admin_set_temp_password`, {
+        method: 'POST', headers: this._authHJ(),
+        body: JSON.stringify({ target: p.id, pw }),
+      });
+      if (!r.ok) {
+        const txt = await r.text();
+        let msg = txt;
+        try { const j = JSON.parse(txt); msg = j.message || j.hint || txt; } catch (e) {}
+        if (/admin_set_temp_password/.test(msg) && /find|exist|schema cache/i.test(msg)) msg = 'Немає функції — проженіть supabase_temp_password_migration.sql';
+        throw new Error(msg);
+      }
+      const now = new Date().toISOString();
+      this.setState(st => ({
+        pwBusy: '', pPw: { id: String(p.id), pw },
+        gosPeople: (st.gosPeople || []).map(x => String(x.id) === String(p.id) ? { ...x, pw_temp_at: now, pw_temp_by: st.userEmail || '' } : x),
+      }));
+      this._toast('✓ Пароль замінено');
+    } catch (e) {
+      this.setState({ pwBusy: '' });
+      this._toast('✗ ' + (e.message || 'Не вийшло'));
+    }
+  }
+
   async _savePerson(id) {
     const f = this.state.pForm || {};
     const nick = String(f.nick || '').trim();
@@ -6152,6 +6203,15 @@ class Component extends DCLogic {
           onEdit: () => this.setState({ pEdit: String(p.id), pForm: { nick: p.nick || '', tg_nick: p.tg_nick || '', about: p.about || '' } }),
           onCancel: () => this.setState({ pEdit: '', pForm: {} }),
           onSave: () => this._savePerson(p.id),
+          email: p.email || '—',
+          pwBtn: s.pwBusy === String(p.id) ? 'Записую…' : '⚷ Тимчасовий пароль',
+          onTempPw: () => this._tempPass(p),
+          hasPw: !!(s.pPw && String(s.pPw.id) === String(p.id)),
+          pw: s.pPw && String(s.pPw.id) === String(p.id) ? s.pPw.pw : '',
+          onCopyPw: () => { try { navigator.clipboard.writeText(s.pPw.pw); this._toast('✓ Скопійовано'); } catch (e) { this._toast('Виділіть і скопіюйте вручну'); } },
+          onHidePw: () => this.setState({ pPw: null }),
+          hasPwNote: !!p.pw_temp_at && !(s.pPw && String(s.pPw.id) === String(p.id)),
+          pwNote: p.pw_temp_at ? `Тимчасовий пароль видано ${this._gosWhen(p.pw_temp_at)}${p.pw_temp_by ? ` · ${p.pw_temp_by}` : ''} — свій гравець ще не задав` : '',
           // плитка
           open, showClose: tiles,
           onClose: () => this.setState({ pplOpen: '', pEdit: '', pForm: {} }),

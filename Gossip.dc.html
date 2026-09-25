@@ -72,6 +72,26 @@ a:hover{color:#fff}
       </sc-if>
 
       <button onClick="{{ doAuth }}" class="gos-go" data-busy="{{ authBusy }}" style="width:100%;margin-top:20px;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px;font-family:'Cinzel',serif;font-size:0.86rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;">{{ authBtn }}</button>
+      <sc-if value="{{ isLoginMode }}" hint-placeholder-val="{{ true }}">
+        <p style="margin-top:14px;text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.92rem;color:rgba(255,255,255,0.38);text-wrap:pretty;">Забули пароль? Напишіть адміну в телеграм — видадуть тимчасовий, а свій задасте одразу після входу.</p>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ══════════ ВХІД ІЗ ТИМЧАСОВИМ ПАРОЛЕМ ══════════ -->
+  <sc-if value="{{ needNewPass }}" hint-placeholder-val="{{ false }}">
+    <div class="gos-in" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.25);border-radius:15px;padding:30px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+      <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:12px;">✦ Тимчасовий ключ</p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:20px;text-wrap:pretty;">Ви ввійшли паролем, який видала адміністрація. Задайте свій — і кабінет відчиниться. Тимчасовий після цього більше не спрацює.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <input class="gos-field" type="password" autocomplete="new-password" value="{{ np1 }}" onChange="{{ setNp1 }}" onKeyDown="{{ onNpEnter }}" placeholder="Новий пароль — від 8 знаків" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+        <input class="gos-field" type="password" autocomplete="new-password" value="{{ np2 }}" onChange="{{ setNp2 }}" onKeyDown="{{ onNpEnter }}" placeholder="Ще раз, для певності" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+      </div>
+      <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:16px;background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.25);border-radius:8px;padding:10px 14px;font-size:0.84rem;color:#ff8080;">{{ authErr }}</div>
+      </sc-if>
+      <button onClick="{{ doNewPass }}" class="gos-go" data-busy="{{ authBusy }}" style="width:100%;margin-top:20px;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px;font-family:'Cinzel',serif;font-size:0.86rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;">{{ npBtn }}</button>
+      <button onClick="{{ doLogout }}" class="gos-ghost" style="width:100%;margin-top:10px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:9px;font-size:0.78rem;transition:all 0.2s ease;">Вийти</button>
     </div>
   </sc-if>
 
@@ -999,6 +1019,11 @@ class Component extends DCLogic {
 
   // ── аркуш людини ──────────────────────────────────────────
   async _loadProfile(u) {
+    // Адмін видав тимчасовий пароль — спершу свій, потім кабінет.
+    if (u && u.app_metadata && u.app_metadata.must_change_pw) {
+      this.setState({ phase: 'newpass', uid: u.id, email: u.email || '', npUser: u, np1: '', np2: '', authErr: '' });
+      return;
+    }
     let prof = null;
     try {
       const r = await this._api(`${SUPA_URL}/site_users?id=eq.${u.id}&select=*`);
@@ -1024,6 +1049,34 @@ class Component extends DCLogic {
     this._loadSubs(u.id);
     this._loadOwned(u.id);
     if (prof.status === 'approved') this._loadLists(u.id);
+  }
+
+  async _newPass() {
+    const s = this.state;
+    const a = s.np1 || '', b = s.np2 || '';
+    if (a.length < 8) { this.setState({ authErr: 'Пароль коротший за вісім знаків.' }); return; }
+    if (a !== b) { this.setState({ authErr: 'Паролі не збігаються.' }); return; }
+    this.setState({ authBusy: true, authErr: '' });
+    try {
+      const r = await this._api(`${SUPA_AUTH}/user`, { method: 'PUT', body: JSON.stringify({ password: a }) }, true);
+      let d = null;
+      try { d = await r.json(); } catch (e) {}
+      if (!r.ok) {
+        let msg = (d && (d.msg || d.error_description || d.message)) || 'Не вийшло змінити пароль.';
+        if (/different from the old/i.test(msg)) msg = 'Новий пароль мусить відрізнятися від тимчасового.';
+        if (/weak|characters/i.test(msg)) msg = 'Заслабкий пароль — додайте цифр чи літер.';
+        this.setState({ authBusy: false, authErr: msg });
+        return;
+      }
+      try { await this._api(`${SUPA_URL}/rpc/clear_temp_password`, { method: 'POST', body: '{}' }, true); } catch (e) {}
+      // Прапорець у токені старий — оновлюємо, щоб інші вкладки не перепитували.
+      await this._renew(true);
+      const u = { ...(d || s.npUser || {}), app_metadata: {} };
+      this.setState({ authBusy: false, np1: '', np2: '', npUser: null });
+      await this._loadProfile(u.id ? u : s.npUser && { ...s.npUser, app_metadata: {} });
+    } catch (e) {
+      this.setState({ authBusy: false, authErr: 'Звʼязку немає. Спробуйте ще раз.' });
+    }
   }
 
   async _fillProfile() {
@@ -2329,6 +2382,14 @@ class Component extends DCLogic {
       isLoading: s.phase === 'load',
       isGuest:   s.phase === 'guest',
       needProfile: s.phase === 'profile',
+      needNewPass: s.phase === 'newpass',
+      isLoginMode: !isSignup,
+      np1: s.np1 || '', np2: s.np2 || '',
+      setNp1: (e) => this.setState({ np1: e.target.value }),
+      setNp2: (e) => this.setState({ np2: e.target.value }),
+      onNpEnter: (e) => { if (e.key === 'Enter') this._newPass(); },
+      doNewPass: () => this._newPass(),
+      npBtn: s.authBusy ? 'Хвилинку…' : 'Задати пароль',
       profEmail: s.email || '',
       doFillProfile: () => this._fillProfile(),
       fillBtn: s.authBusy ? 'Хвилинку…' : 'Завести аркуш',
