@@ -2084,6 +2084,9 @@ button{font-family:inherit;cursor:pointer}
               <sc-if value="{{ char.isNpc }}" hint-placeholder-val="{{ false }}">
                 <span style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#6495ed;background:rgba(10,14,24,0.8);border:1px solid rgba(100,149,237,0.4);border-radius:999px;padding:2px 7px;">НПЦ</span>
               </sc-if>
+              <sc-if value="{{ char.isDraft }}" hint-placeholder-val="{{ false }}">
+                <span title="Чернетка: на сайті не видно" style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#ffd700;background:rgba(20,16,4,0.85);border:1px solid rgba(255,215,0,0.45);border-radius:999px;padding:2px 7px;">✎ чернетка</span>
+              </sc-if>
               <sc-if value="{{ char.inactive }}" hint-placeholder-val="{{ false }}">
                 <span style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.75);background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:2px 7px;">⊘ неактивний</span>
               </sc-if>
@@ -2155,6 +2158,14 @@ button{font-family:inherit;cursor:pointer}
             <button type="button" class="stat-seg" data-val="0" onClick="{{ setCharActive }}" data-active="{{ charActiveOff }}" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:9px 14px;font-size:0.82rem;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s;">⊘ Неактивний</button>
           </div>
           <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:5px;line-height:1.5;">Неактивні персонажі приховані в галереї за замовчуванням (їх видно лише з фільтром «Усі»).</p>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Публікація</label>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="stat-seg" data-val="0" onClick="{{ setCharDraft }}" data-active="{{ charPubOn }}" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:9px 14px;font-size:0.82rem;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s;">● На сайті</button>
+            <button type="button" class="stat-seg" data-val="1" onClick="{{ setCharDraft }}" data-active="{{ charPubOff }}" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:9px 14px;font-size:0.82rem;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s;">✎ Чернетка</button>
+          </div>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:5px;line-height:1.5;">Чернетку на сайті не видно зовсім — навіть з фільтром «Усі». Анкети з кабінету заводяться чернетками.</p>
         </div>
         <!-- Дос'є -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
@@ -3357,7 +3368,7 @@ const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order', 'status_label', 'status_color', 'cover_color', 'cover_ornament', 'cover_icon', 'author_label'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
-  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'build', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'deity', 'tags', 'connections', 'open_effect', 'sort_order'],
+  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'build', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'is_draft', 'deity', 'tags', 'connections', 'open_effect', 'sort_order'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
 };
@@ -6997,6 +7008,7 @@ class Component extends DCLogic {
           imgBg: ch.image ? 'background-image:url(' + JSON.stringify(ch.image) + ');background-size:cover;background-position:center top;background-repeat:no-repeat;' : '',
           artOpacity: ch.is_active === false ? 0.4 : 1,
           isNpc: ch.character_type === 'npc',
+          isDraft: ch.is_draft === true,
           hasGaps: gaps.length > 0, gaps: gaps.join(' · ') };
       });
     const panList     = mkList(data.pantheon).map((it, i) => ({ ...it, dragTargetClass: dtc('pantheon', i) }));
@@ -7040,6 +7052,9 @@ class Component extends DCLogic {
         const alwaysSend = k === 'connections' || k === 'build' || k === 'status_label' || k === 'status_color' || k === 'cover_color' || k === 'cover_ornament' || k === 'cover_icon';
         if (alwaysSend ? (v !== undefined) : (v !== '' && v !== undefined && v !== null)) body[k] = v === null ? '' : v;
       });
+      // Постать у базі — лише man | woman | gown або NULL (characters_build_check);
+      // порожній рядок із «— чоловіча —» обмеження не пропускає.
+      if ('build' in body && !['man', 'woman', 'gown'].includes(body.build)) body.build = null;
       this.setState({ saving: true });
       try {
         let savedId = null;
@@ -7407,6 +7422,12 @@ class Component extends DCLogic {
         value: String(g.god || g.name || ''),
         label: (g.name || '—') + (g.domain ? ' — ' + g.domain : ''),
       })).filter(o => o.value),
+      charPubOn:   (form.is_draft !== true),
+      charPubOff:  (form.is_draft === true),
+      setCharDraft: (e) => {
+        const v = e.currentTarget.dataset.val === '1';
+        this.setState(st => ({ form: { ...st.form, is_draft: v } }));
+      },
       charActiveOn:  (form.is_active !== false),
       charActiveOff: (form.is_active === false),
       setCharActive: (e) => {
