@@ -163,6 +163,19 @@ a:hover{color:#fff}
                 </sc-for>
               </div>
               <p style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.46);text-wrap:pretty;">{{ t.meta }}</p>
+              <sc-if value="{{ t.hasMarkNote }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.78rem;line-height:1.5;color:{{ t.markNoteColor }};text-wrap:pretty;">{{ t.markNote }}</p>
+              </sc-if>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <sc-if value="{{ t.asking }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:0.76rem;color:rgba(255,255,255,0.6);">{{ t.askText }}</span>
+                  <button onClick="{{ t.onYes }}" class="gos-go" data-busy="{{ t.busy }}" style="cursor:pointer;background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.4);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">Так, закрита</button>
+                  <button onClick="{{ t.onNo }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.45);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">Ні</button>
+                </sc-if>
+                <sc-if value="{{ t.hasAct }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ t.onAct }}" class="gos-ghost" data-busy="{{ t.busy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.actLabel }}</button>
+                </sc-if>
+              </div>
             </div>
           </sc-for>
         </div>
@@ -1120,6 +1133,20 @@ class Component extends DCLogic {
     try { window.dispatchEvent(new CustomEvent('au-turns', { detail: { n } })); } catch (e) {}
   }
 
+  // Відмітка «арку закрито» — одна на людину; бачать усі учасники арки.
+  async _markArc(arc, on) {
+    this.setState({ turnMarkBusy: arc, turnAsk: '', turnMarkErr: '' });
+    let err = '';
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/arc_mark`, { method: 'POST', body: JSON.stringify({ p_arc: arc, p_on: on }) }, true);
+      const d = r.ok ? await r.json() : null;
+      if (!r.ok) err = `HTTP ${r.status}. Схоже, не прогнано нову supabase_turns_migration.sql.`;
+      else if (d && d.error) err = d.error === 'not in arc' ? 'Закрити арку може лише той, чий персонаж у ній писав.' : d.error;
+    } catch (e) { err = 'Звʼязку немає. Спробуйте ще раз.'; }
+    this.setState({ turnMarkBusy: '', turnMarkErr: err });
+    if (!err) this._loadTurns(true);
+  }
+
   _agoH(iso) {
     if (!iso) return '';
     const h = (Date.now() - new Date(iso).getTime()) / 3600000;
@@ -1153,6 +1180,12 @@ class Component extends DCLogic {
       done: { pill: 'Відписали', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
       out:  { pill: 'Поза чергою', bg: 'rgba(255,77,77,0.03)', border: 'rgba(255,77,77,0.16)', pBg: 'rgba(255,77,77,0.06)', pBorder: 'rgba(255,77,77,0.4)', pColor: '#ff9a9a', line: 'dashed' },
       solo: { pill: 'Соло', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
+      closed: { pill: '✦ Арку закрито', bg: 'rgba(255,255,255,0.015)', border: 'rgba(255,255,255,0.07)', pBg: 'rgba(255,255,255,0.05)', pBorder: 'rgba(255,255,255,0.22)', pColor: 'rgba(255,255,255,0.62)' },
+    };
+    const nicks = (ms) => {
+      const my = ms.some((m) => m.mine);
+      const other = ms.filter((m) => !m.mine).map((m) => m.nick);
+      return (my ? ['ви'] : []).concat(other).join(', ');
     };
     const many = new Set(rows.map((r) => r.me.k)).size > 1;
     const base_ = this.props.embedded ? '' : 'Aurelion.dc.html';
@@ -1168,8 +1201,26 @@ class Component extends DCLogic {
       else if (r.state === 'wait') { pill = `Ще ${r.ahead.length} перед вами`; meta = `Перед вами — ${names(r.ahead)}.`; }
       else if (r.state === 'done') meta = `Ви відписали ${this._agoH(r.me.at)}. Далі — ${r.up ? r.up.name : '—'}.`;
       else if (r.state === 'out') meta = `Арка пішла далі без вас: ${r.me.after} ${P(r.me.after, 'хід', 'ходи', 'ходів')} після вашого. Відпишіть — і повернетеся в чергу.`;
+      else if (r.state === 'closed') meta = `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}. У чергу не рахується.`;
       else meta = `Окрім вас, в арці ніхто не писав за останні ${d.cast || 21} днів.`;
-      if (r.dropped.length && r.state !== 'solo') meta += ` Поза чергою: ${names(r.dropped)}.`;
+      if (r.dropped.length && r.state !== 'solo' && r.state !== 'closed') meta += ` Поза чергою: ${names(r.dropped)}.`;
+
+      // Хто закрив — видно всім учасникам; новий допис відкриває арку знову.
+      let markNote = '', markNoteColor = 'rgba(255,255,255,0.6)';
+      if (r.closedBy.length) {
+        const first = r.closedBy[0];
+        markNote = `Закритою відмітили: ${nicks(r.closedBy)} · ${this._agoH(first.at)}. Ще не кінець — просто відпишіть, і арка відкриється.`;
+      } else if (r.staleBy.length) {
+        markNote = `${nicks(r.staleBy)} ${r.staleBy.length > 1 ? 'відмічали' : 'відмічав(ла)'} арку закритою, але після того в ній писали — вона знову відкрита.`;
+        markNoteColor = 'rgba(160,190,255,0.85)';
+      }
+      const rk = `${r.arc}·${r.me.k}`;
+      const busy = s.turnMarkBusy === r.arc;
+      const asking = s.turnAsk === rk;
+      let actLabel = '', onAct = null;
+      if (r.markedByMe) { actLabel = busy ? 'Хвилинку…' : 'Зняти мою відмітку'; onAct = () => this._markArc(r.arc, false); }
+      else if (r.state === 'closed') { actLabel = busy ? 'Хвилинку…' : 'Теж вважаю закритою'; onAct = () => this._markArc(r.arc, true); }
+      else if (r.state !== 'solo' || r.queue.length) { actLabel = 'Арку закрито'; onAct = () => this.setState({ turnAsk: rk }); }
 
       const q = r.queue.slice(0, 7);
       const chain = q.map((c, j) => {
@@ -1187,6 +1238,10 @@ class Component extends DCLogic {
       return {
         key: `${r.arc}·${r.me.k}·${i}`, arc: r.arc, who: many || r.state === 'out' ? `за ${r.me.name}` : '',
         pill, meta, chain,
+        hasMarkNote: !!markNote, markNote, markNoteColor,
+        asking, askText: 'Відмітити, що сцену дограно? Співгравці це побачать.',
+        onYes: () => this._markArc(r.arc, true), onNo: () => this.setState({ turnAsk: '' }),
+        hasAct: !asking && !!onAct, actLabel, onAct, busy: busy ? 'true' : 'false',
         bg: st.bg, border: st.border,
         pillBg: st.pBg, pillBorder: st.pBorder, pillColor: st.pColor, pillGlow: st.glow || 'none', pillLine: st.line || 'solid',
         href: `${base_}?arc=${encodeURIComponent(r.arc)}#posts`,
@@ -1197,10 +1252,13 @@ class Component extends DCLogic {
     const nx = rows.filter((r) => r.state === 'next').length;
     let sum = n ? `Ваш хід ${n === 1 ? 'в одній арці' : `у ${n} ${P(n, 'арці', 'арках', 'арках')}`}.` : 'Зараз на вас ніхто не чекає.';
     if (nx) sum += ` Наступні — ще в ${nx} ${P(nx, 'арці', 'арках', 'арках')}.`;
+    const cl = new Set(rows.filter((r) => r.state === 'closed').map((r) => r.arc)).size;
+    if (cl) sum += ` Закрито: ${cl}.`;
     return {
       ...base, turnsShow: true, turnRows, turnsSummary: sum,
+      turnsHasNote: !!s.turnMarkErr, turnsNote: s.turnMarkErr || '',
       turnsBorder: n ? 'rgba(255,215,0,0.28)' : 'rgba(255,255,255,0.12)',
-      turnsHow: `Черга — це хто найдавніше відписував в арці. Беруться арки з дописами за ${d.live || 30} днів. Хто пропустив два кола або мовчить ${T.OUT_DAYS} днів, випадає з черги, поки не відпише знову.`,
+      turnsHow: `Черга — це хто найдавніше відписував в арці. Беруться арки з дописами за ${d.live || 30} днів. Хто пропустив два кола або мовчить ${T.OUT_DAYS} днів, випадає з черги, поки не відпише знову. Закриту арку бачать закритою всі її учасники; новий допис відкриває її знову.`,
     };
   }
 
