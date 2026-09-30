@@ -1163,7 +1163,14 @@ class Component extends DCLogic {
       turnsBtn: s.turnsBusy ? 'Рахую…' : 'Оновити',
       doTurns: () => this._loadTurns(true),
     };
-    if (this.props.onlyGossip || !d || !T || d.status && d.status !== 'approved' && !d.arcs) return base;
+    if (this.props.onlyGossip || !d || d.status && d.status !== 'approved' && !d.arcs) return base;
+    // Без turns.js черги не порахувати — і мовчки ховати картку не можна:
+    // так це вже раз виглядало як «на сайті нічого не змінилося».
+    if (!T) {
+      console.warn('черга: window.AuTurns немає — turns.js не завантажився');
+      return { ...base, turnsShow: true, turnsHasNote: true, turnsSummary: 'Черга поки не рахується.',
+        turnsNote: 'Не завантажився файл turns.js — його треба викласти на сайт поряд із Gossip.dc.html.' };
+    }
     if (d.error || d.missing) {
       return { ...base, turnsShow: true, turnsHasNote: true, turnsSummary: 'Черга поки не рахується.',
         turnsNote: d.missing ? 'Стрічки дописів у базі ще немає.' : `${d.error}. Схоже, не прогнано supabase_turns_migration.sql.` };
