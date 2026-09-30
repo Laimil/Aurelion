@@ -5257,8 +5257,15 @@ class Component extends DCLogic {
     const near = String(head.body || '').length >= SPLIT_NEAR;
     const marked = CONT_MARK.test(text);
     const isReply = !!head.mid && b.reply === head.mid;
-    const sameTags = !!t && !!head.name &&
-      pscore([t.tag, t.arc].filter(Boolean).join(' '), [head.tag, head.arc].filter(Boolean).join(' ')) >= POST_MIN;
+    // Той самий персонаж І той самий набір арок — в обидва боки. Раніше
+    // «#Сет» сам по собі збігався з будь-яким попереднім дописом Сета.
+    let sameTags = false;
+    if (t) {
+      const who = (x) => x.match ? 'id:' + x.match.id : 'tag:' + pfold(x.tag);
+      const a = splitArcs(t.arc), c = splitArcs(head.arc);
+      sameTags = who(t) === who(head) && a.length === c.length &&
+        a.every((x) => c.some((y) => arcKey(x) === arcKey(y) || nearArc(y, x)));
+    }
     if (isReply && gap < MARK_WIN && (marked || near)) return 'реплай на свій же допис';
     if (marked && gap < MARK_WIN) return 'позначка продовження';
     // Слідом за секунди — лише коли час відомий на обох блоках: без часу
@@ -5266,7 +5273,7 @@ class Component extends DCLogic {
     const fast = !!b.at && !!head.at && gap < FAST_WIN;
     if (!t && fast) return 'слідом за секунди, без тегів';
     if (sameTags && fast) return 'слідом за секунди, ті самі теги';
-    if (sameTags && near && gap < MARK_WIN) return 'ті самі теги, попередній кусень упритул до межі';
+    if (sameTags && near && gap < STITCH_WIN) return 'ті самі теги, попередній кусень упритул до межі';
     if (!t && near && gap < STITCH_WIN && text.length >= 200) return 'хвіст без тегів слідом за повним куснем';
     return null;
   }
@@ -5289,7 +5296,7 @@ class Component extends DCLogic {
         const doc = new DOMParser().parseFromString(String(reader.result || ''), 'text/html');
         const tgMsgs = this._extractTelegram(doc);
         const blocks = tgMsgs
-          ? tgMsgs.map((m) => ({ text: m.text, day: m.day, at: m.at }))
+          ? tgMsgs.map((m) => ({ text: m.text, day: m.day, at: m.at, who: m.who, mid: m.mid, reply: m.reply }))
           : (doc.body ? (doc.body.textContent || '') : '').split(/\n\s*\n+/).map((t) => ({ text: t, day: null, at: null }));
         const seen = new Set();
         const found = [];
@@ -5325,6 +5332,15 @@ class Component extends DCLogic {
           splitArcs(t.arc).forEach((v) => seenArcs.set(v, (seenArcs.get(v) || 0) + 1));
         });
         const known = [...seenArcs.entries()].sort((a, b) => b[1] - a[1]).map((e) => e[0]);
+        // Персонажа не впізнано, а «ім'я» — відома арка: допис без персонажа
+        // (tag_name порожній, як у ревізії), тег іде в арки.
+        found.forEach((t) => {
+          if (t.match || !t.tag) return;
+          const hit = known.find((k) => arcKey(k) === arcKey(t.tag) || nearArc(k, t.tag));
+          if (!hit) return;
+          t.arc = [hit, ...splitArcs(t.arc).filter((a) => arcKey(a) !== arcKey(hit))].join(ARC_SEP);
+          t.tag = ''; t.name = '';
+        });
         let snapped = 0;
         found.forEach((t) => {
           const parts = splitArcs(t.arc);
@@ -5339,7 +5355,7 @@ class Component extends DCLogic {
         });
         if (snapped) console.log('арки: зведено написань —', snapped);
         if (!found.length) {
-          this.setState({ postsBusy: false, postsErr: 'У файлі не знайдено дописів із хештегами на початку (персонаж + арка).' });
+          this.setState({ postsBusy: false, postsErr: 'У файлі не знайдено дописів із хештегами на початку (персонаж і/або арка).' });
           return;
         }
         this.setState({ postsBusy: false, postsRows: found });
@@ -5645,7 +5661,7 @@ class Component extends DCLogic {
         : (t.arcWas ? 'арка: «' + t.arcWas + '» → «' + t.arc + '»'
           : ((t.parts || 1) > 1 ? t.parts + ' частини' : ''));
       return {
-        key: i, name: t.name + (t.match ? '' : ' (не в картотеці)'), hasArc: !!t.arc, arc: t.arc || '',
+        key: i, name: t.name ? t.name + (t.match ? '' : ' (не в картотеці)') : '— без персонажа', hasArc: !!t.arc, arc: t.arc || '',
         hasNote: !!note, note,
         when: t.at
           ? new Date(t.at).toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
