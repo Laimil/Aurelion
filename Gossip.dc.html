@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <script src="./telegraph-import.js"></script>
 <script src="./docx-import.js"></script>
+<script src="./turns.js"></script>
 <style>
 body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;margin:0}
 a{color:#ffd700;text-decoration:none}
@@ -129,6 +130,45 @@ a:hover{color:#fff}
         <p style="font-size:0.78rem;color:rgba(255,255,255,0.42);">Аркуш на <span style="color:#ffd700;">{{ myNick }}</span> · {{ statusWord }}</p>
         <button onClick="{{ doLogout }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 16px;font-size:0.74rem;transition:all 0.2s ease;">Вийти</button>
       </div>
+
+      <!-- черга в арках (бета) — над вкладками: це те, з чим приходять щодня -->
+      <sc-if value="{{ turnsShow }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid {{ turnsBorder }};border-radius:15px;padding:22px 22px 18px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ Черга в арках</p>
+          <span style="font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(160,190,255,0.9);border:1px solid rgba(100,149,237,0.35);border-radius:999px;padding:2px 8px;">бета</span>
+          <button onClick="{{ doTurns }}" class="gos-ghost" style="margin-left:auto;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:4px 12px;font-size:0.7rem;transition:all 0.2s ease;">{{ turnsBtn }}</button>
+        </div>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.06rem;line-height:1.5;color:rgba(255,255,255,0.78);text-wrap:pretty;">{{ turnsSummary }}</p>
+        <sc-if value="{{ turnsHasNote }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.8rem;line-height:1.5;color:rgba(255,160,160,0.8);">{{ turnsNote }}</p>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <sc-for list="{{ turnRows }}" as="t" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:9px;padding:12px 14px;border-radius:10px;background:{{ t.bg }};border:1px solid {{ t.border }};">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <span style="flex-shrink:0;border-radius:999px;padding:3px 11px;font-size:0.72rem;font-weight:600;letter-spacing:0.02em;background:{{ t.pillBg }};border:1px {{ t.pillLine }} {{ t.pillBorder }};color:{{ t.pillColor }};box-shadow:{{ t.pillGlow }};">{{ t.pill }}</span>
+                <span style="flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:0.9rem;font-weight:700;letter-spacing:0.03em;color:#fff;">{{ t.arc }}</span>
+                  <span style="font-size:0.74rem;color:rgba(255,255,255,0.4);">{{ t.who }}</span>
+                </span>
+                <a href="{{ t.href }}" style="flex-shrink:0;font-size:0.74rem;">До арки →</a>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <sc-for list="{{ t.chain }}" as="c" hint-placeholder-count="3">
+                  <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <sc-if value="{{ c.arrow }}" hint-placeholder-val="{{ false }}"><span style="color:rgba(255,255,255,0.25);font-size:0.72rem;">→</span></sc-if>
+                    <span style="border-radius:999px;padding:3px 10px;font-size:0.76rem;background:{{ c.bg }};border:1px {{ c.line }} {{ c.border }};color:{{ c.color }};">{{ c.name }}</span>
+                  </span>
+                </sc-for>
+              </div>
+              <p style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.46);text-wrap:pretty;">{{ t.meta }}</p>
+            </div>
+          </sc-for>
+        </div>
+        <p style="font-size:0.7rem;line-height:1.55;color:rgba(255,255,255,0.3);text-wrap:pretty;">{{ turnsHow }}</p>
+      </div>
+      </sc-if>
 
       <!-- вкладки кабінету (у режимі «тільки плітки» смужки немає) -->
       <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
@@ -1048,7 +1088,120 @@ class Component extends DCLogic {
     // тягнеться завжди, а плітки лише для своїх.
     this._loadSubs(u.id);
     this._loadOwned(u.id);
-    if (prof.status === 'approved') this._loadLists(u.id);
+    if (prof.status === 'approved') { this._loadLists(u.id); this._loadTurns(true); }
+  }
+
+  // ── черга в арках (бета) ──────────────────────────────────
+  // База віддає хвіст дописів по живих арках, де ви писали; хто
+  // наступний — рахує turns.js (те саме бачить шапка сайту).
+  async _loadTurns(force) {
+    if (this._turnsBusy) return;
+    if (!force && this._turnsAt && Date.now() - this._turnsAt < 60000) return;
+    this._turnsAt = Date.now();
+    this._turnsBusy = true;
+    this.setState({ turnsBusy: true });
+    let turns;
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/my_turns`, { method: 'POST', body: '{}' }, true);
+      if (r.ok) turns = await r.json();
+      else {
+        const t = await r.text();
+        let why = '';
+        try { const j = JSON.parse(t); why = j.message || j.hint || j.details || ''; } catch (e) { why = String(t || '').slice(0, 160); }
+        console.warn('черга:', r.status, t);
+        turns = { error: `HTTP ${r.status}${why ? ` · ${why}` : ''}` };
+      }
+    } catch (e) { turns = { error: String(e && e.message || e) }; }
+    this._turnsBusy = false;
+    this.setState({ turns, turnsBusy: false });
+    const T = window.AuTurns;
+    const n = turns && !turns.error && T ? T.yourTurn(turns) : 0;
+    console.log('черга:', turns.error ? `помилка: ${turns.error}` : `живих арок ${(turns.arcs || []).length}, ваш хід у ${n}`);
+    try { window.dispatchEvent(new CustomEvent('au-turns', { detail: { n } })); } catch (e) {}
+  }
+
+  _agoH(iso) {
+    if (!iso) return '';
+    const h = (Date.now() - new Date(iso).getTime()) / 3600000;
+    if (h < 1) return 'щойно';
+    if (h < 24) { const n = Math.round(h); return `${n} год тому`; }
+    return this._ago(iso);
+  }
+
+  _turnVals() {
+    const s = this.state, d = s.turns, T = window.AuTurns;
+    const base = {
+      turnsShow: false, turnRows: [], turnsHasNote: false, turnsNote: '', turnsSummary: '', turnsHow: '',
+      turnsBorder: 'rgba(255,255,255,0.12)',
+      turnsBtn: s.turnsBusy ? 'Рахую…' : 'Оновити',
+      doTurns: () => this._loadTurns(true),
+    };
+    if (this.props.onlyGossip || !d || !T || d.status && d.status !== 'approved' && !d.arcs) return base;
+    if (d.error || d.missing) {
+      return { ...base, turnsShow: true, turnsHasNote: true, turnsSummary: 'Черга поки не рахується.',
+        turnsNote: d.missing ? 'Стрічки дописів у базі ще немає.' : `${d.error}. Схоже, не прогнано supabase_turns_migration.sql.` };
+    }
+    const rows = T.rows(d);
+    if (!rows.length) return base;
+
+    const names = (list) => list.map((c) => c.name).join(', ');
+    const P = (n, a, b, c) => this._plural(n, a, b, c);
+    const S = {
+      turn: { pill: 'Ваш хід', bg: 'rgba(255,215,0,0.06)', border: 'rgba(255,215,0,0.3)', pBg: 'rgba(255,215,0,0.16)', pBorder: 'rgba(255,215,0,0.55)', pColor: '#ffd700', glow: '0 0 16px rgba(255,215,0,0.25)' },
+      next: { pill: 'Ви наступні', bg: 'rgba(100,149,237,0.05)', border: 'rgba(100,149,237,0.22)', pBg: 'rgba(100,149,237,0.14)', pBorder: 'rgba(100,149,237,0.45)', pColor: '#a0beff' },
+      wait: { pill: '', bg: 'rgba(255,255,255,0.03)', border: 'rgba(255,255,255,0.1)', pBg: 'rgba(255,255,255,0.06)', pBorder: 'rgba(255,255,255,0.2)', pColor: 'rgba(255,255,255,0.72)' },
+      done: { pill: 'Відписали', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
+      out:  { pill: 'Поза чергою', bg: 'rgba(255,77,77,0.03)', border: 'rgba(255,77,77,0.16)', pBg: 'rgba(255,77,77,0.06)', pBorder: 'rgba(255,77,77,0.4)', pColor: '#ff9a9a', line: 'dashed' },
+      solo: { pill: 'Соло', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
+    };
+    const many = new Set(rows.map((r) => r.me.k)).size > 1;
+    const base_ = this.props.embedded ? '' : 'Aurelion.dc.html';
+
+    const turnRows = rows.map((r, i) => {
+      const st = S[r.state];
+      let pill = st.pill, meta = '';
+      const days = Math.floor(r.waitMs / 86400000);
+      if (r.state === 'turn') {
+        meta = `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}.`;
+        if (days >= 2) { meta += ` Чекають на вас ${days} ${P(days, 'день', 'дні', 'днів')}.`; pill = `Ваш хід · ${days} ${P(days, 'день', 'дні', 'днів')}`; }
+      } else if (r.state === 'next') meta = `Перед вами — ${names(r.ahead)}.`;
+      else if (r.state === 'wait') { pill = `Ще ${r.ahead.length} перед вами`; meta = `Перед вами — ${names(r.ahead)}.`; }
+      else if (r.state === 'done') meta = `Ви відписали ${this._agoH(r.me.at)}. Далі — ${r.up ? r.up.name : '—'}.`;
+      else if (r.state === 'out') meta = `Арка пішла далі без вас: ${r.me.after} ${P(r.me.after, 'хід', 'ходи', 'ходів')} після вашого. Відпишіть — і повернетеся в чергу.`;
+      else meta = `Окрім вас, в арці ніхто не писав за останні ${d.cast || 21} днів.`;
+      if (r.dropped.length && r.state !== 'solo') meta += ` Поза чергою: ${names(r.dropped)}.`;
+
+      const q = r.queue.slice(0, 7);
+      const chain = q.map((c, j) => {
+        const up = j === 0, me = c.mine;
+        return {
+          key: c.k, name: c.name, arrow: j > 0, line: 'solid',
+          bg: up ? (me ? 'rgba(255,215,0,0.18)' : 'rgba(255,255,255,0.1)') : 'transparent',
+          border: me ? 'rgba(255,215,0,0.5)' : (up ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.12)'),
+          color: me ? '#ffd700' : (up ? '#fff' : 'rgba(255,255,255,0.55)'),
+        };
+      });
+      if (r.queue.length > q.length) chain.push({ key: '+', name: `+${r.queue.length - q.length}`, arrow: true, line: 'solid', bg: 'transparent', border: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.35)' });
+      if (r.state === 'out') chain.push({ key: 'me', name: r.me.name, arrow: false, line: 'dashed', bg: 'transparent', border: 'rgba(255,77,77,0.4)', color: '#ff9a9a' });
+
+      return {
+        key: `${r.arc}·${r.me.k}·${i}`, arc: r.arc, who: many || r.state === 'out' ? `за ${r.me.name}` : '',
+        pill, meta, chain,
+        bg: st.bg, border: st.border,
+        pillBg: st.pBg, pillBorder: st.pBorder, pillColor: st.pColor, pillGlow: st.glow || 'none', pillLine: st.line || 'solid',
+        href: `${base_}?arc=${encodeURIComponent(r.arc)}#posts`,
+      };
+    });
+
+    const n = rows.filter((r) => r.state === 'turn').length;
+    const nx = rows.filter((r) => r.state === 'next').length;
+    let sum = n ? `Ваш хід ${n === 1 ? 'в одній арці' : `у ${n} ${P(n, 'арці', 'арках', 'арках')}`}.` : 'Зараз на вас ніхто не чекає.';
+    if (nx) sum += ` Наступні — ще в ${nx} ${P(nx, 'арці', 'арках', 'арках')}.`;
+    return {
+      ...base, turnsShow: true, turnRows, turnsSummary: sum,
+      turnsBorder: n ? 'rgba(255,215,0,0.28)' : 'rgba(255,255,255,0.12)',
+      turnsHow: `Черга — це хто найдавніше відписував в арці. Беруться арки з дописами за ${d.live || 30} днів. Хто пропустив два кола або мовчить ${T.OUT_DAYS} днів, випадає з черги, поки не відпише знову.`,
+    };
   }
 
   async _newPass() {
@@ -2447,6 +2600,7 @@ class Component extends DCLogic {
       pickMe: () => { this.setState({ tab: 'me' }); this._loadStats(); },
       ...this._mineVals(),
       ...this._meVals(),
+      ...this._turnVals(),
       ...(() => {
         const a = this._pillStyle(s.tab !== 'gossip' && s.tab !== 'mine' && s.tab !== 'me');
         const b = this._pillStyle(s.tab === 'gossip');

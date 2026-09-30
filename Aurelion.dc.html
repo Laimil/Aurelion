@@ -372,6 +372,7 @@ a:hover{color:#a8c4f7;}
 <!-- \u041f\u043b\u0435\u0454\u0440-\u0433\u0440\u0430\u043c\u043e\u0444\u043e\u043d: \u0436\u0438\u0432\u0435 \u043f\u043e\u0437\u0430 React-\u0434\u0435\u0440\u0435\u0432\u043e\u043c, \u0442\u043e\u043c\u0443 \u043c\u0443\u0437\u0438\u043a\u0430 \u043d\u0435 \u0441\u043f\u0438\u043d\u044f\u0454\u0442\u044c\u0441\u044f \u043d\u0456 \u043d\u0430
      \u0433\u043e\u0440\u0442\u0430\u043d\u043d\u0456 \u0441\u0442\u0440\u0456\u0447\u043a\u0438, \u043d\u0456 \u043d\u0430 \u043f\u0435\u0440\u0435\u0445\u043e\u0434\u0456 \u0432 \u0456\u043d\u0448\u0438\u0439 \u0440\u043e\u0437\u0434\u0456\u043b. -->
 <script src="./au-player.js"></script>
+<script src="./turns.js"></script>
 </helmet>
 
 <!-- Loading -->
@@ -437,7 +438,7 @@ a:hover{color:#a8c4f7;}
     </sc-if>
     <!-- Плашка входу стоїть і для гостей: інакше ввійти нема звідки, бо
          сам розділ показується тільки тим, хто вже ввійшов. -->
-    <a href="#cabinet" data-active="{{ userChipActive }}" title="{{ userChipTitle }}" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;text-decoration:none;transition:all 0.25s ease;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ userChipGlyph }}<span class="au-share-label">{{ userChipLabel }}</span></a>
+    <a href="#cabinet" data-active="{{ userChipActive }}" title="{{ userChipTitle }}" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;text-decoration:none;transition:all 0.25s ease;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ userChipGlyph }}<span class="au-share-label">{{ userChipLabel }}</span><sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.66rem;font-weight:700;box-shadow:0 0 10px rgba(255,215,0,0.45);">{{ turnsNum }}</span></sc-if></a>
     <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
   </div>
   <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
@@ -2165,6 +2166,54 @@ a:hover{color:#a8c4f7;}
         </div>
       </sc-if>
     </div>
+
+    <!-- Зведення по нитках -->
+    <sc-if value="{{ wallHasStats }}" hint-placeholder-val="{{ false }}">
+      <section style="max-width:1100px;margin:30px auto 0;padding:0 20px;">
+        <div style="display:flex;justify-content:center;">
+          <button onClick="{{ toggleWallStats }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.66);border-radius:999px;padding:7px 20px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,215,0,0.45);">{{ wallStatsBtn }}</button>
+        </div>
+
+        <sc-if value="{{ wallStatsOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px;background:linear-gradient(180deg,rgba(255,255,255,0.05) 0%,rgba(255,255,255,0.02) 100%);border:1px solid rgba(255,255,255,0.11);border-radius:15px;padding:22px 22px 26px;box-shadow:0 16px 44px rgba(0,0,0,0.45);">
+            <p style="font-size:0.62rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin:0 0 4px;">✦ Зведення рецепції</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;font-style:italic;line-height:1.55;color:rgba(255,255,255,0.4);margin:0 0 20px;text-wrap:pretty;">Порахувано по всій картотеці, а не по тому, що зараз висить на стіні. Натисніть рядок — і тека засвітиться в павутині.</p>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:22px;">
+              <sc-for list="{{ wallStatNums }}" as="sn" hint-placeholder-count="4">
+                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:15px 16px 13px;">
+                  <p style="font-family:'Cinzel',Georgia,serif;font-size:1.75rem;font-weight:700;color:#ffd700;line-height:1;margin:0;text-shadow:0 0 24px rgba(255,215,0,0.28);">{{ sn.v }}</p>
+                  <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.42);margin:9px 0 0;">{{ sn.label }}</p>
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.3);margin:3px 0 0;">{{ sn.sub }}</p>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:22px;">
+              <sc-for list="{{ wallStatBars }}" as="b" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <span style="width:96px;flex-shrink:0;font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.5);">{{ b.label }}</span>
+                  <span style="flex:1;min-width:0;height:7px;border-radius:999px;background:rgba(255,255,255,0.05);overflow:hidden;">
+                    <span style="display:block;height:100%;width:{{ b.w }};border-radius:999px;background:{{ b.color }};opacity:0.8;"></span>
+                  </span>
+                  <span style="width:78px;flex-shrink:0;text-align:right;font-size:0.76rem;color:rgba(255,255,255,0.58);">{{ b.count }} · {{ b.share }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:9px;">
+              <sc-for list="{{ wallStatRows }}" as="sr" hint-placeholder-count="6">
+                <div data-card="{{ sr.id }}" onClick="{{ pickStatChar }}" style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.08);border-left:3px solid {{ sr.color }};border-radius:10px;padding:11px 14px 12px;cursor:{{ sr.cur }};transition:all 0.16s;" style-hover="background:rgba(255,255,255,0.075);">
+                  <p style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin:0;">{{ sr.title }}</p>
+                  <p style="font-family:'Cinzel',Georgia,serif;font-size:1.02rem;color:#fff;letter-spacing:0.03em;margin:6px 0 0;line-height:1.25;">{{ sr.value }}</p>
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.4;color:rgba(255,255,255,0.42);margin:4px 0 0;text-wrap:pretty;">{{ sr.sub }}</p>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
 
   </main>
 </sc-if>
@@ -4413,6 +4462,105 @@ class Component extends DCLogic {
     return m;
   }
 
+  // ── Зведення по нитках (вкладка «Зв'язки») ─────────────
+  // Рахуємо по ВСІЙ картотеці, а не по стіні: полиця — це чиясь дошка на
+  // одному пристрої, а числа мусять бути про світ. Кеш по тому самому
+  // ключу, що й _typedEdges: без нього граф перебирався б на кожен setState.
+  _wallStats(data) {
+    const T = this._typedEdges(data);
+    if (this._wst && this._wst.t === T) return this._wst.m;
+    const ids = T.all.map(c => String(c.id));
+    const nameOf = (id) => String((T.byId[id] || {}).name || '—');
+    const adj = {}, degK = {};
+    ids.forEach(i => { adj[i] = []; degK[i] = {}; });
+    T.edges.forEach(e => {
+      adj[e.a].push(e.b); adj[e.b].push(e.a);
+      degK[e.a][e.kind] = (degK[e.a][e.kind] || 0) + 1;
+      degK[e.b][e.kind] = (degK[e.b][e.kind] || 0) + 1;
+    });
+    const deg = {}; ids.forEach(i => { deg[i] = adj[i].length; });
+    const kinds = {}; WALL_ORDER.forEach(k => { kinds[k] = 0; });
+    T.edges.forEach(e => { kinds[e.kind]++; });
+    const nset = {}; ids.forEach(i => { nset[i] = new Set(adj[i]); });
+
+    // Скупчення: хто з ким узагалі сполучений хоч через когось.
+    const comp = {}; let cN = 0; const sizes = [];
+    ids.forEach(i => {
+      if (comp[i] !== undefined) return;
+      const c = cN++; comp[i] = c; const st = [i]; let n = 0;
+      while (st.length) { const v = st.pop(); n++; adj[v].forEach(w => { if (comp[w] === undefined) { comp[w] = c; st.push(w); } }); }
+      sizes.push({ c, n });
+    });
+    const groups = sizes.filter(g => g.n > 1).sort((a, b) => b.n - a.n);
+    const big = groups[0] || null;
+    const lonely = ids.filter(i => !deg[i]);
+
+    // Найдовший ланцюг — найдовший з найкоротших шляхів у великому колі.
+    let chain = null;
+    if (big) {
+      const pool = ids.filter(i => comp[i] === big.c);
+      pool.forEach(src => {
+        const dist = {}; dist[src] = 0; const q = [src];
+        for (let h = 0; h < q.length; h++) {
+          adj[q[h]].forEach(w => { if (dist[w] === undefined) { dist[w] = dist[q[h]] + 1; q.push(w); } });
+        }
+        pool.forEach(dst => { if (dist[dst] !== undefined && (!chain || dist[dst] > chain.d)) chain = { d: dist[dst], a: src, b: dst }; });
+      });
+    }
+
+    // Трикутники: троє, знайомі між собою. Кожен рахується тричі (по ребру).
+    let tri = 0;
+    T.edges.forEach(e => { nset[e.a].forEach(w => { if (nset[e.b].has(w)) tri++; }); });
+    tri = Math.round(tri / 3);
+
+    // Найтісніша пара — найбільше спільних знайомих.
+    let pair = null;
+    for (let i = 0; i < ids.length; i++) {
+      if (!deg[ids[i]]) continue;
+      for (let j = i + 1; j < ids.length; j++) {
+        const a = ids[i], b = ids[j];
+        if (!deg[b]) continue;
+        let n = 0; nset[a].forEach(w => { if (nset[b].has(w)) n++; });
+        if (n && (!pair || n > pair.n)) pair = { a, b, n };
+      }
+    }
+
+    // «Тримає мережу»: заберіть теку — її скупчення розпадається.
+    const holders = [];
+    ids.forEach(v => {
+      if (deg[v] < 2) return;
+      const pool = ids.filter(i => i !== v && comp[i] === comp[v]);
+      const seen = {}; let parts = 0;
+      pool.forEach(i => {
+        if (seen[i]) return;
+        parts++; seen[i] = 1; const st = [i];
+        while (st.length) { const x = st.pop(); adj[x].forEach(w => { if (w !== v && !seen[w]) { seen[w] = 1; st.push(w); } }); }
+      });
+      if (parts > 1) holders.push({ id: v, parts, deg: deg[v] });
+    });
+    holders.sort((a, b) => b.parts - a.parts || b.deg - a.deg);
+
+    const topBy = (f) => ids.map(i => ({ id: i, n: f(i) })).filter(x => x.n > 0).sort((a, b) => b.n - a.n)[0] || null;
+    const cross = T.edges.filter(e => {
+      const x = (T.byId[e.a] || {}).deity, y = (T.byId[e.b] || {}).deity;
+      return x && y && String(x) !== String(y);
+    }).length;
+    const labelled = T.edges.filter(e => e.label).length;
+    const loveTri = ids.filter(i => (degK[i].love || 0) >= 2).length;
+
+    const m = {
+      total: ids.length, edges: T.edges.length, kinds,
+      inNet: ids.length - lonely.length, lonely: lonely.length,
+      avg: ids.length ? (T.edges.length * 2 / ids.length) : 0,
+      groups: groups.length, big: big ? big.n : 0,
+      chain, tri, pair, holder: holders[0] || null,
+      topDeg: topBy(i => deg[i]), topLove: topBy(i => degK[i].love || 0), topFeud: topBy(i => degK[i].feud || 0),
+      cross, labelled, loveTri, nameOf,
+    };
+    this._wst = { t: T, m };
+    return m;
+  }
+
   // ── Стіна рецепції: ребра без тек, що лежать на полиці ──
   _wallEdges(data) {
     const T = this._typedEdges(data);
@@ -4719,6 +4867,15 @@ class Component extends DCLogic {
     this._wp = { src: M.chars, cols, map };
     this._wallSeparate(null);
     return map;
+  }
+
+  // «1 сварка · 3 сварки · 7 сварок» — три форми на будь-яке слово.
+  _plural(n, one, few, many) {
+    const t10 = n % 10, t100 = n % 100;
+    const w = (t10 === 1 && t100 !== 11) ? one
+      : (t10 >= 2 && t10 <= 4 && (t100 < 12 || t100 > 14)) ? few
+      : many;
+    return n + ' ' + w;
   }
 
   // «1 нитка · 3 нитки · 7 ниток» — інакше в підписі стояло б «1 ниток».
@@ -5980,9 +6137,37 @@ class Component extends DCLogic {
       // «увійдіть у віконце знову» обіцяв би те, чого без перезавантаження
       // сторінки не буває. Це одна спроба на вхід, а не повторення по колу.
       this._arcReq = {};
-      this.setState({ userNick: nick, userStatus: status, userId: uid, charArcsFail: {} });
+      this.setState({ userNick: nick, userStatus: status, userId: uid, charArcsFail: {} }, () => this._loadTurns(true));
     }
   };
+
+  // ── Черга в арках (бета): скільки арок чекають на ваш допис ──
+  // Рахує turns.js з my_turns(); кабінет, коли порахує сам, шле `au-turns`.
+  _loadTurns = async (force) => {
+    if (this.state.userStatus !== 'approved' || !this._userTok()) {
+      if (this.state.turnsN) this.setState({ turnsN: 0 });
+      return;
+    }
+    if (!force && this._turnsAt && Date.now() - this._turnsAt < 120000) return;
+    this._turnsAt = Date.now();
+    try {
+      await this._userFresh();
+      const r = await fetch(`${SUPA_URL}/rpc/my_turns`, {
+        method: 'POST', body: '{}',
+        headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + this._userTok(), 'Content-Type': 'application/json' },
+      });
+      if (!r.ok) { console.warn('черга (шапка):', r.status); return; }
+      const d = await r.json();
+      const n = window.AuTurns && !d.error ? window.AuTurns.yourTurn(d) : 0;
+      if (n !== (this.state.turnsN || 0)) this.setState({ turnsN: n });
+    } catch (e) { console.warn('черга (шапка):', String(e)); }
+  };
+  _onTurns = (e) => {
+    const n = Number(e && e.detail && e.detail.n) || 0;
+    this._turnsAt = Date.now();
+    if (n !== (this.state.turnsN || 0)) this.setState({ turnsN: n });
+  };
+  _turnsTick = () => { if (document.visibilityState === 'visible') this._loadTurns(); };
 
   componentDidMount() {
     window.addEventListener('scroll', this._pulseCheck, { passive: true });
@@ -5993,6 +6178,9 @@ class Component extends DCLogic {
     this._readUser();
     window.addEventListener('au-user', this._readUser);
     window.addEventListener('storage', this._readUser);
+    window.addEventListener('au-turns', this._onTurns);
+    document.addEventListener('visibilitychange', this._turnsTick);
+    this._turnsTimer = setInterval(this._turnsTick, 300000);
     this._loadAll();
     this._introMaybe();
     this._visitNo();
@@ -6090,6 +6278,9 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this._toTopWatch);
+    window.removeEventListener('au-turns', this._onTurns);
+    document.removeEventListener('visibilitychange', this._turnsTick);
+    if (this._turnsTimer) clearInterval(this._turnsTimer);
     if (this._rollTimer) clearInterval(this._rollTimer);
     clearInterval(this._countTimer);
     clearInterval(this._pulseTimer);
@@ -7874,7 +8065,9 @@ class Component extends DCLogic {
       userNick: s.userNick || '',
       userChipLabel: signedIn ? 'Мій кабінет' : 'Увійти',
       userChipGlyph: signedIn ? '' : '✦',
-      userChipTitle: signedIn ? 'Мій кабінет — анкети й плітки' : 'Увійти або записатися',
+      userChipTitle: signedIn ? (s.turnsN ? `Ваш хід в арках: ${s.turnsN} — до кабінету` : 'Мій кабінет — анкети й плітки') : 'Увійти або записатися',
+      turnsHas: signedIn && !!s.turnsN,
+      turnsNum: String(s.turnsN || ''),
       userChipBg: signedIn ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.04)',
       userChipBorder: signedIn ? 'rgba(255,215,0,0.22)' : 'rgba(255,255,255,0.12)',
       userChipColor: signedIn ? 'rgba(255,215,0,0.85)' : 'rgba(255,255,255,0.4)',
@@ -8434,8 +8627,47 @@ class Component extends DCLogic {
         const vw = s.relViewW || (typeof window !== 'undefined' ? window.innerWidth : 1040);
         const side = drag && (vw - S.w) >= 300;
 
+        // ── Зведення рецепції: числа по всій картотеці ──
+        const W = this._wallStats(s.data);
+        const nm = W.nameOf;
+        const num = (v, label, sub) => ({ v: String(v), label, sub: sub || '' });
+        const wallStatNums = [
+          num(W.edges, 'ниток усього', W.labelled === W.edges ? 'усі підписані' : W.labelled + ' з них підписані'),
+          num(W.inNet, 'тек у мережі', 'з ' + W.total + ' у картотеці'),
+          num(W.avg ? W.avg.toFixed(1) : '0', 'ниток на теку', 'у середньому'),
+          num(W.groups, W.groups === 1 ? 'скупчення' : 'скупчень', W.big ? 'найбільше — ' + W.big + ' тек' : 'ниток ще немає'),
+        ];
+        const maxK = Math.max(1, ...WALL_ORDER.map(k => W.kinds[k]));
+        const wallStatBars = WALL_ORDER.filter(k => W.kinds[k] > 0).map(k => ({
+          label: WALL_KIND[k].label, color: WALL_KIND[k].color,
+          count: String(W.kinds[k]),
+          share: W.edges ? Math.round(W.kinds[k] * 100 / W.edges) + '%' : '0%',
+          w: Math.round(W.kinds[k] * 100 / maxK) + '%',
+        }));
+        const rows = [];
+        const row = (title, value, sub, color, id) => rows.push({
+          title, value: String(value), sub: sub || '', color: color || 'rgba(255,215,0,0.55)',
+          id: id || '', clickable: !!id, cur: id ? 'pointer' : 'default',
+        });
+        if (W.topDeg) row('Найзаплутаніша тека', nm(W.topDeg.id), this._threadWord(W.topDeg.n) + ' — більше, ніж у будь-кого', '#ffd700', W.topDeg.id);
+        if (W.holder) row('Тримає мережу', nm(W.holder.id), 'заберіть цю теку — коло розпадеться на ' + this._plural(W.holder.parts, 'частину', 'частини', 'частин'), '#6495ed', W.holder.id);
+        if (W.chain && W.chain.d > 1) row('Найдовший ланцюг', this._plural(W.chain.d, 'крок', 'кроки', 'кроків'), 'від ' + nm(W.chain.a) + ' до ' + nm(W.chain.b) + ' — через стількох посередників', '#8fd6c4', W.chain.a);
+        if (W.pair) row('Найтісніша пара', nm(W.pair.a) + ' і ' + nm(W.pair.b), this._plural(W.pair.n, 'спільний знайомий', 'спільних знайомих', 'спільних знайомих') + ' на двох', '#c56a80', W.pair.a);
+        if (W.topLove) row('Найбільше романтики', nm(W.topLove.id), this._plural(W.topLove.n, 'романтична нитка', 'романтичні нитки', 'романтичних ниток') + ' в одній теці', '#c56a80', W.topLove.id);
+        if (W.topFeud) row('Найбільше ворожнечі', nm(W.topFeud.id), this._plural(W.topFeud.n, 'сварка', 'сварки', 'сварок') + ' записано', '#ff4d4d', W.topFeud.id);
+        if (W.tri) row('Трикутників', W.tri, 'троє, зв\u2019язані між собою по колу', '#ffd76b');
+        if (W.loveTri) row('Любовних трикутників', W.loveTri, (W.loveTri === 1 ? 'тека з двома романтичними нитками одразу' : 'теки з двома романтичними нитками одразу'), '#c56a80');
+        if (W.cross) row('Через віру', W.cross, (W.cross === 1 ? 'нитка між вірянами різних покровителів' : 'нитки між вірянами різних покровителів'), '#5e9a8f');
+        if (W.lonely) row('Ще ні з ким', this._plural(W.lonely, 'тека', 'теки', 'тек'), 'жодної нитки — рецепція чекає', 'rgba(255,255,255,0.3)');
+
         return {
           showWall: true,
+          wallStatNums, wallStatBars, wallStatRows: rows,
+          wallHasStats: W.edges > 0,
+          wallStatsOpen: !!s.wallStatsOpen,
+          wallStatsBtn: s.wallStatsOpen ? '✦ Згорнути зведення' : '✦ Зведення по нитках',
+          toggleWallStats: () => this.setState(st => ({ wallStatsOpen: !st.wallStatsOpen })),
+          pickStatChar: (e) => { const id = e.currentTarget.dataset.card; if (id) this.setState({ selectedBoardChar: id }); },
           wallCards, wallThreads, wallTags, wallLeads, wallRels, wallLegend,
           wallW: S.w + 'px', wallH: S.h + 'px', wallViewBox: '0 0 ' + S.w + ' ' + S.h,
           wallEmpty: !M.all.length,
