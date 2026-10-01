@@ -1456,6 +1456,17 @@ a:hover{color:#a8c4f7;}
               {{ webBtnLabel }}
             </button>
           </sc-if>
+          <sc-if value="{{ plVisible }}" hint-placeholder-val="{{ false }}">
+            <div style="display:inline-flex;align-items:center;gap:6px;">
+              <button onClick="{{ plJump }}" title="До плейліста персонажа" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(255,215,0,0.18);box-shadow:0 0 18px rgba(255,215,0,0.28);">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                {{ plTopLabel }}
+              </button>
+              <sc-if value="{{ plHasTracks }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ plTopPlay }}" title="Грати плейліст" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;background:#ffd700;border:1px solid #ffd700;color:#1a1a1a;border-radius:999px;font-size:0.8rem;cursor:pointer;transition:all 0.2s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.4);transform:scale(1.06);">{{ plTopIcon }}</button>
+              </sc-if>
+            </div>
+          </sc-if>
         </div>
         <div class="char-reader-grid">
           <aside class="char-reader-aside">
@@ -1616,7 +1627,7 @@ a:hover{color:#a8c4f7;}
 
         <!-- ── Плейліст персонажа: збирає власник анкети ── -->
         <sc-if value="{{ plVisible }}" hint-placeholder-val="{{ false }}">
-          <div style="max-width:1060px;margin:58px auto 0;">
+          <div data-pl-anchor="1" style="max-width:1060px;margin:58px auto 0;">
             <div style="height:1px;background:rgba(255,255,255,0.09);margin-bottom:34px;"></div>
             <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
               <div>
@@ -9142,7 +9153,7 @@ class Component extends DCLogic {
         };
       })(),
       ...(() => {
-        const off = { plVisible: false, plLoading: false, plFailed: false, plEmptyOwner: false, plHasTracks: false, plTracks: [], plIsOwner: false, plCanAdd: false };
+        const off = { plVisible: false, plLoading: false, plFailed: false, plEmptyOwner: false, plHasTracks: false, plTracks: [], plIsOwner: false, plCanAdd: false, plTopLabel: '', plTopIcon: '▶' };
         if (!sc) return off;
         const key = String(sc.id);
         const owner = !!(sc.owner_id && s.userId && String(sc.owner_id) === String(s.userId));
@@ -9160,6 +9171,8 @@ class Component extends DCLogic {
           plEmptyOwner: owner && !!rows && !n,
           plHasTracks: n > 0,
           plCountLabel: n + ' ' + w,
+          plTopLabel: n ? 'Плейліст · ' + n : (owner ? 'Скласти плейліст' : 'Плейліст'),
+          plTopIcon: ((rows || []).some(r => r.video_id === s.plNow) && s.plOn) ? '❙❙' : '▶',
           plCanAdd: owner && !!rows && n < 30,
           plTracks: (rows || []).map((r, i) => {
             const on = s.plNow === r.video_id;
@@ -9186,6 +9199,16 @@ class Component extends DCLogic {
       plNoteIn: (e) => this.setState({ plNote: e.target.value }),
       plKey: (e) => { if (e.key === 'Enter') this._plAdd(); },
       plAdd: this._plAdd, plRemove: this._plRemove, plMove: this._plMove,
+      plJump: () => {
+        const el = document.querySelector('[data-pl-anchor]');
+        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
+      },
+      plTopPlay: () => {
+        const P = window.AuPlayer, q = this._plQueue();
+        if (!P || !q.length) return;
+        const cur = P.current();
+        if (cur && q.some(t => t.vid === cur.vid)) P.toggle(); else P.playQueue(q, 0);
+      },
       plPlayAt: this._plPlayAt, plPlayAll: this._plPlayAll, plShuffle: this._plShuffle,
       plBusy: !!s.plBusy, plBtnOp: s.plBusy ? '0.5' : '1', plBtnLabel: s.plBusy ? 'Додаю…' : '+ Додати',
       plHasMsg: !!s.plMsg, plMsg: s.plMsg || '', plMsgInk: s.plMsgBad ? '#ff8080' : 'rgba(255,215,0,0.8)',

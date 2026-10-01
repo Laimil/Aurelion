@@ -11,6 +11,32 @@
   <script src="./au-player.js"></script>
 </helmet>
 <div style="font-family:Arial,sans-serif;">
+  <sc-if value="{{ plHas }}" hint-placeholder-val="{{ false }}">
+    <section style="margin-bottom:34px;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+        <p style="font-size:0.66rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin:0;">✦ Плейлісти персонажів</p>
+        <span style="font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.28);">{{ plStats }}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:12px;">
+        <sc-for list="{{ plTiles }}" as="p" hint-placeholder-count="4">
+          <article style="position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:#141414;border:1px solid {{ p.border }};box-shadow:0 10px 26px rgba(0,0,0,0.4);transition:all 0.3s ease;" style-hover="transform:translateY(-5px);box-shadow:0 18px 40px rgba(0,0,0,0.55);">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}">
+              <img src="{{ p.img }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;">
+            </sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background-image:url({{ p.cover }});background-size:cover;background-position:center;filter:saturate(0.6) brightness(0.55);"></div>
+            </sc-if>
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,12,0.95) 0%,rgba(12,12,12,0.35) 48%,rgba(12,12,12,0) 75%);"></div>
+            <button onClick="{{ p.play }}" title="{{ p.hint }}" style="position:absolute;right:10px;top:10px;width:40px;height:40px;border-radius:999px;background:{{ p.btnBg }};border:1px solid #ffd700;color:{{ p.btnInk }};font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.45);transform:scale(1.08);">{{ p.icon }}</button>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:12px;display:flex;flex-direction:column;gap:3px;">
+              <a href="{{ p.href }}" style="font-family:'Cinzel',Georgia,serif;font-size:0.92rem;font-weight:700;letter-spacing:0.03em;line-height:1.25;color:{{ p.ink }};text-decoration:none;text-wrap:pretty;">{{ p.name }}</a>
+              <span style="font-size:0.7rem;letter-spacing:0.06em;color:rgba(255,255,255,0.5);">{{ p.meta }}</span>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+  </sc-if>
   <sc-if value="{{ isLoad }}" hint-placeholder-val="{{ true }}">
     <p style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.9rem;padding:40px 0;">Заводжу грамофон…</p>
   </sc-if>
@@ -138,6 +164,7 @@ class Component extends DCLogic {
     phase: 'load', err: '', raw: [], off: 0, more: false, busy: false,
     fArc: [], fChar: [], q: '', sort: 'new',
     nowVid: null, nowPlay: false, titles: {},
+    pl: [],
   };
 
   // ── Ключ доступу: те саме оновлення заздалегідь + повтор на 401, що в
@@ -188,6 +215,35 @@ class Component extends DCLogic {
   componentDidMount() {
     this._hookPlayer();
     this._load();
+    this._loadPl();
+  }
+
+  // Плейлісти публічні (тека персонажа публічна), тому читаються незалежно від
+  // доступу до стрічки. Імʼя й портрет — вкладеним запитом по FK character_id.
+  async _loadPl() {
+    try {
+      const r = await fetch(`${SUPA_URL}/character_playlist?select=character_id,video_id,title,author,position,created_at,characters(name,alias,image)&order=position.asc,created_at.asc&limit=1000`, { headers: BASE_H });
+      if (!r.ok) { console.warn('аудіотека: плейлісти не відповіли —', await r.text()); return; }
+      const rows = await r.json();
+      const box = new Map();
+      rows.forEach((t) => {
+        const c = t.characters || {};
+        let p = box.get(t.character_id);
+        if (!p) { p = { id: t.character_id, name: c.name || 'Без імені', image: c.image || '', tracks: [], last: t.created_at }; box.set(t.character_id, p); }
+        p.tracks.push({ vid: t.video_id, title: t.title || '', author: t.author || '' });
+        if (new Date(t.created_at) > new Date(p.last)) p.last = t.created_at;
+      });
+      const pl = [...box.values()].sort((a, b) => new Date(b.last) - new Date(a.last));
+      this.setState({ pl });
+    } catch (e) { console.warn('аудіотека: плейлісти —', e && e.message); }
+  }
+
+  _playPl(p) {
+    const P = window.AuPlayer;
+    if (!P || !p.tracks.length) return;
+    const cur = P.current();
+    if (cur && p.tracks.some((t) => t.vid === cur.vid)) { P.toggle(); return; }
+    P.playQueue(p.tracks.map((t) => ({ vid: t.vid, title: t.title, author: t.author, name: p.name, arc: 'Плейліст' })), 0);
   }
   componentWillUnmount() { clearInterval(this._hookTimer); }
 
@@ -393,6 +449,24 @@ class Component extends DCLogic {
     const pick = s.fArc.concat(s.fChar).join(' · ');
 
     return {
+      plHas: (s.pl || []).length > 0,
+      plStats: (() => { const n = (s.pl || []).length; const k = (s.pl || []).reduce((m, p) => m + p.tracks.length, 0); return `${n} ${plural(n, 'персонаж', 'персонажі', 'персонажів')} · ${k} ${plural(k, 'пісня', 'пісні', 'пісень')}`; })(),
+      plTiles: (s.pl || []).map((p) => {
+        const on = p.tracks.some((t) => t.vid === s.nowVid);
+        const playing = on && s.nowPlay;
+        const n = p.tracks.length;
+        return {
+          name: p.name, href: '#characters/' + encodeURIComponent(p.id),
+          img: p.image, hasImg: !!p.image, noImg: !p.image,
+          cover: `https://i.ytimg.com/vi/${p.tracks[0].vid}/mqdefault.jpg`,
+          meta: playing ? '♦ грає зараз' : `${n} ${plural(n, 'пісня', 'пісні', 'пісень')}`,
+          icon: playing ? '❙❙' : '▶', hint: playing ? 'Пауза' : 'Грати плейліст',
+          btnBg: on ? '#ffd700' : 'rgba(0,0,0,0.55)', btnInk: on ? '#1a1a1a' : '#ffd700',
+          border: on ? 'rgba(255,215,0,0.6)' : 'rgba(255,255,255,0.12)',
+          ink: on ? '#ffd700' : '#fff',
+          play: () => this._playPl(p),
+        };
+      }),
       isLoad: s.phase === 'load',
       isGuest: s.phase === 'guest',
       isLocked: s.phase === 'locked',
