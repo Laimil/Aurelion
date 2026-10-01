@@ -1614,6 +1614,73 @@ a:hover{color:#a8c4f7;}
           </article>
         </div>
 
+        <!-- ── Плейліст персонажа: збирає власник анкети ── -->
+        <sc-if value="{{ plVisible }}" hint-placeholder-val="{{ false }}">
+          <div style="max-width:1060px;margin:58px auto 0;">
+            <div style="height:1px;background:rgba(255,255,255,0.09);margin-bottom:34px;"></div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+              <div>
+                <p style="font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin:0 0 5px;">✦ Звучить як</p>
+                <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.5rem,3vw,1.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;margin:0;">Плейліст</h2>
+              </div>
+              <sc-if value="{{ plHasTracks }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);">{{ plCountLabel }}</span>
+                  <button onClick="{{ plPlayAll }}" style="display:inline-flex;align-items:center;gap:7px;background:#ffd700;border:1px solid #ffd700;color:#1a1a1a;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.3s ease;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.4);transform:scale(1.03);">▶ Грати все</button>
+                  <button onClick="{{ plShuffle }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.75);border-radius:999px;padding:7px 16px;font-size:0.78rem;letter-spacing:0.03em;cursor:pointer;transition:all 0.3s ease;" style-hover="color:#fff;border-color:rgba(255,255,255,0.36);">⇄ Навмання</button>
+                </div>
+              </sc-if>
+            </div>
+            <sc-if value="{{ plLoading }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.3);margin:0;">Перебираю платівки…</p>
+            </sc-if>
+            <sc-if value="{{ plFailed }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;color:rgba(255,255,255,0.4);margin:0;line-height:1.55;">Полиця для плейлістів ще не збита: треба прогнати <span style="color:#ffd700;">supabase_char_playlist_migration.sql</span>.</p>
+            </sc-if>
+            <sc-if value="{{ plEmptyOwner }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.02rem;color:rgba(255,255,255,0.45);margin:0 0 14px;line-height:1.55;max-width:620px;">Тут поки тихо. Яка пісня звучить, коли ваш персонаж заходить у кімнату? Вставте посилання з YouTube — і за бажанням рядок про те, чому саме вона.</p>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <sc-for list="{{ plTracks }}" as="t" hint-placeholder-count="0">
+                <div style="display:flex;align-items:center;gap:12px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:10px;padding:8px 10px;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);">
+                  <span style="width:22px;flex-shrink:0;text-align:right;font-family:'Cinzel',serif;font-size:0.78rem;color:rgba(255,215,0,0.55);">{{ t.num }}</span>
+                  <button data-i="{{ t.i }}" onClick="{{ plPlayAt }}" title="{{ t.hint }}" style="position:relative;width:76px;height:43px;flex-shrink:0;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);background:#111;padding:0;cursor:pointer;">
+                    <img src="{{ t.cover }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+                    <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,9,8,0.45);color:#ffd700;font-size:0.9rem;">{{ t.icon }}</span>
+                  </button>
+                  <div style="flex:1;min-width:0;">
+                    <p style="font-size:0.9rem;color:{{ t.ink }};margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.title }}</p>
+                    <p style="font-size:0.72rem;letter-spacing:0.04em;color:rgba(255,255,255,0.4);margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.meta }}</p>
+                    <sc-if value="{{ t.hasNote }}" hint-placeholder-val="{{ false }}">
+                      <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,215,0,0.72);margin:4px 0 0;line-height:1.4;text-wrap:pretty;">{{ t.note }}</p>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ plIsOwner }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+                      <button data-i="{{ t.i }}" data-d="-1" onClick="{{ plMove }}" disabled="{{ t.first }}" title="Вище" style="width:30px;height:30px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);cursor:pointer;font-size:0.8rem;opacity:{{ t.upOp }};">↑</button>
+                      <button data-i="{{ t.i }}" data-d="1" onClick="{{ plMove }}" disabled="{{ t.last }}" title="Нижче" style="width:30px;height:30px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);cursor:pointer;font-size:0.8rem;opacity:{{ t.downOp }};">↓</button>
+                      <button data-i="{{ t.i }}" onClick="{{ plRemove }}" title="Прибрати з плейліста" style="width:30px;height:30px;border-radius:999px;background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.3);color:#ff4d4d;cursor:pointer;font-size:0.85rem;transition:all 0.3s ease;" style-hover="background:rgba(255,77,77,0.16);">×</button>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ plCanAdd }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:14px;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,215,0,0.28);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+                <p style="font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,215,0,0.66);margin:0;">✦ Додати пісню · бачите лише ви, власник анкети</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <input value="{{ plUrl }}" onChange="{{ plUrlIn }}" onKeyDown="{{ plKey }}" placeholder="Посилання з YouTube" style="flex:2 1 240px;min-width:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:9px 16px;color:#fff;font-size:0.88rem;outline:none;">
+                  <input value="{{ plNote }}" onChange="{{ plNoteIn }}" onKeyDown="{{ plKey }}" maxlength="160" placeholder="Чому саме вона (необовʼязково)" style="flex:3 1 260px;min-width:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:9px 16px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;outline:none;">
+                  <button onClick="{{ plAdd }}" disabled="{{ plBusy }}" style="flex:0 0 auto;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.45);color:#ffd700;border-radius:999px;padding:9px 20px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.3s ease;opacity:{{ plBtnOp }};" style-hover="background:rgba(255,215,0,0.2);box-shadow:0 0 18px rgba(255,215,0,0.28);">{{ plBtnLabel }}</button>
+                </div>
+                <sc-if value="{{ plHasMsg }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:{{ plMsgInk }};margin:0;">{{ plMsg }}</p>
+                </sc-if>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
         <!-- ── Мережа зв'язків: куток стіни ── -->
         <sc-if value="{{ relHasConns }}" hint-placeholder-val="{{ false }}">
           <div data-conns-anchor="" style="max-width:1060px;margin:58px auto 0;">
@@ -2345,7 +2412,7 @@ a:hover{color:#a8c4f7;}
 
 <!-- ═══ КАБІНЕТ (анкета на розгляд + віконце пліток) ═══ -->
 <sc-if value="{{ showGossip }}" hint-placeholder-val="{{ false }}">
-  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:680px;margin:0 auto;">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 80px;max-width:1200px;margin:0 auto;">
     <sc-if value="{{ cabinetOnlyGossip }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
         <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забавки</p>
@@ -3577,6 +3644,7 @@ class Component extends DCLogic {
     data: { site: {}, lore: [], stories: [], chronicles: [], characters: [], pantheon: [], contacts: [], map_locations: [], quotes: [], tests: [], material_links: [], character_links: [], character_images: [], material_images: [] },
     webOpen: false,
     testsBuild: false,
+    charPl: {}, charPlFail: {}, plUrl: '', plNote: '', plBusy: false, plMsg: '', plMsgBad: false, plNow: null, plOn: false,
     galOpen: false, galKind: null, galIndex: -1, galShown: {},
     quotesAuthor: null, quoteSpot: null,
     loading: true,
@@ -5993,8 +6061,180 @@ class Component extends DCLogic {
     }
     // Арки — лише коли теку справді відкрили і доступ до стрічки є.
     if (s.selectedChar) this._loadArcs(s.selectedChar);
+    if (s.selectedChar) this._loadPl(s.selectedChar);
 
   }
+
+  // ── Плейліст персонажа ──────────────────────────────────
+  // Читається анонімним ключем (тека публічна), пишеться токеном віконця:
+  // RLS пускає лише власника анкети (owner_id) або адміна.
+  async _loadPl(ch, force) {
+    if (!ch) return;
+    const key = String(ch.id);
+    this._plReq = this._plReq || {};
+    if (this._plReq[key] && !force) return;
+    this._plReq[key] = 1;
+    this._plTie();
+    try {
+      const rows = await this._get(`character_playlist?select=id,video_id,url,title,author,note,position,created_at&character_id=eq.${key}&order=position.asc,created_at.asc`);
+      this.setState(st => ({ charPl: { ...(st.charPl || {}), [key]: rows || [] } }));
+      this._plFillTitles(key, rows || []);
+    } catch (e) {
+      console.warn('плейліст: не відповів —', e && e.message, '(прогнати supabase_char_playlist_migration.sql)');
+      this.setState(st => ({ charPlFail: { ...(st.charPlFail || {}), [key]: 1 } }));
+    }
+  }
+
+  _plTie() {
+    if (this._plTied) return;
+    let left = 30;
+    const tie = () => {
+      if (!window.AuPlayer) { if (--left > 0) setTimeout(tie, 500); return; }
+      this._plTied = true;
+      window.AuPlayer.onChange((vid, on) => this.setState({ plNow: vid, plOn: on }));
+      const cur = window.AuPlayer.current();
+      if (cur) this.setState({ plNow: cur.vid, plOn: cur.playing });
+    };
+    tie();
+  }
+
+  _plVid(u) {
+    const m = String(u || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^\s]*&)?v=|shorts\/|embed\/|live\/))([A-Za-z0-9_-]{11})/);
+    if (m) return m[1];
+    return /^[A-Za-z0-9_-]{11}$/.test(String(u || '').trim()) ? String(u).trim() : null;
+  }
+
+  async _plMeta(vid) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 6000);
+      const r = await fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + vid), { signal: ctrl.signal });
+      clearTimeout(t);
+      if (!r.ok) return { title: null, author: null, gone: r.status === 404 || r.status === 401 };
+      const d = await r.json();
+      return { title: d.title || null, author: d.author_name || null };
+    } catch (e) { return { title: null, author: null }; }
+  }
+
+  // Рядки без назви (oEmbed не відповів під час додавання) дотягуємо
+  // лише для показу — у базу пише лише власник, і то при додаванні.
+  async _plFillTitles(key, rows) {
+    const need = rows.filter(r => !r.title).slice(0, 12);
+    if (!need.length) return;
+    const got = {};
+    await Promise.all(need.map(async r => { got[r.video_id] = await this._plMeta(r.video_id); }));
+    this.setState(st => ({ charPl: { ...st.charPl, [key]: (st.charPl[key] || []).map(r => (!r.title && got[r.video_id]) ? { ...r, title: got[r.video_id].title || (got[r.video_id].gone ? 'Відео недоступне' : null), author: got[r.video_id].author } : r) } }));
+  }
+
+  async _plWrite(path, method, body) {
+    const go = () => fetch(`${SUPA_URL}/${path}`, {
+      method,
+      headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + (this._userTok() || SUPA_KEY), 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    await this._userFresh();
+    let r = await go();
+    if (r.status === 401 && await this._userRenew(true)) r = await go();
+    if (!r.ok) {
+      let msg = 'HTTP ' + r.status;
+      try { const d = await r.json(); msg = d.message || msg; } catch (e) {}
+      throw new Error(msg);
+    }
+    try { return await r.json(); } catch (e) { return null; }
+  }
+
+  _plMsg(text, bad) {
+    this.setState({ plMsg: text, plMsgBad: !!bad });
+    clearTimeout(this._plMsgT);
+    this._plMsgT = setTimeout(() => this.setState({ plMsg: '' }), 5000);
+  }
+
+  _plAdd = async () => {
+    const ch = this.state.selectedChar;
+    if (!ch || this.state.plBusy) return;
+    const key = String(ch.id);
+    const vid = this._plVid(this.state.plUrl);
+    if (!vid) return this._plMsg('Не бачу тут посилання на YouTube.', true);
+    const rows = (this.state.charPl || {})[key] || [];
+    if (rows.some(r => r.video_id === vid)) return this._plMsg('Ця пісня вже є в плейлісті.', true);
+    if (rows.length >= 30) return this._plMsg('У плейлісті вже 30 пісень — приберіть одну.', true);
+    this.setState({ plBusy: true });
+    try {
+      const meta = await this._plMeta(vid);
+      const pos = rows.reduce((m, r) => Math.max(m, r.position || 0), 0) + 1;
+      const note = String(this.state.plNote || '').trim().slice(0, 160) || null;
+      const out = await this._plWrite('character_playlist', 'POST', {
+        character_id: ch.id, video_id: vid, url: 'https://youtu.be/' + vid,
+        title: meta.title, author: meta.author, note, position: pos,
+      });
+      const row = Array.isArray(out) ? out[0] : out;
+      this.setState(st => ({ plUrl: '', plNote: '', charPl: { ...st.charPl, [key]: [...(st.charPl[key] || []), row || { id: 'tmp' + vid, video_id: vid, title: meta.title, author: meta.author, note, position: pos }] } }));
+      this._plMsg(meta.title ? 'Додано: «' + meta.title + '».' : 'Додано. Назву підтягне плеєр.');
+    } catch (e) {
+      console.warn('плейліст: не додалося —', e && e.message);
+      this._plMsg('Не вийшло: ' + (e && e.message || 'невідома помилка'), true);
+    }
+    this.setState({ plBusy: false });
+  };
+
+  _plRemove = async (e) => {
+    const ch = this.state.selectedChar;
+    if (!ch) return;
+    const key = String(ch.id);
+    const rows = (this.state.charPl || {})[key] || [];
+    const row = rows[Number(e.currentTarget.dataset.i)];
+    if (!row) return;
+    this.setState(st => ({ charPl: { ...st.charPl, [key]: rows.filter(r => r !== row) } }));
+    try { await this._plWrite('character_playlist?id=eq.' + row.id, 'DELETE'); }
+    catch (err) {
+      this.setState(st => ({ charPl: { ...st.charPl, [key]: rows } }));
+      this._plMsg('Не прибралося: ' + (err && err.message), true);
+    }
+  };
+
+  _plMove = async (e) => {
+    const ch = this.state.selectedChar;
+    if (!ch) return;
+    const key = String(ch.id);
+    const rows = [...((this.state.charPl || {})[key] || [])];
+    const i = Number(e.currentTarget.dataset.i), j = i + Number(e.currentTarget.dataset.d);
+    if (!rows[i] || !rows[j]) return;
+    [rows[i], rows[j]] = [rows[j], rows[i]];
+    const next = rows.map((r, k) => ({ ...r, position: k + 1 }));
+    const prev = this.state.charPl[key];
+    this.setState(st => ({ charPl: { ...st.charPl, [key]: next } }));
+    try {
+      await Promise.all([next[i], next[j]].map(r => this._plWrite('character_playlist?id=eq.' + r.id, 'PATCH', { position: r.position })));
+    } catch (err) {
+      this.setState(st => ({ charPl: { ...st.charPl, [key]: prev } }));
+      this._plMsg('Порядок не зберігся: ' + (err && err.message), true);
+    }
+  };
+
+  _plQueue() {
+    const ch = this.state.selectedChar;
+    if (!ch) return [];
+    return ((this.state.charPl || {})[String(ch.id)] || []).map(r => ({
+      vid: r.video_id, title: r.title || '', author: r.author || '',
+      name: ch.name || '', arc: 'Плейліст',
+    }));
+  }
+
+  _plPlayAt = (e) => {
+    const P = window.AuPlayer;
+    if (!P) return;
+    const q = this._plQueue();
+    const i = Number(e.currentTarget.dataset.i);
+    const cur = P.current();
+    if (cur && q[i] && cur.vid === q[i].vid) { P.toggle(); return; }
+    P.playQueue(q, i);
+  };
+  _plPlayAll = () => { const q = this._plQueue(); if (window.AuPlayer && q.length) window.AuPlayer.playQueue(q, 0); };
+  _plShuffle = () => {
+    const q = this._plQueue();
+    for (let i = q.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [q[i], q[j]] = [q[j], q[i]]; }
+    if (window.AuPlayer && q.length) window.AuPlayer.playQueue(q, 0);
+  };
 
   // ── Токен віконця: те саме оновлення заздалегідь + повтор на 401, що
   // й у кабінеті (Gossip.dc.html) — інакше застарілий (>1 год) ключ у
@@ -8901,6 +9141,54 @@ class Component extends DCLogic {
           }),
         };
       })(),
+      ...(() => {
+        const off = { plVisible: false, plLoading: false, plFailed: false, plEmptyOwner: false, plHasTracks: false, plTracks: [], plIsOwner: false, plCanAdd: false };
+        if (!sc) return off;
+        const key = String(sc.id);
+        const owner = !!(sc.owner_id && s.userId && String(sc.owner_id) === String(s.userId));
+        const rows = (s.charPl || {})[key];
+        const failed = !rows && !!(s.charPlFail || {})[key];
+        // Чужий порожній плейліст — не показуємо зовсім: розділ «нічого» в анкеті — це шум.
+        if (!owner && (!rows || !rows.length)) return off;
+        const n = (rows || []).length;
+        const w = n % 10 === 1 && n % 100 !== 11 ? 'пісня' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'пісні' : 'пісень';
+        return {
+          plVisible: true,
+          plIsOwner: owner,
+          plLoading: !rows && !failed,
+          plFailed: failed,
+          plEmptyOwner: owner && !!rows && !n,
+          plHasTracks: n > 0,
+          plCountLabel: n + ' ' + w,
+          plCanAdd: owner && !!rows && n < 30,
+          plTracks: (rows || []).map((r, i) => {
+            const on = s.plNow === r.video_id;
+            const playing = on && s.plOn;
+            return {
+              i, num: String(i + 1),
+              title: r.title || 'Пісня без назви',
+              meta: playing ? '♦ грає зараз' : (r.author || 'YouTube'),
+              note: r.note || '', hasNote: !!r.note,
+              cover: 'https://i.ytimg.com/vi/' + r.video_id + '/mqdefault.jpg',
+              icon: playing ? '❙❙' : '▶',
+              hint: playing ? 'Пауза' : 'Грати з цієї пісні й далі плейлістом',
+              bg: on ? 'rgba(255,215,0,0.09)' : 'rgba(255,255,255,0.05)',
+              border: on ? 'rgba(255,215,0,0.42)' : 'rgba(255,255,255,0.1)',
+              ink: on ? '#ffd700' : '#fff',
+              first: i === 0, last: i === n - 1,
+              upOp: i === 0 ? '0.3' : '1', downOp: i === n - 1 ? '0.3' : '1',
+            };
+          }),
+        };
+      })(),
+      plUrl: s.plUrl || '', plNote: s.plNote || '',
+      plUrlIn: (e) => this.setState({ plUrl: e.target.value }),
+      plNoteIn: (e) => this.setState({ plNote: e.target.value }),
+      plKey: (e) => { if (e.key === 'Enter') this._plAdd(); },
+      plAdd: this._plAdd, plRemove: this._plRemove, plMove: this._plMove,
+      plPlayAt: this._plPlayAt, plPlayAll: this._plPlayAll, plShuffle: this._plShuffle,
+      plBusy: !!s.plBusy, plBtnOp: s.plBusy ? '0.5' : '1', plBtnLabel: s.plBusy ? 'Додаю…' : '+ Додати',
+      plHasMsg: !!s.plMsg, plMsg: s.plMsg || '', plMsgInk: s.plMsgBad ? '#ff8080' : 'rgba(255,215,0,0.8)',
       postsPreChar:   s.postsPreChar   || '',
       postsPreCharId: s.postsPreCharId || '',
       postsPreArc:    s.postsPreArc    || '',
