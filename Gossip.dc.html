@@ -26,11 +26,13 @@ a:hover{color:#fff}
 .gos-ghost:hover{color:#fff!important;border-color:rgba(255,255,255,0.32)!important}
 .gos-pill:hover{color:#fff!important;border-color:rgba(255,215,0,0.4)!important}
 .gos-hit:hover{background:rgba(255,215,0,0.1)!important;color:#fff!important}
+@media (min-width:880px){.gos-side{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow-y:auto;scrollbar-width:thin}.gos-tabs{flex-direction:column;gap:6px!important}.gos-tabs>button,.gos-tabs>span{text-align:left;padding:9px 14px!important}}
+@media (max-width:879px){.gos-desk{display:none!important}.gos-dock{position:sticky;bottom:0;z-index:5;margin:20px -24px -26px;padding:12px 24px 14px;background:rgba(26,26,26,0.95);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);border-radius:0 0 15px 15px}.gos-dock>button:first-child{margin-top:0!important}}
 .gos-file::file-selector-button{background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:999px;padding:7px 15px;font-size:0.78rem;margin-right:12px;cursor:pointer}
 </style>
 </helmet>
 
-<div style="width:100%;max-width:680px;margin:0 auto;padding-bottom:8px;">
+<div style="width:100%;max-width:1200px;margin:0 auto;padding-bottom:8px;">
 
   <sc-if value="{{ standalone }}" hint-placeholder-val="{{ false }}">
     <header style="text-align:center;padding:72px 0 34px;">
@@ -47,7 +49,7 @@ a:hover{color:#fff}
 
   <!-- ══════════ ГІСТЬ: вхід або заявка ══════════ -->
   <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
-    <div class="gos-in" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:30px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+    <div class="gos-in" style="width:100%;max-width:680px;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:30px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
       <div style="display:flex;gap:8px;margin-bottom:22px;">
         <button onClick="{{ pickLogin }}" class="gos-pill" style="cursor:pointer;flex:1;border-radius:999px;padding:11px 16px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.05em;transition:all 0.2s ease;background:{{ loginBg }};border:1px solid {{ loginBorder }};color:{{ loginColor }};">Увійти</button>
         <button onClick="{{ pickSignup }}" class="gos-pill" style="cursor:pointer;flex:1;border-radius:999px;padding:11px 16px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.05em;transition:all 0.2s ease;background:{{ signupBg }};border:1px solid {{ signupBorder }};color:{{ signupColor }};">Записатися</button>
@@ -81,7 +83,7 @@ a:hover{color:#fff}
 
   <!-- ══════════ ВХІД ІЗ ТИМЧАСОВИМ ПАРОЛЕМ ══════════ -->
   <sc-if value="{{ needNewPass }}" hint-placeholder-val="{{ false }}">
-    <div class="gos-in" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.25);border-radius:15px;padding:30px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+    <div class="gos-in" style="width:100%;max-width:680px;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.25);border-radius:15px;padding:30px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
       <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:12px;">✦ Тимчасовий ключ</p>
       <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:20px;text-wrap:pretty;">Ви ввійшли паролем, який видала адміністрація. Задайте свій — і кабінет відчиниться. Тимчасовий після цього більше не спрацює.</p>
       <div style="display:flex;flex-direction:column;gap:12px;">
@@ -98,7 +100,7 @@ a:hover{color:#fff}
 
   <!-- ══════════ УВІЙШОВ, АЛЕ АРКУША НЕМАЄ ══════════ -->
   <sc-if value="{{ needProfile }}" hint-placeholder-val="{{ false }}">
-    <div class="gos-in" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:30px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+    <div class="gos-in" style="width:100%;max-width:680px;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:30px 26px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
       <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:12px;">✦ Аркуш на вас ще не заведено</p>
       <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:20px;text-wrap:pretty;">Пошта <span style="color:#ffd700;">{{ profEmail }}</span> у книзі є, а аркуша до неї немає. Заповніть — і кабінет відчиниться.</p>
       <div style="display:flex;flex-direction:column;gap:12px;">
@@ -115,7 +117,7 @@ a:hover{color:#fff}
   </sc-if>
 
   <sc-if value="{{ isBlocked }}" hint-placeholder-val="{{ false }}">
-    <div class="gos-in" style="background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.2);border-radius:15px;padding:30px 26px;text-align:center;">
+    <div class="gos-in" style="width:100%;max-width:680px;margin:0 auto;box-sizing:border-box;background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.2);border-radius:15px;padding:30px 26px;text-align:center;">
       <p style="font-family:'Cinzel',Georgia,serif;color:#ff8080;font-size:1rem;letter-spacing:0.06em;margin-bottom:10px;">ВІДМОВЛЕНО</p>
       <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:rgba(255,255,255,0.45);">Кабінет для вас зачинений. З цим — до адміністрації, не до мене. — М.</p>
       <button onClick="{{ doLogout }}" class="gos-ghost" style="margin-top:22px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 22px;font-size:0.8rem;transition:all 0.2s ease;">Вийти</button>
@@ -124,15 +126,64 @@ a:hover{color:#fff}
 
   <!-- ══════════ КАБІНЕТ ══════════ -->
   <sc-if value="{{ inside }}" hint-placeholder-val="{{ false }}">
-    <div class="gos-in" style="display:flex;flex-direction:column;gap:20px;">
+    <div class="gos-in" style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;">
 
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-        <p style="font-size:0.78rem;color:rgba(255,255,255,0.42);">Аркуш на <span style="color:#ffd700;">{{ myNick }}</span> · {{ statusWord }}</p>
-        <button onClick="{{ doLogout }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 16px;font-size:0.74rem;transition:all 0.2s ease;">Вийти</button>
-      </div>
+      <!-- бічна панель: хто, вкладки, а в бланках — зміст і кнопка «віддати», що завжди під рукою -->
+      <aside class="gos-side" style="flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:14px;">
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:18px 16px 16px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:14px;">
+          <div style="padding:0 4px;">
+            <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:8px;">✦ Аркуш на</p>
+            <p style="font-family:'Cinzel',Georgia,serif;font-size:1.1rem;color:#fff;letter-spacing:0.04em;overflow-wrap:anywhere;">{{ myNick }}</p>
+            <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);margin-top:6px;text-wrap:pretty;">{{ statusWord }}</p>
+          </div>
+          <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
+          <div class="gos-tabs" style="display:flex;gap:8px;flex-wrap:wrap;">
+            <sc-if value="{{ turnsShow }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickTurns }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabTurnsBg }};border:1px solid {{ tabTurnsBorder }};color:{{ tabTurnsColor }};">{{ turnsTabLabel }}</button>
+            </sc-if>
+            <button onClick="{{ pickIntake }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabIntakeBg }};border:1px solid {{ tabIntakeBorder }};color:{{ tabIntakeColor }};">✍ Анкета персонажа</button>
+            <sc-if value="{{ canMine }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickMine }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabMineBg }};border:1px solid {{ tabMineBorder }};color:{{ tabMineColor }};">🎭 Мої персонажі</button>
+            </sc-if>
+            <sc-if value="{{ canGossip }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickGossip }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabGosBg }};border:1px solid {{ tabGosBorder }};color:{{ tabGosColor }};">✉ Плітка</button>
+            </sc-if>
+            <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickMe }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabMeBg }};border:1px solid {{ tabMeBorder }};color:{{ tabMeColor }};">✦ Про мене</button>
+            </sc-if>
+            <sc-if value="{{ gossipLocked }}" hint-placeholder-val="{{ false }}">
+              <span title="Віконце відчиняють адміни" style="border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.24);">✉ Плітка — доступ ще не відкрито</span>
+            </sc-if>
+          </div>
+          </sc-if>
+          <button onClick="{{ doLogout }}" class="gos-ghost" style="align-self:flex-start;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 16px;font-size:0.74rem;transition:all 0.2s ease;">Вийти</button>
+        </div>
 
-      <!-- черга в арках (бета) — над вкладками: це те, з чим приходять щодня -->
-      <sc-if value="{{ turnsShow }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ hasSideNav }}" hint-placeholder-val="{{ false }}">
+          <div class="gos-desk" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:15px;padding:16px 12px 14px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:10px;">
+            <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);padding:0 8px;overflow-wrap:anywhere;">{{ sideNavHead }}</p>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="6">
+                <button onClick="{{ n.onGo }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:8px 10px;font-size:0.84rem;transition:all 0.2s ease;background:{{ n.bg }};color:{{ n.color }};">{{ n.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:12px 4px 0;border-top:1px solid rgba(255,255,255,0.08);">
+              <sc-if value="{{ hasSideMsg }}" hint-placeholder-val="{{ false }}">
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.5;color:rgba(255,215,0,0.85);text-wrap:pretty;">{{ sideMsg }}</p>
+              </sc-if>
+              <button onClick="{{ sideGo }}" class="gos-go" data-busy="{{ sideBusy }}" style="width:100%;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:11px 12px;font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;letter-spacing:0.06em;transition:box-shadow 0.25s ease;">{{ sideActLabel }}</button>
+              <sc-if value="{{ hasSideCancel }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ sideCancel }}" class="gos-ghost" style="width:100%;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:8px;font-size:0.76rem;transition:all 0.2s ease;">{{ sideCancelLabel }}</button>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+      </aside>
+
+      <div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:20px;">
+
+      <!-- черга в арках (бета) — зверху: це те, з чим приходять щодня; у бланку правки не заважає -->
+      <sc-if value="{{ turnsShow }}" hint-placeholder-val="{{ false }}"><sc-if value="{{ showTurns }}" hint-placeholder-val="{{ false }}">
       <div style="background:rgba(255,255,255,0.05);border:1px solid {{ turnsBorder }};border-radius:15px;padding:22px 22px 18px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:14px;">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ Черга в арках</p>
@@ -181,26 +232,8 @@ a:hover{color:#fff}
         </div>
         <p style="font-size:0.7rem;line-height:1.55;color:rgba(255,255,255,0.3);text-wrap:pretty;">{{ turnsHow }}</p>
       </div>
-      </sc-if>
+      </sc-if></sc-if>
 
-      <!-- вкладки кабінету (у режимі «тільки плітки» смужки немає) -->
-      <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button onClick="{{ pickIntake }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabIntakeBg }};border:1px solid {{ tabIntakeBorder }};color:{{ tabIntakeColor }};">✍ Анкета персонажа</button>
-        <sc-if value="{{ canMine }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ pickMine }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabMineBg }};border:1px solid {{ tabMineBorder }};color:{{ tabMineColor }};">🎭 Мої персонажі</button>
-        </sc-if>
-        <sc-if value="{{ canGossip }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ pickGossip }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabGosBg }};border:1px solid {{ tabGosBorder }};color:{{ tabGosColor }};">✉ Плітка</button>
-        </sc-if>
-        <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ pickMe }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabMeBg }};border:1px solid {{ tabMeBorder }};color:{{ tabMeColor }};">✦ Про мене</button>
-        </sc-if>
-        <sc-if value="{{ gossipLocked }}" hint-placeholder-val="{{ false }}">
-          <span title="Віконце відчиняють адміни" style="border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.24);">✉ Плітка — доступ ще не відкрито</span>
-        </sc-if>
-      </div>
-      </sc-if>
       <sc-if value="{{ lockedOnly }}" hint-placeholder-val="{{ false }}">
         <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">Віконце пліток відчиняють адміни — ваш аркуш ще на розгляді.</p>
       </sc-if>
@@ -209,7 +242,7 @@ a:hover{color:#fff}
       <sc-if value="{{ showIntake }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;flex-direction:column;gap:20px;">
 
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+          <div id="gos-i-top" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">{{ formHead }}</p>
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:20px;text-wrap:pretty;">{{ formIntro }}</p>
 
@@ -239,7 +272,7 @@ a:hover{color:#fff}
             </sc-if>
 
             <!-- графи -->
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:0 0 10px;">Графи</p>
+            <p id="gos-i-fields" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:0 0 10px;">Графи</p>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;">
               <input class="gos-field" value="{{ fName }}" onChange="{{ setFName }}" placeholder="Повне ім'я — обовʼязково" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
               <input class="gos-field" value="{{ fAlias }}" onChange="{{ setFAlias }}" placeholder="Псевдонім — «Садист»" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
@@ -250,7 +283,7 @@ a:hover{color:#fff}
             </div>
 
             <!-- покровителька -->
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Покровителька</p>
+            <p id="gos-i-god" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Покровителька</p>
             <div style="display:flex;flex-wrap:wrap;gap:8px;">
               <sc-for list="{{ gods }}" as="g" hint-placeholder-count="5">
                 <button onClick="{{ g.onPick }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:8px 16px;font-size:0.82rem;transition:all 0.2s ease;background:{{ g.bg }};border:1px solid {{ g.border }};color:{{ g.color }};">{{ g.label }}</button>
@@ -258,7 +291,7 @@ a:hover{color:#fff}
             </div>
 
             <!-- портрет -->
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Портрет</p>
+            <p id="gos-i-portrait" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Портрет</p>
             <sc-if value="{{ hasPortrait }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
                 <img src="{{ fPortrait }}" alt="Портрет" style="width:96px;height:128px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,215,0,0.28);" />
@@ -273,7 +306,7 @@ a:hover{color:#fff}
             </sc-if>
 
             <!-- розділи -->
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:22px 0 10px;">Розділи анкети</p>
+            <p id="gos-i-secs" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:22px 0 10px;">Розділи анкети</p>
             <div style="display:flex;flex-direction:column;gap:14px;">
               <sc-for list="{{ secs }}" as="s" hint-placeholder-count="4">
                 <div>
@@ -289,23 +322,25 @@ a:hover{color:#fff}
             </div>
 
             <!-- слово адмінам -->
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:22px 0 10px;">Слово від вас</p>
+            <p id="gos-i-note" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:22px 0 10px;">Слово від вас</p>
             <textarea class="gos-field" value="{{ fNote }}" onChange="{{ setFNote }}" placeholder="Що сказати адміністрації разом з анкетою — необовʼязково" rows="2" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 15px;color:#fff;font-size:0.96rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
 
             <sc-if value="{{ hasIntakeMsg }}" hint-placeholder-val="{{ false }}">
               <div style="margin-top:18px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.22);border-radius:8px;padding:11px 15px;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.72);">{{ intakeMsg }}</div>
             </sc-if>
 
+            <div class="gos-dock">
             <button onClick="{{ doSubmit }}" class="gos-go" data-busy="{{ intakeBusy }}" style="width:100%;margin-top:20px;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px;font-family:'Cinzel',serif;font-size:0.86rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;">{{ submitBtn }}</button>
             <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ doCancelEdit }}" class="gos-ghost" style="width:100%;margin-top:10px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:9px;font-size:0.78rem;transition:all 0.2s ease;">Лишити як було</button>
             </sc-if>
             <p style="text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.26);margin-top:10px;">{{ intakeLimit }}</p>
+            </div>
           </div>
 
           <!-- мої анкети -->
           <div>
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;">✦ Мої анкети</p>
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;" id="gos-i-subs">✦ Мої анкети</p>
             <sc-if value="{{ hasSubs }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;flex-direction:column;gap:10px;">
                 <sc-for list="{{ subs }}" as="r" hint-placeholder-count="2">
@@ -344,7 +379,7 @@ a:hover{color:#fff}
 
       <!-- ═════ ВКЛАДКА: ПЛІТКА ═════ -->
       <sc-if value="{{ showGossip }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex;flex-direction:column;gap:20px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:20px;align-items:start;">
 
           <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:14px;">✦ Що ви чули</p>
@@ -407,6 +442,7 @@ a:hover{color:#fff}
             <p style="text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.26);margin-top:10px;">{{ limitNote }}</p>
           </div>
 
+          <div style="display:flex;flex-direction:column;gap:20px;min-width:0;">
           <div>
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;">✦ Мої плітки</p>
             <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
@@ -445,6 +481,7 @@ a:hover{color:#fff}
             <sc-if value="{{ noFeed }}" hint-placeholder-val="{{ true }}">
               <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;color:rgba(255,255,255,0.3);font-size:0.98rem;">У чаті ще тиша.</p>
             </sc-if>
+          </div>
           </div>
 
         </div>
@@ -642,6 +679,7 @@ a:hover{color:#fff}
       <!-- ═════ ВКЛАДКА: МОЇ ПЕРСОНАЖІ ═════ -->
       <sc-if value="{{ showMine }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;flex-direction:column;gap:20px;">
+          <sc-if value="{{ notEditingChar }}" hint-placeholder-val="{{ true }}">
 
           <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Записані на вас</p>
@@ -673,13 +711,15 @@ a:hover{color:#fff}
             </div>
           </div>
 
-          <!-- бланк правки -->
+          </sc-if>
+
+          <!-- бланк правки: відкривається замість списку, щоб не гортати до нього -->
           <sc-if value="{{ editingChar }}" hint-placeholder-val="{{ false }}">
             <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.22);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
               <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">{{ eHead }}</p>
               <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:20px;text-wrap:pretty;">Поправте те, що змінилося, — решту лишіть як є. Марта віднесе адмінам тільки різницю.</p>
 
-              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+              <div id="gos-e-fields" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
                 <input class="gos-field" value="{{ eName }}" onChange="{{ setEName }}" placeholder="Імʼя" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;" />
                 <input class="gos-field" value="{{ eAlias }}" onChange="{{ setEAlias }}" placeholder="Псевдонім" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;" />
                 <input class="gos-field" value="{{ eAge }}" onChange="{{ setEAge }}" placeholder="Вік / дата народження" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;" />
@@ -695,12 +735,14 @@ a:hover{color:#fff}
                 <input class="gos-field" value="{{ eCaption }}" onChange="{{ setECaption }}" placeholder="Підпис на картці" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;" />
               </div>
 
-              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Коротко на картці</p>
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;" id="gos-e-bio">Коротко на картці</p>
               <textarea class="gos-field" value="{{ eBio }}" onChange="{{ setEBio }}" rows="3" placeholder="Два-три речення, які видно в списку" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;"></textarea>
 
-              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Текст анкети</p>
-              <textarea class="gos-field" value="{{ eContent }}" onChange="{{ setEContent }}" rows="14" placeholder="Розділи анкети" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.7;"></textarea>
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;" id="gos-e-text">Текст анкети</p>
+              <textarea class="gos-field" value="{{ eContent }}" onChange="{{ setEContent }}" rows="14" placeholder="Розділи анкети" style="height:min(68vh,720px);min-height:260px;resize:vertical;width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.7;"></textarea>
 
+              <div id="gos-e-media" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:0 28px;align-items:start;">
+              <div>
               <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Портрет</p>
               <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
                 <sc-if value="{{ eHasImg }}" hint-placeholder-val="{{ false }}">
@@ -709,6 +751,8 @@ a:hover{color:#fff}
                 <input class="gos-file" type="file" accept="image/*" onChange="{{ onEPortrait }}" style="font-size:0.82rem;color:rgba(255,255,255,0.4);" />
               </div>
 
+              </div>
+              <div style="min-width:0;">
               <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Додати в галерею</p>
               <input class="gos-file" type="file" accept="image/*" multiple="{{ true }}" onChange="{{ onEGallery }}" style="font-size:0.82rem;color:rgba(255,255,255,0.4);" />
               <sc-if value="{{ eHasGal }}" hint-placeholder-val="{{ false }}">
@@ -722,8 +766,10 @@ a:hover{color:#fff}
                   </sc-for>
                 </div>
               </sc-if>
+              </div>
+              </div>
 
-              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Звʼязки з іншими</p>
+              <p id="gos-e-links" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Звʼязки з іншими</p>
               <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 <input class="gos-field" value="{{ eLinkQ }}" onChange="{{ setELinkQ }}" placeholder="Почніть писати імʼя" style="flex:1;min-width:180px;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;" />
                 <select class="gos-field" value="{{ eLinkKind }}" onChange="{{ setELinkKind }}" style="min-width:150px;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;">
@@ -751,18 +797,54 @@ a:hover{color:#fff}
                 </div>
               </sc-if>
 
-              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Слово адмінам</p>
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 6px;" id="gos-e-pl">Плейліст · {{ pCount }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.38);margin:0 0 10px;line-height:1.5;">Пісні з YouTube, що звучать як ваш персонаж. Зберігаються одразу, без розгляду, — кнопку внизу тиснути не треба.</p>
+              <sc-if value="{{ pFailed }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.84rem;color:rgba(255,255,255,0.4);margin:0 0 10px;">Полиця для плейлістів ще не збита — адмінам треба прогнати supabase_char_playlist_migration.sql.</p>
+              </sc-if>
+              <sc-if value="{{ pHasRows }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+                  <sc-for list="{{ pRows }}" as="t" hint-placeholder-count="0">
+                    <div style="display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 8px;">
+                      <img src="{{ t.cover }}" alt="" style="width:64px;height:36px;object-fit:cover;border-radius:5px;flex-shrink:0;" />
+                      <div style="flex:1;min-width:0;">
+                        <p style="font-size:0.86rem;color:#fff;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.title }}</p>
+                        <sc-if value="{{ t.hasNote }}" hint-placeholder-val="{{ false }}">
+                          <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.88rem;color:rgba(255,215,0,0.7);margin:2px 0 0;">{{ t.note }}</p>
+                        </sc-if>
+                      </div>
+                      <button onClick="{{ t.onUp }}" title="Вище" class="gos-ghost" style="cursor:pointer;width:28px;height:28px;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;font-size:0.78rem;opacity:{{ t.upOp }};">↑</button>
+                      <button onClick="{{ t.onDrop }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.38);border-radius:999px;padding:6px 12px;font-size:0.74rem;">Прибрати</button>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ pCanAdd }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <input class="gos-field" value="{{ pUrl }}" onChange="{{ setPUrl }}" placeholder="Посилання з YouTube" style="flex:2;min-width:180px;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;" />
+                  <input class="gos-field" value="{{ pNote }}" onChange="{{ setPNote }}" maxlength="160" placeholder="Чому саме вона — необовʼязково" style="flex:3;min-width:180px;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;" />
+                  <button onClick="{{ doPAdd }}" class="gos-pill" data-busy="{{ pBusy }}" style="cursor:pointer;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:10px 18px;font-size:0.8rem;">{{ pBtn }}</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ pHasMsg }}" hint-placeholder-val="{{ false }}">
+                <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.92rem;color:rgba(255,215,0,0.8);margin:8px 0 0;">{{ pMsg }}</p>
+              </sc-if>
+
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;" id="gos-e-note">Слово адмінам</p>
               <textarea class="gos-field" value="{{ eNote }}" onChange="{{ setENote }}" rows="2" placeholder="Що саме змінилося й чому — необовʼязково" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 14px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;"></textarea>
 
               <sc-if value="{{ eHasMsg }}" hint-placeholder-val="{{ false }}">
                 <div style="margin-top:18px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.22);border-radius:8px;padding:11px 15px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,215,0,0.85);">{{ eMsg }}</div>
               </sc-if>
 
+              <div class="gos-dock">
               <button onClick="{{ doSubmitEdit }}" class="gos-go" data-busy="{{ eBusy }}" style="width:100%;margin-top:20px;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:14px;font-family:'Cinzel',serif;font-size:0.86rem;letter-spacing:0.06em;">{{ eSubmitBtn }}</button>
               <button onClick="{{ doCancelE }}" class="gos-ghost" style="width:100%;margin-top:10px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:12px;font-size:0.82rem;">Скасувати</button>
+              </div>
             </div>
           </sc-if>
 
+          <sc-if value="{{ notEditingChar }}" hint-placeholder-val="{{ true }}">
           <div>
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;">✦ Мої запити на правку</p>
             <sc-if value="{{ hasEdits }}" hint-placeholder-val="{{ false }}">
@@ -789,10 +871,12 @@ a:hover{color:#fff}
               <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;color:rgba(255,255,255,0.3);font-size:0.98rem;">Ви ще нічого не просили змінити.</p>
             </sc-if>
           </div>
+          </sc-if>
 
         </div>
       </sc-if>
 
+      </div>
     </div>
   </sc-if>
 
@@ -894,10 +978,29 @@ class Component extends DCLogic {
     stand: null, bits: null, statsBusy: false, cardBusy: false, cardMsg: '',
     eId: '', ef: {}, eBase: {}, eGal: [], eLinks: [],
     eLinkQ: '', eLinkKind: 'plain', eNote: '', eBusy: false, eMsg: '',
+    pl: null, plFail: false, pUrl: '', pNote: '', pBusy: false, pMsg: '',
     way: 'blank', tgUrl: '', tgRaw: '', tgBusy: false, tgMsg: '', tgBad: false,
   };
 
   componentDidMount() {
+    // Зміст бічної панелі підсвічує розділ, до якого догорнули.
+    this._spy = () => {
+      if (this._spyRaf) return;
+      this._spyRaf = requestAnimationFrame(() => {
+        this._spyRaf = 0;
+        const ids = this._navIds || [];
+        if (!ids.length) return;
+        let cur = ids[0];
+        for (const id of ids) {
+          const el = document.getElementById(id);
+          if (el && el.getBoundingClientRect().top < 150) cur = id;
+        }
+        const de = document.documentElement;
+        if (window.innerHeight + window.pageYOffset >= de.scrollHeight - 4) cur = ids[ids.length - 1];
+        if (cur !== this.state.navAt) this.setState({ navAt: cur });
+      });
+    };
+    window.addEventListener('scroll', this._spy, { passive: true });
     this.setState({ tab: this.props.startTab === 'gossip' ? 'gossip' : 'intake' });
     this._restore();
     this._boot();
@@ -931,6 +1034,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('scroll', this._spy);
     clearInterval(this._keepAlive);
     document.removeEventListener('visibilitychange', this._wake);
     window.removeEventListener('focus', this._wake);
@@ -1826,7 +1930,74 @@ class Component extends DCLogic {
     this.setState({
       tab: 'mine', eId: String(ch.id), ef: { ...base }, eBase: base,
       eGal: [], eLinks: [], eLinkQ: '', eLinkKind: 'plain', eNote: '', eMsg: '',
+      pl: null, plFail: false, pUrl: '', pNote: '', pMsg: '', navAt: '',
     });
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+    this._plLoad(String(ch.id));
+  }
+
+  // ── Плейліст персонажа: пишеться одразу (RLS — власник), не через заявку ──
+  async _plLoad(id) {
+    try {
+      const r = await this._api(`${SUPA_URL}/character_playlist?select=id,video_id,title,note,position,created_at&character_id=eq.${id}&order=position.asc,created_at.asc`);
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + await r.text());
+      const rows = await r.json();
+      if (this.state.eId === id) this.setState({ pl: rows || [], plFail: false });
+    } catch (e) {
+      console.warn('плейліст:', e && e.message, '(прогнати supabase_char_playlist_migration.sql)');
+      if (this.state.eId === id) this.setState({ pl: null, plFail: true });
+    }
+  }
+  _pVid(u) {
+    const s = String(u || '').trim();
+    const m = s.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^\s]*&)?v=|shorts\/|embed\/|live\/))([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(s) ? s : null);
+  }
+  async _pAdd() {
+    const s = this.state, id = s.eId, rows = s.pl || [];
+    if (!id || s.pBusy) return;
+    const vid = this._pVid(s.pUrl);
+    if (!vid) return this.setState({ pMsg: 'Не бачу тут посилання на YouTube.' });
+    if (rows.some((r) => r.video_id === vid)) return this.setState({ pMsg: 'Ця пісня вже є в плейлісті.' });
+    if (rows.length >= 30) return this.setState({ pMsg: 'У плейлісті вже 30 пісень — приберіть одну.' });
+    this.setState({ pBusy: true, pMsg: '' });
+    let meta = {};
+    try {
+      const r = await fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + vid));
+      if (r.ok) meta = await r.json();
+    } catch (e) {}
+    try {
+      const note = String(s.pNote || '').trim().slice(0, 160) || null;
+      const r = await this._api(`${SUPA_URL}/character_playlist`, {
+        method: 'POST', headers: { Prefer: 'return=representation' },
+        body: JSON.stringify({
+          character_id: id, video_id: vid, url: 'https://youtu.be/' + vid,
+          title: meta.title || null, author: meta.author_name || null, note,
+          position: rows.reduce((m, x) => Math.max(m, x.position || 0), 0) + 1,
+        }),
+      }, true);
+      if (!r.ok) { let m = 'HTTP ' + r.status; try { m = (await r.json()).message || m; } catch (e) {} throw new Error(m); }
+      const out = await r.json();
+      this.setState((st) => ({ pBusy: false, pUrl: '', pNote: '', pl: [...(st.pl || []), ...(out || [])], pMsg: meta.title ? 'Додано: «' + meta.title + '».' : 'Додано.' }));
+    } catch (e) {
+      this.setState({ pBusy: false, pMsg: 'Не вийшло: ' + (e && e.message) });
+    }
+  }
+  async _pDrop(row) {
+    const prev = this.state.pl || [];
+    this.setState({ pl: prev.filter((r) => r !== row), pMsg: '' });
+    const r = await this._api(`${SUPA_URL}/character_playlist?id=eq.${row.id}`, { method: 'DELETE' }).catch(() => null);
+    if (!r || !r.ok) this.setState({ pl: prev, pMsg: 'Не прибралося — спробуйте ще раз.' });
+  }
+  async _pUp(i) {
+    const prev = this.state.pl || [];
+    if (i < 1 || !prev[i]) return;
+    const rows = [...prev];
+    [rows[i - 1], rows[i]] = [rows[i], rows[i - 1]];
+    const next = rows.map((r, k) => ({ ...r, position: k + 1 }));
+    this.setState({ pl: next });
+    const res = await Promise.all([next[i - 1], next[i]].map((r) => this._api(`${SUPA_URL}/character_playlist?id=eq.${r.id}`, { method: 'PATCH', body: JSON.stringify({ position: r.position }) }, true).catch(() => null)));
+    if (res.some((r) => !r || !r.ok)) this.setState({ pl: prev, pMsg: 'Порядок не зберігся.' });
   }
   _setE(k, v) { this.setState((st) => ({ ef: { ...st.ef, [k]: v }, eMsg: '' })); }
 
@@ -2444,6 +2615,21 @@ class Component extends DCLogic {
       eSubmitBtn: s.eBusy ? 'Несу…' : 'Віддати правку Марті',
       doSubmitEdit: () => this._submitEdit(),
       doCancelE: () => this.setState({ eId: '', eMsg: '' }),
+      pFailed: !!s.plFail,
+      pHasRows: (s.pl || []).length > 0,
+      pCanAdd: Array.isArray(s.pl) && s.pl.length < 30,
+      pCount: Array.isArray(s.pl) ? (s.pl.length + ' з 30') : '…',
+      pRows: (s.pl || []).map((r, i) => ({
+        title: r.title || 'Пісня без назви', note: r.note || '', hasNote: !!r.note,
+        cover: 'https://i.ytimg.com/vi/' + r.video_id + '/mqdefault.jpg',
+        upOp: i === 0 ? '0.3' : '1',
+        onUp: () => this._pUp(i), onDrop: () => this._pDrop(r),
+      })),
+      pUrl: s.pUrl, setPUrl: (e) => this.setState({ pUrl: e.target.value, pMsg: '' }),
+      pNote: s.pNote, setPNote: (e) => this.setState({ pNote: e.target.value }),
+      pBusy: !!s.pBusy, pBtn: s.pBusy ? 'Додаю…' : '+ Додати',
+      doPAdd: () => this._pAdd(),
+      pHasMsg: !!s.pMsg, pMsg: s.pMsg || '',
 
       hasEdits: edits.length > 0, noEdits: edits.length === 0,
       myEdits: edits.map((r) => {
@@ -2463,6 +2649,60 @@ class Component extends DCLogic {
           onDrop: () => this._dropEdit(r),
         };
       }),
+    };
+  }
+
+  _pickTab(tab) {
+    this.setState({ tab, navAt: '' });
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+  }
+
+  _jump(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.pageYOffset - 96;
+    try { window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); } catch (e) { window.scrollTo(0, top); }
+    this.setState({ navAt: id });
+  }
+
+  // Бічний зміст для довгих бланків: куди стрибнути й кнопка «віддати» — без гортання до кінця.
+  _sideVals() {
+    const s = this.state;
+    const off = { hasSideNav: false, navItems: [], sideNavHead: '', hasSideAct: false,
+      sideActLabel: '', sideBusy: false, sideGo: () => {}, hasSideCancel: false,
+      sideCancel: () => {}, sideCancelLabel: '', hasSideMsg: false, sideMsg: '' };
+    this._navIds = [];
+    if (this.props.onlyGossip || s.phase !== 'ok') return off;
+    let items = null, act = null;
+    if (s.tab === 'mine' && s.eId) {
+      items = [['gos-e-fields', 'Графи'], ['gos-e-bio', 'Коротко на картці'], ['gos-e-text', 'Текст анкети'],
+        ['gos-e-media', 'Портрет і галерея'], ['gos-e-links', 'Звʼязки'], ['gos-e-pl', 'Плейліст'], ['gos-e-note', 'Слово адмінам']];
+      const ch = (s.owned || []).find((c) => String(c.id) === String(s.eId));
+      act = { head: ch ? `✦ Правка · ${ch.name}` : '✦ Правка анкети',
+        label: s.eBusy ? 'Несу…' : 'Віддати правку Марті', busy: !!s.eBusy,
+        go: () => this._submitEdit(), cancel: () => this.setState({ eId: '', eMsg: '' }),
+        cancelLabel: 'Скасувати', msg: s.eMsg };
+    } else if (!['gossip', 'mine', 'me', 'turns'].includes(s.tab)) {
+      items = [['gos-i-top', 'Звідки анкета'], ['gos-i-fields', 'Графи'], ['gos-i-god', 'Покровителька'],
+        ['gos-i-portrait', 'Портрет'], ['gos-i-secs', 'Розділи'], ['gos-i-note', 'Слово від вас'], ['gos-i-subs', 'Мої анкети']];
+      act = { head: s.editId ? '✦ Правка анкети' : '✦ Нова анкета',
+        label: s.intakeBusy ? 'Несу…' : (s.editId ? 'Зберегти правки' : 'Віддати анкету Марті'),
+        busy: !!(s.intakeBusy || s.upBusy), go: () => this._submit(),
+        cancel: s.editId ? () => this._cancelEdit() : null, cancelLabel: 'Лишити як було', msg: s.intakeMsg };
+    }
+    if (!items) return off;
+    this._navIds = items.map((i) => i[0]);
+    const at = this._navIds.includes(s.navAt) ? s.navAt : items[0][0];
+    return {
+      hasSideNav: true, sideNavHead: act.head,
+      navItems: items.map(([id, label]) => ({
+        key: id, label, onGo: () => this._jump(id),
+        bg: id === at ? 'rgba(255,215,0,0.1)' : 'transparent',
+        color: id === at ? '#ffd700' : 'rgba(255,255,255,0.55)',
+      })),
+      hasSideAct: true, sideActLabel: act.label, sideBusy: act.busy, sideGo: act.go,
+      hasSideCancel: !!act.cancel, sideCancel: act.cancel || (() => {}), sideCancelLabel: act.cancelLabel,
+      hasSideMsg: !!act.msg, sideMsg: act.msg || '',
     };
   }
 
@@ -2652,22 +2892,39 @@ class Component extends DCLogic {
       // взагалі, тому й смужки вкладок немає.
       showTabs: !this.props.onlyGossip,
       lockedOnly: !!this.props.onlyGossip && s.phase === 'ok' && status === 'pending',
-      showIntake: !this.props.onlyGossip && s.tab !== 'gossip' && s.tab !== 'mine' && s.tab !== 'me',
+      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'turns'].includes(s.tab),
+      showTurns: !this.props.onlyGossip && s.tab === 'turns',
+      pickTurns: () => { this.setState({ tab: 'turns' }); try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {} },
+      ...(() => {
+        const T = window.AuTurns, d = s.turns;
+        let n = 0;
+        try { n = d && !d.error && !d.missing && T ? T.yourTurn(d) : 0; } catch (e) {}
+        const t = this._pillStyle(s.tab === 'turns');
+        const hot = n && s.tab !== 'turns';
+        return {
+          turnsTabLabel: n ? `⚔ Черга · ваш хід: ${n}` : '⚔ Черга в арках',
+          tabTurnsBg: t.bg, tabTurnsColor: hot ? '#ffd700' : t.color,
+          tabTurnsBorder: hot ? 'rgba(255,215,0,0.45)' : t.border,
+        };
+      })(),
       showGossip: (!!this.props.onlyGossip || s.tab === 'gossip') && status === 'approved',
       showMine: !this.props.onlyGossip && s.tab === 'mine',
       canMine: !this.props.onlyGossip && (s.owned || []).length > 0,
       // Аркуш — для своїх: поки статус не відкрито, порівнюватися нема з чим.
       showMe: !this.props.onlyGossip && s.tab === 'me' && status === 'approved',
       canMe: !this.props.onlyGossip && status === 'approved',
-      pickIntake: () => this.setState({ tab: 'intake' }),
-      pickGossip: () => this.setState({ tab: 'gossip' }),
-      pickMine: () => this.setState({ tab: 'mine' }),
-      pickMe: () => { this.setState({ tab: 'me' }); this._loadStats(); },
+      pickIntake: () => this._pickTab('intake'),
+      pickGossip: () => this._pickTab('gossip'),
+      pickMine: () => this._pickTab('mine'),
+      pickMe: () => { this._pickTab('me'); this._loadStats(); },
       ...this._mineVals(),
       ...this._meVals(),
       ...this._turnVals(),
+      ...this._sideVals(),
+      notEditingAny: !s.eId && !s.editId,
+      notEditingChar: !s.eId,
       ...(() => {
-        const a = this._pillStyle(s.tab !== 'gossip' && s.tab !== 'mine' && s.tab !== 'me');
+        const a = this._pillStyle(!['gossip', 'mine', 'me', 'turns'].includes(s.tab));
         const b = this._pillStyle(s.tab === 'gossip');
         const c = this._pillStyle(s.tab === 'mine');
         const d = this._pillStyle(s.tab === 'me');
