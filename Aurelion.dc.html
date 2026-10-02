@@ -61,6 +61,7 @@ nav a[data-cta="true"]:hover::after{opacity:1}
 .glass{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;transition:background 0.28s ease,transform 0.28s ease,box-shadow 0.28s ease}
 .glass:hover{background:rgba(255,255,255,0.11);transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,0.55)}
 .char-card:hover{transform:scale(1.04)!important;box-shadow:0 10px 28px rgba(0,0,0,0.6)!important}
+.cs-spot{grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr)}.cs-spot-fade{background:linear-gradient(to right,rgba(20,20,20,0) 45%,#141414 100%)}@media(max-width:720px){.cs-spot{grid-template-columns:1fr}.cs-spot-img{min-height:280px!important}.cs-spot-fade{background:linear-gradient(to top,#141414 0%,rgba(20,20,20,0) 45%)}.cs-spot>div:last-child{padding:4px 22px 24px!important}}
 .char-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,26,0.95) 0%,rgba(26,26,26,0.25) 60%,transparent 100%)}
 [data-rolling="true"] .die-display{animation:diceRollAnim 0.48s linear infinite}
 [data-rolling="true"] .die-number{animation:numFlash 0.12s linear infinite}
@@ -1315,165 +1316,117 @@ a:hover{color:#a8c4f7;}
   <main class="au-page" style="min-height:100vh;">
     <sc-if value="{{ showCharGallery }}" hint-placeholder-val="{{ true }}">
     <div style="max-width:1200px;margin:0 auto;padding:96px 24px 80px;">
-      <header style="text-align:center;margin-bottom:36px;">
-        <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Так-так, вони ваші</p>
-        <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Персонажі</h1>
-        <div style="display:flex;justify-content:center;margin-top:18px;">
-          <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
-            <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">Галерея</button>
-            <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Зв'язки</button>
-            <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Лінійка</button>
-          </div>
+      <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:24px;">
+        <div>
+          <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:8px;">✦ Так-так, вони ваші</p>
+          <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.6rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Персонажі</h1>
+        </div>
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+          <button data-mode="gallery" onClick="{{ setCharMode }}" style="background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);color:#fff;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;">Галерея</button>
+          <button data-mode="conn" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Зв'язки</button>
+          <button data-mode="ruler" onClick="{{ setCharMode }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Лінійка</button>
         </div>
       </header>
 
-      <!-- Пошук -->
-      <div style="max-width:420px;margin:0 auto 28px;position:relative;">
-        <input value="{{ charSearch }}" onChange="{{ handleCharSearch }}" placeholder="Пошук персонажа…" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:11px 40px 11px 42px;font-size:0.9rem;color:#fff;outline:none;transition:border-color 0.18s;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:17px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
-        <sc-if value="{{ hasCharSearch }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ clearCharSearch }}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.85rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
-        </sc-if>
-      </div>
-
-      <!-- Таб + Сортування -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:32px;">
-        <div style="display:flex;justify-content:center;gap:8px;">
-          <button data-tab="player" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ playerTabActive }}">Гравці</button>
-          <button data-tab="npc" onClick="{{ setCharTab }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:9px 28px;font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.07em;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.55);" style-hover="background:rgba(255,255,255,0.1);color:#fff;" data-active="{{ npcTabActive }}">НПЦ</button>
-        </div>
-        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
-          <button data-filter="active" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterActiveOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 16px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">✦ Активні</button>
-          <button data-filter="inactive" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterInactiveOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 16px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">⊘ Неактивні</button>
-          <button data-filter="all" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterAllOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 16px;font-size:0.74rem;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Усі</button>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <sc-for list="{{ charSortOptions }}" as="opt" hint-placeholder-count="0">
-            <button data-sort="{{ opt.value }}" onClick="{{ setCharSort }}" data-active="{{ opt.active }}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 12px;font-size:0.72rem;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">{{ opt.label }}</button>
-          </sc-for>
-          <div style="display:inline-flex;gap:4px;margin-left:6px;padding-left:12px;border-left:1px solid rgba(255,255,255,0.1);">
-            <button data-view="grid" onClick="{{ setCharView }}" data-active="{{ charViewIsGrid }}" title="Плиткою" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 11px;font-size:0.92rem;line-height:1;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">▦</button>
-            <button data-view="list" onClick="{{ setCharView }}" data-active="{{ charViewIsList }}" title="Списком" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 11px;font-size:0.92rem;line-height:1;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">☰</button>
+      <!-- Вітрина: нові теки тижня + випадкові, гортається сама -->
+      <sc-if value="{{ csHasSpot }}" hint-placeholder-val="{{ false }}">
+        <div data-spot="1" onMouseEnter="{{ csSpotHold }}" onMouseLeave="{{ csSpotFree }}" class="cs-spot" style="position:relative;display:grid;border-radius:15px;overflow:hidden;border:1px solid rgba(255,215,0,0.18);background:#141414;margin-bottom:22px;">
+          <div class="cs-spot-img" style="position:relative;overflow:hidden;min-height:340px;background:#111;">
+            <sc-if value="{{ csSpot.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ csSpot.imgSrc }}" alt="{{ csSpot.name }}" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;"></sc-if>
+            <sc-if value="{{ csSpot.noImage }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.06) 0%,transparent 70%);"><span style="font-family:'Cinzel',serif;font-size:4rem;color:rgba(255,215,0,0.22);font-weight:700;">{{ csSpot.initials }}</span></div>
+            </sc-if>
+            <div class="cs-spot-fade" style="position:absolute;inset:0;"></div>
           </div>
-        </div>
-      </div>
-
-      <!-- Гравці -->
-      <sc-if value="{{ showPlayerTab }}" hint-placeholder-val="{{ true }}">
-        <sc-if value="{{ charViewGrid }}" hint-placeholder-val="{{ true }}">
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;">
-          <sc-for list="{{ playerItems }}" as="char" hint-placeholder-count="6">
-            <a href="{{ char.href }}" data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="display:block;text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
-              <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
-                <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
-                <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
-                  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);">
-                    <span style="font-family:'Cinzel',serif;font-size:2.6rem;color:rgba(255,215,0,0.2);font-weight:700;">{{ char.initials }}</span>
-                  </div>
-                </sc-if>
-              </div>
-              <div style="padding:13px 15px;">
-                <p style="font-size:0.66rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:4px;">{{ char.role }}</p>
-                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.88rem;color:#fff;letter-spacing:0.03em;line-height:1.3;">{{ char.name }}</h3>
-                <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}">
-                  <p style="font-size:0.76rem;color:rgba(255,255,255,0.32);margin-top:3px;">«{{ char.alias }}»</p>
-                </sc-if>
-                <sc-if value="{{ char.hasBio }}" hint-placeholder-val="{{ false }}">
-                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;color:rgba(255,255,255,0.42);margin-top:6px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p>
-                </sc-if>
-              </div>
-            </a>
-          </sc-for>
-        </div>
-        </sc-if>
-        <sc-if value="{{ charViewList }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;flex-direction:column;gap:10px;max-width:820px;margin:0 auto;">
-            <sc-for list="{{ playerItems }}" as="char" hint-placeholder-count="6">
-              <a href="{{ char.href }}" data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
-                <div style="position:relative;width:82px;flex-shrink:0;overflow:hidden;background:#111;">
-                  <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
-                  <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
-                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);"><span style="font-family:'Cinzel',serif;font-size:1.7rem;color:rgba(255,215,0,0.22);font-weight:700;">{{ char.initials }}</span></div>
-                  </sc-if>
+          <div style="position:relative;padding:36px 40px 30px 20px;display:flex;flex-direction:column;justify-content:center;gap:12px;min-width:0;">
+            <p style="font-size:0.7rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.85);">✦ {{ csSpot.over }}</p>
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.7rem,3.6vw,2.5rem);font-weight:700;color:#fff;letter-spacing:0.05em;line-height:1.1;">{{ csSpot.name }}</h2>
+            <p style="font-size:0.9rem;color:rgba(255,255,255,0.62);">{{ csSpot.meta }}</p>
+            <sc-if value="{{ csSpot.hasBio }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;line-height:1.7;color:rgba(255,255,255,0.8);max-width:540px;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;">{{ csSpot.bio }}</p>
+            </sc-if>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px;">
+              <a href="{{ csSpot.href }}" data-id="{{ csSpot.id }}" onClick="{{ openCharacter }}" style="background:#ffd700;color:#1a1a1a;border-radius:999px;padding:10px 22px;font-size:0.88rem;font-weight:600;text-decoration:none;transition:all 0.3s ease;" style-hover="transform:scale(1.04);box-shadow:0 0 22px rgba(255,215,0,0.45);color:#1a1a1a;">Відкрити теку</a>
+              <sc-if value="{{ csSpotMany }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ csSpotNext }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:#fff;border-radius:999px;padding:10px 20px;font-size:0.86rem;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.12);">Наступна →</button>
+                <div style="display:flex;gap:6px;margin-left:6px;">
+                  <sc-for list="{{ csSpotDots }}" as="d" hint-placeholder-count="0">
+                    <button data-i="{{ d.i }}" onClick="{{ csSpotGo }}" title="{{ d.title }}" style="width:{{ d.w }};height:8px;border-radius:999px;background:{{ d.bg }};border:none;padding:0;cursor:pointer;transition:all 0.3s ease;"></button>
+                  </sc-for>
                 </div>
-                <div style="padding:12px 20px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;">
-                  <p style="font-size:0.6rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,215,0,0.7);">{{ char.role }}</p>
-                  <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;">
-                    <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.03em;line-height:1.2;">{{ char.name }}</h3>
-                    <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.8rem;color:rgba(255,255,255,0.32);">«{{ char.alias }}»</span></sc-if>
-                  </div>
-                  <sc-if value="{{ char.hasBio }}" hint-placeholder-val="{{ false }}"><p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.46);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p></sc-if>
-                </div>
-                <div style="align-self:center;padding:0 22px;color:#6495ed;font-size:1.1rem;flex-shrink:0;">→</div>
-              </a>
-            </sc-for>
+              </sc-if>
+            </div>
           </div>
-        </sc-if>
-        <sc-if value="{{ playersEmpty }}" hint-placeholder-val="{{ false }}">
-          <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
-            <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
-            <p>Гравецьких персонажів ще не додано.</p>
-          </div>
-        </sc-if>
+        </div>
       </sc-if>
 
-      <!-- НПЦ -->
-      <sc-if value="{{ showNpcTab }}" hint-placeholder-val="{{ false }}">
-        <sc-if value="{{ charViewGrid }}" hint-placeholder-val="{{ true }}">
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;">
-          <sc-for list="{{ npcItems }}" as="char" hint-placeholder-count="4">
-            <a href="{{ char.href }}" data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="display:block;text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
-              <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
-                <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
-                <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
-                  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(110,192,176,0.05) 0%,transparent 70%);">
-                    <span style="font-family:'Cinzel',serif;font-size:2.6rem;color:rgba(110,192,176,0.2);font-weight:700;">{{ char.initials }}</span>
-                  </div>
-                </sc-if>
-              </div>
-              <div style="padding:13px 15px;">
-                <p style="font-size:0.66rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(110,192,176,0.8);margin-bottom:4px;">{{ char.role }}</p>
-                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.88rem;color:#fff;letter-spacing:0.03em;line-height:1.3;">{{ char.name }}</h3>
-                <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}">
-                  <p style="font-size:0.76rem;color:rgba(255,255,255,0.32);margin-top:3px;">«{{ char.alias }}»</p>
-                </sc-if>
-                <sc-if value="{{ char.hasBio }}" hint-placeholder-val="{{ false }}">
-                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;color:rgba(255,255,255,0.42);margin-top:6px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p>
-                </sc-if>
-              </div>
-            </a>
-          </sc-for>
-        </div>
-        </sc-if>
-        <sc-if value="{{ charViewList }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;flex-direction:column;gap:10px;max-width:820px;margin:0 auto;">
-            <sc-for list="{{ npcItems }}" as="char" hint-placeholder-count="4">
-              <a href="{{ char.href }}" data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
-                <div style="position:relative;width:82px;flex-shrink:0;overflow:hidden;background:#111;">
-                  <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
-                  <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
-                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(110,192,176,0.05) 0%,transparent 70%);"><span style="font-family:'Cinzel',serif;font-size:1.7rem;color:rgba(110,192,176,0.22);font-weight:700;">{{ char.initials }}</span></div>
-                  </sc-if>
-                </div>
-                <div style="padding:12px 20px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;">
-                  <p style="font-size:0.6rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(110,192,176,0.8);">{{ char.role }}</p>
-                  <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;">
-                    <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.03em;line-height:1.2;">{{ char.name }}</h3>
-                    <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.8rem;color:rgba(255,255,255,0.32);">«{{ char.alias }}»</span></sc-if>
-                  </div>
-                  <sc-if value="{{ char.hasBio }}" hint-placeholder-val="{{ false }}"><p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.46);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p></sc-if>
-                </div>
-                <div style="align-self:center;padding:0 22px;color:#6495ed;font-size:1.1rem;flex-shrink:0;">→</div>
-              </a>
+      <!-- Панель: пошук, розряд, активність, порядок -->
+      <div style="display:flex;flex-direction:column;gap:12px;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;margin-bottom:12px;">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <div style="position:relative;flex:1;min-width:220px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+            <input value="{{ charSearch }}" onChange="{{ handleCharSearch }}" placeholder="Ім'я, псевдонім, роль…" style="width:100%;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 38px 10px 40px;font-size:0.9rem;color:#fff;outline:none;transition:border-color 0.18s;">
+            <sc-if value="{{ hasCharSearch }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ clearCharSearch }}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.85rem;cursor:pointer;padding:0;line-height:1;" style-hover="color:#fff;">✕</button>
+            </sc-if>
+          </div>
+          <div style="display:inline-flex;gap:3px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
+            <sc-for list="{{ csKinds }}" as="k" hint-placeholder-count="3">
+              <button data-kind="{{ k.id }}" onClick="{{ setCharKind }}" data-active="{{ k.active }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;cursor:pointer;display:flex;gap:6px;align-items:center;transition:all 0.2s;" style-hover="color:#fff;">{{ k.label }}<span style="font-size:0.7rem;opacity:0.55;">{{ k.n }}</span></button>
             </sc-for>
           </div>
-        </sc-if>
-        <sc-if value="{{ npcsEmpty }}" hint-placeholder-val="{{ false }}">
-          <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
-            <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
-            <p>НПЦ ще не додано.</p>
+          <div style="display:inline-flex;gap:3px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
+            <button data-filter="active" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterActiveOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">У грі</button>
+            <button data-filter="inactive" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterInactiveOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">В архіві</button>
+            <button data-filter="all" onClick="{{ setCharActiveFilter }}" data-active="{{ charFilterAllOn }}" style="background:none;border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;">Усі</button>
           </div>
-        </sc-if>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <span style="font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-right:6px;">Порядок</span>
+          <sc-for list="{{ csSorts }}" as="o" hint-placeholder-count="4">
+            <button data-sort="{{ o.value }}" onClick="{{ setCharSort }}" data-active="{{ o.active }}" style="background:none;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);border-radius:999px;padding:5px 13px;font-size:0.78rem;cursor:pointer;white-space:nowrap;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">{{ o.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.45);margin:0 4px 18px;">{{ csCount }}</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;">
+        <sc-for list="{{ csItems }}" as="char" hint-placeholder-count="10">
+          <a href="{{ char.href }}" data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="display:block;text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;border-radius:10px;opacity:{{ char.op }};transition:transform 0.28s ease,box-shadow 0.28s ease,opacity 0.28s ease;">
+            <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
+              <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:{{ char.filter }};"></sc-if>
+              <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,215,0,0.05) 0%,transparent 70%);"><span style="font-family:'Cinzel',serif;font-size:2.6rem;color:rgba(255,215,0,0.2);font-weight:700;">{{ char.initials }}</span></div>
+              </sc-if>
+              <span style="position:absolute;z-index:1;top:10px;left:10px;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.18);border-radius:999px;padding:3px 9px;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ char.typeColor }};">{{ char.typeLabel }}</span>
+              <sc-if value="{{ char.hasRank }}" hint-placeholder-val="{{ false }}">
+                <span style="position:absolute;z-index:1;top:10px;right:10px;background:#ffd700;color:#1a1a1a;border-radius:999px;padding:3px 9px;font-size:0.7rem;font-weight:700;">{{ char.rank }}</span>
+              </sc-if>
+              <sc-if value="{{ char.isNew }}" hint-placeholder-val="{{ false }}">
+                <span style="position:absolute;z-index:1;top:10px;right:10px;background:rgba(255,215,0,0.16);border:1px solid rgba(255,215,0,0.5);color:#ffd700;border-radius:999px;padding:3px 9px;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;">Нова</span>
+              </sc-if>
+              <div style="position:absolute;z-index:1;left:14px;right:14px;bottom:12px;">
+                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:#fff;line-height:1.25;letter-spacing:0.03em;">{{ char.name }}</h3>
+                <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-size:0.76rem;color:rgba(255,255,255,0.55);margin-top:2px;">«{{ char.alias }}»</p>
+                </sc-if>
+              </div>
+            </div>
+            <div style="padding:10px 14px 12px;display:flex;justify-content:space-between;gap:8px;font-size:0.72rem;color:rgba(255,255,255,0.55);">
+              <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ char.role }}</span>
+              <span style="flex-shrink:0;white-space:nowrap;color:rgba(255,255,255,0.8);">{{ char.metric }}</span>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+      <sc-if value="{{ csEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:70px 24px;color:rgba(255,255,255,0.45);">
+          <p style="font-size:1.5rem;color:#ffd700;margin-bottom:12px;">✦</p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;">{{ csEmptyText }}</p>
+          <sc-if value="{{ csCanReset }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ resetCharFilters }}" style="margin-top:14px;background:none;border:1px solid rgba(100,149,237,0.5);color:#6495ed;border-radius:999px;padding:7px 16px;font-size:0.8rem;cursor:pointer;">Скинути фільтри</button>
+          </sc-if>
+        </div>
       </sc-if>
     </div>
     </sc-if>
@@ -5747,6 +5700,8 @@ class Component extends DCLogic {
         // прогнана, колонки немає — і головний запит упав би разом з усією
         // картотекою.
         this._getSoft('characters?select=id&is_draft=eq.true'),
+        // Лічильник дописів на картках — лише числа; без міграції просто порожньо.
+        this._getSoft('character_post_stats?select=character_id,posts,posts_week,last_at'),
       ]);
     } catch (e) {
       if (silent) return; // тихе оновлення — лишаємо те, що вже показано
@@ -5757,7 +5712,7 @@ class Component extends DCLogic {
       });
       return;
     }
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows, charLinkRows, galRows, matGalRows, draftChars] = res;
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows, charLinkRows, galRows, matGalRows, draftChars, postStats] = res;
     const draftIds = new Set((Array.isArray(draftChars) ? draftChars : []).map(c => String(c.id)));
     const charsLive = (Array.isArray(characters) ? characters : []).filter(c => !draftIds.has(String(c.id)));
     const site = {};
@@ -5780,6 +5735,7 @@ class Component extends DCLogic {
         character_links: Array.isArray(charLinkRows) ? charLinkRows : [],
         character_images: Array.isArray(galRows)   ? galRows      : [],
         material_images:  Array.isArray(matGalRows) ? matGalRows   : [],
+        character_post_stats: Array.isArray(postStats) ? postStats : [],
     };
     // Тексти, які вже є в пам'яті/кеші, переносимо на свіжі записи.
     const prev = this.state.data || {};
@@ -6421,6 +6377,12 @@ class Component extends DCLogic {
   componentDidMount() {
     window.addEventListener('scroll', this._pulseCheck, { passive: true });
     window.addEventListener('scroll', this._toTopWatch, { passive: true });
+    // Вітрина в «Персонажах» гортається сама, поки її видно й над нею немає курсора.
+    this._spotTimer = setInterval(() => {
+      if (this._spotHold || (this._spotLen || 0) < 2 || document.visibilityState !== 'visible') return;
+      if (!document.querySelector('[data-spot]')) return;
+      this.setState(st => ({ charSpot: (st.charSpot || 0) + 1 }));
+    }, 7000);
     // Хто увійшов у віконце. Шапка про нього має знати: інакше на свої
     // плітки треба було б щоразу кидати посилання. Саме віконце бʼє `au-user`
     // при вході й виході; `storage` ловить те саме в іншій вкладці.
@@ -6527,6 +6489,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this._toTopWatch);
+    clearInterval(this._spotTimer);
     window.removeEventListener('au-turns', this._onTurns);
     document.removeEventListener('visibilitychange', this._turnsTick);
     if (this._turnsTimer) clearInterval(this._turnsTimer);
@@ -6536,6 +6499,131 @@ class Component extends DCLogic {
     clearTimeout(this._drawTimer);
     if (this._mapWheelHandler) window.removeEventListener('wheel', this._mapWheelHandler);
     if (this._galKeyHandler) window.removeEventListener('keydown', this._galKeyHandler);
+  }
+
+  // ── Галерея «Персонажі»: вітрина + одна картотека для гравців і НПЦ ──
+  // Нові теки (≤7 днів) тримаються у вітрині весь тиждень і чергуються з
+  // випадковими; тиждень минув — лишаються тільки випадкові. Порядок
+  // випадкових перемішується раз на завантаження сторінки, не на кожен рендер.
+  _charGalleryVals(s, data) {
+    const all = data.characters || [];
+    const stats = {};
+    (data.character_post_stats || []).forEach(r => { stats[String(r.character_id)] = r; });
+    const hasStats = (data.character_post_stats || []).length > 0;
+    const now = Date.now(), DAY = 864e5;
+    const ago = (t) => { const x = t ? new Date(t).getTime() : NaN; return isNaN(x) ? null : Math.max(0, Math.floor((now - x) / DAY)); };
+    const agoTxt = (d) => d == null ? '—' : d === 0 ? 'сьогодні' : d === 1 ? 'учора' : d < 7 ? d + ' дн. тому' : d < 30 ? Math.round(d / 7) + ' тиж. тому' : d < 365 ? Math.round(d / 30) + ' міс. тому' : Math.round(d / 365) + ' р. тому';
+    const pl = (n, a, b, c) => { const m = n % 10, h = n % 100; return n + ' ' + (m === 1 && h !== 11 ? a : (m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c)); };
+    const posts = (ch) => +((stats[String(ch.id)] || {}).posts || 0);
+    const week = (ch) => +((stats[String(ch.id)] || {}).posts_week || 0);
+    const last = (ch) => ago((stats[String(ch.id)] || {}).last_at);
+    const ageNum = (ch) => { const m = String(ch.age ?? '').match(/\d+/); return m ? +m[0] : null; };
+    const isNpc = (ch) => ch.character_type === 'npc';
+    const initials = (ch) => (ch.name || '').trim().split(/\s+/).slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '?';
+
+    const f = s.charActiveFilter || 'active';
+    const q = (s.charSearch || '').toLowerCase().trim();
+    const base = all.filter(ch => {
+      if (f === 'active' && ch.is_active === false) return false;
+      if (f === 'inactive' && ch.is_active !== false) return false;
+      return !q || [ch.name, ch.alias, ch.role].some(v => (v || '').toLowerCase().includes(q));
+    });
+    const kind = s.charKind || 'all';
+    let list = base.filter(ch => kind === 'all' || (kind === 'npc' ? isNpc(ch) : !isNpc(ch)));
+
+    let sort = s.charSortBy || 'order';
+    if ((sort === 'posts' || sort === 'last') && !hasStats) sort = 'order';
+    const cmp = {
+      posts: (a, b) => posts(b) - posts(a),
+      last:  (a, b) => (last(a) ?? 1e9) - (last(b) ?? 1e9),
+      fresh: (a, b) => (ago(a.created_at) ?? 1e9) - (ago(b.created_at) ?? 1e9),
+      az:    (a, b) => (a.name || '').localeCompare(b.name || '', 'uk', { sensitivity: 'base' }),
+      za:    (a, b) => (b.name || '').localeCompare(a.name || '', 'uk', { sensitivity: 'base' }),
+      age:   (a, b) => (ageNum(b) ?? -1) - (ageNum(a) ?? -1),
+    }[sort];
+    if (cmp) list = [...list].sort(cmp);
+    const metric = (ch) => {
+      if (sort === 'last') { const d = last(ch); return d == null ? 'дописів нема' : 'допис ' + agoTxt(d); }
+      if (sort === 'fresh') return 'тека ' + agoTxt(ago(ch.created_at));
+      if (sort === 'age') { const n = ageNum(ch); return n == null ? 'вік —' : pl(n, 'рік', 'роки', 'років'); }
+      if (hasStats) return pl(posts(ch), 'допис', 'дописи', 'дописів');
+      return '';
+    };
+    const ranked = (sort === 'posts' || sort === 'last');
+    const csItems = list.map((ch, i) => {
+      const off = ch.is_active === false, npc = isNpc(ch);
+      const top = ranked && i < 3 && (sort === 'posts' ? posts(ch) > 0 : last(ch) != null);
+      const d = ago(ch.created_at);
+      return {
+        ...ch, href: '#characters/' + encodeURIComponent(ch.id), initials: initials(ch),
+        hasImage: !!ch.image, imgSrc: ch.image || '', noImage: !ch.image, hasAlias: !!ch.alias,
+        typeLabel: npc ? 'НПЦ' : 'Гравець', typeColor: npc ? '#6ec0b0' : '#ffd700',
+        op: off ? 0.55 : 1, filter: off ? 'grayscale(0.85)' : 'none',
+        metric: metric(ch), rank: '#' + (i + 1), hasRank: top, isNew: !top && d != null && d <= 7,
+      };
+    });
+
+    // ── вітрина
+    const live = all.filter(ch => ch.is_active !== false);
+    const fresh = live.filter(ch => { const d = ago(ch.created_at); return d != null && d <= 7; })
+      .sort((a, b) => ago(a.created_at) - ago(b.created_at));
+    const freshIds = new Set(fresh.map(ch => String(ch.id)));
+    const sig = live.map(ch => ch.id).join(',');
+    if (this._spotSig !== sig) {
+      const ids = live.filter(ch => ch.image).map(ch => String(ch.id));
+      for (let k = ids.length - 1; k > 0; k--) { const r = Math.floor(Math.random() * (k + 1)); [ids[k], ids[r]] = [ids[r], ids[k]]; }
+      this._spotSig = sig; this._spotOrder = ids;
+    }
+    const byId = {}; live.forEach(ch => { byId[String(ch.id)] = ch; });
+    const rest = (this._spotOrder || []).filter(id => !freshIds.has(id) && byId[id])
+      .slice(0, fresh.length ? Math.max(fresh.length, 2) : 6).map(id => byId[id]);
+    const topWeek = live.reduce((m, ch) => Math.max(m, week(ch)), 0);
+    const whyRand = (ch) => {
+      if (hasStats && topWeek > 0 && week(ch) === topWeek) return 'Не мовчить цього тижня · ' + pl(week(ch), 'допис', 'дописи', 'дописів');
+      const d = last(ch);
+      if (d != null && d <= 1) return 'Свіжий допис · ' + agoTxt(d);
+      return 'З картотеки навмання';
+    };
+    const F = fresh.map(ch => ({ ch, fresh: true, over: 'Нова тека в картотеці · ' + agoTxt(ago(ch.created_at)) }));
+    const R = rest.map(ch => ({ ch, fresh: false, over: whyRand(ch) }));
+    let queue = R;
+    if (F.length) { queue = []; for (let k = 0; k < Math.max(F.length, R.length); k++) { if (F[k % F.length]) queue.push(F[k % F.length]); if (R[k]) queue.push(R[k]); } }
+    this._spotLen = queue.length;
+    const si = queue.length ? (s.charSpot || 0) % queue.length : 0;
+    const sp = queue[si];
+    const sc = sp ? sp.ch : null;
+    const csSpot = sc ? {
+      id: sc.id, href: '#characters/' + encodeURIComponent(sc.id), name: sc.name || '', over: sp.over,
+      meta: [sc.alias ? '«' + sc.alias + '»' : '', sc.role || '', isNpc(sc) ? 'НПЦ' : 'Гравець', hasStats && posts(sc) ? pl(posts(sc), 'допис', 'дописи', 'дописів') : ''].filter(Boolean).join(' · '),
+      bio: sc.bio || '', hasBio: !!sc.bio, hasImage: !!sc.image, noImage: !sc.image, imgSrc: sc.image || '', initials: initials(sc),
+    } : {};
+    const goSpot = (n) => { this.setState({ charSpot: n }); };
+
+    const kinds = [['all', 'Усі'], ['player', 'Гравці'], ['npc', 'НПЦ']];
+    const sorts = [['order', '✦ Як у картотеці'], ...(hasStats ? [['posts', 'Найбільше дописів'], ['last', 'Останній допис']] : []), ['fresh', 'Свіжі теки'], ['az', 'Від А до Я'], ['age', 'За віком']];
+    const sortLabel = (sorts.find(x => x[0] === sort) || sorts[0])[1].replace('✦ ', '').toLowerCase();
+    const hiddenOff = f === 'active' ? all.filter(ch => ch.is_active === false).length : 0;
+    const filtered = !!q || kind !== 'all' || f !== 'all';
+    return {
+      csItems,
+      csEmpty: !csItems.length,
+      csEmptyText: all.length ? 'Таких тек у картотеці немає.' : 'Персонажів ще не додано.',
+      csCanReset: !!all.length && filtered,
+      csCount: all.length ? 'Показано ' + csItems.length + ' з ' + all.length + ' · ' + sortLabel + (hiddenOff ? ' · в архіві ще ' + hiddenOff : '') : '',
+      csKinds: kinds.map(([id, label]) => ({ id, label, active: kind === id, n: base.filter(ch => id === 'all' || (id === 'npc' ? isNpc(ch) : !isNpc(ch))).length })),
+      csSorts: sorts.map(([value, label]) => ({ value, label, active: sort === value })),
+      setCharKind: (e) => this.setState({ charKind: e.currentTarget.dataset.kind }),
+      resetCharFilters: () => this.setState({ charSearch: '', charKind: 'all', charActiveFilter: 'all' }),
+      csHasSpot: !!sc,
+      csSpot,
+      csSpotMany: queue.length > 1,
+      csSpotDots: queue.map((x, k) => ({ i: k, title: x.ch.name || '', w: k === si ? '22px' : '8px',
+        bg: k === si ? (x.fresh ? '#ffd700' : '#ffffff') : (x.fresh ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.25)') })),
+      csSpotNext: () => goSpot(si + 1),
+      csSpotGo: (e) => goSpot(+e.currentTarget.dataset.i),
+      csSpotHold: () => { this._spotHold = true; },
+      csSpotFree: () => { this._spotHold = false; },
+    };
   }
 
   _toTopWatch = () => {
@@ -8714,6 +8802,7 @@ class Component extends DCLogic {
         };
       }),
       playersEmpty: !(data.characters||[]).filter(ch=>{ const t=(!ch.character_type||ch.character_type==='player'); const f=(s.charActiveFilter||'active'); return t && (f==='all' || (f==='inactive'?ch.is_active===false:ch.is_active!==false)); }).length,
+      ...this._charGalleryVals(s, data),
       npcsEmpty:    !(data.characters||[]).filter(ch=>{ const t=ch.character_type==='npc'; const f=(s.charActiveFilter||'active'); return t && (f==='all' || (f==='inactive'?ch.is_active===false:ch.is_active!==false)); }).length,
 
       pantheonItems: (data.pantheon || []).map(g => {
