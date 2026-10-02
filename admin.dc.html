@@ -2208,6 +2208,22 @@ button{font-family:inherit;cursor:pointer}
           </div>
           <input value="{{ formImage }}" onChange="{{ handleInput }}" data-field="image" placeholder="або встав URL напряму…" style="margin-top:7px;font-size:0.8rem;padding:7px 10px;" />
         </div>
+        <!-- Кадр портрета в банері -->
+        <sc-if value="{{ currentImage }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;align-items:baseline;gap:10px;">
+              <label style="flex:1;">Кадр у банері <span style="color:rgba(255,255,255,0.3);font-weight:400;">(що видно на сторінці персонажа)</span></label>
+              <sc-if value="{{ heroFocusCustom }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ heroFocusReset }}" style="background:none;border:none;padding:0;font-size:0.7rem;color:rgba(255,215,0,0.7);cursor:pointer;">Скинути</button>
+              </sc-if>
+            </div>
+            <div onPointerDown="{{ heroFocusDown }}" onPointerMove="{{ heroFocusMove }}" style="position:relative;width:100%;aspect-ratio:13/10;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.14);background-color:#111;background-image:url({{ heroFocusUrl }});background-size:cover;background-repeat:no-repeat;background-position:{{ heroFocusPos }};cursor:crosshair;touch-action:none;user-select:none;">
+              <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(26,26,26,0.85) 0%,rgba(26,26,26,0) 30%),linear-gradient(0deg,rgba(26,26,26,0.8) 0%,rgba(26,26,26,0) 35%);"></div>
+              <div style="position:absolute;left:{{ heroFocusX }};top:{{ heroFocusY }};width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid #ffd700;box-shadow:0 0 0 2px rgba(0,0,0,0.55),0 0 14px rgba(255,215,0,0.5);pointer-events:none;"></div>
+            </div>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:5px;line-height:1.5;">Клікни або тягни по картинці — точка показує, яку частину портрета тримати в кадрі. Вигляд банера той самий, міняється лише кадр. {{ heroFocusLabel }}</p>
+          </div>
+        </sc-if>
         <!-- Галерея -->
         <div style="margin:20px 0 18px;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:9px;">
           <h4 style="font-family:'Cinzel',serif;font-size:0.82rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:5px;">✦ Галерея · {{ cgCount }}</h4>
@@ -3368,7 +3384,7 @@ const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order', 'status_label', 'status_color', 'cover_color', 'cover_ornament', 'cover_icon', 'author_label'],
   chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
-  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'build', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'is_draft', 'deity', 'tags', 'connections', 'open_effect', 'sort_order'],
+  characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'build', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'is_draft', 'deity', 'tags', 'connections', 'open_effect', 'hero_focus', 'sort_order'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
 };
@@ -7065,7 +7081,7 @@ class Component extends DCLogic {
       allowed.forEach(k => {
         const v = s.form[k];
         // connections може бути порожнім рядком (всі знайомства знято) — надсилаємо завжди
-        const alwaysSend = k === 'connections' || k === 'build' || k === 'status_label' || k === 'status_color' || k === 'cover_color' || k === 'cover_ornament' || k === 'cover_icon';
+        const alwaysSend = k === 'connections' || k === 'build' || k === 'status_label' || k === 'status_color' || k === 'cover_color' || k === 'cover_ornament' || k === 'cover_icon' || (k === 'hero_focus' && v === '' && s.form._hfTouched);
         if (alwaysSend ? (v !== undefined) : (v !== '' && v !== undefined && v !== null)) body[k] = v === null ? '' : v;
       });
       // Постать у базі — лише man | woman | gown або NULL (characters_build_check);
@@ -7114,7 +7130,8 @@ class Component extends DCLogic {
         this._toast(adopted ? `✓ Збережено! Картинок у галерею: ${adopted}` : '✓ Збережено!');
       } catch(e) {
         this.setState({ saving: false });
-        this._toast('✗ ' + (e.message || 'Помилка збереження'));
+        const em = String(e.message || '');
+        this._toast('✗ ' + (/hero_focus/.test(em) ? 'Немає графи кадру — проженіть supabase_hero_focus_migration.sql' : (em || 'Помилка збереження')));
         console.error('saveItem error:', e);
       }
     };
@@ -7429,6 +7446,26 @@ class Component extends DCLogic {
       formAlias:        form.alias          || '',
       formRole:         form.role           || '',
       formImage:        form.image          || '',
+      ...(() => {
+        const m = String(form.hero_focus || '').match(/^\s*(\d{1,3}(?:\.\d+)?)\s+(\d{1,3}(?:\.\d+)?)\s*$/);
+        const x = m ? Math.min(100, +m[1]) : 50, y = m ? Math.min(100, +m[2]) : 12;
+        const set = (e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          const px = Math.round(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * 100);
+          const py = Math.round(Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) * 100);
+          this.setState(st => ({ form: { ...st.form, hero_focus: px + ' ' + py } }));
+        };
+        return {
+          heroFocusUrl: JSON.stringify(String(form.image || '')),
+          heroFocusPos: x + '% ' + y + '%',
+          heroFocusX: x + '%', heroFocusY: y + '%',
+          heroFocusCustom: !!m,
+          heroFocusLabel: m ? 'Зараз: ' + x + '% · ' + y + '%.' : 'Зараз — типовий кадр (по центру, ближче до верху).',
+          heroFocusDown: (e) => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {} set(e); },
+          heroFocusMove: (e) => { if (e.buttons & 1) set(e); },
+          heroFocusReset: () => this.setState(st => ({ form: { ...st.form, hero_focus: '', _hfTouched: true } })),
+        };
+      })(),
       formBio:           form.bio             || '',
       formCardCaption:   form.card_caption    || '',
       formTags:          form.tags            || '',
