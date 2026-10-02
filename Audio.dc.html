@@ -69,13 +69,30 @@
               </button>
             </sc-for>
           </div>
+          <div style="display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="search" value="{{ q }}" onInput="{{ setQ }}" placeholder="⌕ Пісня, персонаж, арка…" style="flex:1;min-width:0;height:40px;border-radius:999px;padding:0 16px;font-size:16px;font-family:Arial,sans-serif;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#fff;outline:none;">
+              <div style="flex:none;display:flex;gap:2px;padding:3px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);">
+                <button onClick="{{ viewList }}" style="height:34px;padding:0 12px;border-radius:999px;border:none;font-size:0.8rem;cursor:pointer;background:{{ tabListBg }};color:{{ tabListInk }};">Список</button>
+                <button onClick="{{ viewChron }}" style="height:34px;padding:0 12px;border-radius:999px;border:none;font-size:0.8rem;cursor:pointer;background:{{ tabChronBg }};color:{{ tabChronInk }};">Хроніка</button>
+              </div>
+            </div>
+            <sc-if value="{{ hasArcs }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px;overflow-x:auto;margin:0 -14px;padding:0 14px;scrollbar-width:none;">
+                <sc-for list="{{ arcList }}" as="a" hint-placeholder-count="4">
+                  <button onClick="{{ a.pick }}" style="flex:none;display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;font-size:0.78rem;white-space:nowrap;cursor:pointer;color:{{ a.ink }};background:{{ a.bg }};border:1px solid {{ a.line }};">{{ a.name }}<span style="color:rgba(255,255,255,0.3);">{{ a.n }}</span></button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
         </sc-if>
 
-        <div onMouseEnter="{{ holdOn }}" onMouseLeave="{{ holdOff }}" style="position:relative;height:{{ heroH }};display:flex;flex-direction:column;justify-content:flex-end;padding:0 {{ padX }} 28px;gap:10px;overflow:hidden;border-radius:{{ heroR }};">
+        <div onMouseEnter="{{ holdOn }}" onMouseLeave="{{ holdOff }}" style="position:relative;min-height:{{ heroH }};display:flex;flex-direction:column;justify-content:flex-end;padding:0 {{ padX }} 28px;gap:10px;overflow:hidden;border-radius:{{ heroR }};">
           <sc-for list="{{ layers }}" as="l" hint-placeholder-count="1">
             <img src="{{ l.img }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 25%;opacity:{{ l.op }};transition:opacity 0.9s ease;">
           </sc-for>
           <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(26,26,26,0.3) 0%,rgba(26,26,26,0.5) 45%,#1a1a1a 100%);"></div>
+          <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
           <div style="position:absolute;left:{{ padX }};right:{{ padX }};top:18px;display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
             <input type="text" value="{{ q }}" onInput="{{ setQ }}" placeholder="⌕ Пісня, персонаж, арка…" style="width:230px;max-width:100%;border-radius:999px;padding:8px 16px;font-size:0.82rem;font-family:Arial,sans-serif;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.16);color:#fff;outline:none;">
             <div style="display:flex;gap:2px;padding:3px;border-radius:999px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.12);">
@@ -83,14 +100,15 @@
               <button onClick="{{ viewChron }}" style="padding:6px 14px;border-radius:999px;border:none;font-size:0.8rem;cursor:pointer;background:{{ tabChronBg }};color:{{ tabChronInk }};">Хроніка</button>
             </div>
           </div>
+          </sc-if>
           <p style="position:relative;margin:0;font-size:0.64rem;letter-spacing:0.26em;text-transform:uppercase;color:#ffd700;">{{ heroOver }}</p>
           <a href="{{ heroHref }}" style="position:relative;margin:0;font-family:'Cinzel',Georgia,serif;font-size:{{ heroSize }};font-weight:700;letter-spacing:0.07em;line-height:1.05;color:#fff;text-decoration:none;text-wrap:balance;">{{ heroName }}</a>
           <sc-if value="{{ heroHasLine }}" hint-placeholder-val="{{ false }}">
             <p style="position:relative;margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.12rem;color:rgba(255,255,255,0.75);text-wrap:pretty;">{{ heroLine }}</p>
           </sc-if>
           <div style="position:relative;display:flex;align-items:center;gap:16px;margin-top:10px;flex-wrap:wrap;">
-            <div style="flex:none;display:flex;align-items:stretch;height:46px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.45);box-shadow:0 0 24px rgba(255,215,0,0.18);">
-              <button onClick="{{ heroPlay }}" style="display:flex;align-items:center;gap:10px;padding:0 20px 0 16px;border:none;background:#ffd700;color:#1a1a1a;font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:0.84rem;letter-spacing:0.05em;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:#ffe14d;">
+            <div style="flex:{{ pillFlex }};min-width:0;display:flex;align-items:stretch;height:46px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,215,0,0.5);background:rgba(0,0,0,0.45);box-shadow:0 0 24px rgba(255,215,0,0.18);">
+              <button onClick="{{ heroPlay }}" style="flex:{{ pillFlex }};justify-content:center;display:flex;align-items:center;gap:10px;padding:0 20px 0 16px;border:none;background:#ffd700;color:#1a1a1a;font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:0.84rem;letter-spacing:0.05em;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:#ffe14d;">
                 <sc-if value="{{ heroPaused }}" hint-placeholder-val="{{ true }}">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
                 </sc-if>
@@ -98,8 +116,8 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
                 </sc-if>
                 {{ heroBtn }}</button>
-              <button onClick="{{ shuffle }}" title="Навмання з полиці" style="display:flex;align-items:center;gap:8px;padding:0 18px;border:none;background:none;color:#ffd700;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.1);">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"></path><path d="m18 2 4 4-4 4"></path><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"></path><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"></path><path d="m18 14 4 4-4 4"></path></svg>хай Марта обере</button>
+              <button onClick="{{ shuffle }}" title="Навмання з полиці" aria-label="Хай Марта обере" style="flex:none;justify-content:center;display:flex;align-items:center;gap:8px;padding:0 {{ shufPad }};border:none;background:none;color:#ffd700;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.1);">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"></path><path d="m18 2 4 4-4 4"></path><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"></path><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"></path><path d="m18 14 4 4-4 4"></path></svg><sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">хай Марта обере</sc-if></button>
             </div>
             <span style="min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.55);">{{ heroMeta }}</span>
             <span style="flex:1;"></span>
@@ -151,7 +169,7 @@
                           <span style="width:30px;height:30px;flex:none;border-radius:999px;border:1px solid {{ t.ring }};background:{{ t.btnBg }};color:{{ t.btnInk }};display:flex;align-items:center;justify-content:center;font-size:0.68rem;">{{ t.icon }}</span>
                           <span style="min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.title }}</span>
                           <sc-if value="{{ t.hasAuthor }}" hint-placeholder-val="{{ false }}">
-                            <span style="font-size:0.74rem;color:rgba(255,255,255,0.38);white-space:nowrap;">{{ t.author }}</span>
+                            <span style="flex:0 1 auto;min-width:0;max-width:40%;font-size:0.74rem;color:rgba(255,255,255,0.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.author }}</span>
                           </sc-if>
                         </button>
                       </sc-for>
@@ -572,7 +590,7 @@ class Component extends DCLogic {
     const spotP = pl[s.spot] || null;
     const thumbOf = (p) => p.image || yt(p.tracks[0].vid, 'hqdefault');
 
-    const sideList = s.plAll ? pl : pl.slice(0, SIDE_N);
+    const sideList = s.plAll || narrow ? pl : pl.slice(0, SIDE_N);
     const side = sideList.map((p) => {
       const i = pl.indexOf(p);
       const on = i === s.spot;
@@ -619,7 +637,9 @@ class Component extends DCLogic {
       wide: !narrow, narrow,
       cols: narrow ? 'minmax(0,1fr)' : '240px minmax(0,1fr)',
       padX: narrow ? '18px' : '44px',
-      heroH: narrow ? '320px' : '360px',
+      heroH: narrow ? '280px' : '360px',
+      pillFlex: narrow ? '1 1 100%' : 'none',
+      shufPad: narrow ? '15px' : '18px',
       heroR: narrow ? '0' : '0 15px 0 0',
       heroSize: narrow ? '2.2rem' : '3.2rem',
       chronCols: narrow ? 'minmax(0,1fr)' : '90px minmax(0,1fr)',
@@ -645,6 +665,8 @@ class Component extends DCLogic {
       arcCaret: s.arcOpen ? '▴' : '▾',
       arcList: arcs.map(([name, n]) => ({
         name, n, ink: s.fArc.includes(name) ? '#ffd700' : 'rgba(255,255,255,0.55)',
+        bg: s.fArc.includes(name) ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
+        line: s.fArc.includes(name) ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
         pick: () => this._flipArc(name),
       })),
       hasArcPick: s.fArc.length > 0,
