@@ -1363,7 +1363,7 @@ a:hover{color:#a8c4f7;}
         <sc-if value="{{ charViewGrid }}" hint-placeholder-val="{{ true }}">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;">
           <sc-for list="{{ playerItems }}" as="char" hint-placeholder-count="6">
-            <div data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
+            <a href="{{ char.href }}" data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="display:block;text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
               <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
                 <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
                 <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
@@ -1382,14 +1382,14 @@ a:hover{color:#a8c4f7;}
                   <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;color:rgba(255,255,255,0.42);margin-top:6px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p>
                 </sc-if>
               </div>
-            </div>
+            </a>
           </sc-for>
         </div>
         </sc-if>
         <sc-if value="{{ charViewList }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:10px;max-width:820px;margin:0 auto;">
             <sc-for list="{{ playerItems }}" as="char" hint-placeholder-count="6">
-              <article data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
+              <a href="{{ char.href }}" data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
                 <div style="position:relative;width:82px;flex-shrink:0;overflow:hidden;background:#111;">
                   <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
                   <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
@@ -1405,7 +1405,7 @@ a:hover{color:#a8c4f7;}
                   <sc-if value="{{ char.hasBio }}" hint-placeholder-val="{{ false }}"><p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.46);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p></sc-if>
                 </div>
                 <div style="align-self:center;padding:0 22px;color:#6495ed;font-size:1.1rem;flex-shrink:0;">→</div>
-              </article>
+              </a>
             </sc-for>
           </div>
         </sc-if>
@@ -1422,7 +1422,7 @@ a:hover{color:#a8c4f7;}
         <sc-if value="{{ charViewGrid }}" hint-placeholder-val="{{ true }}">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;">
           <sc-for list="{{ npcItems }}" as="char" hint-placeholder-count="4">
-            <div data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
+            <a href="{{ char.href }}" data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="glass char-card" style="display:block;text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;border-radius:10px;transition:transform 0.28s ease,box-shadow 0.28s ease;">
               <div class="char-img-wrap" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
                 <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
                 <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
@@ -1441,14 +1441,14 @@ a:hover{color:#a8c4f7;}
                   <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;color:rgba(255,255,255,0.42);margin-top:6px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p>
                 </sc-if>
               </div>
-            </div>
+            </a>
           </sc-for>
         </div>
         </sc-if>
         <sc-if value="{{ charViewList }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:10px;max-width:820px;margin:0 auto;">
             <sc-for list="{{ npcItems }}" as="char" hint-placeholder-count="4">
-              <article data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
+              <a href="{{ char.href }}" data-id="{{ char.id }}" onClick="{{ openCharacter }}" class="lore-card glass" style="text-decoration:none;color:inherit;cursor:pointer;overflow:hidden;border-radius:12px;display:flex;align-items:stretch;min-height:92px;">
                 <div style="position:relative;width:82px;flex-shrink:0;overflow:hidden;background:#111;">
                   <sc-if value="{{ char.hasImage }}" hint-placeholder-val="{{ true }}"><img src="{{ char.imgSrc }}" alt="{{ char.name }}" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;"></sc-if>
                   <sc-if value="{{ char.noImage }}" hint-placeholder-val="{{ true }}">
@@ -1464,7 +1464,7 @@ a:hover{color:#a8c4f7;}
                   <sc-if value="{{ char.hasBio }}" hint-placeholder-val="{{ false }}"><p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.46);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ char.bio }}</p></sc-if>
                 </div>
                 <div style="align-self:center;padding:0 22px;color:#6495ed;font-size:1.1rem;flex-shrink:0;">→</div>
-              </article>
+              </a>
             </sc-for>
           </div>
         </sc-if>
@@ -8694,6 +8694,7 @@ class Component extends DCLogic {
           inactive: ch.is_active === false,
           bgStyle: 'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;'+(imgUrl?'background-image:'+imgUrl:''),
           hasBio: !!(ch.bio), bio: ch.bio||'',
+          href: '#characters/' + encodeURIComponent(ch.id),
         };
       }),
       npcItems: sortChars((data.characters || []).filter(ch => {
@@ -8714,6 +8715,7 @@ class Component extends DCLogic {
           inactive: ch.is_active === false,
           bgStyle: 'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;'+(imgUrl?'background-image:'+imgUrl:''),
           hasBio: !!(ch.bio), bio: ch.bio||'',
+          href: '#characters/' + encodeURIComponent(ch.id),
         };
       }),
       playersEmpty: !(data.characters||[]).filter(ch=>{ const t=(!ch.character_type||ch.character_type==='player'); const f=(s.charActiveFilter||'active'); return t && (f==='all' || (f==='inactive'?ch.is_active===false:ch.is_active!==false)); }).length,
@@ -9022,6 +9024,8 @@ class Component extends DCLogic {
       charModalNoTelegraph:  !(pc?.telegraph_url),
       charModalUrl:        pc?.telegraph_url || '',
       openCharacter: (e) => {
+        // Ctrl/Cmd/Shift-клік по картці-посиланню — нова вкладка, браузер робить сам.
+        if (e.currentTarget.tagName === 'A') { if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return; e.preventDefault(); }
         const id = e.currentTarget.dataset.id;
         if ((data.characters || []).some(c => String(c.id) === String(id))) this._nav('characters', id);
       },
