@@ -1050,9 +1050,11 @@ button{font-family:inherit;cursor:pointer}
           <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
             <sc-for list="{{ e.diff }}" as="d" hint-placeholder-count="0">
               <div>
-                <p style="font-size:0.68rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.55);margin-bottom:4px;">{{ d.label }}</p>
-                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.94rem;line-height:1.6;color:rgba(255,120,120,0.6);text-decoration:line-through;white-space:pre-line;">{{ d.was }}</p>
-                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.68;color:rgba(255,255,255,0.72);white-space:pre-line;text-wrap:pretty;">{{ d.now }}</p>
+                <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
+                  <p style="font-size:0.68rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.55);">{{ d.label }}</p>
+                  <p style="font-size:0.68rem;color:rgba(255,255,255,0.32);">{{ d.stat }}</p>
+                </div>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.7;color:rgba(255,255,255,0.5);white-space:pre-wrap;text-wrap:pretty;"><sc-for list="{{ d.segs }}" as="g" hint-placeholder-count="0"><sc-if value="{{ g.same }}" hint-placeholder-val="{{ true }}"><span>{{ g.t }}</span></sc-if><sc-if value="{{ g.gap }}" hint-placeholder-val="{{ false }}"><span style="color:rgba(255,255,255,0.28);font-family:system-ui,sans-serif;font-size:0.78rem;letter-spacing:0.08em;">{{ g.t }}</span></sc-if><sc-if value="{{ g.del }}" hint-placeholder-val="{{ false }}"><span style="color:rgba(255,140,140,0.9);background:rgba(255,77,77,0.13);text-decoration:line-through;text-decoration-color:rgba(255,120,120,0.7);border-radius:3px;padding:0 2px;">{{ g.t }}</span></sc-if><sc-if value="{{ g.add }}" hint-placeholder-val="{{ false }}"><span style="color:#fff;background:rgba(255,215,0,0.16);box-shadow:inset 0 -1px 0 rgba(255,215,0,0.55);border-radius:3px;padding:0 2px;">{{ g.t }}</span></sc-if></sc-for></p>
               </div>
             </sc-for>
           </div>
@@ -3530,6 +3532,77 @@ function materialText(section, row){
 }
 
 class Component extends DCLogic {
+  // Правка поля → сегменти «без змін / прибрано / додано» по словах. Довгі
+  // незмінні шматки згортаються до кількох слів по краях, щоб у заявці було
+  // видно саме зміну, а не весь текст анкети вдруге.
+  _wordDiff(was, now) {
+    const A = String(was == null ? '' : was).replace(/\r/g, '').trim();
+    const B = String(now == null ? '' : now).replace(/\r/g, '').trim();
+    const ck = A + '\u0000' + B;
+    this._diffCache = this._diffCache || new Map();
+    if (this._diffCache.has(ck)) return this._diffCache.get(ck);
+    const words = t => t.match(/\s+|[^\s]+/g) || [];
+    const sents = t => t.match(/[^.!?…\n]+[.!?…]*\s*|\n+/g) || [];
+    const run = tok => {
+      const a = tok(A), b = tok(B);
+      let p = 0; while (p < a.length && p < b.length && a[p] === b[p]) p++;
+      let s = 0; while (s < a.length - p && s < b.length - p && a[a.length - 1 - s] === b[b.length - 1 - s]) s++;
+      const am = a.slice(p, a.length - s), bm = b.slice(p, b.length - s);
+      const n = am.length, m = bm.length;
+      if (n * m > 3e6) return null;
+      const T = new Uint32Array((n + 1) * (m + 1)), W = m + 1;
+      for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+        T[i * W + j] = am[i] === bm[j] ? T[(i + 1) * W + j + 1] + 1 : Math.max(T[(i + 1) * W + j], T[i * W + j + 1]);
+      const ops = a.slice(0, p).map(t => ['=', t]);
+      let i = 0, j = 0;
+      while (i < n && j < m) {
+        if (am[i] === bm[j]) { ops.push(['=', am[i]]); i++; j++; }
+        else if (T[(i + 1) * W + j] >= T[i * W + j + 1]) ops.push(['-', am[i++]]);
+        else ops.push(['+', bm[j++]]);
+      }
+      while (i < n) ops.push(['-', am[i++]]);
+      while (j < m) ops.push(['+', bm[j++]]);
+      a.slice(a.length - s).forEach(t => ops.push(['=', t]));
+      return ops;
+    };
+    let ops = run(words) || run(sents) || [['-', A], ['+', B]];
+    // Пробіл між двома зміненими словами — частина зміни, а не «без змін»:
+    // інакше заміна фрази рветься на десяток окремих латок.
+    ops = ops.map((o, k) => (o[0] === '=' && /^\s+$/.test(o[1]) && !/\n/.test(o[1])
+      && ops[k - 1] && ops[k + 1] && ops[k - 1][0] !== '=' && ops[k + 1][0] !== '=') ? ['~', o[1]] : o);
+    const segs = [];
+    const push = (kind, t) => { const l = segs[segs.length - 1]; if (l && l.kind === kind) l.t += t; else segs.push({ kind, t }); };
+    for (let k = 0; k < ops.length; k++) {
+      const [op, t] = ops[k];
+      if (op === '~') { push('-', t); push('+', t); } else push(op, t);
+    }
+    let plus = 0, minus = 0;
+    const cnt = t => (t.match(/[^\s]+/g) || []).length;
+    segs.forEach(g => { if (g.kind === '+') plus += cnt(g.t); if (g.kind === '-') minus += cnt(g.t); });
+    const KEEP = 10;
+    const out = [];
+    segs.forEach((g, k) => {
+      if (g.kind !== '=') { out.push(g); return; }
+      const w = g.t.match(/\s+|[^\s]+/g) || [];
+      const first = k === 0, last = k === segs.length - 1;
+      const lim = (first || last) ? KEEP : KEEP * 2;
+      if (cnt(g.t) <= lim + 4) { out.push(g); return; }
+      const head = [], tail = [];
+      if (!first) { let c = 0; for (const x of w) { if (/\S/.test(x) && ++c > KEEP) break; head.push(x); } }
+      if (!last) { let c = 0; for (let x = w.length - 1; x >= 0; x--) { if (/\S/.test(w[x]) && ++c > KEEP) break; tail.unshift(w[x]); } }
+      if (head.length) out.push({ kind: '=', t: head.join('').replace(/\s+$/, '') });
+      out.push({ kind: 'gap', t: (first ? '' : ' ') + '[ … ]' + (last ? '' : ' ') });
+      if (tail.length) out.push({ kind: '=', t: tail.join('').replace(/^\s+/, '') });
+    });
+    const res = {
+      stat: !A ? 'поле було порожнє' : !B ? 'поле очищено' : (plus || minus) ? `+${plus} / −${minus} слів` : 'лише пробіли чи розриви рядків',
+      segs: out.map((g, k) => ({ key: k, t: g.t, same: g.kind === '=', gap: g.kind === 'gap', del: g.kind === '-', add: g.kind === '+' })),
+    };
+    if (this._diffCache.size > 200) this._diffCache.clear();
+    this._diffCache.set(ck, res);
+    return res;
+  }
+
   state = {
     // auth
     authed: false, authChecking: true,
@@ -4649,8 +4722,7 @@ class Component extends DCLogic {
             : '',
           diff: keys.map(k => ({
             key: k, label: EDIT_FIELDS[k],
-            was: clip(before[k], 600) || '— порожньо —',
-            now: clip(patch[k], 1200) || '— порожньо —',
+            ...this._wordDiff(before[k], patch[k]),
           })),
           hasGallery: gallery.length > 0,
           gallery: gallery.map((g, i) => ({ key: i, url: g.url, caption: g.caption || '' })),
