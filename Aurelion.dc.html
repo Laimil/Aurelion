@@ -139,13 +139,15 @@ button.die-btn[data-active="false"]:hover{background:rgba(255,255,255,0.09)!impo
 .lore-md details.md-fold-sub > .md-fold-body{padding-left:0;}
 .lore-md details.md-fold-sub > summary .md-fold-ex{margin-left:0;}
 .char-hero{height:500px;}
-.char-hero-img{position:absolute;right:0;top:0;width:62%;height:100%;}
-.char-hero-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#1a1a1a 38%,rgba(26,26,26,0.7) 55%,rgba(26,26,26,0) 80%),linear-gradient(0deg,#1a1a1a 0%,rgba(26,26,26,0) 40%);}
-.char-hero-text{position:absolute;left:56px;right:56px;bottom:52px;}
+.char-hero-img{position:absolute;right:0;top:0;width:54%;height:100%;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 30%);mask-image:linear-gradient(90deg,transparent 0,#000 30%);}
+.char-hero-front{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;background-position:center 12%;}
+.char-hero-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#1a1a1a 40%,rgba(26,26,26,0.7) 55%,rgba(26,26,26,0) 78%),linear-gradient(0deg,#1a1a1a 0%,rgba(26,26,26,0) 40%);}
+.char-hero-text{position:absolute;left:56px;right:calc(50% + 8px);bottom:52px;}
+.char-gal-strip{padding:0 56px 4px;}
 .char-body-grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:64px;max-width:1200px;margin:0 auto;padding:40px 56px 0;align-items:start;}
 .char-nav{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,0.24) transparent;}
 .char-lead .lore-md p{font-size:1.32rem;line-height:1.6;color:rgba(255,255,255,0.82);text-align:left;}
-@media(max-width:820px){.char-hero{height:auto;}.char-hero-img{width:100%;height:420px;}.char-hero-shade{background:linear-gradient(0deg,#1a1a1a 30%,rgba(26,26,26,0) 72%);}.char-hero-text{position:relative;left:auto;right:auto;bottom:auto;padding:300px 22px 26px;}.char-body-grid{grid-template-columns:1fr;gap:34px;padding:28px 4px 0;}.char-nav{position:static;max-height:none;order:2;}}
+@media(max-width:820px){.char-hero-img{-webkit-mask-image:none !important;mask-image:none !important;}.char-hero{height:auto;}.char-hero-img{width:100%;height:420px;}.char-hero-shade{background:linear-gradient(0deg,#1a1a1a 30%,rgba(26,26,26,0) 72%);}.char-hero-text{position:relative;left:auto;right:auto;bottom:auto;padding:300px 22px 26px;}.char-body-grid{grid-template-columns:1fr;gap:34px;padding:28px 4px 0;}.char-nav{position:static;max-height:none;order:2;}.char-gal-strip{padding:0 4px 4px;}}
 .lore-md blockquote{border-left:2px solid rgba(255,215,0,0.38);margin:1.3em 0;padding:0.75em 1.3em;color:rgba(255,215,0,0.72);font-style:italic;background:rgba(255,215,0,0.04);border-radius:0 7px 7px 0;}
 .lore-md hr{border:none;text-align:center;margin:1.9em 0;height:1.2em;line-height:1.2em;}
 .lore-md hr::after{content:'✦  ✦  ✦';font-size:0.72rem;letter-spacing:0.5em;color:rgba(255,215,0,0.3);}
@@ -1491,7 +1493,7 @@ a:hover{color:#a8c4f7;}
         <div class="char-hero" style="position:relative;max-width:1200px;margin:0 auto;border-radius:15px;overflow:hidden;background:#1a1a1a;border:1px solid rgba(255,255,255,0.08);">
           <div class="char-hero-img">
             <sc-if value="{{ charReaderHasImage }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute;inset:0;{{ charReaderBgStyle }}"></div>
+              <div class="char-hero-front" style="background-image:url({{ charHeroUrl }});background-position:{{ charHeroPos }};"></div>
             </sc-if>
             <sc-if value="{{ charReaderNoImage }}" hint-placeholder-val="{{ true }}">
               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 40%,rgba(255,215,0,0.08) 0%,transparent 70%);">
@@ -1504,8 +1506,10 @@ a:hover{color:#a8c4f7;}
           </div>
           <div class="char-hero-shade"></div>
           <div class="char-hero-text">
-            <p style="font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin:0 0 12px;">✦ {{ charReaderRole }}</p>
-            <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.5rem,7vw,4.6rem);font-weight:700;letter-spacing:0.06em;line-height:1.02;color:#fff;margin:0;text-shadow:0 0 40px rgba(255,215,0,0.15);max-width:640px;">{{ charReaderName }}</h1>
+            <sc-if value="{{ charHeroHasRole }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin:0 0 12px;">✦ {{ charReaderRole }}</p>
+            </sc-if>
+            <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.2rem,4.6vw,4.2rem);font-weight:700;letter-spacing:0.05em;line-height:1.04;color:#fff;margin:0;text-shadow:0 0 40px rgba(255,215,0,0.15);overflow-wrap:break-word;text-wrap:balance;">{{ charReaderName }}</h1>
             <sc-if value="{{ charReaderHasAlias }}" hint-placeholder-val="{{ false }}">
               <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.25rem;color:rgba(255,255,255,0.5);margin:10px 0 0;">«{{ charReaderAlias }}»</p>
             </sc-if>
@@ -1536,6 +1540,27 @@ a:hover{color:#a8c4f7;}
             </sc-if>
           </div>
         </div>
+        <sc-if value="{{ galStripVisible }}" hint-placeholder-val="{{ false }}">
+          <div class="char-gal-strip" style="max-width:1200px;box-sizing:border-box;margin:14px auto 0;display:flex;gap:10px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,0.24) transparent;">
+            <sc-for list="{{ galHeroStrip }}" as="g" hint-placeholder-count="0">
+              <button data-i="{{ g.i }}" onClick="{{ galOpenAt }}" title="{{ g.title }}" style="position:relative;width:128px;height:128px;flex-shrink:0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);background:#111;cursor:pointer;padding:0;box-shadow:0 8px 20px rgba(0,0,0,0.4);transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.55);transform:translateY(-3px);">
+                <sc-if value="{{ g.clear }}" hint-placeholder-val="{{ true }}">
+                  <img src="{{ g.src }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 25%;">
+                </sc-if>
+                <sc-if value="{{ g.veiled }}" hint-placeholder-val="{{ false }}">
+                  <img src="{{ g.src }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(12px);transform:scale(1.15);">
+                </sc-if>
+                <sc-if value="{{ g.hasMore }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,9,8,0.68);font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:#ffd700;">{{ g.moreLabel }}</span>
+                </sc-if>
+              </button>
+            </sc-for>
+            <button onClick="{{ galShow }}" title="Усі зображення цього персонажа" style="width:128px;height:128px;flex-shrink:0;border-radius:10px;border:1px dashed rgba(255,215,0,0.32);background:rgba(255,255,255,0.03);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#ffd700;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.08);border-color:rgba(255,215,0,0.6);">
+              <span style="font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;letter-spacing:0.08em;">Галерея</span>
+              <span style="font-size:0.7rem;color:rgba(255,255,255,0.5);">{{ galCountShort }} →</span>
+            </button>
+          </div>
+        </sc-if>
         <div class="char-body-grid">
           <nav class="char-nav">
             <sc-if value="{{ charArcsVisible }}" hint-placeholder-val="{{ false }}">
@@ -1560,9 +1585,6 @@ a:hover{color:#a8c4f7;}
               </sc-if>
             </sc-if>
             <div style="height:1px;background:rgba(255,255,255,0.08);margin:24px 0 10px;"></div>
-            <sc-if value="{{ galBtnVisible }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ galShow }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);text-decoration:none;cursor:pointer;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>{{ galBtnLabel }}</span><span>→</span></button>
-            </sc-if>
             <sc-if value="{{ relHasConns }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ scrollToConns }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);text-decoration:none;cursor:pointer;transition:all 0.3s ease;" style-hover="color:#6495ed;"><span>Звʼязки</span><span>↓</span></button>
             </sc-if>
@@ -3196,7 +3218,7 @@ const LIST_SELECT = {
   lore:       'id,title,category,excerpt,cover,sort_order,created_at',
   stories:    'id,title,status,description,sort_order,created_at,author_name,author_telegram,telegraph_url,chapters,tags,status_label,status_color,cover_color,cover_ornament,cover_icon,author_label',
   chronicles: 'id,title,subtitle,character_id,cover,period,gm,status,summary,tags,sort_order,created_at',
-  characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,build,bio,character_type,connections,sort_order,open_effect,card_caption,is_active,deity,owner_id',
+  characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,build,bio,character_type,connections,sort_order,open_effect,card_caption,is_active,deity,owner_id,hero_focus',
 };
 const HEAVY_TABLES = ['characters', 'lore', 'stories', 'chronicles'];
 
@@ -5696,8 +5718,13 @@ class Component extends DCLogic {
         // екраном «щось пішло не так».
         (() => {
           const chars = (sel) => this._get(`characters?select=${sel}&order=sort_order.asc,created_at.asc`);
-          const noOwner = LIST_SELECT.characters.replace(',owner_id', '');
+          const noFocus = LIST_SELECT.characters.replace(',hero_focus', '');
+          const noOwner = noFocus.replace(',owner_id', '');
           return chars(LIST_SELECT.characters)
+            .catch((e) => {
+              console.warn('характери: без графи hero_focus —', e && e.message);
+              return chars(noFocus);
+            })
             .catch((e) => {
               console.warn('характери: без графи owner_id —', e && e.message);
               return chars(noOwner);
@@ -9026,6 +9053,9 @@ class Component extends DCLogic {
       charReaderInitials:  sc ? (sc.name || '?').trim().charAt(0).toUpperCase() : '',
       charReaderHasImage:  !!(sc?.image),
       charReaderNoImage:   !(sc?.image),
+      charHeroPos:         (() => { const m = String(sc?.hero_focus || '').match(/^\s*(\d{1,3}(?:\.\d+)?)\s+(\d{1,3}(?:\.\d+)?)\s*$/); return m ? Math.min(100, +m[1]) + '% ' + Math.min(100, +m[2]) + '%' : 'center 12%'; })(),
+      charHeroHasRole:     !!(sc && String(sc.role || '').trim()),
+      charHeroUrl:         sc?.image ? JSON.stringify(String(sc.image)) : '',
       charReaderBgStyle:   sc?.image ? 'background-size:cover;background-position:center top;background-repeat:no-repeat;background-image:url(' + JSON.stringify(sc.image) + ')' : '',
       charReaderAge:       sc?.age    || '',
       charReaderHeight:    sc?.height || '',
@@ -9281,6 +9311,14 @@ class Component extends DCLogic {
           galRowVisible:   src.owner !== 'characters',
           galTitle:        src.title,
           galCountLabel:   all.length + (all.length === 1 ? ' зображення' : (all.length < 5 ? ' зображення' : ' зображень')) + ' у теці',
+          galCountShort:   String(all.length),
+          galHeroStrip: all.slice(0, 7).map((r, i) => ({
+            i: String(i), src: r.url,
+            title: r.caption || label(r),
+            clear: !veiled(r), veiled: veiled(r),
+            hasMore: i === 6 && all.length > 7,
+            moreLabel: '+' + (all.length - 6),
+          })),
           galStrip: all.slice(0, cap).map((r, i) => ({
             i: String(i), src: r.url,
             title: r.caption || label(r),
