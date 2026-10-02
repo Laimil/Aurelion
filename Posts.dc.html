@@ -16,13 +16,13 @@
     <p style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.9rem;padding:40px 0;">Відчиняю стрічку…</p>
   </sc-if>
   <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
-    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;">
+    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;max-width:680px;margin:0 auto;">
       <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);margin-bottom:16px;">Стрічка — для тих, хто увійшов у кабінет.</p>
       <a href="#cabinet" style="display:inline-block;padding:9px 20px;border-radius:999px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:#ffd700;text-decoration:none;font-size:0.85rem;">Увійти в кабінет</a>
     </div>
   </sc-if>
   <sc-if value="{{ isLocked }}" hint-placeholder-val="{{ false }}">
-    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;">
+    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;max-width:680px;margin:0 auto;">
       <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);margin-bottom:16px;">Доступ до стрічки ще на розгляді. Щойно рецепція відкриє кабінет — пости з'являться тут.</p>
       <a href="#cabinet" style="display:inline-block;padding:9px 20px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.7);text-decoration:none;font-size:0.85rem;">До кабінету</a>
     </div>
@@ -31,153 +31,211 @@
     <p style="text-align:center;color:rgba(255,77,77,0.75);font-size:0.9rem;padding:40px 0;">Не вдалося завантажити стрічку. Спробуйте пізніше.</p>
   </sc-if>
   <sc-if value="{{ isOk }}" hint-placeholder-val="{{ false }}">
-    <div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
-        <button onClick="{{ toggleFilt }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.82rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">{{ filtLabel }}</button>
-        <button onClick="{{ flipAsc }}" title="Порядок читання" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.82rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">{{ ascLabel }}</button>
-        <sc-if value="{{ hasPick }}" hint-placeholder-val="{{ false }}">
-          <span style="font-size:0.78rem;color:rgba(255,215,0,0.75);">{{ pickLabel }}</span>
-          <button onClick="{{ clearFilt }}" style="cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.4);font-size:0.78rem;text-decoration:underline;padding:0;">скинути</button>
-        </sc-if>
-      </div>
+    <div style="{{ shellStyle }}">
 
-      <sc-if value="{{ filtOpen }}" hint-placeholder-val="{{ false }}">
-        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:15px;padding:16px 18px;margin-bottom:20px;">
-          <sc-if value="{{ tagsBusy }}" hint-placeholder-val="{{ true }}">
-            <p style="color:rgba(255,255,255,0.35);font-size:0.82rem;margin:0;">Гортаю опис…</p>
+      <!-- ── Список ── -->
+      <div id="posts-list" ref="{{ listRef }}" style="{{ listStyle }}">
+        <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button onClick="{{ toggleFilt }}" style="cursor:pointer;border-radius:999px;padding:7px 14px;font-size:0.8rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">{{ filtLabel }}</button>
+            <button onClick="{{ flipAsc }}" title="Порядок читання" style="cursor:pointer;border-radius:999px;padding:7px 14px;font-size:0.8rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">{{ ascLabel }}</button>
+          </div>
+          <sc-if value="{{ hasPick }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span style="font-size:0.76rem;padding:4px 11px;border-radius:999px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;">{{ pickLabel }}</span>
+              <button onClick="{{ clearFilt }}" style="cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.4);font-size:0.76rem;text-decoration:underline;padding:0;">скинути</button>
+            </div>
           </sc-if>
-          <sc-if value="{{ tagsReady }}" hint-placeholder-val="{{ false }}">
-            <div>
-              <input type="text" value="{{ q }}" onInput="{{ setQ }}" placeholder="Пошук персонажа або арки…" style="width:100%;box-sizing:border-box;margin-bottom:14px;border-radius:999px;padding:8px 16px;font-size:0.84rem;font-family:Arial,sans-serif;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.85);outline:none;">
-              <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin:0 0 8px;">Персонаж <span style="text-transform:none;letter-spacing:0;color:rgba(255,255,255,0.22);">— можна кілька</span></p>
-              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
-                <sc-for list="{{ charChips }}" as="c" hint-placeholder-count="4">
-                  <button onClick="{{ pickChar }}" data-v="{{ c.name }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:{{ c.bg }};border:1px solid {{ c.border }};color:{{ c.color }};">{{ c.name }}</button>
-                </sc-for>
-                <sc-if value="{{ moreChars }}" hint-placeholder-val="{{ false }}">
-                  <button onClick="{{ allChars }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:none;border:1px dashed rgba(255,255,255,0.2);color:rgba(255,255,255,0.45);">{{ moreCharsLabel }}</button>
-                </sc-if>
-              </div>
-              <sc-if value="{{ hasArcs }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ filtOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;">
+              <sc-if value="{{ tagsBusy }}" hint-placeholder-val="{{ true }}">
+                <p style="color:rgba(255,255,255,0.35);font-size:0.82rem;margin:0;">Гортаю опис…</p>
+              </sc-if>
+              <sc-if value="{{ tagsReady }}" hint-placeholder-val="{{ false }}">
                 <div>
-                  <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin:0 0 8px;">Арка</p>
-                  <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                    <sc-for list="{{ arcChips }}" as="a" hint-placeholder-count="3">
-                      <button onClick="{{ pickArc }}" data-v="{{ a.name }}" title="{{ a.title }}" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:{{ a.bg }};border:1px solid {{ a.border }};color:{{ a.color }};">
-                        {{ a.name }}
-                        <sc-if value="{{ a.hasAlt }}" hint-placeholder-val="{{ false }}">
-                          <span style="font-size:0.66rem;opacity:0.55;">✎ {{ a.altLabel }}</span>
-                        </sc-if>
-                      </button>
+                  <input type="text" value="{{ q }}" onInput="{{ setQ }}" placeholder="Пошук персонажа або арки…" style="width:100%;box-sizing:border-box;margin-bottom:12px;border-radius:999px;padding:8px 14px;font-size:0.82rem;font-family:Arial,sans-serif;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.85);outline:none;">
+                  <p style="font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin:0 0 8px;">Персонаж <span style="text-transform:none;letter-spacing:0;color:rgba(255,255,255,0.22);">— можна кілька</span></p>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+                    <sc-for list="{{ charChips }}" as="c" hint-placeholder-count="4">
+                      <button onClick="{{ pickChar }}" data-v="{{ c.name }}" style="cursor:pointer;border-radius:999px;padding:6px 12px;font-size:0.78rem;background:{{ c.bg }};border:1px solid {{ c.border }};color:{{ c.color }};">{{ c.name }}</button>
                     </sc-for>
-                    <sc-if value="{{ moreArcs }}" hint-placeholder-val="{{ false }}">
-                      <button onClick="{{ allArcs }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:none;border:1px dashed rgba(255,255,255,0.2);color:rgba(255,255,255,0.45);">{{ moreArcsLabel }}</button>
+                    <sc-if value="{{ moreChars }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ allChars }}" style="cursor:pointer;border-radius:999px;padding:6px 12px;font-size:0.78rem;background:none;border:1px dashed rgba(255,255,255,0.2);color:rgba(255,255,255,0.45);">{{ moreCharsLabel }}</button>
                     </sc-if>
                   </div>
+                  <sc-if value="{{ hasArcs }}" hint-placeholder-val="{{ false }}">
+                    <div>
+                      <p style="font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin:0 0 8px;">Арка</p>
+                      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        <sc-for list="{{ arcChips }}" as="a" hint-placeholder-count="3">
+                          <button onClick="{{ pickArc }}" data-v="{{ a.name }}" title="{{ a.title }}" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-radius:999px;padding:6px 12px;font-size:0.78rem;background:{{ a.bg }};border:1px solid {{ a.border }};color:{{ a.color }};">
+                            {{ a.name }}
+                            <sc-if value="{{ a.hasAlt }}" hint-placeholder-val="{{ false }}">
+                              <span style="font-size:0.64rem;opacity:0.55;">✎ {{ a.altLabel }}</span>
+                            </sc-if>
+                          </button>
+                        </sc-for>
+                        <sc-if value="{{ moreArcs }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ allArcs }}" style="cursor:pointer;border-radius:999px;padding:6px 12px;font-size:0.78rem;background:none;border:1px dashed rgba(255,255,255,0.2);color:rgba(255,255,255,0.45);">{{ moreArcsLabel }}</button>
+                        </sc-if>
+                      </div>
+                    </div>
+                  </sc-if>
                 </div>
               </sc-if>
             </div>
           </sc-if>
         </div>
-      </sc-if>
 
-      <sc-if value="{{ hasPosts }}" hint-placeholder-val="{{ true }}">
-        <div style="display:flex;flex-direction:column;gap:16px;">
-          <sc-for list="{{ rows }}" as="p" hint-placeholder-count="4">
-            <article id="post-{{ p.id }}" style="background:rgba(255,255,255,0.07);{{ p.cardExtra }}border-radius:15px;padding:20px 22px;">
-              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
-                <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}">
-                  <div style="{{ p.imgBg }}width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,215,0,0.3);flex-shrink:0;"></div>
+        <sc-if value="{{ hasMark }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ resume }}" style="cursor:pointer;width:calc(100% - 28px);margin:14px 14px 4px;padding:12px 14px;border-radius:12px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.35);display:flex;align-items:center;gap:12px;text-align:left;color:#fff;">
+            <span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;">
+              <span style="font-size:0.64rem;letter-spacing:0.12em;text-transform:uppercase;color:#ffd700;">Продовжити</span>
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ markLabel }}</span>
+            </span>
+            <span style="color:#ffd700;font-size:1.05rem;">→</span>
+          </button>
+        </sc-if>
+
+        <sc-if value="{{ hasPosts }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;">
+            <sc-for list="{{ rows }}" as="p" hint-placeholder-count="5">
+              <div id="post-row-{{ p.id }}" onClick="{{ p.select }}" style="cursor:pointer;padding:14px 18px;border-top:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;gap:6px;transition:background 0.2s ease;{{ p.rowStyle }}" style-hover="background:rgba(255,255,255,0.04);">
+                <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+                  <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}">
+                    <span style="{{ p.imgBg }}width:26px;height:26px;border-radius:999px;flex:none;"></span>
+                  </sc-if>
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:0.88rem;color:{{ p.nameInk }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.name }}</span>
+                  <sc-if value="{{ p.unread }}" hint-placeholder-val="{{ false }}">
+                    <span title="Ще не читали" style="width:6px;height:6px;border-radius:999px;background:#6495ed;flex:none;"></span>
+                  </sc-if>
+                  <span style="flex:1;"></span>
+                  <span style="font-size:0.7rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ p.whenShort }}</span>
+                </div>
+                <sc-if value="{{ p.showEx }}" hint-placeholder-val="{{ true }}">
+                  <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:0.97rem;line-height:1.45;color:rgba(255,255,255,0.68);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ p.excerpt }}</p>
                 </sc-if>
-                <sc-if value="{{ p.linked }}" hint-placeholder-val="{{ false }}">
-                  <a href="{{ p.href }}" style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;letter-spacing:0.02em;color:#ffd700;text-decoration:none;">{{ p.name }}</a>
-                </sc-if>
-                <sc-if value="{{ p.unlinked }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;letter-spacing:0.02em;color:rgba(255,215,0,0.8);">{{ p.name }}</span>
-                </sc-if>
-                <span style="flex:1;"></span>
-                <sc-for list="{{ p.arcs }}" as="pa" hint-placeholder-count="0">
-                  <span style="font-size:0.68rem;letter-spacing:0.06em;padding:4px 11px;border-radius:999px;background:rgba(100,149,237,0.14);border:1px solid rgba(100,149,237,0.35);color:#8fb0ff;">{{ pa }}</span>
-                </sc-for>
-                <span style="font-size:0.72rem;color:rgba(255,255,255,0.32);">{{ p.when }}</span>
-                <sc-if value="{{ p.multi }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-size:0.68rem;color:rgba(255,255,255,0.24);">· {{ p.parts }}</span>
-                </sc-if>
-                <button onClick="{{ p.copyLink }}" title="Скопіювати посилання на цей допис" style="cursor:pointer;border:none;background:none;padding:0;color:rgba(255,255,255,0.28);font-size:0.7rem;text-decoration:underline;">{{ p.linkLabel }}</button>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <sc-if value="{{ p.isSel }}" hint-placeholder-val="{{ false }}">
+                    <span style="flex:1;display:flex;gap:3px;">
+                      <sc-for list="{{ p.segs }}" as="g" hint-placeholder-count="2">
+                        <span style="flex:1;height:3px;border-radius:2px;background:{{ g.bg }};"></span>
+                      </sc-for>
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{ p.notSel }}" hint-placeholder-val="{{ true }}">
+                    <span style="flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.08);"><span style="display:block;width:{{ p.barW }};height:100%;border-radius:2px;background:rgba(255,255,255,0.35);"></span></span>
+                  </sc-if>
+                  <span style="font-size:0.66rem;color:{{ p.lenInk }};white-space:nowrap;">{{ p.lenLabel }}</span>
+                </div>
               </div>
-              <sc-for list="{{ p.blocks }}" as="b" hint-placeholder-count="1">
+            </sc-for>
+          </div>
+          <div style="text-align:center;padding:18px 14px 22px;">
+            <sc-if value="{{ hasMore }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ loadMore }}" style="cursor:pointer;border-radius:999px;padding:8px 20px;font-size:0.82rem;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;">{{ moreLabel }}</button>
+            </sc-if>
+            <sc-if value="{{ atEnd }}" hint-placeholder-val="{{ false }}">
+              <p style="color:rgba(255,255,255,0.25);font-size:0.78rem;margin:0;">✦ Це все, що є в стрічці.</p>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noPosts }}" hint-placeholder-val="{{ false }}">
+          <p style="text-align:center;color:rgba(255,255,255,0.32);font-size:0.88rem;padding:40px 16px;">✦ Дописів із цими тегами ще не було.</p>
+        </sc-if>
+      </div>
+
+      <!-- ── Читалка ── -->
+      <sc-if value="{{ hasReader }}" hint-placeholder-val="{{ false }}">
+        <div style="{{ rd.wrap }}" onTouchStart="{{ touchStart }}" onTouchEnd="{{ touchEnd }}">
+          <div style="{{ rd.head }}">
+            <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ backToList }}" title="До списку" style="cursor:pointer;width:44px;height:44px;flex:none;border:none;background:none;color:rgba(255,255,255,0.75);font-size:1.2rem;">←</button>
+            </sc-if>
+            <sc-if value="{{ r.hasImg }}" hint-placeholder-val="{{ false }}">
+              <span style="{{ r.imgBg }}width:38px;height:38px;border-radius:999px;border:1px solid rgba(255,215,0,0.4);flex:none;"></span>
+            </sc-if>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;">
+              <sc-if value="{{ r.linked }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ r.href }}" style="font-family:'Cinzel',Georgia,serif;font-size:1.02rem;color:#ffd700;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.name }}</a>
+              </sc-if>
+              <sc-if value="{{ r.unlinked }}" hint-placeholder-val="{{ false }}">
+                <span style="font-family:'Cinzel',Georgia,serif;font-size:1.02rem;color:rgba(255,215,0,0.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.name }}</span>
+              </sc-if>
+              <span style="font-size:0.72rem;color:rgba(255,255,255,0.42);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.meta }}</span>
+            </div>
+            <button onClick="{{ r.copyLink }}" title="Скопіювати посилання на цей допис" style="cursor:pointer;flex:none;border:none;background:none;padding:6px;color:rgba(255,255,255,0.4);font-size:0.74rem;text-decoration:underline;">{{ r.linkLabel }}</button>
+          </div>
+          <sc-if value="{{ r.hasTracks }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ rd.tracks }}">
+              <sc-for list="{{ r.tracks }}" as="t" hint-placeholder-count="1">
+                <div style="display:flex;align-items:center;gap:10px;max-width:100%;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:999px;padding:4px 14px 4px 4px;">
+                  <button onClick="{{ t.play }}" title="{{ t.hint }}" style="cursor:pointer;flex:none;width:30px;height:30px;border-radius:999px;background:rgba(255,215,0,0.13);border:1px solid rgba(255,215,0,0.42);color:#ffd700;font-size:0.72rem;display:flex;align-items:center;justify-content:center;">{{ t.icon }}</button>
+                  <span style="min-width:0;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:{{ t.ink }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ t.title }}</span>
+                  <span style="flex:none;font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.3);white-space:nowrap;">{{ t.meta }}</span>
+                  <a href="{{ t.url }}" target="_blank" rel="noopener" title="Відкрити на YouTube" style="flex:none;font-size:0.72rem;color:rgba(255,255,255,0.3);text-decoration:none;">↷</a>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <div style="{{ rd.box }}">
+            <div id="posts-pages" ref="{{ pageRef }}" style="{{ rd.cols }}">
+              <sc-for list="{{ r.blocks }}" as="b" hint-placeholder-count="3">
                 <sc-if value="{{ b.plain }}" hint-placeholder-val="{{ true }}">
-                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.7;color:rgba(255,255,255,0.82);white-space:pre-wrap;margin:0 0 10px;">{{ b.text }}</p>
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:{{ rd.font }};line-height:1.7;color:rgba(255,255,255,0.86);white-space:pre-wrap;margin:0 0 0.8em;text-align:justify;hyphens:auto;">{{ b.text }}</p>
                 </sc-if>
                 <sc-if value="{{ b.quote }}" hint-placeholder-val="{{ false }}">
-                  <blockquote style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.6;color:rgba(255,255,255,0.55);font-style:italic;white-space:pre-wrap;margin:0 0 10px;padding:2px 0 2px 14px;border-left:2px solid rgba(255,215,0,0.3);">{{ b.text }}</blockquote>
+                  <blockquote style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.58);font-style:italic;white-space:pre-wrap;margin:0 0 0.8em;padding:2px 0 2px 14px;border-left:2px solid rgba(255,215,0,0.3);">{{ b.text }}</blockquote>
                 </sc-if>
               </sc-for>
-              <sc-if value="{{ p.clipped }}" hint-placeholder-val="{{ false }}">
-                <button onClick="{{ p.open }}" style="cursor:pointer;margin-top:10px;border:none;background:none;padding:0;color:rgba(255,215,0,0.7);font-size:0.8rem;">Читати далі →</button>
-              </sc-if>
-              <!-- Музика допису: клік підхоплює трек у панель унизу,
-                   а чергою стає вся завантажена стрічка — дальше грає само. -->
-              <sc-if value="{{ p.hasTracks }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;padding-top:13px;border-top:1px solid rgba(255,255,255,0.07);">
-                  <sc-for list="{{ p.tracks }}" as="t" hint-placeholder-count="1">
-                    <div style="display:flex;align-items:center;gap:12px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:10px;padding:9px 12px 9px 10px;">
-                      <button onClick="{{ t.play }}" title="{{ t.hint }}" style="cursor:pointer;flex:none;width:34px;height:34px;border-radius:999px;background:rgba(255,215,0,0.13);border:1px solid rgba(255,215,0,0.42);color:#ffd700;font-size:0.82rem;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.24);box-shadow:0 0 16px rgba(255,215,0,0.28);">{{ t.icon }}</button>
-                      <div style="flex:1;min-width:0;">
-                        <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.35;color:{{ t.ink }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ t.title }}</p>
-                        <p style="margin:2px 0 0;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);">{{ t.meta }}</p>
-                      </div>
-                      <a href="{{ t.url }}" target="_blank" rel="noopener" title="Відкрити на YouTube" style="flex:none;font-size:0.7rem;color:rgba(255,255,255,0.26);text-decoration:none;">↷</a>
-                    </div>
+            </div>
+          </div>
+          <div style="{{ rd.foot }}">
+            <button onClick="{{ goPrev }}" style="cursor:pointer;flex:none;height:42px;min-width:42px;padding:0 14px;border-radius:999px;background:none;border:1px solid rgba(255,255,255,0.16);color:{{ prevInk }};font-size:0.8rem;white-space:nowrap;">{{ prevLabel }}</button>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;">
+              <sc-if value="{{ fewPages }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:4px;width:100%;max-width:{{ dotsMax }};">
+                  <sc-for list="{{ dots }}" as="d" hint-placeholder-count="2">
+                    <span style="flex:1;height:4px;border-radius:2px;background:{{ d.bg }};"></span>
                   </sc-for>
                 </div>
               </sc-if>
-            </article>
-          </sc-for>
+              <span style="font-size:0.72rem;color:rgba(255,255,255,0.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">{{ pageLabel }}</span>
+            </div>
+            <button onClick="{{ goNext }}" style="cursor:pointer;flex:none;height:42px;min-width:42px;padding:0 16px;border-radius:999px;background:rgba(255,215,0,0.13);border:1px solid rgba(255,215,0,0.45);color:#ffd700;font-size:0.8rem;white-space:nowrap;max-width:60%;overflow:hidden;text-overflow:ellipsis;">{{ nextLabel }}</button>
+          </div>
         </div>
-        <div style="text-align:center;padding:26px 0 6px;">
-          <sc-if value="{{ hasMore }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ loadMore }}" style="cursor:pointer;border-radius:999px;padding:9px 22px;font-size:0.84rem;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;">{{ moreLabel }}</button>
-          </sc-if>
-          <sc-if value="{{ atEnd }}" hint-placeholder-val="{{ false }}">
-            <p style="color:rgba(255,255,255,0.25);font-size:0.8rem;margin:0;">✦ Це все, що є в стрічці.</p>
-          </sc-if>
-        </div>
-      </sc-if>
-      <sc-if value="{{ noPosts }}" hint-placeholder-val="{{ false }}">
-        <p style="text-align:center;color:rgba(255,255,255,0.32);font-size:0.9rem;padding:40px 0;">✦ Дописів із цими тегами ще не було.</p>
       </sc-if>
     </div>
   </sc-if>
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:720}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:760}}">
 const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
 const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
 const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 const BASE_H    = { apikey: SUPA_KEY };
 
-// Сторінка стрічки. Раніше бралися 150 дописів одним запитом разом із
-// повним переліком тегів — це полотно завбільшки з саму стрічку.
-const PAGE = 12;      // дописів за раз
-const CAP  = 10;      // тегів у фільтрі, поки не попросили більше
-const CLIP = 700;     // символів допису, поки не натиснули «Читати далі»
+// Сторінка стрічки (дописів за раз) і теги у фільтрі, поки не попросили більше.
+const PAGE = 12;
+const CAP  = 10;
+// Читалка гортається сторінками, а не прокруткою: допис — це 3–4 екрани
+// тексту, і в прокрутці губиться, де ти й хто пише. На ПК сторінка —
+// розворот у дві колонки, на телефоні — одна колонка на весь екран.
+const WIDE_MQ = '(min-width: 880px)';
+const GAP_WIDE = 56, GAP_NARROW = 44;
+// Скільки знаків приблизно влазить у розворот / сторінку — лише для оцінки
+// довжини в списку; справжню кількість читалка міряє сама.
+const PER_WIDE = 2400, PER_NARROW = 900;
+const TG_MAX = 4096;
 const POST_SEL = 'id,tag_name,tag_arc,character_id,character_name,body,parts,created_at,characters(image)';
-// Графа parts з’являється лише після supabase_marta_posts_parts_migration.sql —
-// без неї стрічка мусить працювати, а не лягати на помилку запиту.
+// Графа parts з’являється лише після supabase_marta_posts_parts_migration.sql.
 const POST_SEL_LEAN = POST_SEL.replace(',parts', '');
-// Музика допису — окремим запитом на вже завантажену сторінку: треки є
-// далеко не в кожному дописі, і тягнути їх разом із тілом усіх дописів —
-// це більше полотна заради двох рядків.
 const TRACK_SEL = 'id,post_id,video_id,url,title,author,tag_name,tag_arc';
+const LS_READ = 'au_posts_read', LS_MARK = 'au_posts_mark', LS_SINCE = 'au_posts_since';
 
-// ── Написання арок ──────────────────────────────────
-// Теги набирають руками, тому та сама арка лежить у базі кількома
-// написаннями — і в анкеті виходить два «Нових світанки». `arcKey` згортає
-// те, що гуляє на письмі (регістр, апостроф, і/ї/й, е/є, латинські
-// двійники літер), а `nearArc` зводить різницю в одну-дві літери: цього досить
-// для друкарської помилки й замало, щоб склеїти дві справді різні арки.
+// ── Написання арок ── (див. Posts - стара: та сама логіка)
 function arcKey(s) {
   return String(s || '').toLowerCase()
     .replace(/[ʼ'’`´ь]/g, '')
@@ -187,19 +245,11 @@ function arcKey(s) {
     .replace(/[yу]/g, 'у').replace(/ґ/g, 'г')
     .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 }
-
-// Один допис іноді носить дві арки одразу — бот кладе їх одним рядком,
-// зшитим через ARC_SEP. Скрізь, де арку читають з бази, спершу розшиваємо.
 const ARC_SEP = ' / ';
 function splitArcs(v) {
   return String(v || '').split(ARC_SEP).map((s) => s.trim()).filter(Boolean);
 }
-
-// Значення умови в `and=(…)`/`or(…)` беруться в лапки: у назвах арок є і
-// пробіли, і коси, і коми. Свої лапки з назви прибираємо — PostgREST їх
-// не екранує, а не назва це поламала б цілий запит.
 const qv = (x) => '"' + String(x == null ? '' : x).replace(/["\\]/g, '') + '"';
-
 function editDist(a, b) {
   if (a === b) return 0;
   const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
@@ -207,17 +257,13 @@ function editDist(a, b) {
     let diag = prev[0];
     prev[0] = i;
     for (let j = 1; j <= b.length; j++) {
-      const cur = Math.min(
-        prev[j] + 1, prev[j - 1] + 1,
-        diag + (a[i - 1] === b[j - 1] ? 0 : 1),
-      );
+      const cur = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
       diag = prev[j];
       prev[j] = cur;
     }
   }
   return prev[b.length];
 }
-
 function nearArc(a, b) {
   const x = arcKey(a), y = arcKey(b);
   if (!x || !y) return false;
@@ -225,9 +271,6 @@ function nearArc(a, b) {
   if (Math.abs(x.length - y.length) > 2) return false;
   return editDist(x, y) <= (Math.min(x.length, y.length) <= 8 ? 1 : 2);
 }
-
-// Написання одної арки — в один кошик. Канонічне — найчастіше, а при
-// рівності довше: обрізане написання здебільшого й є промах.
 function groupArcs(counts) {
   const list = [...counts].map(([v, n]) => ({ v, n }))
     .sort((a, b) => b.n - a.n || b.v.length - a.v.length);
@@ -239,22 +282,29 @@ function groupArcs(counts) {
   }
   return out.sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, 'uk'));
 }
+const plainOf = (body) => String(body || '').replace(/^\s*>\s?/gmu, '');
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* приватне вікно */ } }
 
 class Component extends DCLogic {
   state = {
     phase: 'load', posts: [], err: '', fChar: [], fArc: [], arcAlt: {}, arcChars: {},
     off: 0, more: false, busy: false, noParts: false, asc: false,
     filtOpen: false, tagsPhase: 'none', chars: [], arcs: [], q: '',
-    allChars: false, allArcs: false, open: {},
+    allChars: false, allArcs: false,
     hashPostId: null, linkCopiedId: null,
-    // треки: postId → [рядки]; порожній масив означає «питали, музики немає»
     tracks: {}, noAudio: false, nowVid: null, nowPlay: false, titles: {},
+    // читалка
+    sel: null, page: 0, pages: 1, toEnd: false, view: 'list', wide: true,
+    read: {}, mark: null, since: 0,
   };
+  pageRef = React.createRef();
+  listRef = React.createRef();
+  // Посилання з шаблону ця версія рантайму до вузла не доносить — шукаємо за id.
+  _pagesEl() { return this.pageRef.current || document.getElementById('posts-pages'); }
+  _listEl() { return this.listRef.current || document.getElementById('posts-list'); }
 
-  // Ключ доступу живе годину, а стрічку відкривають і без кабінету у
-  // фокусі — тому тут те саме оновлення заздалегідь + повтор на 401,
-  // що й у кабінеті (Gossip.dc.html), інакше «увійдіть знову» вилазило б
-  // щогодини саме тут, хоч людина нікуди не виходила.
+  // ── Ключ доступу (як у кабінеті) ──
   _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
   _ref() { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
   _exp() { try { return Number(localStorage.getItem('au_user_exp')) || 0; } catch (e) { return 0; } }
@@ -313,50 +363,175 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
-    // Плеєр під'їжджає окремим файлом і може ще не бути тут на момент
-    // монтування — чекаємо його кілька секунд, а не один кадр.
     this._hookPlayer();
-    // Порядок читання — це вибір читача, і він мусить жити між заходами:
-    // арку читають від початку за кілька вечорів.
+    // Ширина вирішує розкладку: список поруч із розворотом чи два екрани.
     try {
-      if (localStorage.getItem('au_posts_asc') === '1') this.state.asc = true;
-    } catch (e) { /* приватне вікно — лишаємо типове */ }
-    // Прийшли з анкети персонажа («арки» під портретом) чи з посилання з
-    // адресного рядка (?char=…&arc=…) — стрічка відкривається вже
-    // відібраною. Фільтр показуємо розгорнутим, щоб видно було, чому
-    // дописів мало, і можна було скинути.
-    // Кілька значень (і з анкети, і з ?char=&char=…) приходять зшитими
-    // через \u0001, інакше частина дописів лишалась би за бортом.
+      this._mq = window.matchMedia(WIDE_MQ);
+      this.state.wide = this._mq.matches;
+      this._onMq = () => this.setState({ wide: this._mq.matches, toEnd: false }, () => this._remeasure());
+      this._mq.addEventListener ? this._mq.addEventListener('change', this._onMq) : this._mq.addListener(this._onMq);
+    } catch (e) {}
+    this._onResize = () => this._remeasure();
+    window.addEventListener('resize', this._onResize);
+    this._onKey = (e) => this._key(e);
+    window.addEventListener('keydown', this._onKey);
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this._remeasure()); } catch (e) {}
+    // Прочитане, закладка й «відколи рахуємо нове» — у браузері: це звичка
+    // читача, а не запис у базі.
+    this.state.read = lsGet(LS_READ, {}) || {};
+    this.state.mark = lsGet(LS_MARK, null);
+    let since = Number(lsGet(LS_SINCE, 0)) || 0;
+    if (!since) { since = Date.now(); lsSet(LS_SINCE, since); }
+    this.state.since = since;
+    try { if (localStorage.getItem('au_posts_asc') === '1') this.state.asc = true; } catch (e) {}
     const pc = String(this.props.preChar || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
     const pa = String(this.props.preArc || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
     const preAsc = String(this.props.preAsc || '').trim();
     if (preAsc === '1') this.state.asc = true;
     else if (preAsc === '0') this.state.asc = false;
-    // Посилання на конкретний допис (#posts/<id>) — розгортаємо й
-    // прогортаємо до нього, щойно стрічка довантажиться.
     const openId = String(this.props.preOpenId || '').trim();
-    if (openId) this.state.hashPostId = openId;
-    const afterLoad = () => { if (openId) this._ensureTarget(openId); };
+    if (openId) { this.state.hashPostId = openId; this._want = openId; }
     if (pc.length || pa.length) {
-      this.setState(
-        { fChar: pc, fArc: pa, filtOpen: true },
-        () => { this._tags(); this._load().then(afterLoad); },
-      );
+      this.setState({ fChar: pc, fArc: pa }, () => { this._tags(); this._load(); });
       return;
     }
-    this._load().then(afterLoad);
+    this._load();
   }
 
-  // Пропси читаються не лише на монтуванні: сторінка живе між переходами,
-  // тому спорожнілий відбір (пішли зі стрічки) або інша арка (другий клік
-  // в анкеті) мусять доїхати сюди, інакше стрічка лишається відібраною.
   componentWillUnmount() {
     clearInterval(this._hookTimer);
     clearTimeout(this._copyTimer);
+    window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('keydown', this._onKey);
+    try { this._mq && (this._mq.removeEventListener ? this._mq.removeEventListener('change', this._onMq) : this._mq.removeListener(this._onMq)); } catch (e) {}
+    try { document.body.style.overflow = ''; } catch (e) {}
   }
 
-  // Позначка «грає» у стрічці йде від панелі, а не від кліку: трек можуть
-  // переключити з самої панелі або з аудіотеки — і стрічка мусить це бачити.
+  componentDidUpdate(prevProps) {
+    // На телефоні читалка лежить поверх сторінки — сторінка під нею не гортається.
+    const lock = !this.state.wide && this.state.view === 'read' && this.state.sel != null;
+    try { document.body.style.overflow = lock ? 'hidden' : ''; } catch (e) {}
+    this._remeasure();
+
+    const wantWas = String(prevProps.preOpenId || '').trim();
+    const wantNow = String(this.props.preOpenId || '').trim();
+    if (wantNow && wantNow !== wantWas) {
+      this._want = wantNow;
+      if (this.state.phase === 'ok') this._openWanted();
+    }
+    const was = [prevProps.preChar || '', prevProps.preArc || ''].join('|');
+    const now = [this.props.preChar || '', this.props.preArc || ''].join('|');
+    if (was === now) return;
+    const pc = String(this.props.preChar || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
+    const pa = String(this.props.preArc || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
+    this._setFilt({ fChar: pc, fArc: pa });
+  }
+
+  // ── Сторінки ──
+  // Колонки рахує браузер: блок фіксованої висоти, зайві колонки виходять
+  // праворуч за край, а ми зсуваємо scrollLeft на ширину сторінки/розвороту.
+  _remeasure() {
+    cancelAnimationFrame(this._raf);
+    this._raf = requestAnimationFrame(() => this._measure());
+  }
+  _measure() {
+    const el = this._pagesEl();
+    const s = this.state;
+    if (!el || s.sel == null) return;
+    const gap = s.wide ? GAP_WIDE : GAP_NARROW;
+    const step = el.clientWidth + gap;
+    if (el.clientWidth < 40) return;
+    const n = Math.max(1, Math.ceil((el.scrollWidth + gap) / step - 0.05));
+    let page = s.toEnd ? n - 1 : Math.min(s.page, n - 1);
+    el.scrollLeft = page * step;
+    if (n !== s.pages || page !== s.page || s.toEnd) {
+      this.setState({ pages: n, page, toEnd: false });
+      return;
+    }
+    if (page === n - 1) this._markRead(s.sel);
+  }
+  _markRead(id) {
+    if (id == null || this.state.read[String(id)]) return;
+    let read = { ...this.state.read, [String(id)]: 1 };
+    const keys = Object.keys(read);
+    if (keys.length > 3000) { read = {}; keys.slice(-2500).forEach((k) => { read[k] = 1; }); }
+    lsSet(LS_READ, read);
+    this.setState({ read });
+  }
+  _saveMark(id, page) {
+    const mark = { id: String(id), page: page || 0, at: Date.now() };
+    lsSet(LS_MARK, mark);
+    this.setState({ mark });
+  }
+
+  _select(id, opt = {}) {
+    const s = this.state;
+    const mk = s.mark && String(s.mark.id) === String(id) ? s.mark.page : 0;
+    const page = opt.toEnd ? 0 : (opt.page != null ? opt.page : mk);
+    this.setState({
+      sel: id, page, pages: 1, toEnd: !!opt.toEnd, hashPostId: id,
+      view: opt.open ? 'read' : s.view,
+    }, () => {
+      this._syncUrl(id);
+      this._saveMark(id, page);
+      this._rowIntoView(id);
+      const el = this._pagesEl();
+      if (el) el.scrollLeft = 0;
+    });
+  }
+  _rowIntoView(id) {
+    const list = this._listEl();
+    const row = document.getElementById('post-row-' + id);
+    if (!list || !row) return;
+    if (this.state.wide) {
+      const top = row.offsetTop;
+      if (top < list.scrollTop || top + row.offsetHeight > list.scrollTop + list.clientHeight) {
+        list.scrollTop = Math.max(0, top - 80);
+      }
+    }
+  }
+  _turn(dir) {
+    const s = this.state;
+    if (s.sel == null) return;
+    if (dir > 0) {
+      if (s.page < s.pages - 1) { const p = s.page + 1; this.setState({ page: p }); this._saveMark(s.sel, p); }
+      else this._step(1);
+    } else {
+      if (s.page > 0) { const p = s.page - 1; this.setState({ page: p }); this._saveMark(s.sel, p); }
+      else this._step(-1);
+    }
+  }
+  async _step(d) {
+    const s = this.state;
+    const idx = s.posts.findIndex((p) => String(p.id) === String(s.sel));
+    if (idx < 0) return;
+    const t = s.posts[idx + d];
+    if (t) { this._select(t.id, { toEnd: d < 0 }); return; }
+    if (d > 0 && s.more && !s.busy) {
+      await this._page(false);
+      setTimeout(() => {
+        const n = this.state.posts[idx + 1];
+        if (n) this._select(n.id, {});
+      }, 0);
+    }
+  }
+  _key(e) {
+    const s = this.state;
+    if (s.phase !== 'ok' || s.sel == null) return;
+    if (!s.wide && s.view !== 'read') return;
+    const tag = (e.target && e.target.tagName) || '';
+    if (/INPUT|TEXTAREA|SELECT/.test(tag) || (e.target && e.target.isContentEditable)) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === 'ArrowRight') { e.preventDefault(); this._turn(1); }
+    else if (k === 'ArrowLeft') { e.preventDefault(); this._turn(-1); }
+    // J/K — і в українській розкладці (о/л)
+    else if (k === 'j' || k === 'J' || k === 'о' || k === 'О') this._step(1);
+    else if (k === 'k' || k === 'K' || k === 'л' || k === 'Л') this._step(-1);
+    else if (k === 'Escape' && !s.wide) this.setState({ view: 'list' });
+  }
+
+  // ── Плеєр ──
   _hookPlayer() {
     let left = 30;
     const tie = () => {
@@ -369,10 +544,6 @@ class Component extends DCLogic {
     if (!tie()) return;
     this._hookTimer = setInterval(() => { if (!tie()) clearInterval(this._hookTimer); }, 200);
   }
-
-  // Музика для тілько що принесених дописів. Таблиці може ще не бути
-  // (міграція не прогнана) — тоді стрічка працює як раніше, без музики,
-  // і більше не питає.
   async _loadTracks(rows) {
     if (this.state.noAudio) return;
     const have = this.state.tracks || {};
@@ -384,8 +555,7 @@ class Component extends DCLogic {
         + `&post_id=in.(${ids.join(',')})&order=id.asc`,
       );
       if (!r.ok) {
-        console.warn('музика: треки не відповіли —', await r.text(),
-          '(прогнати supabase_audio_migration.sql)');
+        console.warn('музика: треки не відповіли —', await r.text(), '(прогнати supabase_audio_migration.sql)');
         this.setState({ noAudio: true });
         return;
       }
@@ -399,19 +569,12 @@ class Component extends DCLogic {
       this.setState({ noAudio: true });
     }
   }
-
-  // Назва треку буває порожня (старий архів вилито міграцією, а SQL до
-  // YouTube не ходить) — тоді її добирає сама сторінка через спільний
-  // кеш `AuTitles` (той самий, що в аудіотеці — одна пісня, один запит).
   _titles(rows) {
     if (!window.AuTitles) return;
     const need = [...new Set((rows || []).filter((t) => !t.title).map((t) => t.video_id))];
     if (!need.length) return;
     window.AuTitles.fetch(need, (shelf) => this.setState({ titles: { ...shelf } }));
   }
-
-  // Черга — уся завантажена стрічка в порядку читання: натискаючи на пісню
-  // в середині арки, людина чекає, що далі заграє наступна сцена, а не тиша.
   _queue() {
     const map = this.state.tracks || {};
     const out = [];
@@ -426,54 +589,25 @@ class Component extends DCLogic {
     });
     return out;
   }
-
   _play(vid, postId) {
     if (!window.AuPlayer) return;
     const cur = window.AuPlayer.current();
-    // Клік по тому, що вже грає, — це пауза, а не початок з нуля.
     if (cur && cur.vid === vid) { window.AuPlayer.toggle(); return; }
     const q = this._queue();
     const hit = q.find((t) => t.vid === vid && String(t.postId) === String(postId));
     window.AuPlayer.play(hit || { vid: vid, postId: postId }, q);
   }
 
-  componentDidUpdate(prevProps) {
-    // Номер допису з адреси (#posts/<id>) приходить ПІЗНІШЕ за монтування:
-    // сторінка відкривається за сегментом хеша відразу, а розбір адреси доїжджає
-    // по завантаженні даних. Без цього посилання на конкретний допис
-    // (зокрема «до допису ↗» з аудіотеки) відкривало просто початок стрічки.
-    const wantWas = String(prevProps.preOpenId || '').trim();
-    const wantNow = String(this.props.preOpenId || '').trim();
-    if (wantNow && wantNow !== wantWas) {
-      this._want = wantNow;
-      this.setState({ hashPostId: wantNow });
-      if (this.state.phase === 'ok') this._openWanted();
-    }
-    const was = [prevProps.preChar || '', prevProps.preArc || ''].join('|');
-    const now = [this.props.preChar || '', this.props.preArc || ''].join('|');
-    if (was === now) return;
-    const pc = String(this.props.preChar || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
-    const pa = String(this.props.preArc || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
-    this._setFilt({ fChar: pc, fArc: pa });
-  }
-
+  // ── Посилання ──
   _openWanted() {
     const id = this._want;
     if (!id) return;
     this._want = null;
     this._ensureTarget(id);
   }
-
-  // Допис, на який дали посилання: якщо його вже нема у завантаженому
-  // вікні (інша сторінка, інший фільтр) — тягнемо саме його окремим
-  // запитом, а не гортаємо стрічку в пошуках.
   async _ensureTarget(id) {
-    if (this.state.posts.some((p) => String(p.id) === String(id))) { this._openAndScroll(id); return; }
+    if (this.state.posts.some((p) => String(p.id) === String(id))) { this._select(id, { open: true }); return; }
     try {
-      // Два заходи, повний і без `parts`, — і НЕ через state.noParts: той
-      // прапорець ставить `_page()` своїм коллбеком, тому тут він то вже
-      // стоїть (і повний select не пробується взагалі), то ще ні (і запит
-      // падає на 400) — залежно від того, чий коллбек прийшов першим.
       let r = null;
       for (const sel of [POST_SEL, POST_SEL_LEAN]) {
         r = await this._api(`${SUPA_URL}/marta_posts?id=eq.${encodeURIComponent(id)}&select=${sel}`);
@@ -485,24 +619,9 @@ class Component extends DCLogic {
       if (!got.length) { console.warn('пости: допису №' + id + ' немає в базі'); return; }
       this.setState((st) => ({
         posts: [got[0]].concat(st.posts.filter((p) => String(p.id) !== String(id))),
-      }), () => { this._openAndScroll(id); this._loadTracks(got); });
+      }), () => { this._select(id, { open: true }); this._loadTracks(got); });
     } catch (e) { console.warn('пости: не знайшла допис за посиланням', e); }
   }
-
-  _openAndScroll(id) {
-    this.setState((st) => ({ open: { ...st.open, [id]: true }, hashPostId: id }), () => {
-      this._syncUrl(id);
-      requestAnimationFrame(() => {
-        const el = document.getElementById('post-' + id);
-        if (!el) return;
-        const top = el.getBoundingClientRect().top + window.pageYOffset - 90;
-        window.scrollTo({ top, behavior: 'smooth' });
-      });
-    });
-  }
-
-  // Фільтр і порядок читання — в адресний рядок, а не лише в стан: щоб
-  // посилання на стрічку відкривало те саме, що бачив той, хто його кинув.
   _queryString() {
     const s = this.state;
     const params = [];
@@ -511,25 +630,20 @@ class Component extends DCLogic {
     if (s.asc) params.push('asc=1');
     return params.join('&');
   }
-
   _permalink(id) {
     const base = window.location.href.split('#')[0].split('?')[0];
     const qs = this._queryString();
     return base + (qs ? '?' + qs : '') + '#posts/' + encodeURIComponent(id);
   }
-
   _syncUrl(openId) {
     try {
       const qs = this._queryString();
-      const hash = openId != null ? '#posts/' + encodeURIComponent(openId) : (window.location.hash || '#posts');
-      const url = window.location.pathname + (qs ? '?' + qs : '') + hash;
-      window.history.replaceState(null, '', url);
-    } catch (e) { /* немає адресного рядка — не біда */ }
+      const hash = openId != null ? '#posts/' + encodeURIComponent(openId) : '#posts';
+      window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '') + hash);
+    } catch (e) {}
   }
-
   _copyLink(id) {
     const url = this._permalink(id);
-    this.setState({ hashPostId: id }, () => this._syncUrl(id));
     const done = (ok) => {
       this.setState({ linkCopiedId: ok ? id : null });
       clearTimeout(this._copyTimer);
@@ -548,6 +662,7 @@ class Component extends DCLogic {
     } catch (e) { done(false); }
   }
 
+  // ── Дані ──
   async _load() {
     if (!this._tok() && !this._ref()) { this.setState({ phase: 'guest' }); return; }
     try {
@@ -562,9 +677,6 @@ class Component extends DCLogic {
       this.setState({ phase: 'error', err: String(e) });
     }
   }
-
-  // Одна сторінка. Фільтри рахує база, а не браузер: інакше «показати ще»
-  // притягувало б дописи, які тут же й відкидаються.
   async _page(reset) {
     const s = this.state;
     const off = reset ? 0 : s.off;
@@ -572,22 +684,12 @@ class Component extends DCLogic {
     let url = `${SUPA_URL}/marta_posts?select=${s.noParts ? POST_SEL_LEAN : POST_SEL}`
       + `&order=created_at.${s.asc ? 'asc' : 'desc'}`
       + `&limit=${PAGE + 1}&offset=${off}`;
-    // Кілька позначених теґів — це «або»: показуємо все, що підпадає
-    // хоч під один. Відбирає база, а не браузер. Усі умови йдуть одним
-    // параметром `and=(…)`: арка тепер відбирається кількома `like`, а два
-    // окремих `or=` в одній адресі PostgREST зводить докупи непередбачувано.
     const conds = [];
-    // Прийшли з анкети: там арки зібрані і за текою, і за іменем у тегу,
-    // тому й стрічку відбираємо так само — інакше в шапці «5 дописів», а
-    // в стрічці три (допис звірений з текою, але підписаний інакше).
     const cid = String(this.props.preCharId || '').trim();
     const pcRaw = String(this.props.preChar || '').split('\u0001').map((v) => v.trim()).filter(Boolean);
     const one = s.fChar.length === 1 && pcRaw.length === 1 && s.fChar[0] === pcRaw[0];
-    if (cid && one) {
-      conds.push('or(character_id.eq.' + cid + ',tag_name.eq.' + qv(s.fChar[0]) + ')');
-    } else if (s.fChar.length) {
-      conds.push('tag_name.in.(' + s.fChar.map(qv).join(',') + ')');
-    }
+    if (cid && one) conds.push('or(character_id.eq.' + cid + ',tag_name.eq.' + qv(s.fChar[0]) + ')');
+    else if (s.fChar.length) conds.push('tag_name.in.(' + s.fChar.map(qv).join(',') + ')');
     if (s.fArc.length) conds.push('or(' + this._arcConds(s.fArc).join(',') + ')');
     if (conds.length) url += '&and=' + encodeURIComponent('(' + conds.join(',') + ')');
     try {
@@ -603,22 +705,23 @@ class Component extends DCLogic {
         phase: 'ok', busy: false, more,
         off: off + rows.length,
         posts: reset ? rows : st.posts.concat(rows),
-      }), () => { this._loadTracks(rows); this._openWanted(); });
+      }), () => {
+        this._loadTracks(rows);
+        if (reset && !this._want) {
+          // На ПК читалка ніколи не стоїть порожня — відкриваємо перший допис.
+          if (this.state.wide && rows[0]) this._select(rows[0].id, {});
+          else this.setState({ sel: null, view: 'list' });
+        }
+        this._openWanted();
+      });
     } catch (e) {
       this.setState({ phase: 'error', busy: false, err: String(e) });
     }
   }
-
-  // Перелік тегів рахує база — supabase_post_tags_rpc.sql: арки розшиті по
-  // роздільнику, поруч кількість дописів і причетні. Одна відповідь на
-  // сотню з чимось рядків замість тисячі дописів у браузер, і — головне —
-  // бачить УСІ арки, а не ті, що влізли у вікно.
-  // Немає функції (міграцію ще не прогнали) — нижче лишився старий скан.
   async _tagsRpc() {
     const r = await this._api(`${SUPA_URL}/rpc/marta_post_tags`);
     if (!r.ok) {
-      console.warn('пости: перелік тегів рахує браузер —', await r.text(),
-        '(прогнати supabase_post_tags_rpc.sql)');
+      console.warn('пости: перелік тегів рахує браузер —', await r.text(), '(прогнати supabase_post_tags_rpc.sql)');
       return false;
     }
     const rows = await r.json();
@@ -636,45 +739,25 @@ class Component extends DCLogic {
       b.all.forEach((v) => (who.get(v) || []).forEach((c) => { if (c && !list.includes(c)) list.push(c); }));
       arcChars[b.name] = list;
     });
-    const chars = [...nameCount.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'uk')).map((e) => e[0]);
-    console.log(`пости: теги з бази — ${chars.length} імен, ${boxes.length} арок`);
-    this.setState({
-      tagsPhase: 'ready', chars, arcs: boxes.map((b) => b.name), arcAlt: alt, arcChars,
-    });
+    const chars = [...nameCount.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'uk')).map((e) => e[0]);
+    this.setState({ tagsPhase: 'ready', chars, arcs: boxes.map((b) => b.name), arcAlt: alt, arcChars });
     return true;
   }
-
-  // Перелік тегів — окремим лінивим запитом, і лише коли фільтр відкрили.
   async _tags() {
     if (this.state.tagsPhase !== 'none') return;
     this.setState({ tagsPhase: 'busy' });
     try {
       if (await this._tagsRpc()) return;
-      // Запасний шлях — скан останніх дописів у браузері. PostgREST не
-      // віддає більше 1000 рядків за раз, а дописів уже майже три тисячі,
-      // тому арок глибше вікна тут не видно: саме для них вище стоїть
-      // функція бази.
-      const r = await this._api(
-        `${SUPA_URL}/marta_posts?select=tag_name,tag_arc&order=created_at.desc&limit=1000`,
-      );
+      const r = await this._api(`${SUPA_URL}/marta_posts?select=tag_name,tag_arc&order=created_at.desc&limit=1000`);
       const rows = r.ok ? await r.json() : [];
       const nameCount = new Map();
       rows.forEach((p) => { const v = p.tag_name; if (v) nameCount.set(v, (nameCount.get(v) || 0) + 1); });
-      const tally = (m) => [...m.entries()]
-        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'uk')).map((e) => e[0]);
-      // Допис може нести кілька арок одразу («А / Б») — рахуємо й групуємо
-      // кожну окремо, інакше комбінований запис осідав би як власна дивна
-      // «арка» замість підживити обидві.
+      const tally = (m) => [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'uk')).map((e) => e[0]);
       const arcCount = new Map();
-      rows.forEach((p) => {
-        splitArcs(p.tag_arc).forEach((name) => arcCount.set(name, (arcCount.get(name) || 0) + 1));
-      });
+      rows.forEach((p) => { splitArcs(p.tag_arc).forEach((name) => arcCount.set(name, (arcCount.get(name) || 0) + 1)); });
       const boxes = groupArcs(arcCount);
       const alt = {};
       boxes.forEach((b) => { alt[b.name] = b.all; });
-      // Хто відзначений у дописах кожної арки — щоб разом з аркою
-      // підхоплювались і причетні.
       const arcChars = {};
       rows.forEach((p) => {
         if (!p.tag_arc || !p.tag_name) return;
@@ -685,34 +768,18 @@ class Component extends DCLogic {
           if (!list.includes(p.tag_name)) list.push(p.tag_name);
         });
       });
-      this.setState({
-        tagsPhase: 'ready', chars: tally(nameCount),
-        arcs: boxes.map((b) => b.name), arcAlt: alt, arcChars,
-      });
+      this.setState({ tagsPhase: 'ready', chars: tally(nameCount), arcs: boxes.map((b) => b.name), arcAlt: alt, arcChars });
     } catch (e) {
       console.warn('пости: перелік тегів', e);
       this.setState({ tagsPhase: 'ready' });
     }
   }
-
-  // Умови, якими відбираються позначені арки. Арку пишуть і самостійним
-  // тегом, і в парі з іншими («Зіїрум / Облога»), причому в будь-якому
-  // порядку — тому точний збіг знаходив одиниці з сотень: «Зіїрум» стоїть
-  // сам лише в одному дописі з 257, а «Прибуття До Маєтку» — ні в одному з
-  // 38. Звідси й «арка є, а дописів у ній немає». Шукаємо арку як слово в
-  // зшитому рядку: сама, першою, останньою або посередині.
-  //
-  // Написання одної арки (регістр, опічатки) знає `_tags()`; прийшли з
-  // анкети чи з адреси — маємо лише те, що передали, і цього досить: межа
-  // тепер у роздільнику, а не в точному збігу цілого рядка.
   _arcConds(list) {
     const out = [];
     const push = (c) => { if (!out.includes(c)) out.push(c); };
     (list || []).forEach((v) => {
       ((this.state.arcAlt || {})[v] || [v]).forEach((name) => {
         push('tag_arc.eq.' + qv(name));
-        // `*` або `%` у назві зробили б із неї власний шаблон — таку арку
-        // шукаємо лише точним збігом.
         if (/[*%]/.test(name)) return;
         push('tag_arc.ilike.' + qv(name + ARC_SEP + '*'));
         push('tag_arc.ilike.' + qv('*' + ARC_SEP + name));
@@ -721,9 +788,8 @@ class Component extends DCLogic {
     });
     return out;
   }
-
   _setFilt(patch) {
-    this.setState({ ...patch, off: 0, open: {} }, () => { this._page(true); this._syncUrl(this.state.hashPostId); });
+    this.setState({ ...patch, off: 0 }, () => { this._page(true); this._syncUrl(null); });
   }
 
   _fmt(iso) {
@@ -734,24 +800,22 @@ class Component extends DCLogic {
       return `${day}, ${time}`;
     } catch (e) { return ''; }
   }
-
+  _fmtShort(iso) {
+    try {
+      const d = new Date(iso);
+      const opt = { timeZone: 'Europe/Kyiv' };
+      const today = new Date().toLocaleDateString('uk-UA', opt);
+      if (d.toLocaleDateString('uk-UA', opt) === today) {
+        return d.toLocaleTimeString('uk-UA', { ...opt, hour: '2-digit', minute: '2-digit' });
+      }
+      return d.toLocaleDateString('uk-UA', { ...opt, day: 'numeric', month: 'short' }).replace('.', '');
+    } catch (e) { return ''; }
+  }
   _pill(on) {
     return on
       ? { bg: 'rgba(255,215,0,0.14)', border: 'rgba(255,215,0,0.5)', color: '#ffd700' }
       : { bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.6)' };
   }
-
-  _clip(p) {
-    const body = p.body || '';
-    if (this.state.open[p.id] || body.length <= CLIP + 120) return { text: body, clipped: false };
-    const cut = body.slice(0, CLIP);
-    const stop = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('\n'));
-    return { text: (stop > CLIP * 0.5 ? cut.slice(0, stop + 1) : cut) + ' …', clipped: true };
-  }
-
-  // Цитата в тілі допису зберігається рядками з `> ` (так її кладе й бот, і
-  // довантаження з експорту). Тут розкладаємо на блоки, щоб чужі слова
-  // було видно як чужі, а не як абзац автора.
   _blocks(text) {
     const out = [];
     String(text || '').split('\n').forEach((line) => {
@@ -765,14 +829,85 @@ class Component extends DCLogic {
       .map((b) => ({ quote: b.quote, plain: !b.quote, text: b.text.replace(/^\n+|\n+$/g, '') }))
       .filter((b) => b.text.trim());
   }
+  _imgBg(p) {
+    const img = p && p.characters && p.characters.image;
+    return img ? 'background-image:url(' + JSON.stringify(img) + ');background-size:cover;background-position:center top;' : '';
+  }
+  _partsWord(n) {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return 'частина';
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'частини';
+    return 'частин';
+  }
 
   renderVals() {
     const s = this.state;
+    const wide = s.wide;
+    const unitShort = wide ? 'розв.' : 'стор.';
+    const per = wide ? PER_WIDE : PER_NARROW;
+    const selIdx = s.posts.findIndex((p) => String(p.id) === String(s.sel));
+    const selPost = selIdx >= 0 ? s.posts[selIdx] : null;
+
     const rows = (s.posts || []).map((p) => {
-      const cl = this._clip(p);
-      const mine = (s.tracks || {})[String(p.id)] || [];
+      const id = String(p.id);
+      const plain = plainOf(p.body);
+      const len = plain.length;
+      const isSel = selPost && String(selPost.id) === id;
+      const done = !!s.read[id];
+      const unread = !done && new Date(p.created_at).getTime() > s.since;
+      const est = len / per;
+      const n = isSel ? s.pages : Math.max(1, Math.round(est));
+      const parts = Number(p.parts || 1);
+      let lenLabel = wide && est < 0.6 && !isSel ? '½ розв.' : (isSel ? '' : '≈ ') + n + ' ' + unitShort;
+      if (isSel) lenLabel = unitShort.replace('.', '') === 'розв' ? `розв. ${s.page + 1} з ${s.pages}` : `${s.page + 1} / ${s.pages}`;
+      if (!isSel && parts > 1) lenLabel = parts + ' ч. · ' + lenLabel;
+      if (!isSel && (s.tracks[id] || []).length) lenLabel += ' · ♪';
+      if (!isSel && done) lenLabel = '✓ · ' + lenLabel;
+      const segN = Math.min(s.pages, 12);
       return {
         id: p.id,
+        name: p.character_name || p.tag_name || 'Без підпису',
+        nameInk: isSel ? '#ffd700' : 'rgba(255,255,255,0.82)',
+        whenShort: this._fmtShort(p.created_at),
+        excerpt: plain.replace(/\s+/g, ' ').trim().slice(0, 180),
+        showEx: !done || isSel,
+        unread,
+        isSel: !!isSel, notSel: !isSel,
+        segs: Array.from({ length: segN }, (_, i) => ({
+          bg: i <= Math.floor(s.page * segN / Math.max(1, s.pages)) ? '#ffd700' : 'rgba(255,255,255,0.15)',
+        })),
+        barW: Math.max(6, Math.min(100, Math.round(len / TG_MAX * 100))) + '%',
+        lenLabel,
+        lenInk: isSel ? 'rgba(255,215,0,0.85)' : 'rgba(255,255,255,0.4)',
+        rowStyle: (isSel ? 'border-left:3px solid #ffd700;background:rgba(255,215,0,0.06);' : 'border-left:3px solid transparent;')
+          + (done && !isSel ? 'opacity:0.55;' : ''),
+        hasImg: !!this._imgBg(p), imgBg: this._imgBg(p),
+        select: () => this._select(p.id, { open: true }),
+      };
+    });
+
+    // Читалка
+    let r = { blocks: [], tracks: [] };
+    if (selPost) {
+      const p = selPost;
+      const mine = (s.tracks || {})[String(p.id)] || [];
+      const parts = Number(p.parts || 1);
+      const len = plainOf(p.body).length;
+      const bits = [];
+      const arcs = splitArcs(p.tag_arc);
+      if (arcs.length) bits.push(arcs.join(' / '));
+      bits.push(this._fmt(p.created_at));
+      bits.push(len.toLocaleString('uk-UA') + ' знаків');
+      if (parts > 1) bits.push(parts + ' ' + this._partsWord(parts));
+      r = {
+        name: p.character_name || p.tag_name || 'Без підпису',
+        meta: bits.join(' · '),
+        linked: !!p.character_id, unlinked: !p.character_id,
+        href: p.character_id ? `#characters/${p.character_id}` : '#',
+        hasImg: !!this._imgBg(p), imgBg: this._imgBg(p),
+        blocks: this._blocks(p.body),
+        copyLink: () => this._copyLink(p.id),
+        linkLabel: String(s.linkCopiedId) === String(p.id) ? 'скопійовано' : 'посилання',
         hasTracks: mine.length > 0,
         tracks: mine.map((t) => {
           const on = s.nowVid === t.video_id;
@@ -781,118 +916,136 @@ class Component extends DCLogic {
           const author = t.author || known.a || '';
           return {
             title: title || 'Пісня з допису',
-            meta: on && s.nowPlay ? '♦ грає зараз'
-              : author ? author : 'музика сцени',
+            meta: on && s.nowPlay ? '♦ грає' : (author || 'музика сцени'),
             icon: on && s.nowPlay ? '❙❙' : '▶',
             hint: on && s.nowPlay ? 'Пауза' : 'Грати з цього треку й далі стрічкою',
             url: t.url || ('https://youtu.be/' + t.video_id),
-            bg: on ? 'rgba(255,215,0,0.07)' : 'rgba(0,0,0,0.22)',
+            bg: on ? 'rgba(255,215,0,0.08)' : 'rgba(0,0,0,0.25)',
             border: on ? 'rgba(255,215,0,0.42)' : 'rgba(255,255,255,0.1)',
             ink: on ? '#fff' : 'rgba(255,255,255,0.72)',
             play: () => this._play(t.video_id, p.id),
           };
         }),
-        name: p.character_name || p.tag_name,
-        arcs: splitArcs(p.tag_arc),
-        when: this._fmt(p.created_at),
-        // Один допис часто не влазить у одне повідомлення — тут він зшитий.
-        multi: Number(p.parts || 1) > 1,
-        parts: Number(p.parts || 1) + ' ' + (Number(p.parts) % 10 >= 5 || Number(p.parts) % 10 === 0 || (Number(p.parts) % 100 > 10 && Number(p.parts) % 100 < 20) ? 'частин' : 'частини'),
-        text: cl.text,
-        blocks: this._blocks(cl.text),
-        clipped: cl.clipped,
-        open: () => this._openAndScroll(p.id),
-        cardExtra: String(p.id) === String(s.hashPostId)
-          ? 'border:1px solid rgba(255,215,0,0.55);box-shadow:0 0 0 1px rgba(255,215,0,0.12);'
-          : 'border:1px solid rgba(255,255,255,0.13);',
-        copyLink: () => this._copyLink(p.id),
-        linkLabel: String(s.linkCopiedId) === String(p.id) ? 'скопійовано' : 'посилання',
-        hasImg: !!(p.characters && p.characters.image),
-        imgBg: (p.characters && p.characters.image)
-          ? 'background-image:url(' + JSON.stringify(p.characters.image) + ');background-size:cover;background-position:center top;'
-          : '',
-        linked: !!p.character_id,
-        unlinked: !p.character_id,
-        href: p.character_id ? `#characters/${p.character_id}` : '#',
       };
-    });
+    }
+    const prevPost = selIdx > 0 ? s.posts[selIdx - 1] : null;
+    const nextPost = selIdx >= 0 ? s.posts[selIdx + 1] : null;
+    const last = s.page >= s.pages - 1;
+    const nm = (p) => (p && (p.character_name || p.tag_name)) || '';
+    const prevLabel = s.page > 0 ? '←' : (prevPost ? (wide ? '← ' + nm(prevPost) : '←') : '←');
+    const nextLabel = !last
+      ? (wide ? `Розворот ${s.page + 2} →` : '→')
+      : nextPost ? (wide ? `Наступний: ${nm(nextPost)} →` : `Далі: ${nm(nextPost)} →`)
+      : s.more ? 'Ще дописи →' : 'Кінець ✦';
+    const pageLabel = (wide ? `розворот ${s.page + 1} з ${s.pages}` : `стор. ${s.page + 1} з ${s.pages}`)
+      + (last && nextPost && wide ? ` · далі — ${nm(nextPost)}` : '')
+      + (wide ? ' · ← → гортати · J / K допис' : '');
 
-    // Пошук по переліку: коли теґів сотні, десяток найчастіших не рятує.
-    // Звіряємо згорнуто — «і/ї/й», «е/є» та апостроф на письмі гуляють.
-    const fold = (x) => String(x || '').toLowerCase()
-      .replace(/[ʼ'’`ь]/g, '').replace(/[іїий]/g, 'и').replace(/[еє]/g, 'е');
+    const gap = wide ? GAP_WIDE : GAP_NARROW;
+    const rd = wide ? {
+      wrap: 'display:flex;flex-direction:column;min-height:0;min-width:0;padding:20px 44px 16px;gap:14px;',
+      head: 'display:flex;align-items:center;gap:12px;flex:none;',
+      tracks: 'display:flex;flex-wrap:wrap;gap:8px;flex:none;',
+      box: 'flex:1;min-height:0;position:relative;',
+      cols: `height:100%;overflow:hidden;column-count:2;column-gap:${gap}px;column-rule:1px solid rgba(255,255,255,0.08);column-fill:auto;`,
+      foot: 'display:flex;align-items:center;gap:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);flex:none;',
+      font: '1.12rem',
+    } : {
+      wrap: 'position:fixed;inset:0;z-index:1500;background:#161616;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);',
+      head: 'display:flex;align-items:center;gap:10px;flex:none;padding:6px 12px 10px 4px;border-bottom:1px solid rgba(255,255,255,0.07);',
+      tracks: 'display:flex;flex-wrap:wrap;gap:8px;flex:none;padding:10px 20px 0;',
+      box: 'flex:1;min-height:0;position:relative;padding:18px 22px 0;',
+      cols: `height:100%;overflow:hidden;column-count:1;column-gap:${gap}px;column-fill:auto;`,
+      foot: 'display:flex;align-items:center;gap:12px;padding:12px 16px calc(16px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.07);flex:none;',
+      font: '1.12rem',
+    };
+    const shellStyle = wide
+      ? 'display:grid;grid-template-columns:320px minmax(0,1fr);height:calc(100vh - 110px);min-height:560px;background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:15px;overflow:hidden;'
+      : 'display:block;';
+    const listStyle = wide
+      ? 'position:relative;border-right:1px solid rgba(255,255,255,0.08);background:#1a1a1a;overflow:auto;min-height:0;'
+      : 'position:relative;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:15px;overflow:hidden;';
+
+    const markPost = s.mark ? s.posts.find((p) => String(p.id) === String(s.mark.id)) : null;
+    const hasMark = !!s.mark && String(s.mark.id) !== String(s.sel) && (!markPost || !s.read[String(s.mark.id)]);
+    const markLabel = s.mark
+      ? (markPost ? nm(markPost) : 'допис №' + s.mark.id) + ' · ' + (wide ? 'розв. ' : 'стор. ') + ((s.mark.page || 0) + 1)
+      : '';
+
+    // Пошук по переліку тегів
+    const fold = (x) => String(x || '').toLowerCase().replace(/[ʼ'’`ь]/g, '').replace(/[іїий]/g, 'и').replace(/[еє]/g, 'е');
     const q = fold(s.q);
     const hit = (list) => (q ? list.filter((v) => fold(v).includes(q)) : list);
-    // Позначені теґи завжди на видноті, навіть якщо в частому десятку їх немає.
     const head = (all, list, on) => {
       const found = hit(list);
       const top = (all || q) ? found : found.slice(0, CAP);
       return top.concat(on.filter((v) => !top.includes(v)));
     };
     const chars = head(s.allChars, s.chars, s.fChar);
-    const arcs  = head(s.allArcs, s.arcs, s.fArc);
-    const pick  = s.fChar.concat(s.fArc).join(' · ');
-    const flip  = (key, v) => {
+    const arcs = head(s.allArcs, s.arcs, s.fArc);
+    const pick = s.fChar.concat(s.fArc).join(' · ');
+    const flip = (key, v) => {
       const cur = this.state[key];
-      const on = cur.includes(v);
-      const nextArr = on ? cur.filter((x) => x !== v) : cur.concat(v);
-      // Причетних до арки більше НЕ підтягуємо. Задум був показати, що арка
-      // це кілька людей, але персонаж і арка в запиті стоять через «і»:
-      // обрана арка звужувалася до тих, кого встиг побачити перелік теґів,
-      // і з 257 дописів «Зіїруму» лишалося кілька. Хто в арці — видно з
-      // самих карток; кому потрібен один голос, той позначить його руками.
+      const nextArr = cur.includes(v) ? cur.filter((x) => x !== v) : cur.concat(v);
       this._setFilt({ [key]: nextArr });
     };
+    const dotN = Math.min(s.pages, 12);
 
     return {
-      isLoad: s.phase === 'load',
-      isGuest: s.phase === 'guest',
-      isLocked: s.phase === 'locked',
-      isError: s.phase === 'error',
-      isOk: s.phase === 'ok',
-      hasPosts: rows.length > 0,
-      noPosts: rows.length === 0,
-      rows,
-      hasMore: s.more,
-      atEnd: !s.more && rows.length > PAGE - 1,
+      isLoad: s.phase === 'load', isGuest: s.phase === 'guest', isLocked: s.phase === 'locked',
+      isError: s.phase === 'error', isOk: s.phase === 'ok',
+      shellStyle, listStyle, rd, listRef: this.listRef, pageRef: this.pageRef,
+      narrow: !wide,
+      hasPosts: rows.length > 0, noPosts: rows.length === 0, rows,
+      hasMore: s.more, atEnd: !s.more && rows.length > PAGE - 1,
       moreLabel: s.busy ? 'Гортаю…' : 'Показати ще',
       loadMore: () => { if (!s.busy) this._page(false); },
 
+      hasReader: !!selPost && (wide || s.view === 'read'),
+      r,
+      backToList: () => this.setState({ view: 'list' }),
+      goPrev: () => this._turn(-1), goNext: () => this._turn(1),
+      prevLabel, nextLabel, pageLabel,
+      prevInk: (s.page > 0 || prevPost) ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)',
+      fewPages: s.pages > 1 && s.pages <= 12,
+      dotsMax: wide ? '220px' : '100%',
+      dots: Array.from({ length: dotN }, (_, i) => ({ bg: i <= s.page ? '#ffd700' : 'rgba(255,255,255,0.18)' })),
+      touchStart: (e) => { const t = e.touches && e.touches[0]; if (t) this._tx = { x: t.clientX, y: t.clientY }; },
+      touchEnd: (e) => {
+        const t = e.changedTouches && e.changedTouches[0];
+        const o = this._tx; this._tx = null;
+        if (!t || !o) return;
+        const dx = t.clientX - o.x, dy = t.clientY - o.y;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) this._turn(dx < 0 ? 1 : -1);
+      },
+
+      hasMark, markLabel,
+      resume: () => { if (s.mark) this._ensureTarget(s.mark.id); },
+
       filtOpen: s.filtOpen,
-      ascLabel: s.asc ? '↑ Спершу давніші' : '↓ Спершу новіші',
+      ascLabel: s.asc ? '↑ Від початку' : '↓ Спершу новіші',
       flipAsc: () => {
         const next = !this.state.asc;
-        try { localStorage.setItem('au_posts_asc', next ? '1' : '0'); } catch (e) { /* не біда */ }
-        this.setState({ asc: next, off: 0, open: {} }, () => { this._page(true); this._syncUrl(this.state.hashPostId); });
+        try { localStorage.setItem('au_posts_asc', next ? '1' : '0'); } catch (e) {}
+        this.setState({ asc: next, off: 0 }, () => { this._page(true); this._syncUrl(null); });
       },
-      filtLabel: s.filtOpen ? 'Згорнути фільтр' : 'Фільтр за теґами',
+      filtLabel: s.filtOpen ? 'Згорнути фільтр' : 'Фільтр',
       toggleFilt: () => {
         this.setState((st) => ({ filtOpen: !st.filtOpen }));
         if (!s.filtOpen) this._tags();
       },
-      hasPick: !!pick,
-      pickLabel: pick,
+      hasPick: !!pick, pickLabel: pick,
       clearFilt: () => this._setFilt({ fChar: [], fArc: [] }),
-
       tagsBusy: s.filtOpen && s.tagsPhase !== 'ready',
       tagsReady: s.tagsPhase === 'ready',
       charChips: chars.map((c) => ({ name: c, ...this._pill(s.fChar.includes(c)) })),
       arcChips: arcs.map((a) => {
         const all = (s.arcAlt || {})[a] || [a];
-        // Причетні до арки — у підказці, а не в самому відборі: у запиті
-        // персонаж і арка стоять через «і», тому позначені імена звужували
-        // б арку до них (див. `flip`).
         const who = (s.arcChars || {})[a] || [];
         const bits = [];
         if (all.length > 1) bits.push('Зведено написання: ' + all.join(' · '));
         if (who.length) bits.push('Причетні: ' + who.join(', '));
-        return {
-          name: a,
-          hasAlt: all.length > 1,
-          altLabel: all.length + ' написання',
-          title: bits.length ? bits.join('\n') : a,
-          ...this._pill(s.fArc.includes(a)),
-        };
+        return { name: a, hasAlt: all.length > 1, altLabel: all.length + ' написання', title: bits.length ? bits.join('\n') : a, ...this._pill(s.fArc.includes(a)) };
       }),
       hasArcs: s.arcs.length > 0,
       q: s.q,
@@ -904,7 +1057,7 @@ class Component extends DCLogic {
       allChars: () => this.setState({ allChars: true }),
       allArcs: () => this.setState({ allArcs: true }),
       pickChar: (e) => flip('fChar', e.currentTarget.dataset.v),
-      pickArc:  (e) => flip('fArc', e.currentTarget.dataset.v),
+      pickArc: (e) => flip('fArc', e.currentTarget.dataset.v),
     };
   }
 }
