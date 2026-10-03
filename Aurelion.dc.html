@@ -2836,6 +2836,42 @@ a:hover{color:#a8c4f7;}
           </div>
         </div>
 
+        <!-- Печатка літопису: усього + рекорди -->
+        <section style="position:relative;overflow:hidden;border-radius:16px;border:1px solid rgba(255,215,0,0.28);background:radial-gradient(ellipse 60% 90% at 50% 0%,rgba(255,215,0,0.13),rgba(255,215,0,0) 70%),rgba(255,255,255,0.03);box-shadow:0 12px 40px rgba(0,0,0,0.45);">
+          <div style="position:absolute;inset:7px;border:1px solid rgba(255,215,0,0.1);border-radius:11px;pointer-events:none;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 24px 18px;">
+            <div style="display:flex;align-items:center;gap:14px;width:100%;max-width:440px;">
+              <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,215,0,0),rgba(255,215,0,0.5));"></span>
+              <span style="font-size:0.64rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,215,0,0.8);white-space:nowrap;">✦ Записано в літопис ✦</span>
+              <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,215,0,0.5),rgba(255,215,0,0));"></span>
+            </div>
+            <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.4rem,6vw,3.5rem);font-weight:700;line-height:1;letter-spacing:0.04em;color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,0.4),0 0 2px rgba(255,215,0,0.8);margin-top:12px;">{{ pgTotal }}</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;font-style:italic;color:rgba(255,255,255,0.6);margin-top:6px;">дописів від {{ pgSince }}</p>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));border-top:1px solid rgba(255,215,0,0.16);background:rgba(0,0,0,0.18);">
+            <div style="padding:14px 18px;text-align:center;border-right:1px solid rgba(255,255,255,0.06);">
+              <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Рекорд дня</p>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;font-weight:700;line-height:1;color:#6495ed;text-shadow:0 0 18px rgba(100,149,237,0.35);margin-top:8px;">{{ pgPeak }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.45);margin-top:5px;">{{ pgPeakWhen }}</p>
+            </div>
+            <div style="padding:14px 18px;text-align:center;border-right:1px solid rgba(255,255,255,0.06);">
+              <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);">У середньому</p>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;font-weight:700;line-height:1;color:#fff;margin-top:8px;">{{ pgAvg }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.45);margin-top:5px;">дописів за живий день</p>
+            </div>
+            <div style="padding:14px 18px;text-align:center;border-right:1px solid rgba(255,255,255,0.06);">
+              <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Днів із життям</p>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;font-weight:700;line-height:1;color:#fff;margin-top:8px;">{{ pgDays }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.45);margin-top:5px;">із {{ pgSpan }} від початку</p>
+            </div>
+            <div style="padding:14px 18px;text-align:center;">
+              <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Найгучніший місяць</p>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;font-weight:700;line-height:1;color:#ffd700;margin-top:8px;">{{ loudValue }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.45);margin-top:5px;">{{ loudName }}</p>
+            </div>
+          </div>
+        </section>
+
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px;">
           <!-- Тиждень проти звичного -->
           <section class="glass" style="padding:24px 26px;border-radius:12px;">
@@ -2880,18 +2916,41 @@ a:hover{color:#a8c4f7;}
             </section>
           </sc-if>
           <sc-if value="{{ peopleOff }}" hint-placeholder-val="{{ false }}">
-            <section class="glass" style="padding:24px 26px;border-radius:12px;">
-              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.05em;margin-bottom:16px;">Гучно й тихо</h2>
-              <div style="display:flex;flex-direction:column;gap:12px;">
-                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:12px;">
-                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,215,0,0.85);">{{ loudName }}</span>
-                  <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ loudValue }} дописів</span>
-                </div>
-                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;">
-                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);">{{ quietName }}</span>
-                  <span style="font-size:0.8rem;color:rgba(255,255,255,0.3);white-space:nowrap;">{{ quietValue }} дописів</span>
-                </div>
+            <section class="glass" style="padding:24px 26px;border-radius:12px;display:flex;flex-direction:column;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;">
+                <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.05em;">Останні 30 днів</h2>
+                <span style="font-family:'Cinzel',Georgia,serif;font-size:1.3rem;font-weight:700;color:#fff;white-space:nowrap;">{{ m30Sum }}</span>
               </div>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.45);margin-top:4px;">{{ m30Note }}</p>
+              <div style="position:relative;flex:1;min-height:140px;margin-top:18px;">
+                <svg viewBox="0 0 1000 200" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible;">
+                  <defs>
+                    <linearGradient id="pgFillGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="rgba(255,215,0,0.34)"></stop>
+                      <stop offset="100%" stop-color="rgba(255,215,0,0)"></stop>
+                    </linearGradient>
+                    <linearGradient id="pgStrokeGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#ffb347"></stop>
+                      <stop offset="55%" stop-color="#ffd700"></stop>
+                      <stop offset="100%" stop-color="#fff1a8"></stop>
+                    </linearGradient>
+                  </defs>
+                  <sc-for list="{{ m30Grid }}" as="g" hint-placeholder-count="2">
+                    <line x1="0" y1="{{ g.y }}" x2="1000" y2="{{ g.y }}" stroke="rgba(255,255,255,0.07)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                  </sc-for>
+                  <path d="{{ m30Area }}" fill="url(#pgFillGrad)"></path>
+                  <path d="{{ m30Line }}" fill="none" stroke="url(#pgStrokeGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" style="filter:drop-shadow(0 0 5px rgba(255,215,0,0.55));"></path>
+                </svg>
+                <sc-for list="{{ m30Grid }}" as="g" hint-placeholder-count="2">
+                  <span style="position:absolute;left:1px;top:{{ g.topPct }};transform:translateY(-50%);font-size:0.6rem;color:rgba(255,255,255,0.3);pointer-events:none;text-shadow:0 0 4px #1a1a1a,0 0 4px #1a1a1a;">{{ g.label }}</span>
+                </sc-for>
+                <span title="{{ m30PeakTip }}" style="position:absolute;left:{{ m30PeakLeft }};top:{{ m30PeakTop }};width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:999px;background:#fff;box-shadow:0 0 10px rgba(255,215,0,0.95);"></span>
+              </div>
+              <div style="display:flex;justify-content:space-between;gap:12px;margin-top:8px;font-size:0.66rem;color:rgba(255,255,255,0.34);">
+                <span>{{ m30From }}</span>
+                <span style="color:rgba(255,215,0,0.6);">сьогодні</span>
+              </div>
+              <p style="font-size:0.74rem;color:rgba(255,255,255,0.4);margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07);">Найгучніший місяць <b style="color:#ffd700;font-weight:600;">{{ loudName }}</b> · {{ loudValue }}</p>
             </section>
           </sc-if>
         </div>
@@ -3010,14 +3069,7 @@ a:hover{color:#a8c4f7;}
         </section>
 
         <!-- Рекорди одним рядком -->
-        <div style="display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:center;padding:16px 0 0;border-top:1px solid rgba(255,255,255,0.07);font-size:0.8rem;color:rgba(255,255,255,0.45);">
-          <span>Усього <b style="color:#fff;font-weight:600;">{{ pgTotal }}</b></span>
-          <span>Рекорд дня <b style="color:#fff;font-weight:600;">{{ pgPeak }}</b> · {{ pgPeakWhen }}</span>
-          <span>Днів із життям <b style="color:#fff;font-weight:600;">{{ pgDays }}</b> із {{ pgSpan }}</span>
-          <span>У середньому <b style="color:#fff;font-weight:600;">{{ pgAvg }}</b> на день</span>
-          <span>Найгучніший день тижня <b style="color:#fff;font-weight:600;">{{ topDowName }}</b></span>
-        </div>
-        <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.7;color:rgba(255,255,255,0.28);text-align:center;text-wrap:pretty;">Літопис ведеться від {{ pgSince }}. Марта рахує тільки кількість дописів — ні текстів, ні імен тут немає й не буде.</p>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.7;color:rgba(255,255,255,0.28);text-align:center;text-wrap:pretty;margin-top:6px;">Літопис ведеться від {{ pgSince }}. Марта рахує тільки кількість дописів — ні текстів, ні імен тут немає й не буде.</p>
       </div>
       </sc-if>
     </div>
@@ -8654,8 +8706,34 @@ class Component extends DCLogic {
               : norm[selDow] && selV < norm[selDow] * 0.7 ? 'Тихіше за ' + ADJ_ACC[selDow] + ' ' + DOWA[selDow] + ' (' + norm[selDow] + ').'
               : ADJ_NOM[selDow] + ' ' + DOWL[selDow] + '.');
 
+        // ── Останні 30 днів — лінія в тому ж стилі, що й графік на головній ──
+        const d30 = []; for (let n = 29; n >= 0; n--) { const k = shift(kToday, -n); d30.push({ k, v: byDay.get(k) || 0 }); }
+        const m30Max = Math.max(1, ...d30.map(x => x.v));
+        const yTop = 14, yBase = 196;
+        const p30 = d30.map((x, i) => ({ x: i / 29 * 1000, y: yBase - x.v / m30Max * (yBase - yTop), o: x }));
+        let m30Line = 'M' + p30[0].x.toFixed(1) + ',' + p30[0].y.toFixed(1);
+        for (let i = 0; i < p30.length - 1; i++) {
+          const p0 = p30[i - 1] || p30[i], p1 = p30[i], p2 = p30[i + 1], p3 = p30[i + 2] || p2;
+          m30Line += 'C' + (p1.x + (p2.x - p0.x) / 6).toFixed(1) + ',' + Math.min(yBase, p1.y + (p2.y - p0.y) / 6).toFixed(1) + ' ' +
+                     (p2.x - (p3.x - p1.x) / 6).toFixed(1) + ',' + Math.min(yBase, p2.y - (p3.y - p1.y) / 6).toFixed(1) + ' ' + p2.x.toFixed(1) + ',' + p2.y.toFixed(1);
+        }
+        const p30Peak = p30.reduce((a, b) => b.o.v > a.o.v ? b : a);
+        const m30Total = d30.reduce((a, x) => a + x.v, 0);
+        const prev30 = (() => { let acc = 0; for (let n = 30; n < 60; n++) acc += byDay.get(shift(kToday, -n)) || 0; return acc; })();
+        const m30Pct = prev30 ? Math.round((m30Total / prev30 - 1) * 100) : null;
+        const gStep = [2,5,10,20,25,50,100,200].find(st => m30Max / st <= 3) || 200;
+        const m30Grid = [];
+        for (let v = gStep; v <= m30Max + 0.5; v += gStep) { const gy = yBase - v / m30Max * (yBase - yTop); m30Grid.push({ y: gy.toFixed(1), topPct: (gy / 200 * 100).toFixed(2) + '%', label: String(v) }); }
+        const dShort = (k) => { const d = new Date(k + 'T00:00:00Z'); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };
+
         return {
           ...marta,
+          m30Line, m30Area: m30Line + ' L1000,200 L0,200 Z', m30Grid,
+          m30Sum: m30Total.toLocaleString('uk-UA'),
+          m30Note: m30Pct === null ? 'Дописи по днях.' : (Math.abs(m30Pct) < 5 ? 'Приблизно стільки ж, як місяцем раніше.' : (m30Pct > 0 ? 'На ' + m30Pct + '% гучніше' : 'На ' + Math.abs(m30Pct) + '% тихіше') + ', ніж попередні 30 (' + prev30.toLocaleString('uk-UA') + ').'),
+          m30PeakLeft: (p30Peak.x / 10).toFixed(2) + '%', m30PeakTop: (p30Peak.y / 2).toFixed(2) + '%',
+          m30PeakTip: 'Пік — ' + dShort(p30Peak.o.k) + ' · ' + p30Peak.o.v + ' ' + plural(p30Peak.o.v, 'допис', 'дописи', 'дописів'),
+          m30From: dShort(d30[0].k),
           pulseDigest: digest,
           wkBars,
           wkDelta: wkPct === null ? '—' : (wkPct >= 0 ? '+' : '−') + Math.abs(wkPct) + '%',

@@ -305,6 +305,11 @@ button{font-family:inherit;cursor:pointer}
       <div>
         <p style="font-size:0.74rem;color:rgba(255,255,255,0.5);">Період: <span style="color:#ffd700;">{{ statsRangeLabel }}</span></p>
         <p style="font-size:0.66rem;color:rgba(255,255,255,0.26);margin-top:3px;">{{ statsPrevLabel }}</p>
+        <button onClick="{{ toggleStatsClaude }}" title="Перегляди з прев'ю Claude — редактор і перевірки, а не живі люди" style="display:flex;align-items:center;gap:8px;background:transparent;border:none;padding:0;margin-top:8px;cursor:pointer;">
+          <span style="width:14px;height:14px;border-radius:4px;border:1px solid rgba(255,215,0,0.55);background:rgba(255,215,0,0.14);color:#ffd700;font-size:0.6rem;line-height:12px;text-align:center;flex-shrink:0;">{{ statsClaudeMark }}</span>
+          <span style="font-size:0.7rem;color:rgba(255,255,255,0.6);">Без Claude — лише живі відвідування</span>
+          <span style="font-size:0.66rem;color:rgba(255,255,255,0.3);">· {{ statsClaudeNote }}</span>
+        </button>
       </div>
       <sc-if value="{{ statsCustom }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;align-items:center;gap:8px;">
@@ -326,6 +331,94 @@ button{font-family:inherit;cursor:pointer}
         <button data-period="week" onClick="{{ sendMarta }}" disabled="{{ martaBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.16);border-color:rgba(255,215,0,0.55);">За тиждень</button>
         <button data-period="month" onClick="{{ sendMarta }}" disabled="{{ martaBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.16);border-color:rgba(255,215,0,0.55);">За місяць</button>
       </div>
+    </div>
+
+    <!-- Звірка літопису з експортом чату -->
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:16px 18px;margin-bottom:18px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="min-width:220px;flex:1;">
+          <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#ffd700;letter-spacing:0.05em;margin-bottom:6px;">✦ Звірка літопису з експортом</p>
+          <p style="font-size:0.76rem;line-height:1.55;color:rgba(255,255,255,0.45);">Telegram Desktop → експорт рольового чату (<code style="color:#ffd700;">result.json</code> або всі <code style="color:#ffd700;">messages*.html</code>). Рахую за тими ж правилами, що й бот: без службових, пересланих і «via @бот», доба — київська. Файл нікуди не відправляється.</p>
+        </div>
+        <label style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;cursor:pointer;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.16);">
+          {{ auditBtn }}
+          <input type="file" accept=".json,.html,.htm" multiple="{{ true }}" onChange="{{ auditPick }}" style="display:none;" />
+        </label>
+      </div>
+
+      <sc-if value="{{ auditErrOn }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.76rem;color:#ff4d4d;margin-top:12px;">{{ auditErr }}</p>
+      </sc-if>
+
+      <sc-if value="{{ auditReady }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:0.72rem;font-weight:600;padding:4px 12px;border-radius:999px;background:{{ auditVerdictBg }};color:{{ auditVerdictC }};border:1px solid {{ auditVerdictC }};">{{ auditVerdict }}</span>
+            <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ auditFiles }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;">
+              <p style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Експорт</p>
+              <p style="font-family:'Cinzel',serif;font-size:1.3rem;color:#ffd700;margin-top:4px;">{{ auditExpTotal }}</p>
+              <p style="font-size:0.62rem;color:rgba(255,255,255,0.3);margin-top:2px;">{{ auditRange }}</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;">
+              <p style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Сайт за ті дні</p>
+              <p style="font-family:'Cinzel',serif;font-size:1.3rem;color:#fff;margin-top:4px;">{{ auditSiteTotal }}</p>
+              <p style="font-size:0.62rem;color:rgba(255,255,255,0.3);margin-top:2px;">{{ auditSiteSplit }}</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;">
+              <p style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Різниця</p>
+              <p style="font-family:'Cinzel',serif;font-size:1.3rem;color:{{ auditDiffC }};margin-top:4px;">{{ auditDiff }}</p>
+              <p style="font-size:0.62rem;color:rgba(255,255,255,0.3);margin-top:2px;">сайт мінус експорт</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;">
+              <p style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Днів зі збігом</p>
+              <p style="font-family:'Cinzel',serif;font-size:1.3rem;color:#fff;margin-top:4px;">{{ auditMatch }}</p>
+              <p style="font-size:0.62rem;color:rgba(255,255,255,0.3);margin-top:2px;">крайні дні експорту не рахуються</p>
+            </div>
+          </div>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.35);">{{ auditSkipped }}</p>
+
+          <div>
+            <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Автори в експорті · клік — не рахувати (боти, Марта)</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <sc-for list="{{ auditAuthors }}" as="au" hint-placeholder-count="6">
+                <button data-name="{{ au.name }}" onClick="{{ auditToggleAuthor }}" style="background:{{ au.bg }};border:1px solid {{ au.line }};color:{{ au.c }};text-decoration:{{ au.deco }};border-radius:999px;padding:4px 11px;font-size:0.72rem;cursor:pointer;">{{ au.name }} · {{ au.n }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+              <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);">{{ auditTableTitle }}</p>
+              <div style="display:flex;gap:6px;">
+                <button onClick="{{ auditToggleAll }}" style="background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:999px;padding:4px 12px;font-size:0.7rem;cursor:pointer;">{{ auditAllLabel }}</button>
+                <sc-if value="{{ auditHasFix }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ auditCopySql }}" title="Вирівняє архівну частину (base) так, щоб доба дорівнювала експорту. Запустити в SQL Editor." style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:4px 12px;font-size:0.7rem;cursor:pointer;">{{ auditSqlLabel }}</button>
+                </sc-if>
+              </div>
+            </div>
+            <div style="border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;max-height:360px;overflow-y:auto;">
+              <div style="display:grid;grid-template-columns:1.4fr 1fr 1.4fr 1fr;gap:8px;padding:8px 14px;background:rgba(255,255,255,0.04);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);position:sticky;top:0;">
+                <span>Доба</span><span style="text-align:right;">Експорт</span><span style="text-align:right;">Сайт (архів + бот)</span><span style="text-align:right;">Різниця</span>
+              </div>
+              <sc-for list="{{ auditRows }}" as="r" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:1.4fr 1fr 1.4fr 1fr;gap:8px;padding:7px 14px;border-top:1px solid rgba(255,255,255,0.05);font-size:0.76rem;color:{{ r.c }};">
+                  <span>{{ r.day }}</span>
+                  <span style="text-align:right;">{{ r.exp }}</span>
+                  <span style="text-align:right;">{{ r.site }}</span>
+                  <span style="text-align:right;font-weight:600;color:{{ r.dc }};">{{ r.diff }}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ auditRowsEmpty }}" hint-placeholder-val="{{ false }}">
+                <p style="padding:18px 14px;font-size:0.76rem;color:rgba(255,255,255,0.4);text-align:center;">Розбіжностей немає — кожна доба сходиться.</p>
+              </sc-if>
+            </div>
+            <p style="font-size:0.66rem;line-height:1.5;color:rgba(255,255,255,0.3);margin-top:8px;">Плюс — сайт нарахував більше (часто доба-шов: ті самі дописи і в архіві, і в боті). Мінус — бот проспав або дописи потім видалили із чату (експорт їх уже не бачить). SQL лише копіюється — базу звідси ніхто не чіпає.</p>
+          </div>
+        </div>
+      </sc-if>
     </div>
 
     <sc-if value="{{ statsLoading }}" hint-placeholder-val="{{ false }}">
@@ -3643,6 +3736,7 @@ class Component extends DCLogic {
     mapCharSearch: '',
     // analytics
     statsPeriod: '7', statsFrom: '', statsTo: '', statsRows: [], statsLoading: false, statsLoaded: false, statsKind: 'all',
+    statsHideClaude: (() => { try { return localStorage.getItem('au_stats_claude') !== 'show'; } catch (e) { return true; } })(),
   };
 
   // ── Auth token helpers ─────────────────────────────────────
@@ -6747,6 +6841,34 @@ class Component extends DCLogic {
     };
   }
 
+  // Хто дивився через прев'ю Claude: позначка 'claude' (нові записи) або
+  // домен claude/anthropic у referrer (старі). Referrer стоїть лише на першому
+  // перегляді візиту, тому відсіюємо цілого відвідувача, а не рядок.
+  _claudeSet() {
+    const rows = this.state.statsRows || [];
+    if (this._claudeFor === rows) return this._claudeCache;
+    const set = new Set();
+    rows.forEach(r => { if (r.referrer && /claude|anthropic/i.test(r.referrer)) set.add(r.visitor || 'anon'); });
+    set.delete('anon');
+    this._claudeFor = rows; this._claudeCache = set;
+    return set;
+  }
+
+  _statsAll() {
+    const rows = this.state.statsRows || [];
+    if (!this.state.statsHideClaude) return rows;
+    const set = this._claudeSet();
+    return set.size ? rows.filter(r => !set.has(r.visitor || 'anon')) : rows;
+  }
+
+  _claudeNote() {
+    const rows = this.state.statsRows || [];
+    const set = this._claudeSet();
+    if (!set.size) return 'переглядів Claude не знайдено';
+    const n = rows.filter(r => set.has(r.visitor || 'anon')).length;
+    return (this.state.statsHideClaude ? 'приховано ' : 'враховано ') + n + ' переглядів';
+  }
+
   _statsRange() {
     const s = this.state, p = String(s.statsPeriod || '7'), DAY = 86400000;
     const d0 = new Date(); d0.setHours(0, 0, 0, 0);
@@ -6764,6 +6886,164 @@ class Component extends DCLogic {
     if (p === '0') return { from: 0, to: today + DAY, mode: p };
     const n = Math.max(1, Number(p) || 7);
     return { from: today - (n - 1) * DAY, to: today + DAY, mode: p };
+  }
+
+  // ── Звірка «Пульсу» з експортом чату ──
+  // Розбирає result.json або messages*.html просто в браузері й рахує дописи
+  // за правилами бота (telegram-webhook.ts, tg_bump): без службових, пересланих, via-ботів.
+  async _auditPick(e) {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+    this.setState({ auditBusy: true, auditErr: '' });
+    const kyiv = (ms) => new Date(ms).toLocaleDateString('sv-SE', { timeZone: 'Europe/Kyiv' });
+    const seen = new Map(); // id → {day, a}
+    const skip = { service: 0, fwd: 0, via: 0 };
+    try {
+      for (const f of files) {
+        const txt = await f.text();
+        if (/\.json$/i.test(f.name)) {
+          let j = JSON.parse(txt);
+          if (j.chats && Array.isArray(j.chats.list)) j = j.chats.list.slice().sort((a, b) => (b.messages || []).length - (a.messages || []).length)[0] || {};
+          (j.messages || []).forEach(m => {
+            if (m.type !== 'message') { skip.service++; return; }
+            if (m.forwarded_from || m.forwarded_from_id) { skip.fwd++; return; }
+            if (m.via_bot) { skip.via++; return; }
+            const ms = m.date_unixtime ? +m.date_unixtime * 1000 : Date.parse(m.date);
+            if (!ms) return;
+            seen.set('j' + m.id, { day: kyiv(ms), a: String(m.from || m.actor || '—') });
+          });
+        } else {
+          const doc = new DOMParser().parseFromString(txt, 'text/html');
+          let last = '—';
+          doc.querySelectorAll('.history > .message').forEach(el => {
+            if (el.classList.contains('service')) { skip.service++; return; }
+            const body = el.querySelector(':scope > .body');
+            if (!body) return;
+            const fn = body.querySelector(':scope > .from_name');
+            if (fn) last = (fn.childNodes[0] ? fn.childNodes[0].textContent : fn.textContent).trim() || last;
+            if (fn && /via\s+@/i.test(fn.textContent)) { skip.via++; return; }
+            if (body.querySelector(':scope > .forwarded')) { skip.fwd++; return; }
+            const dt = body.querySelector(':scope > .pull_right.date.details');
+            const mt = dt && /^(\d\d)\.(\d\d)\.(\d{4}) (\d\d):(\d\d):(\d\d)(?: UTC([+-])(\d\d):(\d\d))?/.exec(dt.getAttribute('title') || '');
+            if (!mt) return;
+            const off = mt[7] ? (mt[7] === '-' ? -1 : 1) * ((+mt[8]) * 60 + (+mt[9])) : 0;
+            const ms = Date.UTC(+mt[3], +mt[2] - 1, +mt[1], +mt[4], +mt[5], +mt[6]) - off * 60000;
+            seen.set('h' + (el.id || Math.random()), { day: kyiv(ms), a: last });
+          });
+        }
+      }
+      if (!seen.size) throw new Error('У файлі не знайшлося жодного допису. Це точно експорт чату з Telegram Desktop?');
+      const msgs = [...seen.values()];
+      const days = msgs.map(m => m.day).sort();
+      const from = days[0], to = days[days.length - 1];
+      // Сайт: post_activity за той самий проміжок. base може не бути — тоді другий захід.
+      const q = (sel) => fetch(`${SUPA_URL}/post_activity?select=${sel}&day=gte.${from}&day=lte.${to}&order=day`, { headers: this._authH() });
+      let r = await q('day,posts,base'), hasBase = true;
+      if (!r.ok) { r = await q('day,posts'); hasBase = false; }
+      if (!r.ok) throw new Error('Не вдалося прочитати post_activity (' + r.status + ').');
+      const site = await r.json();
+      const excl = {};
+      const cnt = {};
+      msgs.forEach(m => { cnt[m.a] = (cnt[m.a] || 0) + 1; });
+      Object.keys(cnt).forEach(a => { if (/(bot|бот)\b|^марта/i.test(a)) excl[a] = true; });
+      this.setState({ auditBusy: false, audit: { msgs, from, to, site, hasBase, skip, files: files.map(f => f.name) }, auditExcl: excl, auditAll: false, auditCopied: false });
+    } catch (err) {
+      this.setState({ auditBusy: false, auditErr: err && err.message ? err.message : String(err) });
+    }
+  }
+
+  _auditCalc() {
+    const A = this.state.audit;
+    if (!A) return null;
+    const excl = this.state.auditExcl || {};
+    const exp = new Map();
+    A.msgs.forEach(m => { if (!excl[m.a]) exp.set(m.day, (exp.get(m.day) || 0) + 1); });
+    const site = new Map(A.site.map(r => [String(r.day).slice(0, 10), r]));
+    const rows = [];
+    for (let d = new Date(A.from + 'T12:00:00Z'); ; d.setUTCDate(d.getUTCDate() + 1)) {
+      const k = d.toISOString().slice(0, 10);
+      const s = site.get(k);
+      const sv = s ? (+s.posts || 0) : 0, base = s && A.hasBase ? (+s.base || 0) : null;
+      const ev = exp.get(k) || 0;
+      rows.push({ k, ev, sv, base, bot: base == null ? null : sv - base, edge: k === A.from || k === A.to });
+      if (k >= A.to) break;
+    }
+    return { rows, exp };
+  }
+
+  _auditVals() {
+    const A = this.state.audit;
+    const base = {
+      auditBtn: this.state.auditBusy ? '✦ Читаю…' : (A ? '↻ Інший експорт' : '⬆ Закинути експорт'),
+      auditPick: (e) => this._auditPick(e),
+      auditErrOn: !!this.state.auditErr, auditErr: this.state.auditErr || '',
+      auditReady: !!A,
+    };
+    if (!A) return base;
+    const { rows } = this._auditCalc();
+    const fmt = (n) => n.toLocaleString('uk-UA');
+    const sgn = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + fmt(Math.abs(n));
+    const dl = (k) => { const [y, m, d] = k.split('-'); return d + '.' + m + '.' + y; };
+    const core = rows.filter(r => !r.edge);
+    const bad = core.filter(r => r.sv !== r.ev);
+    const expT = rows.reduce((a, r) => a + r.ev, 0), siteT = rows.reduce((a, r) => a + r.sv, 0);
+    const baseT = A.hasBase ? rows.reduce((a, r) => a + (r.base || 0), 0) : null;
+    const diff = siteT - expT;
+    const ok = !bad.length;
+    const shown = (this.state.auditAll ? rows : rows.filter(r => r.sv !== r.ev)).slice().reverse();
+    const fix = A.hasBase ? bad.filter(r => r.ev - r.bot >= 0) : [];
+    const excl = this.state.auditExcl || {};
+    const cnt = {};
+    A.msgs.forEach(m => { cnt[m.a] = (cnt[m.a] || 0) + 1; });
+    return {
+      ...base,
+      auditVerdict: ok ? '✓ Сходиться до допису' : 'Розбіжність у ' + bad.length + ' ' + (bad.length % 10 === 1 && bad.length % 100 !== 11 ? 'добі' : 'добах'),
+      auditVerdictC: ok ? '#4fd18b' : '#ffb347',
+      auditVerdictBg: ok ? 'rgba(79,209,139,0.1)' : 'rgba(255,179,71,0.1)',
+      auditFiles: A.files.length > 2 ? A.files.length + ' файлів' : A.files.join(', '),
+      auditExpTotal: fmt(expT),
+      auditRange: dl(A.from) + ' — ' + dl(A.to),
+      auditSiteTotal: fmt(siteT),
+      auditSiteSplit: baseT == null ? 'без поділу на архів і бота' : 'архів ' + fmt(baseT) + ' · бот ' + fmt(siteT - baseT),
+      auditDiff: sgn(diff), auditDiffC: diff === 0 ? '#4fd18b' : '#ffb347',
+      auditMatch: (core.length - bad.length) + ' / ' + core.length,
+      auditSkipped: 'Пропущено: службових ' + A.skip.service + ' · пересланих ' + A.skip.fwd + ' · via-бот ' + A.skip.via + '. Перша й остання доба експорту можуть бути неповними — вони в таблиці сірі й у вердикт не йдуть.',
+      auditAuthors: Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).map(a => ({
+        name: a, n: String(cnt[a]),
+        bg: excl[a] ? 'transparent' : 'rgba(255,255,255,0.05)', line: excl[a] ? 'rgba(255,77,77,0.4)' : 'rgba(255,255,255,0.14)',
+        c: excl[a] ? 'rgba(255,120,120,0.8)' : 'rgba(255,255,255,0.75)', deco: excl[a] ? 'line-through' : 'none',
+      })),
+      auditToggleAuthor: (e) => { const n = e.currentTarget.dataset.name; this.setState(st => ({ auditExcl: { ...(st.auditExcl || {}), [n]: !(st.auditExcl || {})[n] } })); },
+      auditTableTitle: this.state.auditAll ? 'Усі доби · ' + rows.length : 'Доби з розбіжністю · ' + rows.filter(r => r.sv !== r.ev).length,
+      auditAllLabel: this.state.auditAll ? 'Лише розбіжності' : 'Показати всі',
+      auditToggleAll: () => this.setState(st => ({ auditAll: !st.auditAll })),
+      auditRows: shown.map(r => {
+        const d = r.sv - r.ev;
+        return {
+          day: dl(r.k) + (r.edge ? ' · край' : ''),
+          exp: fmt(r.ev),
+          site: fmt(r.sv) + (r.base == null ? '' : ' (' + r.base + ' + ' + r.bot + ')'),
+          diff: d === 0 ? '—' : sgn(d),
+          c: r.edge ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.8)',
+          dc: d === 0 ? 'rgba(255,255,255,0.3)' : d > 0 ? '#ffb347' : '#6495ed',
+        };
+      }),
+      auditRowsEmpty: !shown.length,
+      auditHasFix: fix.length > 0,
+      auditSqlLabel: this.state.auditCopied ? '✓ Скопійовано' : '⧉ SQL для ' + fix.length + ' діб',
+      auditCopySql: () => {
+        const sql = '-- Звірка з експортом ' + dl(A.from) + ' — ' + dl(A.to) + ': base = експорт − бот\n' +
+          'INSERT INTO post_activity (day, posts, base) VALUES\n' +
+          fix.map(r => "  ('" + r.k + "', " + r.ev + ', ' + (r.ev - r.bot) + ')').join(',\n') +
+          '\nON CONFLICT (day) DO UPDATE SET base = EXCLUDED.base;\n\n' +
+          'UPDATE post_activity p SET posts = p.base\n  + COALESCE((SELECT SUM(d.posts) FROM tg_daily d WHERE d.day = p.day), 0)\n' +
+          " WHERE p.day BETWEEN '" + A.from + "' AND '" + A.to + "';\n";
+        try { navigator.clipboard.writeText(sql); } catch (e) {}
+        this.setState({ auditCopied: true });
+        setTimeout(() => this.setState({ auditCopied: false }), 2200);
+      },
+    };
   }
 
   _statsVals() {
@@ -6791,6 +7071,14 @@ class Component extends DCLogic {
       martaBusy: !!s.martaBusy,
       martaMsg: s.martaMsg || 'Надіслати бланк у чат звітів просто зараз, не чекаючи розкладу.',
       sendMarta: (e) => this._sendMarta(e.currentTarget.dataset.period),
+      statsHideClaude: !!s.statsHideClaude,
+      statsClaudeMark: s.statsHideClaude ? '✓' : '',
+      statsClaudeNote: this._claudeNote(),
+      toggleStatsClaude: () => this.setState(st => {
+        const v = !st.statsHideClaude;
+        try { localStorage.setItem('au_stats_claude', v ? 'hide' : 'show'); } catch (e) {}
+        return { statsHideClaude: v };
+      }),
       statsLoading: s.statsLoading,
       statsEmpty: !s.statsLoading && s.statsLoaded && !(s.statsRows || []).length,
       statsReady: !s.statsLoading && s.statsLoaded && (s.statsRows || []).length > 0,
@@ -6807,7 +7095,7 @@ class Component extends DCLogic {
     if (s.tab !== 'stats' || !base.statsReady) return { ...base, ...EMPTY };
 
     const from = R.from, to = R.to, span = to - from;
-    const all = s.statsRows || [];
+    const all = this._statsAll();
     const tOf = (r) => new Date(r.created_at).getTime();
     const rows = all.filter(r => { const t = tOf(r); return t >= from && t < to; });
     const prevRows = R.mode === '0'
@@ -6954,7 +7242,7 @@ class Component extends DCLogic {
       .map(([k, c]) => ({ label: DEV[k] || k, count: c, pct: Math.max(3, pct(c, devTotal)), share: pct(c, devTotal) + '%' }));
 
     // ── Звідки приходять ──
-    const SRC = { direct: 'Прямий перехід', 't.me': 'Telegram', 'telegram.me': 'Telegram', 'l.instagram.com': 'Instagram', 'instagram.com': 'Instagram', 'google.com': 'Пошук Google' };
+    const SRC = { claude: 'Claude (прев\u2019ю)', direct: 'Прямий перехід', 't.me': 'Telegram', 'telegram.me': 'Telegram', 'l.instagram.com': 'Instagram', 'instagram.com': 'Instagram', 'google.com': 'Пошук Google' };
     const bySrc = {};
     rows.forEach(r => { if (r.referrer) { const k = SRC[r.referrer] || r.referrer; bySrc[k] = (bySrc[k] || 0) + 1; } });
     const srcTotal = Object.values(bySrc).reduce((a, b) => a + b, 0);
@@ -7264,6 +7552,7 @@ class Component extends DCLogic {
       showOwnersTab:  tab === 'owners',
       showStats:      tab === 'stats',
       ...this._statsVals(),
+      ...this._auditVals(),
       ...this._testsVals(),
       ...this._postsVals(),
       ...this._peopleVals(),
