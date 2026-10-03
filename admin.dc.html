@@ -355,6 +355,8 @@ button{font-family:inherit;cursor:pointer}
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <span style="font-size:0.72rem;font-weight:600;padding:4px 12px;border-radius:999px;background:{{ auditVerdictBg }};color:{{ auditVerdictC }};border:1px solid {{ auditVerdictC }};">{{ auditVerdict }}</span>
             <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ auditFiles }}</span>
+            <button onClick="{{ auditRecheck }}" title="Перечитати post_activity з бази (після SQL)" style="margin-left:auto;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);border-radius:999px;padding:4px 12px;font-size:0.7rem;cursor:pointer;" style-hover="color:#fff;background:rgba(255,255,255,0.1);">↻ Перезвірити</button>
+            <span style="font-size:0.66rem;color:rgba(255,255,255,0.3);">{{ auditCheckedNote }}</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
             <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;">
@@ -415,6 +417,12 @@ button{font-family:inherit;cursor:pointer}
                 <p style="padding:18px 14px;font-size:0.76rem;color:rgba(255,255,255,0.4);text-align:center;">Розбіжностей немає — кожна доба сходиться.</p>
               </sc-if>
             </div>
+            <sc-if value="{{ auditSqlOn }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:12px;">
+                <p style="font-size:0.72rem;color:#ffd700;margin-bottom:6px;">{{ auditSqlNote }}</p>
+                <textarea id="audit-sql" readOnly="{{ true }}" onFocus="{{ auditSqlFocus }}" value="{{ auditSql }}" style="width:100%;height:180px;background:#111;border:1px solid rgba(255,215,0,0.3);border-radius:8px;color:rgba(255,255,255,0.85);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:0.72rem;line-height:1.5;padding:10px 12px;resize:vertical;"></textarea>
+              </div>
+            </sc-if>
             <p style="font-size:0.66rem;line-height:1.5;color:rgba(255,255,255,0.3);margin-top:8px;">Плюс — сайт нарахував більше (часто доба-шов: ті самі дописи і в архіві, і в боті). Мінус — бот проспав або дописи потім видалили із чату (експорт їх уже не бачить). SQL лише копіюється — базу звідси ніхто не чіпає.</p>
           </div>
         </div>
@@ -6938,16 +6946,33 @@ class Component extends DCLogic {
       const days = msgs.map(m => m.day).sort();
       const from = days[0], to = days[days.length - 1];
       // Сайт: post_activity за той самий проміжок. base може не бути — тоді другий захід.
-      const q = (sel) => fetch(`${SUPA_URL}/post_activity?select=${sel}&day=gte.${from}&day=lte.${to}&order=day`, { headers: this._authH() });
-      let r = await q('day,posts,base'), hasBase = true;
-      if (!r.ok) { r = await q('day,posts'); hasBase = false; }
-      if (!r.ok) throw new Error('Не вдалося прочитати post_activity (' + r.status + ').');
-      const site = await r.json();
+      const { site, hasBase } = await this._auditSite(from, to);
       const excl = {};
       const cnt = {};
       msgs.forEach(m => { cnt[m.a] = (cnt[m.a] || 0) + 1; });
       Object.keys(cnt).forEach(a => { if (/(bot|бот)\b|^марта/i.test(a)) excl[a] = true; });
-      this.setState({ auditBusy: false, audit: { msgs, from, to, site, hasBase, skip, files: files.map(f => f.name) }, auditExcl: excl, auditAll: false, auditCopied: false });
+      this.setState({ auditBusy: false, audit: { msgs, from, to, site, hasBase, skip, files: files.map(f => f.name) }, auditExcl: excl, auditAll: false, auditCopied: false, auditSql: '' });
+    } catch (err) {
+      this.setState({ auditBusy: false, auditErr: err && err.message ? err.message : String(err) });
+    }
+  }
+
+  async _auditSite(from, to) {
+    const q = (sel) => fetch(`${SUPA_URL}/post_activity?select=${sel}&day=gte.${from}&day=lte.${to}&order=day`, { headers: { ...this._authH(), 'Cache-Control': 'no-cache' }, cache: 'no-store' });
+    let r = await q('day,posts,base'), hasBase = true;
+    if (!r.ok) { r = await q('day,posts'); hasBase = false; }
+    if (!r.ok) throw new Error('Не вдалося прочитати post_activity (' + r.status + ').');
+    return { site: await r.json(), hasBase };
+  }
+
+  // Після SQL у редакторі — перечитати сайт, не закидаючи експорт знову.
+  async _auditRecheck() {
+    const A = this.state.audit;
+    if (!A || this.state.auditBusy) return;
+    this.setState({ auditBusy: true, auditErr: '' });
+    try {
+      const { site, hasBase } = await this._auditSite(A.from, A.to);
+      this.setState({ auditBusy: false, audit: { ...A, site, hasBase }, auditSql: '', auditCopied: false, auditChecked: new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) });
     } catch (err) {
       this.setState({ auditBusy: false, auditErr: err && err.message ? err.message : String(err) });
     }
@@ -6992,7 +7017,9 @@ class Component extends DCLogic {
     const diff = siteT - expT;
     const ok = !bad.length;
     const shown = (this.state.auditAll ? rows : rows.filter(r => r.sv !== r.ev)).slice().reverse();
-    const fix = A.hasBase ? bad.filter(r => r.ev - r.bot >= 0) : [];
+    // Що вирівнювати: серединні доби з будь-якою різницею + крайні, де сайт МЕНШЕ за експорт
+    // (неповна доба може лише недорахувати, тож підняти її безпечно). Бота не чіпаємо ніколи.
+    const fix = A.hasBase ? rows.filter(r => r.sv !== r.ev && (!r.edge || r.sv < r.ev) && r.ev - r.bot >= 0) : [];
     const excl = this.state.auditExcl || {};
     const cnt = {};
     A.msgs.forEach(m => { cnt[m.a] = (cnt[m.a] || 0) + 1; });
@@ -7031,18 +7058,37 @@ class Component extends DCLogic {
       }),
       auditRowsEmpty: !shown.length,
       auditHasFix: fix.length > 0,
-      auditSqlLabel: this.state.auditCopied ? '✓ Скопійовано' : '⧉ SQL для ' + fix.length + ' діб',
+      auditSqlLabel: this.state.auditCopied ? '✓ Скопійовано' : '⧉ SQL для ' + fix.length + ' діб (з резервною копією)',
       auditCopySql: () => {
-        const sql = '-- Звірка з експортом ' + dl(A.from) + ' — ' + dl(A.to) + ': base = експорт − бот\n' +
+        const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const days = fix.map(r => "'" + r.k + "'").join(', ');
+        // Тільки перелічені доби і тільки після резервної копії. Перша версія перераховувала весь
+        // проміжок експорту як base + tg_daily — і ті доби, де архів лежав у posts без base, обнулились.
+        const sql = '-- Звірка з експортом ' + dl(A.from) + ' — ' + dl(A.to) + ': ' + fix.length + ' діб, base = експорт − бот\n' +
+          '-- 1. Резервна копія (повернути: TRUNCATE post_activity; INSERT INTO post_activity SELECT * FROM post_activity_bak_' + stamp + ';)\n' +
+          'CREATE TABLE IF NOT EXISTS post_activity_bak_' + stamp + ' AS SELECT * FROM post_activity;\n\n' +
+          '-- 2. Архівна частина лише для цих діб\n' +
           'INSERT INTO post_activity (day, posts, base) VALUES\n' +
           fix.map(r => "  ('" + r.k + "', " + r.ev + ', ' + (r.ev - r.bot) + ')').join(',\n') +
           '\nON CONFLICT (day) DO UPDATE SET base = EXCLUDED.base;\n\n' +
+          '-- 3. posts = архів + бот — теж лише для цих діб\n' +
           'UPDATE post_activity p SET posts = p.base\n  + COALESCE((SELECT SUM(d.posts) FROM tg_daily d WHERE d.day = p.day), 0)\n' +
-          " WHERE p.day BETWEEN '" + A.from + "' AND '" + A.to + "';\n";
-        try { navigator.clipboard.writeText(sql); } catch (e) {}
-        this.setState({ auditCopied: true });
-        setTimeout(() => this.setState({ auditCopied: false }), 2200);
+          ' WHERE p.day IN (' + days + ');\n';
+        // У вбудованому вікні clipboard часто заборонений — тому SQL завжди з'являється в полі,
+        // а копіювання — спершу API, потім execCommand з того самого поля.
+        this.setState({ auditSql: sql, auditCopied: false }, () => {
+          const ta = document.getElementById('audit-sql');
+          const legacy = () => { try { if (ta) { ta.focus(); ta.select(); if (document.execCommand('copy')) this.setState({ auditCopied: true }); } } catch (e) {} };
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(sql).then(() => this.setState({ auditCopied: true }), legacy);
+          else legacy();
+        });
       },
+      auditSqlOn: !!this.state.auditSql,
+      auditSql: this.state.auditSql || '',
+      auditSqlNote: this.state.auditCopied ? '✓ У буфері. Встав у Supabase → SQL Editor → Run, потім натисни «↻ Перезвірити».' : 'Браузер не дав скопіювати сам — виділи поле (Ctrl+A) і скопіюй вручну.',
+      auditSqlFocus: (e) => { try { e.currentTarget.select(); } catch (er) {} },
+      auditRecheck: () => this._auditRecheck(),
+      auditCheckedNote: this.state.auditChecked ? 'перечитано о ' + this.state.auditChecked : '',
     };
   }
 

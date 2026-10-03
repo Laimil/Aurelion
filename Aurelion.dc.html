@@ -2845,8 +2845,22 @@ a:hover{color:#a8c4f7;}
               <span style="font-size:0.64rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,215,0,0.8);white-space:nowrap;">✦ Записано в літопис ✦</span>
               <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,215,0,0.5),rgba(255,215,0,0));"></span>
             </div>
-            <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.4rem,6vw,3.5rem);font-weight:700;line-height:1;letter-spacing:0.04em;color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,0.4),0 0 2px rgba(255,215,0,0.8);margin-top:12px;">{{ pgTotal }}</p>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;font-style:italic;color:rgba(255,255,255,0.6);margin-top:6px;">дописів від {{ pgSince }}</p>
+            <div style="display:flex;align-items:flex-start;justify-content:center;gap:12px 40px;flex-wrap:wrap;margin-top:12px;">
+              <div title="Кожне повідомлення в рольовому чаті">
+                <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.4rem,6vw,3.5rem);font-weight:700;line-height:1;letter-spacing:0.04em;color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,0.4),0 0 2px rgba(255,215,0,0.8);">{{ pgTotal }}</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;font-style:italic;color:rgba(255,255,255,0.6);margin-top:6px;">{{ pgTotalWord }} від {{ pgSince }}</p>
+              </div>
+              <sc-if value="{{ ppOn }}" hint-placeholder-val="{{ false }}">
+                <span style="align-self:stretch;width:1px;background:linear-gradient(180deg,rgba(255,215,0,0),rgba(255,215,0,0.4),rgba(255,215,0,0));"></span>
+                <div title="Відіграш із тегами #Ім'я #Арка; довгий пост із кількох повідомлень — один">
+                  <p style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.4rem,6vw,3.5rem);font-weight:700;line-height:1;letter-spacing:0.04em;color:#fff;text-shadow:0 0 22px rgba(255,255,255,0.18);">{{ ppTotal }}</p>
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;font-style:italic;color:rgba(255,255,255,0.6);margin-top:6px;">{{ ppTotalWord }} від {{ ppSince }}</p>
+                </div>
+              </sc-if>
+            </div>
+            <sc-if value="{{ ppOn }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.72rem;letter-spacing:0.04em;color:rgba(255,215,0,0.6);margin-top:12px;">{{ ppRatio }}</p>
+            </sc-if>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));border-top:1px solid rgba(255,215,0,0.16);background:rgba(0,0,0,0.18);">
             <div style="padding:14px 18px;text-align:center;border-right:1px solid rgba(255,255,255,0.06);">
@@ -3069,7 +3083,60 @@ a:hover{color:#a8c4f7;}
         </section>
 
         <!-- Рекорди одним рядком -->
-        <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.7;color:rgba(255,255,255,0.28);text-align:center;text-wrap:pretty;margin-top:6px;">Літопис ведеться від {{ pgSince }}. Марта рахує тільки кількість дописів — ні текстів, ні імен тут немає й не буде.</p>
+        <!-- Плашка за весь проміжок -->
+        <section style="margin-top:10px;border-radius:14px;border:1px solid rgba(255,215,0,0.22);background:linear-gradient(90deg,rgba(255,215,0,0.06),rgba(255,215,0,0.02) 50%,rgba(255,215,0,0.06));padding:20px 26px 18px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
+          <p style="font-size:0.62rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);text-wrap:balance;">✦ За весь літопис <span style="white-space:nowrap;">· {{ pgSince }} — сьогодні</span></p>
+          <div style="width:100%;">
+            <div style="display:flex;justify-content:flex-end;gap:16px;font-size:0.7rem;color:rgba(255,255,255,0.5);margin-bottom:8px;">
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:3px;border-radius:2px;background:#ffd700;box-shadow:0 0 6px rgba(255,215,0,0.7);"></span>дописи</span>
+              <sc-if value="{{ ppOn }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:2px;border-radius:2px;background:rgba(255,255,255,0.85);"></span>пости</span></sc-if>
+            </div>
+            <div style="position:relative;height:clamp(170px,24vw,230px);">
+              <svg viewBox="0 0 1000 220" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible;">
+                <defs>
+                  <linearGradient id="allFillGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(255,215,0,0.32)"></stop>
+                    <stop offset="100%" stop-color="rgba(255,215,0,0)"></stop>
+                  </linearGradient>
+                  <linearGradient id="allStrokeGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#ffb347"></stop>
+                    <stop offset="55%" stop-color="#ffd700"></stop>
+                    <stop offset="100%" stop-color="#fff1a8"></stop>
+                  </linearGradient>
+                </defs>
+                <sc-for list="{{ allGrid }}" as="g" hint-placeholder-count="3">
+                  <line x1="0" y1="{{ g.y }}" x2="1000" y2="{{ g.y }}" stroke="rgba(255,255,255,0.07)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                </sc-for>
+                <path d="{{ allArea }}" fill="url(#allFillGrad)"></path>
+                <path d="{{ allLine }}" fill="none" stroke="url(#allStrokeGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" style="filter:drop-shadow(0 0 5px rgba(255,215,0,0.55));"></path>
+                <path d="{{ allPpLine }}" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                <path d="{{ allTail }}" fill="none" stroke="rgba(255,215,0,0.55)" stroke-width="1.8" stroke-dasharray="4 5" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+                <path d="{{ allPpTail }}" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.4" stroke-dasharray="4 5" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+              </svg>
+              <sc-for list="{{ allGrid }}" as="g" hint-placeholder-count="3">
+                <span style="position:absolute;left:1px;top:{{ g.topPct }};transform:translateY(-50%);font-size:0.6rem;color:rgba(255,255,255,0.3);pointer-events:none;text-shadow:0 0 4px #1a1a1a,0 0 4px #1a1a1a;">{{ g.label }}</span>
+              </sc-for>
+              <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat({{ allCount }},1fr);">
+                <sc-for list="{{ allCols }}" as="c" hint-placeholder-count="12">
+                  <span title="{{ c.tip }}" style="display:block;height:100%;border-radius:4px;transition:background 0.3s ease;" style-hover="background:rgba(255,215,0,0.07);"></span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="position:relative;height:16px;margin-top:8px;">
+              <sc-for list="{{ allTicks }}" as="t" hint-placeholder-count="8">
+                <span style="position:absolute;top:0;left:{{ t.left }};transform:translateX(-50%);font-size:0.6rem;white-space:nowrap;color:{{ t.c }};">{{ t.l }}</span>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:8px 26px;font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);padding-top:12px;border-top:1px solid rgba(255,215,0,0.12);width:100%;">
+            <span><b style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;color:#fff;font-weight:700;">{{ pgSpan }}</b> {{ pgSpanWord }}</span>
+            <span><b style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;color:#ffd700;font-weight:700;">{{ pgTotal }}</b> {{ pgTotalWord }}</span>
+            <sc-if value="{{ ppOn }}" hint-placeholder-val="{{ false }}"><span><b style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;color:#fff;font-weight:700;">{{ ppTotal }}</b> {{ ppTotalWord }}</span></sc-if>
+            <sc-if value="{{ peopleOn }}" hint-placeholder-val="{{ false }}"><span><b style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;color:#6495ed;font-weight:700;">{{ peopleAll }}</b> {{ peopleAllWord }}</span></sc-if>
+            <span><b style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;color:#fff;font-weight:700;">{{ streakDays }}</b> {{ streakWord }} найдовшої варти</span>
+          </div>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.6;color:rgba(255,255,255,0.32);text-wrap:balance;max-width:560px;">Марта рахує тільки кількість — ні текстів, ні імен тут немає й не буде.</p>
+        </section>
       </div>
       </sc-if>
     </div>
@@ -5895,6 +5962,13 @@ class Component extends DCLogic {
     try { return await this._get(path); } catch (e) { return []; }
   }
 
+  // Пости (marta_posts) — лише числа на добу з в'юхи pulse_posts_daily. Тягнеться раз,
+  // коли відкрили «Пульс»; без міграції в'юхи немає — і сторінка просто без другого числа.
+  async _loadPulsePosts() {
+    const pp = await this._getSoft('pulse_posts_daily?select=day,posts&order=day.asc');
+    this.setState({ pulsePosts: Array.isArray(pp) ? pp : [] });
+  }
+
   // «Звірити» на сторінці «Пульс»: тягне лише числа, не перезавантажуючи сайт.
   async _refreshPulse() {
     if (this.state.pulseBusy) return;
@@ -5902,11 +5976,13 @@ class Component extends DCLogic {
     const sum = (arr) => (arr || []).reduce((a, r) => a + (Number(r.posts) || 0), 0);
     const before = sum((this.state.data || {}).post_activity);
     try {
-      const [pa, pm, pt] = await Promise.all([
+      const [pa, pm, pt, pp] = await Promise.all([
         this._get('post_activity?select=day,posts&order=day.asc'),
         this._getSoft('community_pulse?select=*&order=month.asc'),
         this._getSoft('community_pulse_totals?select=*'),
+        this._getSoft('pulse_posts_daily?select=day,posts&order=day.asc'),
       ]);
+      if (Array.isArray(pp)) this.setState({ pulsePosts: pp });
       const data = {
         ...(this.state.data || {}),
         post_activity: Array.isArray(pa) ? pa : [],
@@ -8411,6 +8487,7 @@ class Component extends DCLogic {
       // ── Сторінка «Пульс»: усе рахується з денних сум, без імен ──
       ...((() => {
         if (page !== 'pulse') return { showPulsePage: false };
+        if (!this._ppAsked) { this._ppAsked = true; setTimeout(() => this._loadPulsePosts(), 0); }
         const marta = {
           martaLine:     this.state.martaLine || MARTA_IDLE,
           martaStamp:    this.state.pulseStamp ? 'звірено о ' + this.state.pulseStamp : '',
@@ -8692,6 +8769,69 @@ class Component extends DCLogic {
         // ── Обраний день на теплокарті ──
         const ADJ_NOM = ['Звичайний','Звичайний','Звичайна','Звичайний','Звичайна','Звичайна','Звичайна'];
         const ADJ_ACC = ['звичайний','звичайний','звичайну','звичайний','звичайну','звичайну','звичайну'];
+        // ── Пости: відіграш із тегами (marta_posts), довгий — один, скільки б повідомлень ──
+        const ppRows = (this.state.pulsePosts || []).map(r => ({ k: String(r.day).slice(0, 10), v: Number(r.posts) || 0 })).filter(r => r.v > 0);
+        const ppBy = new Map(ppRows.map(r => [r.k, r.v]));
+        const ppTotalN = ppRows.reduce((a, r) => a + r.v, 0);
+        const ppFirst = ppRows.length ? ppRows.reduce((a, r) => r.k < a ? r.k : a, ppRows[0].k) : '';
+        const ppOn = ppTotalN > 0;
+        // Скільки дописів припадає на пост — лише за ті дні, коли пости вже рахувалися.
+        const msgSincePp = ppOn ? rows.filter(r => r.iso >= ppFirst).reduce((a, r) => a + r.v, 0) : 0;
+        const ppRatio = ppOn && msgSincePp ? '≈ ' + (msgSincePp / ppTotalN).toFixed(1).replace('.', ',') + ' допису на пост' : '';
+
+        // ── Увесь літопис: місяці від першого до поточного, дописи й пости ──
+        const ppMon = new Map();
+        ppRows.forEach(r => { const k = r.k.slice(0, 7); ppMon.set(k, (ppMon.get(k) || 0) + r.v); });
+        const msgMon = new Map(mList);
+        const allKeys = [];
+        if (mList.length) {
+          let [y, m] = mList[0][0].split('-').map(Number);
+          const [ey, em] = curKey.split('-').map(Number);
+          while (y < ey || (y === ey && m <= em)) { allKeys.push(y + '-' + String(m).padStart(2, '0')); m++; if (m > 12) { m = 1; y++; } }
+        }
+        const nAll = Math.max(1, allKeys.length);
+        const allMax = Math.max(1, ...allKeys.map(k => Math.max(msgMon.get(k) || 0, ppMon.get(k) || 0)));
+        const aTop = 12, aBase = 214;
+        const xAt = (i) => nAll > 1 ? (i + 0.5) / nAll * 1000 : 500;
+        const yAt = (v) => aBase - v / allMax * (aBase - aTop);
+        const smoothP = (P) => {
+          if (!P.length) return '';
+          let d = 'M' + P[0].x.toFixed(1) + ',' + P[0].y.toFixed(1);
+          for (let i = 0; i < P.length - 1; i++) {
+            const p0 = P[i - 1] || P[i], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2] || p2;
+            d += 'C' + (p1.x + (p2.x - p0.x) / 6).toFixed(1) + ',' + Math.min(aBase, p1.y + (p2.y - p0.y) / 6).toFixed(1) + ' ' +
+                 (p2.x - (p3.x - p1.x) / 6).toFixed(1) + ',' + Math.min(aBase, p2.y - (p3.y - p1.y) / 6).toFixed(1) + ' ' + p2.x.toFixed(1) + ',' + p2.y.toFixed(1);
+          }
+          return d;
+        };
+        // Поточний місяць неповний — суцільна лінія закінчується на минулому, а в нього веде пунктир.
+        const liveIdx = allKeys.length > 1 && allKeys[allKeys.length - 1] === curKey ? allKeys.length - 1 : -1;
+        const allPtsFull = allKeys.map((k, i) => ({ x: xAt(i), y: yAt(msgMon.get(k) || 0) }));
+        const allPts = liveIdx >= 0 ? allPtsFull.slice(0, -1) : allPtsFull;
+        const allLine = smoothP(allPts);
+        const ppIdx = allKeys.map((k, i) => i).filter(i => ppFirst && allKeys[i] >= ppFirst.slice(0, 7));
+        const ppPtsFull = ppIdx.map(i => ({ x: xAt(i), y: yAt(ppMon.get(allKeys[i]) || 0) }));
+        const ppPts = liveIdx >= 0 && ppIdx[ppIdx.length - 1] === liveIdx ? ppPtsFull.slice(0, -1) : ppPtsFull;
+        const allPpLine = ppOn ? smoothP(ppPts) : '';
+        const tail = (P, full) => P.length && full.length > P.length ? 'M' + P[P.length - 1].x.toFixed(1) + ',' + P[P.length - 1].y.toFixed(1) + ' L' + full[full.length - 1].x.toFixed(1) + ',' + full[full.length - 1].y.toFixed(1) : '';
+        const allTail = liveIdx >= 0 ? tail(allPts, allPtsFull) : '';
+        const allPpTail = ppOn && liveIdx >= 0 ? tail(ppPts, ppPtsFull) : '';
+        const allArea = allLine && allPts.length ? allLine + ' L' + allPts[allPts.length - 1].x.toFixed(1) + ',220 L' + allPts[0].x.toFixed(1) + ',220 Z' : '';
+        const aStep = [10,20,25,50,100,150,200,250,500,1000,2000].find(st => allMax / st <= 4) || 2000;
+        const allGrid = [];
+        for (let v = aStep; v <= allMax + 0.5; v += aStep) { const gy = yAt(v); allGrid.push({ y: gy.toFixed(1), topPct: (gy / 220 * 100).toFixed(2) + '%', label: String(v) }); }
+        const tickEvery = nAll > 24 ? 3 : nAll > 12 ? 2 : 1;
+        const isJan = (i) => allKeys[i] && allKeys[i].slice(5) === '01';
+        const allTicks = allKeys.map((k, i) => ({ k, i })).filter(({ k, i }) => isJan(i) || (i % tickEvery === 0 && !isJan(i - 1) && !isJan(i + 1) && !(tickEvery > 1 && (isJan(i - 2) || isJan(i + 2))))).map(({ k, i }) => ({
+          left: (xAt(i) / 10).toFixed(2) + '%',
+          l: k.slice(5) === '01' ? k.slice(0, 4) : UK_MON_ABBR[+k.slice(5) - 1],
+          c: k.slice(5) === '01' ? 'rgba(255,215,0,0.7)' : 'rgba(255,255,255,0.34)',
+        }));
+        const allCols = allKeys.map(k => {
+          const mv = msgMon.get(k) || 0, pv = ppMon.get(k) || 0;
+          return { tip: mName(k) + ' — ' + mv + ' ' + plural(mv, 'допис', 'дописи', 'дописів') + (ppOn && k >= ppFirst.slice(0, 7) ? ' · ' + pv + ' ' + plural(pv, 'пост', 'пости', 'постів') : '') + (k === curKey ? ' · місяць триває' : '') };
+        });
+
         const selKey = this.state.pulseSel || kToday;
         const heatRing = heatCells.map(c => ({ ...c, ring: c.key === selKey ? '0 0 0 1.5px #fff' : 'none' }));
         const selV = byDay.get(selKey) || 0;
@@ -8748,7 +8888,16 @@ class Component extends DCLogic {
           selV: String(selV),
           selWord: selV ? plural(selV, 'допис', 'дописи', 'дописів') : 'тиша',
           selColor: selV ? '#ffd700' : 'rgba(255,255,255,0.3)',
-          selNote,
+          selNote: selNote + (ppOn && selV && selKey >= ppFirst ? ' Постів цього дня: ' + (ppBy.get(selKey) || 0) + '.' : ''),
+          ppOn,
+          ppTotal: ppTotalN.toLocaleString('uk-UA'),
+          ppSince: ppFirst ? (() => { const d = new Date(ppFirst + 'T00:00:00Z'); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); })() : '',
+          ppRatio,
+          allLine, allArea, allPpLine, allTail, allPpTail, allGrid, allTicks, allCols, allCount: String(nAll),
+          pgSpanWord:  plural(spanDays, 'день', 'дні', 'днів'),
+          pgTotalWord: plural(total, 'допис', 'дописи', 'дописів'),
+          ppTotalWord: plural(ppTotalN, 'пост', 'пости', 'постів'),
+          peopleAllWord: peopleOn ? plural(Number(pt.authors_all) || 0, 'голос', 'голоси', 'голосів') : '',
           showPulsePage: true,
           pulseNoData: false,
           pulseHasData: true,
