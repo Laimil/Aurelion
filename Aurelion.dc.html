@@ -2802,192 +2802,225 @@ a:hover{color:#a8c4f7;}
 <!-- ═══ ПУЛЬС ═══ -->
 <sc-if value="{{ showPulsePage }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;background:#1a1a1a;padding:104px 24px 130px;">
-    <header style="max-width:1060px;margin:0 auto 46px;text-align:center;">
-      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Пульс Ауреліону</p>
-      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Живий літопис</h1>
-      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;line-height:1.7;color:rgba(255,255,255,0.4);margin:12px auto 0;max-width:620px;text-wrap:pretty;">Скільки нас, як часто ми пишемо і коли світ Ауреліону гуде найгучніше. Тільки числа — жодних імен.</p>
-    </header>
-
-    <!-- Марта — літописець чату: тут вона віддає звіт і перезвіряє записи -->
-    <div style="display:flex;justify-content:center;margin:-24px auto 30px;">
-      <div class="glass" style="display:flex;align-items:center;gap:16px;border-radius:999px;padding:9px 12px 9px 10px;flex-wrap:wrap;justify-content:center;">
-        <span style="width:40px;height:40px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(255,215,0,0.09);border:1px solid rgba(255,215,0,0.32);font-family:'Cinzel',Georgia,serif;font-size:1rem;letter-spacing:0.04em;color:#ffd700;">М</span>
-        <span style="display:flex;flex-direction:column;gap:2px;padding-right:4px;">
-          <span style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.34);">Літопис веде Марта</span>
-          <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.35;color:rgba(255,215,0,0.72);">{{ martaLine }}</span>
-          <span style="font-size:0.66rem;letter-spacing:0.05em;color:rgba(255,255,255,0.26);">{{ martaStamp }}</span>
-        </span>
-        <button onClick="{{ refreshPulse }}" disabled="{{ pulseBusy }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:10px 20px;font-family:'Cinzel',Georgia,serif;font-size:0.74rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s ease;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.18);box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ pulseBtnLabel }}</button>
-      </div>
-    </div>
-
-    <sc-if value="{{ pulseNoData }}" hint-placeholder-val="{{ false }}">
-      <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
-        <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
-        <p>Літопис ще порожній.</p>
-      </div>
-    </sc-if>
-
-    <sc-if value="{{ pulseHasData }}" hint-placeholder-val="{{ true }}">
     <div style="max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+      <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;flex-wrap:wrap;margin-bottom:6px;">
+        <div>
+          <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Пульс Ауреліону</p>
+          <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.6rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Живий літопис</h1>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end;">
+          <span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right;">
+            <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,215,0,0.72);max-width:300px;text-wrap:balance;">{{ martaLine }}</span>
+            <span style="font-size:0.66rem;letter-spacing:0.05em;color:rgba(255,255,255,0.3);">{{ martaStamp }}</span>
+          </span>
+          <button onClick="{{ refreshPulse }}" disabled="{{ pulseBusy }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:9px 18px;font-family:'Cinzel',Georgia,serif;font-size:0.72rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s ease;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.18);box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ pulseBtnLabel }}</button>
+        </div>
+      </header>
 
-      <!-- Останні дні -->
-      <section class="glass" style="padding:24px 26px;border-radius:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:22px;align-items:start;">
-        <sc-for list="{{ recentCards }}" as="r" hint-placeholder-count="3">
+      <sc-if value="{{ pulseNoData }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:80px 24px;color:rgba(255,255,255,0.3);">
+          <p style="font-size:1.5rem;margin-bottom:12px;">✦</p>
+          <p>Літопис ще порожній.</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ pulseHasData }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:18px;">
+
+        <!-- Марта розповідає тиждень -->
+        <div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:start;padding:24px 26px;border-radius:14px;background:linear-gradient(180deg,rgba(255,215,0,0.07),rgba(255,215,0,0.02));border:1px solid rgba(255,215,0,0.22);">
+          <span style="width:46px;height:46px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(255,215,0,0.09);border:1px solid rgba(255,215,0,0.4);font-family:'Cinzel',Georgia,serif;font-size:1.1rem;color:#ffd700;">М</span>
           <div>
-            <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);">{{ r.label }} · {{ r.when }}</p>
-            <p style="font-family:'Cinzel',Georgia,serif;font-size:1.75rem;font-weight:700;line-height:1;margin-top:8px;color:{{ r.color }};">{{ r.value }} <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:0.02em;">{{ r.word }}</span></p>
-          </div>
-        </sc-for>
-        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:14px 16px;margin:-14px -16px;">
-          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);">За тиждень</p>
-          <p style="font-family:'Cinzel',Georgia,serif;font-size:1.75rem;font-weight:700;line-height:1;margin-top:8px;color:#fff;">{{ weekValue }} <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;font-weight:400;color:rgba(255,255,255,0.35);letter-spacing:0.02em;">{{ weekWord }}</span></p>
-          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.5;margin-top:7px;color:{{ weekColor }};">{{ weekNote }}</p>
-        </div>
-      </section>
-
-      <!-- Великі числа -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px;">
-        <div class="glass" style="padding:24px 26px;border-radius:12px;">
-          <p style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#ffd700;line-height:1;">{{ pgTotal }}</p>
-          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:10px;">Дописів усього</p>
-        </div>
-        <div class="glass" style="padding:24px 26px;border-radius:12px;">
-          <p style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#fff;line-height:1;">{{ pgDays }}</p>
-          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:10px;">Днів із життям</p>
-          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.32);margin-top:6px;">із {{ pgSpan }} днів від початку</p>
-        </div>
-        <div class="glass" style="padding:24px 26px;border-radius:12px;">
-          <p style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#6495ed;line-height:1;">{{ pgPeak }}</p>
-          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:10px;">Рекорд за день</p>
-          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.32);margin-top:6px;">{{ pgPeakWhen }}</p>
-        </div>
-        <div class="glass" style="padding:24px 26px;border-radius:12px;">
-          <p style="font-family:'Cinzel',Georgia,serif;font-size:2.1rem;font-weight:700;color:#fff;line-height:1;">{{ pgAvg }}</p>
-          <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:10px;">У середньому за день</p>
-        </div>
-      </div>
-
-      <!-- Теплокарта -->
-      <section class="glass" style="padding:28px 30px 24px;border-radius:12px;">
-        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
-          <div>
-            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Рік одним поглядом</h2>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.38);margin-top:4px;">Кожен квадратик — день. Що яскравіше, то гучніше було.</p>
-          </div>
-          <p style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.6);white-space:nowrap;">{{ heatFrom }} → {{ heatTo }}</p>
-        </div>
-        <div style="overflow-x:auto;padding-bottom:4px;">
-          <div style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);grid-auto-columns:minmax(9px,1fr);gap:3px;min-width:620px;">
-            <sc-for list="{{ heatCells }}" as="c" hint-placeholder-count="371">
-              <div title="{{ c.tip }}" style="aspect-ratio:1;border-radius:2px;background:{{ c.bg }};"></div>
-            </sc-for>
+            <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Тиждень у трьох реченнях · від Марти</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:clamp(1.1rem,2.4vw,1.3rem);line-height:1.55;color:rgba(255,255,255,0.9);text-wrap:pretty;">{{ pulseDigest }}</p>
           </div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:16px;">
-          <span style="font-size:0.68rem;color:rgba(255,255,255,0.3);">тиша</span>
-          <sc-for list="{{ heatShades }}" as="s" hint-placeholder-count="5">
-            <span style="width:11px;height:11px;border-radius:2px;background:{{ s.bg }};"></span>
-          </sc-for>
-          <span style="font-size:0.68rem;color:rgba(255,255,255,0.3);">буря</span>
-        </div>
-      </section>
 
-      <!-- Дні тижня + серія -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;">
-        <section class="glass" style="padding:28px 30px;border-radius:12px;">
-          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Коли ми пишемо</h2>
-          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.38);margin-top:4px;margin-bottom:20px;">{{ weekdayNote }}</p>
-          <div style="display:flex;flex-direction:column;gap:9px;">
-            <sc-for list="{{ weekdayBars }}" as="w" hint-placeholder-count="7">
-              <div style="display:grid;grid-template-columns:92px 1fr auto;align-items:center;gap:12px;">
-                <span style="font-size:0.78rem;color:{{ w.color }};">{{ w.label }}</span>
-                <span style="height:8px;border-radius:999px;background:rgba(255,255,255,0.05);overflow:hidden;display:block;">
-                  <span style="display:block;height:100%;border-radius:999px;width:{{ w.pct }};background:{{ w.bg }};"></span>
-                </span>
-                <span style="font-size:0.74rem;color:rgba(255,255,255,0.35);min-width:44px;text-align:right;">{{ w.value }}</span>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px;">
+          <!-- Тиждень проти звичного -->
+          <section class="glass" style="padding:24px 26px;border-radius:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;">
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.05em;">Цей тиждень проти звичного</h2>
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:1.3rem;font-weight:700;color:{{ wkDeltaColor }};white-space:nowrap;">{{ wkDelta }}</span>
+            </div>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.45);margin-top:4px;">Стовпчик — день. Тінь за ним — звичайний такий день тижня за рік.</p>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px;height:150px;align-items:end;margin-top:20px;">
+              <sc-for list="{{ wkBars }}" as="w" hint-placeholder-count="7">
+                <div title="{{ w.tip }}" style="position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center;">
+                  <span style="position:absolute;bottom:0;left:0;right:0;height:{{ w.normH }};border-radius:6px 6px 2px 2px;background:rgba(255,255,255,0.07);border:1px dashed rgba(255,255,255,0.18);"></span>
+                  <span style="position:relative;width:58%;height:{{ w.h }};border-radius:5px 5px 2px 2px;background:{{ w.bg }};"></span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:8px;">
+              <sc-for list="{{ wkBars }}" as="w" hint-placeholder-count="7">
+                <div style="text-align:center;">
+                  <p style="font-size:0.72rem;color:{{ w.lc }};">{{ w.d }}</p>
+                  <p style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-top:2px;">{{ w.v }}</p>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+
+          <!-- Хто з нами (або, поки бот не рахує людей, — гучно й тихо) -->
+          <sc-if value="{{ peopleOn }}" hint-placeholder-val="{{ false }}">
+            <section class="glass" style="padding:24px 26px;border-radius:12px;display:flex;flex-direction:column;gap:16px;">
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.05em;">Хто з нами</h2>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                  <p style="font-family:'Cinzel',Georgia,serif;font-size:2rem;font-weight:700;color:#fff;line-height:1;">{{ people30 }}</p>
+                  <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">голосів за 30 днів</p>
+                </div>
+                <div>
+                  <p style="font-family:'Cinzel',Georgia,serif;font-size:2rem;font-weight:700;color:#6495ed;line-height:1;">{{ peopleMonth }}</p>
+                  <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">цього місяця</p>
+                </div>
               </div>
-            </sc-for>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.5);border-top:1px solid rgba(255,255,255,0.07);padding-top:14px;text-wrap:pretty;">Усього голосів — {{ peopleAll }}, рахунок від {{ peopleSince }}. Рахуємо людей, не імена.</p>
+            </section>
+          </sc-if>
+          <sc-if value="{{ peopleOff }}" hint-placeholder-val="{{ false }}">
+            <section class="glass" style="padding:24px 26px;border-radius:12px;">
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.05em;margin-bottom:16px;">Гучно й тихо</h2>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:12px;">
+                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,215,0,0.85);">{{ loudName }}</span>
+                  <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ loudValue }} дописів</span>
+                </div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;">
+                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);">{{ quietName }}</span>
+                  <span style="font-size:0.8rem;color:rgba(255,255,255,0.3);white-space:nowrap;">{{ quietValue }} дописів</span>
+                </div>
+              </div>
+            </section>
+          </sc-if>
+        </div>
+
+        <!-- Варта: стрічка року -->
+        <section class="glass" style="padding:26px 28px 24px;border-radius:12px;">
+          <div style="display:flex;flex-wrap:wrap;gap:18px 36px;align-items:flex-end;">
+            <div style="flex:1 1 260px;">
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.05em;">Варта</h2>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.45);margin-top:4px;text-wrap:pretty;">{{ vartaNote }}</p>
+            </div>
+            <div>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:2.3rem;font-weight:700;line-height:1;color:{{ curStreakColor }};">{{ curStreakDays }} <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;font-weight:400;color:rgba(255,255,255,0.5);">{{ curStreakWord }}</span></p>
+              <p style="font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-top:8px;white-space:nowrap;">{{ curStreakLabel }}</p>
+            </div>
+            <div>
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:2.3rem;font-weight:700;line-height:1;color:rgba(255,255,255,0.9);">{{ streakDays }} <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;font-weight:400;color:rgba(255,255,255,0.5);">{{ streakWord }}</span></p>
+              <p style="font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:8px;white-space:nowrap;">Рекорд · {{ streakRange }}</p>
+            </div>
+          </div>
+          <div style="overflow-x:auto;padding-top:24px;margin-top:6px;">
+            <div style="position:relative;min-width:560px;">
+              <sc-if value="{{ bestInView }}" hint-placeholder-val="{{ false }}">
+                <span style="position:absolute;left:{{ bestLeft }};top:-20px;transform:translateX(-50%);font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.8);white-space:nowrap;">✦ рекорд</span>
+              </sc-if>
+              <div style="position:relative;height:18px;border-radius:4px;background:rgba(255,255,255,0.05);">
+                <sc-for list="{{ vartaTrack }}" as="t" hint-placeholder-count="12">
+                  <span title="{{ t.tip }}" style="position:absolute;top:0;bottom:0;left:{{ t.left }};width:{{ t.width }};background:{{ t.bg }};box-shadow:{{ t.glow }};border-radius:2px;"></span>
+                </sc-for>
+              </div>
+              <div style="position:relative;height:16px;margin-top:6px;">
+                <sc-for list="{{ vartaTicks }}" as="k" hint-placeholder-count="12">
+                  <span style="position:absolute;left:{{ k.left }};font-size:0.64rem;color:rgba(255,255,255,0.35);">{{ k.l }}</span>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,0.07);margin-top:16px;padding-top:16px;">
+            <p style="font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:12px;">Найдовші проміжки без тиші</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px 26px;">
+              <sc-for list="{{ streakList }}" as="sr" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;align-items:baseline;">
+                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:{{ sr.color }};">{{ sr.range }}</span>
+                  <span title="{{ sr.posts }}" style="font-size:0.74rem;color:rgba(255,255,255,0.45);white-space:nowrap;">{{ sr.days }} {{ sr.dayWord }}</span>
+                  <span style="grid-column:1/-1;display:flex;align-items:center;gap:8px;">
+                    <span style="flex:1;height:5px;border-radius:999px;background:rgba(255,255,255,0.05);overflow:hidden;display:block;"><span style="display:block;height:100%;width:{{ sr.pct }};border-radius:999px;background:{{ sr.bg }};"></span></span>
+                    <span style="font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.6);min-width:46px;text-align:right;">{{ sr.tail }}</span>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
           </div>
         </section>
 
-        <div style="display:flex;flex-direction:column;gap:18px;">
-          <section class="glass" style="padding:28px 30px;border-radius:12px;">
-            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Варта</h2>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.38);margin-top:4px;">Дні підряд, коли в чаті не було жодної тиші.</p>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:18px;margin-top:18px;">
-              <div>
-                <p style="font-family:'Cinzel',Georgia,serif;font-size:2.4rem;font-weight:700;line-height:1;color:{{ curStreakColor }};">{{ curStreakDays }}</p>
-                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.45);margin-top:6px;">{{ curStreakWord }}</p>
-                <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-top:8px;">Зараз</p>
-              </div>
-              <div>
-                <p style="font-family:'Cinzel',Georgia,serif;font-size:2.4rem;font-weight:700;line-height:1;color:rgba(255,255,255,0.9);">{{ streakDays }}</p>
-                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.45);margin-top:6px;">{{ streakWord }} поспіль</p>
-                <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">Рекорд · до {{ streakEnd }}</p>
-              </div>
-            </div>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.42);margin-top:16px;">{{ curStreakNote }}</p>
-            <div style="border-top:1px solid rgba(255,255,255,0.07);margin-top:20px;padding-top:18px;">
-              <p style="font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Проміжки без тиші</p>
-              <div style="display:flex;flex-direction:column;gap:11px;margin-top:14px;">
-                <sc-for list="{{ streakList }}" as="sr" hint-placeholder-count="5">
-                  <div style="display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline;">
-                    <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:{{ sr.color }};">{{ sr.range }}</span>
-                    <span style="font-size:0.78rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ sr.days }} {{ sr.dayWord }} · {{ sr.posts }}</span>
-                    <span style="grid-column:1/-1;display:flex;align-items:center;gap:9px;">
-                      <span style="flex:1;height:6px;border-radius:999px;background:rgba(255,255,255,0.05);overflow:hidden;display:block;">
-                        <span style="display:block;height:100%;border-radius:999px;width:{{ sr.pct }};background:{{ sr.bg }};"></span>
-                      </span>
-                      <span style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.55);min-width:58px;text-align:right;">{{ sr.tail }}</span>
-                    </span>
+        <!-- Рік по місяцях -->
+        <section class="glass" style="padding:24px 26px;border-radius:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;">
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.05em;">Рік по місяцях</h2>
+            <span style="display:flex;gap:14px;font-size:0.72rem;color:rgba(255,255,255,0.45);">
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:rgba(255,215,0,0.6);"></span>дописи</span>
+              <sc-if value="{{ monAuthorsOn }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:999px;background:#6495ed;"></span>людей писало</span></sc-if>
+            </span>
+          </div>
+          <div style="overflow-x:auto;">
+            <div style="min-width:520px;">
+              <div style="display:grid;grid-template-columns:repeat({{ monCount }},1fr);gap:8px;height:130px;align-items:end;margin-top:22px;">
+                <sc-for list="{{ monBars }}" as="m" hint-placeholder-count="13">
+                  <div title="{{ m.tip }}" style="position:relative;height:100%;display:flex;align-items:flex-end;">
+                    <span style="width:100%;height:{{ m.h }};border-radius:5px 5px 2px 2px;background:{{ m.bg }};border:{{ m.border }};"></span>
+                    <sc-if value="{{ m.aShow }}" hint-placeholder-val="{{ false }}">
+                      <span style="position:absolute;left:50%;bottom:{{ m.aH }};width:8px;height:8px;margin:0 0 -4px -4px;border-radius:999px;background:#6495ed;box-shadow:0 0 0 2px #262626;"></span>
+                    </sc-if>
                   </div>
                 </sc-for>
               </div>
-              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.3);margin-top:14px;">{{ streakListNote }}</p>
-            </div>
-          </section>
-          <section class="glass" style="padding:28px 30px;border-radius:12px;">
-            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;margin-bottom:16px;">Гучно й тихо</h2>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:12px;">
-                <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,215,0,0.85);">{{ loudName }}</span>
-                <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ loudValue }} дописів</span>
+              <div style="display:grid;grid-template-columns:repeat({{ monCount }},1fr);gap:8px;margin-top:8px;">
+                <sc-for list="{{ monBars }}" as="m" hint-placeholder-count="13">
+                  <div style="text-align:center;">
+                    <p style="font-size:0.7rem;color:{{ m.lc }};">{{ m.abbr }}</p>
+                    <p style="font-size:0.66rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ m.v }}</p>
+                  </div>
+                </sc-for>
               </div>
-              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;">
-                <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);">{{ quietName }}</span>
-                <span style="font-size:0.8rem;color:rgba(255,255,255,0.3);white-space:nowrap;">{{ quietValue }} дописів</span>
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
-
-      <!-- Скільки нас -->
-      <sc-if value="{{ peopleOn }}" hint-placeholder-val="{{ false }}">
-        <section class="glass" style="padding:28px 30px;border-radius:12px;">
-          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;letter-spacing:0.05em;">Скільки нас</h2>
-          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.38);margin-top:4px;margin-bottom:20px;">Рахуємо людей, не імена. Марта веде цей підрахунок від {{ peopleSince }} — дописи до того дня є в числах вище, але без облич.</p>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;">
-            <div>
-              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.9rem;font-weight:700;color:#ffd700;line-height:1;">{{ peopleAll }}</p>
-              <p style="font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">Голосів усього</p>
-            </div>
-            <div>
-              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.9rem;font-weight:700;color:#fff;line-height:1;">{{ people30 }}</p>
-              <p style="font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">За останні 30 днів</p>
-            </div>
-            <div>
-              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.9rem;font-weight:700;color:#6495ed;line-height:1;">{{ peopleMonth }}</p>
-              <p style="font-size:0.64rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;">Цього місяця</p>
             </div>
           </div>
         </section>
-      </sc-if>
 
-      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.7;color:rgba(255,255,255,0.28);text-align:center;margin-top:8px;text-wrap:pretty;">Літопис ведеться від {{ pgSince }}. Марта рахує тільки кількість дописів — ні текстів, ні імен тут немає й не буде.</p>
+        <!-- Теплокарта з панеллю дня -->
+        <section class="glass" style="padding:24px 26px;border-radius:12px;display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;">
+          <div style="flex:1 1 560px;min-width:0;">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;color:#fff;letter-spacing:0.05em;">Рік одним поглядом</h2>
+              <p style="font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.6);white-space:nowrap;">{{ heatFrom }} → {{ heatTo }}</p>
+            </div>
+            <div style="overflow-x:auto;padding:2px 2px 4px;">
+              <div style="display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);grid-auto-columns:minmax(9px,1fr);gap:3px;min-width:600px;">
+                <sc-for list="{{ heatCells }}" as="c" hint-placeholder-count="371">
+                  <div data-key="{{ c.key }}" onClick="{{ pickPulseDay }}" title="{{ c.tip }}" style="aspect-ratio:1;border-radius:2px;background:{{ c.bg }};box-shadow:{{ c.ring }};cursor:pointer;"></div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:14px;">
+              <span style="font-size:0.68rem;color:rgba(255,255,255,0.3);">тиша</span>
+              <sc-for list="{{ heatShades }}" as="s" hint-placeholder-count="5">
+                <span style="width:11px;height:11px;border-radius:2px;background:{{ s.bg }};"></span>
+              </sc-for>
+              <span style="font-size:0.68rem;color:rgba(255,255,255,0.3);">буря</span>
+            </div>
+          </div>
+          <div style="flex:1 1 200px;max-width:100%;border-left:1px solid rgba(255,255,255,0.08);padding-left:22px;display:flex;flex-direction:column;gap:8px;">
+            <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.65);">Обраний день</p>
+            <p style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;line-height:1.3;color:#fff;">{{ selDate }}</p>
+            <p style="font-family:'Cinzel',Georgia,serif;font-size:2rem;font-weight:700;color:{{ selColor }};line-height:1;margin-top:4px;">{{ selV }} <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;font-weight:400;color:rgba(255,255,255,0.45);">{{ selWord }}</span></p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.5;color:rgba(255,255,255,0.55);text-wrap:pretty;">{{ selNote }}</p>
+          </div>
+        </section>
+
+        <!-- Рекорди одним рядком -->
+        <div style="display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:center;padding:16px 0 0;border-top:1px solid rgba(255,255,255,0.07);font-size:0.8rem;color:rgba(255,255,255,0.45);">
+          <span>Усього <b style="color:#fff;font-weight:600;">{{ pgTotal }}</b></span>
+          <span>Рекорд дня <b style="color:#fff;font-weight:600;">{{ pgPeak }}</b> · {{ pgPeakWhen }}</span>
+          <span>Днів із життям <b style="color:#fff;font-weight:600;">{{ pgDays }}</b> із {{ pgSpan }}</span>
+          <span>У середньому <b style="color:#fff;font-weight:600;">{{ pgAvg }}</b> на день</span>
+          <span>Найгучніший день тижня <b style="color:#fff;font-weight:600;">{{ topDowName }}</b></span>
+        </div>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.7;color:rgba(255,255,255,0.28);text-align:center;text-wrap:pretty;">Літопис ведеться від {{ pgSince }}. Марта рахує тільки кількість дописів — ні текстів, ні імен тут немає й не буде.</p>
+      </div>
+      </sc-if>
     </div>
-    </sc-if>
   </main>
 </sc-if>
 
@@ -8522,8 +8555,122 @@ class Component extends DCLogic {
         const curRow = pm.find(m => String(m.month).slice(0, 7) === curKey);
         const peopleOn = !!(pt && pt.authors_all);
 
+        // ── Тиждень проти звичного: медіана кожного дня тижня за останній рік ──
+        const DOWS = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
+        const DOWA = ['понеділок','вівторок','середу','четвер','п’ятницю','суботу','неділю'];
+        const DOWL = ['понеділок','вівторок','середа','четвер','п’ятниця','субота','неділя'];
+        const yearAgo = shift(kToday, -365);
+        const dowOf = (k) => (new Date(k + 'T00:00:00Z').getUTCDay() + 6) % 7;
+        const dowVals = [[],[],[],[],[],[],[]];
+        rows.forEach(r => { if (r.iso >= yearAgo && r.iso < kToday && r.v > 0) dowVals[dowOf(r.iso)].push(r.v); });
+        const norm = dowVals.map(a => { if (!a.length) return 0; const s = a.slice().sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; });
+        const wkDays = [6,5,4,3,2,1,0].map(n => { const k = shift(kToday, -n); return { k, v: byDay.get(k) || 0, dow: dowOf(k), today: n === 0 }; });
+        const wkMax = Math.max(1, ...wkDays.map(x => Math.max(x.v, norm[x.dow])));
+        const wkBars = wkDays.map(x => ({
+          d: x.today ? 'сьогодні' : DOWS[x.dow],
+          v: String(x.v),
+          h: (x.v / wkMax * 100).toFixed(1) + '%',
+          normH: (norm[x.dow] / wkMax * 100).toFixed(1) + '%',
+          bg: x.today ? 'repeating-linear-gradient(135deg,rgba(255,215,0,0.55) 0 4px,rgba(255,215,0,0.25) 4px 8px)'
+            : (x.v >= norm[x.dow] && x.v > 0 ? '#ffd700' : 'rgba(255,215,0,0.45)'),
+          lc: x.today ? '#ffd700' : 'rgba(255,255,255,0.6)',
+          tip: x.v + ' ' + plural(x.v, 'допис', 'дописи', 'дописів') + ' · звичайно ' + norm[x.dow],
+        }));
+        // Сьогоднішня доба ще не скінчилася — порівнюємо шість повних днів.
+        const done6 = wkDays.slice(0, 6);
+        const wkSum = done6.reduce((a, x) => a + x.v, 0);
+        const wkNorm = done6.reduce((a, x) => a + norm[x.dow], 0);
+        const wkPct = wkNorm ? Math.round((wkSum / wkNorm - 1) * 100) : null;
+        const wkLoud = done6.reduce((a, b) => b.v > a.v ? b : a, done6[0]);
+        const digest = [
+          'За шість днів — ' + wkSum + ' ' + plural(wkSum, 'допис', 'дописи', 'дописів') +
+            (wkPct === null ? '.' : Math.abs(wkPct) < 5 ? ', приблизно як завжди.' : ', на ' + Math.abs(wkPct) + '% ' + (wkPct > 0 ? 'гучніше' : 'тихіше') + ' за звичне.'),
+          wkLoud && wkLoud.v ? 'Найбільше писали в ' + DOWA[wkLoud.dow] + ' — ' + wkLoud.v + '.' : 'Тиждень мовчазний.',
+          cur ? 'Варта не переривається ' + cur + ' ' + plural(cur, 'день', 'дні', 'днів') + ' поспіль' + (cur >= best ? ' — це рекорд літопису.' : '.')
+              : 'Варта обірвана: ' + quietRun + ' ' + plural(quietRun, 'день', 'дні', 'днів') + ' тиші.',
+        ].join(' ');
+
+        // ── Варта: рік однією стрічкою ──
+        const t0 = start.getTime(), spanMs = end.getTime() - t0 + 86400000;
+        const isoStart = iso(start);
+        const pos = (k) => Date.parse(k + 'T00:00:00Z');
+        const inView = runs.filter(r => r.to >= isoStart);
+        const vartaTrack = inView.map(r => {
+          const f = Math.max(t0, pos(r.from)), tt = pos(r.to) + 86400000;
+          return {
+            left: ((f - t0) / spanMs * 100).toFixed(2) + '%',
+            width: Math.max(0.3, (tt - f) / spanMs * 100).toFixed(2) + '%',
+            bg: r === liveRun ? '#ffd700' : r === bestRun ? 'rgba(255,215,0,0.8)' : 'rgba(255,215,0,' + Math.min(0.55, 0.12 + r.len / Math.max(1, best) * 0.5).toFixed(2) + ')',
+            glow: r === liveRun ? '0 0 12px rgba(255,215,0,0.8)' : 'none',
+            tip: rangeLabel(r.from, r.to) + ' · ' + r.len + ' ' + plural(r.len, 'день', 'дні', 'днів'),
+          };
+        });
+        const bestInView = !!bestRun && bestRun.to >= isoStart;
+        const bestLeft = bestInView ? (((Math.max(t0, pos(bestRun.from)) + pos(bestRun.to) + 86400000) / 2 - t0) / spanMs * 100).toFixed(2) + '%' : '0%';
+        const vartaTicks = [];
+        for (let m = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1)); m <= end; m.setUTCMonth(m.getUTCMonth() + 1)) {
+          const p = (m.getTime() - t0) / spanMs * 100;
+          if (p < 96) vartaTicks.push({ l: UK_MON_ABBR[m.getUTCMonth()], left: p.toFixed(2) + '%' });
+        }
+        const breaks = Math.max(0, inView.length - (liveRun ? 1 : 0));
+        const vartaNote = 'Дні підряд, коли в чаті не було жодної тиші.' + (breaks ? ' За рік варта рвалася ' + breaks + ' ' + plural(breaks, 'раз', 'рази', 'разів') + '.' : '');
+
+        // ── Рік по місяцях: дописи + скільки людей писало ──
+        const authBy = new Map(pm.map(m => [String(m.month).slice(0, 7), Number(m.authors) || 0]));
+        const mLast = mList.slice(-13);
+        const mMax = Math.max(1, ...mLast.map(m => m[1]));
+        const aMax = Math.max(1, ...mLast.map(m => authBy.get(m[0]) || 0));
+        const mFull = mLast.filter(m => m[0] !== curKey);
+        const mLoud = mFull.length ? mFull.reduce((a, b) => b[1] > a[1] ? b : a) : null;
+        const monBars = mLast.map(([k, v]) => {
+          const live = k === curKey, au = authBy.get(k) || 0;
+          return {
+            abbr: UK_MON_ABBR[+k.slice(5, 7) - 1],
+            v: v.toLocaleString('uk-UA'),
+            h: Math.max(2, v / mMax * 100).toFixed(1) + '%',
+            bg: live ? 'rgba(255,215,0,0.12)' : (mLoud && k === mLoud[0] ? '#ffd700' : 'rgba(255,215,0,0.45)'),
+            border: live ? '1px dashed rgba(255,215,0,0.6)' : 'none',
+            lc: live ? '#ffd700' : 'rgba(255,255,255,0.55)',
+            aShow: au > 0,
+            aH: (au / aMax * 92).toFixed(1) + '%',
+            tip: mName(k) + ' — ' + v + ' ' + plural(v, 'допис', 'дописи', 'дописів') + (au ? ', писало ' + au : '') + (live ? ' · місяць триває' : ''),
+          };
+        });
+
+        // ── Обраний день на теплокарті ──
+        const ADJ_NOM = ['Звичайний','Звичайний','Звичайна','Звичайний','Звичайна','Звичайна','Звичайна'];
+        const ADJ_ACC = ['звичайний','звичайний','звичайну','звичайний','звичайну','звичайну','звичайну'];
+        const selKey = this.state.pulseSel || kToday;
+        const heatRing = heatCells.map(c => ({ ...c, ring: c.key === selKey ? '0 0 0 1.5px #fff' : 'none' }));
+        const selV = byDay.get(selKey) || 0;
+        const selDow = dowOf(selKey);
+        const yearVals = cells.map(c => c.v).filter(v => v > 0).sort((a, b) => b - a);
+        const selRank = selV ? yearVals.indexOf(selV) + 1 : 0;
+        const selD = new Date(selKey + 'T00:00:00Z');
+        const selNote = selKey === kToday && !selV ? 'Сьогодні ще тихо — доба не скінчилася.'
+          : !selV ? 'Тиша. Такі дні рвуть варту.'
+          : (selRank && selRank <= 10 ? selRank + '-й за гучністю день року. ' : '') +
+            (norm[selDow] && selV > norm[selDow] * 1.3 ? 'Гучніше за ' + ADJ_ACC[selDow] + ' ' + DOWA[selDow] + ' (' + norm[selDow] + ').'
+              : norm[selDow] && selV < norm[selDow] * 0.7 ? 'Тихіше за ' + ADJ_ACC[selDow] + ' ' + DOWA[selDow] + ' (' + norm[selDow] + ').'
+              : ADJ_NOM[selDow] + ' ' + DOWL[selDow] + '.');
+
         return {
           ...marta,
+          pulseDigest: digest,
+          wkBars,
+          wkDelta: wkPct === null ? '—' : (wkPct >= 0 ? '+' : '−') + Math.abs(wkPct) + '%',
+          wkDeltaColor: wkPct === null ? 'rgba(255,255,255,0.4)' : wkPct >= 0 ? '#ffd700' : '#6495ed',
+          vartaTrack, vartaTicks, vartaNote, bestInView, bestLeft,
+          curStreakLabel: cur ? 'Зараз · від ' + curFrom : 'Тиша',
+          streakRange: bestRun ? rangeLabel(bestRun.from, bestRun.to) : '',
+          monBars, monCount: String(mLast.length), monAuthorsOn: mLast.some(m => authBy.get(m[0])),
+          topDowName: DOWL[dowTop],
+          pickPulseDay: (e) => this.setState({ pulseSel: e.currentTarget.dataset.key }),
+          selDate: DOWL[selDow][0].toUpperCase() + DOWL[selDow].slice(1) + ', ' + selD.getUTCDate() + ' ' + MON[selD.getUTCMonth()] + ' ' + selD.getUTCFullYear(),
+          selV: String(selV),
+          selWord: selV ? plural(selV, 'допис', 'дописи', 'дописів') : 'тиша',
+          selColor: selV ? '#ffd700' : 'rgba(255,255,255,0.3)',
+          selNote,
           showPulsePage: true,
           pulseNoData: false,
           pulseHasData: true,
@@ -8543,7 +8690,7 @@ class Component extends DCLogic {
               ? 'Рівно стільки ж, скільки тижнем раніше.'
               : (weekDelta > 0 ? 'На ' + weekDelta + '% гучніше' : 'На ' + Math.abs(weekDelta) + '% тихіше') + ', ніж тижнем раніше (' + weekPrev + ').',
           weekColor:    weekDelta === null || weekDelta === 0 ? 'rgba(255,255,255,0.4)' : (weekDelta > 0 ? 'rgba(255,215,0,0.75)' : 'rgba(100,149,237,0.75)'),
-          heatCells,
+          heatCells:    heatRing,
           heatFrom:     MONN[start.getUTCMonth()] + ' ' + start.getUTCFullYear(),
           heatTo:       MONN[end.getUTCMonth()] + ' ' + end.getUTCFullYear(),
           heatShades:   SHADES.map(bg => ({ bg })),
