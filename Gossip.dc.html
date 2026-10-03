@@ -137,22 +137,38 @@ a:hover{color:#fff}
             <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);margin-top:6px;text-wrap:pretty;">{{ statusWord }}</p>
           </div>
           <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
-          <div class="gos-tabs" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;flex-direction:column;gap:2px;">
             <sc-if value="{{ turnsShow }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ pickTurns }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabTurnsBg }};border:1px solid {{ tabTurnsBorder }};color:{{ tabTurnsColor }};">{{ turnsTabLabel }}</button>
+              <button onClick="{{ pickTurns }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navTurnsBg }};color:{{ navTurnsColor }};">
+                <span style="flex:1;min-width:0;">✦ Черга в арках</span>
+                <sc-if value="{{ navTurnsHas }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.7rem;font-weight:700;color:#1a1a1a;background:#ffd700;border-radius:999px;padding:1px 7px;">{{ navTurnsN }}</span></sc-if>
+              </button>
             </sc-if>
-            <button onClick="{{ pickIntake }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabIntakeBg }};border:1px solid {{ tabIntakeBorder }};color:{{ tabIntakeColor }};">✍ Анкета персонажа</button>
-            <sc-if value="{{ canMine }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ pickMine }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabMineBg }};border:1px solid {{ tabMineBorder }};color:{{ tabMineColor }};">🎭 Мої персонажі</button>
+            <p style="font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:12px 10px 4px;">Мої теки</p>
+            <sc-for list="{{ folderNav }}" as="f" hint-placeholder-count="0">
+              <button onClick="{{ f.onPick }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;border:none;border-radius:8px;padding:7px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ f.bg }};color:{{ f.color }};">
+                <sc-if value="{{ f.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ f.img }}" alt="" style="width:28px;height:28px;flex-shrink:0;border-radius:999px;object-fit:cover;border:1px solid {{ f.ring }};" /></sc-if>
+                <sc-if value="{{ f.noImg }}" hint-placeholder-val="{{ false }}"><span style="width:28px;height:28px;flex-shrink:0;border-radius:999px;border:1px solid {{ f.ring }};display:flex;align-items:center;justify-content:center;font-family:'Cinzel',Georgia,serif;font-size:0.8rem;">{{ f.initial }}</span></sc-if>
+                <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ f.name }}</span>
+                <sc-if value="{{ f.hot }}" hint-placeholder-val="{{ false }}"><span title="Ваш хід в одній з його арок" style="width:7px;height:7px;flex-shrink:0;border-radius:999px;background:#ffd700;box-shadow:{{ f.glow }};"></span></sc-if>
+                <sc-if value="{{ f.hasNote }}" hint-placeholder-val="{{ false }}"><span style="flex-shrink:0;font-size:0.66rem;color:rgba(255,215,0,0.8);">{{ f.note }}</span></sc-if>
+              </button>
+            </sc-for>
+            <button onClick="{{ pickIntake }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;border:none;border-radius:8px;padding:7px 10px;font-size:0.84rem;transition:all 0.2s ease;background:{{ navIntakeBg }};color:{{ navIntakeColor }};">
+              <span style="width:28px;height:28px;flex-shrink:0;border-radius:999px;border:1px dashed rgba(255,255,255,0.28);display:flex;align-items:center;justify-content:center;">+</span>
+              <span>{{ navIntakeLabel }}</span>
+            </button>
+            <sc-if value="{{ navMeSec }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:12px 10px 4px;">Я</p>
             </sc-if>
             <sc-if value="{{ canGossip }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ pickGossip }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabGosBg }};border:1px solid {{ tabGosBorder }};color:{{ tabGosColor }};">✉ Плітка</button>
-            </sc-if>
-            <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ pickMe }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;transition:all 0.2s ease;background:{{ tabMeBg }};border:1px solid {{ tabMeBorder }};color:{{ tabMeColor }};">✦ Про мене</button>
+              <button onClick="{{ pickGossip }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navGosBg }};color:{{ navGosColor }};">Плітка</button>
             </sc-if>
             <sc-if value="{{ gossipLocked }}" hint-placeholder-val="{{ false }}">
-              <span title="Віконце відчиняють адміни" style="border-radius:999px;padding:10px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.04em;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.24);">✉ Плітка — доступ ще не відкрито</span>
+              <span title="Віконце відчиняють адміни" style="border-radius:8px;padding:9px 10px;font-size:0.82rem;border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);">Плітка — доступ ще не відкрито</span>
+            </sc-if>
+            <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickMe }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navMeBg }};color:{{ navMeColor }};">Про мене</button>
             </sc-if>
           </div>
           </sc-if>
@@ -681,35 +697,120 @@ a:hover{color:#fff}
         <div style="display:flex;flex-direction:column;gap:20px;">
           <sc-if value="{{ notEditingChar }}" hint-placeholder-val="{{ true }}">
 
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Записані на вас</p>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:20px;text-wrap:pretty;">Анкету в картотеці веде адміністрація, але правки до своєї ви можете пропонувати самі. Заявка йде цілою: адмін читає її й вносить або відмовляє з причиною.</p>
+          <!-- тека персонажа: усе про нього в одному місці -->
+          <sc-if value="{{ hasFolder }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid rgba(255,215,0,0.4);border-radius:15px;background:rgba(255,255,255,0.04);overflow:hidden;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <div style="position:relative;min-height:200px;display:flex;flex-wrap:wrap;align-items:flex-end;padding:64px 26px 22px;gap:18px 20px;overflow:hidden;">
+              <sc-if value="{{ foHasImg }}" hint-placeholder-val="{{ false }}">
+                <img src="{{ foImg }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;opacity:0.45;" />
+              </sc-if>
+              <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(26,26,26,0.2),#1d1d1d);"></div>
+              <sc-if value="{{ foHasImg }}" hint-placeholder-val="{{ false }}">
+                <img src="{{ foImg }}" alt="" style="position:relative;width:100px;height:100px;flex-shrink:0;border-radius:999px;object-fit:cover;border:3px solid #ffd700;box-shadow:0 0 24px rgba(255,215,0,0.35);" />
+              </sc-if>
+              <div style="position:relative;display:flex;flex-direction:column;gap:6px;flex:1 1 220px;min-width:0;">
+                <p style="font-family:'Cinzel',Georgia,serif;font-size:2rem;letter-spacing:0.06em;color:#fff;overflow-wrap:anywhere;">{{ foName }}</p>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:0.8rem;color:rgba(255,255,255,0.65);">
+                  <sc-if value="{{ foHasAlias }}" hint-placeholder-val="{{ false }}"><span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;">«{{ foAlias }}»</span></sc-if>
+                  <sc-if value="{{ foHasGod }}" hint-placeholder-val="{{ false }}"><span style="border-radius:5px;padding:2px 8px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.35);color:#ffe680;">{{ foGod }}</span></sc-if>
+                  <sc-if value="{{ foHasAge }}" hint-placeholder-val="{{ false }}"><span>{{ foAge }}</span></sc-if>
+                  <sc-if value="{{ foDraft }}" hint-placeholder-val="{{ false }}"><span style="border-radius:999px;padding:2px 9px;border:1px dashed rgba(255,255,255,0.25);color:rgba(255,255,255,0.5);font-size:0.72rem;">чернетка</span></sc-if>
+                </div>
+              </div>
+              <div style="position:relative;display:flex;flex-direction:column;gap:8px;align-items:stretch;">
+                <sc-if value="{{ foCanEdit }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ foEdit }}" class="gos-go" style="cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;font-weight:700;letter-spacing:0.05em;background:#ffd700;color:#1a1a1a;white-space:nowrap;transition:box-shadow 0.25s ease;">Запропонувати правку</button>
+                </sc-if>
+                <sc-if value="{{ foWaiting }}" hint-placeholder-val="{{ false }}">
+                  <span style="border-radius:999px;padding:9px 18px;font-size:0.76rem;text-align:center;border:1px solid rgba(255,215,0,0.45);color:#ffd700;background:rgba(26,26,26,0.6);white-space:nowrap;">Правка вже на розгляді</span>
+                </sc-if>
+                <sc-if value="{{ foHasPage }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ foPage }}" target="_blank" rel="noopener noreferrer" class="gos-ghost" style="text-decoration:none;text-align:center;border-radius:999px;padding:8px 16px;font-size:0.78rem;border:1px solid rgba(255,255,255,0.22);color:rgba(255,255,255,0.8);background:rgba(26,26,26,0.5);white-space:nowrap;transition:all 0.2s ease;">Профіль на сайті</a>
+                </sc-if>
+              </div>
+            </div>
 
-            <div style="display:flex;flex-direction:column;gap:12px;">
-              <sc-for list="{{ myChars }}" as="c" hint-placeholder-count="1">
-                <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:14px 16px;">
-                  <sc-if value="{{ c.hasImg }}" hint-placeholder-val="{{ false }}">
-                    <img src="{{ c.img }}" alt="" style="width:76px;height:100px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,215,0,0.25);" />
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px;padding:6px 26px 26px;">
+              <div style="display:flex;flex-direction:column;gap:18px;min-width:0;">
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ В арках</p>
+                  <sc-for list="{{ foArcs }}" as="a" hint-placeholder-count="0">
+                    <div style="display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap;padding:12px 14px;border-radius:10px;background:{{ a.bg }};border:1px solid {{ a.border }};">
+                      <span style="flex-shrink:0;border-radius:999px;padding:3px 10px;font-size:0.72rem;font-weight:600;background:{{ a.pBg }};border:1px solid {{ a.pBorder }};color:{{ a.pColor }};">{{ a.pill }}</span>
+                      <span style="font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:0.9rem;color:{{ a.nameColor }};">{{ a.arc }}</span>
+                      <span style="flex:1;min-width:120px;font-size:0.74rem;color:rgba(255,255,255,0.45);">{{ a.meta }}</span>
+                      <a href="{{ a.href }}" style="flex-shrink:0;font-size:0.76rem;">До арки →</a>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ foNoArcs }}" hint-placeholder-val="{{ false }}">
+                    <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;color:rgba(255,255,255,0.35);">{{ foArcsEmpty }}</p>
                   </sc-if>
-                  <div style="flex:1;min-width:200px;">
-                    <p style="font-family:'Cinzel',Georgia,serif;font-size:1rem;color:#fff;letter-spacing:0.03em;">{{ c.name }}</p>
-                    <p style="font-size:0.76rem;color:rgba(255,255,255,0.3);margin-top:4px;line-height:1.5;">{{ c.meta }}</p>
-                    <sc-if value="{{ c.waiting }}" hint-placeholder-val="{{ false }}">
-                      <p style="font-size:0.78rem;color:rgba(255,215,0,0.7);margin-top:6px;">Ваша правка вже лежить на розгляді.</p>
-                    </sc-if>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-                      <sc-if value="{{ c.canEdit }}" hint-placeholder-val="{{ true }}">
-                        <button onClick="{{ c.onEdit }}" class="gos-pill" style="cursor:pointer;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:7px 16px;font-size:0.76rem;">✎ Запропонувати правку</button>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+                    <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">{{ foPostsHead }}</p>
+                    <span style="margin-left:auto;font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ foPostsSide }}</span>
+                  </div>
+                  <sc-if value="{{ foHasMonths }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:flex-end;gap:6px;height:76px;padding:0 2px;">
+                      <sc-for list="{{ foMonths }}" as="m" hint-placeholder-count="12">
+                        <span title="{{ m.tip }}" style="flex:1;height:{{ m.h }};background:{{ m.bg }};border-radius:3px 3px 0 0;"></span>
+                      </sc-for>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.66rem;color:rgba(255,255,255,0.35);"><span>{{ foM1 }}</span><span>{{ foM2 }}</span><span>{{ foM3 }}</span></div>
+                  </sc-if>
+                  <sc-if value="{{ foNoMonths }}" hint-placeholder-val="{{ false }}">
+                    <p style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.4);text-wrap:pretty;">{{ foPostsNote }}</p>
+                  </sc-if>
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:14px;min-width:0;">
+                <div style="padding:16px 18px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;gap:10px;">
+                  <div style="display:flex;align-items:baseline;gap:8px;"><p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Анкета</p><span style="margin-left:auto;font-family:'Cinzel',Georgia,serif;font-size:1.1rem;color:#ffd700;">{{ foPct }}</span></div>
+                  <div style="height:5px;border-radius:999px;background:rgba(255,255,255,0.1);"><div style="width:{{ foPct }};height:100%;border-radius:999px;background:#ffd700;"></div></div>
+                  <sc-if value="{{ foHasGaps }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:0.74rem;">
+                      <span style="color:rgba(255,255,255,0.45);">Бракує:</span>
+                      <sc-for list="{{ foGaps }}" as="g" hint-placeholder-count="2">
+                        <span style="border-radius:5px;padding:1px 8px;border:1px dashed rgba(255,215,0,0.4);color:rgba(255,215,0,0.9);">{{ g.label }}</span>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ foFull }}" hint-placeholder-val="{{ false }}">
+                    <p style="font-size:0.74rem;color:rgba(255,255,255,0.45);">Усі графи заповнені.</p>
+                  </sc-if>
+                </div>
+                <div style="padding:16px 18px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;gap:10px;">
+                  <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Правки</p>
+                  <sc-for list="{{ foEdits }}" as="r" hint-placeholder-count="0">
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:0.82rem;">
+                        <span style="flex-shrink:0;border-radius:999px;padding:2px 9px;font-size:0.7rem;border:1px solid {{ r.accent }};color:{{ r.accent }};">{{ r.badge }}</span>
+                        <span style="flex:1;min-width:100px;color:rgba(255,255,255,0.75);">{{ r.what }}</span>
+                        <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">{{ r.when }}</span>
+                      </div>
+                      <sc-if value="{{ r.hasNote }}" hint-placeholder-val="{{ false }}">
+                        <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.94rem;line-height:1.5;color:rgba(255,215,0,0.75);padding-left:10px;border-left:1px solid rgba(255,215,0,0.3);">{{ r.note }}</p>
                       </sc-if>
-                      <sc-if value="{{ c.hasPage }}" hint-placeholder-val="{{ false }}">
-                        <a href="{{ c.page }}" target="_blank" rel="noopener noreferrer" class="gos-ghost" style="text-decoration:none;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:7px 16px;font-size:0.76rem;">Глянути на сайті</a>
+                      <sc-if value="{{ r.canDrop }}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{ r.onDrop }}" class="gos-ghost" style="align-self:flex-start;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:4px 12px;font-size:0.72rem;transition:all 0.2s ease;">Відкликати</button>
                       </sc-if>
                     </div>
-                  </div>
+                  </sc-for>
+                  <sc-if value="{{ foNoEdits }}" hint-placeholder-val="{{ true }}">
+                    <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.96rem;color:rgba(255,255,255,0.35);">Правок до цієї анкети ще не просили.</p>
+                  </sc-if>
                 </div>
-              </sc-for>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                  <div style="padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);text-align:center;"><p style="font-family:'Cinzel',Georgia,serif;font-size:1.3rem;color:#fff;">{{ foLinks }}</p><p style="font-size:0.68rem;color:rgba(255,255,255,0.45);">{{ foLinksCap }}</p></div>
+                  <div style="padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);text-align:center;"><p style="font-family:'Cinzel',Georgia,serif;font-size:1.3rem;color:#fff;">{{ foGal }}</p><p style="font-size:0.68rem;color:rgba(255,255,255,0.45);">у галереї</p></div>
+                  <div style="padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);text-align:center;"><p style="font-family:'Cinzel',Georgia,serif;font-size:1.3rem;color:#fff;">{{ foSongs }}</p><p style="font-size:0.68rem;color:rgba(255,255,255,0.45);">{{ foSongsCap }}</p></div>
+                </div>
+              </div>
             </div>
           </div>
+          </sc-if>
 
           </sc-if>
 
@@ -844,9 +945,9 @@ a:hover{color:#fff}
             </div>
           </sc-if>
 
-          <sc-if value="{{ notEditingChar }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ orphanEdits }}" hint-placeholder-val="{{ false }}">
           <div>
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;">✦ Мої запити на правку</p>
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px;">✦ Правки до анкет, яких у вас уже немає</p>
             <sc-if value="{{ hasEdits }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;flex-direction:column;gap:10px;">
                 <sc-for list="{{ myEdits }}" as="r" hint-placeholder-count="1">
@@ -972,7 +1073,7 @@ class Component extends DCLogic {
     editId: '', intakeBusy: false, intakeMsg: '', upBusy: false,
     subs: [], gods: [],
     // мої персонажі й правки до них
-    owned: [], edits: [],
+    owned: [], edits: [], charId: '',
     // «Про мене»: stand — те, що порахувала база (місце серед інших),
     // bits — те, що порахували ми з уже прочитаних рядків.
     stand: null, bits: null, statsBusy: false, cardBusy: false, cardMsg: '',
@@ -1230,7 +1331,7 @@ class Component extends DCLogic {
       }
     } catch (e) { turns = { error: String(e && e.message || e) }; }
     this._turnsBusy = false;
-    this.setState({ turns, turnsBusy: false });
+    this.setState({ turns, turnsBusy: false }, () => this._autoOpen());
     const T = window.AuTurns;
     const n = turns && !turns.error && T ? T.yourTurn(turns) : 0;
     console.log('черга:', turns.error ? `помилка: ${turns.error}` : `живих арок ${(turns.arcs || []).length}, ваш хід у ${n}`);
@@ -1921,14 +2022,174 @@ class Component extends DCLogic {
       get(`characters?owner_id=eq.${uid}&select=*&order=name.asc`),
       get(`char_edits?author_id=eq.${uid}&select=*&order=created_at.desc&limit=30`),
     ]);
-    this.setState({ owned, edits });
+    this._ownedDone = true;
+    this.setState({ owned, edits }, () => this._autoOpen());
+  }
+
+  // Вхід через «Мій кабінет» відкриває не бланк нової анкети, а те, з чим
+  // приходять щодня: черга в арках → тека першого персонажа → бланк.
+  // Чекаємо і персонажів, і чергу; #intake веде в бланк, як і раніше.
+  _autoOpen() {
+    const s = this.state;
+    if (this._autoDone || this.props.startTab !== 'cabinet' || s.phase !== 'ok') return;
+    if (s.tab !== 'intake' || s.editId) { this._autoDone = true; return; }
+    const approved = String((s.prof || {}).status) === 'approved';
+    if (!this._ownedDone || (approved && !s.turns)) return;
+    this._autoDone = true;
+    let rows = [];
+    try { rows = approved && s.turns && !s.turns.error && !s.turns.missing && window.AuTurns ? window.AuTurns.rows(s.turns) : []; } catch (e) {}
+    const owned = s.owned || [];
+    if (rows.length) this.setState({ tab: 'turns' });
+    else if (owned.length) { this.setState({ tab: 'mine', charId: String(owned[0].id) }); this._loadStats(); }
+  }
+
+  _pickChar(id) {
+    const k = String(id);
+    this.setState((st) => ({ tab: 'mine', charId: k, navAt: '', eId: String(st.eId) === k ? st.eId : '', eMsg: '' }));
+    this._loadStats();
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+  }
+
+  // Тека персонажа: арки з черги, дописи з my_posts, анкета, правки й лічильники —
+  // усе вже лежить у стані; нових запитів, окрім плейліста в _loadStats, немає.
+  _folderVals() {
+    const s = this.state, owned = s.owned || [], edits = s.edits || [];
+    const T = window.AuTurns, d = s.turns;
+    let rows = [];
+    try { rows = d && !d.error && !d.missing && T ? T.rows(d) : []; } catch (e) {}
+    const isMe = (r, c) => (r.me && r.me.id && String(r.me.id) === String(c.id)) || fold(r.me && r.me.name) === fold(c.name);
+    const pend = (c) => edits.some((r) => String(r.character_id) === String(c.id) && r.status === 'pending');
+    const cur = s.tab === 'mine' ? (owned.find((c) => String(c.id) === String(s.charId)) || owned[0] || null) : null;
+
+    const folderNav = owned.map((c) => {
+      const on = !!cur && String(c.id) === String(cur.id);
+      const hot = rows.some((r) => r.state === 'turn' && isMe(r, c));
+      return {
+        key: String(c.id), name: c.name || '—',
+        hasImg: !!c.image, noImg: !c.image, img: c.image || '',
+        initial: String(c.name || '?').trim().charAt(0).toUpperCase(),
+        bg: on ? 'rgba(255,215,0,0.12)' : 'transparent',
+        color: on ? '#ffd700' : 'rgba(255,255,255,0.75)',
+        ring: on ? '#ffd700' : 'rgba(255,255,255,0.16)',
+        hot, glow: on ? '0 0 8px rgba(255,215,0,0.7)' : 'none',
+        hasNote: !hot && (pend(c) || !!c.is_draft), note: pend(c) ? 'правка' : 'чернетка',
+        onPick: () => this._pickChar(c.id),
+      };
+    });
+    const ownIds = owned.map((c) => String(c.id));
+    const orphans = edits.filter((r) => ownIds.indexOf(String(r.character_id)) === -1);
+    const out = { folderNav, hasFolder: false, orphanIds: orphans.map((r) => String(r.id)) };
+    if (!cur) return out;
+
+    const id = String(cur.id), P = (n, a, b, c) => this._plural(n, a, b, c);
+    const base_ = this.props.embedded ? '' : 'Aurelion.dc.html';
+    const ORD = { turn: 0, next: 1, wait: 2, done: 3, solo: 4, out: 5, closed: 6 };
+    const ST = {
+      turn:   ['rgba(255,215,0,0.07)', 'rgba(255,215,0,0.3)', '#ffd700', '#ffd700', '#1a1a1a', '#fff'],
+      next:   ['rgba(100,149,237,0.05)', 'rgba(100,149,237,0.22)', 'rgba(100,149,237,0.14)', 'rgba(100,149,237,0.45)', '#a0beff', '#fff'],
+      wait:   ['rgba(255,255,255,0.03)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(100,149,237,0.45)', '#a0beff', '#fff'],
+      done:   ['rgba(255,255,255,0.03)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(255,255,255,0.18)', 'rgba(255,255,255,0.6)', '#fff'],
+      solo:   ['rgba(255,255,255,0.03)', 'rgba(255,255,255,0.1)', 'transparent', 'rgba(255,255,255,0.18)', 'rgba(255,255,255,0.6)', '#fff'],
+      out:    ['rgba(255,77,77,0.03)', 'rgba(255,77,77,0.16)', 'rgba(255,77,77,0.06)', 'rgba(255,77,77,0.4)', '#ff9a9a', '#fff'],
+      closed: ['rgba(255,255,255,0.015)', 'rgba(255,255,255,0.07)', 'transparent', 'rgba(255,255,255,0.2)', 'rgba(255,255,255,0.55)', 'rgba(255,255,255,0.55)'],
+    };
+    const mine = rows.filter((r) => isMe(r, cur)).sort((a, b) => (ORD[a.state] ?? 9) - (ORD[b.state] ?? 9));
+    const foArcs = mine.map((r, i) => {
+      const st = ST[r.state] || ST.wait;
+      const days = Math.floor((r.waitMs || 0) / 86400000);
+      let pill = 'Ваш хід', meta = '';
+      const chain = (r.queue || []).slice(0, 4).map((c) => (c.mine ? 'ви' : c.name)).join(' → ');
+      if (r.state === 'turn') { meta = (r.queue || []).length > 1 ? `далі ${(r.queue || []).filter((c) => !c.mine).slice(0, 3).map((c) => c.name).join(', ')}` : ''; if (days >= 2) meta += `${meta ? ' · ' : ''}${days + 1}-й день`; }
+      else if (r.state === 'next') { pill = 'Ви наступні'; meta = chain; }
+      else if (r.state === 'wait') { pill = `Ще ${r.ahead.length} перед вами`; meta = chain; }
+      else if (r.state === 'done') { pill = 'Відписали'; meta = `далі ${r.up ? r.up.name : '—'}`; }
+      else if (r.state === 'out') { pill = 'Поза чергою'; meta = 'відпишіть — і повернетеся в чергу'; }
+      else if (r.state === 'solo') { pill = 'Соло'; }
+      else if (r.state === 'closed') { pill = 'Закрито'; }
+      return {
+        key: `${r.arc}·${i}`, arc: r.arc, pill, meta,
+        bg: st[0], border: st[1], pBg: st[2], pBorder: st[3], pColor: st[4], nameColor: st[5],
+        href: `${base_}?arc=${encodeURIComponent(r.arc)}#posts`,
+      };
+    });
+
+    // Дописи за рік — та сама розкладка my_posts, що й у «Про мене», лише одна смужка.
+    const p = s.posts && !s.posts.error && !s.posts.missing ? s.posts : null;
+    const MON = ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру'];
+    const pc = p ? (p.chars || []).find((c) => String(c.id) === id) : null;
+    const months = p ? (p.months || []) : [];
+    const per = months.map((m) => { const x = (m.parts || []).find((q) => String(q.id) === id); return x ? (x.n || 0) : 0; });
+    const peak = Math.max(1, ...per);
+    const lab = (m) => (m ? MON[Number(String(m.m).slice(5, 7)) - 1] || String(m.m) : '');
+    const total = pc ? (pc.posts || 0) : per.reduce((a, b) => a + b, 0);
+    const side = [];
+    if (pc && pc.arcs) side.push(`${pc.arcs} ${P(pc.arcs, 'арка', 'арки', 'арок')}`);
+    if (pc && pc.last) side.push(`останній ${this._ago(pc.last)}`);
+    const hasMonths = !!p && months.length > 0 && total > 0;
+
+    const gaps = E_KEYS.filter((k) => !String(cur[k] == null ? '' : cur[k]).trim());
+    const pct = `${Math.round(((E_KEYS.length - gaps.length) / E_KEYS.length) * 100)}%`;
+    const god = (s.gods || []).find((g) => String(g.god || g.name) === String(cur.deity));
+
+    const fe = edits.filter((r) => String(r.character_id) === id).slice(0, 4).map((r) => {
+      const b = ED_BADGE[r.status] || ED_BADGE.pending;
+      const keys = Object.keys(r.patch || {});
+      const bits = [
+        keys.length ? keys.map((k) => E_LABEL[k] || k).join(', ') : '',
+        (r.gallery || []).length ? `${r.gallery.length} ${P(r.gallery.length, 'зображення', 'зображення', 'зображень')}` : '',
+        (r.links || []).length ? `${r.links.length} ${P(r.links.length, 'нитка', 'нитки', 'ниток')}` : '',
+      ].filter(Boolean);
+      return {
+        key: r.id, badge: b.label, accent: b.accent === 'rgba(255,255,255,0.25)' ? 'rgba(255,255,255,0.45)' : b.accent,
+        what: bits.join(' · ') || 'змін не видно', when: this._when(r.created_at),
+        hasNote: !!r.admin_note, note: r.admin_note || '',
+        canDrop: r.status === 'pending', onDrop: () => this._dropEdit(r),
+      };
+    });
+
+    const bits = s.bits;
+    const cnt = (k) => (bits && bits[k] ? (bits[k][id] || 0) : null);
+    const nL = cnt('links'), nG = cnt('gal'), nS = bits && bits.pl ? (bits.pl[id] || 0) : null;
+    const waiting = pend(cur);
+
+    return {
+      ...out, hasFolder: true,
+      foName: cur.name || '—', foHasAlias: !!cur.alias, foAlias: cur.alias || '',
+      foHasGod: !!cur.deity, foGod: god ? String(god.name || god.god) : String(cur.deity || ''),
+      foHasAge: !!String(cur.age || '').trim(), foAge: String(cur.age || ''),
+      foDraft: !!cur.is_draft,
+      foHasImg: !!cur.image, foImg: cur.image || '',
+      foCanEdit: !waiting && String(s.eId) !== id, foWaiting: waiting,
+      foEdit: () => this._openEdit(cur),
+      foHasPage: !cur.is_draft, foPage: `#characters/${encodeURIComponent(cur.id)}`,
+      foArcs, foNoArcs: foArcs.length === 0,
+      foArcsEmpty: s.turnsBusy ? 'Рахую чергу…' : 'Живих арок за цим персонажем зараз немає.',
+      foPostsHead: `✦ Дописи за рік · ${Number(total || 0).toLocaleString('uk-UA')}`,
+      foPostsSide: side.join(' · '),
+      foHasMonths: hasMonths, foNoMonths: !hasMonths,
+      foMonths: per.map((n, i) => ({
+        key: String(months[i].m), tip: `${lab(months[i])}: ${n}`,
+        h: n ? `${Math.max(6, Math.round((n / peak) * 100))}%` : '4%',
+        bg: !n ? 'rgba(255,255,255,0.12)' : (i === per.length - 1 ? '#ffd700' : 'rgba(255,215,0,0.35)'),
+      })),
+      foM1: lab(months[0]), foM2: lab(months[Math.floor(months.length / 2)]), foM3: lab(months[months.length - 1]),
+      foPostsNote: s.statsBusy ? 'Рахую дописи…'
+        : (!p ? 'Дописи поки не порахувались — числа зʼявляться, щойно рецепція відповість.'
+          : 'Дописів із тегом цього персонажа ще не ловили. Тег — два хештеги на початку допису: #Імʼя_персонажа #Назва_арки.'),
+      foPct: pct, foHasGaps: gaps.length > 0, foFull: gaps.length === 0,
+      foGaps: gaps.map((k) => ({ key: k, label: E_LABEL[k] || k })),
+      foEdits: fe, foNoEdits: fe.length === 0,
+      foLinks: nL == null ? '…' : String(nL), foLinksCap: nL == null ? 'ниток' : P(nL, 'нитка', 'нитки', 'ниток'),
+      foGal: nG == null ? '…' : String(nG),
+      foSongs: nS == null ? '…' : String(nS), foSongsCap: nS == null ? 'пісень' : P(nS, 'пісня', 'пісні', 'пісень'),
+    };
   }
 
   _openEdit(ch) {
     const base = {};
     E_KEYS.forEach((k) => { base[k] = String(ch[k] == null ? '' : ch[k]); });
     this.setState({
-      tab: 'mine', eId: String(ch.id), ef: { ...base }, eBase: base,
+      tab: 'mine', charId: String(ch.id), eId: String(ch.id), ef: { ...base }, eBase: base,
       eGal: [], eLinks: [], eLinkQ: '', eLinkKind: 'plain', eNote: '', eMsg: '',
       pl: null, plFail: false, pUrl: '', pNote: '', pMsg: '', navAt: '',
     });
@@ -2131,15 +2392,17 @@ class Component extends DCLogic {
       : posts ? `персонажів ${(posts.chars || []).length}, дописів ${posts.mine}, у стрічці ${posts.feed}` : 'запит не вийшов', posts);
 
     const ids = (this.state.owned || []).map((c) => String(c.id)).filter(Boolean);
-    const bits = { gal: {}, links: {}, ment: {} };
+    const bits = { gal: {}, links: {}, ment: {}, pl: {} };
     if (ids.length) {
       const inl = `(${ids.map((i) => `"${i}"`).join(',')})`;
-      const [gal, links, mTo, mFrom] = await Promise.all([
+      const [gal, links, mTo, mFrom, pl] = await Promise.all([
         get(`character_images?character_id=in.${inl}&select=character_id`),
         get(`character_links?or=(from_id.in.${inl},to_id.in.${inl})&select=from_id,to_id`),
         get(`material_links?to_type=eq.characters&to_id=in.${inl}&select=to_id`),
         get(`material_links?from_type=eq.characters&from_id=in.${inl}&select=from_id`),
+        get(`character_playlist?character_id=in.${inl}&select=character_id`),
       ]);
+      pl.forEach((x) => { const k = String(x.character_id); if (ids.indexOf(k) !== -1) bits.pl[k] = (bits.pl[k] || 0) + 1; });
       const bump = (map, id) => { const k = String(id); if (ids.indexOf(k) !== -1) map[k] = (map[k] || 0) + 1; };
       gal.forEach((g) => bump(bits.gal, g.character_id));
       links.forEach((l) => { bump(bits.links, l.from_id); bump(bits.links, l.to_id); });
@@ -2921,6 +3184,28 @@ class Component extends DCLogic {
       ...this._meVals(),
       ...this._turnVals(),
       ...this._sideVals(),
+      ...(() => {
+        const fv = this._folderVals();
+        const { orphanIds, ...rest } = fv;
+        const T = window.AuTurns, d = s.turns;
+        let n = 0;
+        try { n = d && !d.error && !d.missing && T ? T.yourTurn(d) : 0; } catch (e) {}
+        const row = (on) => ({ bg: on ? 'rgba(255,215,0,0.12)' : 'transparent', color: on ? '#ffd700' : 'rgba(255,255,255,0.75)' });
+        const tT = row(s.tab === 'turns'), tI = row(!['gossip', 'mine', 'me', 'turns'].includes(s.tab));
+        const tG = row(s.tab === 'gossip'), tM = row(s.tab === 'me');
+        const orphan = this._mineVals().myEdits.filter((r) => orphanIds.indexOf(String(r.key)) !== -1);
+        return {
+          ...rest,
+          navTurnsBg: tT.bg, navTurnsColor: n && s.tab !== 'turns' ? '#ffd700' : tT.color,
+          navTurnsHas: n > 0, navTurnsN: String(n || ''),
+          navIntakeBg: tI.bg, navIntakeColor: tI.color,
+          navIntakeLabel: (s.owned || []).length ? 'Нова анкета' : 'Подати анкету',
+          navGosBg: tG.bg, navGosColor: tG.color, navMeBg: tM.bg, navMeColor: tM.color,
+          navMeSec: s.phase === 'ok' && (status === 'approved' || status === 'pending'),
+          orphanEdits: s.tab === 'mine' && !s.eId && orphan.length > 0,
+          myEdits: orphan, hasEdits: orphan.length > 0, noEdits: false,
+        };
+      })(),
       notEditingAny: !s.eId && !s.editId,
       notEditingChar: !s.eId,
       ...(() => {

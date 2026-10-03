@@ -8156,7 +8156,8 @@ class Component extends DCLogic {
       showAudio:       page === 'audio' && postsApproved,
       // Вкладка кабінету береться з сегмента: #gossip — віконце (такі
       // посилання вже розіслані), #cabinet і #intake — анкета.
-      cabinetTab:      this._parseHash().seg === 'gossip' ? 'gossip' : 'intake',
+      // #cabinet — теку першого персонажа відкриває сам кабінет, коли знає, чиї вони.
+      cabinetTab:      this._parseHash().seg === 'gossip' ? 'gossip' : (this._parseHash().seg === 'intake' ? 'intake' : 'cabinet'),
       // #gossip — «Пліткарка» з меню: тільки віконце, без анкети.
       // #cabinet / #intake — кабінет із шапки: анкета й вкладки.
       cabinetOnlyGossip: this._parseHash().seg === 'gossip',
