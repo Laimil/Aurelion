@@ -143,6 +143,14 @@
             <p style="margin:14px 0 0;font-size:0.8rem;color:rgba(255,215,0,0.75);">{{ pickLabel }} <button onClick="{{ clearFilt }}" style="cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.45);font-size:0.78rem;text-decoration:underline;padding:0 0 0 8px;">скинути</button></p>
           </sc-if>
 
+          <sc-if value="{{ listYtShow }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;">
+              <span style="flex:1 1 200px;min-width:0;font-size:0.76rem;color:rgba(255,255,255,0.45);">{{ listYtLabel }}</span>
+              <button onClick="{{ listYtOpen }}" title="Відкрити цей список плейлістом на YouTube" style="flex:none;display:flex;align-items:center;gap:7px;height:32px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);font-size:0.78rem;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.45);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>Цей список на YouTube</button>
+            </div>
+          </sc-if>
+
           <sc-if value="{{ isLoad }}" hint-placeholder-val="{{ true }}">
             <p style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.9rem;padding:40px 0;">Заводжу грамофон…</p>
           </sc-if>
@@ -750,6 +758,21 @@ class Component extends DCLogic {
       trendTitle: trend ? (trend.song.title || 'Пісня з допису') : '',
       trendTail: trend ? trend.tail : '',
       trendPlay: () => { if (trend) this._play(trend.song.vid); },
+
+      // Що внизу — те й на YouTube: хроніка дає пісні в порядку сцен,
+      // список — у своєму; фільтр арок і пошук уже враховані в обох.
+      ...(() => {
+        const below = s.view === 'chron'
+          ? scenes.flatMap((e) => e.tracks.map((t) => ({ vid: t.vid })))
+          : shown;
+        const n = new Set(below.map((t) => t.vid)).size;
+        const what = pick || s.q ? 'за вибором' : 'уся полиця';
+        return {
+          listYtShow: ok && n > 0,
+          listYtLabel: `${n} ${P(n, 'пісня', 'пісні', 'пісень')} · ${what}` + (n > YT_MAX ? ` · на YouTube піде ${YT_MAX} навмання` : ''),
+          listYtOpen: () => this._toYouTube(below),
+        };
+      })(),
 
       hasPick: !!pick,
       pickLabel: pick,
