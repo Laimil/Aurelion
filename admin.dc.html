@@ -78,6 +78,40 @@ button{font-family:inherit;cursor:pointer}
 .icon-chip{width:38px;height:38px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0}
 .icon-chip:hover{border-color:rgba(255,215,0,0.4);color:#ffd700}
 .icon-chip[data-active="true"]{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.5);color:#ffd700}
+html{background:#141414}
+.nav-row{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:0 10px;border:none;border-radius:8px;background:transparent;color:rgba(255,255,255,0.8);font-size:0.94rem;text-align:left;transition:background 0.2s ease,color 0.2s ease}
+.nav-row:hover{background:rgba(255,255,255,0.06);color:#fff}
+.nav-row[data-active="true"]{background:rgba(255,215,0,0.12);color:#ffd700;font-weight:600}
+.home-row{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:8px 0;border:none;border-bottom:1px solid rgba(255,255,255,0.1);background:transparent;color:#fff;text-align:left}
+.home-row:last-child{border-bottom:none}
+.split-row{transition:background 0.2s ease}
+.split-row:hover{background:rgba(255,255,255,0.05)}
+.split-row[data-active="true"]{background:rgba(255,215,0,0.1);box-shadow:inset 3px 0 0 #ffd700}
+.adm-side{display:none}
+.adm-sheet{position:fixed;z-index:360;background:#222;border:1px solid rgba(255,255,255,0.2);box-shadow:0 20px 60px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:4px;padding:10px 14px 22px;left:0;right:0;bottom:0;border-radius:24px 24px 0 0;max-height:88vh;overflow-y:auto;overflow-x:hidden;animation:fadeUp 0.25s ease}
+[data-edit-form] > div:last-child:has(> button){position:sticky;bottom:0;z-index:20;margin:14px -22px -22px;padding:12px 22px;background:rgba(24,24,24,0.97);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.09);border-radius:0 0 10px 10px;flex-wrap:wrap;align-items:center}
+@media (min-width:900px){
+.adm-shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh;align-items:start}
+.adm-side{display:flex;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden}
+.adm-mobile{display:none!important}
+[data-sticky-head]{top:0!important}
+.adm-sheet{left:50%;right:auto;top:50%;bottom:auto;transform:translate(-50%,-50%);width:440px;border-radius:15px;padding:14px 16px 18px;animation:none}
+}
+@media (min-width:1200px){
+[data-split="true"]{display:grid!important;grid-template-columns:360px minmax(0,1fr);grid-template-rows:repeat(39,min-content) 1fr;gap:0 28px;max-width:1500px!important;align-items:start}
+[data-split="true"] > *{grid-column:1}
+[data-split="true"] > [data-edit-form]{grid-column:2;grid-row:1 / span 40}
+[data-split="true"] > [data-hide-split]{display:none!important}
+}
+@media (max-width:899px){
+input,textarea,select{font-size:16px}
+.adm-main > div:not(.adm-mobile):not(.adm-savebar){padding-left:14px!important;padding-right:14px!important;padding-bottom:120px!important}
+[data-editing="true"] > :not([data-edit-form]){display:none!important}
+[data-editing="true"] [data-edit-form]{padding:16px!important;border-radius:12px!important}
+.item-row{padding:12px 10px!important}
+.item-row button{min-height:40px;min-width:44px}
+.sort-chip{padding:8px 14px;font-size:0.8rem}
+}
 </style>
 </helmet>
 
@@ -112,47 +146,104 @@ button{font-family:inherit;cursor:pointer}
 <!-- ══════════ ADMIN PANEL ══════════ -->
 <sc-if value="{{ showAdmin }}" hint-placeholder-val="{{ false }}">
 
-<!-- TOP BAR -->
-<div style="position:sticky;top:0;z-index:50;background:rgba(22,22,22,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.09);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
-  <div style="display:flex;align-items:center;gap:14px;">
-    <a href="Aurelion.dc.html" style="font-size:0.78rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.18s;" style-hover="color:#fff;">← Сайт</a>
-    <span style="color:rgba(255,255,255,0.15);">|</span>
-    <span style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.1em;">✦ ADMIN</span>
-    <span style="font-size:0.68rem;color:rgba(100,149,237,0.55);border:1px solid rgba(100,149,237,0.18);border-radius:4px;padding:2px 8px;">{{ adminEmail }}</span>
+<div class="adm-shell">
+<aside class="adm-side" style="background:#161616;border-right:1px solid rgba(255,255,255,0.1);padding:18px 14px 14px;flex-direction:column;gap:2px;">
+  <a href="Aurelion.dc.html" style="font-family:'Cinzel',serif;font-size:1rem;color:#ffd700;letter-spacing:0.1em;padding:0 10px 14px;text-decoration:none;white-space:nowrap;">✦ AURELION</a>
+  <button onClick="{{ openAdd }}" style="height:44px;border:none;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.95rem;font-weight:700;margin-bottom:8px;flex-shrink:0;transition:box-shadow 0.3s ease;" style-hover="box-shadow:0 0 24px rgba(255,215,0,0.3);">+ Додати</button>
+  <input value="{{ navQ }}" onChange="{{ setNavQ }}" placeholder="⌕  Пошук усюди" style="border-radius:999px;padding:9px 16px;margin-bottom:8px;flex-shrink:0;" />
+  <sc-if value="{{ navHasHits }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:10px;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);">
+      <sc-for list="{{ navHits }}" as="h" hint-placeholder-count="0">
+        <button class="nav-row" data-tab="{{ h.tab }}" data-sec="{{ h.sec }}" data-idx="{{ h.idx }}" onClick="{{ navHitGo }}"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ h.label }}</span><span style="font-size:0.72rem;color:rgba(255,255,255,0.5);white-space:nowrap;">{{ h.where }}</span></button>
+      </sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{ navNoHits }}" hint-placeholder-val="{{ false }}">
+    <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);padding:4px 10px 10px;">Нічого не знайшлося</p>
+  </sc-if>
+  <sc-for list="{{ navGroups }}" as="grp" hint-placeholder-count="4">
+    <sc-if value="{{ grp.hasLabel }}" hint-placeholder-val="{{ true }}">
+      <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);padding:14px 10px 4px;">{{ grp.label }}</p>
+    </sc-if>
+    <sc-for list="{{ grp.rows }}" as="r" hint-placeholder-count="3">
+      <button class="nav-row" data-tab="{{ r.id }}" data-active="{{ r.active }}" onClick="{{ setTab }}">
+        <span style="flex:1;min-width:0;">{{ r.label }}</span>
+        <sc-if value="{{ r.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.72rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">{{ r.badge }}</span></sc-if>
+        <sc-if value="{{ r.hasMeta }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.8rem;color:rgba(255,255,255,0.5);">{{ r.meta }}</span></sc-if>
+      </button>
+    </sc-for>
+  </sc-for>
+  <div style="margin-top:auto;padding-top:14px;display:flex;flex-direction:column;gap:8px;">
+    <div style="display:flex;gap:6px;">
+      <button onClick="{{ refreshData }}" style="flex:1;height:34px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);font-size:0.78rem;" style-hover="color:#fff;">↺ Оновити</button>
+      <button onClick="{{ exportData }}" style="flex:1;height:34px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);font-size:0.78rem;" style-hover="color:#fff;">↓ JSON</button>
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.5);padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ adminEmail }}</p>
+    <div style="display:flex;justify-content:space-between;padding:0 4px;">
+      <a href="Aurelion.dc.html" style="font-size:0.82rem;color:rgba(255,255,255,0.7);text-decoration:none;" style-hover="color:#fff;">← На сайт</a>
+      <button onClick="{{ doLogout }}" style="background:none;border:none;padding:0;font-size:0.82rem;color:rgba(255,120,120,0.85);" style-hover="color:#ff7070;">Вийти</button>
+    </div>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <button onClick="{{ refreshData }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.55);border-radius:6px;padding:6px 14px;font-size:0.78rem;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">↺ Оновити</button>
-    <button onClick="{{ exportData }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.55);border-radius:6px;padding:6px 14px;font-size:0.78rem;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.28);">↓ JSON</button>
-    <button onClick="{{ saveAll }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:6px 18px;font-size:0.82rem;font-weight:700;font-family:'Cinzel',serif;letter-spacing:0.05em;transition:all 0.18s;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.4);">{{ saveLabel }}</button>
-    <button onClick="{{ doLogout }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.65);border-radius:6px;padding:6px 13px;font-size:0.78rem;transition:all 0.18s;" style-hover="background:rgba(255,77,77,0.16);color:#ff7070;">Вийти</button>
-  </div>
-</div>
+</aside>
+<div class="adm-main" style="min-width:0;">
 
-<!-- TAB BAR -->
-<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:10px 24px 0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;align-items:flex-end;">
-  <sc-for list="{{ tabGroups }}" as="grp" hint-placeholder-count="5">
-    <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;padding-right:10px;border-right:1px solid rgba(255,255,255,0.06);">
-      <span style="font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.25);padding-left:8px;">{{ grp.label }}</span>
-      <div style="display:flex;gap:2px;">
-        <sc-for list="{{ grp.tabs }}" as="tab" hint-placeholder-count="3">
-          <button data-tab="{{ tab.id }}" data-active="{{ tab.active }}" onClick="{{ setTab }}" class="tab-btn" style="background:transparent;border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;padding:8px 13px;font-size:0.8rem;color:rgba(255,255,255,0.45);white-space:nowrap;flex-shrink:0;transition:all 0.18s;margin-bottom:-1px;display:flex;align-items:center;gap:7px;">
-            <span>{{ tab.label }}</span>
-            <sc-if value="{{ tab.hasCount }}" hint-placeholder-val="{{ false }}">
-              <span style="min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.66rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">{{ tab.count }}</span>
-            </sc-if>
+<!-- MOBILE BAR -->
+<sc-if value="{{ showMBar }}" hint-placeholder-val="{{ false }}">
+  <div class="adm-mobile" style="position:sticky;top:0;z-index:50;height:56px;background:rgba(22,22,22,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:6px;padding:0 6px;">
+    <button onClick="{{ mBack }}" style="height:44px;min-width:44px;padding:0 10px;background:none;border:none;color:#a9c4f5;font-size:1rem;white-space:nowrap;flex-shrink:0;">‹ {{ mBackLabel }}</button>
+    <p style="flex:1;min-width:0;text-align:center;font-size:1rem;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ mTitle }}</p>
+    <span style="min-width:88px;text-align:right;padding-right:10px;font-size:0.74rem;color:#6fcf8e;white-space:nowrap;">{{ mSaved }}</span>
+  </div>
+</sc-if>
+
+<!-- MOBILE HOME -->
+<sc-if value="{{ showHome }}" hint-placeholder-val="{{ false }}">
+  <div class="adm-mobile" style="padding:22px 14px 130px;display:flex;flex-direction:column;gap:8px;">
+    <p style="font-size:0.88rem;color:rgba(255,255,255,0.7);padding:0 4px;">{{ homeDate }}</p>
+    <h1 style="font-family:'Cinzel',serif;font-size:1.9rem;color:#fff;letter-spacing:0.05em;padding:0 4px;">Адмінка</h1>
+    <input value="{{ navQ }}" onChange="{{ setNavQ }}" placeholder="⌕  Розділ, персонаж, стаття…" style="border-radius:999px;padding:12px 18px;margin:6px 0 4px;" />
+    <sc-if value="{{ navHasHits }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:15px;padding:0 16px;">
+        <sc-for list="{{ navHits }}" as="h" hint-placeholder-count="0">
+          <button class="home-row" data-tab="{{ h.tab }}" data-sec="{{ h.sec }}" data-idx="{{ h.idx }}" onClick="{{ navHitGo }}"><span style="flex:1;min-width:0;font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ h.label }}</span><span style="font-size:0.84rem;color:rgba(255,255,255,0.6);white-space:nowrap;">{{ h.where }}</span><span style="color:rgba(255,255,255,0.4);">›</span></button>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ navNoHits }}" hint-placeholder-val="{{ false }}">
+      <p style="font-size:0.9rem;color:rgba(255,255,255,0.55);padding:6px 6px;">Нічого не знайшлося</p>
+    </sc-if>
+    <sc-for list="{{ homeGroups }}" as="grp" hint-placeholder-count="3">
+      <p style="font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ grp.labelColor }};padding:14px 6px 2px;">{{ grp.label }}</p>
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:15px;padding:0 16px;">
+        <sc-for list="{{ grp.rows }}" as="r" hint-placeholder-count="3">
+          <button class="home-row" data-tab="{{ r.id }}" onClick="{{ setTab }}">
+            <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;">
+              <span style="font-size:1rem;color:#fff;">{{ r.label }}</span>
+              <sc-if value="{{ r.hasSub }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.82rem;color:rgba(255,255,255,0.62);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.sub }}</span></sc-if>
+            </span>
+            <sc-if value="{{ r.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="min-width:26px;height:24px;padding:0 8px;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.8rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">{{ r.badge }}</span></sc-if>
+            <sc-if value="{{ r.hasMeta }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.88rem;color:rgba(255,255,255,0.62);">{{ r.meta }}</span></sc-if>
+            <span style="color:rgba(255,255,255,0.4);">›</span>
           </button>
         </sc-for>
       </div>
+    </sc-for>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;padding:18px 4px 0;">
+      <button onClick="{{ refreshData }}" style="height:42px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.8);font-size:0.88rem;">↺ Оновити</button>
+      <button onClick="{{ exportData }}" style="height:42px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.8);font-size:0.88rem;">↓ JSON</button>
+      <a href="Aurelion.dc.html" style="height:42px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.8);font-size:0.88rem;display:inline-flex;align-items:center;text-decoration:none;">← На сайт</a>
+      <button onClick="{{ doLogout }}" style="height:42px;padding:0 16px;border-radius:999px;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.25);color:#ff8080;font-size:0.88rem;">Вийти</button>
     </div>
-  </sc-for>
-</div>
+    <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);padding:8px 6px 0;">{{ adminEmail }}</p>
+  </div>
+</sc-if>
 
 <!-- DESK TAB -->
 <sc-if value="{{ showDesk }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:1100px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px;">
       <div>
-        <h2 style="font-family:'Cinzel',serif;font-size:1.15rem;color:#ffd700;letter-spacing:0.08em;margin-bottom:6px;">✦ Стіл</h2>
+        <h2 style="font-family:'Cinzel',serif;font-size:1.15rem;color:#ffd700;letter-spacing:0.08em;margin-bottom:6px;">✦ Сьогодні</h2>
         <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);">{{ deskHead }}</p>
       </div>
       <button onClick="{{ deskReload }}" style="cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 16px;font-size:0.76rem;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">↺ Оновити черги</button>
@@ -1349,7 +1440,7 @@ button{font-family:inherit;cursor:pointer}
 
 <!-- LORE TAB -->
 <sc-if value="{{ showLore }}" hint-placeholder-val="{{ false }}">
-  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+  <div data-split="{{ splitOn }}" data-editing="{{ editOn }}" style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">📜 Лор-статті</h2>
       <button data-section="lore" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова стаття</button>
@@ -1578,7 +1669,7 @@ button{font-family:inherit;cursor:pointer}
           </div>
         </sc-if>
         <div style="display:flex;gap:8px;">
-          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button><sc-if value="{{ hasSavedNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.76rem;color:#6fcf8e;white-space:nowrap;">{{ savedNote }}</span></sc-if>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
         </div>
       </div>
@@ -1588,7 +1679,7 @@ button{font-family:inherit;cursor:pointer}
 
 <!-- STORIES TAB -->
 <sc-if value="{{ showStories }}" hint-placeholder-val="{{ false }}">
-  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+  <div data-split="{{ splitOn }}" data-editing="{{ editOn }}" style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">📖 Історії</h2>
       <button data-section="stories" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова стаття</button>
@@ -1866,7 +1957,7 @@ button{font-family:inherit;cursor:pointer}
           </div>
         </sc-if>
         <div style="display:flex;gap:8px;">
-          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button><sc-if value="{{ hasSavedNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.76rem;color:#6fcf8e;white-space:nowrap;">{{ savedNote }}</span></sc-if>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
         </div>
       </div>
@@ -1876,7 +1967,7 @@ button{font-family:inherit;cursor:pointer}
 
 <!-- CHRONICLES TAB -->
 <sc-if value="{{ showChronicles }}" hint-placeholder-val="{{ false }}">
-  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+  <div data-split="{{ splitOn }}" data-editing="{{ editOn }}" style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🪶 Хроніки</h2>
       <button data-section="chronicles" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова хроніка</button>
@@ -2061,7 +2152,7 @@ button{font-family:inherit;cursor:pointer}
           </div>
         </sc-if>
         <div style="display:flex;gap:8px;">
-          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button><sc-if value="{{ hasSavedNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.76rem;color:#6fcf8e;white-space:nowrap;">{{ savedNote }}</span></sc-if>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
         </div>
       </div>
@@ -2071,13 +2162,13 @@ button{font-family:inherit;cursor:pointer}
 
 <!-- CHARACTERS TAB -->
 <sc-if value="{{ showCharacters }}" hint-placeholder-val="{{ false }}">
-  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+  <div data-split="{{ splitOn }}" data-editing="{{ editOn }}" style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🎭 Персонажі</h2>
       <button data-section="characters" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Новий персонаж</button>
     </div>
     <!-- Імпорт анкети з Telegraph -->
-    <div style="background:rgba(100,149,237,0.055);border:1px solid rgba(100,149,237,0.2);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+    <div data-hide-split style="background:rgba(100,149,237,0.055);border:1px solid rgba(100,149,237,0.2);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
         <div style="flex:1;min-width:220px;">
           <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#6495ed;letter-spacing:0.05em;">✦ Імпорт анкети з Telegraph</p>
@@ -2211,9 +2302,23 @@ button{font-family:inherit;cursor:pointer}
       </sc-for>
     </div>
     </sc-if>
+    <sc-if value="{{ charSplit }}" hint-placeholder-val="{{ false }}">
+      <div style="position:sticky;top:12px;max-height:calc(100vh - 110px);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.03);">
+        <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.08);position:sticky;top:0;background:#1b1b1b;z-index:2;"><input value="{{ charSearch }}" onChange="{{ handleCharSearch }}" placeholder="⌕  Ім'я, роль…" style="border-radius:999px;" /></div>
+        <sc-for list="{{ charList }}" as="char" hint-placeholder-count="6">
+          <div class="split-row" data-section="characters" data-index="{{ char._index }}" data-active="{{ char.isOpen }}" onClick="{{ startEdit }}" style="display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="{{ char.imgBg }}width:38px;height:38px;border-radius:50%;flex-shrink:0;background-color:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);"></div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:0.9rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ char.name }}</p>
+              <p style="font-size:0.74rem;color:rgba(255,255,255,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ char.subLine }}</p>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
     <sc-if value="{{ showCharForm }}" hint-placeholder-val="{{ false }}">
       <div data-edit-form style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:22px;">
-        <div style="position:sticky;top:56px;z-index:20;margin:-22px -22px 18px;padding:12px 22px 10px;background:rgba(24,24,24,0.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.09);border-radius:10px 10px 0 0;">
+        <div data-sticky-head style="position:sticky;top:56px;z-index:20;margin:-22px -22px 18px;padding:12px 22px 10px;background:rgba(24,24,24,0.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.09);border-radius:10px 10px 0 0;">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:9px;">
             <button onClick="{{ cancelEdit }}" style="background:none;border:none;color:rgba(255,255,255,0.45);font-size:0.78rem;cursor:pointer;padding:0;" style-hover="color:#fff;">← До плиток</button>
             <p style="flex:1;min-width:0;font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ editLabel }}</p>
@@ -2566,7 +2671,7 @@ button{font-family:inherit;cursor:pointer}
           </details>
         </sc-if>
         <div style="position:sticky;bottom:0;z-index:20;display:flex;gap:8px;align-items:center;margin:0 -22px -22px;padding:12px 22px;background:rgba(24,24,24,0.97);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.09);border-radius:0 0 10px 10px;">
-          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button><sc-if value="{{ hasSavedNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.76rem;color:#6fcf8e;white-space:nowrap;">{{ savedNote }}</span></sc-if>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
           <span style="flex:1;"></span>
           <span style="font-size:0.66rem;color:rgba(255,255,255,0.25);">Ctrl + S — зберегти</span>
@@ -2578,7 +2683,7 @@ button{font-family:inherit;cursor:pointer}
 
 <!-- PANTHEON TAB -->
 <sc-if value="{{ showPantheon }}" hint-placeholder-val="{{ false }}">
-  <div style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
+  <div data-split="{{ splitOn }}" data-editing="{{ editOn }}" style="max-width:860px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🐉 Пантеон</h2>
       <button data-section="pantheon" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Новий бог</button>
@@ -2709,7 +2814,7 @@ button{font-family:inherit;cursor:pointer}
           </div>
         </sc-if>
         <div style="display:flex;gap:8px;">
-          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button><sc-if value="{{ hasSavedNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.76rem;color:#6fcf8e;white-space:nowrap;">{{ savedNote }}</span></sc-if>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
         </div>
       </div>
@@ -2927,7 +3032,7 @@ button{font-family:inherit;cursor:pointer}
           </div>
         </sc-if>
         <div style="display:flex;gap:8px;">
-          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button>
+          <button onClick="{{ saveItem }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 20px;font-weight:700;font-size:0.82rem;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.35);">Зберегти</button><sc-if value="{{ hasSavedNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.76rem;color:#6fcf8e;white-space:nowrap;">{{ savedNote }}</span></sc-if>
           <button onClick="{{ cancelEdit }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:8px 16px;font-size:0.82rem;">Скасувати</button>
         </div>
       </div>
@@ -3127,6 +3232,40 @@ button{font-family:inherit;cursor:pointer}
   </div>
 </sc-if>
 
+<sc-if value="{{ showSiteSave }}" hint-placeholder-val="{{ false }}">
+  <div class="adm-savebar" style="position:sticky;bottom:0;z-index:40;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 24px calc(12px + env(safe-area-inset-bottom));background:rgba(24,24,24,0.97);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.12);">
+    <p style="flex:1;min-width:180px;font-size:0.82rem;color:rgba(255,255,255,0.7);">Налаштування цієї сторінки зберігаються кнопкою праворуч</p>
+    <button onClick="{{ saveAll }}" style="height:46px;padding:0 28px;border:none;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.95rem;font-weight:700;white-space:nowrap;transition:box-shadow 0.3s ease;" style-hover="box-shadow:0 0 24px rgba(255,215,0,0.3);">{{ saveLabel }}</button>
+  </div>
+</sc-if>
+</div><!-- /adm-main -->
+</div><!-- /adm-shell -->
+
+<sc-if value="{{ fabHome }}" hint-placeholder-val="{{ false }}">
+  <button class="adm-mobile" onClick="{{ openAdd }}" style="position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;height:54px;padding:0 30px;border:none;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:1rem;font-weight:700;white-space:nowrap;box-shadow:0 0 24px rgba(255,215,0,0.3),0 6px 20px rgba(0,0,0,0.5);">+ Додати</button>
+</sc-if>
+<sc-if value="{{ fabSec }}" hint-placeholder-val="{{ false }}">
+  <button class="adm-mobile" data-section="{{ fabSection }}" onClick="{{ fabGo }}" style="position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;height:54px;padding:0 30px;border:none;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:1rem;font-weight:700;white-space:nowrap;box-shadow:0 0 24px rgba(255,215,0,0.3),0 6px 20px rgba(0,0,0,0.5);">+ {{ fabLabel }}</button>
+</sc-if>
+
+<sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeAdd }}" style="position:fixed;inset:0;z-index:350;background:rgba(0,0,0,0.6);"></div>
+  <div class="adm-sheet">
+    <div class="adm-mobile" style="width:40px;height:5px;border-radius:999px;background:rgba(255,255,255,0.35);align-self:center;margin-bottom:8px;"></div>
+    <p style="font-family:'Cinzel',serif;font-size:1.2rem;color:#fff;letter-spacing:0.04em;padding:2px 6px 8px;">Додати</p>
+    <sc-for list="{{ addItems }}" as="it" hint-placeholder-count="7">
+      <button data-kind="{{ it.kind }}" onClick="{{ addPick }}" style="display:flex;align-items:center;gap:14px;min-height:56px;padding:6px 10px;border-radius:10px;text-align:left;background:{{ it.bg }};border:1px solid {{ it.border }};color:#fff;transition:background 0.2s ease;" style-hover="background:rgba(255,255,255,0.08);">
+        <span style="width:28px;text-align:center;font-size:1.1rem;color:{{ it.color }};flex-shrink:0;">{{ it.icon }}</span>
+        <span style="display:flex;flex-direction:column;gap:2px;min-width:0;">
+          <span style="font-size:1rem;">{{ it.label }}</span>
+          <sc-if value="{{ it.hasSub }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.8rem;color:rgba(255,255,255,0.65);">{{ it.sub }}</span></sc-if>
+        </span>
+      </button>
+    </sc-for>
+    <button onClick="{{ closeAdd }}" style="height:50px;margin-top:8px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:1rem;">Закрити</button>
+  </div>
+</sc-if>
+
 </sc-if><!-- end showAdmin -->
 
 <!-- NOTE DIALOG -->
@@ -3154,7 +3293,7 @@ button{font-family:inherit;cursor:pointer}
 
 <!-- TOAST -->
 <sc-if value="{{ showToast }}" hint-placeholder-val="{{ false }}">
-  <div style="position:fixed;bottom:24px;right:24px;background:#1e1e1e;border:1px solid rgba(255,215,0,0.35);border-radius:8px;padding:12px 20px;font-size:0.85rem;color:#ffd700;z-index:300;animation:toastIn 0.25s ease;box-shadow:0 4px 16px rgba(0,0,0,0.5);">{{ toastMsg }}</div>
+  <div style="position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));right:16px;max-width:calc(100vw - 32px);background:#1e1e1e;border:1px solid rgba(255,215,0,0.35);border-radius:8px;padding:12px 20px;font-size:0.85rem;color:#ffd700;z-index:300;animation:toastIn 0.25s ease;box-shadow:0 4px 16px rgba(0,0,0,0.5);">{{ toastMsg }}</div>
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
@@ -3724,6 +3863,10 @@ class Component extends DCLogic {
     userEmail: '',
     // admin
     tab: 'desk',
+    // оболонка: ширина екрана, пошук у навігації, аркуш «Додати», позначка збереження
+    wide: typeof window !== 'undefined' ? window.innerWidth >= 900 : true,
+    wide3: typeof window !== 'undefined' ? window.innerWidth >= 1200 : true,
+    navQ: '', addOpen: false, savedAt: '', savedKey: '',
     postsBusy: false, postsErr: '', postsRows: [], postsExisting: null,
     // власники й правки
     edRows: [], edFilter: 'pending', edBusy: false, ownQ: '', ownWho: 'all', gosPQ: '',
@@ -4886,7 +5029,7 @@ class Component extends DCLogic {
   }
 
   // Відкрити запис на правку — спільне для кнопки «✎» у списках і для Столу.
-  _openEdit(section, index) {
+  _openEdit(section, index, keepScroll) {
       const item    = (this.state.data[section] || [])[index] || {};
       const form    = { ...item };
       // Вхідні знайомства (хтось відмітив цю анкету, а вона його — ні)
@@ -4905,31 +5048,150 @@ class Component extends DCLogic {
       this._loadManualLinks(section, item.id);
       if (section === 'characters') this._loadCharLinks(item.id);
       this._loadGalImages(section, item.id);
-      this._scrollToForm();
+      if (!keepScroll) this._scrollToForm();
   }
 
   // ── Навігація: вкладки згруповані за тим, що з ними роблять ──
   _navVals(tab) {
     const c = this._deskCounts();
-    const T = (id, label, n) => ({ id, label, active: tab === id, hasCount: !!n, count: n || 0 });
-    const groups = [
-      { key: 'desk', label: 'Огляд', tabs: [T('desk', '✦ Стіл', c.total)] },
-      { key: 'req', label: 'Запити', tabs: [
-        T('people', '👥 Люди', c.people), T('intake', '📥 Анкети', c.intake),
-        T('owners', '✎ Правки', c.owners), T('gossip', '✉ Плітки', c.gossip),
-      ] },
-      { key: 'world', label: 'Картотека й світ', tabs: [
-        T('characters', '🎭 Персонажі', c.characters), T('lore', '📜 Довідник'), T('stories', '📖 Історії'),
-        T('chronicles', '🪶 Хроніки'), T('pantheon', '🐉 Пантеон'), T('map', '🗺 Мапа'),
-      ] },
-      { key: 'play', label: 'Гра', tabs: [
-        T('tests', '🧠 Тести', c.tests), T('posts', '📰 Пости'), T('dice', '🎲 Дайс'),
-      ] },
-      { key: 'site', label: 'Сайт', tabs: [
-        T('site', '⚙ Налаштування'), T('contacts', '✍️ Долучитися'), T('stats', '📊 Пульс'),
-      ] },
+    const d = this.state.data || {};
+    const len = (k) => (d[k] || []).length;
+    const R = (id, label, o) => {
+      o = o || {};
+      const badge = o.badge || 0, meta = o.meta == null ? '' : String(o.meta);
+      return { id, label, active: tab === id, badge, hasBadge: !!badge, meta, hasMeta: !badge && meta !== '', sub: o.sub || '', hasSub: !!o.sub };
+    };
+    const nn = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; return n + ' ' + (m10 === 1 && m100 !== 11 ? one : (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? few : many)); };
+    const wait = [
+      R('intake', 'Анкети', { badge: c.intake, sub: c.intake ? nn(c.intake, 'анкета чекає', 'анкети чекають', 'анкет чекають') : 'нових немає' }),
+      R('owners', 'Правки від власників', { badge: c.owners, sub: c.owners ? nn(c.owners, 'правка', 'правки', 'правок') + ' на розгляді' : 'нових немає' }),
+      R('people', 'Люди під дверима', { badge: c.people, sub: c.people ? 'чекають доступу' : 'нікого немає' }),
+      R('gossip', 'Плітки', { badge: c.gossip, sub: c.gossip ? 'на столі' : 'стіл чистий' }),
     ];
-    return { tabGroups: groups };
+    const world = [
+      R('characters', 'Персонажі', { meta: len('characters'), badge: 0, sub: c.characters ? nn(c.characters, 'чернетка', 'чернетки', 'чернеток') : '' }),
+      R('lore', 'Довідник', { meta: len('lore') }),
+      R('stories', 'Історії', { meta: len('stories') }),
+      R('chronicles', 'Хроніки', { meta: len('chronicles') }),
+      R('pantheon', 'Пантеон', { meta: len('pantheon') }),
+      R('map', 'Мапа', { meta: len('map_locations') }),
+    ];
+    const play = [
+      R('tests', 'Тести', { badge: c.tests, meta: len('tests') }),
+      R('posts', 'Пости'), R('dice', 'Дайс'),
+      R('site', 'Налаштування'), R('contacts', 'Сторінка «Долучитися»'), R('stats', 'Пульс'),
+    ];
+    const navGroups = [
+      { key: 'top', label: '', hasLabel: false, rows: [R('desk', 'Сьогодні', { badge: c.total })] },
+      { key: 'wait', label: 'Чекає вас', hasLabel: true, rows: wait },
+      { key: 'world', label: 'Світ', hasLabel: true, rows: world },
+      { key: 'play', label: 'Гра й сайт', hasLabel: true, rows: play },
+    ];
+    const homeGroups = [
+      { key: 'wait', label: 'Чекає вас' + (c.total ? ' · ' + c.total : ''), labelColor: '#ffd700',
+        rows: [R('desk', 'Сьогодні', { sub: 'усе незакрите й зміни за тиждень' }), ...wait] },
+      { key: 'world', label: 'Світ', labelColor: 'rgba(255,255,255,0.7)', rows: world },
+      { key: 'play', label: 'Гра й сайт', labelColor: 'rgba(255,255,255,0.7)', rows: play },
+    ];
+    const labelOf = {};
+    navGroups.forEach(g => g.rows.forEach(r => { labelOf[r.id] = r.label; }));
+    labelOf.desk = 'Сьогодні';
+    this._tabLabels = labelOf;
+    return { navGroups, homeGroups };
+  }
+
+  // Пошук у навігації: розділи за назвою + записи картотеки за іменем / заголовком.
+  _navHits(q) {
+    q = String(q || '').trim().toLowerCase();
+    if (q.length < 2) return [];
+    const out = [];
+    const labels = this._tabLabels || {};
+    Object.keys(labels).forEach(id => { if (labels[id].toLowerCase().includes(q)) out.push({ tab: id, sec: '', idx: -1, label: labels[id], where: 'розділ' }); });
+    const d = this.state.data || {};
+    const SEC = [['characters', 'персонаж'], ['lore', 'довідник'], ['stories', 'історія'], ['chronicles', 'хроніка'], ['pantheon', 'пантеон']];
+    SEC.forEach(([sec, where]) => (d[sec] || []).forEach((r, i) => {
+      const nm = r.name || r.title || r.god || '';
+      const hay = (nm + ' ' + (r.alias || '') + ' ' + (r.role || '')).toLowerCase();
+      if (nm && hay.includes(q)) out.push({ tab: sec, sec, idx: i, label: nm, where });
+    }));
+    return out.slice(0, 12);
+  }
+
+  _shellVals() {
+    const s = this.state, ed = s.editing, tab = s.tab;
+    const hits = this._navHits(s.navQ);
+    const q = String(s.navQ || '').trim();
+    const labels = this._tabLabels || {};
+    const SEC_LABEL = { characters: 'Персонажі', lore: 'Довідник', stories: 'Історії', chronicles: 'Хроніки', pantheon: 'Пантеон', contacts: 'Долучитися' };
+    const FAB = { characters: 'Новий персонаж', lore: 'Нова стаття', stories: 'Нова історія', chronicles: 'Нова хроніка', pantheon: 'Новий бог', map: 'Нова локація' };
+    const SPLIT = ['lore', 'stories', 'chronicles', 'characters', 'pantheon'];
+    const curId = ed && ed.index !== -1 ? ((s.data[ed.section] || [])[ed.index] || {}).id : null;
+    const savedHere = !!(ed && curId != null && s.savedKey === ed.section + ':' + curId && s.savedAt);
+    const add = (kind, icon, label, sub, hl) => ({ kind, icon, label, sub: sub || '', hasSub: !!sub,
+      bg: hl ? 'rgba(100,149,237,0.18)' : 'transparent', border: hl ? 'rgba(100,149,237,0.6)' : 'transparent', color: hl ? '#a9c4f5' : '#ffd700' });
+    const homeDate = (() => { try { const t = new Date().toLocaleDateString('uk-UA', { weekday: 'long', day: 'numeric', month: 'long' }); return t.charAt(0).toUpperCase() + t.slice(1); } catch (e) { return ''; } })();
+    return {
+      navQ: s.navQ,
+      setNavQ: (e) => this.setState({ navQ: e.target.value }),
+      navHits: hits, navHasHits: hits.length > 0, navNoHits: q.length >= 2 && !hits.length,
+      navHitGo: (e) => {
+        const el = e.currentTarget, sec = el.dataset.sec, idx = parseInt(el.dataset.idx, 10);
+        if (sec && idx >= 0) { this.setState({ tab: sec, navQ: '' }); this._openEdit(sec, idx); }
+        else this.setState({ tab: el.dataset.tab, editing: null, form: {}, navQ: '' });
+      },
+      showHome: !s.wide && tab === 'home',
+      showMBar: !s.wide && tab !== 'home',
+      homeDate,
+      mBack: () => { if (this._pushed > 0) { try { history.back(); return; } catch (e) {} } this._goUp(); },
+      mBackLabel: ed ? (SEC_LABEL[ed.section] || 'Назад') : 'Адмінка',
+      mTitle: ed ? (ed.index === -1 ? 'Новий запис' : ((((s.data[ed.section] || [])[ed.index]) || {}).name || (((s.data[ed.section] || [])[ed.index]) || {}).title || 'Тека')) : (labels[tab] || ''),
+      mSaved: savedHere ? '✓ ' + s.savedAt : '',
+      hasSavedNote: savedHere, savedNote: savedHere ? '✓ Збережено о ' + s.savedAt : '',
+      fabHome: !s.wide && tab === 'home' && !s.addOpen,
+      fabSec: !s.wide && !ed && !!FAB[tab] && !s.addOpen && !(tab === 'map' && s.mapAdminPlacing),
+      fabSection: tab, fabLabel: FAB[tab] || '',
+      fabGo: () => {
+        if (tab === 'map') { this.setState({ mapAdminPlacing: true, mapAdminSelectedId: null, mapAdminForm: { x_percent: 50, y_percent: 50 } }); return; }
+        this._goAdd(tab);
+      },
+      addOpen: !!s.addOpen,
+      openAdd: () => this.setState({ addOpen: true }),
+      closeAdd: () => this.setState({ addOpen: false }),
+      addItems: [
+        add('tg', '↧', 'Анкета з Telegraph', 'вставити посилання — графи підставляться', true),
+        add('characters', '✦', 'Персонаж вручну'),
+        add('lore', '✦', 'Стаття в Довідник'),
+        add('stories', '✦', 'Історія'),
+        add('chronicles', '✦', 'Хроніка'),
+        add('pantheon', '✦', 'Бог пантеону'),
+        add('tests', '✦', 'Тест', 'вставити JSON від Клода'),
+        add('map', '✦', 'Локація на мапі'),
+      ],
+      addPick: (e) => {
+        const k = e.currentTarget.dataset.kind;
+        if (k === 'tg') { this.setState({ tab: 'characters', editing: null, form: {}, tgOpen: true, addOpen: false, navQ: '' }); try { window.scrollTo(0, 0); } catch (er) {} return; }
+        if (k === 'tests') { this.setState({ tab: 'tests', editing: null, form: {}, addOpen: false, navQ: '' }); return; }
+        if (k === 'map') { this.setState({ tab: 'map', editing: null, form: {}, addOpen: false, navQ: '', mapAdminPlacing: true, mapAdminSelectedId: null, mapAdminForm: { x_percent: 50, y_percent: 50 } }); return; }
+        this._goAdd(k);
+      },
+      showSiteSave: tab === 'site' || tab === 'contacts' || tab === 'dice',
+      splitOn: !!(s.wide3 && ed && SPLIT.indexOf(ed.section) !== -1),
+      editOn: !!ed,
+      charSplit: !!(s.wide3 && ed && ed.section === 'characters'),
+    };
+  }
+
+  _goAdd(section) {
+    this.setState({ tab: section, addOpen: false, navQ: '', editing: { section, index: -1 }, form: {}, linkManual: [], linkSearch: '', dxRes: null, dxMsg: '', dxBad: false, dxBusy: false, galRows: [], galCtx: null });
+    this._scrollToForm();
+  }
+
+  // Глибина екрана на телефоні: головна 0 → розділ 1 → тека 2 (для кнопки «назад»).
+  _depth(st) { return st.tab === 'home' ? 0 : (st.editing ? 2 : 1); }
+  _goUp() {
+    const st = this.state;
+    if (st.editing) this.setState({ editing: null, form: {}, lorePreview: false, storiesPreview: false, linkManual: [], linkSearch: '', galRows: [], galCtx: null });
+    else if (st.tab !== 'home' && !st.wide) this.setState({ tab: 'home' });
   }
 
   // ── Стіл: усе незакрите одним списком + що змінилося ──
@@ -6684,6 +6946,21 @@ class Component extends DCLogic {
   }
   componentDidMount() {
     this._checkSession();
+    this._onResize = () => {
+      const wide = window.innerWidth >= 900, wide3 = window.innerWidth >= 1200;
+      if (wide === this.state.wide && wide3 === this.state.wide3) return;
+      this.setState(st => ({ wide, wide3, tab: wide && st.tab === 'home' ? 'desk' : st.tab }));
+    };
+    window.addEventListener('resize', this._onResize);
+    if (!this.state.wide && this.state.tab === 'desk') this.setState({ tab: 'home' });
+    this._pushed = 0;
+    this._onPop = () => {
+      if (this._pushed > 0) this._pushed--;
+      this._popping = true;
+      this._goUp();
+      setTimeout(() => { this._popping = false; }, 0);
+    };
+    window.addEventListener('popstate', this._onPop);
     this._onKey = (e) => {
       if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'ы' || e.key === 'і') && this.state.editing && this._saveItem) {
         e.preventDefault(); this._saveItem();
@@ -6691,7 +6968,19 @@ class Component extends DCLogic {
     };
     window.addEventListener('keydown', this._onKey);
   }
-  componentWillUnmount() { window.removeEventListener('keydown', this._onKey); }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this._onKey);
+    window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('popstate', this._onPop);
+  }
+  componentDidUpdate(prevProps, prevState) {
+    // На телефоні кожен крок углиб — запис в історії, щоб системне «назад»
+    // вело на крок вище, а не геть з адмінки.
+    if (this.state.wide || this._popping || !prevState) return;
+    if (this._depth(this.state) > this._depth(prevState)) {
+      try { history.pushState({ adm: Date.now() }, ''); this._pushed++; } catch (e) {}
+    }
+  }
 
   // ── Render ─────────────────────────────────────────────────
   // ── Аналітика ─────────────────────────────────────────────
@@ -7447,7 +7736,9 @@ class Component extends DCLogic {
           artOpacity: ch.is_active === false ? 0.4 : 1,
           isNpc: ch.character_type === 'npc',
           isDraft: ch.is_draft === true,
-          hasGaps: gaps.length > 0, gaps: gaps.join(' · ') };
+          hasGaps: gaps.length > 0, gaps: gaps.join(' · '),
+          isOpen: !!(s.editing && s.editing.section === 'characters' && s.editing.index === ch._index),
+          subLine: [ch.is_draft === true ? 'Чернетка' : '', ch.role || '', ch.deity || ''].filter(Boolean).join(' · ') };
       });
     const panList     = mkList(data.pantheon).map((it, i) => ({ ...it, dragTargetClass: dtc('pantheon', i) }));
     const contactList = mkList(data.contacts).map((it, i) => ({ ...it, dragTargetClass: dtc('contacts', i) }));
@@ -7531,7 +7822,16 @@ class Component extends DCLogic {
           catch (ae) { console.warn('adoptImages:', ae); }
         }
         await this._refreshTable(section);
-        this.setState({ editing: null, form: {}, saving: false, lorePreview: false, linkManual: [], linkSearch: '' });
+        // Тека лишається відкритою: зберегли — і правимо далі.
+        const list = this.state.data[section] || [];
+        const ni = savedId != null ? list.findIndex(r => String(r.id) === String(savedId)) : -1;
+        const hm = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+        if (ni !== -1) {
+          this.setState({ saving: false, savedAt: hm, savedKey: section + ':' + savedId });
+          this._openEdit(section, ni, true);
+        } else {
+          this.setState({ editing: null, form: {}, saving: false, lorePreview: false, linkManual: [], linkSearch: '' });
+        }
         localStorage.setItem('aurelion-refresh', Date.now().toString());
         this._toast(adopted ? `✓ Збережено! Картинок у галерею: ${adopted}` : '✓ Збережено!');
       } catch(e) {
@@ -7576,9 +7876,11 @@ class Component extends DCLogic {
 
       ...this._navVals(tab),
       ...this._deskVals(),
+      ...this._shellVals(),
       setTab: (e) => {
         const id = e.currentTarget.dataset.tab;
-        if (id) this.setState({ tab: id, editing: null, form: {} });
+        if (id) this.setState({ tab: id, editing: null, form: {}, navQ: '', addOpen: false });
+        if (id) try { window.scrollTo(0, 0); } catch (er) {}
         if (id === 'stats' && !this.state.statsLoaded) this._loadStats();
       },
 
