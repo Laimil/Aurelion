@@ -9,8 +9,22 @@
 
   function arcRows(a) {
     const seq = [];
+    // Один персонаж може прийти під двома ключами: допис з character_id
+    // (k = id) і допис, де бот не впізнав анкету (k = ім'я). Тоді власний
+    // останній допис рахувався «чужим», і черга казала «ваш хід».
+    // Зводимо ключ по імені до того, що має id.
+    const nm = (s) => String(s || '').trim().toLowerCase();
+    const byName = {}, mineName = {};
     (a.seq || []).forEach((p) => {
       if (!p || !p.k) return;
+      if (p.id && !byName[nm(p.name)]) byName[nm(p.name)] = p.k;
+      if (p.mine) mineName[nm(p.name)] = true;
+    });
+    (a.seq || []).forEach((p0) => {
+      if (!p0 || !p0.k) return;
+      const p = Object.assign({}, p0);
+      if (!p.id && byName[nm(p.name)]) p.k = byName[nm(p.name)];
+      if (mineName[nm(p.name)]) p.mine = true;
       const t = seq[seq.length - 1];
       if (t && t.k === p.k) { t.at = p.at; t.post = p.post; t.parts++; }
       else seq.push(Object.assign({}, p, { parts: 1 }));
@@ -40,20 +54,22 @@
     const closedBy = marks.filter((m) => m.t >= lastT);
     const staleBy = marks.filter((m) => m.t < lastT);
     const closed = closedBy.length > 0;
+    // Останній хід ваш (будь-яким із ваших персонажів) — на вас не чекають.
+    const lastMine = !!(by[lastBy.k] && by[lastBy.k].mine);
 
     return all.filter((c) => c.mine).map((c) => {
       let state;
       if (closed) state = 'closed';
       else if (c.out) state = 'out';
       else if (queue.length < 2) state = 'solo';
-      else if (c.pos === 0) state = 'turn';
+      else if (c.pos === 0) state = lastMine ? 'done' : 'turn';
       else if (c.pos === queue.length - 1) state = 'done';
       else if (c.pos === 1) state = 'next';
       else state = 'wait';
       return {
         arc: a.arc, me: c, state, queue,
         ahead: c.out ? [] : queue.slice(0, c.pos),
-        up: queue[0] || null,
+        up: queue.find((o) => !o.mine) || queue[0] || null,
         lastBy: by[lastBy.k], lastAt: lastBy.at, lastPost: lastBy.post,
         waitMs: Date.now() - lastT,
         dropped: all.filter((o) => o.out && !o.mine),
