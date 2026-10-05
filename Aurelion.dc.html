@@ -1698,6 +1698,9 @@ a:hover{color:#a8c4f7;}
               <sc-if value="{{ canNativeShare }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ shareCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" title="Поділитися" style="width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:0;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.12);border-color:rgba(255,215,0,0.45);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button>
               </sc-if>
+              <sc-if value="{{ canExportCharMd }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ exportCharMd }}" class="share-btn" title="Вивантажити анкету (.md)" style="height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:0 11px;cursor:pointer;transition:all 0.3s ease;color:rgba(255,255,255,0.75);font-family:'Cinzel',serif;font-size:0.66rem;font-weight:700;letter-spacing:0.06em;" style-hover="background:rgba(255,255,255,0.12);border-color:rgba(255,215,0,0.45);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 18 15 15"></polyline></svg><span style="pointer-events:none;">MD</span></button>
+              </sc-if>
             </div>
             <sc-if value="{{ hasCharShareMsg }}" hint-placeholder-val="{{ false }}">
               <p style="font-size:0.82rem;color:rgba(255,215,0,0.85);font-family:'EB Garamond',Georgia,serif;margin:8px 0 0;">{{ charShareMsg }}</p>
@@ -3291,6 +3294,12 @@ a:hover{color:#a8c4f7;}
             <button onClick="{{ shareCharCard }}" data-busy="{{ charShareBusy }}" class="share-btn" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:8px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
               Поділитися
+            </button>
+          </sc-if>
+          <sc-if value="{{ canExportCharMd }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ exportCharMd }}" class="share-btn" title="Вивантажити анкету (.md)" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:8px 18px;color:#fff;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 18 15 15"></polyline></svg>
+              Анкета .md
             </button>
           </sc-if>
           <sc-if value="{{ hasCharShareMsg }}" hint-placeholder-val="{{ false }}">
@@ -7611,6 +7620,46 @@ class Component extends DCLogic {
     this.setState({ charSharing: false });
   }
 
+  // Анкета у вигляді Markdown — тільки для тих, хто увійшов (кнопка схована, тут — друга сторожа).
+  _charMarkdown(ch) {
+    const t = v => (v == null ? '' : String(v)).trim();
+    const L = [];
+    L.push('# ' + (t(ch.name) || 'Персонаж'));
+    if (t(ch.alias)) L.push('', '*«' + t(ch.alias) + '»*');
+    const meta = [];
+    meta.push(['Розряд', ch.character_type === 'npc' ? 'NPC' : 'Гравецький']);
+    if (t(ch.role)) meta.push(['Роль', t(ch.role)]);
+    if (t(ch.age)) meta.push(['Вік', t(ch.age)]);
+    if (t(ch.height)) meta.push(['Зріст', t(ch.height)]);
+    if (t(ch.weight)) meta.push(['Вага', t(ch.weight)]);
+    const god = t(this._deityName(ch.deity));
+    if (god) meta.push(['Божество', god]);
+    L.push('', ...meta.map(([k, v]) => '- **' + k + ':** ' + v));
+    if (t(ch.image)) L.push('', '![' + (t(ch.name) || 'Портрет') + '](' + t(ch.image) + ')');
+    if (t(ch.bio)) L.push('', '## Коротко', '', t(ch.bio));
+    if (t(ch.content)) L.push('', '## Анкета', '', t(ch.content));
+    const links = [];
+    try { links.push('- [На сайті](' + location.origin + location.pathname + '#characters/' + encodeURIComponent(ch.id) + ')'); } catch (e) {}
+    if (t(ch.telegraph_url)) links.push('- [Анкета в Телеграфі](' + t(ch.telegraph_url) + ')');
+    if (links.length) L.push('', '---', '', ...links);
+    L.push('', '*Ауреліон · вивантажено ' + new Date().toLocaleDateString('uk-UA') + '*', '');
+    return L.join('\n');
+  }
+
+  exportCharMd() {
+    const ch = this.state.selectedChar || this.state.peekChar;
+    if (!ch || !this.state.userNick) return;
+    try {
+      const blob = new Blob([this._charMarkdown(ch)], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = this._charCardFileName(ch).replace(/\.png$/, '.md');
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      this._flashCharShareMsg('Анкету вивантажено');
+    } catch (e) { this._flashCharShareMsg('Не вдалося вивантажити'); }
+  }
+
   async shareCharCard() {
     const ch = this.state.selectedChar || this.state.peekChar;
     if (!ch || this.state.charSharing) return;
@@ -9758,6 +9807,8 @@ class Component extends DCLogic {
       saveCharCard:  () => this.saveCharCard(),
       copyCharCard:  () => this.copyCharCard(),
       shareCharCard: () => this.shareCharCard(),
+      exportCharMd:  () => this.exportCharMd(),
+      canExportCharMd: !!s.userNick,
       charShareBusy: s.charSharing,
       charShareMsg:  s.charShareMsg,
       hasCharShareMsg: !!s.charShareMsg,
