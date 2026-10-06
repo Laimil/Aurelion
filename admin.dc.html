@@ -1186,6 +1186,22 @@ input,textarea,select{font-size:16px}
     </sc-if>
 
     <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-radius:11px;padding:16px 18px;margin-bottom:22px;">
+      <p style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:6px;">Ранковий прогін — зараз</p>
+      <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-bottom:12px;line-height:1.5;">Те саме, що робить розклад о 09:05: перевірити умови, видати нові печатки й сказати про них у флуді. «Перевірити» нічого не надсилає, але нові печатки вже запише.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button onClick="{{ slRunDry }}" disabled="{{ slRunBusy }}" style="cursor:pointer;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:999px;padding:9px 18px;font-size:0.8rem;">Перевірити, що скаже</button>
+        <button onClick="{{ slRunSay }}" disabled="{{ slRunBusy }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:9px 20px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.05em;">✦ Видати й оголосити</button>
+        <button onClick="{{ slRunQuiet }}" disabled="{{ slRunBusy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;padding:9px 16px;font-size:0.78rem;">Видати мовчки</button>
+      </div>
+      <sc-if value="{{ slRunHasOut }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.78rem;color:{{ slRunColor }};margin-top:12px;">{{ slRunStatus }}</p>
+        <sc-if value="{{ slRunHasText }}" hint-placeholder-val="{{ false }}">
+          <pre style="white-space:pre-wrap;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.55;color:rgba(255,255,255,0.8);background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 14px;margin-top:8px;max-height:320px;overflow:auto;">{{ slRunText }}</pre>
+        </sc-if>
+      </sc-if>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-radius:11px;padding:16px 18px;margin-bottom:22px;">
       <p style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:12px;">Видати печатку</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:center;">
         <select value="{{ slGrantChar }}" onChange="{{ slSetGrantChar }}" style="width:100%;box-sizing:border-box;">
@@ -4990,6 +5006,42 @@ class Component extends DCLogic {
     return d;
   }
 
+  // Ручний запуск telegram-report?seals=1 — пускає за токеном адміна.
+  _slRunVals(reload) {
+    const s = this.state, o = s.slRun || null;
+    const run = async (mode) => {
+      if (mode === 'say' && !confirm('Видати нові печатки й написати про них у флуді зараз?')) return;
+      const qs = mode === 'dry' ? '&dry=1' : mode === 'quiet' ? '&quiet=1' : '';
+      this.setState({ slRunBusy: true, slRun: { ok: true, status: 'Марта перевіряє умови…', text: '' } });
+      let res;
+      try {
+        const r = await fetch(`${SUPA_FUNCS}/telegram-report?seals=1${qs}`, {
+          method: 'POST', headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken() || ''}` },
+        });
+        const t = await r.text();
+        let d = null; try { d = JSON.parse(t); } catch (e) {}
+        if (!r.ok || !d || d.error) {
+          res = { ok: false, status: `✗ ${r.status} — ${(d && (d.error + (d.hint ? ' · ' + d.hint : ''))) || t.slice(0, 200) || 'без відповіді'}`, text: '' };
+        } else {
+          const fresh = `нових видано: ${d.fresh || 0}`;
+          res = d.dry
+            ? { ok: true, status: `Перевірка · ${fresh}, до оголошення: ${(d.pending || []).length}`, text: d.text || '' }
+            : d.said === false && !d.announced
+              ? { ok: true, status: `${fresh} · оголошувати нічого — усе вже сказано`, text: '' }
+              : { ok: true, status: `✦ ${fresh}, оголошено: ${d.announced || 0}${d.said ? ' · у флуді' : ' · мовчки'}`, text: '' };
+        }
+      } catch (e) { res = { ok: false, status: '✗ ' + e.message, text: '' }; }
+      this.setState({ slRunBusy: false, slRun: res });
+      reload();
+    };
+    return {
+      slRunBusy: !!s.slRunBusy,
+      slRunDry: () => run('dry'), slRunSay: () => run('say'), slRunQuiet: () => run('quiet'),
+      slRunHasOut: !!o, slRunStatus: o ? o.status : '', slRunColor: o && !o.ok ? '#ff8a8a' : 'rgba(255,255,255,0.6)',
+      slRunHasText: !!(o && o.text), slRunText: o ? o.text : '',
+    };
+  }
+
   _sealsVals() {
     const s = this.state;
     if (s.tab !== 'seals') return { showSealsTab: false };
@@ -5022,6 +5074,7 @@ class Component extends DCLogic {
     const reload = () => this._loadSealsAdmin();
     return {
       showSealsTab: true,
+      ...this._slRunVals(reload),
       slHasWarn: !!s.slLoaded && !book.length,
       slWarn: 'Книга печаток порожня або не читається. Прогнати supabase_seals_migration.sql, потім supabase_seals_book_migration.sql.',
       slBusy: !!s.slBusy,
