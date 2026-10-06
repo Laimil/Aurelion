@@ -5167,7 +5167,12 @@ class Component extends DCLogic {
           const pp = d.people || null;
           const ppl = !pp ? '' : pp.error ? ` · люди: ✗ ${pp.error}${pp.hint ? ' (' + pp.hint + ')' : ''}`
             : ` · людям: нових ${pp.fresh || 0}${pp.dry ? `, до оголошення ${pp.pending || 0}` : pp.announced ? `, оголошено ${pp.announced}` : ''}`;
-          res = d.dry
+          res = who === 'people' && pp && !pp.error
+            ? { ok: true, status: pp.dry
+                  ? `Людям · нових видано ${pp.fresh || 0}, чекають оголошення ${pp.pending || 0} — у флуд нічого не пішло`
+                  : `✦ Людям · нових видано ${pp.fresh || 0}, позначено ${pp.announced || 0}${pp.said ? ' · у флуді' : ' · мовчки'}`,
+                text: d.text || '' }
+            : d.dry
             ? { ok: true, status: `Перевірка · ${fresh}, до оголошення: ${(d.pending || []).length}${ppl}`, text: d.text || '' }
             : d.said === false && !d.announced && !(pp && pp.announced)
               ? { ok: true, status: `${fresh} · оголошувати нічого — усе вже сказано${ppl}`, text: '' }
