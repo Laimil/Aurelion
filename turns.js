@@ -3,6 +3,8 @@
 // Кілька дописів поспіль від одного персонажа — один хід.
 // «Випав з черги» — після нього минуло два кола без нього,
 // або його останній допис старший за останній у арці на OUT_DAYS.
+// Підписка (`follow`): арку видно й без своїх дописів (стан `watch`),
+// а «за кого» з підписки рахується вашим персонажем у цій арці (`viaAs`).
 (function () {
   const DAY = 86400000;
   const OUT_DAYS = 14;
@@ -32,7 +34,8 @@
     if (!seq.length) return [];
     const by = {};
     seq.forEach((p, i) => {
-      const c = by[p.k] || (by[p.k] = { k: p.k, id: null, name: p.name, mine: false, n: 0 });
+      const c = by[p.k] || (by[p.k] = { k: p.k, id: null, name: p.name, mine: false, viaAs: false, n: 0 });
+      if (p.as) c.viaAs = true;
       c.last = i; c.at = p.at; c.n++;
       if (p.id) c.id = p.id;
       if (p.name) c.name = p.name;
@@ -57,7 +60,28 @@
     // Останній хід ваш (будь-яким із ваших персонажів) — на вас не чекають.
     const lastMine = !!(by[lastBy.k] && by[lastBy.k].mine);
 
-    return all.filter((c) => c.mine).map((c) => {
+    const follow = a.follow || null;
+    const common = {
+      arc: a.arc, queue, follow,
+      lastBy: by[lastBy.k], lastAt: lastBy.at, lastPost: lastBy.post,
+      waitMs: Date.now() - lastT,
+      dropped: all.filter((o) => o.out && !o.mine),
+      closedBy, staleBy, closed,
+      markedByMe: closedBy.some((m) => m.mine),
+    };
+    const mineList = all.filter((c) => c.mine);
+    // Підписка без власних дописів: арку видно, але черга не ваша —
+    // або ви просто стежите, або ваш «за кого» ще не писав.
+    if (!mineList.length) {
+      if (!follow) return [];
+      const nmAs = (follow.as || '').trim();
+      return [Object.assign({}, common, {
+        me: { k: '~watch', id: null, name: nmAs, mine: false, viaAs: !!nmAs, at: null, after: 0, watch: true },
+        state: closed ? 'closed' : 'watch', watching: true,
+        ahead: [], up: queue[0] || null,
+      })];
+    }
+    return mineList.map((c) => {
       let state;
       if (closed) state = 'closed';
       else if (c.out) state = 'out';
@@ -66,20 +90,15 @@
       else if (c.pos === queue.length - 1) state = 'done';
       else if (c.pos === 1) state = 'next';
       else state = 'wait';
-      return {
-        arc: a.arc, me: c, state, queue,
+      return Object.assign({}, common, {
+        me: c, state, watching: false,
         ahead: c.out ? [] : queue.slice(0, c.pos),
         up: queue.find((o) => !o.mine) || queue[0] || null,
-        lastBy: by[lastBy.k], lastAt: lastBy.at, lastPost: lastBy.post,
-        waitMs: Date.now() - lastT,
-        dropped: all.filter((o) => o.out && !o.mine),
-        closedBy, staleBy,
-        markedByMe: closedBy.some((m) => m.mine),
-      };
+      });
     });
   }
 
-  const W = { turn: 0, next: 1, wait: 2, out: 3, done: 4, solo: 5, closed: 6 };
+  const W = { turn: 0, next: 1, wait: 2, out: 3, done: 4, watch: 5, solo: 6, closed: 7 };
   function rows(d) {
     const out = [];
     ((d && d.arcs) || []).forEach((a) => { arcRows(a).forEach((r) => out.push(r)); });

@@ -242,9 +242,69 @@ a:hover{color:#fff}
                 <sc-if value="{{ t.hasAct }}" hint-placeholder-val="{{ true }}">
                   <button onClick="{{ t.onAct }}" class="gos-ghost" data-busy="{{ t.busy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.actLabel }}</button>
                 </sc-if>
+                <sc-if value="{{ t.hasUnf }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ t.onUnf }}" class="gos-ghost" data-busy="{{ t.unfBusy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.3);color:rgba(160,190,255,0.8);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.unfLabel }}</button>
+                </sc-if>
               </div>
             </div>
           </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(160,190,255,0.8);">✦ Підписки на арки</p>
+            <sc-if value="{{ folCanOpen }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ folOpenNow }}" class="gos-ghost" style="margin-left:auto;cursor:pointer;background:rgba(100,149,237,0.08);border:1px solid rgba(100,149,237,0.35);color:#a0beff;border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">+ Підписатися на арку</button>
+            </sc-if>
+          </div>
+          <p style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.46);text-wrap:pretty;">{{ folIntro }}</p>
+          <sc-if value="{{ folHasList }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <sc-for list="{{ folList }}" as="f" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;border-radius:10px;background:rgba(100,149,237,0.04);border:1px dashed rgba(100,149,237,0.25);">
+                  <span style="flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+                    <span style="font-family:'Cinzel',Georgia,serif;font-size:0.84rem;font-weight:700;letter-spacing:0.03em;color:#fff;">{{ f.arc }}</span>
+                    <span style="font-size:0.74rem;color:{{ f.asColor }};">{{ f.as }}</span>
+                    <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);">{{ f.status }}</span>
+                  </span>
+                  <button onClick="{{ f.onEdit }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:3px 11px;font-size:0.7rem;transition:all 0.2s ease;">Змінити</button>
+                  <button onClick="{{ f.onOff }}" class="gos-ghost" data-busy="{{ f.busy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:3px 11px;font-size:0.7rem;transition:all 0.2s ease;">{{ f.offLabel }}</button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ folOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(100,149,237,0.3);">
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">Арка</p>
+              <input class="gos-field" value="{{ folQ }}" onChange="{{ setFolQ }}" placeholder="Почніть писати назву арки, як у тегу" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 16px;color:#fff;font-size:0.88rem;outline:none;transition:all 0.2s ease;" />
+              <sc-if value="{{ folHasArcHits }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <sc-for list="{{ folArcHits }}" as="h" hint-placeholder-count="4">
+                    <button onClick="{{ h.onPick }}" class="gos-hit" style="cursor:pointer;display:inline-flex;align-items:baseline;gap:6px;background:{{ h.bg }};border:1px solid {{ h.border }};color:{{ h.color }};border-radius:999px;padding:6px 14px;font-size:0.8rem;transition:all 0.2s ease;"><span>{{ h.name }}</span><span style="font-size:0.68rem;opacity:0.6;">{{ h.sub }}</span></button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ folHasArcNote }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.76rem;line-height:1.5;color:rgba(160,190,255,0.85);text-wrap:pretty;">{{ folArcNote }}</p>
+              </sc-if>
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-top:6px;">За кого граю · необовʼязково</p>
+              <input class="gos-field" value="{{ folAs }}" onChange="{{ setFolAs }}" placeholder="Імʼя з тегу — наприклад, технічний НПЦ" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 16px;color:#fff;font-size:0.88rem;outline:none;transition:all 0.2s ease;" />
+              <sc-if value="{{ folHasCast }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <sc-for list="{{ folCast }}" as="h" hint-placeholder-count="3">
+                    <button onClick="{{ h.onPick }}" class="gos-hit" style="cursor:pointer;background:{{ h.bg }};border:1px solid {{ h.border }};color:{{ h.color }};border-radius:999px;padding:5px 12px;font-size:0.78rem;transition:all 0.2s ease;">{{ h.name }}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);text-wrap:pretty;">{{ folAsNote }}</p>
+              <sc-if value="{{ folHasErr }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.8rem;line-height:1.5;color:rgba(255,160,160,0.85);text-wrap:pretty;">{{ folErr }}</p>
+              </sc-if>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <button onClick="{{ folSave }}" class="gos-go" data-busy="{{ folBusyFlag }}" style="cursor:pointer;background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.4);border-radius:999px;padding:6px 16px;font-size:0.76rem;transition:all 0.2s ease;">{{ folSaveLabel }}</button>
+                <button onClick="{{ folCancel }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.45);border-radius:999px;padding:6px 16px;font-size:0.76rem;transition:all 0.2s ease;">Скасувати</button>
+              </div>
+            </div>
+          </sc-if>
         </div>
         <p style="font-size:0.7rem;line-height:1.55;color:rgba(255,255,255,0.3);text-wrap:pretty;">{{ turnsHow }}</p>
       </div>
@@ -1355,6 +1415,114 @@ class Component extends DCLogic {
     if (!err) this._loadTurns(true);
   }
 
+  // Підписка на арку: видно чергу без своєї анкети в ній, а «за кого граю»
+  // робить технічного НПЦ вашим у цій арці (supabase_arc_follows_migration.sql).
+  async _loadCat(force) {
+    if (this._catBusy) return;
+    if (!force && this._catAt && Date.now() - this._catAt < 120000) return;
+    this._catBusy = true; this._catAt = Date.now();
+    this.setState({ catBusy: true });
+    let cat;
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/arc_catalog`, { method: 'POST', body: '{}' }, true);
+      cat = r.ok ? await r.json() : { error: `HTTP ${r.status}` };
+      if (!r.ok) console.warn('підписки: arc_catalog', r.status);
+    } catch (e) { cat = { error: String(e && e.message || e) }; }
+    this._catBusy = false;
+    this.setState({ cat, catBusy: false });
+  }
+
+  _folStart(arc, as) {
+    this.setState({ folOpen: true, folQ: arc || '', folAs: as || '', folErr: '', folEdit: !!arc });
+    this._loadCat();
+  }
+
+  async _follow(arc, on, as) {
+    const a = String(arc || '').trim();
+    if (!a) { this.setState({ folErr: 'Оберіть арку або впишіть її назву.' }); return; }
+    this.setState({ folBusy: a, folErr: '' });
+    let err = '';
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/arc_follow`, { method: 'POST', body: JSON.stringify({ p_arc: a, p_on: on, p_as: String(as || '').trim() || null }) }, true);
+      const d = r.ok ? await r.json() : null;
+      if (!r.ok) err = `HTTP ${r.status}. Схоже, не прогнано supabase_arc_follows_migration.sql.`;
+      else if (d && d.error) err = ({
+        taken: 'На це імʼя є анкета іншого гравця. Обрати можна НПЦ, свого персонажа або імʼя без анкети.',
+        'name too long': 'Імʼя задовге — до 60 знаків.',
+        'arc too long': 'Назва арки задовга.',
+      })[d.error] || d.error;
+    } catch (e) { err = 'Звʼязку немає. Спробуйте ще раз.'; }
+    this.setState({ folBusy: '', folErr: err, folOpen: err ? this.state.folOpen : false, turnMarkErr: err && !this.state.folOpen ? err : '' });
+    console.log('підписки:', on ? `«${a}»${as ? ` за ${as}` : ''}` : `відписка від «${a}»`, err || 'ok');
+    if (!err) { this._catAt = 0; this._loadTurns(true); }
+  }
+
+  _folVals(d) {
+    const s = this.state, cat = s.cat;
+    const follows = (d && d.follows) || [];
+    const liveArcs = new Set(((d && d.arcs) || []).map((a) => fold(String(a.arc || '').trim())));
+    const folList = follows.map((f) => {
+      const busy = s.folBusy === f.arc;
+      const live = liveArcs.has(fold(String(f.arc || '').trim()));
+      return {
+        key: f.arc, arc: f.arc,
+        as: f.as ? `за ${f.as}` : 'стежите',
+        asColor: f.as ? '#ffd700' : 'rgba(160,190,255,0.85)',
+        status: live ? '' : `· дописів за ${d.live || 30} днів немає`,
+        onEdit: () => this._folStart(f.arc, f.as || ''),
+        onOff: () => this._follow(f.arc, false), offLabel: busy ? 'Хвилинку…' : 'Відписатися', busy: busy ? 'true' : 'false',
+      };
+    });
+
+    const q = fold(String(s.folQ || '').trim());
+    const arcs = (cat && !cat.error && cat.arcs) || [];
+    const sel = q ? arcs.find((a) => fold(String(a.arc).trim()) === q) : null;
+    const hitList = arcs.filter((a) => !q || sel || fold(a.arc).includes(q)).slice(0, sel ? 0 : 14);
+    const pickStyle = (on) => on
+      ? { bg: 'rgba(255,215,0,0.14)', border: 'rgba(255,215,0,0.5)', color: '#ffd700' }
+      : { bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.65)' };
+    const folArcHits = (sel ? [sel] : hitList).map((a) => ({
+      key: a.arc, name: a.arc,
+      sub: `${a.follow ? 'ви підписані · ' : ''}${this._agoH(a.last_at)}`,
+      ...pickStyle(!!sel),
+      onPick: () => this.setState({ folQ: sel ? '' : a.arc, folAs: sel ? '' : ((a.follow && a.follow.as) || s.folAs || ''), folErr: '' }),
+    }));
+    let folArcNote = '';
+    if (cat && cat.error) folArcNote = 'Перелік живих арок не завантажився — назву можна вписати вручну.';
+    else if (s.catBusy && !arcs.length) folArcNote = 'Збираю живі арки…';
+    else if (q && !sel && !hitList.length) folArcNote = 'Серед живих арок такої немає. Підписка все одно спрацює: щойно зʼявиться допис із цим тегом арки, вона буде тут.';
+
+    const asK = fold(String(s.folAs || '').trim());
+    const folCast = sel ? (sel.cast || []).filter((c) => c.free && !c.mine).slice(0, 16).map((c) => ({
+      key: c.name, name: c.name, ...pickStyle(fold(c.name) === asK),
+      onPick: () => this.setState({ folAs: fold(c.name) === asK ? '' : c.name, folErr: '' }),
+    })) : [];
+    const locked = sel ? (sel.cast || []).filter((c) => !c.free).length : 0;
+    let folAsNote = 'Якщо ви відіграєте в цій арці технічного НПЦ без анкети — впишіть його імʼя точно як у тегу, і черга рахуватиме його вашим. Порожньо — просто стежити за аркою.';
+    if (sel && folCast.length) folAsNote = `Зверху — хто писав у цій арці без чужої анкети.${locked ? ` Імена з анкетами інших гравців (${locked}) сюди не беруться.` : ''} Порожньо — просто стежити.`;
+
+    const editing = !!(sel && sel.follow) || follows.some((f) => fold(String(f.arc).trim()) === q);
+    const busy = !!s.folBusy && fold(s.folBusy) === q;
+    return {
+      folIntro: follows.length
+        ? 'Підписані арки стоять у черзі вище, навіть коли вашої анкети в них немає. Персонаж «за кого граю» рахується вашим лише в цій арці.'
+        : 'Стежте за аркою, де вашої анкети немає, — або скажіть, за кого ви в ній граєте (технічний НПЦ без анкети), і черга підсвічуватиме його як вашого.',
+      folHasList: folList.length > 0, folList,
+      folCanOpen: !s.folOpen, folOpenNow: () => this._folStart('', ''),
+      folOpen: !!s.folOpen,
+      folQ: s.folQ || '', setFolQ: (e) => this.setState({ folQ: e.target.value, folErr: '' }),
+      folAs: s.folAs || '', setFolAs: (e) => this.setState({ folAs: e.target.value, folErr: '' }),
+      folArcHits, folHasArcHits: folArcHits.length > 0,
+      folArcNote, folHasArcNote: !!folArcNote,
+      folCast, folHasCast: folCast.length > 0, folAsNote,
+      folErr: s.folErr || '', folHasErr: !!s.folErr,
+      folSaveLabel: busy ? 'Хвилинку…' : (editing ? 'Зберегти' : 'Підписатися'),
+      folBusyFlag: busy ? 'true' : 'false',
+      folSave: () => this._follow(sel ? sel.arc : s.folQ, true, s.folAs),
+      folCancel: () => this.setState({ folOpen: false, folErr: '' }),
+    };
+  }
+
   _agoH(iso) {
     if (!iso) return '';
     const h = (Date.now() - new Date(iso).getTime()) / 3600000;
@@ -1384,7 +1552,6 @@ class Component extends DCLogic {
         turnsNote: d.missing ? 'Стрічки дописів у базі ще немає.' : `${d.error}. Схоже, не прогнано supabase_turns_migration.sql.` };
     }
     const rows = T.rows(d);
-    if (!rows.length) return base;
 
     const names = (list) => list.map((c) => c.name).join(', ');
     const P = (n, a, b, c) => this._plural(n, a, b, c);
@@ -1395,6 +1562,7 @@ class Component extends DCLogic {
       done: { pill: 'Відписали', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
       out:  { pill: 'Поза чергою', bg: 'rgba(255,77,77,0.03)', border: 'rgba(255,77,77,0.16)', pBg: 'rgba(255,77,77,0.06)', pBorder: 'rgba(255,77,77,0.4)', pColor: '#ff9a9a', line: 'dashed' },
       solo: { pill: 'Соло', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
+      watch: { pill: 'Підписка', bg: 'rgba(100,149,237,0.03)', border: 'rgba(100,149,237,0.18)', pBg: 'transparent', pBorder: 'rgba(100,149,237,0.45)', pColor: '#a0beff', line: 'dashed' },
       closed: { pill: '✦ Арку закрито', bg: 'rgba(255,255,255,0.015)', border: 'rgba(255,255,255,0.07)', pBg: 'rgba(255,255,255,0.05)', pBorder: 'rgba(255,255,255,0.22)', pColor: 'rgba(255,255,255,0.62)' },
     };
     const nicks = (ms) => {
@@ -1405,6 +1573,7 @@ class Component extends DCLogic {
     const many = new Set(rows.map((r) => r.me.k)).size > 1;
     const base_ = this.props.embedded ? '' : 'Aurelion.dc.html';
 
+    const unfSeen = new Set();
     const turnRows = rows.map((r, i) => {
       const st = S[r.state];
       let pill = st.pill, meta = '';
@@ -1416,6 +1585,12 @@ class Component extends DCLogic {
       else if (r.state === 'wait') { pill = `Ще ${r.ahead.length} перед вами`; meta = `Перед вами — ${names(r.ahead)}.`; }
       else if (r.state === 'done') meta = `Ви відписали ${this._agoH(r.me.at)}. Далі — ${r.up ? r.up.name : '—'}.`;
       else if (r.state === 'out') meta = `Арка пішла далі без вас: ${r.me.after} ${P(r.me.after, 'хід', 'ходи', 'ходів')} після вашого. Відпишіть — і повернетеся в чергу.`;
+      else if (r.state === 'watch') {
+        meta = r.me.name
+          ? `Ви підписані за ${r.me.name}, але за останні ${d.cast || 21} днів він у цій арці не писав — перший допис, і черга почнеться. `
+          : 'Ви стежите за аркою. ';
+        meta += `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}. Далі — ${r.up ? r.up.name : '—'}.`;
+      }
       else if (r.state === 'closed') meta = `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}. У чергу не рахується.`;
       else meta = `Окрім вас, в арці ніхто не писав за останні ${d.cast || 21} днів.`;
       if (r.dropped.length && r.state !== 'solo' && r.state !== 'closed') meta += ` Поза чергою: ${names(r.dropped)}.`;
@@ -1434,6 +1609,7 @@ class Component extends DCLogic {
       const asking = s.turnAsk === rk;
       let actLabel = '', onAct = null;
       if (r.markedByMe) { actLabel = busy ? 'Хвилинку…' : 'Зняти мою відмітку'; onAct = () => this._markArc(r.arc, false); }
+      else if (r.watching) { /* стежите, але не пишете — закривати не вам */ }
       else if (r.state === 'closed') { actLabel = busy ? 'Хвилинку…' : 'Теж вважаю закритою'; onAct = () => this._markArc(r.arc, true); }
       else if (r.state !== 'solo' || r.queue.length) { actLabel = 'Арку закрито'; onAct = () => this.setState({ turnAsk: rk }); }
 
@@ -1450,8 +1626,16 @@ class Component extends DCLogic {
       if (r.queue.length > q.length) chain.push({ key: '+', name: `+${r.queue.length - q.length}`, arrow: true, line: 'solid', bg: 'transparent', border: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.35)' });
       if (r.state === 'out') chain.push({ key: 'me', name: r.me.name, arrow: false, line: 'dashed', bg: 'transparent', border: 'rgba(255,77,77,0.4)', color: '#ff9a9a' });
 
+      const unfFirst = !!r.follow && !unfSeen.has(r.arc);
+      if (r.follow) unfSeen.add(r.arc);
+      const unfBusy = s.folBusy === r.arc;
+      let who = many || r.state === 'out' ? `за ${r.me.name}` : '';
+      if (r.me.viaAs && r.me.name) who = `за ${r.me.name} · з підписки`;
+      else if (r.watching) who = '';
       return {
-        key: `${r.arc}·${r.me.k}·${i}`, arc: r.arc, who: many || r.state === 'out' ? `за ${r.me.name}` : '',
+        key: `${r.arc}·${r.me.k}·${i}`, arc: r.arc, who,
+        hasUnf: unfFirst && !asking, unfLabel: unfBusy ? 'Хвилинку…' : 'Відписатися', unfBusy: unfBusy ? 'true' : 'false',
+        onUnf: () => this._follow(r.arc, false),
         pill, meta, chain,
         hasMarkNote: !!markNote, markNote, markNoteColor,
         asking, askText: 'Відмітити, що сцену дограно? Співгравці це побачать.',
@@ -1466,11 +1650,14 @@ class Component extends DCLogic {
     const n = rows.filter((r) => r.state === 'turn').length;
     const nx = rows.filter((r) => r.state === 'next').length;
     let sum = n ? `Ваш хід ${n === 1 ? 'в одній арці' : `у ${n} ${P(n, 'арці', 'арках', 'арках')}`}.` : 'Зараз на вас ніхто не чекає.';
+    if (!rows.length) sum = 'Ви поки не пишете в жодній живій арці. Підпишіться на арку нижче — і її черга буде тут.';
+    const wn = new Set(rows.filter((r) => r.state === 'watch').map((r) => r.arc)).size;
     if (nx) sum += ` Наступні — ще в ${nx} ${P(nx, 'арці', 'арках', 'арках')}.`;
     const cl = new Set(rows.filter((r) => r.state === 'closed').map((r) => r.arc)).size;
     if (cl) sum += ` Закрито: ${cl}.`;
+    if (wn) sum += ` Стежите: ${wn}.`;
     return {
-      ...base, turnsShow: true, turnRows, turnsSummary: sum,
+      ...base, ...this._folVals(d), turnsShow: true, turnRows, turnsSummary: sum,
       turnsHasNote: !!s.turnMarkErr, turnsNote: s.turnMarkErr || '',
       turnsBorder: n ? 'rgba(255,215,0,0.28)' : 'rgba(255,255,255,0.12)',
       turnsHow: `Черга — це хто найдавніше відписував в арці. Беруться арки з дописами за ${d.live || 30} днів. Хто пропустив два кола або мовчить ${T.OUT_DAYS} днів, випадає з черги, поки не відпише знову. Закриту арку бачать закритою всі її учасники; новий допис відкриває її знову.`,
