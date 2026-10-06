@@ -1254,6 +1254,49 @@ input,textarea,select{font-size:16px}
       </sc-if>
     </div>
 
+    <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,215,0,0.22);border-radius:11px;padding:16px 18px;margin-bottom:22px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+        <p style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);">Буфер оповіщень</p>
+        <button onClick="{{ bufReload }}" disabled="{{ bufBusy }}" style="cursor:pointer;background:transparent;border:none;color:rgba(255,255,255,0.45);font-size:0.74rem;">↻ оновити</button>
+      </div>
+      <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);margin-bottom:12px;line-height:1.5;">{{ bufIntro }}</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <sc-for list="{{ bufViews }}" as="v" hint-placeholder-count="4">
+          <button onClick="{{ v.onPick }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.76rem;background:{{ v.bg }};border:1px solid {{ v.border }};color:{{ v.color }};">{{ v.label }}</button>
+        </sc-for>
+      </div>
+      <sc-if value="{{ bufHasErr }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.78rem;color:#ffb27a;margin-bottom:10px;">{{ bufErr }}</p>
+      </sc-if>
+      <sc-if value="{{ bufHasRows }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:4px;max-height:360px;overflow:auto;border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:6px;">
+          <sc-for list="{{ bufRows }}" as="r" hint-placeholder-count="4">
+            <label style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 8px;border-radius:7px;cursor:pointer;background:{{ r.bg }};">
+              <input type="checkbox" checked="{{ r.on }}" onChange="{{ r.toggle }}" style="accent-color:#ffd700;" />
+              <span style="min-width:0;font-size:0.82rem;color:rgba(255,255,255,0.85);line-height:1.4;"><span style="color:#fff;">{{ r.who }}</span> · {{ r.title }}<span style="color:rgba(255,255,255,0.35);"> · {{ r.meta }}</span></span>
+              <span style="font-size:0.68rem;padding:2px 8px;border-radius:999px;white-space:nowrap;background:{{ r.chipBg }};color:{{ r.chipColor }};">{{ r.chip }}</span>
+            </label>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px;">
+          <button onClick="{{ bufAll }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 14px;font-size:0.76rem;">{{ bufAllLabel }}</button>
+          <span style="font-size:0.76rem;color:rgba(255,255,255,0.45);margin-right:auto;">{{ bufSelNote }}</span>
+          <button onClick="{{ bufDry }}" disabled="{{ bufBusy }}" style="cursor:pointer;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:999px;padding:8px 16px;font-size:0.78rem;">Що скаже</button>
+          <button onClick="{{ bufSay }}" disabled="{{ bufBusy }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:8px 18px;font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;letter-spacing:0.05em;">✦ Нехай скаже</button>
+          <button onClick="{{ bufDrop }}" disabled="{{ bufBusy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;padding:8px 14px;font-size:0.76rem;">Прибрати мовчки</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ bufNoRows }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);padding:10px 0;">{{ bufEmpty }}</p>
+      </sc-if>
+      <sc-if value="{{ bufHasMsg }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.78rem;color:{{ bufMsgColor }};margin-top:10px;">{{ bufMsg }}</p>
+      </sc-if>
+      <sc-if value="{{ bufHasText }}" hint-placeholder-val="{{ false }}">
+        <pre style="white-space:pre-wrap;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.55;color:rgba(255,255,255,0.8);background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 14px;margin-top:8px;max-height:320px;overflow:auto;">{{ bufText }}</pre>
+      </sc-if>
+    </div>
+
     <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-radius:11px;padding:16px 18px;margin-bottom:22px;">
       <p style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:12px;">Видати печатку</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:center;">
@@ -5135,6 +5178,89 @@ class Component extends DCLogic {
       this._get('seals?select=*&order=created_at.desc&limit=600'),
     ]);
     this.setState({ slBookRows: Array.isArray(book) ? book : [], slSeals: Array.isArray(rows) ? rows : [], slLoaded: true });
+    this._loadBuf();
+  }
+
+  // ── Буфер оповіщень (telegram-report?seals_buf / ?seals_release) ──
+  // Архівні видачі (заслужені давніше за кілька днів) ранковий прогін не
+  // оголошує — вони чекають тут. Плюс усе видане за обрані дні, щоб зафорсити.
+  async _bufFetch(qs, body) {
+    const r = await fetch(`${SUPA_FUNCS}/telegram-report?${qs}`, {
+      method: 'POST',
+      headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken() || ''}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {}),
+    });
+    const t = await r.text();
+    let d = null; try { d = JSON.parse(t); } catch (e) {}
+    if (!r.ok || !d || d.error) throw new Error((d && (d.error + (d.tg ? ' · ' + JSON.stringify(d.tg) : ''))) || `${r.status} ${t.slice(0, 160)}`);
+    return d;
+  }
+
+  async _loadBuf() {
+    this.setState({ bufBusy: true, bufErr: '' });
+    try {
+      const d = await this._bufFetch(`seals_buf=1&days=${this.state.bufDays || 1}`);
+      this.setState({ bufBusy: false, bufList: d.rows || [], bufFreshDays: d.fresh_days, bufSel: {} });
+    } catch (e) { this.setState({ bufBusy: false, bufList: [], bufErr: '✗ ' + e.message }); }
+  }
+
+  _bufVals() {
+    const s = this.state;
+    const view = s.bufView || 'held';
+    const list = s.bufList || [];
+    const sel = s.bufSel || {};
+    const held = list.filter((r) => r.state === 'held');
+    const shown = view === 'held' ? held : list.filter((r) => r.state !== 'held');
+    const keys = shown.map((r) => r.key).filter((k) => sel[k]);
+    const P = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
+    const dm = (iso) => { try { const d = new Date(iso); return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getFullYear()).slice(2)}`; } catch (e) { return ''; } };
+    const CHIP = { held: ['у буфері', 'rgba(255,140,60,0.15)', '#ffb27a'], pending: ['скаже зранку', 'rgba(100,149,237,0.15)', '#a9c2f2'], said: ['сказано', 'rgba(255,255,255,0.06)', 'rgba(255,255,255,0.45)'] };
+    const days = s.bufDays || 1;
+    const pill = (on) => ({ bg: on ? 'rgba(255,215,0,0.12)' : 'transparent', border: on ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.14)', color: on ? '#ffd700' : 'rgba(255,255,255,0.6)' });
+    const setDays = (d) => this.setState({ bufView: 'day', bufDays: d }, () => this._loadBuf());
+    const act = async (say, dry) => {
+      if (!keys.length) { this._toast('Оберіть печатки'); return; }
+      if (!dry && say && !confirm(`Марта напише у флуді про ${keys.length} ${P(keys.length, 'печатку', 'печатки', 'печаток')} зараз. Далі?`)) return;
+      if (!say && !confirm(`Прибрати ${keys.length} з буфера без жодного слова? Печатки лишаться в листах.`)) return;
+      this.setState({ bufBusy: true, bufMsg: dry ? 'Марта складає…' : 'Марта пише…', bufBad: false, bufText: '' });
+      try {
+        const d = await this._bufFetch('seals_release=1', { keys, say, dry });
+        if (dry) { this.setState({ bufBusy: false, bufMsg: `Так скаже про ${d.n} — у флуд нічого не пішло`, bufText: d.text || '' }); return; }
+        this.setState({ bufMsg: say ? `✦ Сказано у флуді: ${d.n}` : `Прибрано мовчки: ${d.n}` });
+        await this._loadBuf();
+      } catch (e) { this.setState({ bufBusy: false, bufBad: true, bufMsg: '✗ ' + e.message }); }
+    };
+    const allOn = shown.length > 0 && shown.every((r) => sel[r.key]);
+    return {
+      bufBusy: !!s.bufBusy,
+      bufReload: () => this._loadBuf(),
+      bufIntro: `Печатки, заслужені давніше за ${s.bufFreshDays ?? 3} ${P(s.bufFreshDays ?? 3, 'день', 'дні', 'днів')} (наприклад, щойно заведена печатка заднім числом), ранковий прогін не оголошує — вони чекають тут. У листах заслуг вони вже є. Оберіть, що Марта все ж скаже, а решту приберіть мовчки.`,
+      bufViews: [
+        { key: 'h', label: `У буфері · ${held.length}`, ...pill(view === 'held'), onPick: () => this.setState({ bufView: 'held', bufSel: {} }) },
+        { key: 'd1', label: 'Видані за добу', ...pill(view === 'day' && days === 1), onPick: () => setDays(1) },
+        { key: 'd3', label: 'за 3 дні', ...pill(view === 'day' && days === 3), onPick: () => setDays(3) },
+        { key: 'd7', label: 'за тиждень', ...pill(view === 'day' && days === 7), onPick: () => setDays(7) },
+      ],
+      bufHasErr: !!s.bufErr, bufErr: s.bufErr || '',
+      bufRows: shown.slice(0, 400).map((r) => {
+        const c = CHIP[r.state] || CHIP.said;
+        return {
+          key: r.key, who: r.who, title: r.title + (r.times > 1 ? ` ${'★'.repeat(Math.min(r.times, 5))}` : ''),
+          meta: [r.kind === 'u' ? 'людина' : 'персонаж', `заслужено ${dm(r.earned_at)}`, `видано ${dm(r.given_at)}`].join(' · '),
+          chip: c[0], chipBg: c[1], chipColor: c[2],
+          on: !!sel[r.key], bg: sel[r.key] ? 'rgba(255,215,0,0.06)' : 'transparent',
+          toggle: () => this.setState({ bufSel: { ...(this.state.bufSel || {}), [r.key]: !sel[r.key] } }),
+        };
+      }),
+      bufHasRows: shown.length > 0, bufNoRows: !s.bufBusy && !s.bufErr && shown.length === 0,
+      bufEmpty: view === 'held' ? 'Буфер порожній — усе свіже Марта скаже сама.' : 'За ці дні нічого не видавалось.',
+      bufAll: () => { const n = {}; if (!allOn) shown.forEach((r) => { n[r.key] = true; }); this.setState({ bufSel: n }); },
+      bufAllLabel: allOn ? 'Зняти все' : 'Обрати все',
+      bufSelNote: keys.length ? `обрано ${keys.length}` : '',
+      bufDry: () => act(true, true), bufSay: () => act(true, false), bufDrop: () => act(false, false),
+      bufHasMsg: !!s.bufMsg, bufMsg: s.bufMsg || '', bufMsgColor: s.bufBad ? '#ff8a8a' : 'rgba(255,215,0,0.85)',
+      bufHasText: !!s.bufText, bufText: s.bufText || '',
+    };
   }
 
   async _slRpc(fn, body) {
@@ -5224,6 +5350,7 @@ class Component extends DCLogic {
     return {
       showSealsTab: true,
       ...this._slRunVals(reload),
+      ...this._bufVals(),
       slHasWarn: !!s.slLoaded && !book.length,
       slWarn: 'Книга печаток порожня або не читається. Прогнати supabase_seals_migration.sql, потім supabase_seals_book_migration.sql.',
       slBusy: !!s.slBusy,
