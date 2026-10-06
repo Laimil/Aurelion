@@ -37,15 +37,15 @@
     <div style="max-width:820px;width:100%;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:22px clamp(14px,3vw,26px);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(0,0,0,0.35);">
       <div style="display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:center;">
         <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
-          <select style-focus="outline:none;" value="{{ aId }}" onChange="{{ setA }}" style="color-scheme:dark;width:100%;box-sizing:border-box;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.4);color:#fff;border-radius:999px;padding:10px 14px;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;">
-            <sc-for list="{{ charOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.value }}" style="background:#222;color:#fff;">{{ o.label }}</option></sc-for>
+          <select ref="{{ refA }}" value="{{ aId }}" onChange="{{ setA }}" style="color-scheme:dark;width:100%;box-sizing:border-box;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.4);color:#fff;border-radius:999px;padding:10px 12px;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;outline:none;text-overflow:ellipsis;">
+            <sc-for list="{{ optsA }}" as="o" hint-placeholder-count="4"><option value="{{ o.value }}" selected="{{ o.sel }}" style="background:#222;color:#fff;">{{ o.label }}</option></sc-for>
           </select>
           <span style="font-size:0.76rem;color:rgba(255,255,255,0.5);padding-left:14px;">{{ aLine }}</span>
         </div>
         <button onClick="{{ swap }}" title="Поміняти місцями" style="cursor:pointer;background:none;border:none;color:rgba(255,215,0,0.75);font-family:'Cinzel',Georgia,serif;font-size:0.85rem;padding:6px;">⇄</button>
         <div style="display:flex;flex-direction:column;gap:6px;min-width:0;align-items:flex-end;">
-          <select style-focus="outline:none;" value="{{ bId }}" onChange="{{ setB }}" style="color-scheme:dark;width:100%;box-sizing:border-box;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.45);color:#fff;border-radius:999px;padding:10px 14px;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;">
-            <sc-for list="{{ charOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.value }}" style="background:#222;color:#fff;">{{ o.label }}</option></sc-for>
+          <select ref="{{ refB }}" value="{{ bId }}" onChange="{{ setB }}" style="color-scheme:dark;width:100%;box-sizing:border-box;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.45);color:#fff;border-radius:999px;padding:10px 12px;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;outline:none;text-overflow:ellipsis;">
+            <sc-for list="{{ optsB }}" as="o" hint-placeholder-count="4"><option value="{{ o.value }}" selected="{{ o.sel }}" style="background:#222;color:#fff;">{{ o.label }}</option></sc-for>
           </select>
           <span style="font-size:0.76rem;color:rgba(255,255,255,0.5);padding-right:14px;">{{ bLine }}</span>
         </div>
@@ -67,17 +67,21 @@
               <span style="font-size:0.66rem;color:#9dbcf7;opacity:{{ g.bPr }};" title="Престиж">★</span>
             </div>
             <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
-              <div title="{{ r.cond }}" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,190px) minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;opacity:{{ r.aOp }};min-width:0;">
-                  <span style="font-size:0.78rem;color:#ffd700;letter-spacing:0.04em;white-space:nowrap;">{{ r.aStars }}</span>
-                  <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ r.aDate }}</span>
+              <div title="{{ r.cond }}" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(78px,190px) minmax(0,1fr);gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div style="display:flex;justify-content:flex-end;align-items:center;gap:7px;opacity:{{ r.aOp }};min-width:0;">
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:0;">
+                    <span style="font-size:0.7rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ r.aDate }}</span>
+                    <span style="font-size:0.7rem;line-height:1;color:#ffd700;white-space:nowrap;">{{ r.aStars }}</span>
+                  </div>
                   <div style="flex:none;width:34px;height:34px;border-radius:50%;border:2px solid {{ r.ink }};box-sizing:border-box;display:grid;place-items:center;color:{{ r.ink }};font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:{{ r.fs }}px;">{{ r.word }}</div>
                 </div>
-                <div style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.2;">{{ r.title }}</div>
-                <div style="display:flex;align-items:center;gap:8px;opacity:{{ r.bOp }};min-width:0;">
+                <div style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.2;overflow-wrap:anywhere;">{{ r.title }}</div>
+                <div style="display:flex;align-items:center;gap:7px;opacity:{{ r.bOp }};min-width:0;">
                   <div style="flex:none;width:34px;height:34px;border-radius:50%;border:2px solid {{ r.ink }};box-sizing:border-box;display:grid;place-items:center;color:{{ r.ink }};font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:{{ r.fs }}px;">{{ r.word }}</div>
-                  <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ r.bDate }}</span>
-                  <span style="font-size:0.78rem;color:#9dbcf7;letter-spacing:0.04em;white-space:nowrap;">{{ r.bStars }}</span>
+                  <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;">
+                    <span style="font-size:0.7rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ r.bDate }}</span>
+                    <span style="font-size:0.7rem;line-height:1;color:#9dbcf7;white-space:nowrap;">{{ r.bStars }}</span>
+                  </div>
                 </div>
               </div>
             </sc-for>
@@ -202,6 +206,19 @@ class Component extends DCLogic {
   }
   componentWillUnmount() { this._alive = false; }
 
+  // Обраний пункт виставляємо руками: опції малюються після select, і
+  // value на ньому не встигає зачепитися — обидва списки показували першого.
+  _refA = (el) => { this._elA = el; this._syncSel(); };
+  _refB = (el) => { this._elB = el; this._syncSel(); };
+  _syncSel() {
+    const v = this._selVals || {};
+    requestAnimationFrame(() => {
+      if (this._elA && v.a && this._elA.value !== v.a) this._elA.value = v.a;
+      if (this._elB && v.b && this._elB.value !== v.b) this._elB.value = v.b;
+    });
+  }
+  componentDidUpdate() { this._syncSel(); }
+
   // #seals/table, #seals/rare, #seals/<id>~<id> — посиланням можна поділитися.
   _readHash() {
     const raw = decodeURIComponent((location.hash || '').replace(/^#seals\/?/, ''));
@@ -261,6 +278,7 @@ class Component extends DCLogic {
     if (mode === 'duel') {
       const a = charOf.has(s.a) ? s.a : byRank[0] || (chars[0] && String(chars[0].id)) || '';
       const b = charOf.has(s.b) && s.b !== a ? s.b : byRank.find(x => x !== a) || '';
+      this._selVals = { a, b };
       const opts = chars.slice().sort((x, y) => coll.compare(x.name || '', y.name || ''))
         .map(c => ({ value: String(c.id), label: `${c.name || '—'} · ${count(String(c.id))}` }));
       let both = 0, oA = 0, oB = 0, none = 0;
@@ -283,7 +301,8 @@ class Component extends DCLogic {
       const line = (c) => `${count(c)} ${P(count(c), 'печатка', 'печатки', 'печаток')}${starSum(c) > count(c) ? ' · ★' + starSum(c) : ''}${prN(c) ? ' · престиж ' + prN(c) : ''}`;
       const lead = ca > cb ? short(a) : short(b);
       Object.assign(out, {
-        showDuel: true, charOpts: opts, aId: a, bId: b,
+        showDuel: true, aId: a, bId: b, refA: this._refA, refB: this._refB,
+        optsA: opts.map(o => ({ ...o, sel: o.value === a })), optsB: opts.map(o => ({ ...o, sel: o.value === b })),
         setA: (e) => { const v = e.currentTarget.value; this._set(v === b ? { a: v, b: a } : { a: v, b }); },
         setB: (e) => { const v = e.currentTarget.value; this._set(v === a ? { a: b, b: v } : { a, b: v }); },
         swap: () => this._set({ a: b, b: a }),
@@ -311,8 +330,8 @@ class Component extends DCLogic {
           color: type === id ? '#ffd700' : 'rgba(255,255,255,0.6)',
         })),
         tableNote: `${ids.length} ${P(ids.length, 'тека', 'теки', 'тек')} · за кількістю печаток`,
-        tCols: `170px repeat(${visible.length}, 30px) 56px`,
-        tMinW: (170 + visible.length * 33 + 60) + 'px',
+        tCols: `136px repeat(${visible.length}, 30px) 44px`,
+        tMinW: (136 + visible.length * 33 + 48) + 'px',
         tHead: visible.map(bk => { const w = String(bk.word || '✦'); return { title: `${bk.title} — ${bk.cond || ''}`, word: w, ink: SC_INK[bk.ink] || SC_INK.red, fs: fsz(w, false), pct: Math.round(((holders[bk.key] || []).length / nAll) * 100) + '%' }; }),
         tRows: ids.map((c, i) => ({
           n: String(i + 1), name: nm(c), total: String(count(c)), pr: prN(c) ? '★'.repeat(Math.min(prN(c), 5)) : '',
@@ -332,7 +351,8 @@ class Component extends DCLogic {
       Object.assign(out, {
         showRare: true,
         rare: visible.map(bk => ({ bk, h: (holders[bk.key] || []).slice().sort((x, y) => coll.compare(nm(x), nm(y))) }))
-          .sort((x, y) => x.h.length - y.h.length || (x.bk.sort_order ?? 0) - (y.bk.sort_order ?? 0))
+          // Ні в кого — у кінець: «найрідша» це та, що вже комусь дісталася.
+          .sort((x, y) => (!x.h.length) - (!y.h.length) || x.h.length - y.h.length || (x.bk.sort_order ?? 0) - (y.bk.sort_order ?? 0))
           .map(({ bk, h }, i) => {
             const w = String(bk.word || '✦'), open = s.open === bk.key;
             return {
