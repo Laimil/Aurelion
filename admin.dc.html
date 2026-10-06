@@ -1217,6 +1217,13 @@ input,textarea,select{font-size:16px}
         <button onClick="{{ slRunSay }}" disabled="{{ slRunBusy }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:9px 20px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.05em;">✦ Видати й оголосити</button>
         <button onClick="{{ slRunQuiet }}" disabled="{{ slRunBusy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;padding:9px 16px;font-size:0.78rem;">Видати мовчки</button>
       </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;gap:10px;">
+        <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);line-height:1.5;"><span style="color:rgba(255,215,0,0.7);">Печатки людей.</span> Перший прогін видасть їх за всю історію чату — «мовчки» запише й позначить як оголошені, тож зранку Марта скаже лише про нові. Персонажних печаток ці дві кнопки не чіпають.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button onClick="{{ slRunPplDry }}" disabled="{{ slRunBusy }}" style="cursor:pointer;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:999px;padding:9px 18px;font-size:0.8rem;">Людям — що скаже</button>
+          <button onClick="{{ slRunPplQuiet }}" disabled="{{ slRunBusy }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:9px 18px;font-size:0.8rem;font-weight:700;">Людям — видати мовчки</button>
+        </div>
+      </div>
       <sc-if value="{{ slRunHasOut }}" hint-placeholder-val="{{ false }}">
         <p style="font-size:0.78rem;color:{{ slRunColor }};margin-top:12px;">{{ slRunStatus }}</p>
         <sc-if value="{{ slRunHasText }}" hint-placeholder-val="{{ false }}">
@@ -5045,9 +5052,10 @@ class Component extends DCLogic {
   // Ручний запуск telegram-report?seals=1 — пускає за токеном адміна.
   _slRunVals(reload) {
     const s = this.state, o = s.slRun || null;
-    const run = async (mode) => {
+    const run = async (mode, who) => {
       if (mode === 'say' && !confirm('Видати нові печатки й написати про них у флуді зараз?')) return;
-      const qs = mode === 'dry' ? '&dry=1' : mode === 'quiet' ? '&quiet=1' : '';
+      if (mode === 'quiet' && who === 'people' && !confirm('Видати печатки людям за всю історію й позначити як оголошені — без жодного слова у флуді?')) return;
+      const qs = (mode === 'dry' ? '&dry=1' : mode === 'quiet' ? '&quiet=1' : '') + (who ? `&who=${who}` : '');
       this.setState({ slRunBusy: true, slRun: { ok: true, status: 'Марта перевіряє умови…', text: '' } });
       let res;
       try {
@@ -5076,6 +5084,7 @@ class Component extends DCLogic {
     return {
       slRunBusy: !!s.slRunBusy,
       slRunDry: () => run('dry'), slRunSay: () => run('say'), slRunQuiet: () => run('quiet'),
+      slRunPplDry: () => run('dry', 'people'), slRunPplQuiet: () => run('quiet', 'people'),
       slRunHasOut: !!o, slRunStatus: o ? o.status : '', slRunColor: o && !o.ok ? '#ff8a8a' : 'rgba(255,255,255,0.6)',
       slRunHasText: !!(o && o.text), slRunText: o ? o.text : '',
     };
