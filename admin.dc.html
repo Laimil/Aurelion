@@ -1015,6 +1015,30 @@ input,textarea,select{font-size:16px}
               <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);padding-top:1px;">Принесла</span>
               <span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">{{ p.activity }}</span>
             </div>
+            <div style="display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;align-items:start;">
+              <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);padding-top:1px;">Чат</span>
+              <div style="display:flex;flex-direction:column;gap:7px;min-width:0;">
+                <span style="font-size:0.78rem;color:{{ p.tgColor }};line-height:1.45;">{{ p.tgLine }}</span>
+                <sc-if value="{{ p.tgHasStats }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:0.74rem;color:rgba(255,255,255,0.42);line-height:1.5;">{{ p.tgStats }}</span>
+                </sc-if>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                  <sc-for list="{{ p.tgGuess }}" as="g" hint-placeholder-count="0">
+                    <button onClick="{{ g.onPick }}" title="Привʼязати" style="cursor:pointer;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.9);border-radius:999px;padding:4px 12px;font-size:0.74rem;" style-hover="background:rgba(255,215,0,0.16);">＋ {{ g.label }}</button>
+                  </sc-for>
+                  <sc-if value="{{ p.tgCanPick }}" hint-placeholder-val="{{ false }}">
+                    <select value="" onChange="{{ p.tgOnPick }}" style="min-width:200px;max-width:100%;">
+                      <sc-for list="{{ p.tgOptions }}" as="o" hint-placeholder-count="2">
+                        <option value="{{ o.value }}">{{ o.label }}</option>
+                      </sc-for>
+                    </select>
+                  </sc-if>
+                  <sc-if value="{{ p.tgLinked }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ p.tgOnUnlink }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:999px;padding:4px 12px;font-size:0.74rem;" style-hover="color:rgba(255,130,130,0.9);">Відвʼязати</button>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
           </div>
 
           <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
@@ -4626,14 +4650,26 @@ class Component extends DCLogic {
   // ── Віконце: люди й черга пліток ─────────────────────
   // Поки міграції немає, _get віддає порожнє — вкладка просто порожня.
   async _loadGossipAdmin() {
-    const [people, rows] = await Promise.all([
+    const [people, rows, tg] = await Promise.all([
       this._get('site_users?select=*&order=created_at.desc'),
       this._get('gossip_queue?select=*&order=created_at.desc&limit=200'),
+      // Чат ↔ аркуш (supabase_user_tg_stats_migration.sql); немає міграції — рядок «Чат» каже про це.
+      this._slRpc('admin_people_stats', {}).catch(e => ({ error: e.message })),
     ]);
     this.setState({
       gosPeople: Array.isArray(people) ? people : [],
       gosRows:   Array.isArray(rows)   ? rows   : [],
+      pplTg: tg || null,
     });
+  }
+
+  async _linkTg(p, tgId) {
+    if (tgId == null && !window.confirm(`Відвʼязати «${p.nick}» від чату?\n\nСама привʼязка по ніку більше не спрацює — тільки руками. Видані печатки лишаються.`)) return;
+    try {
+      await this._slRpc('admin_link_tg', { p_user: p.id, p_tg: tgId == null ? null : Number(tgId) });
+      this._toast(tgId == null ? '✓ Відвʼязано' : '✓ Привʼязано до чату');
+      this._loadGossipAdmin();
+    } catch (e) { this._toast('✗ ' + e.message); }
   }
 
   // ── Анкети з кабінету ────────────────────────────────
@@ -5024,11 +5060,14 @@ class Component extends DCLogic {
           res = { ok: false, status: `✗ ${r.status} — ${(d && (d.error + (d.hint ? ' · ' + d.hint : ''))) || t.slice(0, 200) || 'без відповіді'}`, text: '' };
         } else {
           const fresh = `нових видано: ${d.fresh || 0}`;
+          const pp = d.people || null;
+          const ppl = !pp ? '' : pp.error ? ` · люди: ✗ ${pp.error}${pp.hint ? ' (' + pp.hint + ')' : ''}`
+            : ` · людям: нових ${pp.fresh || 0}${pp.dry ? `, до оголошення ${pp.pending || 0}` : pp.announced ? `, оголошено ${pp.announced}` : ''}`;
           res = d.dry
-            ? { ok: true, status: `Перевірка · ${fresh}, до оголошення: ${(d.pending || []).length}`, text: d.text || '' }
-            : d.said === false && !d.announced
-              ? { ok: true, status: `${fresh} · оголошувати нічого — усе вже сказано`, text: '' }
-              : { ok: true, status: `✦ ${fresh}, оголошено: ${d.announced || 0}${d.said ? ' · у флуді' : ' · мовчки'}`, text: '' };
+            ? { ok: true, status: `Перевірка · ${fresh}, до оголошення: ${(d.pending || []).length}${ppl}`, text: d.text || '' }
+            : d.said === false && !d.announced && !(pp && pp.announced)
+              ? { ok: true, status: `${fresh} · оголошувати нічого — усе вже сказано${ppl}`, text: '' }
+              : { ok: true, status: `✦ ${fresh}, оголошено: ${d.announced || 0}${d.said || (pp && pp.said) ? ' · у флуді' : ' · мовчки'}${ppl}`, text: '' };
         }
       } catch (e) { res = { ok: false, status: '✗ ' + e.message, text: '' }; }
       this.setState({ slRunBusy: false, slRun: res });
@@ -6914,6 +6953,45 @@ class Component extends DCLogic {
       .filter(p => !pq || `${p.nick || ''} ${p.tg_nick || ''} ${p.email || ''} ${ownOf(p.id).map(c => c.name).join(' ')}`.toLowerCase().includes(pq))
       .sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
     const by = (list, id) => (Array.isArray(list) ? list : []).filter(r => String(r.author_id || '') === String(id));
+    const tg = s.pplTg && !s.pplTg.error ? s.pplTg : null;
+    const tgLinked = new Map((tg ? tg.linked : []).map(x => [String(x.user_id), x]));
+    const tgUnl = new Map((tg ? tg.unlinked : []).map(x => [String(x.id), x]));
+    const tgStrays = tg ? tg.strays || [] : [];
+    const nf = (v) => Number(v || 0).toLocaleString('uk-UA');
+    const tgLabel = (x) => [x.name || 'без імені', x.username ? '@' + x.username : '', x.msgs != null ? `${nf(x.msgs)} репл.` : ''].filter(Boolean).join(' · ');
+    const tgVals = (p) => {
+      const L = tgLinked.get(String(p.id)), U = tgUnl.get(String(p.id));
+      const base = { tgLinked: false, tgHasStats: false, tgStats: '', tgGuess: [], tgCanPick: false, tgOptions: [], tgOnPick: () => {}, tgOnUnlink: () => {} };
+      if (!tg) return { ...base, tgLine: s.pplTg && s.pplTg.error ? `не читається — ${s.pplTg.error}` : '…', tgColor: 'rgba(255,255,255,0.3)' };
+      if (L) return {
+        ...base, tgLinked: true,
+        tgLine: `✓ ${[L.username ? '@' + L.username : '', L.tg_name || '', 'айді ' + L.tg_id].filter(Boolean).join(' · ')} · ${L.linked === 'admin' ? 'привʼязано руками' : 'збігся @нік'}`,
+        tgColor: 'rgba(150,230,170,0.92)',
+        tgHasStats: true,
+        tgStats: [
+          `${nf(L.msgs)} реплік за ${nf(L.days)} дн.`,
+          `серія ${L.best_streak}${L.cur_streak ? ` (зараз ${L.cur_streak})` : ''}`,
+          `${nf(L.posts)} дописів з тегом · ${nf(L.letters)} зн.`,
+          `арок ${L.arcs} · персонажів ${L.voices}`,
+          L.seals != null ? `печаток ${L.seals}` : '',
+          L.last_day ? `останнє ${this._gosWhen(L.last_day)}` : '',
+        ].filter(Boolean).join(' · '),
+        tgOnUnlink: () => this._linkTg(p, null),
+      };
+      const guess = (U && U.guess) || [];
+      const gIds = new Set(guess.map(g => String(g.tg_id)));
+      return {
+        ...base,
+        tgLine: U && U.off ? 'відвʼязано руками — за ніком сама не привʼяжеться'
+          : p.tg_nick ? `не привʼязано — ${p.tg_nick} ще не писав у рольовому після нового бота` : 'не привʼязано — в аркуші немає @ніку',
+        tgColor: 'rgba(255,215,0,0.8)',
+        tgGuess: guess.map(g => ({ key: String(g.tg_id), label: tgLabel(g), onPick: () => this._linkTg(p, g.tg_id) })),
+        tgCanPick: tgStrays.length > 0,
+        tgOptions: [{ key: '', value: '', label: 'Хто це в чаті…' }].concat(
+          tgStrays.filter(x => !gIds.has(String(x.tg_id))).map(x => ({ key: String(x.tg_id), value: String(x.tg_id), label: tgLabel(x) }))),
+        tgOnPick: (e) => { const v = e.target.value; if (v) this._linkTg(p, v); },
+      };
+    };
 
     const setStatus = async (p, next) => {
       if (p.status === next) return;
@@ -7014,6 +7092,7 @@ class Component extends DCLogic {
             if (ch) this._setOwner(ch, String(p.id));
           },
           activity: act.join(' · '),
+          ...tgVals(p),
           canEdit: String(s.pEdit || '') !== String(p.id),
           editing: String(s.pEdit || '') === String(p.id),
           fNick: String((s.pForm || {}).nick || ''),

@@ -734,6 +734,29 @@ a:hover{color:#fff}
             </sc-if>
           </div>
 
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Ви в рольовому чаті</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:16px;text-wrap:pretty;">Не за персонажа, а за вас: усі репліки в рольовому чаті й дописи з тегами, за кого б ви не писали.</p>
+            <sc-if value="{{ chatLinked }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;">
+                <sc-for list="{{ chatTiles }}" as="t" hint-placeholder-count="6">
+                  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:14px 12px;">
+                    <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:#ffd700;letter-spacing:0.02em;">{{ t.num }}</p>
+                    <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-top:6px;">{{ t.cap }}</p>
+                  </div>
+                </sc-for>
+              </div>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-top:16px;text-wrap:pretty;">{{ chatLine }}</p>
+            </sc-if>
+            <sc-if value="{{ chatUnlinked }}" hint-placeholder-val="{{ true }}">
+              <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">{{ chatNote }}</p>
+            </sc-if>
+          </div>
+
+          <sc-if value="{{ showUserSeals }}" hint-placeholder-val="{{ false }}">
+            <dc-import name="Seals" variant="sheet" user-id="{{ meUid }}" user-name="{{ meNick }}" hint-size="100%,600px"></dc-import>
+          </sc-if>
+
           <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.22);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Виписка з рахунку</p>
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:18px;text-wrap:pretty;">Марта складе ваш аркуш у картку — з нею можна піти в чат.</p>
@@ -2575,7 +2598,7 @@ class Component extends DCLogic {
     };
     // Дописи рахує база тим самим способом, що й місця: у браузер їх не
     // тягнемо — стрічка чату це тисячі рядків, а потрібні числа.
-    const [stand, posts] = await Promise.all([rpc('my_standing'), rpc('my_posts')]);
+    const [stand, posts, chat] = await Promise.all([rpc('my_standing'), rpc('my_posts'), rpc('my_chat_stats')]);
     // Нуль у діаграмі має дві різні причини — «запит не вийшов» і «дописів
     // за цими персонажами справді немає». З екрана вони на вигляд однакові.
     console.log('аркуш: дописи —', posts && posts.error ? `помилка: ${posts.error}`
@@ -2600,7 +2623,7 @@ class Component extends DCLogic {
       mTo.forEach((m) => bump(bits.ment, m.to_id));
       mFrom.forEach((m) => bump(bits.ment, m.from_id));
     }
-    this.setState({ stand, posts, bits, statsBusy: false });
+    this.setState({ stand, posts, chat, bits, statsBusy: false });
   }
 
   _ago(iso) {
@@ -2832,6 +2855,28 @@ class Component extends DCLogic {
     const STATUS = { approved: 'доступ відкрито', pending: 'аркуш на розгляді', blocked: 'кабінет зачинено' };
     const nick = prof.nick || 'Гість';
 
+    // Рольовий чат — людина, а не персонажі (my_chat_stats, supabase_user_tg_stats_migration.sql).
+    const ch = s.chat && !s.chat.error && s.chat.linked ? s.chat : null;
+    const dmy = (d) => { if (!d) return '—'; const [y, m, dd] = String(d).slice(0, 10).split('-'); return `${dd}.${m}.${y}`; };
+    const chatTiles = ch ? [
+      { key: 'm', num: num(ch.msgs), cap: this._plural(ch.msgs, 'репліка', 'репліки', 'реплік') },
+      { key: 'd', num: num(ch.days), cap: this._plural(ch.days, 'день у чаті', 'дні в чаті', 'днів у чаті') },
+      { key: 's', num: num(ch.best_streak), cap: 'днів поспіль · рекорд' },
+      { key: 'c', num: num(ch.cur_streak), cap: 'серія зараз' },
+      { key: 'p', num: num(ch.posts), cap: 'дописів з тегом' },
+      { key: 'l', num: num(ch.letters), cap: 'знаків у них' },
+    ] : [];
+    const chatLine = ch ? [
+      ch.first_day ? `Уперше — ${dmy(ch.first_day)}, востаннє — ${dmy(ch.last_day)}.` : '',
+      ch.best_day ? `Найбільше за одну добу — ${num(ch.best_day)}.` : '',
+      ch.arcs ? `Арок: ${ch.arcs}, персонажів: ${ch.voices}.` : '',
+      ch.rank ? `За репліками ${this._place(ch.rank, ch.of)}.` : '',
+    ].filter(Boolean).join(' ') : '';
+    const chatNote = s.statsBusy ? 'Рахую…'
+      : s.chat && s.chat.error ? `Рецепція не змогла порахувати — ${s.chat.error}. Схоже, міграцію supabase_user_tg_stats_migration.sql ще не прогнали.`
+      : prof.tg_nick ? `Вашого ніка ${prof.tg_nick} у рольовому чаті я ще не бачила. Щойно напишете там бодай раз — підшию сама. Якщо нік інший, скажіть адміністрації.`
+      : 'У вашому аркуші немає @ніку з телеграму — без нього я не знаю, хто ви в чаті. Його впише адміністрація.';
+
     return {
       meNick: nick,
       meMeta: [
@@ -2846,6 +2891,8 @@ class Component extends DCLogic {
       subTiles, subNote: parts.join(' '),
       ...pv,
       standRows, hasStand: standRows.length > 0, noStand: standRows.length === 0,
+      chatTiles, chatLine, chatNote, chatLinked: !!ch, chatUnlinked: !ch,
+      showUserSeals: String(prof.status) === 'approved' && !!s.uid, meUid: String(s.uid || ''),
       standNote: s.statsBusy
         ? 'Рахую…'
         : 'Рецепція не змогла порахувати місця — схоже, міграцію supabase_cabinet_stats_migration.sql ще не прогнали.',
