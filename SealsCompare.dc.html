@@ -75,7 +75,10 @@
                   </div>
                   <div style="flex:none;width:34px;height:34px;border-radius:50%;border:2px solid {{ r.ink }};box-sizing:border-box;display:grid;place-items:center;color:{{ r.ink }};font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:{{ r.fs }}px;">{{ r.word }}</div>
                 </div>
-                <div style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.2;overflow-wrap:anywhere;">{{ r.title }}</div>
+                <div style="display:flex;flex-direction:column;gap:2px;text-align:center;min-width:0;">
+                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.2;overflow-wrap:anywhere;">{{ r.title }}</span>
+                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.76rem;line-height:1.3;color:rgba(255,255,255,0.42);text-wrap:pretty;">{{ r.cond }}</span>
+                </div>
                 <div style="display:flex;align-items:center;gap:7px;opacity:{{ r.bOp }};min-width:0;">
                   <div style="flex:none;width:34px;height:34px;border-radius:50%;border:2px solid {{ r.ink }};box-sizing:border-box;display:grid;place-items:center;color:{{ r.ink }};font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:{{ r.fs }}px;">{{ r.word }}</div>
                   <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;">
@@ -126,6 +129,17 @@
           </sc-for>
         </div>
       </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px 18px;border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;">
+        <sc-for list="{{ tHead }}" as="c" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;">
+            <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid {{ c.ink }};box-sizing:border-box;display:grid;place-items:center;color:{{ c.ink }};font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:{{ c.fs }}px;">{{ c.word }}</div>
+            <div style="display:flex;flex-direction:column;gap:1px;min-width:0;">
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.2;">{{ c.name }}</span>
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.8rem;line-height:1.3;color:rgba(255,255,255,0.45);text-wrap:pretty;">{{ c.cond }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
       <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);margin:0;">Над стовпцем — частка картотеки з цією печаткою. Цифра в клітинці — зірки за повтор. Клік по рядку — порівняти. {{ zeroNote }}</p>
     </div>
   </sc-if>
@@ -140,13 +154,13 @@
             <div style="display:flex;flex-direction:column;gap:5px;min-width:0;">
               <div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;"><span style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;">{{ s.title }}</span><span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ s.grp }}</span></div>
               <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;"><div style="height:100%;width:{{ s.pct }};background:{{ s.ink }};"></div></div>
-              <span style="font-size:0.78rem;color:rgba(255,255,255,0.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ s.who }}</span>
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.88rem;line-height:1.35;color:rgba(255,255,255,0.6);text-wrap:pretty;">{{ s.cond }}</span>
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.45);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ s.who }}</span>
             </div>
             <div style="text-align:right;"><div style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;">{{ s.n }}</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ s.of }}</div></div>
           </div>
           <sc-if value="{{ s.open }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;">
-              <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.55);">{{ s.cond }}</span>
               <div style="display:flex;flex-wrap:wrap;gap:6px;">
                 <sc-for list="{{ s.holders }}" as="h" hint-placeholder-count="0">
                   <button onClick="{{ h.go }}" title="Порівняти" style="cursor:pointer;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:#fff;border-radius:999px;padding:5px 12px;font-size:0.78rem;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.15);">{{ h.label }}</button>
@@ -333,7 +347,7 @@ class Component extends DCLogic {
         tableNote: `${ids.length} ${P(ids.length, 'тека', 'теки', 'тек')} · за кількістю печаток`,
         tCols: `136px repeat(${visible.length}, 30px) 44px`,
         tMinW: (136 + visible.length * 33 + 48) + 'px',
-        tHead: visible.map(bk => { const w = String(bk.word || '✦'); return { title: `${bk.title} — ${bk.cond || ''}`, word: w, ink: SC_INK[bk.ink] || SC_INK.red, fs: fsz(w, false), pct: Math.round(((holders[bk.key] || []).length / nAll) * 100) + '%' }; }),
+        tHead: visible.map(bk => { const w = String(bk.word || '✦'); return { title: `${bk.title} — ${bk.cond || ''}`, name: bk.title, cond: bk.cond || '', word: w, ink: SC_INK[bk.ink] || SC_INK.red, fs: fsz(w, false), pct: Math.round(((holders[bk.key] || []).length / nAll) * 100) + '%' }; }),
         tRows: ids.map((c, i) => ({
           n: String(i + 1), name: nm(c), total: String(count(c)), pr: prN(c) ? '★'.repeat(Math.min(prN(c), 5)) : '',
           go: () => this._duelWith(c),
