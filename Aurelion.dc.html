@@ -1554,7 +1554,7 @@ a:hover{color:#a8c4f7;}
                 <span style="position:absolute;z-index:1;top:10px;right:10px;background:rgba(255,215,0,0.16);border:1px solid rgba(255,215,0,0.5);color:#ffd700;border-radius:999px;padding:3px 9px;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;">Нова</span>
               </sc-if>
               <div style="position:absolute;z-index:1;left:14px;right:14px;bottom:12px;">
-                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:#fff;line-height:1.25;letter-spacing:0.03em;">{{ char.name }}</h3>
+                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:#fff;line-height:1.25;letter-spacing:0.03em;">{{ char.name }}<sc-if value="{{ char.dead }}" hint-placeholder-val="{{ false }}"><span title="Персонаж помер" style="color:rgba(255,255,255,0.55);margin-left:6px;">†</span></sc-if></h3>
                 <sc-if value="{{ char.hasAlias }}" hint-placeholder-val="{{ false }}">
                   <p style="font-size:0.76rem;color:rgba(255,255,255,0.55);margin-top:2px;">«{{ char.alias }}»</p>
                 </sc-if>
@@ -1613,6 +1613,9 @@ a:hover{color:#a8c4f7;}
             <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.2rem,4.6vw,4.2rem);font-weight:700;letter-spacing:0.05em;line-height:1.04;color:#fff;margin:0;text-shadow:0 0 40px rgba(255,215,0,0.15);overflow-wrap:break-word;text-wrap:balance;">{{ charReaderName }}</h1>
             <sc-if value="{{ charReaderHasAlias }}" hint-placeholder-val="{{ false }}">
               <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.25rem;color:rgba(255,255,255,0.5);margin:10px 0 0;">«{{ charReaderAlias }}»</p>
+            </sc-if>
+            <sc-if value="{{ charReaderDead }}" hint-placeholder-val="{{ false }}">
+              <p style="display:inline-flex;align-items:center;gap:10px;margin:14px 0 0;padding:5px 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.22);background:rgba(10,9,8,0.55);font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.75);">† Смерть<span style="letter-spacing:0.06em;color:rgba(255,255,255,0.5);">{{ charReaderDiedAt }}</span></p>
             </sc-if>
             <sc-if value="{{ charReaderHasStats }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin-top:22px;">
@@ -6072,7 +6075,12 @@ class Component extends DCLogic {
           const chars = (sel) => this._get(`characters?select=${sel}&order=sort_order.asc,created_at.asc`);
           const noFocus = LIST_SELECT.characters.replace(',hero_focus', '');
           const noOwner = noFocus.replace(',owner_id', '');
-          return chars(LIST_SELECT.characters)
+          // is_dead/died_at — з supabase_char_dead_migration.sql; без неї звичайний ланцюжок.
+          return chars(LIST_SELECT.characters + ',is_dead,died_at')
+            .catch((e) => {
+              console.warn('характери: без графи is_dead —', e && e.message);
+              return chars(LIST_SELECT.characters);
+            })
             .catch((e) => {
               console.warn('характери: без графи hero_focus —', e && e.message);
               return chars(noFocus);
@@ -9519,6 +9527,7 @@ class Component extends DCLogic {
           initials: parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
           hasImage: !!(ch.image), imgSrc: ch.image || '', noImage: !(ch.image), hasAlias: !!(ch.alias),
           inactive: ch.is_active === false,
+          dead: ch.is_dead === true,
           bgStyle: 'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;'+(imgUrl?'background-image:'+imgUrl:''),
           hasBio: !!(ch.bio), bio: ch.bio||'',
           href: '#characters/' + encodeURIComponent(ch.id),
@@ -9540,6 +9549,7 @@ class Component extends DCLogic {
           initials: parts.slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?',
           hasImage: !!(ch.image), imgSrc: ch.image || '', noImage: !(ch.image), hasAlias: !!(ch.alias),
           inactive: ch.is_active === false,
+          dead: ch.is_dead === true,
           bgStyle: 'position:absolute;inset:0;background-size:cover;background-position:center top;background-repeat:no-repeat;'+(imgUrl?'background-image:'+imgUrl:''),
           hasBio: !!(ch.bio), bio: ch.bio||'',
           href: '#characters/' + encodeURIComponent(ch.id),
@@ -9923,6 +9933,8 @@ class Component extends DCLogic {
       showCharReader:      page === 'characters' && !!sc,
       charReaderName:      sc?.name  || '',
       charReaderId:        sc ? String(sc.id) : '',
+      charReaderDead:      !!(sc && sc.is_dead === true),
+      charReaderDiedAt:    (() => { const d = sc && sc.died_at; if (!d) return ''; const [y, m, dd] = String(d).slice(0, 10).split('-'); return dd ? `${dd}.${m}.${y}` : ''; })(),
       charReaderRole:      sc?.role  || '',
       charReaderAlias:     sc?.alias || '',
       charReaderHasAlias:  !!(sc?.alias),
