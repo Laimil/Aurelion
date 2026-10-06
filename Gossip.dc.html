@@ -809,6 +809,9 @@ a:hover{color:#fff}
                 </div>
               </div>
             </div>
+            <div style="padding:0 22px 24px;">
+              <dc-import name="Seals" variant="sheet" character-id="{{ foId }}" character-name="{{ foName }}" character-alias="{{ foAlias }}" hint-size="100%,600px"></dc-import>
+            </div>
           </div>
           </sc-if>
 
@@ -2154,6 +2157,7 @@ class Component extends DCLogic {
 
     return {
       ...out, hasFolder: true,
+      foId: id,
       foName: cur.name || '—', foHasAlias: !!cur.alias, foAlias: cur.alias || '',
       foHasGod: !!cur.deity, foGod: god ? String(god.name || god.god) : String(cur.deity || ''),
       foHasAge: !!String(cur.age || '').trim(), foAge: String(cur.age || ''),

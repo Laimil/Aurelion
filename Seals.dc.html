@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/base.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/styles.css">
+  <script src="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/_ds_bundle.js"></script>
+</helmet>
+<sc-if value="{{ isStrip }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ hasAny }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ open }}" title="Лист заслуг" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:20px;background:none;border:none;padding:0;cursor:pointer;transition:all 0.3s ease;" style-hover="opacity:0.85;">
+      <sc-for list="{{ few }}" as="s" hint-placeholder-count="3">
+        <span style="width:44px;height:44px;display:block;pointer-events:none;">{{ s.mini }}</span>
+      </sc-for>
+      <span style="margin-left:6px;font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.75);pointer-events:none;white-space:nowrap;">{{ stripLabel }} →</span>
+    </button>
+  </sc-if>
+</sc-if>
+<sc-if value="{{ showSheet }}" hint-placeholder-val="{{ false }}">
+  <div id="au-seals-sheet">
+    <div style="position:relative;max-width:780px;margin:0 auto;background:radial-gradient(ellipse 80% 60% at 30% 20%,#f3ecdb,#e6dcc4);color:#2f2920;border-radius:6px;padding:36px 34px 28px;box-shadow:0 24px 60px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:24px;box-sizing:border-box;">
+      <div style="position:absolute;inset:12px;border:1px solid rgba(47,41,32,0.25);pointer-events:none;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px 20px;border-bottom:2px solid #2f2920;padding-bottom:14px;">
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.8rem;letter-spacing:0.3em;text-transform:uppercase;color:#a8443c;">Кабала · рецепція · форма 7-з</span>
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:1.8rem;letter-spacing:0.06em;">Лист заслуг</span>
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.12rem;">на ім'я <b>{{ name }}</b>{{ aliasLine }}</span>
+        </div>
+        <div style="text-align:right;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:#6d6252;line-height:1.5;">
+          <div>печаток: <b style="color:#2f2920;">{{ total }}</b></div>
+          <sc-if value="{{ hasPrestige }}" hint-placeholder-val="{{ false }}"><div style="color:#8a6510;">престиж: <b>{{ prestigeN }}</b></div></sc-if>
+          <div>{{ checked }}</div>
+        </div>
+      </div>
+      <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+        <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:#6d6252;">Марта гортає журнал…</p>
+      </sc-if>
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="0">
+        <div style="display:flex;flex-direction:column;gap:12px;padding:{{ g.pad }};border-radius:8px;border:{{ g.border }};background:{{ g.bg }};">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-family:'Cinzel',Georgia,serif;font-size:0.92rem;letter-spacing:0.12em;text-transform:uppercase;">{{ g.name }}</span>
+            <span style="flex:1;border-bottom:1px dotted rgba(47,41,32,0.4);"></span>
+            <sc-if value="{{ g.prestige }}" hint-placeholder-val="{{ false }}">
+              <span title="Престиж: усю групу зібрано" style="display:flex;align-items:center;gap:8px;">
+                <span style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;font-family:'EB Garamond',Georgia,serif;line-height:1.2;">
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:0.8rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8a6510;">Престиж</span>
+                  <span style="font-size:0.8rem;color:#6d6252;">{{ g.pDate }}</span>
+                </span>
+                <span style="width:56px;height:56px;display:block;">{{ g.pStamp }}</span>
+              </span>
+            </sc-if>
+            <sc-if value="{{ g.noPrestige }}" hint-placeholder-val="{{ true }}">
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:#6d6252;">{{ g.count }}</span>
+            </sc-if>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:16px 10px;">
+            <sc-for list="{{ g.seals }}" as="s" hint-placeholder-count="5">
+              <div title="{{ s.cond }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;">
+                <div style="width:88px;height:88px;">{{ s.big }}</div>
+                <div style="display:flex;flex-direction:column;gap:3px;align-items:center;">
+                  <div style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;font-weight:600;line-height:1.25;">{{ s.title }}</div>
+                  <sc-if value="{{ s.hasStars }}" hint-placeholder-val="{{ false }}"><div title="Заслужено разів: {{ s.times }}" style="font-size:0.9rem;line-height:1;letter-spacing:0.08em;color:#a8801c;white-space:nowrap;">{{ s.stars }}</div></sc-if>
+                  <sc-if value="{{ s.has }}" hint-placeholder-val="{{ false }}"><div style="font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;line-height:1.3;color:#6d6252;">{{ s.got }}</div></sc-if>
+                  <sc-if value="{{ s.noHas }}" hint-placeholder-val="{{ true }}"><div style="font-family:'EB Garamond',Georgia,serif;font-size:0.78rem;line-height:1.3;color:#8a7d68;text-wrap:pretty;">{{ s.cond }}</div></sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px 20px;border-top:1px solid rgba(47,41,32,0.35);padding-top:14px;font-family:'EB Garamond',Georgia,serif;">
+        <span style="font-size:0.98rem;font-style:italic;color:#6d6252;max-width:440px;text-wrap:pretty;">{{ footNote }}</span>
+        <span style="font-size:1.05rem;">— М. Ленц, рецепція</span>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:820,&quot;height&quot;:900},&quot;characterId&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;characterName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Северин&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;characterAlias&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;strip&quot;,&quot;sheet&quot;],&quot;default&quot;:&quot;sheet&quot;,&quot;tsType&quot;:&quot;'strip' | 'sheet'&quot;},&quot;hideEmpty&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const SEALS_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1/seals?select=character_id,seal,earned_at,note&order=earned_at.asc&limit=10000';
+const SEALS_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+
+// Перелік печаток. Умови тут — для людей; рахує їх seals_award() у базі
+// (supabase_seals_migration.sql). Ключі мусять збігатися з тими, що там.
+const SEAL_BOOK = [
+  ['Перо', [
+    ['first', 'Перший аркуш', 'I', 'ПЕРО', 'Перший допис з тегом персонажа', 'red'],
+    ['hundred', 'Сотня', '100', 'ПЕРО', '100 дописів', 'red'],
+    ['fivehundred', 'Пʼятисотий', '500', 'ПЕРО', '500 дописів', 'gold'],
+    ['long', 'Довгий лист', '∞', 'ПЕРО', 'Допис довший за 4000 знаків', 'red'],
+  ]],
+  ['Сюжет', [
+    ['final', 'Фінал', 'ФІНАЛ', 'СЮЖЕТ', 'Писав у арці, яку закрили відміткою', 'red'],
+    ['three', 'Три нитки долі', 'III', 'СЮЖЕТ', 'Одночасно у трьох живих арках', 'gold'],
+    ['return', 'Повернення', '↺', 'СЮЖЕТ', 'Допис в арку, що мовчала понад 30 днів', 'red'],
+  ]],
+  ['Стіна', [
+    ['knot', 'Вузол', '✦', 'СТІНА', 'Перша нитка на стіні звʼязків', 'red'],
+    ['feud', 'Стара образа', '⚔', 'СТІНА', 'Перша нитка ворожнечі', 'red'],
+    ['heart', 'Розділ роману', '♥', 'СТІНА', 'Нитка кохання на стіні — печатку дістають обоє', 'gold'],
+  ]],
+  ['Голос', [
+    ['quote', 'Записано', '«»', 'ГОЛОС', 'Фразу персонажа внесли до цитатника', 'red'],
+    ['night', 'Нічна зміна', '02:00', 'ГОДИНА', '10 дописів між другою і пʼятою ночі', 'red'],
+    ['twenty', 'Двадцятка', '20', 'КУБИК', 'Натуральна 20 на d20 — кидок за свого персонажа на сайті', 'gold'],
+  ]],
+  ['Приховані', [
+    ['year', 'Рік у теці', 'I·Р', 'РІЧНИЦЯ', 'Рік від анкети, і персонаж досі пише', 'black', true],
+    ['dawn', 'Перший голос', '☀', 'СВІТАНОК', 'Десять разів першим відкрив день у рольовому', 'black', true],
+  ]],
+];
+const SEAL_INK = { red: '#8e2f3a', gold: '#a8801c', black: '#2f2920' };
+const SEAL_INK_DARK = { red: '#e0707c', gold: '#ffd700', black: '#c9c0ae' };
+const SEAL_FAINT = 'rgba(47,41,32,0.26)';
+const SEAL_ROT = [-8, 5, -3, 9, -5, 3, -10, 7];
+
+const BOOK_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1/seal_book?select=key,title,word,ring,grp,ink,hidden,cond,sort_order&retired=eq.false&order=sort_order.asc,created_at.asc';
+
+// Вбудований перелік — запасний, поки немає supabase_seals_book_migration.sql.
+const BUILTIN_BOOK = [];
+SEAL_BOOK.forEach(([grp, list], gi) => list.forEach(([key, title, word, ring, cond, ink, hidden], i) =>
+  BUILTIN_BOOK.push({ key, title, word, ring, cond, ink, hidden: !!hidden, grp, sort_order: gi * 10 + i })));
+
+function sealsFetch() {
+  const w = window;
+  if (w.__auSeals && Date.now() - w.__auSeals.at < 5 * 60 * 1000) return w.__auSeals.p;
+  const H = { headers: { apikey: SEALS_KEY, Authorization: 'Bearer ' + SEALS_KEY } };
+  const get = (u, what) => fetch(u, H)
+    .then(r => (r.ok ? r.json() : Promise.reject(new Error(what + ' ' + r.status))))
+    .then(x => (Array.isArray(x) ? x : []))
+    .catch(e => { console.warn('печатки: не прочитано —', e && e.message); return null; });
+  // times — з міграції зі зірочками; без неї просимо старий набір граф.
+  const rowsP = get(SEALS_URL.replace('note&', 'note,times,last_at&'), 'seals+times')
+    .then(r => (r === null ? get(SEALS_URL, 'seals') : r));
+  const p = Promise.all([rowsP, get(BOOK_URL, 'seal_book')])
+    .then(([rows, book]) => ({ rows, book: book && book.length ? book : BUILTIN_BOOK }));
+  w.__auSeals = { at: Date.now(), p };
+  return p;
+}
+
+class Component extends DCLogic {
+  state = { rows: null, book: BUILTIN_BOOK, loaded: false };
+
+  componentDidMount() {
+    this._alive = true;
+    sealsFetch().then(({ rows, book }) => { if (this._alive) this.setState({ rows, book, loaded: true }); });
+  }
+  componentWillUnmount() { this._alive = false; }
+
+  _stamp(s, id, size, color, ring, rot) {
+    const h = React.createElement;
+    const long = s.word.length > 3;
+    return h('svg', { viewBox: '0 0 100 100', width: size, height: size, style: { transform: `rotate(${rot}deg)`, display: 'block' } },
+      ring && h('defs', null, h('path', { id, d: 'M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0' })),
+      h('circle', { cx: 50, cy: 50, r: ring ? 46 : 45, fill: 'none', stroke: color, strokeWidth: ring ? 3 : 5 }),
+      h('circle', { cx: 50, cy: 50, r: ring ? 42 : 36, fill: 'none', stroke: color, strokeWidth: ring ? 0.8 : 1.5 }),
+      ring && h('circle', { cx: 50, cy: 50, r: 28, fill: 'none', stroke: color, strokeWidth: 0.8 }),
+      ring && h('text', { fill: color, fontSize: 7.2, fontFamily: 'Cinzel, Georgia, serif' },
+        h('textPath', { href: '#' + id, textLength: 226, lengthAdjust: 'spacing' }, s.ring)),
+      h('text', Object.assign({ x: 50, y: 50, dy: '0.35em', textAnchor: 'middle', fill: color,
+        fontSize: s.word.length > 4 ? 13 : s.word.length > 2 ? 19 : 26, fontWeight: 700, fontFamily: 'Cinzel, Georgia, serif' },
+        long ? { textLength: ring ? 46 : 58, lengthAdjust: 'spacingAndGlyphs' } : {}), s.word),
+      // Повторна печатка: на малому штампі — золотий кружок з кількістю.
+      !ring && s.times > 1 && h('circle', { cx: 80, cy: 80, r: 18, fill: '#1a1a1a', stroke: '#ffd700', strokeWidth: 3 }),
+      !ring && s.times > 1 && h('text', { x: 80, y: 80, dy: '0.36em', textAnchor: 'middle', fill: '#ffd700', fontSize: 20, fontWeight: 700, fontFamily: 'Arial, sans-serif' }, String(s.times)));
+  }
+
+  renderVals() {
+    const p = this.props;
+    const s = this.state;
+    const cid = String(p.characterId || '');
+    const variant = p.variant === 'sheet' ? 'sheet' : 'strip';
+    const rows = s.rows || [];
+    const mine = {};
+    const anyHas = {};
+    rows.forEach(r => {
+      anyHas[r.seal] = true;
+      if (String(r.character_id) === cid) mine[r.seal] = r;
+    });
+    const fmt = (iso, short) => {
+      try {
+        const d = new Date(iso);
+        const dd = String(d.getDate()).padStart(2, '0'), mm = String(d.getMonth() + 1).padStart(2, '0');
+        const y = String(d.getFullYear());
+        return `${dd}.${mm}.${short ? y.slice(2) : y}`;
+      } catch (e) { return ''; }
+    };
+    const uid = 'sl' + (cid.replace(/[^a-z0-9]/gi, '').slice(0, 8) || 'x') + variant[1];
+    let i = 0, have = 0, all = 0;
+    const flat = [];
+    const byGrp = new Map();
+    (s.book || BUILTIN_BOOK).forEach(b => {
+      const g = String(b.grp || 'Особливі');
+      if (!byGrp.has(g)) byGrp.set(g, []);
+      byGrp.get(g).push([b.key, b.title, String(b.word || '✦'), String(b.ring || 'КАБАЛА').toUpperCase(), b.cond || '', b.ink || 'red', !!b.hidden]);
+    });
+    let prestigeN = 0;
+    const prestigeViews = [];
+    const groups = [...byGrp.entries()].map(([gname, list]) => {
+      let gHave = 0;
+      const seals = list.map(([k, title, word, ring, cond, ink, hidden]) => {
+        const rot = SEAL_ROT[i++ % SEAL_ROT.length];
+        const r = mine[k];
+        const has = !!r;
+        const sealed = !!hidden && !has && !anyHas[k];
+        const view = {
+          k, has, noHas: !has,
+          title: sealed ? 'Не розпечатано' : title,
+          word: sealed ? '?' : word,
+          cond: sealed ? 'Умову видно, коли печатку отримає перший' : cond,
+          ring: has ? `КАБАЛА · ${ring} · ${fmt(r.earned_at, true)} · ` : `КАБАЛА · ${sealed ? 'ТАЄМНО' : ring} · `,
+          got: has ? fmt(r.earned_at) + (r.note ? ' · ' + r.note : '') : '',
+          at: has ? (r.last_at || r.earned_at) : '',
+          times: has ? Math.max(1, Number(r.times) || 1) : 0,
+        };
+        view.hasStars = view.times > 1;
+        view.stars = view.times <= 5 ? '★'.repeat(view.times) : `★ × ${view.times}`;
+        view.big = this._stamp(view, uid + k, 88, has ? SEAL_INK[ink] : SEAL_FAINT, true, has ? rot : 0);
+        view.mini = this._stamp(view, uid + 'm' + k, 44, SEAL_INK_DARK[ink], false, rot);
+        if (has) { gHave++; have++; flat.push(view); }
+        all++;
+        return view;
+      });
+      // Престиж: уся група зібрана (рахує база — seals_prestige(); тут лише показ).
+      const pr = mine['prestige:' + gname];
+      let pStamp = null;
+      if (pr) {
+        prestigeN++;
+        const pv = { word: '★', ring: `ПРЕСТИЖ · ${gname.toUpperCase()} · ${fmt(pr.earned_at, true)} · `, at: pr.earned_at };
+        pStamp = this._stamp(pv, uid + 'p' + i, 56, SEAL_INK.gold, true, -4);
+        pv.mini = this._stamp(pv, uid + 'pm' + i, 44, SEAL_INK_DARK.gold, false, 0);
+        prestigeViews.push(pv);
+      }
+      return {
+        name: gname, seals, count: `${gHave} з ${list.length}`,
+        prestige: !!pr, noPrestige: !pr, pStamp, pDate: pr ? fmt(pr.earned_at) : '',
+        pad: pr ? '14px 16px' : '0', border: pr ? '1px solid rgba(168,128,28,0.55)' : '0 solid transparent',
+        bg: pr ? 'rgba(255,215,0,0.07)' : 'transparent',
+      };
+    });
+    flat.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    prestigeViews.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    const P = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
+    // Смужка під іменем лише веде до листа нижче на сторінці (не модалка:
+    // у предків є анімації з transform, і fixed там поводиться непевно).
+    const sheetOn = variant === 'sheet' && !(p.hideEmpty && s.loaded && have === 0) && !(p.hideEmpty && !s.loaded);
+    return {
+      isStrip: variant === 'strip',
+      hasAny: have > 0,
+      few: prestigeViews.concat(flat).slice(0, 5),
+      hasPrestige: prestigeN > 0, prestigeN: String(prestigeN),
+      stripLabel: `${have} ${P(have, 'печатка', 'печатки', 'печаток')} · лист заслуг`,
+      showSheet: sheetOn,
+      loading: !s.loaded,
+      name: p.characterName || '—',
+      aliasLine: p.characterAlias ? `, «${p.characterAlias}»` : '',
+      total: `${have} з ${all}`,
+      checked: 'перевіряю щоранку о 09:00',
+      groups: s.loaded ? groups : [],
+      footNote: s.loaded && s.rows === null
+        ? 'Журнал печаток зараз не відповідає. Зазирніть пізніше.'
+        : have ? 'Бліді кола — печатки, яких ще немає. Печатку не забирають.'
+        : 'Печаток ще немає. Бліді кола — що можна заслужити.',
+      open: () => {
+        const el = document.getElementById('au-seals-sheet');
+        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 84, behavior: 'smooth' });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

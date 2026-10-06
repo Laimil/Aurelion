@@ -1627,6 +1627,7 @@ a:hover{color:#a8c4f7;}
                 </sc-for>
               </div>
             </sc-if>
+            <dc-import name="Seals" variant="strip" character-id="{{ charReaderId }}" hint-size="auto,0px"></dc-import>
             <sc-if value="{{ plVisible }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;align-items:center;gap:14px;margin-top:26px;width:100%;max-width:470px;box-sizing:border-box;background:rgba(10,9,8,0.6);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:8px 8px 8px 8px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
                 <button onClick="{{ plDiscClick }}" title="{{ plDiscHint }}" style="position:relative;width:52px;height:52px;flex-shrink:0;border-radius:50%;border:none;padding:0;cursor:pointer;background:repeating-radial-gradient(circle,#0f0f0f 0 1.2px,#1f1f1f 1.2px 2.4px);transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.3);">
@@ -1789,6 +1790,12 @@ a:hover{color:#a8c4f7;}
           </div>
         </sc-if>
 
+        <!-- ── Печатки Кабали: лист заслуг (лише коли є хоч одна) ── -->
+        <sc-if value="{{ showCharReader }}" hint-placeholder-val="{{ false }}">
+          <div style="max-width:1060px;margin:58px auto 0;">
+            <dc-import name="Seals" variant="sheet" hide-empty="{{ true }}" character-id="{{ charReaderId }}" character-name="{{ charReaderName }}" character-alias="{{ charReaderAlias }}" hint-size="100%,0px"></dc-import>
+          </div>
+        </sc-if>
         <!-- ── Мережа зв'язків: куток стіни ── -->
         <sc-if value="{{ relHasConns }}" hint-placeholder-val="{{ false }}">
           <div data-conns-anchor="" style="max-width:1060px;margin:58px auto 0;">
@@ -2444,8 +2451,32 @@ a:hover{color:#a8c4f7;}
     <div style="text-align:center;margin-bottom:18px;">
       <button onClick="{{ roll }}" disabled="{{ isRolling }}" class="roll-btn" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:15px 58px;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(255,215,0,0.22);" style-hover="transform:scale(1.05);box-shadow:0 6px 32px rgba(255,215,0,0.44);">{{ rollBtnLabel }}</button>
     </div>
-    <div style="max-width:330px;margin:0 auto;">
-      <input value="{{ diceName }}" onInput="{{ setDiceName }}" placeholder="Ім'я персонажа або гравця (для картки)" maxlength="40" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:11px 20px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;text-align:center;outline:none;transition:all 0.2s ease;" style-focus="border-color:rgba(255,215,0,0.5);background:rgba(255,255,255,0.08);">
+    <div style="max-width:330px;margin:0 auto;position:relative;display:flex;flex-direction:column;gap:10px;">
+      <sc-if value="{{ diceHasChars }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ toggleDiceMenu }}" aria-haspopup="listbox" aria-expanded="{{ diceMenuOpen }}" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.35);border-radius:999px;padding:7px 20px;min-height:44px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:1rem;cursor:pointer;transition:all 0.2s ease;" style-hover="background:rgba(255,255,255,0.09);border-color:rgba(255,215,0,0.6);">
+          <sc-if value="{{ diceCharHasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ diceCharImg }}" alt="" style="width:28px;height:28px;border-radius:999px;object-fit:cover;border:1px solid #ffd700;pointer-events:none;"></sc-if>
+          <span style="pointer-events:none;">{{ diceCharLabel }}</span>
+          <span style="pointer-events:none;font-size:0.7rem;color:rgba(255,215,0,0.7);">▾</span>
+        </button>
+        <sc-if value="{{ diceMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ closeDiceMenu }}" style="position:fixed;inset:0;z-index:19;"></div>
+          <div role="listbox" style="position:absolute;top:52px;left:0;right:0;z-index:20;background:#222;border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:6px;box-shadow:0 14px 40px rgba(0,0,0,0.6);max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;">
+            <sc-for list="{{ diceChars }}" as="c" hint-placeholder-count="2">
+              <button data-cid="{{ c.id }}" onClick="{{ pickDiceChar }}" role="option" style="display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;min-height:44px;border-radius:8px;border:none;background:{{ c.bg }};color:{{ c.color }};text-align:left;cursor:pointer;font-family:'EB Garamond',Georgia,serif;font-size:1rem;transition:all 0.2s ease;" style-hover="background:rgba(255,255,255,0.08);">
+                <sc-if value="{{ c.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ c.img }}" alt="" style="width:30px;height:30px;border-radius:999px;object-fit:cover;flex:none;pointer-events:none;"></sc-if>
+                <sc-if value="{{ c.noImg }}" hint-placeholder-val="{{ true }}"><span style="width:30px;height:30px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);font-family:'Cinzel',Georgia,serif;font-size:0.8rem;color:#ffd700;pointer-events:none;">{{ c.initial }}</span></sc-if>
+                <span style="pointer-events:none;flex:1;min-width:0;">{{ c.name }}</span>
+                <span style="pointer-events:none;font-size:0.85rem;color:rgba(255,255,255,0.4);">{{ c.alias }}</span>
+              </button>
+            </sc-for>
+            <div style="height:1px;background:rgba(255,255,255,0.08);margin:4px 6px;"></div>
+            <button onClick="{{ pickDiceOther }}" style="width:100%;padding:8px 10px;min-height:40px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,0.55);text-align:left;cursor:pointer;font-size:0.85rem;transition:all 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);color:#fff;">Інше ім'я…</button>
+          </div>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ diceShowInput }}" hint-placeholder-val="{{ true }}">
+        <input value="{{ diceName }}" onInput="{{ setDiceName }}" placeholder="Ім'я персонажа або гравця (для картки)" maxlength="40" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:11px 20px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;text-align:center;outline:none;transition:all 0.2s ease;" style-focus="border-color:rgba(255,215,0,0.5);background:rgba(255,255,255,0.08);">
+      </sc-if>
     </div>
     </section>
     <sc-if value="{{ canShareCard }}" hint-placeholder-val="{{ false }}">
@@ -7099,17 +7130,49 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
+  // Кидок за СВОГО персонажа (обрано в списку) йде через dice_roll(): число кидає
+  // база й записує в журнал — з нього печатка «Двадцятка». Браузерне випадкове
+  // число залишається для решти кидків і як запасне, якщо база не відповіла.
+  _diceOwnCharId() {
+    const s = this.state;
+    const uid = String(s.userId || '');
+    const cur = (s.diceName || '').trim();
+    if (!uid || !cur || s.diceOther) return null;
+    const c = ((s.data && s.data.characters) || []).find(x => x && x.owner_id && String(x.owner_id) === uid
+      && String(x.name || '').trim() === cur);
+    return c ? String(c.id) : null;
+  }
+
   rollDice() {
     if (this.state.rolling) return;
     const sides = this.state.diceType;
-    const result = Math.floor(Math.random() * sides) + 1;
+    const local = Math.floor(Math.random() * sides) + 1;
+    const own = this._diceOwnCharId();
+    let srv = null, srvDone = !own;
+    if (own) {
+      Promise.resolve(this._userFresh ? this._userFresh() : null)
+        .then(() => fetch(`${SUPA_URL}/rpc/dice_roll`, {
+          method: 'POST',
+          body: JSON.stringify({ p_sides: sides, p_char: own }),
+          headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + this._userTok(), 'Content-Type': 'application/json' },
+        }))
+        .then(r => (r.ok ? r.json() : null))
+        .then(d => { if (d && Number(d.result) >= 1 && Number(d.result) <= sides) srv = d; else if (d) console.warn('кубик: dice_roll —', d.error || d); })
+        .catch(e => console.warn('кубик: dice_roll не відповів —', e && e.message))
+        .finally(() => { srvDone = true; });
+    }
     this.setState({ rolling: true, diceResult: null, diceRollingNum: Math.floor(Math.random() * sides) + 1 });
     let count = 0;
     this._rollTimer = setInterval(() => {
       count++;
       this.setState({ diceRollingNum: Math.floor(Math.random() * sides) + 1 });
-      if (count >= 13) {
+      // Зачекати базу — не довше за ~2,4 с понад звичне обертання.
+      if (count >= 13 && (srvDone || count >= 53)) {
         clearInterval(this._rollTimer);
+        const result = srv ? Number(srv.result) : local;
+        if (srv && typeof srv.total === 'number') {
+          this.setState({ diceToday: srv.today || 0, diceTotal: srv.total || 0, diceStatsLive: true });
+        }
         this.setState(st => ({
           rolling: false, diceResult: result, diceRollingNum: null,
           rolledAt: Date.now(), shareMsg: '', diceQuote: this._pickQuote(result, sides),
@@ -7119,7 +7182,7 @@ class Component extends DCLogic {
             ...st.rollHistory,
           ].slice(0, 12),
         }));
-        setTimeout(() => { try { this._bumpDiceStats(); } catch (e) {} }, 0);
+        if (!srv) setTimeout(() => { try { this._bumpDiceStats(); } catch (e) {} }, 0);
       }
     }, 60);
   }
@@ -9556,6 +9619,47 @@ class Component extends DCLogic {
       shareBusy: s.sharing,
       shareMsg: s.shareMsg,
       diceName: s.diceName,
+      // Свої персонажі для підпису картки — тим, хто ввійшов (той самий
+      // owner_id, що й «За персонажа» в тестах). Чужих тут немає свідомо.
+      ...(() => {
+        const uid = String(s.userId || '');
+        const mine = uid ? ((data && data.characters) || [])
+          .filter(c => c && c.owner_id && String(c.owner_id) === uid && c.is_active !== false) : [];
+        const cur = (s.diceName || '').trim();
+        const pick = mine.find(c => String(c.name || '').trim() === cur) || null;
+        const close = () => this.setState({ diceMenuOpen: false });
+        return {
+          diceHasChars: mine.length > 0,
+          diceShowInput: mine.length === 0 || !!s.diceOther || (!!cur && !pick),
+          diceMenuOpen: !!s.diceMenuOpen && mine.length > 0,
+          diceCharHasImg: !!(pick && pick.image),
+          diceCharImg: (pick && pick.image) || '',
+          diceCharLabel: pick ? pick.name : (s.diceOther || cur ? 'Інше ім\u2019я' : 'Кидаю за…'),
+          diceChars: mine.map(c => {
+            const on = !!pick && String(pick.id) === String(c.id);
+            return {
+              id: String(c.id), name: c.name, alias: c.alias ? '«' + c.alias + '»' : '',
+              img: c.image || '', hasImg: !!c.image, noImg: !c.image,
+              initial: String(c.name || '?').trim().charAt(0).toUpperCase(),
+              bg: on ? 'rgba(255,215,0,0.12)' : 'transparent',
+              color: on ? '#ffd700' : 'rgba(255,255,255,0.85)',
+            };
+          }),
+          toggleDiceMenu: () => this.setState(st => ({ diceMenuOpen: !st.diceMenuOpen })),
+          closeDiceMenu: close,
+          pickDiceChar: (e) => {
+            const c = mine.find(x => String(x.id) === e.currentTarget.dataset.cid);
+            if (!c) return;
+            const v = String(c.name || '').slice(0, 40);
+            this.setState({ diceName: v, diceOther: false, diceMenuOpen: false });
+            try { localStorage.setItem('au_dice_name', v); } catch (err) {}
+          },
+          pickDiceOther: () => {
+            this.setState({ diceOther: true, diceMenuOpen: false, diceName: pick ? '' : s.diceName });
+            if (pick) { try { localStorage.setItem('au_dice_name', ''); } catch (err) {} }
+          },
+        };
+      })(),
       canNativeShare: typeof navigator !== 'undefined' && !!navigator.canShare,
       rollLabel: isCrit ? '✦ Критичний успіх!'
         : isFumble ? '✦ Провал!'
@@ -9818,6 +9922,7 @@ class Component extends DCLogic {
       showCharConnections: page === 'characters' && !sc && s.charMode === 'conn',
       showCharReader:      page === 'characters' && !!sc,
       charReaderName:      sc?.name  || '',
+      charReaderId:        sc ? String(sc.id) : '',
       charReaderRole:      sc?.role  || '',
       charReaderAlias:     sc?.alias || '',
       charReaderHasAlias:  !!(sc?.alias),
