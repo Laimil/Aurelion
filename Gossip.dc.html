@@ -138,6 +138,12 @@ a:hover{color:#fff}
           </div>
           <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;flex-direction:column;gap:2px;">
+            <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickMe }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navMeBg }};color:{{ navMeColor }};">Про мене</button>
+            </sc-if>
+            <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickStats }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navStatsBg }};color:{{ navStatsColor }};">Статистика</button>
+            </sc-if>
             <sc-if value="{{ turnsShow }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ pickTurns }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navTurnsBg }};color:{{ navTurnsColor }};">
                 <span style="flex:1;min-width:0;">✦ Черга в арках</span>
@@ -166,9 +172,6 @@ a:hover{color:#fff}
             </sc-if>
             <sc-if value="{{ gossipLocked }}" hint-placeholder-val="{{ false }}">
               <span title="Віконце відчиняють адміни" style="border-radius:8px;padding:9px 10px;font-size:0.82rem;border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);">Плітка — доступ ще не відкрито</span>
-            </sc-if>
-            <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ pickMe }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navMeBg }};color:{{ navMeColor }};">Про мене</button>
             </sc-if>
           </div>
           </sc-if>
@@ -574,6 +577,199 @@ a:hover{color:#fff}
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-top:14px;text-wrap:pretty;">{{ meIntro }}</p>
           </div>
 
+          <sc-if value="{{ showUserSeals }}" hint-placeholder-val="{{ false }}">
+            <dc-import name="Seals" variant="sheet" user-id="{{ meUid }}" user-name="{{ meNick }}" progress="{{ sealProg }}" hint-size="100%,600px"></dc-import>
+          </sc-if>
+
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.22);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Виписка з рахунку</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:18px;text-wrap:pretty;">Марта складе ваш аркуш у картку — з нею можна піти в чат.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button onClick="{{ doSaveCard }}" disabled="{{ cardBusy }}" class="gos-pill" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:9px 18px;font-size:0.8rem;">⬇ Зберегти PNG</button>
+              <button onClick="{{ doCopyCard }}" disabled="{{ cardBusy }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 18px;font-size:0.8rem;">⧉ Скопіювати</button>
+              <sc-if value="{{ canShare }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ doShareCard }}" disabled="{{ cardBusy }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 18px;font-size:0.8rem;">↗ Поділитися</button>
+              </sc-if>
+            </div>
+            <sc-if value="{{ hasCardMsg }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:16px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.22);border-radius:8px;padding:11px 15px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,215,0,0.85);">{{ cardMsg }}</div>
+            </sc-if>
+          </div>
+
+        </div>
+      </sc-if>
+
+      <!-- ═════ ВКЛАДКА: СТАТИСТИКА ═════ -->
+      <sc-if value="{{ showStats }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:18px;">
+
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div>
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:8px;">✦ Статистика</p>
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:#fff;letter-spacing:0.05em;">Ваш рахунок у чаті</h2>
+            </div>
+            <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);flex-wrap:wrap;">
+              <sc-for list="{{ statPeriods }}" as="p" hint-placeholder-count="4">
+                <button onClick="{{ p.onPick }}" style="cursor:pointer;border:none;padding:6px 14px;border-radius:999px;font-size:0.78rem;transition:all 0.3s ease;background:{{ p.bg }};color:{{ p.color }};font-weight:{{ p.weight }};">{{ p.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+            <sc-for list="{{ statTiles }}" as="t" hint-placeholder-count="4">
+              <div style="background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:12px;padding:16px 18px;">
+                <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ t.capColor }};">{{ t.cap }}</p>
+                <p style="font-family:'Cinzel',Georgia,serif;font-size:2rem;color:{{ t.numColor }};margin-top:8px;line-height:1.1;">{{ t.num }}<span style="font-size:0.95rem;color:rgba(255,255,255,0.4);">{{ t.tail }}</span></p>
+                <p style="font-size:0.76rem;color:{{ t.subColor }};margin-top:6px;line-height:1.45;">{{ t.sub }}</p>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ noAct }}" hint-placeholder-val="{{ false }}">
+            <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">{{ actNote }}</p>
+          </sc-if>
+
+          <sc-if value="{{ hasAct }}" hint-placeholder-val="{{ false }}">
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px 22px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+              <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);">{{ heatTitle }}</p>
+              <div style="display:flex;align-items:center;gap:6px;font-size:0.7rem;color:rgba(255,255,255,0.4);">менше
+                <span style="width:11px;height:11px;border-radius:3px;background:rgba(255,255,255,0.06);"></span>
+                <span style="width:11px;height:11px;border-radius:3px;background:rgba(255,215,0,0.22);"></span>
+                <span style="width:11px;height:11px;border-radius:3px;background:rgba(255,215,0,0.5);"></span>
+                <span style="width:11px;height:11px;border-radius:3px;background:rgba(255,215,0,0.95);"></span>більше</div>
+            </div>
+            <div style="display:flex;gap:3px;">
+              <sc-for list="{{ heat }}" as="w" hint-placeholder-count="26">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+                  <sc-for list="{{ w.days }}" as="d" hint-placeholder-count="7">
+                    <span title="{{ d.title }}" style="height:14px;border-radius:3px;background:{{ d.bg }};"></span>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:3px;padding-top:7px;">
+              <sc-for list="{{ heat }}" as="w" hint-placeholder-count="26">
+                <span style="flex:1;min-width:0;overflow:visible;white-space:nowrap;font-size:0.62rem;color:rgba(255,255,255,0.32);">{{ w.month }}</span>
+              </sc-for>
+            </div>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.55;color:rgba(255,255,255,0.55);margin-top:12px;text-wrap:pretty;">{{ heatLine }}</p>
+          </div>
+          </sc-if>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:18px;align-items:stretch;">
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px 22px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+              <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:6px;">Дописи за персонажів · 12 місяців</p>
+              <sc-if value="{{ hasPosts }}" hint-placeholder-val="{{ false }}">
+                <div style="padding-top:20px;">
+                  <div style="display:flex;align-items:flex-end;gap:6px;height:140px;border-bottom:1px solid rgba(255,255,255,0.1);">
+                    <sc-for list="{{ postMonths }}" as="m" hint-placeholder-count="12">
+                      <div style="flex:1;min-width:0;height:100%;position:relative;display:flex;flex-direction:column;justify-content:flex-end;">
+                        <sc-if value="{{ m.hasTop }}" hint-placeholder-val="{{ false }}">
+                          <p style="position:absolute;left:0;right:0;bottom:calc({{ m.h }} + 4px);text-align:center;font-size:0.64rem;color:rgba(255,255,255,0.42);">{{ m.top }}</p>
+                        </sc-if>
+                        <div style="height:{{ m.h }};display:flex;flex-direction:column;justify-content:flex-end;border-radius:4px 4px 0 0;overflow:hidden;">
+                          <sc-for list="{{ m.parts }}" as="p" hint-placeholder-count="1">
+                            <div style="height:{{ p.h }};background:{{ p.color }};"></div>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;gap:6px;padding-top:6px;">
+                  <sc-for list="{{ postMonths }}" as="m" hint-placeholder-count="12">
+                    <p style="flex:1;min-width:0;text-align:center;font-size:0.6rem;color:rgba(255,255,255,0.3);">{{ m.label }}</p>
+                  </sc-for>
+                </div>
+                <div style="display:flex;gap:10px 16px;flex-wrap:wrap;margin-top:12px;">
+                  <sc-for list="{{ postLegend }}" as="l" hint-placeholder-count="2">
+                    <span style="display:flex;align-items:center;gap:6px;font-size:0.76rem;color:rgba(255,255,255,0.55);"><span style="width:10px;height:10px;border-radius:3px;background:{{ l.color }};"></span>{{ l.name }} · {{ l.num }}</span>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ noPosts }}" hint-placeholder-val="{{ true }}">
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.42);margin-top:10px;">{{ postsNote }}</p>
+              </sc-if>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px 22px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;">
+              <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:16px;">Коли ви пишете · дописи з тегом</p>
+              <sc-if value="{{ hasHours }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:flex-end;gap:3px;height:110px;border-bottom:1px solid rgba(255,255,255,0.1);">
+                  <sc-for list="{{ hours }}" as="x" hint-placeholder-count="24">
+                    <div title="{{ x.title }}" style="flex:1;min-width:0;height:{{ x.h }};background:{{ x.bg }};border-radius:2px 2px 0 0;"></div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.6rem;color:rgba(255,255,255,0.3);padding-top:6px;"><span>00</span><span>06</span><span>12</span><span>18</span><span>23</span></div>
+              </sc-if>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.55;color:rgba(255,255,255,0.62);margin-top:auto;padding-top:14px;text-wrap:pretty;">{{ hoursLine }}</p>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:18px;align-items:stretch;">
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px 22px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+              <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:14px;">Арки</p>
+              <sc-if value="{{ hasPostArcs }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <sc-for list="{{ postArcs }}" as="a" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr) auto;gap:12px;align-items:center;">
+                      <p style="font-size:0.84rem;color:rgba(255,255,255,0.72);line-height:1.35;">{{ a.arc }}</p>
+                      <div style="height:7px;border-radius:4px;background:rgba(255,255,255,0.06);overflow:hidden;"><div style="height:7px;border-radius:4px;background:rgba(100,149,237,0.8);width:{{ a.pct }};"></div></div>
+                      <p style="font-size:0.74rem;color:rgba(255,255,255,0.42);text-align:right;">{{ a.num }}</p>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ noPostArcs }}" hint-placeholder-val="{{ true }}">
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.42);">Арок за вашими персонажами я ще не бачила. Арка — другий хештег у дописі.</p>
+              </sc-if>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px 22px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+              <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:6px;">Місце серед інших</p>
+              <p style="font-size:0.76rem;color:rgba(255,255,255,0.38);margin-bottom:14px;line-height:1.5;">Імен не називаю — тільки ваше місце й скільки всього людей у списку.</p>
+              <sc-if value="{{ hasRanks }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                  <sc-for list="{{ rankRows }}" as="r" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                      <p style="flex:1;min-width:0;font-size:0.84rem;color:rgba(255,255,255,0.65);line-height:1.35;">{{ r.label }}</p>
+                      <div style="width:96px;flex-shrink:0;height:7px;border-radius:4px;background:rgba(255,255,255,0.06);position:relative;"><span style="position:absolute;top:-3px;left:calc({{ r.pos }} - 6px);width:13px;height:13px;border-radius:999px;background:#ffd700;box-shadow:0 0 8px rgba(255,215,0,0.6);"></span></div>
+                      <p style="width:64px;flex-shrink:0;text-align:right;font-size:0.74rem;color:rgba(255,255,255,0.4);white-space:nowrap;"><span style="font-family:'Cinzel',Georgia,serif;font-size:0.98rem;color:#ffd700;">{{ r.n }}</span> з {{ r.of }}</p>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ noRanks }}" hint-placeholder-val="{{ true }}">
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.42);">{{ standNote }}</p>
+              </sc-if>
+            </div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:22px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+            <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:18px;">Віхи</p>
+            <sc-if value="{{ hasMarks }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;border-left:1px solid rgba(255,215,0,0.3);margin-left:6px;">
+                <sc-for list="{{ marks }}" as="k" hint-placeholder-count="5">
+                  <div style="position:relative;padding:0 0 18px 22px;">
+                    <span style="position:absolute;left:-6px;top:4px;width:11px;height:11px;border-radius:999px;background:{{ k.dot }};box-shadow:0 0 0 3px #222;"></span>
+                    <p style="font-size:0.72rem;letter-spacing:0.06em;color:rgba(255,255,255,0.4);">{{ k.when }}</p>
+                    <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;line-height:1.5;color:rgba(255,255,255,0.85);margin-top:3px;text-wrap:pretty;">{{ k.what }}</p>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px;">
+                <sc-if value="{{ marksMore }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ marksToggle }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.55);border-radius:999px;padding:7px 16px;font-size:0.78rem;transition:all 0.3s ease;">{{ marksToggleLabel }}</button>
+                </sc-if>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;color:rgba(255,255,255,0.45);margin-left:auto;">— М., рецепція</p>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noMarks }}" hint-placeholder-val="{{ true }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.42);">Віх ще не набралося. Перша — з першим словом у рольовому чаті.</p>
+            </sc-if>
+          </div>
+
           <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:16px;">✦ Записане на вас</p>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;">
@@ -609,101 +805,6 @@ a:hover{color:#fff}
           </div>
 
           <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Дописи за персонажів</p>
-            <sc-if value="{{ hasPostSummary }}" hint-placeholder-val="{{ false }}">
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:18px;text-wrap:pretty;">{{ postSummary }}</p>
-            </sc-if>
-
-            <sc-if value="{{ hasPosts }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;flex-direction:column;gap:22px;">
-
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;">
-                  <sc-for list="{{ postTiles }}" as="t" hint-placeholder-count="4">
-                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:14px 12px;">
-                      <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:#ffd700;letter-spacing:0.02em;">{{ t.num }}</p>
-                      <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-top:6px;">{{ t.cap }}</p>
-                    </div>
-                  </sc-for>
-                </div>
-
-                <div>
-                  <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:14px;">За місяцями · останні 12</p>
-                  <div style="padding-top:22px;">
-                  <div style="display:flex;align-items:flex-end;gap:6px;height:150px;padding:0 2px;border-bottom:1px solid rgba(255,255,255,0.1);">
-                    <sc-for list="{{ postMonths }}" as="m" hint-placeholder-count="12">
-                      <div style="flex:1;min-width:0;height:100%;position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;">
-                        <sc-if value="{{ m.hasTop }}" hint-placeholder-val="{{ true }}">
-                          <p style="position:absolute;left:0;right:0;bottom:calc({{ m.h }} + 4px);text-align:center;font-size:0.66rem;color:rgba(255,255,255,0.42);">{{ m.top }}</p>
-                        </sc-if>
-                        <div style="height:{{ m.h }};display:flex;flex-direction:column;justify-content:flex-end;border-radius:5px 5px 0 0;overflow:hidden;background:rgba(255,255,255,0.05);">
-                          <sc-for list="{{ m.parts }}" as="p" hint-placeholder-count="1">
-                            <div style="height:{{ p.h }};background:{{ p.color }};"></div>
-                          </sc-for>
-                        </div>
-                      </div>
-                    </sc-for>
-                  </div>
-                  </div>
-                  <div style="display:flex;gap:6px;padding:8px 2px 0;">
-                    <sc-for list="{{ postMonths }}" as="m" hint-placeholder-count="12">
-                      <p style="flex:1;min-width:0;text-align:center;font-size:0.62rem;letter-spacing:0.04em;color:rgba(255,255,255,0.28);">{{ m.label }}</p>
-                    </sc-for>
-                  </div>
-                  <div style="display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px;">
-                    <sc-for list="{{ postLegend }}" as="l" hint-placeholder-count="2">
-                      <div style="display:flex;align-items:center;gap:7px;white-space:nowrap;">
-                        <span style="width:10px;height:10px;border-radius:3px;background:{{ l.color }};display:inline-block;"></span>
-                        <p style="font-size:0.76rem;color:rgba(255,255,255,0.5);">{{ l.name }} · {{ l.num }}</p>
-                      </div>
-                    </sc-for>
-                  </div>
-                </div>
-
-                <sc-if value="{{ hasPostBars }}" hint-placeholder-val="{{ true }}">
-                  <div>
-                    <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:14px;">За кожним персонажем</p>
-                    <div style="display:flex;flex-direction:column;gap:12px;">
-                      <sc-for list="{{ postBars }}" as="c" hint-placeholder-count="2">
-                        <div>
-                          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:baseline;justify-content:space-between;">
-                            <p style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:#fff;letter-spacing:0.03em;">{{ c.name }}</p>
-                            <p style="font-size:0.78rem;color:rgba(255,215,0,0.7);">{{ c.num }}</p>
-                          </div>
-                          <div style="height:8px;border-radius:4px;background:rgba(255,255,255,0.06);margin-top:9px;overflow:hidden;">
-                            <div style="height:8px;border-radius:4px;background:{{ c.color }};width:{{ c.pct }};"></div>
-                          </div>
-                          <p style="font-size:0.74rem;color:rgba(255,255,255,0.3);margin-top:7px;line-height:1.5;">{{ c.meta }}</p>
-                        </div>
-                      </sc-for>
-                    </div>
-                  </div>
-                </sc-if>
-
-                <sc-if value="{{ hasPostArcs }}" hint-placeholder-val="{{ false }}">
-                  <div>
-                    <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:14px;">За арками</p>
-                    <div style="display:flex;flex-direction:column;gap:9px;">
-                      <sc-for list="{{ postArcs }}" as="a" hint-placeholder-count="3">
-                        <div style="display:flex;gap:14px;align-items:center;">
-                          <p style="flex:0 0 34%;font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.4;">{{ a.arc }}</p>
-                          <div style="flex:1;min-width:0;height:7px;border-radius:4px;background:rgba(255,255,255,0.06);overflow:hidden;">
-                            <div style="height:7px;border-radius:4px;background:rgba(100,149,237,0.75);width:{{ a.pct }};"></div>
-                          </div>
-                          <p style="flex:0 0 auto;font-size:0.74rem;color:rgba(255,255,255,0.34);">{{ a.num }}</p>
-                        </div>
-                      </sc-for>
-                    </div>
-                  </div>
-                </sc-if>
-
-              </div>
-            </sc-if>
-            <sc-if value="{{ noPosts }}" hint-placeholder-val="{{ true }}">
-              <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">{{ postsNote }}</p>
-            </sc-if>
-          </div>
-
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:16px;">✦ Ваші заявки</p>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;">
               <sc-for list="{{ subTiles }}" as="t" hint-placeholder-count="6">
@@ -714,62 +815,6 @@ a:hover{color:#fff}
               </sc-for>
             </div>
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-top:16px;text-wrap:pretty;">{{ subNote }}</p>
-          </div>
-
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Місце серед інших</p>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:16px;text-wrap:pretty;">Рахує рецепція, імен не називає: ви бачите тільки своє місце й скільки всього людей у списку.</p>
-            <sc-if value="{{ hasStand }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;flex-direction:column;gap:8px;">
-                <sc-for list="{{ standRows }}" as="r" hint-placeholder-count="3">
-                  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:baseline;justify-content:space-between;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:13px 16px;">
-                    <p style="font-size:0.86rem;color:rgba(255,255,255,0.62);">{{ r.label }}</p>
-                    <p style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.03em;">{{ r.value }}</p>
-                  </div>
-                </sc-for>
-              </div>
-            </sc-if>
-            <sc-if value="{{ noStand }}" hint-placeholder-val="{{ true }}">
-              <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">{{ standNote }}</p>
-            </sc-if>
-          </div>
-
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Ви в рольовому чаті</p>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:16px;text-wrap:pretty;">Не за персонажа, а за вас: усі репліки в рольовому чаті й дописи з тегами, за кого б ви не писали.</p>
-            <sc-if value="{{ chatLinked }}" hint-placeholder-val="{{ false }}">
-              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;">
-                <sc-for list="{{ chatTiles }}" as="t" hint-placeholder-count="6">
-                  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:14px 12px;">
-                    <p style="font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:#ffd700;letter-spacing:0.02em;">{{ t.num }}</p>
-                    <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-top:6px;">{{ t.cap }}</p>
-                  </div>
-                </sc-for>
-              </div>
-              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-top:16px;text-wrap:pretty;">{{ chatLine }}</p>
-            </sc-if>
-            <sc-if value="{{ chatUnlinked }}" hint-placeholder-val="{{ true }}">
-              <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">{{ chatNote }}</p>
-            </sc-if>
-          </div>
-
-          <sc-if value="{{ showUserSeals }}" hint-placeholder-val="{{ false }}">
-            <dc-import name="Seals" variant="sheet" user-id="{{ meUid }}" user-name="{{ meNick }}" hint-size="100%,600px"></dc-import>
-          </sc-if>
-
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.22);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
-            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">✦ Виписка з рахунку</p>
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:18px;text-wrap:pretty;">Марта складе ваш аркуш у картку — з нею можна піти в чат.</p>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button onClick="{{ doSaveCard }}" disabled="{{ cardBusy }}" class="gos-pill" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:9px 18px;font-size:0.8rem;">⬇ Зберегти PNG</button>
-              <button onClick="{{ doCopyCard }}" disabled="{{ cardBusy }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 18px;font-size:0.8rem;">⧉ Скопіювати</button>
-              <sc-if value="{{ canShare }}" hint-placeholder-val="{{ false }}">
-                <button onClick="{{ doShareCard }}" disabled="{{ cardBusy }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:9px 18px;font-size:0.8rem;">↗ Поділитися</button>
-              </sc-if>
-            </div>
-            <sc-if value="{{ hasCardMsg }}" hint-placeholder-val="{{ false }}">
-              <div style="margin-top:16px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.22);border-radius:8px;padding:11px 15px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,215,0,0.85);">{{ cardMsg }}</div>
-            </sc-if>
           </div>
 
         </div>
@@ -1163,6 +1208,8 @@ class Component extends DCLogic {
     // «Про мене»: stand — те, що порахувала база (місце серед інших),
     // bits — те, що порахували ми з уже прочитаних рядків.
     stand: null, bits: null, statsBusy: false, cardBusy: false, cardMsg: '',
+    // «Статистика»: act — розкладка в часі (my_activity), useals — свої печатки для віх.
+    act: null, useals: null, per: 'month', marksAll: false,
     eId: '', ef: {}, eBase: {}, eGal: [], eLinks: [],
     eLinkQ: '', eLinkKind: 'plain', eNote: '', eBusy: false, eMsg: '',
     pl: null, plFail: false, pUrl: '', pNote: '', pBusy: false, pMsg: '',
@@ -2598,7 +2645,14 @@ class Component extends DCLogic {
     };
     // Дописи рахує база тим самим способом, що й місця: у браузер їх не
     // тягнемо — стрічка чату це тисячі рядків, а потрібні числа.
-    const [stand, posts, chat] = await Promise.all([rpc('my_standing'), rpc('my_posts'), rpc('my_chat_stats')]);
+    const [stand, posts, chat, act, useals, ubook] = await Promise.all([
+      rpc('my_standing'), rpc('my_posts'), rpc('my_chat_stats'), rpc('my_activity'),
+      get(`user_seals?user_id=eq.${s.uid}&select=seal,earned_at`),
+      get('user_seal_book?select=key,title&retired=eq.false'),
+    ]);
+    const title = {};
+    (ubook || []).forEach((b) => { title[b.key] = b.title; });
+    this.setState({ act, useals: (useals || []).map((r) => ({ ...r, title: title[r.seal] || '' })).filter((r) => r.title) });
     // Нуль у діаграмі має дві різні причини — «запит не вийшов» і «дописів
     // за цими персонажами справді немає». З екрана вони на вигляд однакові.
     console.log('аркуш: дописи —', posts && posts.error ? `помилка: ${posts.error}`
@@ -2761,6 +2815,170 @@ class Component extends DCLogic {
       postSummary: summary.join(' '),
       hasPostSummary: true,
       postsNote: '',
+    };
+  }
+
+  // ── вкладка «Статистика» ──────────────────────────────────
+  // Підсумки — з my_chat_stats, розкладка в часі — з my_activity
+  // (supabase_cabinet_activity_migration.sql). Без другої вкладка не
+  // падає: лишаються числа «за весь час», графіки ховаються з поясненням.
+  _statVals() {
+    const s = this.state;
+    const num = (v) => Number(v || 0).toLocaleString('uk-UA');
+    const ch = s.chat && !s.chat.error && s.chat.linked ? s.chat : null;
+    const act = s.act && !s.act.error && s.act.linked ? s.act : null;
+    const pv = this._postVals();
+    const DAY = 86400000;
+    const toT = (d) => { const [y, m, dd] = String(d).slice(0, 10).split('-').map(Number); return Date.UTC(y, m - 1, dd); };
+    const iso = (t) => new Date(t).toISOString().slice(0, 10);
+    const dm = (t) => { const x = new Date(t); return `${String(x.getUTCDate()).padStart(2, '0')}.${String(x.getUTCMonth() + 1).padStart(2, '0')}`; };
+    const dmy = (t) => `${dm(t)}.${new Date(t).getUTCFullYear()}`;
+    const now = new Date();
+    const today = act && act.today ? toT(act.today) : Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const days = act ? (act.days || []).map(([d, n]) => [toT(d), Number(n) || 0]) : [];
+    const pdays = act ? (act.pdays || []).map(([d, n, l]) => [toT(d), Number(n) || 0, Number(l) || 0]) : [];
+    const byDay = new Map(days);
+
+    // ── період ──
+    const PER = [['week', 'Тиждень', 7], ['month', 'Місяць', 30], ['year', 'Рік', 365], ['all', 'Увесь час', 0]];
+    const per = act ? s.per : 'all';
+    const len = (PER.find((p) => p[0] === per) || PER[1])[2];
+    const sumIn = (list, from, to, k) => list.reduce((a, r) => (r[0] > from && r[0] <= to ? a + r[k] : a), 0);
+    const statPeriods = PER.map(([k, label]) => {
+      const on = per === k;
+      return { key: k, label, bg: on ? '#ffd700' : 'transparent', color: on ? '#1a1a1a' : (act || k === 'all' ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)'), weight: on ? '700' : '400',
+        onPick: () => { if (act || k === 'all') this.setState({ per: k }); } };
+    });
+    const since = { week: 'попередніх 7 днів', month: 'попередніх 30 днів', year: 'попереднього року' }[per];
+    const delta = (cur, prev) => {
+      if (!len) return null;
+      if (!prev) return cur ? { t: `уперше за ${len === 7 ? 'тиждень' : len === 30 ? 'місяць' : 'рік'}`, c: 'rgba(255,255,255,0.5)' } : { t: 'тиша', c: 'rgba(255,255,255,0.4)' };
+      const d = Math.round(((cur - prev) / prev) * 100);
+      if (d === 0) return { t: `як і до того`, c: 'rgba(255,255,255,0.5)' };
+      return d > 0 ? { t: `↑ ${d}% до ${since}`, c: '#7fd6a0' } : { t: `↓ ${-d}% до ${since}`, c: '#ff8a8a' };
+    };
+    const from = len ? today - len * DAY : -Infinity, prevFrom = len ? today - 2 * len * DAY : 0;
+    const msgs = len ? sumIn(days, from, today, 1) : (ch ? ch.msgs : 0);
+    const msgsPrev = len ? sumIn(days, prevFrom, from, 1) : 0;
+    const posts = len ? sumIn(pdays, from, today, 1) : (ch ? ch.posts : 0);
+    const postsPrev = len ? sumIn(pdays, prevFrom, from, 1) : 0;
+    const letters = len ? sumIn(pdays, from, today, 2) : (ch ? ch.letters : 0);
+    const active = len ? days.filter((r) => r[0] > from && r[0] <= today).length : (ch ? ch.days : 0);
+    const dM = delta(msgs, msgsPrev), dP = delta(posts, postsPrev);
+    const tile = (o) => ({ bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.12)', capColor: 'rgba(255,255,255,0.45)', numColor: '#fff', subColor: 'rgba(255,255,255,0.5)', tail: '', ...o });
+    const cur = ch ? ch.cur_streak || 0 : 0, best = ch ? ch.best_streak || 0 : 0;
+    const statTiles = ch ? [
+      tile({ key: 'm', cap: 'Реплік', num: num(msgs), numColor: '#ffd700', sub: dM ? dM.t : (ch.rank ? `${this._place(ch.rank, ch.of)} у чаті` : 'усі репліки в рольовому'), subColor: dM ? dM.c : 'rgba(255,255,255,0.5)' }),
+      tile({ key: 'p', cap: 'Дописів з тегом', num: num(posts), sub: dP && posts ? `${dP.t}` : (posts ? `≈ ${num(Math.round(letters / posts))} знаків кожен` : 'тег — #Ім’я_персонажа'), subColor: dP && posts ? dP.c : 'rgba(255,255,255,0.5)' }),
+      tile({ key: 'd', cap: 'Днів у чаті', num: num(active), tail: len ? ` / ${len}` : '', sub: len ? `пропущено ${Math.max(0, len - active)}` : (ch.first_day ? `з ${dmy(toT(ch.first_day))}` : '') }),
+      tile({ key: 's', cap: 'Серія зараз', num: String(cur), bg: 'rgba(255,215,0,0.07)', border: 'rgba(255,215,0,0.3)', capColor: 'rgba(255,215,0,0.75)', numColor: '#ffd700',
+        sub: !best ? 'ще не почалася' : cur >= best ? `це і є рекорд — ${best}` : `рекорд — ${best}, ще ${best - cur} до нього` }),
+    ] : [];
+
+    // ── теплокарта: 26 тижнів, понеділок угорі ──
+    const MON = ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру'];
+    const wd = (new Date(today).getUTCDay() + 6) % 7;
+    // Рік і «увесь час» — повний рік у теплокарті, інакше пів року.
+    const WEEKS = per === 'year' || per === 'all' ? 53 : 26;
+    const start = today - (wd + (WEEKS - 1) * 7) * DAY;
+    let hmax = 1;
+    for (let t = start; t <= today; t += DAY) hmax = Math.max(hmax, byDay.get(t) || 0);
+    const shade = (n) => !n ? 'rgba(255,255,255,0.06)' : n <= hmax * 0.25 ? 'rgba(255,215,0,0.22)' : n <= hmax * 0.6 ? 'rgba(255,215,0,0.5)' : 'rgba(255,215,0,0.95)';
+    let lastMon = -1;
+    const heat = act ? Array.from({ length: WEEKS }, (_, w) => {
+      const t0 = start + w * 7 * DAY;
+      const m = new Date(t0 + 6 * DAY).getUTCMonth();
+      const label = m !== lastMon ? MON[m] : '';
+      lastMon = m;
+      return {
+        key: 'w' + w, month: w === 0 && new Date(t0).getUTCDate() > 20 ? '' : label,
+        days: Array.from({ length: 7 }, (_, d) => {
+          const t = t0 + d * DAY, n = byDay.get(t) || 0;
+          return { key: w + '-' + d, bg: t > today ? 'transparent' : shade(n), title: t > today ? '' : `${dm(t)} · ${n ? num(n) + ' ' + this._plural(n, 'репліка', 'репліки', 'реплік') : 'тиша'}` };
+        }),
+      };
+    }) : [];
+    const inHeat = days.filter((r) => r[0] >= start);
+    const hDays = inHeat.length, hTop = inHeat.slice().sort((a, b) => b[1] - a[1])[0];
+    const wdN = [0, 0, 0, 0, 0, 0, 0];
+    inHeat.forEach(([t, n]) => { wdN[(new Date(t).getUTCDay() + 6) % 7] += n; });
+    const WD = ['понеділок', 'вівторок', 'середу', 'четвер', 'пʼятницю', 'суботу', 'неділю'];
+    const wTop = wdN.indexOf(Math.max(...wdN));
+    const heatLine = hDays
+      ? `За ${WEEKS > 26 ? 'рік' : 'пів року'} — ${hDays} ${this._plural(hDays, 'день', 'дні', 'днів')} у чаті з ${Math.round((today - start) / DAY) + 1}. Найгучніше — ${dm(hTop[0])}, ${num(hTop[1])} ${this._plural(hTop[1], 'репліка', 'репліки', 'реплік')}. Найчастіше пишете в ${WD[wTop]}.`
+      : `За ${WEEKS > 26 ? 'рік' : 'пів року'} в журналі тихо.`;
+    const first = days.length ? days[0][0] : 0;
+    const heatTitle = `Присутність · ${WEEKS > 26 ? 'рік' : '26 тижнів'}` + (first && first < start ? ` · у журналі з ${dmy(first)}` : '');
+
+    // ── години ──
+    const H = act && Array.isArray(act.hours) ? act.hours.map((x) => Number(x) || 0) : [];
+    const hsum = H.reduce((a, b) => a + b, 0), hpk = Math.max(1, ...H);
+    const hTopI = H.indexOf(hpk);
+    const hours = H.map((v, i) => ({ key: 'h' + i, h: `${Math.max(2, (v / hpk) * 100)}%`, title: `${String(i).padStart(2, '0')}:00 · ${v}`,
+      bg: i >= 2 && i <= 4 ? 'rgba(100,149,237,0.8)' : i === hTopI ? '#ffd700' : 'rgba(255,215,0,0.42)' }));
+    const night = H.slice(2, 5).reduce((a, b) => a + b, 0);
+    const toWatch = ch ? 20 - ((ch.night || 0) % 20) : 0;
+    const hoursLine = !act ? 'Розкладку по годинах рахує база — потрібна міграція supabase_cabinet_activity_migration.sql.'
+      : !hsum ? 'Дописів з тегом ще немає — години з’являться з першим.'
+      : `Найчастіше — о ${String(hTopI).padStart(2, '0')}:00. Між другою і пʼятою ночі — ${Math.round((night / hsum) * 100)}% дописів` +
+        (ch ? `; до ${(ch.night || 0) >= 20 ? 'наступної зірки' : 'печатки'} «Нічна варта» — ${toWatch}.` : '.');
+
+    // ── місця ──
+    const st = s.stand && !s.stand.error ? s.stand : null;
+    const pp = s.posts && !s.posts.error && !s.posts.missing ? s.posts : null;
+    const pos = (r, of) => `${of > 1 ? Math.round((1 - (r - 1) / (of - 1)) * 100) : 100}%`;
+    const rankRows = [];
+    if (ch && ch.rank) rankRows.push({ key: 'm', label: 'За репліками', n: String(ch.rank), of: String(ch.of), pos: pos(ch.rank, ch.of) });
+    if (pp && pp.rank) rankRows.push({ key: 'p', label: 'За дописами з тегом', n: String(pp.rank), of: String(pp.of), pos: pos(pp.rank, pp.of) });
+    if (st && st.letters && st.letters.rank) rankRows.push({ key: 'l', label: 'За обсягом анкет', n: String(st.letters.rank), of: String(st.chars.of), pos: pos(st.letters.rank, st.chars.of) });
+    if (st && st.gossip && st.gossip.rank) rankRows.push({ key: 'g', label: 'За плітками', n: String(st.gossip.rank), of: String(st.gossip.of), pos: pos(st.gossip.rank, st.gossip.of) });
+
+    // ── віхи ──
+    const mk = [];
+    const sorted = days.slice().sort((a, b) => a[0] - b[0]);
+    if (sorted.length) mk.push({ t: sorted[0][0], what: 'Перше слово в журналі. Теку заведено.', dot: 'rgba(255,255,255,0.45)' });
+    let cum = 0;
+    const STEPS = [100, 500, 1000, 2000, 3000, 5000, 10000, 20000];
+    let si = 0;
+    sorted.forEach(([t, n]) => {
+      cum += n;
+      while (si < STEPS.length && cum >= STEPS[si]) { mk.push({ t, what: `${num(STEPS[si])}-та репліка.`, dot: '#ffd700' }); si++; }
+    });
+    const top = sorted.slice().sort((a, b) => b[1] - a[1])[0];
+    if (top && top[1] > 1) mk.push({ t: top[0], what: `Найгучніша доба — ${num(top[1])} ${this._plural(top[1], 'репліка', 'репліки', 'реплік')}. Я рахувала двічі.`, dot: '#ffd700' });
+    let run = 0, prev = 0, bestRun = 0, bestEnd = 0;
+    sorted.forEach(([t]) => { run = prev && t - prev === DAY ? run + 1 : 1; prev = t; if (run > bestRun) { bestRun = run; bestEnd = t; } });
+    if (bestRun >= 3) mk.push({ t: bestEnd, what: `Найдовша серія — ${bestRun} ${this._plural(bestRun, 'день', 'дні', 'днів')} поспіль.`, dot: '#ffd700' });
+    if (cur >= 3 && cur < bestRun) mk.push({ t: today, what: `${cur}-й день поспіль у чаті. До рекорду — ${bestRun - cur}.`, dot: '#ffd700', now: true });
+    (act ? act.firsts || [] : []).forEach((f) => mk.push({ t: toT(String(f.d).slice(0, 10)), what: `Перший допис за ${f.name}.`, dot: '#6495ed' }));
+    (s.useals || []).forEach((r) => mk.push({ t: toT(String(r.earned_at).slice(0, 10)), what: `Печатка «${r.title}».`, dot: '#e0707c' }));
+    mk.sort((a, b) => b.t - a.t || (b.now ? 1 : 0) - (a.now ? 1 : 0));
+    const LIM = 7;
+    const marks = (s.marksAll ? mk : mk.slice(0, LIM)).map((m, i) => ({
+      key: 'k' + i, what: m.what, dot: m.dot,
+      when: m.t === today ? `${dm(m.t)} · сьогодні` : m.t === today - DAY ? `${dm(m.t)} · учора` : (new Date(m.t).getUTCFullYear() === new Date(today).getUTCFullYear() ? dm(m.t) : dmy(m.t)),
+    }));
+
+    return {
+      statPeriods, statTiles,
+      hasAct: !!act, noAct: !act && !s.statsBusy,
+      actNote: !ch ? (s.chat && s.chat.error ? `Рецепція не змогла порахувати — ${s.chat.error}.` : 'Вашого @ніку в рольовому чаті я ще не бачила — числа зʼявляться з першою реплікою там.')
+        : s.act && s.act.error ? `Розкладку в часі не порахувала: ${s.act.error}. Схоже, міграцію supabase_cabinet_activity_migration.sql ще не прогнали.`
+        : 'Розкладку в часі ще не порахувала — потрібна міграція supabase_cabinet_activity_migration.sql. Поки що числа тут — за весь час.',
+      heat, heatLine, heatTitle, hours, hasHours: hsum > 0, hoursLine,
+      noPostArcs: !pv.hasPostArcs,
+      rankRows, hasRanks: rankRows.length > 0, noRanks: rankRows.length === 0,
+      marks, hasMarks: mk.length > 0, noMarks: mk.length === 0,
+      marksMore: mk.length > LIM,
+      marksToggleLabel: s.marksAll ? 'Згорнути' : `Усі віхи · ${mk.length}`,
+      marksToggle: () => this.setState({ marksAll: !s.marksAll }),
+      // Для листа заслуг: скільки бракує до печаток, яких ще немає.
+      sealProg: ch ? {
+        firstword: [ch.msgs, 1], c100: [ch.msgs, 100], c1000: [ch.msgs, 1000], c5000: [ch.msgs, 5000],
+        week: [cur, 7], month: [cur, 30], night: [ch.night || 0, 20], pen: [ch.letters || 0, 100000],
+        masks: [ch.voices || 0, 3], wander: [ch.arcs || 0, 10],
+      } : null,
     };
   }
 
@@ -3183,7 +3401,7 @@ class Component extends DCLogic {
         label: s.eBusy ? 'Несу…' : 'Віддати правку Марті', busy: !!s.eBusy,
         go: () => this._submitEdit(), cancel: () => this.setState({ eId: '', eMsg: '' }),
         cancelLabel: 'Скасувати', msg: s.eMsg };
-    } else if (!['gossip', 'mine', 'me', 'turns'].includes(s.tab)) {
+    } else if (!['gossip', 'mine', 'me', 'stats', 'turns'].includes(s.tab)) {
       items = [['gos-i-top', 'Звідки анкета'], ['gos-i-fields', 'Графи'], ['gos-i-god', 'Покровителька'],
         ['gos-i-portrait', 'Портрет'], ['gos-i-secs', 'Розділи'], ['gos-i-note', 'Слово від вас'], ['gos-i-subs', 'Мої анкети']];
       act = { head: s.editId ? '✦ Правка анкети' : '✦ Нова анкета',
@@ -3393,7 +3611,7 @@ class Component extends DCLogic {
       // взагалі, тому й смужки вкладок немає.
       showTabs: !this.props.onlyGossip,
       lockedOnly: !!this.props.onlyGossip && s.phase === 'ok' && status === 'pending',
-      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'turns'].includes(s.tab),
+      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'turns'].includes(s.tab),
       showTurns: !this.props.onlyGossip && s.tab === 'turns',
       pickTurns: () => { this.setState({ tab: 'turns' }); try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {} },
       ...(() => {
@@ -3418,6 +3636,11 @@ class Component extends DCLogic {
       pickGossip: () => this._pickTab('gossip'),
       pickMine: () => this._pickTab('mine'),
       pickMe: () => { this._pickTab('me'); this._loadStats(); },
+      showStats: !this.props.onlyGossip && s.tab === 'stats' && status === 'approved',
+      pickStats: () => { this._pickTab('stats'); this._loadStats(); },
+      navStatsBg: s.tab === 'stats' ? 'rgba(255,215,0,0.12)' : 'transparent',
+      navStatsColor: s.tab === 'stats' ? '#ffd700' : 'rgba(255,255,255,0.75)',
+      ...this._statVals(),
       ...this._mineVals(),
       ...this._meVals(),
       ...this._turnVals(),
@@ -3429,7 +3652,7 @@ class Component extends DCLogic {
         let n = 0;
         try { n = d && !d.error && !d.missing && T ? T.yourTurn(d) : 0; } catch (e) {}
         const row = (on) => ({ bg: on ? 'rgba(255,215,0,0.12)' : 'transparent', color: on ? '#ffd700' : 'rgba(255,255,255,0.75)' });
-        const tT = row(s.tab === 'turns'), tI = row(!['gossip', 'mine', 'me', 'turns'].includes(s.tab));
+        const tT = row(s.tab === 'turns'), tI = row(!['gossip', 'mine', 'me', 'stats', 'turns'].includes(s.tab));
         const tG = row(s.tab === 'gossip'), tM = row(s.tab === 'me');
         const orphan = this._mineVals().myEdits.filter((r) => orphanIds.indexOf(String(r.key)) !== -1);
         return {
@@ -3447,7 +3670,7 @@ class Component extends DCLogic {
       notEditingAny: !s.eId && !s.editId,
       notEditingChar: !s.eId,
       ...(() => {
-        const a = this._pillStyle(!['gossip', 'mine', 'me', 'turns'].includes(s.tab));
+        const a = this._pillStyle(!['gossip', 'mine', 'me', 'stats', 'turns'].includes(s.tab));
         const b = this._pillStyle(s.tab === 'gossip');
         const c = this._pillStyle(s.tab === 'mine');
         const d = this._pillStyle(s.tab === 'me');

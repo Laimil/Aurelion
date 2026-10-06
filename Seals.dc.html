@@ -26,6 +26,82 @@
     </button>
   </sc-if>
 </sc-if>
+<sc-if value="{{ showSite }}" hint-placeholder-val="{{ false }}">
+  <div id="au-seals-sheet" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:24px 24px 20px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:18px;box-sizing:border-box;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px 20px;flex-wrap:wrap;">
+      <div style="min-width:0;">
+        <p style="margin:0 0 8px;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ Печатки</p>
+        <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.3rem;color:#fff;letter-spacing:0.05em;">Лист заслуг</p>
+        <sc-if value="{{ hasSiteSub }}" hint-placeholder-val="{{ false }}"><p style="margin:4px 0 0;font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.55);">{{ siteSub }}</p></sc-if>
+      </div>
+      <div style="display:flex;gap:18px;align-items:baseline;flex-wrap:wrap;">
+        <p style="margin:0;font-size:0.8rem;color:rgba(255,255,255,0.5);"><span style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;color:#ffd700;">{{ haveN }}</span> з {{ allN }}</p>
+        <sc-if value="{{ hasPrestige }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:0.8rem;color:rgba(255,215,0,0.8);">★ престиж: {{ prestigeN }}</p></sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+      <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;color:rgba(255,255,255,0.4);">Марта гортає журнал…</p>
+    </sc-if>
+
+    <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:14px 16px;border-radius:11px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.3);">
+        <span style="font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,215,0,0.8);white-space:nowrap;">Найближча</span>
+        <div style="flex:1;min-width:180px;">
+          <p style="margin:0;font-size:0.92rem;color:#fff;"><span style="font-family:'Cinzel',Georgia,serif;letter-spacing:0.03em;">{{ nextTitle }}</span> <span style="color:rgba(255,255,255,0.5);">— {{ nextLeft }}</span></p>
+          <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin-top:8px;overflow:hidden;"><div style="height:6px;width:{{ nextPct }};background:#ffd700;border-radius:3px;"></div></div>
+        </div>
+        <span style="font-size:0.8rem;color:rgba(255,255,255,0.5);white-space:nowrap;">{{ nextProg }}</span>
+      </div>
+    </sc-if>
+
+    <sc-for list="{{ groups }}" as="g" hint-placeholder-count="0">
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+          <span style="font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.5);">{{ g.name }}</span>
+          <span style="flex:1;height:1px;background:rgba(255,255,255,0.08);"></span>
+          <sc-if value="{{ g.prestige }}" hint-placeholder-val="{{ false }}"><span title="Престиж: усю групу зібрано" style="font-size:0.72rem;color:#ffd700;white-space:nowrap;">★ престиж · {{ g.pDate }}</span></sc-if>
+          <sc-if value="{{ g.noPrestige }}" hint-placeholder-val="{{ true }}"><span style="font-size:0.72rem;color:rgba(255,255,255,0.35);white-space:nowrap;">{{ g.count }}</span></sc-if>
+        </div>
+        <sc-for list="{{ g.seals }}" as="s" hint-placeholder-count="3">
+          <div title="{{ s.cond }}" style="display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:14px;align-items:center;padding:9px 10px;border-radius:10px;background:{{ s.rowBg }};">
+            <div style="width:52px;height:52px;">{{ s.dark }}</div>
+            <div style="min-width:0;display:flex;flex-direction:column;gap:2px;">
+              <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+                <span style="font-family:'Cinzel',Georgia,serif;font-size:0.92rem;letter-spacing:0.03em;color:{{ s.darkTitle }};">{{ s.title }}</span>
+                <sc-if value="{{ s.hasStars }}" hint-placeholder-val="{{ false }}"><span title="Заслужено разів: {{ s.times }}" style="font-size:0.8rem;letter-spacing:0.08em;color:#ffd700;white-space:nowrap;">{{ s.stars }}</span></sc-if>
+              </div>
+              <sc-if value="{{ s.hasQuip }}" hint-placeholder-val="{{ false }}"><span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.45;color:rgba(255,255,255,0.72);text-wrap:pretty;">{{ s.quip }}</span></sc-if>
+              <span style="font-size:0.76rem;line-height:1.4;color:rgba(255,255,255,0.38);text-wrap:pretty;">{{ s.cond }}</span>
+            </div>
+            <div style="text-align:right;min-width:88px;">
+              <sc-if value="{{ s.has }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.78rem;color:rgba(255,215,0,0.75);white-space:nowrap;">{{ s.date }}</span></sc-if>
+              <sc-if value="{{ s.hasProg }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:0.76rem;color:rgba(255,255,255,0.45);white-space:nowrap;">{{ s.prog }}</span>
+                <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:6px;overflow:hidden;"><div style="height:4px;width:{{ s.pct }};background:rgba(255,215,0,0.6);"></div></div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+
+    <sc-if value="{{ canFold }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ toggleFull }}" style="align-self:center;cursor:pointer;display:flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:8px 18px;font-size:0.8rem;color:rgba(255,255,255,0.6);transition:all 0.3s ease;" style-hover="color:#fff;border-color:rgba(255,215,0,0.4);"><span style="color:#ffd700;">{{ foldGlyph }}</span>{{ foldLabel }}</button>
+    </sc-if>
+
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+      <p style="margin:0 auto 0 0;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.5;color:rgba(255,255,255,0.5);max-width:420px;text-wrap:pretty;">{{ siteNote }}</p>
+      <sc-if value="{{ canShare }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <span style="font-size:0.8rem;color:{{ shareMsgColor }};">{{ shareMsg }}</span>
+          <button onClick="{{ shareSave }}" disabled="{{ shareBusy }}" style="cursor:pointer;display:flex;align-items:center;gap:7px;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:9px 18px;font-size:0.82rem;font-weight:700;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.45);">⤓ Завантажити лист</button>
+          <button onClick="{{ shareCopy }}" disabled="{{ shareBusy }}" style="cursor:pointer;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:8px 16px;font-size:0.82rem;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.15);">⧉ Копіювати</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
 <sc-if value="{{ showSheet }}" hint-placeholder-val="{{ false }}">
   <div id="au-seals-sheet">
     <div style="position:relative;max-width:780px;margin:0 auto;background:radial-gradient(ellipse 80% 60% at 30% 20%,#f3ecdb,#e6dcc4);color:#2f2920;border-radius:6px;padding:36px 34px 28px;box-shadow:0 24px 60px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:24px;box-sizing:border-box;">
@@ -45,6 +121,16 @@
       <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
         <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:#6d6252;">Марта гортає журнал…</p>
       </sc-if>
+      <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:14px 16px;border:1px dashed rgba(168,68,60,0.5);border-radius:6px;background:rgba(168,68,60,0.05);">
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:0.74rem;letter-spacing:0.16em;text-transform:uppercase;color:#a8443c;white-space:nowrap;">Найближча</span>
+          <div style="flex:1;min-width:180px;">
+            <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;"><b>{{ nextTitle }}</b> — {{ nextLeft }}</p>
+            <div style="height:5px;background:rgba(47,41,32,0.12);border-radius:3px;margin-top:7px;overflow:hidden;"><div style="height:5px;width:{{ nextPct }};background:#a8443c;"></div></div>
+          </div>
+          <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:#6d6252;white-space:nowrap;">{{ nextProg }}</span>
+        </div>
+      </sc-if>
       <sc-for list="{{ groups }}" as="g" hint-placeholder-count="0">
         <div style="display:flex;flex-direction:column;gap:12px;padding:{{ g.pad }};border-radius:8px;border:{{ g.border }};background:{{ g.bg }};">
           <div style="display:flex;align-items:center;gap:12px;">
@@ -63,6 +149,31 @@
               <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:#6d6252;">{{ g.count }}</span>
             </sc-if>
           </div>
+          <sc-if value="{{ g.rows }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;">
+            <sc-for list="{{ g.seals }}" as="s" hint-placeholder-count="4">
+              <div title="{{ s.cond }}" style="display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(47,41,32,0.12);">
+                <div style="width:64px;height:64px;">{{ s.mid }}</div>
+                <div style="min-width:0;display:flex;flex-direction:column;gap:2px;">
+                  <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+                    <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;font-weight:600;line-height:1.25;color:{{ s.titleColor }};">{{ s.title }}</span>
+                    <sc-if value="{{ s.hasStars }}" hint-placeholder-val="{{ false }}"><span title="Заслужено разів: {{ s.times }}" style="font-size:0.86rem;letter-spacing:0.08em;color:#a8801c;white-space:nowrap;">{{ s.stars }}</span></sc-if>
+                  </div>
+                  <sc-if value="{{ s.hasQuip }}" hint-placeholder-val="{{ false }}"><span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.45;color:#4d4436;text-wrap:pretty;">{{ s.quip }}</span></sc-if>
+                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.85rem;line-height:1.35;color:#8a7d68;text-wrap:pretty;">{{ s.cond }}</span>
+                </div>
+                <div style="text-align:right;font-family:'EB Garamond',Georgia,serif;min-width:96px;">
+                  <sc-if value="{{ s.has }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.9rem;color:#6d6252;white-space:nowrap;">{{ s.date }}</span></sc-if>
+                  <sc-if value="{{ s.hasProg }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:0.85rem;color:#8a7d68;white-space:nowrap;">{{ s.prog }}</span>
+                    <div style="height:4px;background:rgba(47,41,32,0.12);border-radius:2px;margin-top:5px;overflow:hidden;"><div style="height:4px;width:{{ s.pct }};background:#8a7d68;"></div></div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+          <sc-if value="{{ g.grid }}" hint-placeholder-val="{{ true }}">
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:16px 10px;">
             <sc-for list="{{ g.seals }}" as="s" hint-placeholder-count="5">
               <div title="{{ s.cond }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;">
@@ -76,8 +187,12 @@
               </div>
             </sc-for>
           </div>
+          </sc-if>
         </div>
       </sc-for>
+      <sc-if value="{{ canFold }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ toggleFull }}" style="align-self:center;cursor:pointer;display:flex;align-items:center;gap:10px;background:transparent;border:1px solid rgba(47,41,32,0.4);border-radius:999px;padding:9px 20px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:#2f2920;transition:all 0.3s ease;" style-hover="background:rgba(47,41,32,0.07);border-color:#2f2920;"><span style="font-family:'Cinzel',Georgia,serif;font-size:0.8rem;color:#a8443c;">{{ foldGlyph }}</span>{{ foldLabel }}</button>
+      </sc-if>
       <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px 20px;border-top:1px solid rgba(47,41,32,0.35);padding-top:14px;font-family:'EB Garamond',Georgia,serif;">
         <span style="font-size:0.98rem;font-style:italic;color:#6d6252;max-width:440px;text-wrap:pretty;">{{ footNote }}</span>
         <span style="font-size:1.05rem;">— М. Ленц, рецепція</span>
@@ -135,6 +250,23 @@ const SEAL_BOOK = [
   ]],
 ];
 const SEAL_INK = { red: '#8e2f3a', gold: '#a8801c', black: '#2f2920' };
+// Мартині рядки до печаток персонажів — ті самі, що в чаті (SEAL_NAMES у telegram-report.ts).
+// Якщо в seal_book є свій `line`, виграє він.
+const CHAR_LINES = {
+  first: 'Теку заведено. Тепер ви в журналі.', hundred: 'Сотий аркуш. Скріпку довелося поміняти.',
+  fivehundred: 'Пʼятсот аркушів. Окрема полиця, окрема подяка.', long: 'Я дочитала. Не одразу.',
+  week: 'Сім днів поспіль. Я теж так умію, але мені платять.', final: 'Арку підшито, теку закрито. Хтось нарешті доводить справи до кінця.',
+  three: 'Три сюжети одночасно. Я б не встигла.', return: 'До старої справи повернулися. Пил я змахнула.',
+  newvoice: 'Нове знайомство. Картку завела на обох.', oldfriend: 'Давно не бачилися. Я записала, скільки саме.',
+  knot: 'Перша нитка на стіні. Шпильку видала.', feud: 'Ворожнечу внесено. Сідайте по різні боки, будь ласка.',
+  heart: 'Нитка червона. Я нічого не бачила.', quote: 'Тепер це в цитатнику. Я попереджала, що все записую.',
+  night: 'Десять дописів після другої ночі. Лампа в мене теж горіла.', twenty: 'Натуральна двадцятка. Кубик перевірено — чесний.',
+  year: 'Папір пожовк, а ви ні.', dawn: 'Десять разів першими відкрили день. Віконце вам уже не дивується.',
+  dead: 'Теку закрито. Печатку поставила сама, без поспіху.', snake: 'Одиниця. Кубик перевірено — теж чесний, на жаль.',
+  friday: 'Писали в пʼятницю тринадцятого. Я б не ризикувала.', midnight: 'Усі цокалися, а ви писали. Я теж не пила — я записувала.',
+  marathon: 'Вісім аркушів за день. Чорнило довелося розводити.', fog: 'Теку вже хотіла здати в архів. Добре, що не встигла.',
+  solo: 'Ціла арка — і жодного співрозмовника. Я слухала, якщо що.',
+};
 const SEAL_INK_DARK = { red: '#e0707c', gold: '#ffd700', black: '#c9c0ae' };
 const SEAL_FAINT = 'rgba(47,41,32,0.26)';
 const SEAL_ROT = [-8, 5, -3, 9, -5, 3, -10, 7];
@@ -167,6 +299,8 @@ function sealsFetch() {
 // Журнал читають лише увійшлі «свої» — тому з ключем з кабінету (au_user_token).
 const USER_SEALS_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1/user_seals?select=user_id,seal,earned_at,note,times,last_at&order=earned_at.asc&limit=10000';
 const USER_BOOK_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1/user_seal_book?select=key,title,word,ring,grp,ink,hidden,cond,sort_order&retired=eq.false&order=sort_order.asc,created_at.asc';
+// `line` — Мартин рядок до печатки (той самий, що йде в чат). Без графи — старий набір.
+const USER_BOOK_URL_LINE = USER_BOOK_URL.replace('cond,sort_order', 'cond,line,sort_order');
 
 function userSealsFetch() {
   const w = window;
@@ -177,14 +311,16 @@ function userSealsFetch() {
     .then(r => (r.ok ? r.json() : Promise.reject(new Error(what + ' ' + r.status))))
     .then(x => (Array.isArray(x) ? x : []))
     .catch(e => { console.warn('печатки людей: не прочитано —', e && e.message); return null; });
-  const p = Promise.all([get(USER_SEALS_URL, 'user_seals', tok), get(USER_BOOK_URL, 'user_seal_book')])
+  const bookP = get(USER_BOOK_URL_LINE, 'user_seal_book+line').then(b => (b === null ? get(USER_BOOK_URL, 'user_seal_book') : b));
+  const p = Promise.all([get(USER_SEALS_URL, 'user_seals', tok), bookP])
     .then(([rows, book]) => ({ rows: book && book.length ? rows : null, book: book || [] }));
   w.__auUSeals = { at: Date.now(), p };
   return p;
 }
 
 class Component extends DCLogic {
-  state = { rows: null, book: BUILTIN_BOOK, loaded: false };
+  // full — повний лист людини: разом із печатками, яких ще немає.
+  state = { rows: null, book: BUILTIN_BOOK, loaded: false, full: false };
 
   componentDidMount() {
     this._alive = true;
@@ -393,13 +529,13 @@ class Component extends DCLogic {
     (s.book || BUILTIN_BOOK).forEach(b => {
       const g = String(b.grp || 'Особливі');
       if (!byGrp.has(g)) byGrp.set(g, []);
-      byGrp.get(g).push([b.key, b.title, String(b.word || '✦'), String(b.ring || 'КАБАЛА').toUpperCase(), b.cond || '', b.ink || 'red', !!b.hidden]);
+      byGrp.get(g).push([b.key, b.title, String(b.word || '✦'), String(b.ring || 'КАБАЛА').toUpperCase(), b.cond || '', b.ink || 'red', !!b.hidden, b.line || '']);
     });
     let prestigeN = 0;
     const prestigeViews = [];
     const groups = [...byGrp.entries()].map(([gname, list]) => {
       let gHave = 0;
-      const seals = list.map(([k, title, word, ring, cond, ink, hidden]) => {
+      const seals = list.map(([k, title, word, ring, cond, ink, hidden, line]) => {
         const rot = SEAL_ROT[i++ % SEAL_ROT.length];
         const r = mine[k];
         const has = !!r;
@@ -418,6 +554,27 @@ class Component extends DCLogic {
         view.stars = view.times <= 5 ? '★'.repeat(view.times) : `★ × ${view.times}`;
         view.big = this._stamp(view, uid + k, 88, has ? SEAL_INK[ink] : SEAL_FAINT, true, has ? rot : 0);
         view.mini = this._stamp(view, uid + 'm' + k, 44, SEAL_INK_DARK[ink], false, rot);
+        // Рядковий лист: Мартин рядок, дата й поступ до тих, що попереду.
+        line = line || (!isUser && CHAR_LINES[k]) || '';
+        {
+          view.mid = this._stamp(view, uid + 'r' + k, 64, has ? SEAL_INK[ink] : SEAL_FAINT, true, has ? rot : 0);
+          view.dark = this._stamp(view, uid + 'd' + k, 52, has ? SEAL_INK_DARK[ink] : 'rgba(255,255,255,0.16)', true, has ? rot : 0);
+          view.darkTitle = has ? '#fff' : 'rgba(255,255,255,0.45)';
+          view.rowBg = has ? 'rgba(255,255,255,0.03)' : 'transparent';
+          view.titleColor = has ? '#2f2920' : '#6d6252';
+          view.hasQuip = has && !!line;
+          view.quip = line ? `«${line}»` : '';
+          view.date = has ? fmt(r.earned_at) : '';
+          const pg = !has && !sealed && p.progress && p.progress[k];
+          view.hasProg = !!pg;
+          if (pg) {
+            const a = Math.min(Number(pg[0]) || 0, pg[1]), b = pg[1];
+            view.ratio = b ? a / b : 0;
+            view.prog = `${a.toLocaleString('uk-UA')} / ${b.toLocaleString('uk-UA')}`;
+            view.left = (b - a).toLocaleString('uk-UA');
+            view.pct = `${Math.round(view.ratio * 100)}%`;
+          }
+        }
         if (has) { gHave++; have++; flat.push(view); }
         all++;
         return view;
@@ -433,7 +590,7 @@ class Component extends DCLogic {
         prestigeViews.push(pv);
       }
       return {
-        name: gname, seals, count: `${gHave} з ${list.length}`,
+        name: gname, seals, count: `${gHave} з ${list.length}`, rows: isUser, grid: !isUser,
         prestige: !!pr, noPrestige: !pr, pStamp, pDate: pr ? fmt(pr.earned_at) : '',
         pad: pr ? '14px 16px' : '0', border: pr ? '1px solid rgba(168,128,28,0.55)' : '0 solid transparent',
         bg: pr ? 'rgba(255,215,0,0.07)' : 'transparent',
@@ -467,6 +624,7 @@ class Component extends DCLogic {
       rare: rarest && ranked > 3 && rh <= Math.max(2, ranked / 4) ? `«${rarest.title}» — ${rh === 1 ? 'єдина в картотеці' : `лише в ${rh} з ${ranked}`}.` : '',
       date: `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getFullYear()).slice(2)}`,
     };
+    const next = groups.flatMap(g => g.seals).filter(v => v.hasProg && v.ratio > 0 && v.ratio < 1).sort((a, b) => b.ratio - a.ratio)[0];
     flat.sort((a, b) => String(b.at).localeCompare(String(a.at)));
     prestigeViews.sort((a, b) => String(b.at).localeCompare(String(a.at)));
     const P = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
@@ -479,7 +637,15 @@ class Component extends DCLogic {
       few: prestigeViews.concat(flat).slice(0, 5),
       hasPrestige: prestigeN > 0, prestigeN: String(prestigeN),
       stripLabel: `${have} ${P(have, 'печатка', 'печатки', 'печаток')} · лист заслуг`,
-      showSheet: sheetOn,
+      // Список — у стилі сайту, а паперовий лист існує лише як картинка для чату.
+      showSheet: false,
+      showSite: sheetOn,
+      hasSiteSub: !isUser,
+      siteSub: !isUser ? `на ім'я ${nm}${p.characterAlias ? ` «${p.characterAlias}»` : ''}` : '',
+      haveN: String(have), allN: String(all),
+      siteNote: s.loaded && s.rows === null ? 'Журнал печаток зараз не відповідає.'
+        : have ? 'На папері, з підписом Марти, лист можна забрати картинкою — для чату чи собі.'
+        : 'Печаток ще немає. ' + (isUser ? 'Рахую ваші репліки в рольовому чаті й дописи з тегами.' : 'Розгорніть лист — там видно, що можна заслужити.'),
       canShare: sheetOn && s.loaded && have > 0,
       shareBusy: !!s.shareBusy,
       shareMsg: s.shareMsg || '',
@@ -487,11 +653,30 @@ class Component extends DCLogic {
       shareCopy: () => this._copy(),
       shareSave: () => this._save(),
       loading: !s.loaded,
+      hasNext: !!next && s.loaded,
+      nextTitle: next ? next.title : '',
+      nextLeft: next ? `ще ${next.left}` : '',
+      nextProg: next ? next.prog : '',
+      nextPct: next ? next.pct : '0%',
       name: nm,
       aliasLine: isUser ? ' · лист людини, не персонажа' : p.characterAlias ? `, «${p.characterAlias}»` : '',
       total: `${have} з ${all}`,
       checked: 'перевіряю щоранку о 09:00',
-      groups: s.loaded ? groups : [],
+      // Лист людини згорнутий до отриманих печаток; порожній — одразу повний,
+      // інакше там не було б нічого, крім кнопки.
+      ...(() => {
+        const fold = have > 0 && have < all;
+        const full = !fold || s.full;
+        const shown = full ? groups : groups.map(g => ({ ...g, seals: g.seals.filter(v => v.has) })).filter(g => g.seals.length || g.prestige);
+        const rest = all - have;
+        return {
+          groups: s.loaded ? shown : [],
+          canFold: s.loaded && fold,
+          foldGlyph: s.full ? '▴' : '▾',
+          foldLabel: s.full ? 'Згорнути до отриманих' : `Показати повний лист · ще ${rest} ${P(rest, 'печатка', 'печатки', 'печаток')} попереду`,
+          toggleFull: () => this.setState({ full: !s.full }),
+        };
+      })(),
       footNote: s.loaded && s.rows === null
         ? 'Журнал печаток зараз не відповідає. Зазирніть пізніше.'
         : isUser && !have ? 'Печаток ще немає. Рахую ваші репліки в рольовому чаті й дописи з тегами — за всіх персонажів разом.'
