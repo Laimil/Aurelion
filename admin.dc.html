@@ -933,6 +933,28 @@ input,textarea,select{font-size:16px}
       <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:12px;line-height:1.5;">Адмінку не відкриває жоден статус — адмінів веде таблиця <code style="color:rgba(255,255,255,0.5);">admins</code> у Supabase. Таємні плітки з людиною не звʼязані, тому в лічильниках нижче їх немає.</p>
     </div>
 
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,215,0,0.22);border-radius:12px;padding:14px 18px 16px;margin-bottom:26px;display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="min-width:220px;flex:1;">
+          <p style="font-size:0.7rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:6px;">✦ Історія чату з експорту</p>
+          <p style="font-size:0.76rem;line-height:1.55;color:rgba(255,255,255,0.45);">Бот рахує людей лише відтоді, як його ввімкнули. Telegram Desktop → рольовий чат → «Експорт історії» → формат <b style="color:#ffd700;">JSON</b> (медіа не потрібні). З <code style="color:#ffd700;">result.json</code> довантажу репліки по людях за дні до бота і авторів довантаженим постам. «Пульс» не зміниться. Файл розбирається в браузері, у базу йдуть лише числа.</p>
+        </div>
+        <label style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;cursor:pointer;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.16);">
+          {{ histBtn }}
+          <input type="file" accept=".json,application/json" onChange="{{ histPick }}" style="display:none;" />
+        </label>
+      </div>
+      <sc-if value="{{ histHasMsg }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.8rem;line-height:1.6;color:{{ histMsgColor }};white-space:pre-line;">{{ histMsg }}</p>
+      </sc-if>
+      <sc-if value="{{ histCanApply }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button onClick="{{ histApply }}" disabled="{{ histBusy }}" style="cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:8px 18px;font-size:0.8rem;font-weight:700;">✦ Довантажити історію</button>
+          <button onClick="{{ histCancel }}" disabled="{{ histBusy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:8px 16px;font-size:0.78rem;">Скасувати</button>
+        </div>
+      </sc-if>
+    </div>
+
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
       <sc-for list="{{ pplFilters }}" as="f" hint-placeholder-count="4">
         <button onClick="{{ f.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.78rem;transition:all 0.2s ease;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};">{{ f.label }}</button>
@@ -4670,6 +4692,80 @@ class Component extends DCLogic {
     });
   }
 
+  // ── Історія чату з JSON-експорту (supabase_tg_history_migration.sql) ──
+  // Ті самі правила, що в боті й у «Звірці»: без службових, пересланих і via-ботів.
+  async _histPick(e) {
+    const f = (e.target.files || [])[0];
+    e.target.value = '';
+    if (!f) return;
+    this.setState({ histBusy: true, histMsg: 'Читаю експорт…', histBad: false, histPay: null });
+    try {
+      let j = JSON.parse(await f.text());
+      if (j.chats && Array.isArray(j.chats.list)) j = j.chats.list.slice().sort((a, b) => (b.messages || []).length - (a.messages || []).length)[0] || {};
+      const msgs = Array.isArray(j.messages) ? j.messages : [];
+      if (!msgs.length) throw new Error('У файлі немає повідомлень. Це точно result.json з Telegram Desktop?');
+      const kyiv = (ms) => new Date(ms).toLocaleDateString('sv-SE', { timeZone: 'Europe/Kyiv' });
+      const plain = (t) => Array.isArray(t) ? t.map(x => typeof x === 'string' ? x : (x && x.text) || '').join('') : String(t || '');
+      const days = new Map(), people = new Map(), posts = [];
+      let skipped = 0, bots = new Set();
+      msgs.forEach(m => {
+        if (m.type !== 'message' || m.forwarded_from || m.forwarded_from_id || m.via_bot) { skipped++; return; }
+        const fid = String(m.from_id || '');
+        if (!/^user\d+$/.test(fid)) { skipped++; return; }
+        const name = String(m.from || '').trim();
+        if (/(bot|бот)\b|^марта/i.test(name)) { bots.add(name); skipped++; return; }
+        const u = +fid.slice(4);
+        const sec = m.date_unixtime ? +m.date_unixtime : Math.floor(Date.parse(m.date) / 1000);
+        if (!sec) return;
+        const k = kyiv(sec * 1000) + '|' + u;
+        days.set(k, (days.get(k) || 0) + 1);
+        if (name) people.set(u, name);
+        if (/^\s*#/.test(plain(m.text))) posts.push({ t: sec, u });
+      });
+      const pDays = [...days.entries()].map(([k, n]) => { const [d, u] = k.split('|'); return { d, u: +u, n }; });
+      const pay = { p_days: pDays, p_posts: posts, p_people: [...people.entries()].map(([u, n]) => ({ u, n })) };
+      const r = await this._slRpc('admin_tg_history', { ...pay, p_apply: false });
+      const nf = (v) => Number(v || 0).toLocaleString('uk-UA');
+      const dmy = (d) => d ? String(d).split('-').reverse().join('.') : '—';
+      this.setState({
+        histBusy: false, histPay: r.msgs > 0 || r.posts > 0 ? pay : null, histBad: false,
+        histMsg: `Чат «${j.name || 'без назви'}» · у файлі ${nf(msgs.length)} повідомлень, пропущено ${nf(skipped)}${bots.size ? ` (боти: ${[...bots].join(', ')})` : ''}.\n`
+          + (r.msgs > 0
+            ? `До запуску бота (${dmy(r.cutoff)}): ${nf(r.msgs)} реплік від ${nf(r.people)} людей, з ${dmy(r.from)} по ${dmy(r.to)}.`
+            : `Днів до запуску бота (${dmy(r.cutoff)}) у файлі немає — реплік не додам.`)
+          + `\nАвторів знайду для ${nf(r.posts)} довантажених постів. Нових людей у журналі: ${nf(r.new_people)}.`
+          + (r.msgs > 0 || r.posts > 0 ? '\nПеревірте, що це рольовий чат, і довантажуйте.' : ''),
+      });
+    } catch (err) {
+      this.setState({ histBusy: false, histBad: true, histPay: null, histMsg: '✗ ' + (err.message || err) + (/admin_tg_history/.test(String(err.message)) ? ' — прогнати supabase_tg_history_migration.sql' : '') });
+    }
+  }
+
+  async _histApply() {
+    const pay = this.state.histPay;
+    if (!pay) return;
+    this.setState({ histBusy: true });
+    try {
+      const r = await this._slRpc('admin_tg_history', { ...pay, p_apply: true });
+      this.setState({ histBusy: false, histPay: null, histBad: false,
+        histMsg: `✓ Довантажено: ${Number(r.msgs || 0).toLocaleString('uk-UA')} реплік за ${r.days} записів, авторів поставлено ${r.posts} постам.\nТепер — «Печатки» → «Людям — видати мовчки», інакше вранці Марта оголосить усю історію.` });
+      this._loadGossipAdmin();
+    } catch (err) { this.setState({ histBusy: false, histBad: true, histMsg: '✗ ' + (err.message || err) }); }
+  }
+
+  _histVals() {
+    const s = this.state;
+    return {
+      histBtn: s.histBusy ? '✦ Читаю…' : '⬆ Закинути result.json',
+      histPick: (e) => this._histPick(e),
+      histHasMsg: !!s.histMsg, histMsg: s.histMsg || '',
+      histMsgColor: s.histBad ? '#ff8a8a' : 'rgba(255,255,255,0.65)',
+      histCanApply: !!s.histPay, histBusy: !!s.histBusy,
+      histApply: () => this._histApply(),
+      histCancel: () => this.setState({ histPay: null, histMsg: '' }),
+    };
+  }
+
   async _linkTg(p, tgId) {
     if (tgId == null && !window.confirm(`Відвʼязати «${p.nick}» від чату?\n\nСама привʼязка по ніку більше не спрацює — тільки руками. Видані печатки лишаються.`)) return;
     try {
@@ -7025,6 +7121,7 @@ class Component extends DCLogic {
 
     return {
       showPeopleTab: s.tab === 'people',
+      ...this._histVals(),
       pplFilters: [
         { key: 'all', label: `Усі · ${cnt.all}` },
         { key: 'pending', label: `Чекають · ${cnt.pending}` },
