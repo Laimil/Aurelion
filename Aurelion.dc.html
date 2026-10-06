@@ -479,11 +479,15 @@ a:hover{color:#a8c4f7;}
     <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
   </div>
   <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
-    <div class="au-navpanel" style="position:fixed;top:60px;left:0;right:0;background:rgba(22,20,15,0.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,0.2);box-shadow:0 18px 48px rgba(0,0,0,0.6);padding:12px 20px 18px;">
+    <div class="au-navpanel" style="position:fixed;top:60px;left:0;right:0;background:rgba(22,20,15,0.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,0.2);box-shadow:0 18px 48px rgba(0,0,0,0.6);padding:12px 20px 18px;max-height:calc(100dvh - 60px);overflow-y:auto;box-sizing:border-box;">
       <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:4px;">
         <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
           <a href="#{{ item.id }}" onClick="{{ closeNav }}" data-active="{{ item.active }}" style="padding:12px 15px;border-radius:8px;font-size:0.94rem;letter-spacing:0.02em;text-decoration:none;transition:background 0.18s;">{{ item.label }}</a>
         </sc-for>
+      </div>
+      <!-- Кабінет — і в меню: на вузьких Android плашка в шапці виїжджає за край. -->
+      <div style="max-width:1200px;margin:10px auto 0;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+        <a href="#cabinet" onClick="{{ closeNav }}" style="display:flex;align-items:center;justify-content:center;gap:9px;padding:13px 16px;border-radius:999px;font-size:0.94rem;letter-spacing:0.03em;text-decoration:none;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.15);color:#ffd700;">{{ userChipGlyph }}<span>{{ userChipLabel }}</span><sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.7rem;font-weight:700;">{{ turnsNum }}</span></sc-if></a>
       </div>
     </div>
   </sc-if>
