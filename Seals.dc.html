@@ -83,10 +83,17 @@
         <span style="font-size:1.05rem;">— М. Ленц, рецепція</span>
       </div>
     </div>
+    <sc-if value="{{ canShare }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:780px;margin:14px auto 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px;">
+        <span style="font-size:0.8rem;color:{{ shareMsgColor }};margin-right:auto;">{{ shareMsg }}</span>
+        <button onClick="{{ shareCopy }}" disabled="{{ shareBusy }}" style="cursor:pointer;display:flex;align-items:center;gap:7px;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:9px 18px;font-size:0.82rem;font-weight:700;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.45);">⧉ Копіювати картинку</button>
+        <button onClick="{{ shareSave }}" disabled="{{ shareBusy }}" style="cursor:pointer;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:8px 16px;font-size:0.82rem;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.15);">⤓ Зберегти</button>
+      </div>
+    </sc-if>
   </div>
 </sc-if>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:820,&quot;height&quot;:900},&quot;characterId&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;characterName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Северин&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;characterAlias&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;strip&quot;,&quot;sheet&quot;],&quot;default&quot;:&quot;sheet&quot;,&quot;tsType&quot;:&quot;'strip' | 'sheet'&quot;},&quot;hideEmpty&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:820,&quot;height&quot;:900},&quot;characterId&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;characterName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Северин&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;characterAlias&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;characterImage&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;characterType&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;strip&quot;,&quot;sheet&quot;],&quot;default&quot;:&quot;sheet&quot;,&quot;tsType&quot;:&quot;'strip' | 'sheet'&quot;},&quot;hideEmpty&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
 const SEALS_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1/seals?select=character_id,seal,earned_at,note&order=earned_at.asc&limit=10000';
 const SEALS_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 
@@ -157,7 +164,161 @@ class Component extends DCLogic {
     this._alive = true;
     sealsFetch().then(({ rows, book }) => { if (this._alive) this.setState({ rows, book, loaded: true }); });
   }
-  componentWillUnmount() { this._alive = false; }
+  componentWillUnmount() { this._alive = false; clearTimeout(this._msgT); }
+
+  // ── Картинка для чату: 1080×1350, малюється на canvas (без сторонніх
+  // бібліотек). Портрет — лише якщо віддається з CORS; інакше — ініціал.
+  async _cardBlob() {
+    const c = this._card;
+    try {
+      await Promise.all(['700 64px Cinzel', '600 26px "EB Garamond"', 'italic 26px "EB Garamond"', '32px "EB Garamond"']
+        .map(f => document.fonts.load(f)));
+    } catch (e) {}
+    let img = null;
+    if (c.image) {
+      img = await new Promise(res => {
+        const im = new Image();
+        im.crossOrigin = 'anonymous';
+        im.onload = () => res(im); im.onerror = () => res(null);
+        im.src = c.image;
+        setTimeout(() => res(null), 6000);
+      });
+    }
+    const make = (withImg) => {
+      const W = 1080, H = 1350, cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      const x = cv.getContext('2d');
+      const g = x.createRadialGradient(320, 200, 40, 420, 500, 1150);
+      g.addColorStop(0, '#f5eedd'); g.addColorStop(1, '#e1d5ba');
+      x.fillStyle = g; x.fillRect(0, 0, W, H);
+      x.strokeStyle = 'rgba(47,41,32,0.3)'; x.lineWidth = 2; x.strokeRect(20, 20, W - 40, H - 40);
+      const sp = (v) => { try { x.letterSpacing = v; } catch (e) {} };
+      // портрет
+      const px = 144, py = 150, pr = 84;
+      x.save(); x.beginPath(); x.arc(px, py, pr, 0, Math.PI * 2); x.clip();
+      if (withImg && img) {
+        const s = Math.max((pr * 2) / img.width, (pr * 2) / img.height);
+        const w = img.width * s, h = img.height * s;
+        x.drawImage(img, px - w / 2, py - pr, w, h);
+      } else {
+        const pg = x.createLinearGradient(px, py - pr, px, py + pr);
+        pg.addColorStop(0, '#4a4038'); pg.addColorStop(1, '#1f1b17');
+        x.fillStyle = pg; x.fillRect(px - pr, py - pr, pr * 2, pr * 2);
+        x.fillStyle = '#f3ecdb'; x.font = '700 76px Cinzel, Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+        x.fillText(c.initial, px, py + 4);
+      }
+      x.restore();
+      x.beginPath(); x.arc(px, py, pr, 0, Math.PI * 2); x.strokeStyle = '#a8801c'; x.lineWidth = 6; x.stroke();
+      // шапка
+      x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+      sp('6px'); x.fillStyle = '#a8443c'; x.font = '22px "EB Garamond", Georgia, serif';
+      x.fillText('ЛИСТ ЗАСЛУГ · ФОРМА 7-З', 260, 104); sp('2px');
+      x.fillStyle = '#2f2920'; let fz = 66;
+      do { x.font = `700 ${fz}px Cinzel, Georgia, serif`; fz -= 4; } while (x.measureText(c.name).width > 760 && fz > 30);
+      x.fillText(c.name, 260, 172); sp('0px');
+      if (c.sub) { x.fillStyle = '#6d6252'; x.font = '32px "EB Garamond", Georgia, serif'; x.fillText(c.sub, 260, 218, 760); }
+      // три числа
+      const ty = 268;
+      x.fillStyle = '#2f2920'; x.fillRect(60, ty, 960, 4);
+      x.fillStyle = 'rgba(47,41,32,0.35)'; x.fillRect(60, ty + 124, 960, 2);
+      x.fillStyle = 'rgba(47,41,32,0.25)'; x.fillRect(380, ty + 20, 2, 88); x.fillRect(700, ty + 20, 2, 88);
+      [[c.got, 'печаток з ' + c.all, '#2f2920'], [c.stars, 'зірок', '#a8801c'], ['№ ' + c.rank, 'серед ' + c.ranked + ' тек', '#2f2920']].forEach(([v, l, col], i) => {
+        const cx = 220 + i * 320;
+        x.textAlign = 'center'; x.fillStyle = col; x.font = '700 58px Cinzel, Georgia, serif'; x.fillText(String(v), cx, ty + 72);
+        sp('3px'); x.fillStyle = '#6d6252'; x.font = '20px Arial, sans-serif'; x.fillText(l.toUpperCase(), cx, ty + 106); sp('0px');
+      });
+      // престиж
+      let y = ty + 156;
+      if (c.prestige.length) {
+        x.fillStyle = 'rgba(255,215,0,0.13)'; x.strokeStyle = 'rgba(168,128,28,0.6)'; x.lineWidth = 2;
+        x.beginPath(); (x.roundRect ? x.roundRect(60, y, 960, 66, 12) : x.rect(60, y, 960, 66)); x.fill(); x.stroke();
+        x.textAlign = 'left'; x.fillStyle = '#a8801c'; x.font = '700 34px Cinzel, Georgia, serif'; x.fillText('★', 84, y + 45);
+        x.fillStyle = '#2f2920'; x.font = '30px "EB Garamond", Georgia, serif';
+        x.fillText(`Престиж ${c.prestige.map(p => '«' + p + '»').join(', ')} — зібрано всю групу`, 128, y + 43, 870);
+        y += 96;
+      } else y += 16;
+      // печатки
+      const list = c.earned, n = list.length;
+      const cols = n > 15 ? 6 : 5, rows = Math.max(1, Math.ceil(n / cols));
+      const bottom = 1190, cellH = Math.min(232, (bottom - y) / rows), cw = 960 / cols;
+      const r = Math.min(cols === 6 ? 50 : 60, cellH * 0.3);
+      list.forEach((s, i) => {
+        const col = i % cols, row = Math.floor(i / cols);
+        const inRow = row === rows - 1 ? n - row * cols : cols;
+        const cx = 60 + (cols - inRow) * cw / 2 + col * cw + cw / 2, cy = y + row * cellH + r + 6;
+        x.save(); x.translate(cx, cy); x.rotate(s.rot * Math.PI / 180);
+        x.strokeStyle = s.ink; x.fillStyle = s.ink;
+        x.lineWidth = r * 0.1; x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.stroke();
+        x.lineWidth = r * 0.035; x.beginPath(); x.arc(0, 0, r * 0.8, 0, Math.PI * 2); x.stroke();
+        const wl = s.word.length, wf = (wl > 4 ? 0.36 : wl > 2 ? 0.5 : 0.78) * r;
+        x.font = `700 ${wf}px Cinzel, Georgia, serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
+        x.fillText(s.word, 0, wf * 0.06, r * 1.4);
+        x.restore();
+        x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#2f2920';
+        x.font = `600 ${cols === 6 ? 22 : 25}px "EB Garamond", Georgia, serif`;
+        const words = s.title.split(' '), lines = [''];
+        words.forEach(w => { const t = (lines[lines.length - 1] + ' ' + w).trim(); if (x.measureText(t).width > cw - 16 && lines[lines.length - 1]) lines.push(w); else lines[lines.length - 1] = t; });
+        let ly = cy + r + 32;
+        lines.slice(0, 2).forEach(l => { x.fillText(l, cx, ly); ly += 26; });
+        if (s.times > 1) { x.fillStyle = '#a8801c'; x.font = '22px Arial, sans-serif'; x.fillText(s.times <= 5 ? '★'.repeat(s.times) : '★ × ' + s.times, cx, ly + 2); }
+      });
+      // підвал
+      x.fillStyle = 'rgba(47,41,32,0.35)'; x.fillRect(60, 1214, 960, 2);
+      if (c.rare) {
+        x.textAlign = 'left'; x.fillStyle = '#6d6252'; x.font = 'italic 27px "EB Garamond", Georgia, serif';
+        x.fillText(c.rare, 60, 1262, 560);
+      }
+      x.textAlign = 'right'; x.fillStyle = '#2f2920'; x.font = '32px "EB Garamond", Georgia, serif';
+      x.fillText('— М. Ленц, рецепція', 1020, 1260);
+      sp('4px'); x.fillStyle = '#8a7d68'; x.font = '18px Cinzel, Georgia, serif'; x.fillText('AURELION · ' + c.date, 1020, 1296); sp('0px');
+      return new Promise((res, rej) => { try { cv.toBlob(b => (b ? res(b) : rej(new Error('порожньо'))), 'image/png'); } catch (e) { rej(e); } });
+    };
+    try { return await make(true); } catch (e) { return make(false); }
+  }
+
+  _say(msg, bad) {
+    clearTimeout(this._msgT);
+    this.setState({ shareMsg: msg, shareBad: !!bad, shareBusy: false });
+    this._msgT = setTimeout(() => this._alive && this.setState({ shareMsg: '' }), 5000);
+  }
+
+  _fileName() { return 'lyst-zaslug-' + (String(this.props.characterName || 'aurelion').replace(/[^\p{L}\p{N}]+/gu, '-').toLowerCase()) + '.png'; }
+
+  _download(blob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = this._fileName();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+
+  async _copy() {
+    this.setState({ shareBusy: true, shareMsg: 'Марта ставить печатку…', shareBad: false });
+    const p = this._cardBlob();
+    // ClipboardItem отримує обіцянку одразу — інакше Safari вважає, що жест скінчився.
+    if (navigator.clipboard && window.ClipboardItem) {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': p })]);
+        this._say('✦ Скопійовано — вставляйте в чат');
+        return;
+      } catch (e) { console.warn('печатки: копіювання не вдалося —', e && e.message); }
+    }
+    try {
+      const blob = await p;
+      const file = new File([blob], this._fileName(), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file] }); this._say('✦ Надіслано'); return; }
+        catch (e) { if (e && e.name === 'AbortError') { this._say(''); return; } }
+      }
+      this._download(blob);
+      this._say('Браузер не дає копіювати картинки — зберегла файлом');
+    } catch (e) { this._say('✗ Не вийшло: ' + (e && e.message), true); }
+  }
+
+  async _save() {
+    this.setState({ shareBusy: true, shareMsg: 'Марта ставить печатку…', shareBad: false });
+    try { this._download(await this._cardBlob()); this._say('✦ Збережено'); }
+    catch (e) { this._say('✗ Не вийшло: ' + (e && e.message), true); }
+  }
 
   _stamp(s, id, size, color, ring, rot) {
     const h = React.createElement;
@@ -238,7 +399,7 @@ class Component extends DCLogic {
       let pStamp = null;
       if (pr) {
         prestigeN++;
-        const pv = { word: '★', ring: `ПРЕСТИЖ · ${gname.toUpperCase()} · ${fmt(pr.earned_at, true)} · `, at: pr.earned_at };
+        const pv = { g: gname, word: '★', ring: `ПРЕСТИЖ · ${gname.toUpperCase()} · ${fmt(pr.earned_at, true)} · `, at: pr.earned_at };
         pStamp = this._stamp(pv, uid + 'p' + i, 56, SEAL_INK.gold, true, -4);
         pv.mini = this._stamp(pv, uid + 'pm' + i, 44, SEAL_INK_DARK.gold, false, 0);
         prestigeViews.push(pv);
@@ -250,6 +411,33 @@ class Component extends DCLogic {
         bg: pr ? 'rgba(255,215,0,0.07)' : 'transparent',
       };
     });
+    // Для картинки: місце серед тек і найрідкісніша печатка.
+    const per = {}, holders = {};
+    rows.forEach(r => {
+      if (String(r.seal).startsWith('prestige:')) return;
+      const c = String(r.character_id);
+      per[c] = (per[c] || 0) + 1;
+      holders[r.seal] = (holders[r.seal] || 0) + 1;
+    });
+    const ranked = Object.keys(per).length;
+    const rank = 1 + Object.values(per).filter(v => v > have).length;
+    const mineFlat = flat.slice();
+    const rarest = mineFlat.slice().sort((a, b) => (holders[a.k] || 0) - (holders[b.k] || 0))[0];
+    const rh = rarest ? holders[rarest.k] || 0 : 0;
+    const inkOf = {};
+    (s.book || BUILTIN_BOOK).forEach(b => { inkOf[b.key] = SEAL_INK[b.ink] || SEAL_INK.red; });
+    const TYPE = { player: 'гравець', npc: 'NPC' };
+    const nm = String(p.characterName || '—');
+    const now = new Date();
+    this._card = {
+      name: nm, initial: nm.trim().charAt(0).toUpperCase() || '?', image: p.characterImage || '',
+      sub: [p.characterAlias ? `«${p.characterAlias}»` : '', TYPE[p.characterType] || ''].filter(Boolean).join(' · '),
+      got: have, all, stars: mineFlat.reduce((a, v) => a + v.times, 0), rank, ranked: Math.max(ranked, 1),
+      prestige: prestigeViews.map(v => v.g),
+      earned: groups.flatMap(g => g.seals.filter(v => v.has)).map((v, i) => ({ title: v.title, word: v.word, times: v.times, ink: inkOf[v.k], rot: SEAL_ROT[i % SEAL_ROT.length] })),
+      rare: rarest && ranked > 3 && rh <= Math.max(2, ranked / 4) ? `«${rarest.title}» — ${rh === 1 ? 'єдина в картотеці' : `лише в ${rh} з ${ranked}`}.` : '',
+      date: `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getFullYear()).slice(2)}`,
+    };
     flat.sort((a, b) => String(b.at).localeCompare(String(a.at)));
     prestigeViews.sort((a, b) => String(b.at).localeCompare(String(a.at)));
     const P = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
@@ -263,6 +451,12 @@ class Component extends DCLogic {
       hasPrestige: prestigeN > 0, prestigeN: String(prestigeN),
       stripLabel: `${have} ${P(have, 'печатка', 'печатки', 'печаток')} · лист заслуг`,
       showSheet: sheetOn,
+      canShare: sheetOn && s.loaded && have > 0,
+      shareBusy: !!s.shareBusy,
+      shareMsg: s.shareMsg || '',
+      shareMsgColor: s.shareBad ? '#ff8a8a' : 'rgba(255,255,255,0.6)',
+      shareCopy: () => this._copy(),
+      shareSave: () => this._save(),
       loading: !s.loaded,
       name: p.characterName || '—',
       aliasLine: p.characterAlias ? `, «${p.characterAlias}»` : '',

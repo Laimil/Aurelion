@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/base.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/styles.css">
+  <script src="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/_ds_bundle.js"></script>
+</helmet>
+<div style="display:flex;flex-direction:column;gap:20px;color:#fff;">
+  <div style="display:flex;justify-content:center;">
+    <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+      <sc-for list="{{ modes }}" as="m" hint-placeholder-count="3">
+        <button onClick="{{ m.go }}" style="cursor:pointer;border:none;border-radius:999px;padding:7px 16px;font-size:0.8rem;background:{{ m.bg }};color:{{ m.color }};transition:all 0.3s ease;">{{ m.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+    <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.45);">Марта гортає журнал…</p>
+  </sc-if>
+  <sc-if value="{{ failed }}" hint-placeholder-val="{{ false }}">
+    <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.45);">Журнал печаток зараз не відповідає. Зазирніть пізніше.</p>
+  </sc-if>
+
+  <!-- ── Двоє ── -->
+  <sc-if value="{{ showDuel }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:820px;width:100%;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:22px clamp(14px,3vw,26px);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(0,0,0,0.35);">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:center;">
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+          <select style-focus="outline:none;" value="{{ aId }}" onChange="{{ setA }}" style="color-scheme:dark;width:100%;box-sizing:border-box;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.4);color:#fff;border-radius:999px;padding:10px 14px;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;">
+            <sc-for list="{{ charOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.value }}" style="background:#222;color:#fff;">{{ o.label }}</option></sc-for>
+          </select>
+          <span style="font-size:0.76rem;color:rgba(255,255,255,0.5);padding-left:14px;">{{ aLine }}</span>
+        </div>
+        <button onClick="{{ swap }}" title="Поміняти місцями" style="cursor:pointer;background:none;border:none;color:rgba(255,215,0,0.75);font-family:'Cinzel',Georgia,serif;font-size:0.85rem;padding:6px;">⇄</button>
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0;align-items:flex-end;">
+          <select style-focus="outline:none;" value="{{ bId }}" onChange="{{ setB }}" style="color-scheme:dark;width:100%;box-sizing:border-box;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.45);color:#fff;border-radius:999px;padding:10px 14px;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;">
+            <sc-for list="{{ charOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.value }}" style="background:#222;color:#fff;">{{ o.label }}</option></sc-for>
+          </select>
+          <span style="font-size:0.76rem;color:rgba(255,255,255,0.5);padding-right:14px;">{{ bLine }}</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;font-size:0.8rem;color:rgba(255,255,255,0.6);border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08);padding:10px 0;">
+        <span>спільних <b style="color:#fff;">{{ dBoth }}</b></span>
+        <span>лише в {{ aShort }} <b style="color:#ffd700;">{{ dOnlyA }}</b></span>
+        <span>лише в {{ bShort }} <b style="color:#9dbcf7;">{{ dOnlyB }}</b></span>
+        <span>ні в кого <b style="color:#fff;">{{ dNone }}</b></span>
+      </div>
+      <div style="display:flex;flex-direction:column;">
+        <sc-for list="{{ dGroups }}" as="g" hint-placeholder-count="0">
+          <div style="display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:10px;margin:12px 0 4px;">
+              <span style="font-size:0.66rem;color:#ffd700;opacity:{{ g.aPr }};" title="Престиж">★</span>
+              <span style="flex:1;border-bottom:1px dotted rgba(255,255,255,0.15);"></span>
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);">{{ g.name }}</span>
+              <span style="flex:1;border-bottom:1px dotted rgba(255,255,255,0.15);"></span>
+              <span style="font-size:0.66rem;color:#9dbcf7;opacity:{{ g.bPr }};" title="Престиж">★</span>
+            </div>
+            <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+              <div title="{{ r.cond }}" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,190px) minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;opacity:{{ r.aOp }};min-width:0;">
+                  <span style="font-size:0.78rem;color:#ffd700;letter-spacing:0.04em;white-space:nowrap;">{{ r.aStars }}</span>
+                  <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ r.aDate }}</span>
+                  <div style="flex:none;width:34px;height:34px;border-radius:50%;border:2px solid {{ r.ink }};box-sizing:border-box;display:grid;place-items:center;color:{{ r.ink }};font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:{{ r.fs }}px;">{{ r.word }}</div>
+                </div>
+                <div style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.2;">{{ r.title }}</div>
+                <div style="display:flex;align-items:center;gap:8px;opacity:{{ r.bOp }};min-width:0;">
+                  <div style="flex:none;width:34px;height:34px;border-radius:50%;border:2px solid {{ r.ink }};box-sizing:border-box;display:grid;place-items:center;color:{{ r.ink }};font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:{{ r.fs }}px;">{{ r.word }}</div>
+                  <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ r.bDate }}</span>
+                  <span style="font-size:0.78rem;color:#9dbcf7;letter-spacing:0.04em;white-space:nowrap;">{{ r.bStars }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.02rem;color:rgba(255,255,255,0.55);text-align:center;margin:0;text-wrap:pretty;">«{{ martaLine }}» — М.</p>
+    </div>
+  </sc-if>
+
+  <!-- ── Таблиця ── -->
+  <sc-if value="{{ showTable }}" hint-placeholder-val="{{ false }}">
+    <div style="color-scheme:dark;width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px clamp(12px,2.5vw,22px);display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 30px rgba(0,0,0,0.35);">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:0.78rem;">
+        <sc-for list="{{ typeChips }}" as="t" hint-placeholder-count="3">
+          <button onClick="{{ t.go }}" style="cursor:pointer;padding:6px 14px;border-radius:999px;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.color }};font-size:0.78rem;transition:all 0.3s ease;">{{ t.label }}</button>
+        </sc-for>
+        <span style="margin-left:auto;color:rgba(255,255,255,0.4);">{{ tableNote }}</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <div style="min-width:{{ tMinW }};display:flex;flex-direction:column;gap:3px;">
+          <div style="display:grid;grid-template-columns:{{ tCols }};gap:3px;align-items:end;padding-bottom:4px;">
+            <span style="position:sticky;left:0;background:#252525;height:100%;"></span>
+            <sc-for list="{{ tHead }}" as="c" hint-placeholder-count="16">
+              <div title="{{ c.title }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <span style="font-size:0.6rem;color:rgba(255,255,255,0.4);">{{ c.pct }}</span>
+                <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid {{ c.ink }};box-sizing:border-box;display:grid;place-items:center;color:{{ c.ink }};font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:{{ c.fs }}px;">{{ c.word }}</div>
+              </div>
+            </sc-for>
+            <span style="font-size:0.6rem;letter-spacing:0.1em;color:rgba(255,255,255,0.4);text-align:right;padding-right:4px;">РАЗОМ</span>
+          </div>
+          <sc-for list="{{ tRows }}" as="r" hint-placeholder-count="8">
+            <div onClick="{{ r.go }}" title="Порівняти" style="cursor:pointer;display:grid;grid-template-columns:{{ tCols }};gap:3px;align-items:center;border-radius:6px;padding:2px 0;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.06);">
+              <span style="position:sticky;left:0;background:#252525;display:flex;align-items:center;gap:8px;font-size:0.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:4px 6px 4px 0;">
+                <span style="width:22px;flex:none;text-align:right;color:rgba(255,255,255,0.35);font-size:0.72rem;">{{ r.n }}</span><span style="overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</span><span style="color:#ffd700;font-size:0.7rem;">{{ r.pr }}</span>
+              </span>
+              <sc-for list="{{ r.cells }}" as="x" hint-placeholder-count="16">
+                <div title="{{ x.tip }}" style="height:24px;border-radius:4px;background:{{ x.bg }};display:grid;place-items:center;font-size:0.66rem;font-weight:700;color:#1a1a1a;">{{ x.t }}</div>
+              </sc-for>
+              <span style="text-align:right;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;padding-right:4px;">{{ r.total }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);margin:0;">Над стовпцем — частка картотеки з цією печаткою. Цифра в клітинці — зірки за повтор. Клік по рядку — порівняти. {{ zeroNote }}</p>
+    </div>
+  </sc-if>
+
+  <!-- ── Рідкість ── -->
+  <sc-if value="{{ showRare }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:10px;">
+      <sc-for list="{{ rare }}" as="s" hint-placeholder-count="8">
+        <div style="display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,0.05);border:1px solid {{ s.border }};border-radius:10px;padding:12px 16px;transition:all 0.3s ease;">
+          <div onClick="{{ s.toggle }}" style="cursor:pointer;display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:14px;align-items:center;">
+            <div style="width:48px;height:48px;border-radius:50%;border:2.5px solid {{ s.ink }};box-sizing:border-box;box-shadow:inset 0 0 0 4px transparent,inset 0 0 0 5px {{ s.ink }};display:grid;place-items:center;color:{{ s.ink }};font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:{{ s.fs }}px;transform:rotate({{ s.rot }}deg);">{{ s.word }}</div>
+            <div style="display:flex;flex-direction:column;gap:5px;min-width:0;">
+              <div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;"><span style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;">{{ s.title }}</span><span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ s.grp }}</span></div>
+              <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;"><div style="height:100%;width:{{ s.pct }};background:{{ s.ink }};"></div></div>
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ s.who }}</span>
+            </div>
+            <div style="text-align:right;"><div style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;">{{ s.n }}</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ s.of }}</div></div>
+          </div>
+          <sc-if value="{{ s.open }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;">
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.55);">{{ s.cond }}</span>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                <sc-for list="{{ s.holders }}" as="h" hint-placeholder-count="0">
+                  <button onClick="{{ h.go }}" title="Порівняти" style="cursor:pointer;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:#fff;border-radius:999px;padding:5px 12px;font-size:0.78rem;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.15);">{{ h.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:900}}">
+const SC_BASE = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1/';
+const SC_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+// Запасна книга — поки немає supabase_seals_book_migration.sql (та сама, що в Seals.dc.html).
+const SC_BUILTIN = [
+  ['Перо', [['first','Перший аркуш','I','Перший допис з тегом персонажа','red'],['hundred','Сотня','100','100 дописів','red'],['fivehundred','Пʼятисотий','500','500 дописів','gold'],['long','Довгий лист','∞','Допис довший за 4000 знаків','red']]],
+  ['Сюжет', [['final','Фінал','ФІНАЛ','Писав у арці, яку закрили відміткою','red'],['three','Три нитки долі','III','Одночасно у трьох живих арках','gold'],['newvoice','Новий голос','+1','Перша спільна арка з персонажем','red'],['oldfriend','Старий знайомий','ЗНОВУ','Знову в одній арці після 60+ днів','red']]],
+  ['Стіна', [['knot','Вузол','✦','Перша нитка на стіні звʼязків','red'],['feud','Стара образа','⚔','Перша нитка ворожнечі','red'],['heart','Розділ роману','♥','Нитка кохання на стіні','gold']]],
+  ['Голос', [['quote','Записано','«»','Фразу внесли до цитатника','red'],['night','Нічна зміна','02:00','10 дописів між другою і пʼятою ночі','red'],['twenty','Двадцятка','20','Натуральна 20 на d20','gold']]],
+  ['Приховані', [['year','Рік у теці','I·Р','Рік від анкети, і персонаж досі пише','black',1],['dawn','Перший голос','☀','Десять разів першим відкрив день','black',1],['dead','Впав і вмер','†','Персонаж помер','black',1]]],
+].flatMap(([grp, l], gi) => l.map(([key, title, word, cond, ink, hidden], i) => ({ key, title, word, cond, ink, hidden: !!hidden, grp, sort_order: gi * 10 + i })));
+const SC_INK = { red: '#e0707c', gold: '#ffd700', black: '#c9c0ae' };
+const SC_ROT = [-8, 5, -3, 9, -5, 3, -10, 7];
+
+function scGet(path) {
+  return fetch(SC_BASE + path, { headers: { apikey: SC_KEY, Authorization: 'Bearer ' + SC_KEY } })
+    .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+    .then(x => (Array.isArray(x) ? x : []))
+    .catch(e => { console.warn('печатки/порівняння:', path.split('?')[0], e && e.message); return null; });
+}
+
+class Component extends DCLogic {
+  state = { loaded: false, rows: [], book: SC_BUILTIN, chars: [], failed: false, mode: 'duel', a: '', b: '', type: '', open: '' };
+
+  componentDidMount() {
+    this._alive = true;
+    this._readHash();
+    const w = window;
+    const cached = w.__auSeals && Date.now() - w.__auSeals.at < 5 * 60 * 1000 ? w.__auSeals.p : null;
+    const sealsP = cached || (() => {
+      const p = scGet('seals?select=character_id,seal,earned_at,note,times,last_at&order=earned_at.asc&limit=10000')
+        .then(r => (r === null ? scGet('seals?select=character_id,seal,earned_at,note&order=earned_at.asc&limit=10000') : r))
+        .then(rows => scGet('seal_book?select=key,title,word,ring,grp,ink,hidden,cond,sort_order&retired=eq.false&order=sort_order.asc,created_at.asc')
+          .then(book => ({ rows, book: book && book.length ? book : SC_BUILTIN })));
+      w.__auSeals = { at: Date.now(), p };
+      return p;
+    })();
+    const charsP = scGet('characters?select=id,name,alias,character_type,is_active&order=name.asc')
+      .then(r => (r === null ? scGet('characters?select=id,name,alias,character_type&order=name.asc') : r));
+    Promise.all([sealsP, charsP]).then(([{ rows, book }, chars]) => {
+      if (!this._alive) return;
+      this.setState({ loaded: true, failed: rows === null, rows: rows || [], book: book || SC_BUILTIN, chars: (chars || []).filter(c => c.is_active !== false) });
+    });
+  }
+  componentWillUnmount() { this._alive = false; }
+
+  // #seals/table, #seals/rare, #seals/<id>~<id> — посиланням можна поділитися.
+  _readHash() {
+    const raw = decodeURIComponent((location.hash || '').replace(/^#seals\/?/, ''));
+    if (raw === 'table' || raw === 'rare') this.setState({ mode: raw });
+    else if (raw.indexOf('~') !== -1) { const [a, b] = raw.split('~'); this.setState({ mode: 'duel', a: a || '', b: b || '' }); }
+  }
+  _writeHash(patch) {
+    const s = Object.assign({}, this.state, patch);
+    const id = s.mode === 'duel' ? (s.a && s.b ? s.a + '~' + s.b : '') : s.mode;
+    try { history.replaceState(null, '', '#seals' + (id ? '/' + encodeURIComponent(id).replace('%7E', '~') : '')); } catch (e) {}
+  }
+  _set(patch) { this.setState(patch); this._writeHash(patch); }
+  _duelWith(id) {
+    const s = this.state;
+    const b = s.b && s.b !== id ? s.b : (s.a && s.a !== id ? s.a : '');
+    this._set({ mode: 'duel', a: id, b });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const P = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
+    const fmt = (iso) => { if (!iso) return ''; const d = new Date(iso); return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getFullYear()).slice(2); };
+    const fsz = (w, big) => (w.length > 4 ? (big ? 9 : 7) : w.length > 2 ? (big ? 12 : 9) : (big ? 18 : 13));
+    const stars = (n) => (n > 1 ? (n <= 5 ? '★'.repeat(n) : '★×' + n) : '');
+    const coll = new Intl.Collator('uk');
+    const book = (s.book || SC_BUILTIN).slice().sort((x, y) => (x.sort_order ?? 0) - (y.sort_order ?? 0));
+    const chars = s.chars || [];
+    const charOf = new Map(chars.map(c => [String(c.id), c]));
+    const has = {};            // has[cid][seal] = row
+    const holders = {};
+    (s.rows || []).forEach(r => {
+      const c = String(r.character_id);
+      if (!charOf.has(c)) return;
+      (has[c] = has[c] || {})[r.seal] = r;
+      if (!String(r.seal).startsWith('prestige:')) (holders[r.seal] = holders[r.seal] || []).push(c);
+    });
+    const count = (c) => Object.keys(has[c] || {}).filter(k => !k.startsWith('prestige:')).length;
+    const starSum = (c) => Object.entries(has[c] || {}).filter(([k]) => !k.startsWith('prestige:')).reduce((a, [, r]) => a + Math.max(1, Number(r.times) || 1), 0);
+    const prN = (c) => Object.keys(has[c] || {}).filter(k => k.startsWith('prestige:')).length;
+    const visible = book.filter(b => !b.hidden || (holders[b.key] || []).length);
+    const withSeals = chars.filter(c => count(String(c.id)) > 0).map(c => String(c.id));
+    const byRank = withSeals.slice().sort((x, y) => count(y) - count(x) || starSum(y) - starSum(x) || coll.compare(charOf.get(x).name || '', charOf.get(y).name || ''));
+    const nm = (c) => (charOf.get(c) || {}).name || '—';
+    const short = (c) => String(nm(c)).split(/\s+/)[0];
+
+    const mode = s.mode;
+    const modes = [['duel', 'Двоє'], ['table', 'Таблиця'], ['rare', 'Рідкість']].map(([id, label]) => ({
+      label, go: () => this._set({ mode: id }),
+      bg: mode === id ? 'rgba(255,215,0,0.14)' : 'transparent', color: mode === id ? '#ffd700' : 'rgba(255,255,255,0.6)',
+    }));
+    const ready = s.loaded && !s.failed;
+    const out = { modes, loading: !s.loaded, failed: s.loaded && s.failed, showDuel: false, showTable: false, showRare: false };
+    if (!ready) return out;
+
+    // ── Двоє ──
+    if (mode === 'duel') {
+      const a = charOf.has(s.a) ? s.a : byRank[0] || (chars[0] && String(chars[0].id)) || '';
+      const b = charOf.has(s.b) && s.b !== a ? s.b : byRank.find(x => x !== a) || '';
+      const opts = chars.slice().sort((x, y) => coll.compare(x.name || '', y.name || ''))
+        .map(c => ({ value: String(c.id), label: `${c.name || '—'} · ${count(String(c.id))}` }));
+      let both = 0, oA = 0, oB = 0, none = 0;
+      const groups = [];
+      const gmap = new Map();
+      visible.forEach(bk => {
+        const ra = (has[a] || {})[bk.key], rb = (has[b] || {})[bk.key];
+        if (ra && rb) both++; else if (ra) oA++; else if (rb) oB++; else none++;
+        const g = bk.grp || 'Особливі';
+        if (!gmap.has(g)) { const o = { name: g, rows: [], aPr: (has[a] || {})['prestige:' + g] ? 1 : 0, bPr: (has[b] || {})['prestige:' + g] ? 1 : 0 }; gmap.set(g, o); groups.push(o); }
+        const word = String(bk.word || '✦');
+        gmap.get(g).rows.push({
+          title: bk.title, word, cond: bk.cond || '', ink: SC_INK[bk.ink] || SC_INK.red, fs: fsz(word, true),
+          aOp: ra ? 1 : 0.16, bOp: rb ? 1 : 0.16,
+          aStars: ra ? stars(Number(ra.times) || 1) : '', bStars: rb ? stars(Number(rb.times) || 1) : '',
+          aDate: ra ? fmt(ra.earned_at) : '', bDate: rb ? fmt(rb.earned_at) : '',
+        });
+      });
+      const ca = count(a), cb = count(b), diff = Math.abs(ca - cb);
+      const line = (c) => `${count(c)} ${P(count(c), 'печатка', 'печатки', 'печаток')}${starSum(c) > count(c) ? ' · ★' + starSum(c) : ''}${prN(c) ? ' · престиж ' + prN(c) : ''}`;
+      const lead = ca > cb ? short(a) : short(b);
+      Object.assign(out, {
+        showDuel: true, charOpts: opts, aId: a, bId: b,
+        setA: (e) => { const v = e.currentTarget.value; this._set(v === b ? { a: v, b: a } : { a: v, b }); },
+        setB: (e) => { const v = e.currentTarget.value; this._set(v === a ? { a: b, b: v } : { a, b: v }); },
+        swap: () => this._set({ a: b, b: a }),
+        aLine: a ? line(a) : '', bLine: b ? line(b) : '', aShort: a ? short(a) : '—', bShort: b ? short(b) : '—',
+        dBoth: String(both), dOnlyA: String(oA), dOnlyB: String(oB), dNone: String(none), dGroups: groups,
+        martaLine: !b ? 'Для очної ставки потрібні двоє.'
+          : diff === 0 ? 'Нарівні. Я б на вашому місці не заспокоювалася.'
+          : diff === 1 ? 'Різниця в одну печатку. Пишіть частіше — і я перепишу.'
+          : `${lead} попереду на ${diff}. Наздоганяти — справа честі, не моя.`,
+      });
+    }
+
+    // ── Таблиця ──
+    if (mode === 'table') {
+      const type = s.type;
+      const ids = byRank.filter(c => !type || (charOf.get(c).character_type || '') === type);
+      const zero = chars.filter(c => (!type || c.character_type === type) && !count(String(c.id))).length;
+      const nAll = Math.max(1, chars.length);
+      Object.assign(out, {
+        showTable: true,
+        typeChips: [['', 'Усі'], ['player', 'Гравці'], ['npc', 'NPC']].map(([id, label]) => ({
+          label, go: () => this.setState({ type: id }),
+          bg: type === id ? 'rgba(255,215,0,0.14)' : 'transparent',
+          border: type === id ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.15)',
+          color: type === id ? '#ffd700' : 'rgba(255,255,255,0.6)',
+        })),
+        tableNote: `${ids.length} ${P(ids.length, 'тека', 'теки', 'тек')} · за кількістю печаток`,
+        tCols: `170px repeat(${visible.length}, 30px) 56px`,
+        tMinW: (170 + visible.length * 33 + 60) + 'px',
+        tHead: visible.map(bk => { const w = String(bk.word || '✦'); return { title: `${bk.title} — ${bk.cond || ''}`, word: w, ink: SC_INK[bk.ink] || SC_INK.red, fs: fsz(w, false), pct: Math.round(((holders[bk.key] || []).length / nAll) * 100) + '%' }; }),
+        tRows: ids.map((c, i) => ({
+          n: String(i + 1), name: nm(c), total: String(count(c)), pr: prN(c) ? '★'.repeat(Math.min(prN(c), 5)) : '',
+          go: () => this._duelWith(c),
+          cells: visible.map(bk => {
+            const r = (has[c] || {})[bk.key], t = r ? Math.max(1, Number(r.times) || 1) : 0;
+            return { bg: r ? (SC_INK[bk.ink] || SC_INK.red) : 'rgba(255,255,255,0.05)', t: t > 1 ? String(t) : '', tip: `${bk.title}${r ? ' · ' + fmt(r.earned_at) : ' — ще ні'}` };
+          }),
+        })),
+        zeroNote: zero ? `Без жодної печатки: ${zero} ${P(zero, 'тека', 'теки', 'тек')}.` : '',
+      });
+    }
+
+    // ── Рідкість ──
+    if (mode === 'rare') {
+      const nAll = Math.max(1, chars.length);
+      Object.assign(out, {
+        showRare: true,
+        rare: visible.map(bk => ({ bk, h: (holders[bk.key] || []).slice().sort((x, y) => coll.compare(nm(x), nm(y))) }))
+          .sort((x, y) => x.h.length - y.h.length || (x.bk.sort_order ?? 0) - (y.bk.sort_order ?? 0))
+          .map(({ bk, h }, i) => {
+            const w = String(bk.word || '✦'), open = s.open === bk.key;
+            return {
+              title: bk.title, grp: bk.grp || '', word: w, ink: SC_INK[bk.ink] || SC_INK.red, fs: fsz(w, true) + 2, rot: SC_ROT[i % SC_ROT.length],
+              n: String(h.length), of: `з ${nAll}`, pct: (h.length ? Math.max(2, (h.length / nAll) * 100) : 0) + '%',
+              who: h.length ? h.slice(0, 4).map(nm).join(', ') + (h.length > 4 ? ` і ще ${h.length - 4}` : '') : 'Ще ні в кого — можна бути першим.',
+              open, border: open ? 'rgba(255,215,0,0.35)' : 'rgba(255,255,255,0.1)',
+              toggle: () => this.setState({ open: open ? '' : bk.key }),
+              cond: bk.cond || '',
+              holders: h.map(c => { const r = has[c][bk.key], t = Math.max(1, Number(r.times) || 1); return { label: nm(c) + (t > 1 ? ' ' + stars(t) : ''), go: () => this._duelWith(c) }; }),
+            };
+          }),
+      });
+    }
+    return out;
+  }
+}
+</script>
+</body>
+</html>
