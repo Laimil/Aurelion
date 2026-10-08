@@ -475,7 +475,7 @@ a:hover{color:#a8c4f7;}
     </sc-if>
     <!-- Плашка входу стоїть і для гостей: інакше ввійти нема звідки, бо
          сам розділ показується тільки тим, хто вже ввійшов. -->
-    <a href="#cabinet" data-active="{{ userChipActive }}" title="{{ userChipTitle }}" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;text-decoration:none;transition:all 0.25s ease;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ userChipGlyph }}<span class="au-share-label">{{ userChipLabel }}</span><sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.66rem;font-weight:700;box-shadow:0 0 10px rgba(255,215,0,0.45);">{{ turnsNum }}</span></sc-if></a>
+    <a href="#cabinet" data-active="{{ userChipActive }}" title="{{ userChipTitle }}" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;text-decoration:none;transition:all 0.25s ease;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ userChipGlyph }}<span class="au-share-label">{{ userChipLabel }}</span><sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.66rem;font-weight:700;box-shadow:0 0 10px rgba(255,215,0,0.45);">{{ turnsNum }}</span></sc-if><sc-if value="{{ turnsPHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#6495ed;color:#fff;font-size:0.66rem;font-weight:700;box-shadow:0 0 10px rgba(100,149,237,0.5);">{{ turnsPNum }}</span></sc-if></a>
     <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
   </div>
   <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
@@ -487,7 +487,7 @@ a:hover{color:#a8c4f7;}
       </div>
       <!-- Кабінет — і в меню: на вузьких Android плашка в шапці виїжджає за край. -->
       <div style="max-width:1200px;margin:10px auto 0;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
-        <a href="#cabinet" onClick="{{ closeNav }}" style="display:flex;align-items:center;justify-content:center;gap:9px;padding:13px 16px;border-radius:999px;font-size:0.94rem;letter-spacing:0.03em;text-decoration:none;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.15);color:#ffd700;">{{ userChipGlyph }}<span>{{ userChipLabel }}</span><sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.7rem;font-weight:700;">{{ turnsNum }}</span></sc-if></a>
+        <a href="#cabinet" onClick="{{ closeNav }}" style="display:flex;align-items:center;justify-content:center;gap:9px;padding:13px 16px;border-radius:999px;font-size:0.94rem;letter-spacing:0.03em;text-decoration:none;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.15);color:#ffd700;">{{ userChipGlyph }}<span>{{ userChipLabel }}</span><sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.7rem;font-weight:700;">{{ turnsNum }}</span></sc-if><sc-if value="{{ turnsPHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#6495ed;color:#fff;font-size:0.66rem;font-weight:700;box-shadow:0 0 10px rgba(100,149,237,0.5);">{{ turnsPNum }}</span></sc-if></a>
       </div>
     </div>
   </sc-if>
@@ -6798,7 +6798,7 @@ class Component extends DCLogic {
   // Рахує turns.js з my_turns(); кабінет, коли порахує сам, шле `au-turns`.
   _loadTurns = async (force) => {
     if (this.state.userStatus !== 'approved' || !this._userTok()) {
-      if (this.state.turnsN) this.setState({ turnsN: 0 });
+      if (this.state.turnsN || this.state.turnsP) this.setState({ turnsN: 0, turnsP: 0 });
       return;
     }
     if (!force && this._turnsAt && Date.now() - this._turnsAt < 120000) return;
@@ -6812,13 +6812,15 @@ class Component extends DCLogic {
       if (!r.ok) { console.warn('черга (шапка):', r.status); return; }
       const d = await r.json();
       const n = window.AuTurns && !d.error ? window.AuTurns.yourTurn(d) : 0;
-      if (n !== (this.state.turnsN || 0)) this.setState({ turnsN: n });
+      const p = window.AuTurns && window.AuTurns.pings && !d.error ? window.AuTurns.pings(d) : 0;
+      if (n !== (this.state.turnsN || 0) || p !== (this.state.turnsP || 0)) this.setState({ turnsN: n, turnsP: p });
     } catch (e) { console.warn('черга (шапка):', String(e)); }
   };
   _onTurns = (e) => {
     const n = Number(e && e.detail && e.detail.n) || 0;
+    const p = Number(e && e.detail && e.detail.p) || 0;
     this._turnsAt = Date.now();
-    if (n !== (this.state.turnsN || 0)) this.setState({ turnsN: n });
+    if (n !== (this.state.turnsN || 0) || p !== (this.state.turnsP || 0)) this.setState({ turnsN: n, turnsP: p });
   };
   _turnsTick = () => { if (document.visibilityState === 'visible') this._loadTurns(); };
 
@@ -9147,7 +9149,9 @@ class Component extends DCLogic {
       userNick: s.userNick || '',
       userChipLabel: signedIn ? 'Мій кабінет' : 'Увійти',
       userChipGlyph: signedIn ? '' : '✦',
-      userChipTitle: signedIn ? (s.turnsN ? `Ваш хід в арках: ${s.turnsN} — до кабінету` : 'Мій кабінет — анкети й плітки') : 'Увійти або записатися',
+      turnsPHas: signedIn && !s.turnsN && !!s.turnsP,
+      turnsPNum: String(s.turnsP || ''),
+      userChipTitle: signedIn ? (s.turnsN ? `Ваш хід в арках: ${s.turnsN} — до кабінету` : s.turnsP ? `Нові дописи в арках, де ви чекали: ${s.turnsP}` : 'Мій кабінет — анкети й плітки') : 'Увійти або записатися',
       turnsHas: signedIn && !!s.turnsN,
       turnsNum: String(s.turnsN || ''),
       userChipBg: signedIn ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.04)',

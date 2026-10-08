@@ -242,6 +242,9 @@ a:hover{color:#fff}
                   <button onClick="{{ t.onYes }}" class="gos-go" data-busy="{{ t.busy }}" style="cursor:pointer;background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.4);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">Так, закрита</button>
                   <button onClick="{{ t.onNo }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.45);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">Ні</button>
                 </sc-if>
+                <sc-if value="{{ t.hasSeen }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ t.onSeen }}" class="gos-go" data-busy="{{ t.busy }}" style="cursor:pointer;background:rgba(100,149,237,0.16);color:#c4d6ff;border:1px solid rgba(100,149,237,0.5);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.seenLabel }}</button>
+                </sc-if>
                 <sc-if value="{{ t.hasPass }}" hint-placeholder-val="{{ false }}">
                   <button onClick="{{ t.onPass }}" class="gos-ghost" data-busy="{{ t.busy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.35);color:#a0beff;border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.passLabel }}</button>
                 </sc-if>
@@ -261,6 +264,9 @@ a:hover{color:#fff}
                       <button onClick="{{ t.onPassNo }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.45);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">Скасувати</button>
                     </div>
                   </div>
+                </sc-if>
+                <sc-if value="{{ t.hasAfterBtn }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ t.onAfterBtn }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px dashed rgba(100,149,237,0.35);color:rgba(160,190,255,0.85);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.afterBtnLabel }}</button>
                 </sc-if>
                 <sc-if value="{{ t.hasUnf }}" hint-placeholder-val="{{ false }}">
                   <button onClick="{{ t.onUnf }}" class="gos-ghost" data-busy="{{ t.unfBusy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.3);color:rgba(160,190,255,0.8);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.unfLabel }}</button>
@@ -284,6 +290,7 @@ a:hover{color:#fff}
                   <span style="flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
                     <span style="font-family:'Cinzel',Georgia,serif;font-size:0.84rem;font-weight:700;letter-spacing:0.03em;color:#fff;">{{ f.arc }}</span>
                     <span style="font-size:0.74rem;color:{{ f.asColor }};">{{ f.as }}</span>
+                    <span style="font-size:0.72rem;color:rgba(160,190,255,0.85);">{{ f.after }}</span>
                     <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);">{{ f.status }}</span>
                   </span>
                   <button onClick="{{ f.onEdit }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:3px 11px;font-size:0.7rem;transition:all 0.2s ease;">Змінити</button>
@@ -293,7 +300,7 @@ a:hover{color:#fff}
             </div>
           </sc-if>
           <sc-if value="{{ folOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(100,149,237,0.3);">
+            <div ref="{{ folRef }}" style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(100,149,237,0.3);">
               <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">Арка</p>
               <input class="gos-field" value="{{ folQ }}" onChange="{{ setFolQ }}" placeholder="Почніть писати назву арки, як у тегу" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 16px;color:#fff;font-size:0.88rem;outline:none;transition:all 0.2s ease;" />
               <sc-if value="{{ folHasArcHits }}" hint-placeholder-val="{{ false }}">
@@ -316,6 +323,13 @@ a:hover{color:#fff}
                 </div>
               </sc-if>
               <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);text-wrap:pretty;">{{ folAsNote }}</p>
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-top:6px;">Підсвічувати після · необовʼязково</p>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                <sc-for list="{{ folAfterOpts }}" as="h" hint-placeholder-count="3">
+                  <button onClick="{{ h.onPick }}" class="gos-hit" style="cursor:pointer;background:{{ h.bg }};border:1px solid {{ h.border }};color:{{ h.color }};border-radius:999px;padding:5px 12px;font-size:0.78rem;transition:all 0.2s ease;">{{ h.name }}</button>
+                </sc-for>
+              </div>
+              <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);text-wrap:pretty;">{{ folAfterNote }}</p>
               <sc-if value="{{ folHasErr }}" hint-placeholder-val="{{ false }}">
                 <p style="font-size:0.8rem;line-height:1.5;color:rgba(255,160,160,0.85);text-wrap:pretty;">{{ folErr }}</p>
               </sc-if>
@@ -1484,8 +1498,9 @@ class Component extends DCLogic {
     this.setState({ turns, turnsBusy: false }, () => this._autoOpen());
     const T = window.AuTurns;
     const n = turns && !turns.error && T ? T.yourTurn(turns) : 0;
-    console.log('черга:', turns.error ? `помилка: ${turns.error}` : `живих арок ${(turns.arcs || []).length}, ваш хід у ${n}`);
-    try { window.dispatchEvent(new CustomEvent('au-turns', { detail: { n } })); } catch (e) {}
+    const p = turns && !turns.error && T && T.pings ? T.pings(turns) : 0;
+    console.log('черга:', turns.error ? `помилка: ${turns.error}` : `живих арок ${(turns.arcs || []).length}, ваш хід у ${n}, нові дописи в ${p}`);
+    try { window.dispatchEvent(new CustomEvent('au-turns', { detail: { n, p } })); } catch (e) {}
   }
 
   // Відмітка «арку закрито» — одна на людину; бачать усі учасники арки.
@@ -1537,20 +1552,38 @@ class Component extends DCLogic {
     this.setState({ cat, catBusy: false });
   }
 
-  _folStart(arc, as) {
-    this.setState({ folOpen: true, folQ: arc || '', folAs: as || '', folErr: '', folEdit: !!arc });
+  _folStart(arc, as, after, scroll) {
+    this.setState({ folOpen: true, folQ: arc || '', folAs: as || '', folAfter: (after || []).slice(), folErr: '', folEdit: !!arc }, () => {
+      // Кнопка «Після кого…» стоїть у картці арки, а бланк — унизу черги.
+      const el = scroll && this._folRef && this._folRef.current;
+      if (el) try { window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth' }); } catch (e) {}
+    });
     this._loadCat();
   }
 
-  async _follow(arc, on, as) {
+  // «Бачу» — гасить підсвітку арки до наступного допису.
+  async _seenArc(arc) {
+    this.setState({ turnMarkBusy: arc, turnMarkErr: '' });
+    let err = '';
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/arc_seen`, { method: 'POST', body: JSON.stringify({ p_arc: arc }) }, true);
+      if (!r.ok) err = `HTTP ${r.status}. Схоже, не прогнано supabase_arc_after_migration.sql.`;
+    } catch (e) { err = 'Звʼязку немає. Спробуйте ще раз.'; }
+    this.setState({ turnMarkBusy: '', turnMarkErr: err });
+    if (!err) this._loadTurns(true);
+  }
+
+  async _follow(arc, on, as, after) {
     const a = String(arc || '').trim();
     if (!a) { this.setState({ folErr: 'Оберіть арку або впишіть її назву.' }); return; }
     this.setState({ folBusy: a, folErr: '' });
     let err = '';
     try {
-      const r = await this._api(`${SUPA_URL}/rpc/arc_follow`, { method: 'POST', body: JSON.stringify({ p_arc: a, p_on: on, p_as: String(as || '').trim() || null }) }, true);
+      const body = { p_arc: a, p_on: on, p_as: String(as || '').trim() || null };
+      if (on && Array.isArray(after)) body.p_after = after;
+      const r = await this._api(`${SUPA_URL}/rpc/arc_follow`, { method: 'POST', body: JSON.stringify(body) }, true);
       const d = r.ok ? await r.json() : null;
-      if (!r.ok) err = `HTTP ${r.status}. Схоже, не прогнано supabase_arc_follows_migration.sql.`;
+      if (!r.ok) err = `HTTP ${r.status}. Схоже, не прогнано ${body.p_after ? 'supabase_arc_after_migration.sql' : 'supabase_arc_follows_migration.sql'}.`;
       else if (d && d.error) err = ({
         taken: 'На це імʼя є анкета іншого гравця. Обрати можна НПЦ, свого персонажа або імʼя без анкети.',
         'name too long': 'Імʼя задовге — до 60 знаків.',
@@ -1569,12 +1602,14 @@ class Component extends DCLogic {
     const folList = follows.map((f) => {
       const busy = s.folBusy === f.arc;
       const live = liveArcs.has(fold(String(f.arc || '').trim()));
+      const af = (f.after || []).filter(Boolean);
       return {
         key: f.arc, arc: f.arc,
         as: f.as ? `за ${f.as}` : 'стежите',
         asColor: f.as ? '#ffd700' : 'rgba(160,190,255,0.85)',
+        after: af.length ? `✦ після ${af.indexOf('*') >= 0 ? 'будь-кого' : af.join(', ')}` : '',
         status: live ? '' : `· дописів за ${d.live || 30} днів немає`,
-        onEdit: () => this._folStart(f.arc, f.as || ''),
+        onEdit: () => this._folStart(f.arc, f.as || '', af),
         onOff: () => this._follow(f.arc, false), offLabel: busy ? 'Хвилинку…' : 'Відписатися', busy: busy ? 'true' : 'false',
       };
     });
@@ -1590,7 +1625,9 @@ class Component extends DCLogic {
       key: a.arc, name: a.arc,
       sub: `${a.follow ? 'ви підписані · ' : ''}${this._agoH(a.last_at)}`,
       ...pickStyle(!!sel),
-      onPick: () => this.setState({ folQ: sel ? '' : a.arc, folAs: sel ? '' : ((a.follow && a.follow.as) || s.folAs || ''), folErr: '' }),
+      onPick: () => this.setState({
+        folQ: sel ? '' : a.arc, folAs: sel ? '' : ((a.follow && a.follow.as) || s.folAs || ''),
+        folAfter: sel ? [] : ((a.follow && a.follow.after) || s.folAfter || []).slice(), folErr: '' }),
     }));
     let folArcNote = '';
     if (cat && cat.error) folArcNote = 'Перелік живих арок не завантажився — назву можна вписати вручну.';
@@ -1606,6 +1643,40 @@ class Component extends DCLogic {
     let folAsNote = 'Якщо ви відіграєте в цій арці технічного НПЦ без анкети — впишіть його імʼя точно як у тегу, і черга рахуватиме його вашим. Порожньо — просто стежити за аркою.';
     if (sel && folCast.length) folAsNote = `Зверху — хто писав у цій арці без чужої анкети.${locked ? ` Імена з анкетами інших гравців (${locked}) сюди не беруться.` : ''} Порожньо — просто стежити.`;
 
+    // «Підсвічувати після» — чипи з тих, хто писав у арці (свої й «за кого» — ні).
+    const after = (s.folAfter || []).filter(Boolean);
+    const anyOn = after.indexOf('*') >= 0;
+    const afterK = new Set(after.map((x) => fold(x)));
+    const togAfter = (name) => {
+      const cur = (this.state.folAfter || []).filter(Boolean);
+      let next;
+      if (name === '*') next = cur.indexOf('*') >= 0 ? [] : ['*'];
+      else {
+        const k = fold(name), base = cur.filter((x) => x !== '*');
+        next = base.some((x) => fold(x) === k) ? base.filter((x) => fold(x) !== k) : base.concat([name]);
+      }
+      this.setState({ folAfter: next, folErr: '' });
+    };
+    const castNames = sel ? (sel.cast || []).filter((c) => !c.mine && fold(c.name) !== asK).map((c) => c.name) : [];
+    const extra = after.filter((x) => x !== '*' && !castNames.some((c) => fold(c) === fold(x)));
+    const folAfterOpts = [{ key: '*', name: 'Будь-кого', ...pickStyle(anyOn), onPick: () => togAfter('*') }]
+      .concat(castNames.concat(extra).slice(0, 20).map((n) => ({
+        key: n, name: n, ...pickStyle(!anyOn && afterK.has(fold(n))), onPick: () => togAfter(n),
+      })));
+    const plays = !!(sel && (sel.cast || []).some((c) => c.mine)) || !!String(s.folAs || '').trim()
+      || (((d && d.arcs) || []).some((a) => fold(String(a.arc).trim()) === q && (a.seq || []).some((p) => p.mine)));
+    const who = anyOn ? 'будь-хто' : after.join(', ');
+    let folAfterNote;
+    if (!after.length) folAfterNote = plays
+      ? 'Порожньо — черга як завжди: хід того, хто найдавніше відписував.'
+      : 'Порожньо — арка просто стоїть у черзі й не світиться.';
+    else if (plays) folAfterNote = `Ваш хід — щойно після вашого допису ${anyOn ? 'напише будь-хто' : `напише ${who}`}. Загальна черга в цій арці для вас тоді не рахується.`;
+    else folAfterNote = `Арка засвітиться в черзі й на плашці кабінету, щойно ${anyOn ? 'хтось напише' : `напише ${who}`}. «Бачу» гасить до наступного допису.`;
+    if (!sel && q) folAfterNote += ' Імена зʼявляться, коли арка буде серед живих.';
+    const saved = follows.find((f) => fold(String(f.arc).trim()) === q);
+    const savedAfter = ((saved && saved.after) || (sel && sel.follow && sel.follow.after) || []).map((x) => fold(x)).sort().join('|');
+    const afterChanged = after.map((x) => fold(x)).sort().join('|') !== savedAfter;
+
     const editing = !!(sel && sel.follow) || follows.some((f) => fold(String(f.arc).trim()) === q);
     const busy = !!s.folBusy && fold(s.folBusy) === q;
     return {
@@ -1620,10 +1691,12 @@ class Component extends DCLogic {
       folArcHits, folHasArcHits: folArcHits.length > 0,
       folArcNote, folHasArcNote: !!folArcNote,
       folCast, folHasCast: folCast.length > 0, folAsNote,
+      folAfterOpts, folAfterNote, folRef: this._folRef || (this._folRef = React.createRef()),
       folErr: s.folErr || '', folHasErr: !!s.folErr,
       folSaveLabel: busy ? 'Хвилинку…' : (editing ? 'Зберегти' : 'Підписатися'),
       folBusyFlag: busy ? 'true' : 'false',
-      folSave: () => this._follow(sel ? sel.arc : s.folQ, true, s.folAs),
+      // Перелік шлемо, лише коли його змінили: без міграції арка й «за кого» зберігаються як раніше.
+      folSave: () => this._follow(sel ? sel.arc : s.folQ, true, s.folAs, afterChanged ? after : undefined),
       folCancel: () => this.setState({ folOpen: false, folErr: '' }),
     };
   }
@@ -1668,6 +1741,7 @@ class Component extends DCLogic {
       done: { pill: 'Відписали', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
       out:  { pill: 'Поза чергою', bg: 'rgba(255,77,77,0.03)', border: 'rgba(255,77,77,0.16)', pBg: 'rgba(255,77,77,0.06)', pBorder: 'rgba(255,77,77,0.4)', pColor: '#ff9a9a', line: 'dashed' },
       solo: { pill: 'Соло', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
+      ping: { pill: 'Новий допис', bg: 'rgba(100,149,237,0.07)', border: 'rgba(100,149,237,0.4)', pBg: 'rgba(100,149,237,0.18)', pBorder: 'rgba(100,149,237,0.6)', pColor: '#c4d6ff', glow: '0 0 16px rgba(100,149,237,0.3)' },
       watch: { pill: 'Підписка', bg: 'rgba(100,149,237,0.03)', border: 'rgba(100,149,237,0.18)', pBg: 'transparent', pBorder: 'rgba(100,149,237,0.45)', pColor: '#a0beff', line: 'dashed' },
       closed: { pill: '✦ Арку закрито', bg: 'rgba(255,255,255,0.015)', border: 'rgba(255,255,255,0.07)', pBg: 'rgba(255,255,255,0.05)', pBorder: 'rgba(255,255,255,0.22)', pColor: 'rgba(255,255,255,0.62)' },
     };
@@ -1685,7 +1759,22 @@ class Component extends DCLogic {
       let pill = st.pill, meta = '';
       const days = Math.floor(r.waitMs / 86400000);
       const pz = r.pass;
-      if (r.state === 'turn') {
+      const rl = r.rule;
+      const rlWho = rl ? (rl.any ? 'будь-кого' : rl.names.join(', ')) : '';
+      if (r.state === 'turn' && rl && rl.hit) {
+        meta = `Після вашого допису — ${rl.hit.name}, ${this._agoH(rl.hit.at)}. Ви чекали на ${rlWho}.`;
+        if (days >= 2) pill = `Ваш хід · ${days} ${P(days, 'день', 'дні', 'днів')}`;
+      } else if (r.state === 'wait' && rl) {
+        pill = 'Чекаєте';
+        meta = rl.any ? 'Ваш хід — щойно після вас хтось напише.' : `Ваш хід — після допису: ${rlWho}.`;
+        meta += ` Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}.`;
+      } else if (r.state === 'ping') {
+        const pg = r.ping;
+        pill = `Новий допис · ${pg.last.name}`;
+        meta = `${pg.last.name} — ${this._agoH(pg.last.at)}.`;
+        if (pg.n > 1) meta += ` Від тих, на кого ви чекаєте, — ${pg.n} ${P(pg.n, 'допис', 'дописи', 'дописів')}, відколи ви дивилися.`;
+        meta += ' «Бачу» гасить до наступного.';
+      } else if (r.state === 'turn') {
         meta = pz && !pz.mine
           ? `${pz.by.name} ${pz.to ? 'передає хід вам' : 'пропускає хід — тепер ваш'}, ${this._agoH(pz.at)}. Останній допис — ${r.lastBy.name}.`
           : `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}.`;
@@ -1700,11 +1789,12 @@ class Component extends DCLogic {
           ? `Ви підписані за ${r.me.name}, але за останні ${d.cast || 21} днів він у цій арці не писав — перший допис, і черга почнеться. `
           : 'Ви стежите за аркою. ';
         meta += `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}. Далі — ${r.up ? r.up.name : '—'}.`;
+        if (rl) meta += ` Засвітиться після ${rl.any ? 'будь-чийого допису' : `допису: ${rlWho}`}.`;
       }
       else if (r.state === 'closed') meta = `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}. У чергу не рахується.`;
       else meta = `Окрім вас, в арці ніхто не писав за останні ${d.cast || 21} днів.`;
       if (pz && !pz.mine && r.state !== 'turn' && r.state !== 'closed') meta += ` ${pz.by.name} ${pz.to ? `передає хід — ${pz.to.name}` : 'пропускає хід'}.`;
-      if (r.dropped.length && r.state !== 'solo' && r.state !== 'closed') meta += ` Поза чергою: ${names(r.dropped)}.`;
+      if (r.dropped.length && !rl && r.state !== 'solo' && r.state !== 'closed') meta += ` Поза чергою: ${names(r.dropped)}.`;
 
       // Хто закрив — видно всім учасникам; новий допис відкриває арку знову.
       let markNote = '', markNoteColor = 'rgba(255,255,255,0.6)';
@@ -1746,11 +1836,13 @@ class Component extends DCLogic {
       const q = r.queue.slice(0, 7);
       const chain = q.map((c, j) => {
         const up = j === 0, me = c.mine;
+        // На кого чекаєте — блакитна облямівка.
+        const awaited = !me && rl && !rl.any && rl.set && rl.set.has(String(c.name || '').trim().toLowerCase());
         return {
           key: c.k, name: c.name, arrow: j > 0, line: 'solid',
           bg: up ? (me ? 'rgba(255,215,0,0.18)' : 'rgba(255,255,255,0.1)') : 'transparent',
-          border: me ? 'rgba(255,215,0,0.5)' : (up ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.12)'),
-          color: me ? '#ffd700' : (up ? '#fff' : 'rgba(255,255,255,0.55)'),
+          border: me ? 'rgba(255,215,0,0.5)' : awaited ? 'rgba(100,149,237,0.6)' : (up ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.12)'),
+          color: me ? '#ffd700' : awaited ? '#c4d6ff' : (up ? '#fff' : 'rgba(255,255,255,0.55)'),
         };
       });
       if (r.queue.length > q.length) chain.push({ key: '+', name: `+${r.queue.length - q.length}`, arrow: true, line: 'solid', bg: 'transparent', border: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.35)' });
@@ -1775,6 +1867,11 @@ class Component extends DCLogic {
         passLabel: busy ? 'Хвилинку…' : (canUnpass ? 'Забрати хід назад' : 'Передати хід'),
         onPass: canUnpass ? () => this._passArc(r, null, false) : () => this.setState({ turnPass: rk, turnPassTo: '', turnAsk: '' }),
         passing, passOpts,
+        hasSeen: r.state === 'ping' && !asking && !passing, seenLabel: busy ? 'Хвилинку…' : 'Бачу',
+        onSeen: () => this._seenArc(r.arc),
+        hasAfterBtn: r.state !== 'closed' && !asking && !passing && !(r.follow && !unfFirst),
+        afterBtnLabel: rl ? `Після: ${rl.any ? 'будь-кого' : rl.names.length > 2 ? `${rl.names.slice(0, 2).join(', ')} +${rl.names.length - 2}` : rlWho}` : 'Після кого підсвічувати…',
+        onAfterBtn: () => this._folStart(r.arc, (r.follow && r.follow.as) || '', (r.follow && r.follow.after) || [], true),
         passGoLabel: busy ? 'Хвилинку…' : (passTarget ? `Передати — ${passTarget.name}` : 'Пропустити хід'),
         onPassGo: () => this._passArc(r, passTarget, true),
         onPassNo: () => this.setState({ turnPass: '', turnPassTo: '' }),
@@ -1789,6 +1886,8 @@ class Component extends DCLogic {
     let sum = n ? `Ваш хід ${n === 1 ? 'в одній арці' : `у ${n} ${P(n, 'арці', 'арках', 'арках')}`}.` : 'Зараз на вас ніхто не чекає.';
     if (!rows.length) sum = 'Ви поки не пишете в жодній живій арці. Підпишіться на арку нижче — і її черга буде тут.';
     const wn = new Set(rows.filter((r) => r.state === 'watch').map((r) => r.arc)).size;
+    const pn = new Set(rows.filter((r) => r.state === 'ping').map((r) => r.arc)).size;
+    if (pn) sum += ` Нові дописи там, де ви чекали: ${pn}.`;
     if (nx) sum += ` Наступні — ще в ${nx} ${P(nx, 'арці', 'арках', 'арках')}.`;
     const cl = new Set(rows.filter((r) => r.state === 'closed').map((r) => r.arc)).size;
     if (cl) sum += ` Закрито: ${cl}.`;
@@ -1797,7 +1896,7 @@ class Component extends DCLogic {
       ...base, ...this._folVals(d), turnsShow: true, turnRows, turnsSummary: sum,
       turnsHasNote: !!s.turnMarkErr, turnsNote: s.turnMarkErr || '',
       turnsBorder: n ? 'rgba(255,215,0,0.28)' : 'rgba(255,255,255,0.12)',
-      turnsHow: `Черга — це хто найдавніше відписував в арці. Беруться арки з дописами за ${d.live || 30} днів. Хто пропустив два кола або мовчить ${T.OUT_DAYS} днів, випадає з черги, поки не відпише знову. Коли хід ваш, його можна передати: черга рахує це як хід без допису. Закриту арку бачать закритою всі її учасники; новий допис відкриває її знову.`,
+      turnsHow: `Черга — це хто найдавніше відписував в арці. Беруться арки з дописами за ${d.live || 30} днів. Хто пропустив два кола або мовчить ${T.OUT_DAYS} днів, випадає з черги, поки не відпише знову. Коли хід ваш, його можна передати: черга рахує це як хід без допису. «Після кого підсвічувати» замінює для вас чергу в цій арці: хід ваш, коли після вас написав хтось із обраних; в арці, де ви не пишете, — просто вогник на новий допис. Закриту арку бачать закритою всі її учасники; новий допис відкриває її знову.`,
     };
   }
 

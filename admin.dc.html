@@ -424,6 +424,27 @@ input,textarea,select{font-size:16px}
       </div>
     </div>
 
+    <div style="background:rgba(100,149,237,0.05);border:1px solid rgba(100,149,237,0.25);border-radius:12px;padding:16px 18px;margin-bottom:18px;display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+        <div style="min-width:220px;flex:1;">
+          <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#6495ed;letter-spacing:0.05em;margin-bottom:6px;">✉ Пробна розсилка в лічку</p>
+          <p style="font-size:0.76rem;line-height:1.55;color:rgba(255,255,255,0.45);">{{ dmTestMsg }}</p>
+        </div>
+        <button onClick="{{ sendDmTest }}" disabled="{{ dmTestBusy }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(100,149,237,0.4);color:#9db8f2;border-radius:999px;padding:6px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;" style-hover="background:rgba(100,149,237,0.16);border-color:rgba(100,149,237,0.65);">Надіслати пробний аркуш</button>
+      </div>
+      <sc-if value="{{ dmTestHasRows }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <sc-for list="{{ dmTestRows }}" as="r" hint-placeholder-count="2">
+            <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:0.76rem;line-height:1.5;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
+              <span style="color:{{ r.color }};min-width:16px;">{{ r.mark }}</span>
+              <code style="color:rgba(255,255,255,0.85);">{{ r.id }}</code>
+              <span style="color:rgba(255,255,255,0.5);flex:1;min-width:160px;">{{ r.hint }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
     <!-- Звірка літопису з експортом чату -->
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:16px 18px;margin-bottom:18px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -4151,6 +4172,27 @@ class Component extends DCLogic {
       });
     } catch (err) {
       this.setState({ martaBusy: false, martaMsg: 'Не вийшло: ' + err.message });
+    }
+  }
+
+  // ── Пробна розсилка в лічку адмінів (telegram-report?dm_test=1) ──
+  async _sendDmTest() {
+    this.setState({ dmTestBusy: true, dmTestMsg: 'Марта розносить пробні аркуші…', dmTestRows: [] });
+    try {
+      const r = await fetch(`${SUPA_FUNCS}/telegram-report?dm_test=1`, {
+        method: 'POST', headers: { ...BASE_H, 'Authorization': `Bearer ${this._getToken() || ''}` },
+      });
+      const t = await r.text();
+      let j = null; try { j = JSON.parse(t); } catch (e) {}
+      if (!r.ok || !j) { this.setState({ dmTestBusy: false, dmTestMsg: `Не вийшло: ${t.slice(0, 140) || r.status}` }); return; }
+      const rows = j.to || [];
+      const ok = rows.filter(x => x.ok).length;
+      const msg = !rows.length
+        ? 'Адресатів немає: TELEGRAM_ADMINS і TELEGRAM_ART_SENDERS порожні.'
+        : `Дійшло ${ok} з ${rows.length}.` + (j.knockOverride ? ' Список узято з TELEGRAM_KNOCK — він перекриває решту.' : '');
+      this.setState({ dmTestBusy: false, dmTestMsg: msg, dmTestRows: rows });
+    } catch (err) {
+      this.setState({ dmTestBusy: false, dmTestMsg: 'Не вийшло: ' + err.message });
     }
   }
 
@@ -8043,6 +8085,18 @@ class Component extends DCLogic {
       martaBusy: !!s.martaBusy,
       martaMsg: s.martaMsg || 'Надіслати бланк у чат звітів просто зараз, не чекаючи розкладу.',
       sendMarta: (e) => this._sendMarta(e.currentTarget.dataset.period),
+      dmTestBusy: !!s.dmTestBusy,
+      dmTestMsg: s.dmTestMsg || 'Марта надішле кожному адресату короткий аркуш і скаже, кому не дійшло та чому.',
+      sendDmTest: () => this._sendDmTest(),
+      dmTestHasRows: (s.dmTestRows || []).length > 0,
+      dmTestRows: (s.dmTestRows || []).map(x => {
+        const w = String(x.why || '');
+        const hint = x.ok ? 'дійшло'
+          : /initiate|blocked|403/i.test(w) ? 'людина не натиснула /start у бота (або заблокувала його)'
+          : /chat not found|400/i.test(w) ? 'немає такого чату — перевірте числовий id'
+          : w;
+        return { id: x.id, mark: x.ok ? '✓' : '✕', color: x.ok ? '#7bd88f' : '#ff4d4d', hint };
+      }),
       statsHideClaude: !!s.statsHideClaude,
       statsClaudeMark: s.statsHideClaude ? '✓' : '',
       statsClaudeNote: this._claudeNote(),

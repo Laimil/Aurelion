@@ -6,6 +6,10 @@
 // Підписка (`follow`): арку видно й без своїх дописів (стан `watch`),
 // а «за кого» з підписки рахується вашим персонажем у цій арці (`viaAs`).
 // Передача ходу (`passes`) — хід без допису; «кому» діє, поки ніхто не писав.
+// «Підсвічувати після» (`follow.after`, '*' — будь-хто): глядачеві — стан
+// `ping` після свіжого допису когось із переліку (свіжий = після `seen`);
+// гравцеві — власне правило: `turn`, коли після його допису написав хтось
+// із переліку, інакше `wait`. Загальна черга для нього тоді не рахується.
 (function () {
   const DAY = 86400000;
   const OUT_DAYS = 14;
@@ -92,6 +96,13 @@
     const lastMine = !!(by[lastEv.k] && by[lastEv.k].mine);
 
     const follow = a.follow || null;
+    const tt = (x) => (x ? new Date(x).getTime() : 0);
+    const afterRaw = ((follow && follow.after) || []).map((x) => String(x || '').trim()).filter(Boolean);
+    const anyAfter = afterRaw.indexOf('*') >= 0;
+    const afterSet = new Set(afterRaw.filter((x) => x !== '*').map(nm));
+    const hasRule = afterRaw.length > 0;
+    const fits = (p) => !p.mine && (anyAfter || afterSet.has(nm(p.name)));
+    const ruleBase = hasRule ? { names: afterRaw.filter((x) => x !== '*'), any: anyAfter, set: afterSet } : null;
     const common = {
       arc: a.arc, queue, follow,
       lastBy: by[lastReal.k], lastAt: lastReal.realAt || lastReal.at, lastPost: lastReal.post,
@@ -108,16 +119,27 @@
     if (!mineList.length) {
       if (!follow) return [];
       const nmAs = (follow.as || '').trim();
+      const since = tt(follow.seen || follow.at);
+      const hits = hasRule ? posts.filter((p) => fits(p) && tt(p.at) > since) : [];
+      const ping = hits.length > 0 && !closed;
       return [Object.assign({}, common, {
         me: { k: '~watch', id: null, name: nmAs, mine: false, viaAs: !!nmAs, at: null, after: 0, watch: true },
-        state: closed ? 'closed' : 'watch', watching: true,
+        state: closed ? 'closed' : (ping ? 'ping' : 'watch'), watching: true,
+        ping: ping ? { n: hits.length, last: hits[hits.length - 1] } : null,
+        rule: ruleBase,
         ahead: [], up: queue[0] || null,
       })];
     }
     return mineList.map((c) => {
-      let state;
+      let state, rule = null;
       if (closed) state = 'closed';
       else if (passEv && passEv.k === c.k) state = 'passed';
+      else if (hasRule) {
+        const myT = tt(c.at);
+        const hits = posts.filter((p) => fits(p) && tt(p.at) > myT);
+        rule = Object.assign({}, ruleBase, { hit: hits[hits.length - 1] || null });
+        state = hits.length ? (lastMine ? 'done' : 'turn') : 'wait';
+      }
       else if (c.out) state = 'out';
       else if (queue.length < 2) state = 'solo';
       else if (c.pos === 0) state = lastMine ? 'done' : 'turn';
@@ -125,14 +147,15 @@
       else if (c.pos === 1) state = 'next';
       else state = 'wait';
       return Object.assign({}, common, {
-        me: c, state, watching: false,
-        ahead: c.out ? [] : queue.slice(0, c.pos),
+        me: c, state, watching: false, ping: null,
+        rule: rule || (hasRule ? ruleBase : null),
+        ahead: rule ? (rule.any ? [] : rule.names.map((n) => ({ name: n }))) : (c.out ? [] : queue.slice(0, c.pos)),
         up: queue.find((o) => !o.mine) || queue[0] || null,
       });
     });
   }
 
-  const W = { turn: 0, next: 1, wait: 2, out: 3, passed: 4, done: 4, watch: 5, solo: 6, closed: 7 };
+  const W = { turn: 0, ping: 0.5, next: 1, wait: 2, out: 3, passed: 4, done: 4, watch: 5, solo: 6, closed: 7 };
   function rows(d) {
     const out = [];
     ((d && d.arcs) || []).forEach((a) => { arcRows(a).forEach((r) => out.push(r)); });
@@ -142,6 +165,7 @@
     return out;
   }
   function yourTurn(d) { return rows(d).filter((r) => r.state === 'turn').length; }
+  function pings(d) { return new Set(rows(d).filter((r) => r.state === 'ping').map((r) => r.arc)).size; }
 
-  window.AuTurns = { rows, yourTurn, OUT_DAYS };
+  window.AuTurns = { rows, yourTurn, pings, OUT_DAYS };
 })();
