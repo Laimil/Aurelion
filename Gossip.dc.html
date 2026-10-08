@@ -242,8 +242,25 @@ a:hover{color:#fff}
                   <button onClick="{{ t.onYes }}" class="gos-go" data-busy="{{ t.busy }}" style="cursor:pointer;background:rgba(255,215,0,0.14);color:#ffd700;border:1px solid rgba(255,215,0,0.4);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">Так, закрита</button>
                   <button onClick="{{ t.onNo }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.45);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">Ні</button>
                 </sc-if>
+                <sc-if value="{{ t.hasPass }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ t.onPass }}" class="gos-ghost" data-busy="{{ t.busy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.35);color:#a0beff;border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.passLabel }}</button>
+                </sc-if>
                 <sc-if value="{{ t.hasAct }}" hint-placeholder-val="{{ true }}">
                   <button onClick="{{ t.onAct }}" class="gos-ghost" data-busy="{{ t.busy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.actLabel }}</button>
+                </sc-if>
+                <sc-if value="{{ t.passing }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex-basis:100%;display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:10px;background:rgba(100,149,237,0.05);border:1px solid rgba(100,149,237,0.2);">
+                    <span style="font-size:0.76rem;line-height:1.5;color:rgba(255,255,255,0.65);text-wrap:pretty;">Кому віддати хід? Для черги це ваш хід без допису: ви йдете в кінець кола. Названий учасник стане першим, поки хтось не напише.</span>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                      <sc-for list="{{ t.passOpts }}" as="o" hint-placeholder-count="2">
+                        <button onClick="{{ o.onPick }}" style="cursor:pointer;display:inline-flex;gap:5px;align-items:baseline;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:{{ o.bg }};border:1px solid {{ o.border }};color:{{ o.color }};transition:all 0.2s ease;"><span>{{ o.name }}</span><span style="opacity:0.6;">{{ o.sub }}</span></button>
+                      </sc-for>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                      <button onClick="{{ t.onPassGo }}" class="gos-go" data-busy="{{ t.busy }}" style="cursor:pointer;background:rgba(100,149,237,0.16);color:#a0beff;border:1px solid rgba(100,149,237,0.5);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.passGoLabel }}</button>
+                      <button onClick="{{ t.onPassNo }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.45);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">Скасувати</button>
+                    </div>
+                  </div>
                 </sc-if>
                 <sc-if value="{{ t.hasUnf }}" hint-placeholder-val="{{ false }}">
                   <button onClick="{{ t.onUnf }}" class="gos-ghost" data-busy="{{ t.unfBusy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.3);color:rgba(160,190,255,0.8);border-radius:999px;padding:4px 13px;font-size:0.72rem;transition:all 0.2s ease;">{{ t.unfLabel }}</button>
@@ -1485,6 +1502,24 @@ class Component extends DCLogic {
     if (!err) this._loadTurns(true);
   }
 
+  // Передати хід (supabase_arc_pass_migration.sql): для черги це хід без
+  // допису; «кому» ставить названого першим, поки ніхто не написав.
+  async _passArc(r, to, on) {
+    this.setState({ turnMarkBusy: r.arc, turnMarkErr: '' });
+    let err = '';
+    try {
+      const body = { p_arc: r.arc, p_from: String(r.me.k), p_from_name: r.me.name || null,
+        p_to: to ? String(to.k) : null, p_to_name: to ? to.name : null, p_on: on };
+      const res = await this._api(`${SUPA_URL}/rpc/arc_pass`, { method: 'POST', body: JSON.stringify(body) }, true);
+      const d = res.ok ? await res.json() : null;
+      if (!res.ok) err = `HTTP ${res.status}. Схоже, не прогнано supabase_arc_pass_migration.sql.`;
+      else if (d && d.error) err = d.error === 'not yours' ? 'Передати хід можна лише за свого персонажа в цій арці.' : d.error;
+    } catch (e) { err = 'Звʼязку немає. Спробуйте ще раз.'; }
+    console.log('черга:', on ? `«${r.arc}» — хід ${to ? `передано ${to.name}` : 'пропущено'}` : `«${r.arc}» — передачу знято`, err || 'ok');
+    this.setState({ turnMarkBusy: '', turnMarkErr: err, turnPass: err ? this.state.turnPass : '', turnPassTo: '' });
+    if (!err) this._loadTurns(true);
+  }
+
   // Підписка на арку: видно чергу без своєї анкети в ній, а «за кого граю»
   // робить технічного НПЦ вашим у цій арці (supabase_arc_follows_migration.sql).
   async _loadCat(force) {
@@ -1629,6 +1664,7 @@ class Component extends DCLogic {
       turn: { pill: 'Ваш хід', bg: 'rgba(255,215,0,0.06)', border: 'rgba(255,215,0,0.3)', pBg: 'rgba(255,215,0,0.16)', pBorder: 'rgba(255,215,0,0.55)', pColor: '#ffd700', glow: '0 0 16px rgba(255,215,0,0.25)' },
       next: { pill: 'Ви наступні', bg: 'rgba(100,149,237,0.05)', border: 'rgba(100,149,237,0.22)', pBg: 'rgba(100,149,237,0.14)', pBorder: 'rgba(100,149,237,0.45)', pColor: '#a0beff' },
       wait: { pill: '', bg: 'rgba(255,255,255,0.03)', border: 'rgba(255,255,255,0.1)', pBg: 'rgba(255,255,255,0.06)', pBorder: 'rgba(255,255,255,0.2)', pColor: 'rgba(255,255,255,0.72)' },
+      passed: { pill: 'Хід передано', bg: 'rgba(255,255,255,0.02)', border: 'rgba(100,149,237,0.16)', pBg: 'transparent', pBorder: 'rgba(100,149,237,0.4)', pColor: '#a0beff' },
       done: { pill: 'Відписали', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
       out:  { pill: 'Поза чергою', bg: 'rgba(255,77,77,0.03)', border: 'rgba(255,77,77,0.16)', pBg: 'rgba(255,77,77,0.06)', pBorder: 'rgba(255,77,77,0.4)', pColor: '#ff9a9a', line: 'dashed' },
       solo: { pill: 'Соло', bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.08)', pBg: 'transparent', pBorder: 'rgba(255,255,255,0.14)', pColor: 'rgba(255,255,255,0.45)' },
@@ -1648,11 +1684,15 @@ class Component extends DCLogic {
       const st = S[r.state];
       let pill = st.pill, meta = '';
       const days = Math.floor(r.waitMs / 86400000);
+      const pz = r.pass;
       if (r.state === 'turn') {
-        meta = `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}.`;
+        meta = pz && !pz.mine
+          ? `${pz.by.name} ${pz.to ? 'передає хід вам' : 'пропускає хід — тепер ваш'}, ${this._agoH(pz.at)}. Останній допис — ${r.lastBy.name}.`
+          : `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}.`;
         if (days >= 2) { meta += ` Чекають на вас ${days} ${P(days, 'день', 'дні', 'днів')}.`; pill = `Ваш хід · ${days} ${P(days, 'день', 'дні', 'днів')}`; }
       } else if (r.state === 'next') meta = `Перед вами — ${names(r.ahead)}.`;
       else if (r.state === 'wait') { pill = `Ще ${r.ahead.length} перед вами`; meta = `Перед вами — ${names(r.ahead)}.`; }
+      else if (r.state === 'passed') meta = `Ви ${pz.to ? `передали хід — ${pz.to.name}` : 'пропустили хід'} ${this._agoH(pz.at)}. Далі — ${r.up ? r.up.name : '—'}. Поки ніхто не написав, хід можна забрати назад.`;
       else if (r.state === 'done') meta = `Ви відписали ${this._agoH(r.me.at)}. Далі — ${r.up ? r.up.name : '—'}.`;
       else if (r.state === 'out') meta = `Арка пішла далі без вас: ${r.me.after} ${P(r.me.after, 'хід', 'ходи', 'ходів')} після вашого. Відпишіть — і повернетеся в чергу.`;
       else if (r.state === 'watch') {
@@ -1663,6 +1703,7 @@ class Component extends DCLogic {
       }
       else if (r.state === 'closed') meta = `Останній допис — ${r.lastBy.name}, ${this._agoH(r.lastAt)}. У чергу не рахується.`;
       else meta = `Окрім вас, в арці ніхто не писав за останні ${d.cast || 21} днів.`;
+      if (pz && !pz.mine && r.state !== 'turn' && r.state !== 'closed') meta += ` ${pz.by.name} ${pz.to ? `передає хід — ${pz.to.name}` : 'пропускає хід'}.`;
       if (r.dropped.length && r.state !== 'solo' && r.state !== 'closed') meta += ` Поза чергою: ${names(r.dropped)}.`;
 
       // Хто закрив — видно всім учасникам; новий допис відкриває арку знову.
@@ -1682,6 +1723,25 @@ class Component extends DCLogic {
       else if (r.watching) { /* стежите, але не пишете — закривати не вам */ }
       else if (r.state === 'closed') { actLabel = busy ? 'Хвилинку…' : 'Теж вважаю закритою'; onAct = () => this._markArc(r.arc, true); }
       else if (r.state !== 'solo' || r.queue.length) { actLabel = 'Арку закрито'; onAct = () => this.setState({ turnAsk: rk }); }
+
+      // Передати хід: лише коли хід ваш. Кандидати — інші учасники, не ваші.
+      const passing = s.turnPass === rk;
+      const others = r.all.filter((o) => !o.mine && o.k !== r.me.k);
+      const nextUp = r.queue.find((o) => !o.mine && o.k !== r.me.k) || null;
+      const passOpt = (k, name, sub) => {
+        const on = (s.turnPassTo || '') === k;
+        return { key: k || '~next', name, sub,
+          bg: on ? 'rgba(100,149,237,0.16)' : 'rgba(255,255,255,0.04)',
+          border: on ? 'rgba(100,149,237,0.55)' : 'rgba(255,255,255,0.14)',
+          color: on ? '#a0beff' : 'rgba(255,255,255,0.65)',
+          onPick: () => this.setState({ turnPassTo: k }) };
+      };
+      const passOpts = passing ? [passOpt('', 'Далі за чергою', nextUp ? `· ${nextUp.name}` : '')]
+        .concat(others.filter((o) => !nextUp || o.k !== nextUp.k)
+          .map((o) => passOpt(String(o.k), o.name, o.out ? '· поза чергою' : ''))) : [];
+      const passTarget = s.turnPassTo ? others.find((o) => String(o.k) === s.turnPassTo) || null : null;
+      const canPass = r.state === 'turn' && others.length > 0;
+      const canUnpass = r.state === 'passed' && r.pass && r.pass.mine;
 
       const q = r.queue.slice(0, 7);
       const chain = q.map((c, j) => {
@@ -1710,7 +1770,14 @@ class Component extends DCLogic {
         hasMarkNote: !!markNote, markNote, markNoteColor,
         asking, askText: 'Відмітити, що сцену дограно? Співгравці це побачать.',
         onYes: () => this._markArc(r.arc, true), onNo: () => this.setState({ turnAsk: '' }),
-        hasAct: !asking && !!onAct, actLabel, onAct, busy: busy ? 'true' : 'false',
+        hasAct: !asking && !passing && !!onAct, actLabel, onAct, busy: busy ? 'true' : 'false',
+        hasPass: !asking && !passing && (canPass || canUnpass),
+        passLabel: busy ? 'Хвилинку…' : (canUnpass ? 'Забрати хід назад' : 'Передати хід'),
+        onPass: canUnpass ? () => this._passArc(r, null, false) : () => this.setState({ turnPass: rk, turnPassTo: '', turnAsk: '' }),
+        passing, passOpts,
+        passGoLabel: busy ? 'Хвилинку…' : (passTarget ? `Передати — ${passTarget.name}` : 'Пропустити хід'),
+        onPassGo: () => this._passArc(r, passTarget, true),
+        onPassNo: () => this.setState({ turnPass: '', turnPassTo: '' }),
         bg: st.bg, border: st.border,
         pillBg: st.pBg, pillBorder: st.pBorder, pillColor: st.pColor, pillGlow: st.glow || 'none', pillLine: st.line || 'solid',
         href: `${base_}?arc=${encodeURIComponent(r.arc)}#posts`,
@@ -1730,7 +1797,7 @@ class Component extends DCLogic {
       ...base, ...this._folVals(d), turnsShow: true, turnRows, turnsSummary: sum,
       turnsHasNote: !!s.turnMarkErr, turnsNote: s.turnMarkErr || '',
       turnsBorder: n ? 'rgba(255,215,0,0.28)' : 'rgba(255,255,255,0.12)',
-      turnsHow: `Черга — це хто найдавніше відписував в арці. Беруться арки з дописами за ${d.live || 30} днів. Хто пропустив два кола або мовчить ${T.OUT_DAYS} днів, випадає з черги, поки не відпише знову. Закриту арку бачать закритою всі її учасники; новий допис відкриває її знову.`,
+      turnsHow: `Черга — це хто найдавніше відписував в арці. Беруться арки з дописами за ${d.live || 30} днів. Хто пропустив два кола або мовчить ${T.OUT_DAYS} днів, випадає з черги, поки не відпише знову. Коли хід ваш, його можна передати: черга рахує це як хід без допису. Закриту арку бачать закритою всі її учасники; новий допис відкриває її знову.`,
     };
   }
 
