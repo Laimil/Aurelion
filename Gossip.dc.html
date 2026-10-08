@@ -213,6 +213,9 @@ a:hover{color:#fff}
         <sc-if value="{{ turnsHasNote }}" hint-placeholder-val="{{ false }}">
           <p style="font-size:0.8rem;line-height:1.5;color:rgba(255,160,160,0.8);">{{ turnsNote }}</p>
         </sc-if>
+        <sc-if value="{{ arcDlHasErr }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.8rem;line-height:1.5;color:rgba(255,160,160,0.8);">{{ arcDlErr }}</p>
+        </sc-if>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <sc-for list="{{ turnRows }}" as="t" hint-placeholder-count="2">
             <div style="display:flex;flex-direction:column;gap:9px;padding:12px 14px;border-radius:10px;background:{{ t.bg }};border:1px solid {{ t.border }};">
@@ -222,6 +225,7 @@ a:hover{color:#fff}
                   <span style="font-family:'Cinzel',Georgia,serif;font-size:0.9rem;font-weight:700;letter-spacing:0.03em;color:#fff;">{{ t.arc }}</span>
                   <span style="font-size:0.74rem;color:rgba(255,255,255,0.4);">{{ t.who }}</span>
                 </span>
+                <button onClick="{{ t.onDl }}" class="gos-ghost" data-busy="{{ t.dlBusy }}" title="Усі дописи арки одним текстовим файлом" style="flex-shrink:0;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:3px 11px;font-size:0.7rem;transition:all 0.2s ease;">{{ t.dlLabel }}</button>
                 <a href="{{ t.href }}" style="flex-shrink:0;font-size:0.74rem;">До арки →</a>
               </div>
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -339,6 +343,12 @@ a:hover{color:#fff}
               </div>
             </div>
           </sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:0.7rem;line-height:1.5;color:rgba(255,255,255,0.4);margin-right:4px;">Вивантажувати арку як</span>
+          <sc-for list="{{ arcFmts }}" as="f" hint-placeholder-count="3">
+            <button onClick="{{ f.onPick }}" class="gos-hit" style="cursor:pointer;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};border-radius:999px;padding:3px 10px;font-size:0.7rem;transition:all 0.2s ease;">{{ f.label }}</button>
+          </sc-for>
         </div>
         <p style="font-size:0.7rem;line-height:1.55;color:rgba(255,255,255,0.3);text-wrap:pretty;">{{ turnsHow }}</p>
       </div>
@@ -744,13 +754,23 @@ a:hover{color:#fff}
               <sc-if value="{{ hasPostArcs }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex;flex-direction:column;gap:10px;">
                   <sc-for list="{{ postArcs }}" as="a" hint-placeholder-count="4">
-                    <div style="display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr) auto;gap:12px;align-items:center;">
+                    <div style="display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr) auto auto;gap:12px;align-items:center;">
                       <p style="font-size:0.84rem;color:rgba(255,255,255,0.72);line-height:1.35;">{{ a.arc }}</p>
                       <div style="height:7px;border-radius:4px;background:rgba(255,255,255,0.06);overflow:hidden;"><div style="height:7px;border-radius:4px;background:rgba(100,149,237,0.8);width:{{ a.pct }};"></div></div>
                       <p style="font-size:0.74rem;color:rgba(255,255,255,0.42);text-align:right;">{{ a.num }}</p>
+                      <button onClick="{{ a.onDl }}" class="gos-ghost" data-busy="{{ a.dlBusy }}" title="Вивантажити арку у файл" aria-label="Вивантажити арку у файл" style="cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;padding:0;font-size:0.8rem;transition:all 0.2s ease;">{{ a.dlLabel }}</button>
                     </div>
                   </sc-for>
                 </div>
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:14px;">
+                  <span style="font-size:0.7rem;line-height:1.5;color:rgba(255,255,255,0.4);margin-right:4px;">↓ — уся арка одним файлом:</span>
+                  <sc-for list="{{ arcFmts }}" as="f" hint-placeholder-count="3">
+                    <button onClick="{{ f.onPick }}" class="gos-hit" style="cursor:pointer;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};border-radius:999px;padding:3px 10px;font-size:0.7rem;transition:all 0.2s ease;">{{ f.label }}</button>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ arcDlHasErr }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-size:0.78rem;line-height:1.5;color:rgba(255,160,160,0.8);margin-top:6px;">{{ arcDlErr }}</p>
+                </sc-if>
               </sc-if>
               <sc-if value="{{ noPostArcs }}" hint-placeholder-val="{{ true }}">
                 <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;color:rgba(255,255,255,0.42);">Арок за вашими персонажами я ще не бачила. Арка — другий хештег у дописі.</p>
@@ -1878,6 +1898,9 @@ class Component extends DCLogic {
         bg: st.bg, border: st.border,
         pillBg: st.pBg, pillBorder: st.pBorder, pillColor: st.pColor, pillGlow: st.glow || 'none', pillLine: st.line || 'solid',
         href: `${base_}?arc=${encodeURIComponent(r.arc)}#posts`,
+        dlLabel: s.arcDl === r.arc ? 'Збираю…' : `↓ .${this._arcFmt()}`,
+        dlBusy: s.arcDl === r.arc ? 'true' : 'false',
+        onDl: () => this._exportArc(r.arc),
       };
     });
 
@@ -2974,6 +2997,9 @@ class Component extends DCLogic {
       })),
       postArcs: arcs.map((a) => ({
         key: String(a.arc), arc: String(a.arc),
+        dlLabel: this.state.arcDl === String(a.arc) ? '…' : '↓',
+        dlBusy: this.state.arcDl === String(a.arc) ? 'true' : 'false',
+        onDl: () => this._exportArc(String(a.arc)),
         num: `${num(a.n)} ${this._plural(a.n, 'допис', 'дописи', 'дописів')}`,
         pct: `${Math.round(((a.n || 0) / apeak) * 100)}%`,
       })),
@@ -3591,6 +3617,73 @@ class Component extends DCLogic {
     };
   }
 
+  // ── Вивантаження арки у файл ──────────────────────────────
+  // Усі дописи з цим тегом арки, від першого до останнього, одним .txt.
+  // Тег буває складеним («Арка А / Арка Б») — такі дописи теж ідуть,
+  // як і на сторінці «Пости». Читаємо сторінками по 1000: PostgREST
+  // більше за раз не віддає.
+  // Модуль форматів тягнемо лише на першому вивантаженні: кабінет
+  // монтується і в Aurelion.dc.html, де свого тегу на нього немає.
+  _arcLib() {
+    if (window.AuArcExport) return Promise.resolve(window.AuArcExport);
+    if (!this._arcLibP) this._arcLibP = new Promise((res, rej) => {
+      const sc = document.createElement('scr' + 'ipt');
+      sc.src = './arc-export.js';
+      sc.onload = () => window.AuArcExport ? res(window.AuArcExport) : rej(new Error('arc-export.js без AuArcExport'));
+      sc.onerror = () => { this._arcLibP = null; rej(new Error('arc-export.js не завантажився')); };
+      document.head.appendChild(sc);
+    });
+    return this._arcLibP;
+  }
+  _arcFmt() {
+    const f = this.state.arcFmt || (() => { try { return localStorage.getItem('au_arc_fmt') || ''; } catch (e) { return ''; } })();
+    return ['txt', 'md', 'docx'].includes(f) ? f : 'docx';
+  }
+  _setArcFmt(f) {
+    try { localStorage.setItem('au_arc_fmt', f); } catch (e) {}
+    this.setState({ arcFmt: f });
+  }
+
+  async _exportArc(arc, fmt) {
+    arc = String(arc || '').trim();
+    fmt = fmt || this._arcFmt();
+    if (!arc || this.state.arcDl) return;
+    this.setState({ arcDl: arc, arcDlErr: '' });
+    try {
+      const lib = await this._arcLib();
+      const q = (x) => '"' + String(x).replace(/["\\]/g, '') + '"';
+      const S = ' / ';
+      const or = [`tag_arc.eq.${q(arc)}`];
+      if (!/[*%]/.test(arc)) or.push(`tag_arc.ilike.${q(arc + S + '*')}`, `tag_arc.ilike.${q('*' + S + arc)}`, `tag_arc.ilike.${q('*' + S + arc + S + '*')}`);
+      const rows = [];
+      for (let off = 0; off < 50000; off += 1000) {
+        const url = `${SUPA_URL}/marta_posts?select=id,tag_name,character_name,body,created_at`
+          + `&or=${encodeURIComponent('(' + or.join(',') + ')')}&order=created_at.asc,id.asc&limit=1000&offset=${off}`;
+        const r = await this._api(url);
+        if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
+        const got = await r.json();
+        rows.push(...got);
+        if (got.length < 1000) break;
+      }
+      console.log(`арка у файл: «${arc}» — дописів ${rows.length}`);
+      if (!rows.length) { this.setState({ arcDlErr: `В арці «${arc}» дописів не знайшлося.` }); return; }
+
+      const blob = lib.build(fmt, arc, rows);
+      const name = `Арка - ${arc}`.replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) + '.' + fmt;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    } catch (e) {
+      console.warn('арка у файл: не вийшло —', e);
+      this.setState({ arcDlErr: `Не вдалося вивантажити «${arc}». Спробуйте ще раз за хвилину.` });
+    } finally {
+      this.setState({ arcDl: '' });
+    }
+  }
+
   renderVals() {
     const s = this.state;
     const prof = s.prof || {};
@@ -3810,6 +3903,14 @@ class Component extends DCLogic {
       ...this._mineVals(),
       ...this._meVals(),
       ...this._turnVals(),
+      arcDlHasErr: !!s.arcDlErr, arcDlErr: s.arcDlErr || '',
+      arcFmts: ['docx', 'md', 'txt'].map((f) => {
+        const on = this._arcFmt() === f;
+        return { key: f, label: '.' + f, onPick: () => this._setArcFmt(f),
+          bg: on ? 'rgba(255,215,0,0.14)' : 'transparent',
+          border: on ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.14)',
+          color: on ? '#ffd700' : 'rgba(255,255,255,0.5)' };
+      }),
       ...this._sideVals(),
       ...(() => {
         const fv = this._folderVals();
