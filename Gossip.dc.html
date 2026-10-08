@@ -213,9 +213,6 @@ a:hover{color:#fff}
         <sc-if value="{{ turnsHasNote }}" hint-placeholder-val="{{ false }}">
           <p style="font-size:0.8rem;line-height:1.5;color:rgba(255,160,160,0.8);">{{ turnsNote }}</p>
         </sc-if>
-        <sc-if value="{{ arcDlHasErr }}" hint-placeholder-val="{{ false }}">
-          <p style="font-size:0.8rem;line-height:1.5;color:rgba(255,160,160,0.8);">{{ arcDlErr }}</p>
-        </sc-if>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <sc-for list="{{ turnRows }}" as="t" hint-placeholder-count="2">
             <div style="display:flex;flex-direction:column;gap:9px;padding:12px 14px;border-radius:10px;background:{{ t.bg }};border:1px solid {{ t.border }};">
@@ -353,6 +350,34 @@ a:hover{color:#fff}
         <p style="font-size:0.7rem;line-height:1.55;color:rgba(255,255,255,0.3);text-wrap:pretty;">{{ turnsHow }}</p>
       </div>
       </sc-if></sc-if>
+
+      <!-- вивантаження будь-якої арки у файл — не лише своїх -->
+      <sc-if value="{{ dlShow }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:22px 22px 20px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:12px;">
+        <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ Арку — у файл</p>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.6);text-wrap:pretty;">Будь-яка арка зі стрічки, жива чи давно дограна: усі дописи від першого до останнього одним файлом.</p>
+        <input class="gos-field" value="{{ dlQ }}" onChange="{{ setDlQ }}" placeholder="Назва арки, як у тегу" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 16px;color:#fff;font-size:0.88rem;outline:none;transition:all 0.2s ease;" />
+        <sc-if value="{{ dlHasHits }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;max-height:220px;overflow-y:auto;">
+            <sc-for list="{{ dlHits }}" as="h" hint-placeholder-count="6">
+              <button onClick="{{ h.onPick }}" class="gos-hit" style="cursor:pointer;display:inline-flex;align-items:baseline;gap:6px;background:{{ h.bg }};border:1px solid {{ h.border }};color:{{ h.color }};border-radius:999px;padding:6px 14px;font-size:0.8rem;transition:all 0.2s ease;"><span>{{ h.name }}</span><span style="font-size:0.68rem;opacity:0.6;">{{ h.sub }}</span></button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ dlHasNote }}" hint-placeholder-val="{{ true }}">
+          <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);text-wrap:pretty;">{{ dlNote }}</p>
+        </sc-if>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:4px;">
+          <sc-for list="{{ arcFmts }}" as="f" hint-placeholder-count="3">
+            <button onClick="{{ f.onPick }}" class="gos-hit" style="cursor:pointer;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};border-radius:999px;padding:4px 11px;font-size:0.74rem;transition:all 0.2s ease;">{{ f.label }}</button>
+          </sc-for>
+          <button onClick="{{ dlGo }}" disabled="{{ dlGoDisabled }}" class="gos-go" data-busy="{{ dlGoBusy }}" style="margin-left:auto;cursor:pointer;background:{{ dlGoBg }};color:{{ dlGoColor }};border:1px solid {{ dlGoBorder }};border-radius:999px;padding:7px 18px;font-size:0.8rem;transition:all 0.2s ease;">{{ dlGoLabel }}</button>
+        </div>
+        <sc-if value="{{ arcDlHasErr }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.8rem;line-height:1.5;color:rgba(255,160,160,0.8);">{{ arcDlErr }}</p>
+        </sc-if>
+      </div>
+      </sc-if>
 
       <sc-if value="{{ lockedOnly }}" hint-placeholder-val="{{ false }}">
         <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">Віконце пліток відчиняють адміни — ваш аркуш ще на розгляді.</p>
@@ -1490,7 +1515,7 @@ class Component extends DCLogic {
     // тягнеться завжди, а плітки лише для своїх.
     this._loadSubs(u.id);
     this._loadOwned(u.id);
-    if (prof.status === 'approved') { this._loadLists(u.id); this._loadTurns(true); }
+    if (prof.status === 'approved') { this._loadLists(u.id); this._loadTurns(true); this._loadArcTags(); }
   }
 
   // ── черга в арках (бета) ──────────────────────────────────
@@ -3644,6 +3669,74 @@ class Component extends DCLogic {
     this.setState({ arcFmt: f });
   }
 
+  // Перелік УСІХ арок стрічки (і закритих, і давніх) — з тієї ж RPC, що
+  // будує фільтр на сторінці «Пости». Без неї — запасний скан останніх
+  // 1000 дописів (давні арки тоді можуть не потрапити, про це пишемо).
+  async _loadArcTags() {
+    if (this.state.dlArcs || this._dlArcsBusy) return;
+    this._dlArcsBusy = true;
+    let list = null, partial = false;
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/marta_post_tags`);
+      if (r.ok) list = (await r.json()).filter((t) => t.kind === 'arc' && t.name).map((t) => ({ arc: String(t.name).trim(), n: +t.n || 0 }));
+      else console.warn('вивантаження: marta_post_tags —', r.status, await r.text());
+    } catch (e) { console.warn('вивантаження: marta_post_tags не вийшов', e); }
+    if (!list) {
+      partial = true;
+      try {
+        const r = await this._api(`${SUPA_URL}/marta_posts?select=tag_arc&order=created_at.desc&limit=1000`);
+        const m = new Map();
+        (r.ok ? await r.json() : []).forEach((p) => String(p.tag_arc || '').split(' / ').map((x) => x.trim()).filter(Boolean)
+          .forEach((a) => m.set(a, (m.get(a) || 0) + 1)));
+        list = [...m].map(([arc, n]) => ({ arc, n }));
+      } catch (e) { list = []; }
+    }
+    list.sort((a, b) => b.n - a.n || a.arc.localeCompare(b.arc, 'uk'));
+    console.log(`вивантаження: арок у переліку ${list.length}${partial ? ' (запасний скан)' : ''}`);
+    this._dlArcsBusy = false;
+    this.setState({ dlArcs: list, dlArcsPartial: partial });
+  }
+
+  _dlVals() {
+    const s = this.state;
+    const prof = s.prof || {};
+    const show = prof.status === 'approved' && !this.props.onlyGossip;
+    const arcs = s.dlArcs || [];
+    const q = fold(String(s.dlQ || '').trim());
+    const sel = q ? arcs.find((a) => fold(a.arc) === q) : null;
+    const hits = sel ? [sel] : arcs.filter((a) => !q || fold(a.arc).includes(q)).slice(0, q ? 24 : 12);
+    const P = (n) => this._plural(n, 'допис', 'дописи', 'дописів');
+    let note = '';
+    if (!s.dlArcs) note = 'Збираю перелік арок…';
+    else if (!arcs.length) note = 'Арок у стрічці я ще не бачила.';
+    else if (q && !hits.length) note = 'Такої арки немає. Назва — другий хештег у дописі.';
+    else if (!q) note = `Усього арок: ${arcs.length}. Тут — найбільші; решту знайде пошук.${s.dlArcsPartial ? ' Перелік неповний: не прогнано supabase_post_tags_rpc.sql.' : ''}`;
+    const busy = !!s.arcDl;
+    return {
+      dlShow: show,
+      dlQ: s.dlQ || '',
+      setDlQ: (e) => this.setState({ dlQ: e.target.value, arcDlErr: '' }),
+      dlHits: hits.map((a) => {
+        const on = sel && sel.arc === a.arc;
+        return { key: a.arc, name: a.arc, sub: `${a.n} ${P(a.n)}`,
+          bg: on ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.05)',
+          border: on ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.14)',
+          color: on ? '#ffd700' : 'rgba(255,255,255,0.7)',
+          onPick: () => this.setState({ dlQ: on ? '' : a.arc, arcDlErr: '' }) };
+      }),
+      dlHasHits: hits.length > 0,
+      dlNote: note, dlHasNote: !!note,
+      dlCan: !!sel,
+      dlGoLabel: busy && sel && s.arcDl === sel.arc ? 'Збираю…' : sel ? `↓ Скачати .${this._arcFmt()}` : 'Спершу оберіть арку',
+      dlGoBusy: busy ? 'true' : 'false',
+      dlGoDisabled: !sel || busy,
+      dlGo: () => { if (sel) this._exportArc(sel.arc); },
+      dlGoBg: sel ? 'rgba(255,215,0,0.14)' : 'transparent',
+      dlGoBorder: sel ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.12)',
+      dlGoColor: sel ? '#ffd700' : 'rgba(255,255,255,0.35)',
+    };
+  }
+
   async _exportArc(arc, fmt) {
     arc = String(arc || '').trim();
     fmt = fmt || this._arcFmt();
@@ -3904,6 +3997,7 @@ class Component extends DCLogic {
       ...this._meVals(),
       ...this._turnVals(),
       arcDlHasErr: !!s.arcDlErr, arcDlErr: s.arcDlErr || '',
+      ...this._dlVals(),
       arcFmts: ['docx', 'md', 'txt'].map((f) => {
         const on = this._arcFmt() === f;
         return { key: f, label: '.' + f, onPick: () => this._setArcFmt(f),
