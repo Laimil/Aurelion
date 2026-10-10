@@ -179,6 +179,7 @@ input,textarea,select{font-size:16px}
       <button onClick="{{ exportData }}" style="flex:1;height:34px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);font-size:0.78rem;" style-hover="color:#fff;">↓ JSON</button>
     </div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.5);padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ adminEmail }}</p>
+    <button onClick="{{ openMyPw }}" style="align-self:flex-start;background:none;border:none;padding:0 4px;font-size:0.78rem;color:rgba(255,255,255,0.6);" style-hover="color:#ffd700;">⚷ Змінити мій пароль</button>
     <div style="display:flex;justify-content:space-between;padding:0 4px;">
       <a href="Aurelion.dc.html" style="font-size:0.82rem;color:rgba(255,255,255,0.7);text-decoration:none;" style-hover="color:#fff;">← На сайт</a>
       <button onClick="{{ doLogout }}" style="background:none;border:none;padding:0;font-size:0.82rem;color:rgba(255,120,120,0.85);" style-hover="color:#ff7070;">Вийти</button>
@@ -186,6 +187,34 @@ input,textarea,select{font-size:16px}
   </div>
 </aside>
 <div class="adm-main" style="min-width:0;">
+<sc-if value="{{ myPwOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeMyPwBg }}" style="position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;">
+    <div onClick="{{ stopProp }}" style="animation:fadeUp 0.25s ease;width:100%;max-width:400px;background:#1c1c1c;border:1px solid rgba(255,255,255,0.14);border-radius:14px;padding:26px;box-shadow:0 18px 50px rgba(0,0,0,0.6);">
+      <p style="font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:6px;">✦ Мій пароль</p>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);margin-bottom:18px;overflow:hidden;text-overflow:ellipsis;">{{ adminEmail }}</p>
+      <div style="margin-bottom:14px;">
+        <label>Поточний пароль</label>
+        <input type="password" autocomplete="current-password" value="{{ myPwOld }}" onChange="{{ setMyPwOld }}" onKeyDown="{{ myPwEnter }}" placeholder="••••••••" />
+      </div>
+      <div style="margin-bottom:14px;">
+        <label>Новий пароль</label>
+        <input type="password" autocomplete="new-password" value="{{ myPw1 }}" onChange="{{ setMyPw1 }}" onKeyDown="{{ myPwEnter }}" placeholder="Від 8 знаків" />
+      </div>
+      <div style="margin-bottom:18px;">
+        <label>Ще раз</label>
+        <input type="password" autocomplete="new-password" value="{{ myPw2 }}" onChange="{{ setMyPw2 }}" onKeyDown="{{ myPwEnter }}" placeholder="Для певності" />
+      </div>
+      <sc-if value="{{ myPwErr }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.25);border-radius:7px;padding:9px 14px;margin-bottom:16px;font-size:0.82rem;color:#ff7070;">{{ myPwErr }}</div>
+      </sc-if>
+      <div style="display:flex;gap:10px;">
+        <button onClick="{{ closeMyPw }}" style="flex:1;height:42px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.8);font-size:0.88rem;">Скасувати</button>
+        <button onClick="{{ doMyPw }}" style="flex:1.4;height:42px;border-radius:999px;background:#ffd700;color:#1a1a1a;border:none;font-family:'Cinzel',serif;font-size:0.9rem;font-weight:700;letter-spacing:0.05em;cursor:pointer;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.4);">{{ myPwBtn }}</button>
+      </div>
+      <p style="margin-top:14px;font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);text-wrap:pretty;">Інші ваші входи (телефон, інший браузер) після зміни буде закрито.</p>
+    </div>
+  </div>
+</sc-if>
 
 <!-- MOBILE BAR -->
 <sc-if value="{{ showMBar }}" hint-placeholder-val="{{ false }}">
@@ -232,6 +261,7 @@ input,textarea,select{font-size:16px}
       <button onClick="{{ refreshData }}" style="height:42px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.8);font-size:0.88rem;">↺ Оновити</button>
       <button onClick="{{ exportData }}" style="height:42px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.8);font-size:0.88rem;">↓ JSON</button>
       <a href="Aurelion.dc.html" style="height:42px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.8);font-size:0.88rem;display:inline-flex;align-items:center;text-decoration:none;">← На сайт</a>
+      <button onClick="{{ openMyPw }}" style="height:42px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.8);font-size:0.88rem;">⚷ Мій пароль</button>
       <button onClick="{{ doLogout }}" style="height:42px;padding:0 16px;border-radius:999px;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.25);color:#ff8080;font-size:0.88rem;">Вийти</button>
     </div>
     <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);padding:8px 6px 0;">{{ adminEmail }}</p>
@@ -4098,6 +4128,7 @@ class Component extends DCLogic {
     tgError: '', tgResult: null, tgPick: {}, tgImage: '', tgMarkdown: '',
     connSearch: '',
     loginEmail: '', loginPassword: '', loginError: '', loginLoading: false,
+    myPwOpen: false, myPwOld: '', myPw1: '', myPw2: '', myPwErr: '', myPwBusy: false,
     martaBusy: false, martaMsg: '',
     gosPeople: [], gosRows: [], gosFilter: 'ready', pplFilter: 'all', gosBusy: false,
     // правка аркуша людини (нік, @тг, «про себе») — не рішення по доступу
@@ -4256,6 +4287,48 @@ class Component extends DCLogic {
       }
     } catch(e) {
       this.setState({ loginError: 'Помилка підключення', loginLoading: false });
+    }
+  }
+
+  // Свій пароль: спершу перевіряємо поточний свіжим входом (заодно свіжа сесія —
+  // «secure password change» у Supabase вимагає недавнього входу), потім PUT /user.
+  async _changeMyPw() {
+    const s = this.state;
+    if (s.myPwBusy) return;
+    const email = s.userEmail || localStorage.getItem('aur-admin-email') || '';
+    const old = s.myPwOld || '', a = s.myPw1 || '', b = s.myPw2 || '';
+    if (!old) { this.setState({ myPwErr: 'Введіть поточний пароль.' }); return; }
+    if (a.length < 8) { this.setState({ myPwErr: 'Новий пароль коротший за вісім знаків.' }); return; }
+    if (a !== b) { this.setState({ myPwErr: 'Паролі не збігаються.' }); return; }
+    if (a === old) { this.setState({ myPwErr: 'Новий пароль збігається з поточним.' }); return; }
+    this.setState({ myPwBusy: true, myPwErr: '' });
+    try {
+      const r1 = await fetch(`${SUPA_AUTH}/token?grant_type=password`, {
+        method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: old }),
+      });
+      const d1 = await r1.json().catch(() => ({}));
+      if (!d1.access_token) { this.setState({ myPwBusy: false, myPwErr: 'Поточний пароль невірний.' }); return; }
+      this._setToken(d1.access_token, email);
+      const r2 = await fetch(`${SUPA_AUTH}/user`, {
+        method: 'PUT', headers: { ...BASE_H, 'Authorization': `Bearer ${d1.access_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: a }),
+      });
+      const d2 = await r2.json().catch(() => null);
+      if (!r2.ok) {
+        let msg = (d2 && (d2.msg || d2.error_description || d2.message)) || 'Не вийшло змінити пароль.';
+        if (/different from the old/i.test(msg)) msg = 'Новий пароль мусить відрізнятися від поточного.';
+        if (/weak|characters/i.test(msg)) msg = 'Заслабкий пароль — додайте цифр чи літер.';
+        if (/reauthenticat/i.test(msg)) msg = 'Supabase просить підтвердження поштою — змініть пароль через Dashboard.';
+        this.setState({ myPwBusy: false, myPwErr: msg });
+        return;
+      }
+      // Решту сесій закриваємо; поточна лишається.
+      try { await fetch(`${SUPA_AUTH}/logout?scope=others`, { method: 'POST', headers: { ...BASE_H, 'Authorization': `Bearer ${d1.access_token}` } }); } catch (e) {}
+      this.setState({ myPwBusy: false, myPwOpen: false, myPwOld: '', myPw1: '', myPw2: '', myPwErr: '' });
+      this._toast('✓ Пароль змінено');
+    } catch (e) {
+      this.setState({ myPwBusy: false, myPwErr: 'Немає звʼязку з базою. Спробуйте ще раз.' });
     }
   }
 
@@ -8565,6 +8638,17 @@ class Component extends DCLogic {
       loginOnEnter: (e) => { if (e.key === 'Enter') this._login(this.state.loginEmail, this.state.loginPassword); },
       doLogin:  () => this._login(s.loginEmail, s.loginPassword),
       doLogout: () => this._logout(),
+      myPwOpen: !!s.myPwOpen, myPwOld: s.myPwOld, myPw1: s.myPw1, myPw2: s.myPw2,
+      myPwErr: s.myPwErr || '', myPwBtn: s.myPwBusy ? 'Хвилинку…' : 'Змінити',
+      openMyPw: () => this.setState({ myPwOpen: true, myPwOld: '', myPw1: '', myPw2: '', myPwErr: '' }),
+      closeMyPw: () => this.setState({ myPwOpen: false, myPwOld: '', myPw1: '', myPw2: '', myPwErr: '' }),
+      closeMyPwBg: () => { if (!this.state.myPwBusy) this.setState({ myPwOpen: false, myPwOld: '', myPw1: '', myPw2: '', myPwErr: '' }); },
+      stopProp: (e) => e.stopPropagation(),
+      setMyPwOld: (e) => this.setState({ myPwOld: e.target.value }),
+      setMyPw1: (e) => this.setState({ myPw1: e.target.value }),
+      setMyPw2: (e) => this.setState({ myPw2: e.target.value }),
+      myPwEnter: (e) => { if (e.key === 'Enter') this._changeMyPw(); },
+      doMyPw: () => this._changeMyPw(),
 
       saving: s.saving, saveLabel: s.saving ? 'Збереження…' : 'Зберегти',
 

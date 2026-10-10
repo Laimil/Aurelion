@@ -150,6 +150,9 @@ a:hover{color:#fff}
                 <sc-if value="{{ navTurnsHas }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.7rem;font-weight:700;color:#1a1a1a;background:#ffd700;border-radius:999px;padding:1px 7px;">{{ navTurnsN }}</span></sc-if>
               </button>
             </sc-if>
+            <sc-if value="{{ dlNav }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickDl }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navDlBg }};color:{{ navDlColor }};">Арку — у файл</button>
+            </sc-if>
             <p style="font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:12px 10px 4px;">Мої теки</p>
             <sc-for list="{{ folderNav }}" as="f" hint-placeholder-count="0">
               <button onClick="{{ f.onPick }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;border:none;border-radius:8px;padding:7px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ f.bg }};color:{{ f.color }};">
@@ -351,7 +354,7 @@ a:hover{color:#fff}
       </div>
       </sc-if></sc-if>
 
-      <!-- вивантаження будь-якої арки у файл — не лише своїх -->
+      <!-- ═════ ВКЛАДКА: АРКУ — У ФАЙЛ (будь-яка арка, не лише своя) ═════ -->
       <sc-if value="{{ dlShow }}" hint-placeholder-val="{{ false }}">
       <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:22px 22px 20px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:12px;">
         <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ Арку — у файл</p>
@@ -3618,7 +3621,7 @@ class Component extends DCLogic {
         label: s.eBusy ? 'Несу…' : 'Віддати правку Марті', busy: !!s.eBusy,
         go: () => this._submitEdit(), cancel: () => this.setState({ eId: '', eMsg: '' }),
         cancelLabel: 'Скасувати', msg: s.eMsg };
-    } else if (!['gossip', 'mine', 'me', 'stats', 'turns'].includes(s.tab)) {
+    } else if (!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab)) {
       items = [['gos-i-top', 'Звідки анкета'], ['gos-i-fields', 'Графи'], ['gos-i-god', 'Покровителька'],
         ['gos-i-portrait', 'Портрет'], ['gos-i-secs', 'Розділи'], ['gos-i-note', 'Слово від вас'], ['gos-i-subs', 'Мої анкети']];
       act = { head: s.editId ? '✦ Правка анкети' : '✦ Нова анкета',
@@ -3713,7 +3716,8 @@ class Component extends DCLogic {
     else if (!q) note = `Усього арок: ${arcs.length}. Тут — найбільші; решту знайде пошук.${s.dlArcsPartial ? ' Перелік неповний: не прогнано supabase_post_tags_rpc.sql.' : ''}`;
     const busy = !!s.arcDl;
     return {
-      dlShow: show,
+      dlNav: show,
+      dlShow: show && s.tab === 'arcfile',
       dlQ: s.dlQ || '',
       setDlQ: (e) => this.setState({ dlQ: e.target.value, arcDlErr: '' }),
       dlHits: hits.map((a) => {
@@ -3963,7 +3967,10 @@ class Component extends DCLogic {
       // взагалі, тому й смужки вкладок немає.
       showTabs: !this.props.onlyGossip,
       lockedOnly: !!this.props.onlyGossip && s.phase === 'ok' && status === 'pending',
-      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'turns'].includes(s.tab),
+      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab),
+      pickDl: () => this._pickTab('arcfile'),
+      navDlBg: s.tab === 'arcfile' ? 'rgba(255,215,0,0.12)' : 'transparent',
+      navDlColor: s.tab === 'arcfile' ? '#ffd700' : 'rgba(255,255,255,0.75)',
       showTurns: !this.props.onlyGossip && s.tab === 'turns',
       pickTurns: () => { this.setState({ tab: 'turns' }); try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {} },
       ...(() => {
@@ -4013,7 +4020,7 @@ class Component extends DCLogic {
         let n = 0;
         try { n = d && !d.error && !d.missing && T ? T.yourTurn(d) : 0; } catch (e) {}
         const row = (on) => ({ bg: on ? 'rgba(255,215,0,0.12)' : 'transparent', color: on ? '#ffd700' : 'rgba(255,255,255,0.75)' });
-        const tT = row(s.tab === 'turns'), tI = row(!['gossip', 'mine', 'me', 'stats', 'turns'].includes(s.tab));
+        const tT = row(s.tab === 'turns'), tI = row(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab));
         const tG = row(s.tab === 'gossip'), tM = row(s.tab === 'me');
         const orphan = this._mineVals().myEdits.filter((r) => orphanIds.indexOf(String(r.key)) !== -1);
         return {
@@ -4031,7 +4038,7 @@ class Component extends DCLogic {
       notEditingAny: !s.eId && !s.editId,
       notEditingChar: !s.eId,
       ...(() => {
-        const a = this._pillStyle(!['gossip', 'mine', 'me', 'stats', 'turns'].includes(s.tab));
+        const a = this._pillStyle(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab));
         const b = this._pillStyle(s.tab === 'gossip');
         const c = this._pillStyle(s.tab === 'mine');
         const d = this._pillStyle(s.tab === 'me');
