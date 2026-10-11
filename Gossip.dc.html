@@ -1314,6 +1314,29 @@ class Component extends DCLogic {
     way: 'blank', tgUrl: '', tgRaw: '', tgBusy: false, tgMsg: '', tgBad: false,
   };
 
+  // Пункти анкети живуть в anketa-schema.js. Скрипт міг довантажитися вже
+  // після першого малювання (або сторінка вбудована й helmet його не підтягнув) —
+  // тоді бланк був би порожній, доки щось не перемалює екран.
+  _needSchema() {
+    if (window.AnketaSchema) { this.forceUpdate(); return; }
+    if (!document.querySelector('script[data-anketa-schema]')) {
+      const sc = document.createElement('script');
+      sc.src = './anketa-schema.js';
+      sc.setAttribute('data-anketa-schema', '1');
+      sc.onerror = () => console.warn('анкета: не завантажився anketa-schema.js — викладіть його поряд із Gossip.dc.html');
+      document.head.appendChild(sc);
+    }
+    let n = 0;
+    const tick = () => {
+      if (window.AnketaSchema) {
+        this.setState((st) => ({ f: { ...st.f, sec: window.AnketaSchema.normalize(st.f.sec) } }));
+        return;
+      }
+      if (++n < 60) this._schemaT = setTimeout(tick, 150);
+    };
+    tick();
+  }
+
   componentDidMount() {
     // Зміст бічної панелі підсвічує розділ, до якого догорнули.
     this._spy = () => {
@@ -1335,6 +1358,7 @@ class Component extends DCLogic {
     window.addEventListener('scroll', this._spy, { passive: true });
     this.setState({ tab: this.props.startTab === 'gossip' ? 'gossip' : 'intake' });
     this._restore();
+    this._needSchema();
     this._boot();
     // Сесія тримається сама, поки кабінет відчинений: ключ міняється за
     // таймером і коли вкладку повертають на очі — телефон у кишені

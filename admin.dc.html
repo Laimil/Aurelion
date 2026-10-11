@@ -7800,6 +7800,18 @@ class Component extends DCLogic {
     this._toast(side ? '✓ Стала врізкою в тексті' : '✓ Стала в тексті');
   }
   componentDidMount() {
+    // Пункти анкети — в anketa-schema.js; довантажився пізніше — перемалювати.
+    if (!window.AnketaSchema) {
+      if (!document.querySelector('script[data-anketa-schema]')) {
+        const sc = document.createElement('script');
+        sc.src = './anketa-schema.js'; sc.setAttribute('data-anketa-schema', '1');
+        sc.onerror = () => console.warn('анкета: не завантажився anketa-schema.js — викладіть його поряд з admin.dc.html');
+        document.head.appendChild(sc);
+      }
+      let n = 0;
+      const tick = () => { if (window.AnketaSchema) this.forceUpdate(); else if (++n < 60) setTimeout(tick, 150); };
+      tick();
+    }
     this._checkSession();
     this._onResize = () => {
       const wide = window.innerWidth >= 900, wide3 = window.innerWidth >= 1200;
