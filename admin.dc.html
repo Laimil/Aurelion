@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <script src="./telegraph-import.js"></script>
+<script src="./anketa-schema.js"></script>
 <script src="./docx-import.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -1251,7 +1252,7 @@ input,textarea,select{font-size:16px}
               <button onClick="{{ c.onAccept }}" disabled="{{ inBusy }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.76rem;">✓ Прийняти — завести чернетку</button>
             </sc-if>
             <sc-if value="{{ c.canAdvise }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ c.onAdvise }}" style="cursor:pointer;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:rgba(160,190,255,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Порада автору</button>
+              <button onClick="{{ c.onAdvise }}" style="cursor:pointer;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:rgba(160,190,255,0.9);border-radius:999px;padding:6px 16px;font-size:0.76rem;">✎ Правки автору</button>
             </sc-if>
             <sc-if value="{{ c.canReject }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ c.onReject }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,120,120,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">Відхилити</button>
@@ -2599,31 +2600,13 @@ input,textarea,select{font-size:16px}
           </div>
         </div>
         <div data-csa="main"></div>
-        <!-- Ім'я, псевдонім, роль -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-          <div><label>Ім'я (повне)</label><input value="{{ formName }}" onChange="{{ handleInput }}" data-field="name" /></div>
-          <div><label>Псевдонім / прізвисько</label><input value="{{ formAlias }}" onChange="{{ handleInput }}" data-field="alias" /></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-          <div><label>Роль / клас</label><input value="{{ formRole }}" onChange="{{ handleInput }}" data-field="role" /></div>
-          <div>
-            <label>Тип персонажа</label>
-            <select value="{{ formCharacterType }}" onChange="{{ handleInput }}" data-field="character_type">
+        <!-- Перемикачі: тип, статус, публікація -->
+        <div style="margin-bottom:14px;">
+          <label>Тип персонажа</label>
+          <select value="{{ formCharacterType }}" onChange="{{ handleInput }}" data-field="character_type">
               <option value="player">🎭 Гравецький</option>
               <option value="npc">👤 НПЦ</option>
             </select>
-          </div>
-        </div>
-        <!-- Божество -->
-        <div style="margin-bottom:14px;">
-          <label>Божество <span style="color:rgba(255,255,255,0.3);font-weight:400;">(кому вірує персонаж)</span></label>
-          <select value="{{ formDeity }}" onChange="{{ handleInput }}" data-field="deity">
-            <option value="">— без божества —</option>
-            <sc-for list="{{ deityOptions }}" as="d" hint-placeholder-count="0">
-              <option value="{{ d.value }}">{{ d.label }}</option>
-            </sc-for>
-          </select>
-          <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:5px;line-height:1.5;">Список береться з розділу «Пантеон». На сторінці Пантеону поруч із кожним богом рахуються його віряни.</p>
         </div>
         <!-- Статус: активний / неактивний -->
         <div style="margin-bottom:14px;">
@@ -2649,11 +2632,58 @@ input,textarea,select{font-size:16px}
           </div>
           <p style="font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:5px;line-height:1.5;">Чернетку на сайті не видно зовсім — навіть з фільтром «Усі». Анкети з кабінету заводяться чернетками.</p>
         </div>
-        <!-- Дос'є -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
-          <div><label>Вік</label><input value="{{ formAge }}" onChange="{{ handleInput }}" data-field="age" placeholder="26 років" /></div>
-          <div><label>Зріст</label><input value="{{ formHeight }}" onChange="{{ handleInput }}" data-field="height" placeholder="175 см" /></div>
-          <div><label>Вага</label><input value="{{ formWeight }}" onChange="{{ handleInput }}" data-field="weight" placeholder="70 кг" /></div>
+        <!-- Анкета: ті самі 13 пунктів і той самий порядок, що в кабінеті гравця -->
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+            <h4 style="font-family:'Cinzel',serif;font-size:0.86rem;color:#ffd700;letter-spacing:0.06em;">✦ Анкета · пункти по порядку</h4>
+            <p style="font-size:0.7rem;color:rgba(255,255,255,0.35);">{{ anketaNote }}</p>
+          </div>
+          <sc-if value="{{ anketaOld }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.72rem;line-height:1.55;color:rgba(255,215,0,0.7);background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.2);border-radius:7px;padding:8px 11px;margin-bottom:10px;">{{ anketaOldNote }}</p>
+          </sc-if>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <sc-for list="{{ anketa }}" as="it" hint-placeholder-count="13">
+              <div>
+                <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+                  <label style="flex:1;min-width:0;margin-bottom:0;">{{ it.num }}. {{ it.label }}</label>
+                  <span style="font-size:0.68rem;color:{{ it.stateColor }};">{{ it.state }}</span>
+                </div>
+                <sc-if value="{{ it.hasHint }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-size:0.7rem;line-height:1.5;color:rgba(255,255,255,0.3);margin-bottom:8px;">{{ it.hint }}</p>
+                </sc-if>
+                <sc-if value="{{ it.isName }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;">
+                    <div><p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;">Ім'я (повне)</p><input value="{{ formName }}" onChange="{{ handleInput }}" data-field="name" /></div>
+                    <div><p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;">Псевдонім</p><input value="{{ formAlias }}" onChange="{{ handleInput }}" data-field="alias" /></div>
+                    <div><p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;">Роль / клас</p><input value="{{ formRole }}" onChange="{{ handleInput }}" data-field="role" /></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ it.isAge }}" hint-placeholder-val="{{ false }}">
+                  <input value="{{ formAge }}" onChange="{{ handleInput }}" data-field="age" placeholder="26 / 13.02" />
+                </sc-if>
+                <sc-if value="{{ it.isBody }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div><p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;">Зріст</p><input value="{{ formHeight }}" onChange="{{ handleInput }}" data-field="height" placeholder="175 см" /></div>
+                    <div><p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;">Вага</p><input value="{{ formWeight }}" onChange="{{ handleInput }}" data-field="weight" placeholder="70 кг" /></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ it.isGod }}" hint-placeholder-val="{{ false }}">
+                  <select value="{{ formDeity }}" onChange="{{ handleInput }}" data-field="deity">
+            <option value="">— без божества —</option>
+            <sc-for list="{{ deityOptions }}" as="d" hint-placeholder-count="0">
+              <option value="{{ d.value }}">{{ d.label }}</option>
+            </sc-for>
+          </select>
+                </sc-if>
+                <sc-if value="{{ it.isLook }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-size:0.7rem;color:rgba(255,215,0,0.55);margin-bottom:8px;">Фото — у блоці «Портрет і галерея» нижче. Тут — словесний опис.</p>
+                </sc-if>
+                <sc-if value="{{ it.isSec }}" hint-placeholder-val="{{ true }}">
+                  <textarea data-anketa="{{ it.key }}" onFocus="{{ it.onFocus }}" value="{{ it.value }}" onChange="{{ it.onSet }}" placeholder="{{ it.place }}" rows="{{ it.rows }}" style="min-height:70px;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.65;"></textarea>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
         </div>
         <!-- Статура: форма силуету на лінійці зросту -->
         <div style="margin-bottom:14px;">
@@ -2826,7 +2856,7 @@ input,textarea,select{font-size:16px}
         <!-- Повна історія (вікі-розмітка) -->
         <div style="margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
-            <label style="margin-bottom:0;">Анкета <span style="color:rgba(255,255,255,0.3);font-weight:400;">(вікі-розмітка, показується на сторінці персонажа)</span></label>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><label style="margin-bottom:0;">Вікі-текст анкети цілком <span style="color:rgba(255,255,255,0.3);font-weight:400;">(збирається з пунктів вище)</span></label><button type="button" class="md-tb" data-active="{{ charRawOpen }}" onClick="{{ toggleCharRaw }}">{{ charRawLabel }}</button></div>
             <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">
               <button type="button" class="md-tb" onClick="{{ mdBold }}" title="**жирний**" style="font-weight:700;">Ж</button>
               <button type="button" class="md-tb" onClick="{{ mdItalic }}" title="*курсив*"><em>К</em></button>
@@ -2843,9 +2873,8 @@ input,textarea,select{font-size:16px}
               <button type="button" class="md-tb" data-active="{{ storiesPreviewActive }}" onClick="{{ toggleStoriesPreview }}">{{ storiesPreviewLabel }}</button>
             </div>
           </div>
-          <sc-if value="{{ showStoriesTextarea }}" hint-placeholder-val="{{ true }}">
-            <textarea value="{{ formContent }}" onChange="{{ handleInput }}" data-field="content" placeholder="Анкета персонажа. Підтримує ## Заголовок (→ Зміст), **жирний**, *курсив*, &gt; цитата, --- розділювач, [[Назва матеріалу]] → посилання в архів, [текст](адреса)…" style="min-height:340px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.65;"></textarea>
-            <p style="font-size:0.67rem;color:rgba(255,255,255,0.2);margin-top:5px;line-height:1.55;">✦ Markdown: **жирний**, *курсив*, ## Заголовок (→ Зміст), &gt; цитата, --- розділювач, [[Назва матеріалу]] → посилання в архів, [текст](адреса)</p>
+          <sc-if value="{{ charRawShow }}" hint-placeholder-val="{{ false }}">
+            <textarea value="{{ formContent }}" onChange="{{ handleInput }}" onFocus="{{ rawFocus }}" data-field="content" placeholder="Анкета персонажа. Підтримує ## Заголовок (→ Зміст), **жирний**, *курсив*, &gt; цитата, --- розділювач, [[Назва матеріалу]] → посилання в архів, [текст](адреса)…" style="min-height:340px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.84rem;line-height:1.65;"></textarea>
           </sc-if>
           <sc-if value="{{ showStoriesPreview }}" hint-placeholder-val="{{ false }}">
             {{ storiesPreviewEl }}
@@ -4943,7 +4972,61 @@ class Component extends DCLogic {
   // Анкета → чернетка персонажа. Розділи складаються у вікі-текст тим самим
   // порядком, що в імпорті з Telegraph, — інакше прийнята анкета лягала б у
   // картотеку в чужому порядку.
+  // Анкета в адмінці — ті самі пункти, що в кабінеті гравця (anketa-schema.js).
+  // Текст анкети ділиться по «## » на пункти; правка будь-якого пункту
+  // перезбирає весь вікі-текст по порядку, порожні йдуть як «Відсутнє».
+  _anketaVals() {
+    const AS = window.AnketaSchema;
+    const s = this.state;
+    const ed = s.editing;
+    if (!AS || !ed || ed.section !== 'characters') return { anketa: [], anketaNote: '', anketaOld: false, anketaOldNote: '' };
+    const form = s.form || {};
+    const md = String(form.content || '');
+    const p = AS.parseMarkdown(md);
+    const t = v => String(v == null ? '' : v).trim();
+    const filledOf = it => {
+      if (it.id === 'name') return !!t(form.name);
+      if (it.id === 'age') return !!t(form.age);
+      if (it.id === 'body') return !!(t(form.height) || t(form.weight));
+      if (it.id === 'deity') return !!t(form.deity);
+      return !!t(p.sec[it.id]);
+    };
+    const anketa = AS.ITEMS.map(it => {
+      const filled = filledOf(it);
+      return {
+        key: it.id, num: it.num, label: it.label,
+        hint: it.hint || '', hasHint: !!it.hint,
+        isName: it.id === 'name', isAge: it.id === 'age', isBody: it.id === 'body',
+        isGod: it.id === 'deity', isLook: it.id === 'Зовнішність', isSec: it.kind === 'sec',
+        value: it.kind === 'sec' ? (p.sec[it.id] || '') : '',
+        rows: it.id === 'Біографія' || it.id === 'Магічні здібності' ? 8 : (it.optional ? 2 : 4),
+        place: 'Порожнє — на сторінці буде «Відсутнє».',
+        state: filled ? '✓ заповнено' : (it.optional ? 'необовʼязково · «Відсутнє»' : '«Відсутнє»'),
+        stateColor: filled ? 'rgba(255,215,0,0.75)' : 'rgba(255,255,255,0.3)',
+        numColor: filled ? '#ffd700' : 'rgba(255,215,0,0.45)',
+        onFocus: () => { this._mdSec = it.id; },
+        onSet: e => {
+          const v = e.target.value;
+          this.setState(st => {
+            const cur = AS.parseMarkdown(String((st.form || {}).content || ''));
+            const sec = { ...cur.sec, [it.id]: v };
+            return { form: { ...st.form, content: AS.toMarkdown(sec, cur.pre, true) } };
+          });
+        },
+      };
+    });
+    const done = anketa.filter(x => x.state.indexOf('✓') === 0).length;
+    return {
+      anketa,
+      anketaNote: `Заповнено ${done} з ${anketa.length}`,
+      anketaOld: !!md.trim() && !p.known,
+      anketaOldNote: 'Цю анкету писали в іншому порядку або з іншими розділами. Перша ж правка будь-якого пункту розкладе її по 13 пунктах: зайві розділи («Навички», «Позиція до релігії»…) стануть підзаголовками в найближчому пункті, нічого не зникне.',
+    };
+  }
+
   _intakeContent(row) {
+    const AS = window.AnketaSchema;
+    if (AS) return AS.toMarkdown((row && row.sections) || {});
     const sec = (row && row.sections) || {};
     const TI = window.TelegraphImport;
     const order = (TI && TI.ORDER) || [];
@@ -5103,9 +5186,9 @@ class Component extends DCLogic {
           },
           onAccept: () => this._intakeAccept(r),
           onAdvise: async () => {
-            const t = await this._askText({ title: `Порада авторові «${r.name}»`, hint: 'Він побачить це у своєму кабінеті.', text: r.admin_note || '', ok: 'Передати' });
+            const t = await this._askText({ title: `Правки до анкети «${r.name}»`, hint: 'Що саме виправити. У кабінеті автора це стоятиме як «Правки від адміністрації», а анкета — як «Потрібні правки».', text: r.admin_note || '', ok: 'Передати правки' });
             if (t == null) return;
-            this._intakePatch(r.id, { admin_note: t.trim() }, '✓ Слово передано');
+            this._intakePatch(r.id, { admin_note: t.trim() }, t.trim() ? '✓ Правки передано' : '✓ Правки знято');
           },
           onReject: async () => {
             const t = await this._askText({ title: `Чому «${r.name}» не підходить?`, hint: 'Автор побачить причину.', ok: 'Відхилити', danger: true });
@@ -7656,44 +7739,64 @@ class Component extends DCLogic {
     this._toastTimer = setTimeout(() => this.setState({ toast: '' }), 3200);
   }
 
+  // Куди пише панель розмітки: у пункт анкети, де востаннє стояв курсор,
+  // або в повний текст. Пункт правиться так само, як руками, — через
+  // перезбирання анкети, тож порядок і «Відсутнє» лишаються на місці.
+  _mdTarget() {
+    const AS = window.AnketaSchema;
+    const key = this._mdSec;
+    const el = key && document.querySelector('[data-anketa="' + key + '"]');
+    if (AS && el) {
+      const cur = AS.parseMarkdown(String(this.state.form.content || '')).sec[key] || '';
+      return { el, cur, put: (v) => this.setState(st => {
+        const p = AS.parseMarkdown(String((st.form || {}).content || ''));
+        return { form: { ...st.form, content: AS.toMarkdown({ ...p.sec, [key]: v }, p.pre, true) } };
+      }) };
+    }
+    const raw = document.querySelector('[data-field="content"]');
+    if (!raw) return null;
+    return { el: raw, cur: this.state.form.content || '', put: (v) => this.setState(st => ({ form: { ...st.form, content: v } })) };
+  }
+  _mdNoTarget() {
+    const ch = this.state.editing && this.state.editing.section === 'characters';
+    this._toast(ch ? '✗ Спершу постав курсор у пункт анкети' : '✗ Немає поля тексту');
+  }
   _mdWrap(prefix, suffix) {
-    const el = document.querySelector('[data-field="content"]'); if (!el) return;
+    const t = this._mdTarget(); if (!t) { this._mdNoTarget(); return; }
+    const el = t.el, cur = t.cur;
     const s = el.selectionStart, e = el.selectionEnd;
-    const cur = this.state.form.content || '';
     const sel = cur.slice(s, e) || 'текст';
-    const next = cur.slice(0, s) + prefix + sel + suffix + cur.slice(e);
-    this.setState(st => ({ form: { ...st.form, content: next } }));
+    t.put(cur.slice(0, s) + prefix + sel + suffix + cur.slice(e));
     setTimeout(() => { el.focus(); el.setSelectionRange(s + prefix.length, s + prefix.length + sel.length); }, 0);
   }
   _mdPrefix(prefix) {
-    const el = document.querySelector('[data-field="content"]'); if (!el) return;
+    const t = this._mdTarget(); if (!t) { this._mdNoTarget(); return; }
+    const el = t.el, cur = t.cur;
     const s = el.selectionStart;
-    const cur = this.state.form.content || '';
     const lineStart = cur.lastIndexOf('\n', s - 1) + 1;
-    const next = cur.slice(0, lineStart) + prefix + cur.slice(lineStart);
-    this.setState(st => ({ form: { ...st.form, content: next } }));
+    t.put(cur.slice(0, lineStart) + prefix + cur.slice(lineStart));
     setTimeout(() => { el.focus(); el.setSelectionRange(s + prefix.length, s + prefix.length); }, 0);
   }
   _mdInsert(text) {
-    const el = document.querySelector('[data-field="content"]'); if (!el) return;
+    const t = this._mdTarget(); if (!t) { this._mdNoTarget(); return false; }
+    const el = t.el, cur = t.cur;
     const s = el.selectionStart;
-    const cur = this.state.form.content || '';
-    const next = cur.slice(0, s) + text + cur.slice(s);
-    this.setState(st => ({ form: { ...st.form, content: next } }));
+    t.put(cur.slice(0, s) + text + cur.slice(s));
     setTimeout(() => { el.focus(); el.setSelectionRange(s + text.length, s + text.length); }, 0);
+    return true;
   }
   // Адреса з галереї — у текст, на місце курсора. З відкритого перегляду
   // вставляти нікуди — тому спершу вертаємося в редагування.
   _mdImage(id, side, again) {
     const row = (this.state.galRows || []).find(r => String(r.id) === String(id));
     if (!row || !row.url) return;
-    if (!document.querySelector('[data-field="content"]')) {
-      if (again) { this._toast('✗ Немає поля тексту'); return; }
+    if (!this._mdTarget()) {
+      if (again) { this._mdNoTarget(); return; }
       this.setState({ lorePreview: false, storiesPreview: false });
       setTimeout(() => this._mdImage(id, side, true), 60);
       return;
     }
-    this._mdInsert('\n\n![' + (row.caption || '') + '](' + row.url + (side ? '|' + side : '') + ')\n\n');
+    if (!this._mdInsert('\n\n![' + (row.caption || '') + '](' + row.url + (side ? '|' + side : '') + ')\n\n')) return;
     this._toast(side ? '✓ Стала врізкою в тексті' : '✓ Стала в тексті');
   }
   componentDidMount() {
@@ -9142,6 +9245,9 @@ class Component extends DCLogic {
             deity: !!(res.deity && this._tgDeityValue(res.deity)),
             bio: !!res.bio, content: !!res.markdown, telegraph_url: !!res.url, image: false,
           };
+          // Анкета з Telegraph лягає тими самими 13 пунктами, що й з кабінету.
+          const AS = window.AnketaSchema;
+          if (AS && res.sections && res.sections.length) res.markdown = AS.toMarkdown(res.sections);
           this.setState({ tgBusy: false, tgResult: res, tgPick: pick, tgMarkdown: res.markdown, tgImage: '' });
         } catch (err) {
           this.setState({ tgBusy: false, tgError: err.message || 'Не вдалося прочитати сторінку' });
@@ -9271,6 +9377,12 @@ class Component extends DCLogic {
 
       showStoriesPreview:  s.storiesPreview,
       showStoriesTextarea: !s.storiesPreview,
+      charRawOpen: !!s.charRawOpen,
+      charRawShow: !!s.charRawOpen && !s.storiesPreview,
+      charRawLabel: s.charRawOpen ? 'Сховати' : 'Показати',
+      toggleCharRaw: () => this.setState(st => ({ charRawOpen: !st.charRawOpen })),
+      rawFocus: () => { this._mdSec = ''; },
+      ...this._anketaVals(),
       storiesPreviewActive: s.storiesPreview,
       storiesPreviewLabel: s.storiesPreview ? '\u270e \u0420\u0435\u0434.' : '\ud83d\udc41 \u041f\u0435\u0440\u0435\u0433\u043b\u044f\u0434',
       storiesPreviewEl: React.createElement('div', {

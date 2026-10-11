@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <script src="./telegraph-import.js"></script>
+<script src="./anketa-schema.js"></script>
 <script src="./docx-import.js"></script>
 <script src="./turns.js"></script>
 <style>
@@ -393,6 +394,12 @@ a:hover{color:#fff}
           <div id="gos-i-top" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:26px 24px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
             <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">{{ formHead }}</p>
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:20px;text-wrap:pretty;">{{ formIntro }}</p>
+            <sc-if value="{{ hasFixNote }}" hint-placeholder-val="{{ false }}">
+              <div style="background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.26);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+                <p style="font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:#ffd700;margin-bottom:6px;">✎ Правки від адміністрації</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;line-height:1.65;color:rgba(255,215,0,0.78);white-space:pre-line;">{{ fixNote }}</p>
+              </div>
+            </sc-if>
 
             <!-- звідки анкета -->
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
@@ -419,28 +426,47 @@ a:hover{color:#fff}
               </div>
             </sc-if>
 
-            <!-- графи -->
-            <p id="gos-i-fields" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:0 0 10px;">Графи</p>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;">
-              <input class="gos-field" value="{{ fName }}" onChange="{{ setFName }}" placeholder="Повне ім'я — обовʼязково" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
-              <input class="gos-field" value="{{ fAlias }}" onChange="{{ setFAlias }}" placeholder="Псевдонім — «Садист»" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
-              <input class="gos-field" value="{{ fAge }}" onChange="{{ setFAge }}" placeholder="Вік / дата народження — 23 / 13.02" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
-              <input class="gos-field" value="{{ fRole }}" onChange="{{ setFRole }}" placeholder="Роль, заняття" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
-              <input class="gos-field" value="{{ fHeight }}" onChange="{{ setFHeight }}" placeholder="Зріст — 170 см" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
-              <input class="gos-field" value="{{ fWeight }}" onChange="{{ setFWeight }}" placeholder="Вага — 62 кг" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+            <!-- анкета: усі пункти по порядку -->
+            <div id="gos-i-fields" style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 12px;">
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">Анкета · пункти по порядку</p>
+              <p style="font-size:0.74rem;color:rgba(255,255,255,0.38);">{{ anketaNote }}</p>
             </div>
-
-            <!-- покровителька -->
-            <p id="gos-i-god" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Покровителька</p>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;">
-              <sc-for list="{{ gods }}" as="g" hint-placeholder-count="5">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <sc-for list="{{ anketa }}" as="it" hint-placeholder-count="13">
+                <div id="gos-i-{{ it.num }}">
+                  <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+                    <p style="font-size:0.8rem;color:rgba(255,255,255,0.55);flex:1;min-width:0;">{{ it.num }}. {{ it.label }}</p>
+                    <span style="font-size:0.7rem;color:{{ it.stateColor }};">{{ it.state }}</span>
+                  </div>
+                  <sc-if value="{{ it.hasHint }}" hint-placeholder-val="{{ false }}">
+                    <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.94rem;line-height:1.55;color:rgba(255,255,255,0.44);margin-bottom:10px;text-wrap:pretty;">{{ it.hint }}</p>
+                  </sc-if>
+                  <sc-if value="{{ it.isName }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;">
+                      <input class="gos-field" value="{{ fName }}" onChange="{{ setFName }}" placeholder="Повне ім'я" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+                      <input class="gos-field" value="{{ fAlias }}" onChange="{{ setFAlias }}" placeholder="Псевдонім — «Садист»" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+                      <input class="gos-field" value="{{ fRole }}" onChange="{{ setFRole }}" placeholder="Роль, заняття" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ it.isAge }}" hint-placeholder-val="{{ false }}">
+                    <input class="gos-field" value="{{ fAge }}" onChange="{{ setFAge }}" placeholder="Вік / число й місяць — 23 / 13.02" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+                  </sc-if>
+                  <sc-if value="{{ it.isBody }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;">
+                      <input class="gos-field" value="{{ fHeight }}" onChange="{{ setFHeight }}" placeholder="Зріст — 170 см" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+                      <input class="gos-field" value="{{ fWeight }}" onChange="{{ setFWeight }}" placeholder="Вага — 62 кг" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:11px 15px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ it.isGod }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                      <sc-for list="{{ gods }}" as="g" hint-placeholder-count="5">
                 <button onClick="{{ g.onPick }}" class="gos-pill" style="cursor:pointer;border-radius:999px;padding:8px 16px;font-size:0.82rem;transition:all 0.2s ease;background:{{ g.bg }};border:1px solid {{ g.border }};color:{{ g.color }};">{{ g.label }}</button>
               </sc-for>
-            </div>
-
-            <!-- портрет -->
-            <p id="gos-i-portrait" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Портрет</p>
-            <sc-if value="{{ hasPortrait }}" hint-placeholder-val="{{ false }}">
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ it.isLook }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-bottom:10px;">
+                      <sc-if value="{{ hasPortrait }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
                 <img src="{{ fPortrait }}" alt="Портрет" style="width:96px;height:128px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,215,0,0.28);" />
                 <button onClick="{{ dropPortrait }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:7px 16px;font-size:0.78rem;transition:all 0.2s ease;">Прибрати</button>
@@ -452,20 +478,12 @@ a:hover{color:#fff}
                 <p style="margin-top:8px;font-size:0.76rem;color:rgba(255,255,255,0.26);">{{ portraitNote }}</p>
               </div>
             </sc-if>
-
-            <!-- розділи -->
-            <p id="gos-i-secs" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:22px 0 10px;">Розділи анкети</p>
-            <div style="display:flex;flex-direction:column;gap:14px;">
-              <sc-for list="{{ secs }}" as="s" hint-placeholder-count="4">
-                <div>
-                  <p style="font-size:0.8rem;color:rgba(255,255,255,0.55);margin-bottom:6px;">{{ s.label }}</p>
-                  <textarea class="gos-field" value="{{ s.value }}" onChange="{{ s.onSet }}" placeholder="{{ s.hint }}" rows="4" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 15px;color:#fff;font-size:0.98rem;font-family:'EB Garamond',Georgia,serif;line-height:1.7;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ it.isSec }}" hint-placeholder-val="{{ true }}">
+                    <textarea class="gos-field" value="{{ it.value }}" onChange="{{ it.onSet }}" placeholder="{{ it.place }}" rows="{{ it.rows }}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 15px;color:#fff;font-size:0.98rem;font-family:'EB Garamond',Georgia,serif;line-height:1.7;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+                  </sc-if>
                 </div>
-              </sc-for>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-              <sc-for list="{{ addSecs }}" as="a" hint-placeholder-count="0">
-                <button onClick="{{ a.onAdd }}" class="gos-pill" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 15px;font-size:0.78rem;transition:all 0.2s ease;">＋ {{ a.label }}</button>
               </sc-for>
             </div>
 
@@ -500,11 +518,17 @@ a:hover{color:#fff}
                     <p style="font-family:'Cinzel',Georgia,serif;font-size:1rem;color:#fff;letter-spacing:0.03em;">{{ r.name }}</p>
                     <p style="font-size:0.76rem;color:rgba(255,255,255,0.3);margin-top:4px;">{{ r.meta }}</p>
                     <sc-if value="{{ r.hasNote }}" hint-placeholder-val="{{ false }}">
-                      <p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.96rem;line-height:1.65;color:rgba(255,215,0,0.72);white-space:pre-line;">{{ r.note }}</p>
+                      <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);">
+                        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px;">
+                          <span style="font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.8);">{{ r.noteHead }}</span>
+                          <span style="font-size:0.66rem;color:rgba(255,255,255,0.22);">{{ r.noteWhen }}</span>
+                        </div>
+                        <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.96rem;line-height:1.65;color:rgba(255,215,0,0.72);white-space:pre-line;">{{ r.note }}</p>
+                      </div>
                     </sc-if>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
                       <sc-if value="{{ r.canEdit }}" hint-placeholder-val="{{ false }}">
-                        <button onClick="{{ r.onEdit }}" class="gos-pill" style="cursor:pointer;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:6px 15px;font-size:0.76rem;transition:all 0.2s ease;">Правити</button>
+                        <button onClick="{{ r.onEdit }}" class="gos-pill" style="cursor:pointer;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:6px 15px;font-size:0.76rem;transition:all 0.2s ease;">{{ r.editLabel }}</button>
                       </sc-if>
                       <sc-if value="{{ r.canDrop }}" hint-placeholder-val="{{ false }}">
                         <button onClick="{{ r.onDrop }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.38);border-radius:999px;padding:6px 15px;font-size:0.76rem;transition:all 0.2s ease;">Відкликати</button>
@@ -1243,16 +1267,11 @@ const ED_BADGE = {
   withdrawn: { label: 'Відкликано',  accent: 'rgba(255,255,255,0.25)' },
 };
 
-// Бланк іде тими самими розділами, що й імпорт із Telegraph, — інакше
-// прийнята анкета лягала б у картотеку в чужому порядку.
-const SEC_MAIN = [
-  { key: 'Характер',          hint: 'Яка вона в розмові, у сварці, наодинці.' },
-  { key: 'Зовнішність',       hint: 'Очі, зріст, як тримається, що носить.' },
-  { key: 'Біографія',         hint: 'Звідки, чим жила, що привело в Ауреліон.' },
-  { key: 'Магічні здібності', hint: 'Що вміє — і чого це коштує.' },
-];
-// Ці розділи додаються кнопкою: у бланку з десяти полів людина губиться.
-const SEC_MORE = ['Навички', "Сім'я", 'Слабкості', 'Артефакт', 'Позиція до релігії', 'Прототип', 'Додатково'];
+// Склад і порядок анкети — один на кабінет і адмінку (anketa-schema.js):
+// усі пункти відкриті одразу, порожній піде в анкету як «Відсутнє».
+const SEC_MAIN = ['Характер', 'Біографія', 'Магічні здібності', 'Наслідки знищення артефакту',
+  'Розвиток персонажа', "Сім'я", 'Додатково', 'Зовнішність', 'Альтернативна зовнішність'].map((key) => ({ key }));
+const secNorm = (sec) => (window.AnketaSchema ? window.AnketaSchema.normalize(sec) : { ...(sec || {}) });
 
 const EMPTY_F = {
   name: '', alias: '', age: '', height: '', weight: '', deity: '', role: '',
@@ -2195,7 +2214,7 @@ class Component extends DCLogic {
       const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
       if (d && d.f) {
         this.setState({
-          f: { ...EMPTY_F, ...d.f, sec: d.f.sec || {} },
+          f: { ...EMPTY_F, ...d.f, sec: secNorm(d.f.sec) },
           open: Array.isArray(d.open) && d.open.length ? d.open : SEC_MAIN.map((s) => s.key),
           editId: d.editId || '',
         });
@@ -2316,13 +2335,13 @@ class Component extends DCLogic {
   _applyParsed(res, url, opts) {
       const s = this.state;
       const o = opts || {};
-      const sec = { ...(s.f.sec || {}) };
-      const open = [...s.open];
+      const raw = { ...(s.f.sec || {}) };
+      const open = SEC_MAIN.map((x) => x.key);
       (res.sections || []).forEach((x) => {
         if (!x || !x.title) return;
-        sec[x.title] = x.text || '';
-        if (!open.includes(x.title)) open.push(x.title);
+        raw[x.title] = x.text || '';
       });
+      const sec = secNorm(raw);
       const god = this._matchGod(res.deity);
       const age = [res.age, res.birthday].filter(Boolean).join(' / ');
       const f = {
@@ -2440,9 +2459,9 @@ class Component extends DCLogic {
       height: row.height || '', weight: row.weight || '', deity: row.deity || '',
       role: row.role || '', portrait: row.portrait || '',
       source_url: row.source_url || '', note: row.note || '',
-      sec: { ...(row.sections || {}) },
+      sec: secNorm(row.sections),
     };
-    const open = Object.keys(f.sec).length ? Object.keys(f.sec) : SEC_MAIN.map((x) => x.key);
+    const open = SEC_MAIN.map((x) => x.key);
     const editId = again ? '' : row.id;
     this._stash(f, open, editId);
     this.setState({
@@ -3622,8 +3641,8 @@ class Component extends DCLogic {
         go: () => this._submitEdit(), cancel: () => this.setState({ eId: '', eMsg: '' }),
         cancelLabel: 'Скасувати', msg: s.eMsg };
     } else if (!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab)) {
-      items = [['gos-i-top', 'Звідки анкета'], ['gos-i-fields', 'Графи'], ['gos-i-god', 'Покровителька'],
-        ['gos-i-portrait', 'Портрет'], ['gos-i-secs', 'Розділи'], ['gos-i-note', 'Слово від вас'], ['gos-i-subs', 'Мої анкети']];
+      const pts = ((window.AnketaSchema || {}).ITEMS || []).map((it) => ['gos-i-' + it.num, `${it.num} · ${it.label}`]);
+      items = [['gos-i-top', 'Звідки анкета'], ...pts, ['gos-i-note', 'Слово від вас'], ['gos-i-subs', 'Мої анкети']];
       act = { head: s.editId ? '✦ Правка анкети' : '✦ Нова анкета',
         label: s.intakeBusy ? 'Несу…' : (s.editId ? 'Зберегти правки' : 'Віддати анкету Марті'),
         busy: !!(s.intakeBusy || s.upBusy), go: () => this._submit(),
@@ -3865,20 +3884,33 @@ class Component extends DCLogic {
 
     // ── анкета ──
     const f = s.f || EMPTY_F;
-    const secKeys = s.open || [];
-    const hintOf = (k) => (SEC_MAIN.find((x) => x.key === k) || {}).hint || 'Пишіть вільно — це піде в анкету як окремий розділ.';
-    const secs = secKeys.map((k) => ({
-      key: k, label: k, hint: hintOf(k), value: (f.sec || {})[k] || '',
-      onSet: (e) => this._setSec(k, e.target.value),
-    }));
-    const addSecs = SEC_MORE.filter((k) => !secKeys.includes(k)).map((k) => ({
-      key: k, label: k,
-      onAdd: () => this.setState((st) => {
-        const open = [...st.open, k];
-        this._stash(st.f, open, st.editId);
-        return { open };
-      }),
-    }));
+    const AS = window.AnketaSchema;
+    const filledOf = (it) => {
+      const t = (v) => String(v || '').trim();
+      if (it.id === 'name') return !!t(f.name);
+      if (it.id === 'age') return !!t(f.age);
+      if (it.id === 'body') return !!(t(f.height) || t(f.weight));
+      if (it.id === 'deity') return !!t(f.deity);
+      return !!t((f.sec || {})[it.id]);
+    };
+    const anketa = (AS ? AS.ITEMS : []).map((it) => {
+      const filled = filledOf(it);
+      return {
+        key: it.id, num: it.num, label: it.label,
+        hint: it.hint || '', hasHint: !!it.hint,
+        isName: it.id === 'name', isAge: it.id === 'age', isBody: it.id === 'body',
+        isGod: it.id === 'deity', isLook: it.id === 'Зовнішність',
+        isSec: it.kind === 'sec',
+        value: it.kind === 'sec' ? ((f.sec || {})[it.id] || '') : '',
+        rows: it.id === 'Біографія' || it.id === 'Магічні здібності' ? 7 : (it.optional ? 2 : 4),
+        place: it.optional ? 'Необовʼязково. Порожнє — «Відсутнє».' : 'Не заповните — в анкеті буде «Відсутнє».',
+        state: filled ? '✓ заповнено' : (it.optional ? 'необовʼязково · «Відсутнє»' : 'буде «Відсутнє»'),
+        stateColor: filled ? 'rgba(255,215,0,0.75)' : 'rgba(255,255,255,0.32)',
+        numColor: filled ? '#ffd700' : 'rgba(255,215,0,0.45)',
+        onSet: (e) => this._setSec(it.id, e.target.value),
+      };
+    });
+    const anketaLeft = anketa.filter((x) => x.state.indexOf('✓') !== 0).length;
     const gods = [{ god: '', name: 'Не визначилася' }].concat(s.gods || []).map((g) => {
       const val = String(g.god || g.name || '');
       return {
@@ -3888,8 +3920,13 @@ class Component extends DCLogic {
       };
     });
     const onDesk = (s.subs || []).filter((r) => r.status === 'pending').length;
+    // Слово адміна до анкети на розгляді — це правки, і виглядати воно мусить як правки:
+    // свій статус на картці, заголовок над текстом і те саме над бланком, коли їх вносять.
+    const fixOf = (r) => r.status === 'pending' && !!String(r.admin_note || '').trim();
+    const fixRow = s.editId ? (s.subs || []).find((r) => String(r.id) === String(s.editId) && fixOf(r)) : null;
     const subs = (s.subs || []).map((r) => {
-      const b = IN_BADGE[r.status] || IN_BADGE.pending;
+      const fix = fixOf(r);
+      const b = fix ? { label: 'Потрібні правки', accent: '#ffd700' } : (IN_BADGE[r.status] || IN_BADGE.pending);
       const bits = [r.alias ? `«${r.alias}»` : '', r.age || '', r.deity || '', r.role || '']
         .filter(Boolean);
       return {
@@ -3897,6 +3934,10 @@ class Component extends DCLogic {
         when: this._when(r.created_at), name: r.name,
         meta: bits.length ? bits.join(' · ') : 'графи не заповнені',
         hasNote: !!r.admin_note, note: r.admin_note || '',
+        noteHead: fix ? '✎ Правки від адміністрації' : (r.status === 'rejected' ? 'Чому відхилено' : 'Слово від адміністрації'),
+        noteWhen: r.decided_at ? this._when(r.decided_at) : '',
+        isFix: fix,
+        editLabel: fix ? 'Внести правки' : 'Правити',
         canEdit: r.status === 'pending', canDrop: r.status === 'pending',
         canAgain: r.status === 'rejected' || r.status === 'withdrawn',
         onEdit: () => this._edit(r, false),
@@ -4077,7 +4118,11 @@ class Component extends DCLogic {
       onPortrait: (e) => this._portrait(e),
       portraitNote: s.upBusy ? 'Несу портрет…' : 'До 6 МБ. Можна й без нього — принесете потім.',
       dropPortrait: () => this._setF('portrait', ''),
-      secs, addSecs,
+      anketa,
+      hasFixNote: !!fixRow, fixNote: fixRow ? fixRow.admin_note : '',
+      anketaNote: anketaLeft
+        ? `Заповнено ${anketa.length - anketaLeft} з ${anketa.length}. Незаповнені пункти підуть в анкету як «Відсутнє».`
+        : `Усі ${anketa.length} пунктів заповнено.`,
       intakeMsg: s.intakeMsg, hasIntakeMsg: !!s.intakeMsg,
       intakeBusy: s.intakeBusy || s.upBusy,
       submitBtn: s.intakeBusy
