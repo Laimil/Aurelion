@@ -4965,7 +4965,7 @@ class Component extends DCLogic {
   // ── Анкети з кабінету ────────────────────────────────
   // Поки міграції немає, _get віддає порожнє — вкладка просто порожня.
   async _loadIntake() {
-    const rows = await this._get('char_intake?select=*&order=created_at.desc&limit=200');
+    const rows = await this._get('char_intake?select=*&status=neq.draft&order=created_at.desc&limit=200');
     this.setState({ inRows: Array.isArray(rows) ? rows : [] });
   }
 

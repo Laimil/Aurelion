@@ -195,6 +195,9 @@ a:hover{color:#fff}
                 <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;line-height:1.5;color:rgba(255,215,0,0.85);text-wrap:pretty;">{{ sideMsg }}</p>
               </sc-if>
               <button onClick="{{ sideGo }}" class="gos-go" data-busy="{{ sideBusy }}" style="width:100%;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:11px 12px;font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;letter-spacing:0.06em;transition:box-shadow 0.25s ease;">{{ sideActLabel }}</button>
+              <sc-if value="{{ hasSideDraft }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ sideDraft }}" class="gos-ghost" data-busy="{{ sideBusy }}" style="width:100%;cursor:pointer;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.78);border-radius:999px;padding:9px 12px;font-family:'Cinzel',serif;font-size:0.74rem;letter-spacing:0.06em;transition:all 0.2s ease;">{{ sideDraftLabel }}</button>
+              </sc-if>
               <sc-if value="{{ hasSideCancel }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ sideCancel }}" class="gos-ghost" style="width:100%;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:8px;font-size:0.76rem;transition:all 0.2s ease;">{{ sideCancelLabel }}</button>
               </sc-if>
@@ -497,6 +500,9 @@ a:hover{color:#fff}
 
             <div class="gos-dock">
             <button onClick="{{ doSubmit }}" class="gos-go" data-busy="{{ intakeBusy }}" style="width:100%;margin-top:20px;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px;font-family:'Cinzel',serif;font-size:0.86rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;">{{ submitBtn }}</button>
+            <sc-if value="{{ canDraft }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ doDraft }}" class="gos-ghost" data-busy="{{ intakeBusy }}" style="width:100%;margin-top:10px;cursor:pointer;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.78);border-radius:999px;padding:11px;font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.08em;transition:all 0.2s ease;">{{ draftBtn }}</button>
+            </sc-if>
             <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ doCancelEdit }}" class="gos-ghost" style="width:100%;margin-top:10px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:9px;font-size:0.78rem;transition:all 0.2s ease;">Лишити як було</button>
             </sc-if>
@@ -531,7 +537,7 @@ a:hover{color:#fff}
                         <button onClick="{{ r.onEdit }}" class="gos-pill" style="cursor:pointer;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:6px 15px;font-size:0.76rem;transition:all 0.2s ease;">{{ r.editLabel }}</button>
                       </sc-if>
                       <sc-if value="{{ r.canDrop }}" hint-placeholder-val="{{ false }}">
-                        <button onClick="{{ r.onDrop }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.38);border-radius:999px;padding:6px 15px;font-size:0.76rem;transition:all 0.2s ease;">Відкликати</button>
+                        <button onClick="{{ r.onDrop }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.38);border-radius:999px;padding:6px 15px;font-size:0.76rem;transition:all 0.2s ease;">{{ r.dropLabel }}</button>
                       </sc-if>
                       <sc-if value="{{ r.canAgain }}" hint-placeholder-val="{{ false }}">
                         <button onClick="{{ r.onAgain }}" class="gos-pill" style="cursor:pointer;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.32);color:rgba(160,190,255,0.9);border-radius:999px;padding:6px 15px;font-size:0.76rem;transition:all 0.2s ease;">Подати наново</button>
@@ -1240,6 +1246,7 @@ const BADGE = {
 // Те саме для анкети. `accepted` — не «опубліковано»: з анкети зроблено
 // чернетку, і публікує її людина, а не кнопка.
 const IN_BADGE = {
+  draft:     { label: 'Чернетка',    accent: 'rgba(255,255,255,0.45)' },
   pending:   { label: 'На розгляді', accent: 'rgba(255,215,0,0.6)' },
   accepted:  { label: 'Прийнято',    accent: '#ffd700' },
   rejected:  { label: 'Відхилено',   accent: 'rgba(255,77,77,0.7)' },
@@ -2410,14 +2417,20 @@ class Component extends DCLogic {
     return out;
   }
 
-  async _submit() {
+  // Чернетка — той самий рядок у char_intake зі статусом `draft`: адміністрація
+  // її не бачить, межа «три на розгляді» на неї не діє. Подати її — це той
+  // самий _submit, тільки статус стає `pending` і Марта стукає адмінам.
+  async _submit(asDraft) {
     const s = this.state;
+    if (s.intakeBusy || s.upBusy) return;
     const f = s.f;
     const name = String(f.name || '').trim();
     const sec = this._secClean(f.sec);
     const wrote = Object.keys(sec).reduce((n, k) => n + sec[k].length, 0);
-    if (name.length < 2) { this.setState({ intakeMsg: 'Без імені анкету не заведеш.' }); return; }
-    if (wrote < 120) { this.setState({ intakeMsg: 'Розкажіть про неї більше — хоч кілька речень у розділах.' }); return; }
+    const editRow = s.editId ? (s.subs || []).find((r) => String(r.id) === String(s.editId)) : null;
+    const wasDraft = !!(editRow && editRow.status === 'draft');
+    if (name.length < 2) { this.setState({ intakeMsg: asDraft ? 'Чернетці теж потрібне імʼя — хоч робоче.' : 'Без імені анкету не заведеш.' }); return; }
+    if (!asDraft && wrote < 120) { this.setState({ intakeMsg: 'Розкажіть про неї більше — хоч кілька речень у розділах.' }); return; }
 
     this.setState({ intakeBusy: true, intakeMsg: '' });
     const body = {
@@ -2432,30 +2445,53 @@ class Component extends DCLogic {
       source_url: String(f.source_url || '').trim(),
       note: String(f.note || '').trim(),
       sections: sec,
+      status: asDraft ? 'draft' : 'pending',
+    };
+    const why = async (r, dflt) => {
+      const txt = await r.text();
+      const m = txt.match(/"message":"([^"]+)"/);
+      if (/char_intake_status_check|violates check/.test(txt)) return 'Чернетки ще не ввімкнено — прогоніть supabase_char_intake_drafts_migration.sql.';
+      return m ? m[1] : dflt;
     };
     try {
-      if (s.editId) {
+      if (s.editId && (!wasDraft || asDraft)) {
         const r = await this._api(`${SUPA_URL}/char_intake?id=eq.${s.editId}`, {
           method: 'PATCH', headers: { 'Prefer': 'return=representation' },
           body: JSON.stringify(body),
         }, true);
-        if (!r.ok) throw new Error(await r.text());
-        this.setState({ intakeBusy: false, intakeMsg: '✦ Правки прийнято — анкета лишається на розгляді.' });
+        if (!r.ok) { this.setState({ intakeBusy: false, intakeMsg: await why(r, 'Не збереглося. Спробуйте ще раз.') }); return; }
+        this.setState({ intakeBusy: false, intakeMsg: asDraft
+          ? '✦ Чернетку збережено. Її бачите тільки ви — подасте, коли буде готова.'
+          : '✦ Правки прийнято — анкета лишається на розгляді.' });
         this._loadSubs(s.uid);
         return;
       }
-      body.author_id = s.uid;
-      const r = await this._api(`${SUPA_URL}/char_intake`, {
-        method: 'POST', headers: { 'Prefer': 'return=representation' },
-        body: JSON.stringify(body),
-      }, true);
+      let r;
+      if (wasDraft) {
+        r = await this._api(`${SUPA_URL}/char_intake?id=eq.${s.editId}`, {
+          method: 'PATCH', headers: { 'Prefer': 'return=representation' },
+          body: JSON.stringify(body),
+        }, true);
+      } else {
+        body.author_id = s.uid;
+        r = await this._api(`${SUPA_URL}/char_intake`, {
+          method: 'POST', headers: { 'Prefer': 'return=representation' },
+          body: JSON.stringify(body),
+        }, true);
+      }
       if (!r.ok) {
-        const txt = await r.text();
-        const m = txt.match(/"message":"([^"]+)"/);
-        this.setState({ intakeBusy: false, intakeMsg: m ? m[1] : 'Не прийнято. Спробуйте пізніше.' });
+        this.setState({ intakeBusy: false, intakeMsg: await why(r, 'Не прийнято. Спробуйте пізніше.') });
         return;
       }
       const row = (await r.json())[0] || {};
+      if (asDraft) {
+        // Нова чернетка: далі бланк править саме її, а не плодить нові.
+        this._stash(f, s.open, row.id || '');
+        this.setState({ intakeBusy: false, editId: row.id || '',
+          intakeMsg: '✦ Чернетку збережено. Її бачите тільки ви — подасте, коли буде готова.' });
+        this._loadSubs(s.uid);
+        return;
+      }
       // Черга анкет не на очах ні в кого, тому саме тут Марта стукає в
       // лічку адмінам — коротко, з посиланням в адмінку.
       if (row.id) {
@@ -2490,7 +2526,9 @@ class Component extends DCLogic {
     this._stash(f, open, editId);
     this.setState({
       f, open, editId, tab: 'intake', way: 'blank',
-      intakeMsg: again ? 'Анкета в бланку — поправте й подайте наново.' : 'Правте — і тисніть «Зберегти правки».',
+      intakeMsg: again ? 'Анкета в бланку — поправте й подайте наново.'
+        : row.status === 'draft' ? 'Чернетка в бланку — допишіть і подайте, або збережіть ще раз.'
+        : 'Правте — і тисніть «Зберегти правки».',
     });
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
   }
@@ -2503,7 +2541,7 @@ class Component extends DCLogic {
   }
 
   async _withdraw(row) {
-    if (!window.confirm(`Відкликати анкету «${row.name}»?`)) return;
+    if (!window.confirm(row.status === 'draft' ? `Викинути чернетку «${row.name}»?` : `Відкликати анкету «${row.name}»?`)) return;
     try {
       const r = await this._api(`${SUPA_URL}/char_intake?id=eq.${row.id}`, {
         method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
@@ -3667,9 +3705,11 @@ class Component extends DCLogic {
     } else if (!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab)) {
       const pts = ((window.AnketaSchema || {}).ITEMS || []).map((it) => ['gos-i-' + it.num, `${it.num} · ${it.label}`]);
       items = [['gos-i-top', 'Звідки анкета'], ...pts, ['gos-i-note', 'Слово від вас'], ['gos-i-subs', 'Мої анкети']];
-      act = { head: s.editId ? '✦ Правка анкети' : '✦ Нова анкета',
-        label: s.intakeBusy ? 'Несу…' : (s.editId ? 'Зберегти правки' : 'Віддати анкету Марті'),
+      const dr = this._draftVals();
+      act = { head: dr.editingDraft ? '✦ Чернетка' : (s.editId ? '✦ Правка анкети' : '✦ Нова анкета'),
+        label: s.intakeBusy ? 'Несу…' : dr.submitLabel,
         busy: !!(s.intakeBusy || s.upBusy), go: () => this._submit(),
+        draft: dr.canDraft ? () => this._submit(true) : null, draftLabel: dr.draftBtn,
         cancel: s.editId ? () => this._cancelEdit() : null, cancelLabel: 'Лишити як було', msg: s.intakeMsg };
     }
     if (!items) return off;
@@ -3684,7 +3724,20 @@ class Component extends DCLogic {
       })),
       hasSideAct: true, sideActLabel: act.label, sideBusy: act.busy, sideGo: act.go,
       hasSideCancel: !!act.cancel, sideCancel: act.cancel || (() => {}), sideCancelLabel: act.cancelLabel,
+      hasSideDraft: !!act.draft, sideDraft: act.draft || (() => {}), sideDraftLabel: act.draftLabel || '',
       hasSideMsg: !!act.msg, sideMsg: act.msg || '',
+    };
+  }
+
+  _draftVals() {
+    const s = this.state;
+    const row = s.editId ? (s.subs || []).find((r) => String(r.id) === String(s.editId)) : null;
+    const editingDraft = !!(row && row.status === 'draft');
+    return {
+      editingDraft,
+      canDraft: !s.editId || editingDraft,
+      draftBtn: s.intakeBusy ? 'Зберігаю…' : (editingDraft ? 'Зберегти чернетку' : 'Зберегти як чернетку'),
+      submitLabel: editingDraft ? 'Подати чернетку Марті' : (s.editId ? 'Зберегти правки' : 'Віддати анкету Марті'),
     };
   }
 
@@ -3944,6 +3997,7 @@ class Component extends DCLogic {
       };
     });
     const onDesk = (s.subs || []).filter((r) => r.status === 'pending').length;
+    const dv = this._draftVals();
     // Слово адміна до анкети на розгляді — це правки, і виглядати воно мусить як правки:
     // свій статус на картці, заголовок над текстом і те саме над бланком, коли їх вносять.
     const fixOf = (r) => r.status === 'pending' && !!String(r.admin_note || '').trim();
@@ -3962,7 +4016,9 @@ class Component extends DCLogic {
         noteWhen: r.decided_at ? this._when(r.decided_at) : '',
         isFix: fix,
         editLabel: fix ? 'Внести правки' : 'Правити',
-        canEdit: r.status === 'pending', canDrop: r.status === 'pending',
+        canEdit: r.status === 'pending' || r.status === 'draft',
+        canDrop: r.status === 'pending' || r.status === 'draft',
+        dropLabel: r.status === 'draft' ? 'Викинути' : 'Відкликати',
         canAgain: r.status === 'rejected' || r.status === 'withdrawn',
         onEdit: () => this._edit(r, false),
         onAgain: () => this._edit(r, true),
@@ -4116,8 +4172,10 @@ class Component extends DCLogic {
       })(),
 
       // ── анкета ──
-      formHead: s.editId ? `✦ Правка анкети` : '✦ Нова анкета на розгляд',
-      formIntro: s.editId
+      formHead: dv.editingDraft ? '✦ Чернетка анкети' : (s.editId ? `✦ Правка анкети` : '✦ Нова анкета на розгляд'),
+      formIntro: dv.editingDraft
+        ? 'Чернетку бачите тільки ви. Дописуйте скільки треба — адміністрація отримає її, щойно натиснете «Подати».'
+        : s.editId
         ? 'Поки анкета лежить на розгляді, її можна правити. Адміністрація побачить останній варіант.'
         : 'Заповніть бланк — Марта віднесе його адміністрації. Персонаж зʼявиться в картотеці не одразу: спершу з анкети роблять чернетку, а вже її вичитують і публікують.',
       ways: [wayPill('blank', 'Заповнити бланк'), wayPill('tg', 'Вставити')],
@@ -4151,8 +4209,10 @@ class Component extends DCLogic {
       intakeBusy: s.intakeBusy || s.upBusy,
       submitBtn: s.intakeBusy
         ? 'Несу…'
-        : (s.editId ? 'Зберегти правки' : 'Віддати анкету Марті'),
+        : dv.submitLabel,
       doSubmit: () => this._submit(),
+      canDraft: dv.canDraft, draftBtn: dv.draftBtn,
+      doDraft: () => this._submit(true),
       editing: !!s.editId,
       doCancelEdit: () => this._cancelEdit(),
       intakeLimit: `На розгляді у вас ${onDesk} із трьох. Правити можна доки рішення немає.`,
