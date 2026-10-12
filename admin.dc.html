@@ -5059,6 +5059,8 @@ class Component extends DCLogic {
     try {
       const chars = this.state.data.characters || [];
       const maxOrder = chars.reduce((m, c) => Math.max(m, Number(c.sort_order) || 0), 0);
+      const who = row.author_id ? (this.state.gosPeople || []).find(p => String(p.id) === String(row.author_id)) : null;
+      const nick = row.author_nick || (who && (who.nick || who.tg_nick || who.email)) || '';
       const body = {
         name: row.name,
         alias: row.alias || '',
@@ -5074,8 +5076,9 @@ class Component extends DCLogic {
         character_type: 'player',
         is_active: true,
         is_draft: true,
-        intake_by: row.author_nick || '',
+        intake_by: nick,
         intake_at: new Date().toISOString(),
+        ...(row.author_id ? { owner_id: row.author_id, owner_nick: nick || null, owner_at: new Date().toISOString() } : {}),
         sort_order: maxOrder + 1,
       };
       const made = await this._insert('characters', body);
@@ -5160,8 +5163,8 @@ class Component extends DCLogic {
           name: `${r.name}${r.alias ? ` «${r.alias}»` : ''}`,
           meta: [r.age, [r.height, r.weight].filter(Boolean).join(' / '), r.deity, r.role]
             .filter(Boolean).join(' · ') || 'графи не заповнені',
-          from: `Подав: ${r.author_nick || 'невідомо хто'}`
-            + (who && who.tg_nick ? ` · ${who.tg_nick}` : '')
+          from: `Подав: ${r.author_nick || (who && (who.nick || who.email)) || (who && who.tg_nick) || 'невідомо хто'}`
+            + (who && who.tg_nick && (r.author_nick || (who.nick || who.email)) ? ` · ${who.tg_nick}` : '')
             + (who ? (who.status === 'approved' ? ' · доступ відкрито' : ' · доступ ще не відкрито') : ''),
           hasPortrait: !!r.portrait, portrait: r.portrait || '',
           hasSource: !!r.source_url, source: r.source_url || '',
@@ -5999,7 +6002,7 @@ class Component extends DCLogic {
     }));
     (s.inRows || []).filter(r => r.status === 'pending').forEach(r => out.push({
       kind: 'intake', key: 'i' + r.id, at: r.created_at, go: { inFilter: 'pending' },
-      title: `№${r.num} · ${r.name || 'без імені'}`, sub: `подав ${r.author_nick || 'невідомо хто'}`,
+      title: `№${r.num} · ${r.name || 'без імені'}`, sub: `подав ${r.author_nick || (() => { const p = (s.gosPeople || []).find(p => String(p.id) === String(r.author_id)); return p && (p.nick || p.tg_nick || p.email); })() || 'невідомо хто'}`,
     }));
     (s.edRows || []).filter(r => r.status === 'pending').forEach(r => out.push({
       kind: 'owners', key: 'e' + r.id, at: r.created_at, go: { edFilter: 'pending' },
