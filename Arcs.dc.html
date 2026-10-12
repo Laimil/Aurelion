@@ -207,8 +207,7 @@
             </a>
           </sc-for>
           <div style="height:1px;background:rgba(255,255,255,0.08);margin:20px 0 10px;"></div>
-          <button onClick="{{ readFeed }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>Читати в стрічці</span><span>→</span></button>
-          <button onClick="{{ readFromStart }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>З першого допису</span><span>→</span></button>
+          <button onClick="{{ toReader }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>Читати арку</span><span>↓</span></button>
         </nav>
 
         <article style="flex:1 1 460px;min-width:0;max-width:720px;">
@@ -218,32 +217,45 @@
           <p style="font-family:'EB Garamond',Georgia,serif;font-size:{{ a.sumSize }};line-height:1.65;color:{{ a.sumInk }};margin:0 0 36px;text-wrap:pretty;">{{ a.summary }}</p>
 
           <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:0 0 12px;">✦ Ритм · {{ a.rhythmUnit }}</p>
-          <div style="display:flex;align-items:flex-end;gap:3px;height:76px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);">
-            <sc-for list="{{ a.bars }}" as="b" hint-placeholder-count="12">
-              <span title="{{ b.title }}" style="flex:1 1 0;min-width:2px;border-radius:2px 2px 0 0;background:{{ b.ink }};height:{{ b.h }};"></span>
-            </sc-for>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:rgba(255,255,255,0.35);margin:6px 0 40px;">
-            <span>{{ a.fromLabel }}</span><span>{{ a.toLabel }}</span>
+          <div style="max-width:{{ a.barsMax }};margin:0 0 40px;">
+            <div style="display:flex;align-items:flex-end;gap:{{ a.barGap }};height:96px;border-bottom:1px solid rgba(255,255,255,0.1);">
+              <sc-for list="{{ a.bars }}" as="b" hint-placeholder-count="12">
+                <div title="{{ b.title }}" style="flex:1 1 0;min-width:2px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;">
+                  <sc-if value="{{ b.showN }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-family:'Cinzel',serif;font-size:0.72rem;color:rgba(255,215,0,0.8);">{{ b.n }}</span>
+                  </sc-if>
+                  <span style="width:100%;border-radius:3px 3px 0 0;background:{{ b.ink }};height:{{ b.h }};"></span>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ a.fewBars }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:{{ a.barGap }};margin-top:6px;">
+                <sc-for list="{{ a.bars }}" as="b" hint-placeholder-count="0">
+                  <span style="flex:1 1 0;min-width:0;text-align:center;font-size:0.64rem;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:clip;">{{ b.lbl }}</span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ a.manyBars }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:6px;">
+                <span>{{ a.fromLabel }}</span><span>{{ a.toLabel }}</span>
+              </div>
+            </sc-if>
           </div>
 
-          <div style="display:flex;flex-direction:column;gap:16px;">
-            <sc-for list="{{ a.ends }}" as="e" hint-placeholder-count="2">
-              <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px 22px;box-shadow:0 8px 24px rgba(0,0,0,0.3);">
-                <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-                  <span style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.7);">{{ e.label }}</span>
-                  <span style="font-family:'Cinzel',serif;font-size:0.9rem;color:#fff;">{{ e.who }}</span>
-                  <span style="flex:1;"></span>
-                  <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ e.when }}</span>
-                </div>
-                <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;line-height:1.6;color:rgba(255,255,255,0.72);margin:0;white-space:pre-line;text-wrap:pretty;">{{ e.text }}</p>
-                <sc-if value="{{ e.hasLink }}" hint-placeholder-val="{{ false }}">
-                  <a href="{{ e.href }}" style="display:inline-block;margin-top:12px;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#ffd700;text-decoration:none;">Читати допис →</a>
-                </sc-if>
-              </div>
-            </sc-for>
-          </div>
         </article>
+      </div>
+
+      <!-- ── Читалка: та сама, що в «Постах», відібрана на цю арку; спершу свіже ── -->
+      <div id="arc-reader" style="max-width:1200px;margin:56px auto 0;">
+        <div style="height:1px;background:rgba(255,255,255,0.09);margin-bottom:30px;"></div>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <div>
+            <p style="font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin:0 0 5px;">✦ Читалка</p>
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.5rem,3vw,1.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;margin:0;">Уся арка</h2>
+          </div>
+          <button onClick="{{ readFeed }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 16px;font-size:0.78rem;cursor:pointer;transition:all 0.3s ease;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">Відкрити в «Постах» →</button>
+        </div>
+        <dc-import name="Posts" embedded="{{ true }}" pre-arc="{{ a.preArc }}" pre-asc="0" no-url="{{ true }}" hint-size="100%,720px"></dc-import>
       </div>
     </div>
   </sc-if>
@@ -411,7 +423,7 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
-    this._onHash = () => { this.setState({ open: this._hashArc(), edit: null }, () => this._openSide()); };
+    this._onHash = () => { this.setState({ open: this._hashArc(), edit: null }); };
     window.addEventListener('hashchange', this._onHash);
     this.state.open = this._hashArc();
     this._load();
@@ -446,7 +458,7 @@ class Component extends DCLogic {
       const [chars, posts, pages] = await Promise.all([this._chars(), this._posts(), this._pages()]);
       const arcs = this._build(posts, chars);
       console.log(`арки: ${posts.length} дописів → ${arcs.length} арок, анкет ${chars.length}`);
-      this.setState({ phase: 'ok', arcs, admin, pages: pages || {}, noPages: pages == null }, () => this._openSide());
+      this.setState({ phase: 'ok', arcs, admin, pages: pages || {}, noPages: pages == null });
     } catch (e) {
       console.warn('арки:', String(e && e.message || e));
       this.setState({ phase: 'error' });
@@ -668,16 +680,19 @@ class Component extends DCLogic {
       summary += g.live ? ` Востаннє — ${rel(g.last.at)}, від ${g.last.who}.` : ` Тиша з ${fmtDay(g.last.at, true)}.`;
     }
 
-    // Ритм: тижні для коротких арок, місяці для довгих.
-    const weekly = span <= 140;
-    const unit = weekly ? 7 * DAY : 0;
+    // Ритм: дні для коротких арок, тижні для середніх, місяці для довгих.
+    const mode = span <= 28 ? 'day' : span <= 140 ? 'week' : 'month';
     const buckets = [];
-    if (weekly) {
-      const n = Math.max(1, Math.ceil(span / 7));
-      for (let i = 0; i < n; i++) buckets.push({ from: g.first.at + i * unit, n: 0 });
-      for (const t of g.times) buckets[Math.min(n - 1, Math.floor((t - g.first.at) / unit))].n++;
+    const d0 = new Date(g.first.at);
+    const day0 = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate()).getTime();
+    if (mode !== 'month') {
+      const step = mode === 'day' ? DAY : 7 * DAY;
+      const days = Math.round((new Date(new Date(g.last.at).setHours(0, 0, 0, 0)).getTime() - day0) / DAY) + 1;
+      const n = Math.max(1, Math.ceil(days / (step / DAY)));
+      for (let i = 0; i < n; i++) buckets.push({ from: day0 + i * step, n: 0 });
+      for (const t of g.times) buckets[Math.max(0, Math.min(n - 1, Math.floor((t - day0) / step)))].n++;
     } else {
-      const d0 = new Date(g.first.at), d1 = new Date(g.last.at);
+      const d1 = new Date(g.last.at);
       const months = (d1.getFullYear() - d0.getFullYear()) * 12 + d1.getMonth() - d0.getMonth() + 1;
       for (let i = 0; i < months; i++) buckets.push({ from: new Date(d0.getFullYear(), d0.getMonth() + i, 1).getTime(), n: 0 });
       for (const t of g.times) {
@@ -686,20 +701,15 @@ class Component extends DCLogic {
       }
     }
     const max = Math.max(1, ...buckets.map((b) => b.n));
+    const few = buckets.length <= 14;
+    const lblOf = (b) => mode === 'month' ? MON[new Date(b.from).getMonth()] : fmtDay(b.from);
     const bars = buckets.map((b) => ({
-      h: b.n ? Math.max(8, Math.round(b.n / max * 100)) + '%' : '2px',
+      n: String(b.n), showN: few && b.n > 0, lbl: lblOf(b),
+      h: b.n ? Math.max(6, Math.round(b.n / max * 78)) + '%' : '2px',
       ink: b.n ? 'rgba(255,215,0,' + (0.35 + 0.5 * b.n / max).toFixed(2) + ')' : 'rgba(255,255,255,0.1)',
-      title: (weekly ? 'тиждень з ' + fmtDay(b.from) : MON[new Date(b.from).getMonth()] + ' ' + new Date(b.from).getFullYear()) + ': ' + b.n + ' ' + plural(b.n, POSTS_W),
+      title: (mode === 'day' ? fmtDay(b.from, true) : mode === 'week' ? 'тиждень з ' + fmtDay(b.from) : MON[new Date(b.from).getMonth()] + ' ' + new Date(b.from).getFullYear()) + ': ' + b.n + ' ' + plural(b.n, POSTS_W),
     }));
 
-    const ex = s.ex[g.key] || {};
-    const end = (lbl, p) => ({
-      label: lbl, who: p.who, when: fmtDay(p.at, true),
-      text: ex.busy || !(p.id in ex) ? (ex.busy ? 'Гортаю стрічку…' : 'Текст допису недоступний.') : excerpt(ex[p.id]),
-      hasLink: true, href: '#posts/' + p.id,
-    });
-    const ends = [end('Зав’язка', g.first)];
-    if (g.last.id !== g.first.id) ends.push(end(g.live ? 'Останній допис' : 'Де зупинилися', g.last));
 
     const charHref = (c) => c.ch ? '#characters/' + encodeURIComponent(c.ch.id) : '#arcs/' + encodeURIComponent(g.name);
     const blurb = ed ? String(ed.blurb || '').trim() : String((pg && pg.blurb) || '').trim();
@@ -716,11 +726,13 @@ class Component extends DCLogic {
       summary,
       sumSize: blurb ? '1.06rem' : '1.32rem',
       sumInk: blurb ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.82)',
-      rhythmUnit: weekly ? 'дописи за тиждень' : 'дописи за місяць',
-      bars,
+      rhythmUnit: mode === 'day' ? 'дописи за день' : mode === 'week' ? 'дописи за тиждень' : 'дописи за місяць',
+      bars, fewBars: few, manyBars: !few,
+      barsMax: few ? (buckets.length * 64) + 'px' : '100%',
+      barGap: few ? '10px' : '3px',
       fromLabel: fmtDay(g.first.at, true),
       toLabel: g.live ? 'сьогодні' : fmtDay(g.last.at, true),
-      ends,
+      preArc: g.all.join('\u0001'),
       tiles: g.castList.map((c) => ({
         href: charHref(c), title: c.ch ? 'Анкета: ' + c.name : c.name + ' — анкети немає',
         hasImg: !!(c.ch && c.ch.image), noImg: !(c.ch && c.ch.image),
@@ -805,7 +817,7 @@ class Component extends DCLogic {
       setBlurb: (e) => setEd({ blurb: e.target.value }),
       save: () => g && this._saveEdit(g),
       readFeed: () => g && this._feed(g, false),
-      readFromStart: () => g && this._feed(g, true),
+      toReader: () => { try { const el = document.getElementById('arc-reader'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' }); } catch (e) {} },
     };
   }
 }

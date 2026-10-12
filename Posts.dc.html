@@ -657,6 +657,8 @@ class Component extends DCLogic {
     return base + (qs ? '?' + qs : '') + '#posts/' + encodeURIComponent(id);
   }
   _syncUrl(openId) {
+    // Вбудована читалка (сторінка арки) адресу не чіпає — вона не своя.
+    if (this.props.noUrl) return;
     try {
       const qs = this._queryString();
       const hash = openId != null ? '#posts/' + encodeURIComponent(openId) : '#posts';
