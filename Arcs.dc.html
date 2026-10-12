@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>body{margin:0;background:#1a1a1a;} a{color:#ffd700;} a:hover{color:#fff;}</style>
+</helmet>
+<div style="font-family:Arial,sans-serif;color:#fff;">
+  <sc-if value="{{ isLoad }}" hint-placeholder-val="{{ true }}">
+    <p style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.9rem;padding:40px 0;">Розкладаю теки арок…</p>
+  </sc-if>
+  <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
+    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;max-width:680px;margin:0 auto;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);margin:0 0 16px;">Арки — для тих, хто увійшов у кабінет.</p>
+      <a href="#cabinet" style="display:inline-block;padding:9px 20px;border-radius:999px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:#ffd700;text-decoration:none;font-size:0.85rem;">Увійти в кабінет</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isLocked }}" hint-placeholder-val="{{ false }}">
+    <div style="text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:15px;max-width:680px;margin:0 auto;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.55);margin:0;">Доступ ще на розгляді. Щойно рецепція відкриє кабінет — арки з'являться тут.</p>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+    <p style="text-align:center;color:rgba(255,77,77,0.75);font-size:0.9rem;padding:40px 0;">Не вдалося зібрати арки. Спробуйте пізніше.</p>
+  </sc-if>
+
+  <!-- ═══ ПЕРЕЛІК ═══ -->
+  <sc-if value="{{ showIndex }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <header style="text-align:center;margin-bottom:28px;">
+        <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin:0 0 10px;">✦ З рольового чату</p>
+        <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;margin:0;display:inline-flex;align-items:flex-start;gap:12px;">Арки<span style="font-family:Arial,sans-serif;font-size:0.68rem;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;line-height:1;margin-top:8px;">бета</span></h1>
+        <p style="margin:12px auto 0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:480px;">Кожна арка — своя тека: хто в ній, звідки почалася і де зупинилася.</p>
+      </header>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+        <input type="text" value="{{ q }}" onInput="{{ setQ }}" onChange="{{ setQ }}" placeholder="Арка або персонаж…" style="flex:0 1 300px;min-width:0;box-sizing:border-box;border-radius:999px;padding:9px 16px;font-size:0.85rem;font-family:Arial,sans-serif;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);color:#fff;outline:none;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+          <sc-for list="{{ filtTabs }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.pick }}" style="cursor:pointer;padding:6px 14px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.74rem;letter-spacing:0.04em;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.ink }};transition:all 0.3s ease;">{{ t.label }}</button>
+          </sc-for>
+        </div>
+        <button onClick="{{ flipSort }}" style="cursor:pointer;border-radius:999px;padding:8px 15px;font-size:0.78rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">{{ sortLabel }}</button>
+      </div>
+      <p style="text-align:center;font-size:0.76rem;color:rgba(255,255,255,0.36);margin:0 0 26px;">{{ countLine }}</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:20px;">
+        <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
+          <a href="{{ c.href }}" style="display:flex;flex-direction:column;text-decoration:none;color:inherit;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.35);transition:all 0.3s ease;" style-hover="transform:translateY(-5px);border-color:rgba(255,215,0,0.4);box-shadow:0 18px 40px rgba(0,0,0,0.5);">
+            <div style="position:relative;height:190px;background:#0f0e0c;overflow:hidden;">
+              <sc-if value="{{ c.hasCover }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;background-image:url({{ c.coverUrl }});background-position:{{ c.coverPos }};"></div>
+              </sc-if>
+              <sc-for list="{{ c.strips }}" as="s" hint-placeholder-count="0">
+                <div style="position:absolute;top:0;bottom:0;background-size:cover;background-repeat:no-repeat;background-position:center 18%;{{ s.style }}"></div>
+              </sc-for>
+              <sc-if value="{{ c.noImg }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,rgba(255,215,0,0.08) 0%,transparent 70%);">
+                  <span style="font-family:'Cinzel',serif;font-size:4.2rem;font-weight:700;color:rgba(255,215,0,0.14);">{{ c.initials }}</span>
+                </div>
+              </sc-if>
+              <div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(15,14,12,0.9) 0%,rgba(15,14,12,0) 60%);"></div>
+              <span style="position:absolute;top:12px;left:12px;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:{{ c.pillBg }};border:1px solid {{ c.pillBorder }};color:{{ c.pillInk }};">{{ c.status }}</span>
+            </div>
+            <div style="padding:14px 18px 18px;display:flex;flex-direction:column;gap:8px;">
+              <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;letter-spacing:0.04em;line-height:1.2;margin:0;color:#fff;text-wrap:balance;">{{ c.name }}</h3>
+              <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);margin:0;">{{ c.meta }}</p>
+              <div style="display:flex;align-items:center;margin-top:4px;">
+                <sc-for list="{{ c.faces }}" as="f" hint-placeholder-count="3">
+                  <span title="{{ f.name }}" style="width:26px;height:26px;border-radius:999px;border:1.5px solid #1f1e1c;margin-right:-6px;background:#2a2826;background-size:cover;background-position:center 20%;display:inline-flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.6rem;color:rgba(255,215,0,0.6);{{ f.style }}">{{ f.letter }}</span>
+                </sc-for>
+                <sc-if value="{{ c.hasMoreFaces }}" hint-placeholder-val="{{ false }}">
+                  <span style="margin-left:12px;font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ c.moreFaces }}</span>
+                </sc-if>
+              </div>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+      <sc-if value="{{ noCards }}" hint-placeholder-val="{{ false }}">
+        <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.36);padding:40px 0;margin:0;">{{ emptyLine }}</p>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ═══ АРКИ НЕМАЄ ═══ -->
+  <sc-if value="{{ showMissing }}" hint-placeholder-val="{{ false }}">
+    <div style="text-align:center;padding:60px 24px;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.1rem;color:rgba(255,255,255,0.45);margin:0 0 18px;">Такої арки в стрічці немає — можливо, тег написали інакше.</p>
+      <a href="#arcs" style="display:inline-block;padding:8px 18px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);text-decoration:none;font-size:0.82rem;">← Усі арки</a>
+    </div>
+  </sc-if>
+
+  <!-- ═══ СТОРІНКА АРКИ ═══ -->
+  <sc-if value="{{ showArc }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="max-width:1200px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <a href="#arcs" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;text-decoration:none;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">← Усі арки</a>
+        <span style="flex:1;"></span>
+        <sc-if value="{{ canEdit }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ toggleEdit }}" style="display:inline-flex;align-items:center;gap:7px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.38);color:#6495ed;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(100,149,237,0.18);box-shadow:0 0 18px rgba(100,149,237,0.28);">{{ editLabel }}</button>
+        </sc-if>
+      </div>
+
+      <div style="position:relative;max-width:1200px;min-height:480px;margin:0 auto;border-radius:15px;overflow:hidden;background:#1a1a1a;border:1px solid rgba(255,255,255,0.08);display:flex;align-items:flex-end;">
+        <div style="position:absolute;top:0;right:0;bottom:0;width:max(62%,min(100%,560px));background:#0f0e0c;">
+          <sc-if value="{{ a.hasCover }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;background-image:url({{ a.coverUrl }});background-position:{{ a.coverPos }};"></div>
+          </sc-if>
+          <sc-for list="{{ a.strips }}" as="s" hint-placeholder-count="0">
+            <div style="position:absolute;top:0;bottom:0;background-size:cover;background-repeat:no-repeat;background-position:center 16%;{{ s.style }}"></div>
+          </sc-for>
+          <sc-if value="{{ a.noImg }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 40%,rgba(255,215,0,0.08) 0%,transparent 70%);">
+              <span style="font-family:'Cinzel',serif;font-size:9rem;font-weight:700;color:rgba(255,215,0,0.12);">{{ a.initials }}</span>
+            </div>
+          </sc-if>
+        </div>
+        <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#1a1a1a 34%,rgba(26,26,26,0.72) 50%,rgba(26,26,26,0) 72%),linear-gradient(0deg,#1a1a1a 0%,rgba(26,26,26,0.55) 30%,rgba(26,26,26,0) 58%);"></div>
+        <div style="position:relative;padding:clamp(150px,24vw,170px) clamp(22px,5vw,56px) clamp(30px,5vw,52px);max-width:620px;box-sizing:border-box;">
+          <p style="font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin:0 0 12px;">{{ a.overline }} <span style="margin-left:8px;padding:2px 8px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;font-size:0.6rem;">бета</span></p>
+          <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2.1rem,4.6vw,4rem);font-weight:700;letter-spacing:0.05em;line-height:1.04;color:#fff;margin:0;text-shadow:0 0 40px rgba(255,215,0,0.15);overflow-wrap:break-word;text-wrap:balance;">{{ a.name }}</h1>
+          <sc-if value="{{ a.hasAlt }}" hint-placeholder-val="{{ false }}">
+            <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.1rem;color:rgba(255,255,255,0.45);margin:10px 0 0;">{{ a.altLine }}</p>
+          </sc-if>
+          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin-top:22px;">
+            <sc-for list="{{ a.stats }}" as="st" hint-placeholder-count="3">
+              <span style="display:inline-flex;align-items:baseline;gap:14px;">
+                <sc-if value="{{ st.sep }}" hint-placeholder-val="{{ false }}"><span style="color:rgba(255,215,0,0.55);font-size:0.8rem;">✦</span></sc-if>
+                <span style="display:inline-flex;align-items:baseline;gap:7px;">
+                  <span style="font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.6);">{{ st.k }}</span>
+                  <span style="font-family:'Cinzel',serif;font-size:0.95rem;letter-spacing:0.05em;color:rgba(255,255,255,0.86);">{{ st.v }}</span>
+                </span>
+              </span>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Обкладинка й опис: тільки рецепція ── -->
+      <sc-if value="{{ editOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:1200px;box-sizing:border-box;margin:14px auto 0;background:rgba(255,255,255,0.04);border:1px dashed rgba(100,149,237,0.4);border-radius:15px;padding:20px;display:flex;flex-direction:column;gap:14px;">
+          <p style="font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:#6495ed;margin:0;">✦ Обкладинка арки · змінює рецепція, бачать усі</p>
+          <sc-if value="{{ noPagesTable }}" hint-placeholder-val="{{ false }}">
+            <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;color:rgba(255,255,255,0.5);margin:0;">Полиці для обкладинок ще немає: треба прогнати <span style="color:#ffd700;">supabase_arc_pages_migration.sql</span>. До того — завжди комбо.</p>
+          </sc-if>
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,0.24) transparent;">
+            <button onClick="{{ pickCombo }}" title="Комбо з портретів учасників" style="position:relative;width:104px;height:104px;flex-shrink:0;border-radius:10px;overflow:hidden;cursor:pointer;padding:0;background:#0f0e0c;border:2px solid {{ ed.comboBorder }};">
+              <sc-for list="{{ ed.mini }}" as="s" hint-placeholder-count="0">
+                <div style="position:absolute;top:0;bottom:0;background-size:cover;background-position:center 18%;{{ s.style }}"></div>
+              </sc-for>
+              <span style="position:absolute;left:0;right:0;bottom:0;padding:5px 0;background:rgba(10,9,8,0.75);font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;color:#ffd700;">Комбо</span>
+            </button>
+            <sc-for list="{{ ed.opts }}" as="o" hint-placeholder-count="4">
+              <button data-u="{{ o.url }}" onClick="{{ pickCover }}" title="{{ o.label }}" style="position:relative;width:104px;height:104px;flex-shrink:0;border-radius:10px;overflow:hidden;cursor:pointer;padding:0;background:#111;border:2px solid {{ o.border }};">
+                <img src="{{ o.url }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;pointer-events:none;">
+                <span style="position:absolute;left:0;right:0;bottom:0;padding:4px 6px;background:rgba(10,9,8,0.72);font-size:0.62rem;color:rgba(255,255,255,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;">{{ o.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+                    <sc-if value="{{ ed.hasFocus }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+              <span style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.6);">Фокус</span>
+              <label style="display:flex;align-items:center;gap:8px;font-size:0.76rem;color:rgba(255,255,255,0.55);">← →<input type="range" min="0" max="100" value="{{ ed.fx }}" data-k="fx" onInput="{{ setFocus }}" onChange="{{ setFocus }}" style="width:150px;accent-color:#ffd700;"></label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:0.76rem;color:rgba(255,255,255,0.55);">↑ ↓<input type="range" min="0" max="100" value="{{ ed.fy }}" data-k="fy" onInput="{{ setFocus }}" onChange="{{ setFocus }}" style="width:150px;accent-color:#ffd700;"></label>
+            </div>
+          </sc-if>
+          <textarea value="{{ ed.blurb }}" onInput="{{ setBlurb }}" onChange="{{ setBlurb }}" rows="3" maxlength="1200" placeholder="Вступ від рецепції — необовʼязково. Стоїть над згенерованим зведенням." style="width:100%;box-sizing:border-box;resize:vertical;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:10px;padding:10px 14px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.5;outline:none;"></textarea>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <button onClick="{{ save }}" disabled="{{ ed.busy }}" style="background:#ffd700;border:1px solid #ffd700;color:#1a1a1a;border-radius:999px;padding:8px 20px;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.3s ease;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.4);transform:scale(1.03);">{{ ed.saveLabel }}</button>
+            <button onClick="{{ toggleEdit }}" style="background:none;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;padding:8px 18px;font-size:0.8rem;cursor:pointer;">Скасувати</button>
+            <sc-if value="{{ ed.hasMsg }}" hint-placeholder-val="{{ false }}">
+              <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:{{ ed.msgInk }};">{{ ed.msg }}</span>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ── Учасники стрічкою ── -->
+      <div style="max-width:1200px;box-sizing:border-box;margin:14px auto 0;padding:0 clamp(0px,4vw,56px) 4px;display:flex;gap:10px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,0.24) transparent;">
+        <sc-for list="{{ a.tiles }}" as="t" hint-placeholder-count="4">
+          <a href="{{ t.href }}" title="{{ t.title }}" style="position:relative;width:118px;height:118px;flex-shrink:0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);background:#141312;text-decoration:none;box-shadow:0 8px 20px rgba(0,0,0,0.4);transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.55);transform:translateY(-3px);">
+            <sc-if value="{{ t.hasImg }}" hint-placeholder-val="{{ true }}">
+              <img src="{{ t.img }}" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;">
+            </sc-if>
+            <sc-if value="{{ t.noImg }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:rgba(255,215,0,0.2);">{{ t.letter }}</span>
+            </sc-if>
+            <span style="position:absolute;left:0;right:0;bottom:0;padding:16px 8px 6px;background:linear-gradient(0deg,rgba(10,9,8,0.92),rgba(10,9,8,0));display:flex;flex-direction:column;gap:1px;text-align:left;">
+              <span style="font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.name }}</span>
+              <span style="font-size:0.6rem;color:rgba(255,215,0,0.7);">{{ t.count }}</span>
+            </span>
+          </a>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:40px 64px;max-width:1200px;box-sizing:border-box;margin:0 auto;padding:40px clamp(0px,4vw,56px) 0;align-items:flex-start;">
+        <nav style="flex:0 1 220px;min-width:200px;">
+          <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:0 0 10px;">Учасники</p>
+          <sc-for list="{{ a.castNav }}" as="c" hint-placeholder-count="4">
+            <a href="{{ c.href }}" style="display:block;padding:6px 0;text-decoration:none;transition:all 0.3s ease;" style-hover="opacity:0.8;">
+              <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.3;color:{{ c.ink }};">{{ c.name }}</span>
+              <span style="display:block;font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ c.meta }}</span>
+            </a>
+          </sc-for>
+          <div style="height:1px;background:rgba(255,255,255,0.08);margin:20px 0 10px;"></div>
+          <button onClick="{{ readFeed }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>Читати в стрічці</span><span>→</span></button>
+          <button onClick="{{ readFromStart }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>З першого допису</span><span>→</span></button>
+        </nav>
+
+        <article style="flex:1 1 460px;min-width:0;max-width:720px;">
+          <sc-if value="{{ a.hasBlurb }}" hint-placeholder-val="{{ false }}">
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.32rem;line-height:1.6;color:rgba(255,255,255,0.82);margin:0 0 18px;white-space:pre-line;text-wrap:pretty;">{{ a.blurb }}</p>
+          </sc-if>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:{{ a.sumSize }};line-height:1.65;color:{{ a.sumInk }};margin:0 0 36px;text-wrap:pretty;">{{ a.summary }}</p>
+
+          <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:0 0 12px;">✦ Ритм · {{ a.rhythmUnit }}</p>
+          <div style="display:flex;align-items:flex-end;gap:3px;height:76px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);">
+            <sc-for list="{{ a.bars }}" as="b" hint-placeholder-count="12">
+              <span title="{{ b.title }}" style="flex:1 1 0;min-width:2px;border-radius:2px 2px 0 0;background:{{ b.ink }};height:{{ b.h }};"></span>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:rgba(255,255,255,0.35);margin:6px 0 40px;">
+            <span>{{ a.fromLabel }}</span><span>{{ a.toLabel }}</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <sc-for list="{{ a.ends }}" as="e" hint-placeholder-count="2">
+              <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:20px 22px;box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+                <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+                  <span style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.7);">{{ e.label }}</span>
+                  <span style="font-family:'Cinzel',serif;font-size:0.9rem;color:#fff;">{{ e.who }}</span>
+                  <span style="flex:1;"></span>
+                  <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ e.when }}</span>
+                </div>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;line-height:1.6;color:rgba(255,255,255,0.72);margin:0;white-space:pre-line;text-wrap:pretty;">{{ e.text }}</p>
+                <sc-if value="{{ e.hasLink }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ e.href }}" style="display:inline-block;margin-top:12px;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#ffd700;text-decoration:none;">Читати допис →</a>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </article>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:900}}">
+const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const BASE_H    = { apikey: SUPA_KEY };
+// Та сама межа «живої» арки, що в боті й кабінеті (ARC_LIVE).
+const LIVE_DAYS = 30;
+const DAY = 86400000;
+const POST_PAGE = 1000, POST_MAX = 20000;
+const COMBO_MAX = 5;
+const EX_LEN = 520;
+
+// ── Написання арок — як у Posts.dc.html ──
+function arcKey(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[ʼ'’`´ь]/g, '')
+    .replace(/[iіїйиы]/g, 'и')
+    .replace(/[eеє]/g, 'е').replace(/[aа]/g, 'а').replace(/[oо]/g, 'о')
+    .replace(/[cс]/g, 'с').replace(/[pр]/g, 'р').replace(/[xх]/g, 'х')
+    .replace(/[yу]/g, 'у').replace(/ґ/g, 'г')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+}
+const splitArcs = (v) => String(v || '').split(' / ').map((s) => s.trim()).filter(Boolean);
+function editDist(a, b) {
+  if (a === b) return 0;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = prev[0]; prev[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cur = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diag = prev[j]; prev[j] = cur;
+    }
+  }
+  return prev[b.length];
+}
+function nearArc(a, b) {
+  const x = arcKey(a), y = arcKey(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  if (Math.abs(x.length - y.length) > 2) return false;
+  return editDist(x, y) <= (Math.min(x.length, y.length) <= 8 ? 1 : 2);
+}
+function groupArcs(counts) {
+  const list = [...counts].map(([v, n]) => ({ v, n })).sort((a, b) => b.n - a.n || b.v.length - a.v.length);
+  const out = [];
+  for (const it of list) {
+    const box = out.find((o) => o.all.some((v) => nearArc(v, it.v)));
+    if (box) { box.all.push(it.v); box.n += it.n; } else out.push({ name: it.v, all: [it.v], n: it.n });
+  }
+  return out;
+}
+
+const MON = ['січ', 'лют', 'бер', 'квіт', 'трав', 'черв', 'лип', 'серп', 'вер', 'жовт', 'лист', 'груд'];
+function fmtDay(t, year) {
+  const d = new Date(t);
+  return d.getDate() + ' ' + MON[d.getMonth()] + (year ? ' ' + d.getFullYear() : '');
+}
+function plural(n, f) {
+  const a = Math.abs(n) % 100, b = a % 10;
+  if (a > 10 && a < 20) return f[2];
+  if (b === 1) return f[0];
+  if (b >= 2 && b <= 4) return f[1];
+  return f[2];
+}
+const POSTS_W = ['допис', 'дописи', 'дописів'];
+function rel(t) {
+  const d = Math.floor((Date.now() - t) / DAY);
+  if (d <= 0) return 'сьогодні';
+  if (d === 1) return 'вчора';
+  if (d < 31) return d + ' ' + plural(d, ['день', 'дні', 'днів']) + ' тому';
+  return fmtDay(t, new Date(t).getFullYear() !== new Date().getFullYear());
+}
+function period(a, b) {
+  const ya = new Date(a).getFullYear(), yb = new Date(b).getFullYear();
+  if (b - a < DAY && new Date(a).getDate() === new Date(b).getDate()) return fmtDay(a, true);
+  return fmtDay(a, ya !== yb) + ' — ' + fmtDay(b, true);
+}
+const initials = (s) => String(s || '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '✦';
+function seed(s) { let h = 0; for (const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h); }
+const urlCss = (u) => JSON.stringify(String(u));
+// Час допису як у my_turns(): довантажене з експорту має created_at у день
+// імпорту — тоді віримо графі day.
+function atOf(p) {
+  const c = Date.parse(p.created_at);
+  if (!p.day) return c || 0;
+  const d = Date.parse(p.day + 'T12:00:00');
+  return (c && c >= d - 12 * 3600000 && c <= d + 36 * 3600000) ? c : d;
+}
+function excerpt(body) {
+  const t = String(body || '').replace(/^\s*>\s?/gmu, '').replace(/\n{3,}/g, '\n\n').trim();
+  if (t.length <= EX_LEN) return t;
+  const cut = t.slice(0, EX_LEN);
+  const end = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '), cut.lastIndexOf('\n'));
+  return (end > EX_LEN * 0.5 ? cut.slice(0, end + 1) : cut.replace(/\s+\S*$/, '')).trim() + ' …';
+}
+
+// Комбо: портрети учасників похилими смугами. Нахил — від назви арки,
+// тож у кожної свій, але сталий.
+function collage(urls, flip) {
+  const n = urls.length;
+  if (!n) return [];
+  if (n === 1) return [{ style: `left:0;width:100%;background-image:url(${urlCss(urls[0])});` }];
+  const W = 100 / n, s = n > 3 ? 5 : 8, g = 0.3, d = flip ? -1 : 1;
+  return urls.map((u, i) => {
+    const x0 = i * W, x1 = (i + 1) * W, first = i === 0, last = i === n - 1;
+    const tl = first ? 0 : x0 + s * d + g, bl = first ? 0 : x0 - s * d + g;
+    const tr = last ? 100 : x1 + s * d - g, br = last ? 100 : x1 - s * d - g;
+    const L = Math.max(0, Math.min(tl, bl)), R = Math.min(100, Math.max(tr, br)), w = R - L;
+    const loc = (x) => ((x - L) / w * 100).toFixed(2) + '%';
+    return { style: `left:${L.toFixed(2)}%;width:${w.toFixed(2)}%;background-image:url(${urlCss(u)});clip-path:polygon(${loc(tl)} 0,${loc(tr)} 0,${loc(br)} 100%,${loc(bl)} 100%);` };
+  });
+}
+const focusOf = (v) => {
+  const m = String(v || '').match(/^\s*(\d{1,3}(?:\.\d+)?)\s+(\d{1,3}(?:\.\d+)?)\s*$/);
+  return m ? [Math.min(100, +m[1]), Math.min(100, +m[2])] : [50, 25];
+};
+
+class Component extends DCLogic {
+  state = {
+    phase: 'load', arcs: [], pages: {}, noPages: false, admin: false,
+    q: '', filt: 'all', sort: 'last', open: null, ex: {}, gal: {},
+    edit: null,
+  };
+
+  // ── Ключ доступу (як у Posts) ──
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _ref() { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
+  _exp() { try { return Number(localStorage.getItem('au_user_exp')) || 0; } catch (e) { return 0; } }
+  _h() { return { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` }; }
+  _save(d) {
+    try {
+      if (!d || !d.access_token) return;
+      localStorage.setItem('au_user_token', d.access_token);
+      if (d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+      localStorage.setItem('au_user_exp', String(Date.now() + Math.max(60, Number(d.expires_in) || 3600) * 1000));
+    } catch (e) {}
+  }
+  async _renew() {
+    if (this._renewJob) return this._renewJob;
+    this._renewJob = (async () => {
+      const rt = this._ref();
+      if (!rt) return !!this._tok();
+      try {
+        const r = await fetch(`${SUPA_AUTH}/token?grant_type=refresh_token`, {
+          method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' }, body: JSON.stringify({ refresh_token: rt }),
+        });
+        const d = await r.json().catch(() => null);
+        if (d && d.access_token) { this._save(d); return true; }
+      } catch (e) {}
+      return !!this._tok();
+    })().finally(() => { this._renewJob = null; });
+    return this._renewJob;
+  }
+  async _api(url, opt = {}) {
+    if (this._ref() && this._exp() && this._exp() - Date.now() < 5 * 60 * 1000) await this._renew();
+    const go = () => fetch(url, { ...opt, headers: { ...(opt.headers || {}), ...this._h() } });
+    let r = await go();
+    if (r.status === 401 && await this._renew()) r = await go();
+    return r;
+  }
+
+  componentDidMount() {
+    this._onHash = () => { this.setState({ open: this._hashArc(), edit: null }, () => this._openSide()); };
+    window.addEventListener('hashchange', this._onHash);
+    this.state.open = this._hashArc();
+    this._load();
+  }
+  componentWillUnmount() { window.removeEventListener('hashchange', this._onHash); }
+
+  _hashArc() {
+    const raw = (window.location.hash || '').replace(/^#/, '');
+    const i = raw.indexOf('/');
+    if (i === -1 || raw.slice(0, i) !== 'arcs') return null;
+    let id = raw.slice(i + 1);
+    try { id = decodeURIComponent(id); } catch (e) {}
+    return id.trim() || null;
+  }
+  _find(name) {
+    if (!name) return null;
+    const k = arcKey(name);
+    return this.state.arcs.find((g) => g.all.some((v) => arcKey(v) === k))
+      || this.state.arcs.find((g) => g.all.some((v) => nearArc(v, name))) || null;
+  }
+
+  async _load() {
+    if (!this._tok() && !this._ref()) { this.setState({ phase: 'guest' }); return; }
+    try {
+      const ur = await this._api(`${SUPA_AUTH}/user`);
+      if (!ur.ok) { this.setState({ phase: 'guest' }); return; }
+      const u = await ur.json();
+      const sr = await this._api(`${SUPA_URL}/site_users?id=eq.${u.id}&select=status`);
+      const prof = sr.ok ? (await sr.json())[0] : null;
+      const admin = await this._isAdmin();
+      if (!admin && (!prof || prof.status !== 'approved')) { this.setState({ phase: 'locked' }); return; }
+      const [chars, posts, pages] = await Promise.all([this._chars(), this._posts(), this._pages()]);
+      const arcs = this._build(posts, chars);
+      console.log(`арки: ${posts.length} дописів → ${arcs.length} арок, анкет ${chars.length}`);
+      this.setState({ phase: 'ok', arcs, admin, pages: pages || {}, noPages: pages == null }, () => this._openSide());
+    } catch (e) {
+      console.warn('арки:', String(e && e.message || e));
+      this.setState({ phase: 'error' });
+    }
+  }
+  async _isAdmin() {
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/is_admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      return r.ok ? (await r.json()) === true : false;
+    } catch (e) { return false; }
+  }
+  async _chars() {
+    for (const sel of ['id,name,alias,image,is_draft', 'id,name,image']) {
+      const r = await this._api(`${SUPA_URL}/characters?select=${sel}`);
+      if (r.ok) return (await r.json()).filter((c) => !c.is_draft);
+      console.warn('арки: анкети (' + sel + ') —', await r.text());
+    }
+    return [];
+  }
+  async _posts() {
+    const out = [];
+    for (let off = 0; off < POST_MAX; off += POST_PAGE) {
+      const r = await this._api(`${SUPA_URL}/marta_posts?select=id,tag_name,tag_arc,character_id,character_name,day,created_at`
+        + `&tag_arc=not.is.null&order=id.asc&limit=${POST_PAGE}&offset=${off}`);
+      if (!r.ok) throw new Error('marta_posts ' + r.status);
+      const rows = await r.json();
+      out.push(...rows);
+      if (rows.length < POST_PAGE) break;
+    }
+    return out;
+  }
+  async _pages() {
+    try {
+      const r = await this._api(`${SUPA_URL}/arc_pages?select=akey,arc,cover,cover_focus,blurb`);
+      if (!r.ok) { console.warn('арки: arc_pages —', await r.text(), '(прогнати supabase_arc_pages_migration.sql)'); return null; }
+      const m = {};
+      for (const p of await r.json()) m[p.akey] = p;
+      return m;
+    } catch (e) { return null; }
+  }
+
+  _build(posts, chars) {
+    const byId = new Map(chars.map((c) => [String(c.id), c]));
+    const byName = new Map();
+    for (const c of chars) {
+      const k = String(c.name || '').trim().toLowerCase();
+      if (k && !byName.has(k)) byName.set(k, c);
+    }
+    const counts = new Map();
+    for (const p of posts) for (const a of new Set(splitArcs(p.tag_arc))) counts.set(a, (counts.get(a) || 0) + 1);
+    const groups = groupArcs(counts);
+    const spell = new Map();
+    for (const g of groups) {
+      g.key = arcKey(g.name); g.posts = 0; g.first = null; g.last = null; g.cast = new Map(); g.times = [];
+      for (const v of g.all) spell.set(v, g);
+    }
+    for (const p of posts) {
+      const at = atOf(p);
+      const ch = byId.get(String(p.character_id || ''))
+        || byName.get(String(p.tag_name || '').trim().toLowerCase())
+        || byName.get(String(p.character_name || '').trim().toLowerCase()) || null;
+      const who = (ch && ch.name) || String(p.character_name || '').trim() || String(p.tag_name || '').trim() || '—';
+      const seen = new Set();
+      for (const a of splitArcs(p.tag_arc)) {
+        const g = spell.get(a);
+        if (!g || seen.has(g)) continue;
+        seen.add(g);
+        g.posts++; g.times.push(at);
+        if (!g.first || at < g.first.at) g.first = { at, id: p.id, who };
+        if (!g.last || at >= g.last.at) g.last = { at, id: p.id, who };
+        const ck = ch ? 'c' + ch.id : 'n' + who.toLowerCase();
+        const e = g.cast.get(ck) || { key: ck, name: who, ch, n: 0, last: 0 };
+        e.n++; if (at > e.last) e.last = at;
+        g.cast.set(ck, e);
+      }
+    }
+    for (const g of groups) {
+      g.castList = [...g.cast.values()].sort((a, b) => b.n - a.n || b.last - a.last);
+      g.live = g.last && Date.now() - g.last.at <= LIVE_DAYS * DAY;
+      g.times.sort((a, b) => a - b);
+    }
+    return groups.filter((g) => g.posts > 0);
+  }
+  _page(g) {
+    const P = this.state.pages || {};
+    return P[g.key] || g.all.map((v) => P[arcKey(v)]).find(Boolean) || null;
+  }
+
+  // Відкрили арку — довантажуємо тексти першого й останнього допису.
+  async _openSide() {
+    const g = this._find(this.state.open);
+    if (!g || this.state.ex[g.key]) return;
+    const ids = [...new Set([g.first && g.first.id, g.last && g.last.id].filter(Boolean))];
+    this.setState((s) => ({ ex: { ...s.ex, [g.key]: { busy: true } } }));
+    let map = {};
+    try {
+      const r = await this._api(`${SUPA_URL}/marta_posts?id=in.(${ids.join(',')})&select=id,body`);
+      if (r.ok) for (const p of await r.json()) map[p.id] = p.body;
+    } catch (e) {}
+    this.setState((s) => ({ ex: { ...s.ex, [g.key]: map } }));
+  }
+  async _loadGal(g) {
+    const ids = g.castList.filter((c) => c.ch).map((c) => String(c.ch.id));
+    if (!ids.length || this.state.gal[g.key]) return;
+    try {
+      const r = await fetch(`${SUPA_URL}/character_images?select=character_id,url,caption,is_sensitive&is_draft=eq.false`
+        + `&character_id=in.(${ids.map(encodeURIComponent).join(',')})&order=created_at.desc&limit=40`, { headers: this._h() });
+      const rows = r.ok ? await r.json() : [];
+      this.setState((s) => ({ gal: { ...s.gal, [g.key]: rows.filter((x) => !x.is_sensitive) } }));
+    } catch (e) {}
+  }
+
+  _feed(g, asc) {
+    try {
+      const qs = new URLSearchParams();
+      g.all.forEach((v) => qs.append('arc', v));
+      if (asc) qs.set('asc', '1');
+      const base = window.location.pathname;
+      history.pushState(null, '', base + '?' + qs.toString() + '#posts');
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+      // Сторінка-обгортка вже прочитала відбір — прибираємо його з адреси,
+      // щоб наступний захід у «Пости» з меню не був відібраним.
+      setTimeout(() => { try { history.replaceState(null, '', base + '#posts'); } catch (e) {} }, 0);
+    } catch (e) { window.location.hash = 'posts'; }
+  }
+
+  async _saveEdit(g) {
+    const ed = this.state.edit;
+    if (!ed || ed.busy) return;
+    this.setState({ edit: { ...ed, busy: true, msg: '' } });
+    const row = {
+      akey: g.key, arc: g.name,
+      cover: ed.cover || null,
+      cover_focus: ed.cover ? `${Math.round(ed.fx)} ${Math.round(ed.fy)}` : null,
+      blurb: String(ed.blurb || '').trim() || null,
+      updated_at: new Date().toISOString(),
+    };
+    try {
+      const r = await this._api(`${SUPA_URL}/arc_pages?on_conflict=akey`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+        body: JSON.stringify(row),
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        console.warn('арки: збереження —', t);
+        this.setState((s) => ({ edit: { ...s.edit, busy: false, msg: /arc_pages/.test(t) ? 'Немає таблиці — прогнати міграцію.' : 'Не збереглося. Ви адмін?', bad: true } }));
+        return;
+      }
+      this.setState((s) => ({ pages: { ...s.pages, [g.key]: row }, noPages: false, edit: null }));
+    } catch (e) {
+      this.setState((s) => ({ edit: { ...s.edit, busy: false, msg: 'Мережа не відповіла.', bad: true } }));
+    }
+  }
+
+  _coverOf(g, ed) {
+    const pg = this._page(g);
+    const cover = ed ? ed.cover : (pg && pg.cover) || null;
+    const [fx, fy] = ed ? [ed.fx, ed.fy] : focusOf(pg && pg.cover_focus);
+    const urls = g.castList.map((c) => c.ch && c.ch.image).filter(Boolean).slice(0, COMBO_MAX);
+    return {
+      hasCover: !!cover,
+      coverUrl: cover ? urlCss(cover) : '',
+      coverPos: `${fx}% ${fy}%`,
+      strips: cover ? [] : collage(urls, seed(g.key) % 2 === 1),
+      noImg: !cover && !urls.length,
+      initials: initials(g.name),
+      urls,
+    };
+  }
+
+  _cards() {
+    const s = this.state;
+    const q = arcKey(s.q);
+    let list = s.arcs.filter((g) => s.filt === 'all' || (s.filt === 'live' ? g.live : !g.live));
+    if (q) list = list.filter((g) => arcKey(g.all.join(' ')).includes(q) || g.castList.some((c) => arcKey(c.name).includes(q)));
+    list = list.slice().sort(s.sort === 'size' ? (a, b) => b.posts - a.posts : (a, b) => b.last.at - a.last.at);
+    return list.map((g) => {
+      const cv = this._coverOf(g, null);
+      const k = g.castList.length;
+      return {
+        ...cv,
+        href: '#arcs/' + encodeURIComponent(g.name),
+        name: g.name,
+        meta: `${g.posts} ${plural(g.posts, POSTS_W)} · ${k} ${plural(k, ['учасник', 'учасники', 'учасників'])} · востаннє ${rel(g.last.at)}`,
+        status: g.live ? 'жива' : 'тиша',
+        pillBg: g.live ? 'rgba(255,215,0,0.14)' : 'rgba(10,9,8,0.6)',
+        pillBorder: g.live ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.18)',
+        pillInk: g.live ? '#ffd700' : 'rgba(255,255,255,0.6)',
+        faces: g.castList.slice(0, 6).map((c) => ({
+          name: c.name,
+          letter: c.ch && c.ch.image ? '' : initials(c.name).slice(0, 1),
+          style: c.ch && c.ch.image ? `background-image:url(${urlCss(c.ch.image)});` : '',
+        })),
+        hasMoreFaces: k > 6,
+        moreFaces: '+' + (k - 6),
+      };
+    });
+  }
+
+  _arcVals(g) {
+    const s = this.state, ed = s.edit;
+    const pg = this._page(g);
+    const cv = this._coverOf(g, ed);
+    const k = g.castList.length, top = g.castList[0];
+    const span = Math.max(1, Math.round((g.last.at - g.first.at) / DAY) + 1);
+    const stats = [
+      ['Дописів', String(g.posts)],
+      ['Учасників', String(k)],
+      ['Період', period(g.first.at, g.last.at)],
+      ['Днів', String(span)],
+    ].map((x, i) => ({ k: x[0], v: x[1], sep: i > 0 }));
+
+    let summary = `Перший допис — від ${g.first.who}, ${fmtDay(g.first.at, true)}.`;
+    if (g.posts > 1) {
+      summary += k === 1
+        ? ` Відтоді ${g.posts} ${plural(g.posts, POSTS_W)}, усі — від ${top.name}.`
+        : ` Відтоді ${g.posts} ${plural(g.posts, POSTS_W)} від ${k} учасників; найчастіше пише ${top.name} (${top.n}).`;
+      summary += g.live ? ` Востаннє — ${rel(g.last.at)}, від ${g.last.who}.` : ` Тиша з ${fmtDay(g.last.at, true)}.`;
+    }
+
+    // Ритм: тижні для коротких арок, місяці для довгих.
+    const weekly = span <= 140;
+    const unit = weekly ? 7 * DAY : 0;
+    const buckets = [];
+    if (weekly) {
+      const n = Math.max(1, Math.ceil(span / 7));
+      for (let i = 0; i < n; i++) buckets.push({ from: g.first.at + i * unit, n: 0 });
+      for (const t of g.times) buckets[Math.min(n - 1, Math.floor((t - g.first.at) / unit))].n++;
+    } else {
+      const d0 = new Date(g.first.at), d1 = new Date(g.last.at);
+      const months = (d1.getFullYear() - d0.getFullYear()) * 12 + d1.getMonth() - d0.getMonth() + 1;
+      for (let i = 0; i < months; i++) buckets.push({ from: new Date(d0.getFullYear(), d0.getMonth() + i, 1).getTime(), n: 0 });
+      for (const t of g.times) {
+        const d = new Date(t);
+        buckets[Math.min(months - 1, (d.getFullYear() - d0.getFullYear()) * 12 + d.getMonth() - d0.getMonth())].n++;
+      }
+    }
+    const max = Math.max(1, ...buckets.map((b) => b.n));
+    const bars = buckets.map((b) => ({
+      h: b.n ? Math.max(8, Math.round(b.n / max * 100)) + '%' : '2px',
+      ink: b.n ? 'rgba(255,215,0,' + (0.35 + 0.5 * b.n / max).toFixed(2) + ')' : 'rgba(255,255,255,0.1)',
+      title: (weekly ? 'тиждень з ' + fmtDay(b.from) : MON[new Date(b.from).getMonth()] + ' ' + new Date(b.from).getFullYear()) + ': ' + b.n + ' ' + plural(b.n, POSTS_W),
+    }));
+
+    const ex = s.ex[g.key] || {};
+    const end = (lbl, p) => ({
+      label: lbl, who: p.who, when: fmtDay(p.at, true),
+      text: ex.busy || !(p.id in ex) ? (ex.busy ? 'Гортаю стрічку…' : 'Текст допису недоступний.') : excerpt(ex[p.id]),
+      hasLink: true, href: '#posts/' + p.id,
+    });
+    const ends = [end('Зав’язка', g.first)];
+    if (g.last.id !== g.first.id) ends.push(end(g.live ? 'Останній допис' : 'Де зупинилися', g.last));
+
+    const charHref = (c) => c.ch ? '#characters/' + encodeURIComponent(c.ch.id) : '#arcs/' + encodeURIComponent(g.name);
+    const blurb = ed ? String(ed.blurb || '').trim() : String((pg && pg.blurb) || '').trim();
+    const alt = g.all.filter((v) => v !== g.name);
+    return {
+      ...cv,
+      name: g.name,
+      overline: '✦ Арка · ' + (g.live ? 'жива' : 'тиша'),
+      hasAlt: alt.length > 0,
+      altLine: 'також: ' + alt.slice(0, 3).join(', '),
+      stats,
+      hasBlurb: !!blurb,
+      blurb,
+      summary,
+      sumSize: blurb ? '1.06rem' : '1.32rem',
+      sumInk: blurb ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.82)',
+      rhythmUnit: weekly ? 'дописи за тиждень' : 'дописи за місяць',
+      bars,
+      fromLabel: fmtDay(g.first.at, true),
+      toLabel: g.live ? 'сьогодні' : fmtDay(g.last.at, true),
+      ends,
+      tiles: g.castList.map((c) => ({
+        href: charHref(c), title: c.ch ? 'Анкета: ' + c.name : c.name + ' — анкети немає',
+        hasImg: !!(c.ch && c.ch.image), noImg: !(c.ch && c.ch.image),
+        img: (c.ch && c.ch.image) || '', letter: initials(c.name).slice(0, 1),
+        name: c.name, count: c.n + ' ' + plural(c.n, POSTS_W),
+      })),
+      castNav: g.castList.map((c) => ({
+        href: charHref(c), name: c.name,
+        ink: c.ch ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.5)',
+        meta: c.n + ' ' + plural(c.n, POSTS_W) + ' · ' + rel(c.last),
+      })),
+    };
+  }
+
+  _edVals(g) {
+    const ed = this.state.edit;
+    if (!ed) return {};
+    const seen = new Set();
+    const opts = [];
+    const add = (url, label) => { if (url && !seen.has(url)) { seen.add(url); opts.push({ url, label, border: ed.cover === url ? '#ffd700' : 'rgba(255,255,255,0.12)' }); } };
+    for (const c of g.castList) if (c.ch) add(c.ch.image, c.name);
+    const names = new Map(g.castList.filter((c) => c.ch).map((c) => [String(c.ch.id), c.name]));
+    for (const x of this.state.gal[g.key] || []) add(x.url, (names.get(String(x.character_id)) || '') + (x.caption ? ' · ' + x.caption : ''));
+    if (ed.cover) add(ed.cover, 'обрано');
+    const urls = g.castList.map((c) => c.ch && c.ch.image).filter(Boolean).slice(0, COMBO_MAX);
+    return {
+      opts,
+      mini: collage(urls, seed(g.key) % 2 === 1),
+      comboBorder: ed.cover ? 'rgba(255,255,255,0.12)' : '#ffd700',
+      fx: ed.fx, fy: ed.fy, blurb: ed.blurb || '',
+      hasFocus: !!ed.cover, busy: !!ed.busy,
+      saveLabel: ed.busy ? 'Зберігаю…' : 'Зберегти',
+      hasMsg: !!ed.msg, msg: ed.msg || '', msgInk: ed.bad ? '#ff4d4d' : 'rgba(255,215,0,0.85)',
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const ok = s.phase === 'ok';
+    const g = ok && s.open ? this._find(s.open) : null;
+    const setEd = (patch) => this.setState((st) => ({ edit: st.edit ? { ...st.edit, ...patch } : st.edit }));
+    const FILT = [['all', 'Усі'], ['live', 'Живі'], ['quiet', 'Тиша']];
+    const cards = ok && !s.open ? this._cards() : [];
+    const nLive = s.arcs.filter((x) => x.live).length;
+    return {
+      isLoad: s.phase === 'load', isGuest: s.phase === 'guest', isLocked: s.phase === 'locked', isError: s.phase === 'error',
+      showIndex: ok && !s.open,
+      showMissing: ok && !!s.open && !g,
+      showArc: !!g,
+      q: s.q,
+      setQ: (e) => this.setState({ q: e.target.value }),
+      filtTabs: FILT.map(([id, label]) => ({
+        label,
+        bg: s.filt === id ? 'rgba(255,215,0,0.14)' : 'transparent',
+        border: s.filt === id ? 'rgba(255,215,0,0.32)' : 'transparent',
+        ink: s.filt === id ? '#fff' : 'rgba(255,255,255,0.55)',
+        pick: () => this.setState({ filt: id }),
+      })),
+      sortLabel: s.sort === 'size' ? '↓ Найбільші' : '↓ Найсвіжіші',
+      flipSort: () => this.setState({ sort: s.sort === 'size' ? 'last' : 'size' }),
+      countLine: `${s.arcs.length} ${plural(s.arcs.length, ['арка', 'арки', 'арок'])} у стрічці · ${nLive} ${plural(nLive, ['жива', 'живі', 'живих'])}`,
+      cards,
+      noCards: ok && !s.open && !cards.length,
+      emptyLine: s.arcs.length ? 'За таким відбором арок немає.' : 'У стрічці ще немає дописів із тегом арки.',
+
+      a: g ? this._arcVals(g) : {},
+      canEdit: !!g && s.admin,
+      editOpen: !!g && !!s.edit,
+      editLabel: s.edit ? '× Закрити' : '✎ Обкладинка й опис',
+      noPagesTable: s.noPages,
+      ed: g ? this._edVals(g) : {},
+      toggleEdit: () => {
+        if (s.edit) { this.setState({ edit: null }); return; }
+        const pg = this._page(g);
+        const [fx, fy] = focusOf(pg && pg.cover_focus);
+        this.setState({ edit: { cover: (pg && pg.cover) || null, fx, fy, blurb: (pg && pg.blurb) || '' } });
+        this._loadGal(g);
+      },
+      pickCombo: () => setEd({ cover: null }),
+      pickCover: (e) => setEd({ cover: e.currentTarget.getAttribute('data-u') }),
+      setFocus: (e) => setEd({ [e.target.getAttribute('data-k')]: Number(e.target.value) }),
+      setBlurb: (e) => setEd({ blurb: e.target.value }),
+      save: () => g && this._saveEdit(g),
+      readFeed: () => g && this._feed(g, false),
+      readFromStart: () => g && this._feed(g, true),
+    };
+  }
+}
+</script>
+</body>
+</html>

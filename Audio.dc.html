@@ -72,10 +72,12 @@
           <div style="display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);">
             <div style="display:flex;gap:8px;align-items:center;">
               <input type="search" value="{{ q }}" onInput="{{ setQ }}" placeholder="⌕ Пісня, персонаж, арка…" style="flex:1;min-width:0;height:40px;border-radius:999px;padding:0 16px;font-size:16px;font-family:Arial,sans-serif;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#fff;outline:none;">
+              <sc-if value="{{ showViews }}" hint-placeholder-val="{{ true }}">
               <div style="flex:none;display:flex;gap:2px;padding:3px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);">
                 <button onClick="{{ viewList }}" style="height:34px;padding:0 12px;border-radius:999px;border:none;font-size:0.8rem;cursor:pointer;background:{{ tabListBg }};color:{{ tabListInk }};">Список</button>
                 <button onClick="{{ viewChron }}" style="height:34px;padding:0 12px;border-radius:999px;border:none;font-size:0.8rem;cursor:pointer;background:{{ tabChronBg }};color:{{ tabChronInk }};">Хроніка</button>
               </div>
+              </sc-if>
             </div>
             <sc-if value="{{ hasArcs }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;gap:6px;overflow-x:auto;margin:0 -14px;padding:0 14px;scrollbar-width:none;">
@@ -95,10 +97,12 @@
           <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
           <div style="position:absolute;left:{{ padX }};right:{{ padX }};top:18px;display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
             <input type="text" value="{{ q }}" onInput="{{ setQ }}" placeholder="⌕ Пісня, персонаж, арка…" style="width:230px;max-width:100%;border-radius:999px;padding:8px 16px;font-size:0.82rem;font-family:Arial,sans-serif;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.16);color:#fff;outline:none;">
+            <sc-if value="{{ showViews }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;gap:2px;padding:3px;border-radius:999px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.12);">
               <button onClick="{{ viewList }}" style="padding:6px 14px;border-radius:999px;border:none;font-size:0.8rem;cursor:pointer;background:{{ tabListBg }};color:{{ tabListInk }};">Список</button>
               <button onClick="{{ viewChron }}" style="padding:6px 14px;border-radius:999px;border:none;font-size:0.8rem;cursor:pointer;background:{{ tabChronBg }};color:{{ tabChronInk }};">Хроніка</button>
             </div>
+            </sc-if>
           </div>
           </sc-if>
           <p style="position:relative;margin:0;font-size:0.64rem;letter-spacing:0.26em;text-transform:uppercase;color:#ffd700;">{{ heroOver }}</p>
@@ -121,7 +125,10 @@
             </div>
             <button onClick="{{ ytOpen }}" title="{{ ytHint }}" aria-label="{{ ytHint }}" style="flex:none;display:flex;align-items:center;gap:8px;height:46px;padding:0 18px;border-radius:999px;border:1px solid rgba(255,255,255,0.28);background:rgba(0,0,0,0.45);color:rgba(255,255,255,0.88);font-size:0.82rem;letter-spacing:0.02em;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.5);">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>На YouTube</button>
-            <span style="min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.55);">{{ heroMeta }}</span>
+            <sc-if value="{{ heroListShow }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ heroList }}" style="flex:none;display:flex;align-items:center;gap:6px;height:46px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,215,0,0.35);background:rgba(0,0,0,0.45);color:#ffd700;font-size:0.82rem;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.12);">{{ heroListLabel }}</button>
+            </sc-if>
+            <span style="flex:1 1 160px;min-width:0;font-size:0.78rem;color:rgba(255,255,255,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ heroMeta }}</span>
             <span style="flex:1;"></span>
             <div style="display:flex;gap:6px;align-items:center;">
               <sc-for list="{{ dots }}" as="d" hint-placeholder-count="0">
@@ -132,6 +139,79 @@
         </div>
 
         <div style="padding:0 {{ padX }} 30px;display:flex;flex-direction:column;">
+          <sc-if value="{{ hasSrcTabs }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;padding:18px 0 14px;border-bottom:1px solid rgba(255,255,255,0.07);">
+              <sc-for list="{{ srcTabs }}" as="st" hint-placeholder-count="2">
+                <button onClick="{{ st.go }}" style="flex:none;max-width:100%;white-space:nowrap;display:flex;align-items:baseline;gap:9px;padding:9px 16px;border-radius:999px;cursor:pointer;background:{{ st.bg }};border:1px solid {{ st.line }};color:{{ st.ink }};font-family:'Cinzel',Georgia,serif;font-size:0.82rem;letter-spacing:0.04em;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.1);color:#fff;">{{ st.label }}<span style="white-space:nowrap;font-family:Arial,sans-serif;font-size:0.74rem;letter-spacing:0;color:{{ st.nInk }};">{{ st.n }}</span></button>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ plHeadShow }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0 4px;">
+              <button onClick="{{ backToPls }}" style="flex:none;border:none;background:none;padding:0;cursor:pointer;font-size:0.8rem;color:rgba(255,255,255,0.5);" style-hover="color:#ffd700;">← усі плейлісти</button>
+              <span style="color:rgba(255,255,255,0.2);">·</span>
+              <span style="min-width:0;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:#fff;letter-spacing:0.04em;">{{ plHeadName }}</span>
+              <span style="font-size:0.78rem;color:rgba(255,215,0,0.8);">{{ plHeadCount }}</span>
+              <span style="flex:1;"></span>
+              <button onClick="{{ plYtOpen }}" title="Відкрити цей плейліст на YouTube" style="flex:none;display:flex;align-items:center;gap:7px;height:32px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);font-size:0.78rem;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.45);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>На YouTube</button>
+            </div>
+            <div style="display:flex;flex-direction:column;padding-top:8px;">
+              <sc-for list="{{ plRows }}" as="t" hint-placeholder-count="4">
+                <div onClick="{{ t.play }}" title="{{ t.hint }}" style="display:grid;grid-template-columns:{{ listCols }};gap:14px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:{{ t.rowBg }};transition:background 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);">
+                  <div style="position:relative;width:48px;height:36px;border-radius:5px;overflow:hidden;background:#111;">
+                    <img src="{{ t.thumb }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+                    <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);color:#ffd700;font-size:0.7rem;">{{ t.icon }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:2px;min-width:0;">
+                    <span style="font-size:0.9rem;color:{{ t.ink }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.title }}</span>
+                    <span style="font-size:0.74rem;color:rgba(255,255,255,0.42);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.sub }}</span>
+                  </div>
+                  <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,255,255,0.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.who }}</span>
+                  </sc-if>
+                  <span style="font-size:0.76rem;color:rgba(255,255,255,0.4);text-align:right;white-space:nowrap;">{{ t.when }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ plNoRows }}" hint-placeholder-val="{{ false }}">
+              <p style="text-align:center;color:rgba(255,255,255,0.35);font-size:0.9rem;padding:24px 0;margin:0;">✦ У цьому плейлісті такої пісні немає.</p>
+            </sc-if>
+            <div style="display:flex;align-items:center;gap:14px;margin-top:34px;padding-bottom:4px;">
+              <span style="flex:none;white-space:nowrap;font-size:0.64rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.75);">✦ Полиця зі стрічки</span>
+              <span style="flex:1;height:1px;background:rgba(255,255,255,0.08);"></span>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showPls }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:16px 0 0;font-size:0.76rem;color:rgba(255,255,255,0.45);">{{ plsLabel }}</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ cardMin }},1fr));gap:14px;padding-top:14px;">
+              <sc-for list="{{ plCards }}" as="c" hint-placeholder-count="6">
+                <div onClick="{{ c.open }}" title="Відкрити плейліст" style="cursor:pointer;overflow:hidden;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid {{ c.line }};box-shadow:0 4px 15px rgba(0,0,0,0.3);transition:transform 0.28s ease,box-shadow 0.28s ease;" style-hover="transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                  <div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;">
+                    <img src="{{ c.img }}" alt="{{ c.name }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;">
+                    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 50%,rgba(0,0,0,0.85) 100%);"></div>
+                    <sc-if value="{{ c.isNow }}" hint-placeholder-val="{{ false }}">
+                      <span style="position:absolute;z-index:1;top:10px;left:10px;background:rgba(0,0,0,0.6);border:1px solid rgba(255,215,0,0.45);border-radius:999px;padding:3px 9px;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#ffd700;">{{ c.tag }}</span>
+                    </sc-if>
+                    <button onClick="{{ c.play }}" title="{{ c.hint }}" aria-label="{{ c.hint }}" style="position:absolute;z-index:2;right:10px;bottom:12px;width:34px;height:34px;border-radius:999px;border:1px solid rgba(255,215,0,0.55);background:rgba(0,0,0,0.55);color:#ffd700;font-size:0.72rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;" style-hover="background:#ffd700;color:#1a1a1a;box-shadow:0 0 18px rgba(255,215,0,0.45);">{{ c.icon }}</button>
+                    <div style="position:absolute;z-index:1;left:14px;right:52px;bottom:12px;">
+                      <h3 style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;font-weight:400;color:#fff;line-height:1.25;letter-spacing:0.03em;">{{ c.name }}</h3>
+                      <sc-if value="{{ c.hasAlias }}" hint-placeholder-val="{{ false }}">
+                        <p style="margin:2px 0 0;font-size:0.76rem;color:rgba(255,255,255,0.55);">«{{ c.alias }}»</p>
+                      </sc-if>
+                    </div>
+                  </div>
+                  <div style="padding:10px 14px 12px;font-size:0.72rem;color:rgba(255,255,255,0.8);white-space:nowrap;">♪ {{ c.count }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ plNone }}" hint-placeholder-val="{{ false }}">
+            <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.45);padding:40px 0;margin:0;">Плейлістів ще ніхто не склав — їх збирає власник анкети у профілі персонажа.</p>
+          </sc-if>
+
           <sc-if value="{{ hasTrend }}" hint-placeholder-val="{{ false }}">
             <button onClick="{{ trendPlay }}" style="width:100%;display:flex;align-items:baseline;gap:10px;padding:14px 0;border:none;border-bottom:1px solid rgba(255,255,255,0.07);background:none;text-align:left;font-size:0.84rem;color:rgba(255,255,255,0.6);cursor:pointer;">
               <span style="flex:none;white-space:nowrap;font-size:0.64rem;letter-spacing:0.2em;text-transform:uppercase;color:#8fb0ff;">{{ trendOver }}</span>
@@ -268,6 +348,8 @@ class Component extends DCLogic {
     nowVid: null, nowPlay: false, titles: {},
     pl: [], spot: 0, pinned: false, hold: false, plAll: false, arcOpen: false,
     bodies: {}, narrow: false,
+    // Що під шапкою: полиця зі стрічки, огляд плейлістів або один плейліст.
+    src: 'shelf',
   };
 
   _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
@@ -348,7 +430,7 @@ class Component extends DCLogic {
 
   async _loadPl() {
     try {
-      const r = await fetch(`${SUPA_URL}/character_playlist?select=character_id,video_id,title,author,position,created_at,characters(name,alias,image)&order=position.asc,created_at.asc&limit=1000`, { headers: BASE_H });
+      const r = await fetch(`${SUPA_URL}/character_playlist?select=character_id,video_id,title,author,note,position,created_at,characters(name,alias,image)&order=position.asc,created_at.asc&limit=1000`, { headers: BASE_H });
       if (!r.ok) { console.warn('аудіотека: плейлісти не відповіли —', await r.text()); return; }
       const rows = await r.json();
       const box = new Map();
@@ -356,7 +438,7 @@ class Component extends DCLogic {
         const c = t.characters || {};
         let p = box.get(t.character_id);
         if (!p) { p = { id: t.character_id, name: c.name || 'Без імені', alias: c.alias || '', image: c.image || '', tracks: [], last: t.created_at }; box.set(t.character_id, p); }
-        p.tracks.push({ vid: t.video_id, title: t.title || '', author: t.author || '' });
+        p.tracks.push({ vid: t.video_id, title: t.title || '', author: t.author || '', note: t.note || '' });
         if (new Date(t.created_at) > new Date(p.last)) p.last = t.created_at;
       });
       const pl = [...box.values()].sort((a, b) => new Date(b.last) - new Date(a.last));
@@ -370,6 +452,14 @@ class Component extends DCLogic {
     const cur = P.current();
     if (cur && p.tracks.some((t) => t.vid === cur.vid)) { P.toggle(); return; }
     P.playQueue(p.tracks.map((t) => ({ vid: t.vid, title: t.title, author: t.author, name: p.name, arc: 'Плейліст' })), 0);
+  }
+
+  _playPlAt(p, i) {
+    const P = window.AuPlayer;
+    if (!P || !p || !p.tracks[i]) return;
+    const cur = P.current();
+    if (cur && cur.vid === p.tracks[i].vid) { P.toggle(); return; }
+    P.playQueue(p.tracks.map((t) => ({ vid: t.vid, title: t.title, author: t.author, name: p.name, arc: 'Плейліст' })), i);
   }
 
   _hookPlayer() {
@@ -635,9 +725,52 @@ class Component extends DCLogic {
         ring: on ? '#ffd700' : 'rgba(255,255,255,0.14)',
         bg: on ? 'rgba(255,215,0,0.08)' : 'transparent',
         op: on || play ? '1' : '0.62',
-        pick: () => this.setState({ spot: i, pinned: true }),
+        pick: () => this.setState({ spot: i, pinned: true, src: 'pl' }),
       };
     });
+
+    // Режим під шапкою. «pl» без персонажа у світлі — це огляд.
+    const mode = s.src === 'pl' && spotP ? 'pl' : (s.src === 'shelf' ? 'shelf' : 'pls');
+    const isShelf = mode === 'shelf';
+    // У плейлісті персонажа полиця не ховається, а з'їжджає нижче.
+    const shelfOn = isShelf || mode === 'pl';
+    const plTotal = pl.reduce((m, p) => m + p.tracks.length, 0);
+    const plMax = pl.reduce((m, p) => Math.max(m, p.tracks.length), 0) || 1;
+    const plCards = pl.slice()
+      .sort((a, b) => b.tracks.length - a.tracks.length || new Date(b.last) - new Date(a.last))
+      .filter((p) => this._hit([p.name, p.alias, p.tracks.map((t) => t.title + ' ' + t.author).join(' ')].join(' ')))
+      .map((p) => {
+        const i = pl.indexOf(p);
+        const on = plNow(p) && s.nowPlay;
+        const n = p.tracks.length;
+        return {
+          name: p.name, img: thumbOf(p), n, count: n + ' ' + P(n, 'пісня', 'пісні', 'пісень'),
+          alias: p.alias, hasAlias: !!p.alias,
+          isNow: plNow(p),
+          tag: s.nowPlay ? '♦ грає' : 'в плеєрі',
+          bar: Math.max(6, Math.round(n / plMax * 100)) + '%',
+          lines: p.tracks.slice(0, 3).map((t) => t.title).filter(Boolean).join(' · ') || 'Назви підтягне плеєр',
+          line: plNow(p) ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.1)',
+          icon: on ? '❙❙' : '▶', hint: on ? 'Пауза' : 'Грати плейліст',
+          open: () => this.setState({ spot: i, pinned: true, src: 'pl' }),
+          play: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this._playPl(p); },
+        };
+      });
+    const listP = mode === 'pl' ? spotP : null;
+    const plRows = listP ? listP.tracks.map((t, i) => ({ t, i }))
+      .filter(({ t }) => this._hit([t.title, t.author, t.note].join(' ')))
+      .map(({ t, i }) => {
+        const on = s.nowVid === t.vid; const go = on && s.nowPlay;
+        return {
+          title: t.title || 'Пісня без назви', thumb: yt(t.vid),
+          icon: go ? '❙❙' : '▶', hint: go ? 'Пауза' : 'Грати звідси й далі плейлістом',
+          ink: on ? '#ffd700' : 'rgba(255,255,255,0.88)',
+          sub: t.author || '', who: t.note || '', when: '№ ' + (i + 1),
+          rowBg: on ? 'rgba(255,215,0,0.07)' : 'transparent',
+          vid: t.vid,
+          play: () => this._playPlAt(listP, i),
+        };
+      }) : [];
 
     // Шапка: персонаж у світлі, або вся полиця, коли плейлістів ще немає.
     const fresh = songs.slice().sort((a, b) => new Date(b.last) - new Date(a.last))[0];
@@ -717,8 +850,11 @@ class Component extends DCLogic {
       heroBtn: spotOn ? 'Пауза' : (spotP ? 'Увімкнути музику' : 'Увімкнути полицю'),
       heroPaused: !spotOn,
       heroPlaying: !!spotOn,
+      heroListShow: !!spotP && mode !== 'pl',
+      heroListLabel: spotP ? `Усі ${spotP.tracks.length} ${P(spotP.tracks.length, 'пісня', 'пісні', 'пісень')} ↓` : '',
+      heroList: () => this.setState({ src: 'pl', pinned: true }),
       heroMeta: spotP
-        ? `${spotP.tracks.length} ${P(spotP.tracks.length, 'пісня', 'пісні', 'пісень')}` + (spotP.tracks[0].title ? ` · відкриває «${spotP.tracks[0].title}»` : '')
+        ? (mode === 'pl' ? `${spotP.tracks.length} ${P(spotP.tracks.length, 'пісня', 'пісні', 'пісень')}` : '') + (spotP.tracks[0].title ? `${mode === 'pl' ? ' · ' : ''}відкриває «${spotP.tracks[0].title}»` : '')
         : (ok ? `${songs.length} ${P(songs.length, 'пісня', 'пісні', 'пісень')} · з ${posts.size} ${P(posts.size, 'допису', 'дописів', 'дописів')}` : ''),
       heroPlay: () => {
         if (spotP) { this._playPl(spotP); return; }
@@ -753,7 +889,32 @@ class Component extends DCLogic {
         window.AuPlayer.playQueue(q, 0);
       },
 
-      hasTrend: !!trend && !pick && !s.q,
+      showViews: shelfOn,
+      plRows,
+      plNoRows: mode === 'pl' && plRows.length === 0,
+      plYtOpen: () => this._toYouTube(listP ? listP.tracks : []),
+      hasSrcTabs: pl.length > 0,
+      srcTabs: [
+        { label: 'Полиця зі стрічки', n: `${songs.length}${s.more ? '+' : ''} ${P(songs.length, 'пісня', 'пісні', 'пісень')}`, on: isShelf, go: () => this.setState({ src: 'shelf' }) },
+        { label: 'Плейлісти персонажів', n: `${plTotal} ${P(plTotal, 'пісня', 'пісні', 'пісень')} · ${pl.length} ${P(pl.length, 'плейліст', 'плейлісти', 'плейлістів')}`, on: !isShelf, go: () => this.setState({ src: 'pls' }) },
+      ].map((t) => ({
+        ...t,
+        bg: t.on ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+        line: t.on ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
+        ink: t.on ? '#ffd700' : 'rgba(255,255,255,0.7)',
+        nInk: t.on ? 'rgba(255,215,0,0.75)' : 'rgba(255,255,255,0.4)',
+      })),
+      cardMin: narrow ? '140px' : '170px',
+      showPls: mode === 'pls' && plCards.length > 0,
+      plsLabel: `Від найдовшого: ${pl.length} ${P(pl.length, 'персонаж склав', 'персонажі склали', 'персонажів склали')} ${plTotal} ${P(plTotal, 'пісню', 'пісні', 'пісень')}.`,
+      plCards,
+      plNone: mode === 'pls' && pl.length === 0,
+      plHeadShow: mode === 'pl',
+      plHeadName: listP ? 'Плейліст · ' + listP.name : '',
+      plHeadCount: listP ? `${listP.tracks.length} ${P(listP.tracks.length, 'пісня', 'пісні', 'пісень')}` : '',
+      backToPls: () => this.setState({ src: 'pls' }),
+
+      hasTrend: isShelf && !!trend && !pick && !s.q,
       trendOver: trend ? trend.over : '',
       trendTitle: trend ? (trend.song.title || 'Пісня з допису') : '',
       trendTail: trend ? trend.tail : '',
@@ -768,24 +929,24 @@ class Component extends DCLogic {
         const n = new Set(below.map((t) => t.vid)).size;
         const what = pick || s.q ? 'за вибором' : 'уся полиця';
         return {
-          listYtShow: ok && n > 0,
+          listYtShow: shelfOn && ok && n > 0,
           listYtLabel: `${n} ${P(n, 'пісня', 'пісні', 'пісень')} · ${what}` + (n > YT_MAX ? ` · на YouTube піде ${YT_MAX} навмання` : ''),
           listYtOpen: () => this._toYouTube(below),
         };
       })(),
 
-      hasPick: !!pick,
+      hasPick: shelfOn && !!pick,
       pickLabel: pick,
       clearFilt: () => this.setState({ fArc: [], q: '' }),
 
-      isLoad: s.phase === 'load',
-      isNone: s.phase === 'none',
-      isError: s.phase === 'error',
+      isLoad: shelfOn && s.phase === 'load',
+      isNone: shelfOn && s.phase === 'none',
+      isError: shelfOn && s.phase === 'error',
       errHint: s.err === 'migration'
         ? 'Схоже, полиця ще не збита — треба прогнати supabase_audio_migration.sql.'
         : 'Спробуйте пізніше.',
 
-      showChron: ok && s.view === 'chron' && scenes.length > 0,
+      showChron: shelfOn && ok && s.view === 'chron' && scenes.length > 0,
       chron: scenes.map((e) => {
         const b = (s.bodies || {})[e.postId] || {};
         return {
@@ -797,7 +958,7 @@ class Component extends DCLogic {
         };
       }),
 
-      showList: ok && s.view === 'list' && shown.length > 0,
+      showList: shelfOn && ok && s.view === 'list' && shown.length > 0,
       rows: shown.map((t) => {
         const b = trackBtn(t.vid, t.title, t.author);
         const on = s.nowVid === t.vid;
@@ -810,8 +971,9 @@ class Component extends DCLogic {
         };
       }),
 
-      noRows: ok && (s.view === 'chron' ? scenes.length === 0 : shown.length === 0),
-      hasMore: ok && s.more,
+      noRows: mode === 'pls' ? (pl.length > 0 && plCards.length === 0)
+        : ok && (s.view === 'chron' ? scenes.length === 0 : shown.length === 0),
+      hasMore: shelfOn && ok && s.more,
       moreLabel: s.busy ? 'Гортаю…' : 'Показати ще',
       loadMore: () => { if (!s.busy) this._page(false); },
     };

@@ -208,6 +208,37 @@ a:hover{color:#fff}
 
       <div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:20px;">
 
+      <!-- тихі арки: питання про закриття — на будь-якій вкладці, бо відповідь потрібна одна -->
+      <sc-if value="{{ askShow }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.32);border-radius:15px;padding:20px 22px 18px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:0;">✦ Арка мовчить</p>
+          <span style="font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(160,190,255,0.9);border:1px solid rgba(100,149,237,0.35);border-radius:999px;padding:2px 8px;">бета</span>
+        </div>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.5;color:rgba(255,255,255,0.6);margin:0;text-wrap:pretty;">Два тижні без жодного допису. Що з нею? Відповідь одного вирішує за всіх; закрита арка прокинеться, щойно в неї хтось напише.</p>
+        <sc-for list="{{ askRows }}" as="a" hint-placeholder-count="1">
+          <div style="display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;padding:12px 0 0;border-top:1px solid rgba(255,255,255,0.08);">
+            <div style="flex:1 1 220px;min-width:0;">
+              <p style="font-family:'Cinzel',Georgia,serif;font-size:1.02rem;font-weight:700;color:#fff;margin:0;overflow-wrap:anywhere;">{{ a.arc }}</p>
+              <p style="font-size:0.74rem;color:rgba(255,255,255,0.42);margin:3px 0 0;">{{ a.meta }}</p>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,215,0,0.7);margin:2px 0 0;">{{ a.who }}</p>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button onClick="{{ a.close.go }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.45);color:#ffd700;border-radius:999px;padding:7px 15px;font-family:'Cinzel',serif;font-size:0.74rem;font-weight:700;letter-spacing:0.04em;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.2);">{{ a.close.label }}</button>
+              <button onClick="{{ a.play.go }}" style="cursor:pointer;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.8);border-radius:999px;padding:7px 15px;font-size:0.78rem;transition:all 0.3s ease;" style-hover="border-color:rgba(255,255,255,0.36);color:#fff;">{{ a.play.label }}</button>
+              <button onClick="{{ a.pause.go }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;padding:7px 15px;font-size:0.78rem;transition:all 0.3s ease;" style-hover="color:#fff;">{{ a.pause.label }}</button>
+            </div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ askHasMsg }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,215,0,0.85);margin:0;">{{ askMsg }}</p>
+        </sc-if>
+        <sc-if value="{{ askHasErr }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:#ff4d4d;margin:0;">{{ askErr }}</p>
+        </sc-if>
+      </div>
+      </sc-if>
+
       <!-- черга в арках (бета) — зверху: це те, з чим приходять щодня; у бланку правки не заважає -->
       <sc-if value="{{ turnsShow }}" hint-placeholder-val="{{ false }}"><sc-if value="{{ showTurns }}" hint-placeholder-val="{{ false }}">
       <div style="background:rgba(255,255,255,0.05);border:1px solid {{ turnsBorder }};border-radius:15px;padding:22px 22px 18px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:14px;">
@@ -1291,6 +1322,9 @@ const DRAFT_KEY = 'au_intake_draft';
 const fold = (s) => String(s || '').toLowerCase()
   .replace(/[ʼ'’`ь]/g, '').replace(/і/g, 'и').replace(/ї/g, 'и').replace(/є/g, 'е');
 
+const ASK_WORD = { close: 'закрито', play: 'ще граємо', pause: 'на паузі' };
+const ASK_BTN = { close: 'Закрити', play: 'Ще граємо', pause: 'На паузі' };
+
 class Component extends DCLogic {
   state = {
     phase: 'load',
@@ -1568,7 +1602,7 @@ class Component extends DCLogic {
     // тягнеться завжди, а плітки лише для своїх.
     this._loadSubs(u.id);
     this._loadOwned(u.id);
-    if (prof.status === 'approved') { this._loadLists(u.id); this._loadTurns(true); this._loadArcTags(); }
+    if (prof.status === 'approved') { this._loadLists(u.id); this._loadTurns(true); this._loadArcTags(); this._loadAsks(); }
   }
 
   // ── черга в арках (бета) ──────────────────────────────────
@@ -1599,6 +1633,58 @@ class Component extends DCLogic {
     const p = turns && !turns.error && T && T.pings ? T.pings(turns) : 0;
     console.log('черга:', turns.error ? `помилка: ${turns.error}` : `живих арок ${(turns.arcs || []).length}, ваш хід у ${n}, нові дописи в ${p}`);
     try { window.dispatchEvent(new CustomEvent('au-turns', { detail: { n, p } })); } catch (e) {}
+  }
+
+  // ── «Арка мовчить — закриваємо?» ──────────────────────────
+  // 14 днів без жодного допису → питання кожному, чия анкета в арці писала.
+  // Одна відповідь вирішує за всіх і до наступного допису.
+  async _loadAsks() {
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/my_arc_asks`, { method: 'POST', body: '{}' }, true);
+      if (!r.ok) { console.warn('тихі арки:', r.status, await r.text(), '(прогнати supabase_arc_ask_migration.sql)'); return; }
+      const d = await r.json();
+      const asks = Array.isArray(d && d.asks) ? d.asks : [];
+      console.log('тихі арки: питань', asks.length);
+      this.setState({ asks });
+      try { window.dispatchEvent(new CustomEvent('au-asks', { detail: { n: asks.length } })); } catch (e) {}
+    } catch (e) { console.warn('тихі арки:', String(e)); }
+  }
+  async _answerAsk(arc, ans) {
+    if (this.state.askBusy) return;
+    this.setState({ askBusy: arc + '|' + ans, askErr: '' });
+    let msg = '', err = '';
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/arc_ask_answer`, { method: 'POST', body: JSON.stringify({ p_arc: arc, p_answer: ans }) }, true);
+      const d = r.ok ? await r.json() : null;
+      if (!r.ok) err = `HTTP ${r.status}. Схоже, не прогнано supabase_arc_ask_migration.sql.`;
+      else if (d && d.error === 'woke') msg = `У «${arc}» вже написали — арка жива, питання знято.`;
+      else if (d && d.error) err = d.error === 'not in arc' ? 'Ваших анкет у цій арці немає.' : 'Не вийшло: ' + d.error;
+      else if (d && d.already) msg = `${d.by} вже відповів(ла) за «${arc}»: ${ASK_WORD[d.already] || d.already}.`;
+      else msg = `«${arc}» — ${ASK_WORD[ans]}.`;
+    } catch (e) { err = 'Звʼязку немає. Спробуйте ще раз.'; }
+    console.log('тихі арки:', `«${arc}» → ${ans}`, err || msg);
+    this.setState({ askBusy: '', askErr: err, askMsg: err ? '' : msg });
+    if (!err) { this._loadAsks(); if (ans === 'close') this._loadTurns(true); }
+  }
+  _askVals() {
+    const s = this.state;
+    const asks = this.props.onlyGossip ? [] : (s.asks || []);
+    const fmt = (iso) => { try { return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }); } catch (e) { return ''; } };
+    const btn = (a, ans) => ({
+      label: (s.askBusy === a.arc + '|' + ans) ? 'Хвилинку…' : ASK_BTN[ans],
+      go: () => this._answerAsk(a.arc, ans),
+    });
+    return {
+      askShow: asks.length > 0 || !!s.askMsg || !!s.askErr,
+      askRows: asks.map((a) => ({
+        arc: a.arc,
+        meta: `${a.days} ${a.days % 10 === 1 && a.days % 100 !== 11 ? 'день' : (a.days % 10 >= 2 && a.days % 10 <= 4 && (a.days % 100 < 10 || a.days % 100 >= 20)) ? 'дні' : 'днів'} тиші · останній допис ${fmt(a.last_at)}`,
+        who: (a.as || []).length ? 'Ви тут як ' + a.as.join(', ') + '.' : '',
+        close: btn(a, 'close'), play: btn(a, 'play'), pause: btn(a, 'pause'),
+      })),
+      askHasMsg: !!s.askMsg, askMsg: s.askMsg || '',
+      askHasErr: !!s.askErr, askErr: s.askErr || '',
+    };
   }
 
   // Відмітка «арку закрито» — одна на людину; бачать усі учасники арки.
@@ -4124,6 +4210,7 @@ class Component extends DCLogic {
       ...this._mineVals(),
       ...this._meVals(),
       ...this._turnVals(),
+      ...this._askVals(),
       arcDlHasErr: !!s.arcDlErr, arcDlErr: s.arcDlErr || '',
       ...this._dlVals(),
       arcFmts: ['docx', 'md', 'txt'].map((f) => {
