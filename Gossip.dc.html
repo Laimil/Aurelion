@@ -155,6 +155,10 @@ a:hover{color:#fff}
               <button onClick="{{ pickDl }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navDlBg }};color:{{ navDlColor }};">Арку — у файл</button>
             </sc-if>
             <p style="font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:12px 10px 4px;">Мої теки</p>
+            <button onClick="{{ pickShelf }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;border:none;border-radius:8px;padding:7px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navShelfBg }};color:{{ navShelfColor }};">
+              <span style="width:28px;height:28px;flex-shrink:0;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:6px;box-sizing:border-box;border-radius:999px;border:1px solid rgba(255,255,255,0.16);"><span style="background:currentColor;border-radius:2px;opacity:0.7;"></span><span style="background:currentColor;border-radius:2px;opacity:0.7;"></span><span style="background:currentColor;border-radius:2px;opacity:0.7;"></span><span style="background:currentColor;border-radius:2px;opacity:0.7;"></span></span>
+              <span>Усі анкети</span>
+            </button>
             <sc-for list="{{ folderNav }}" as="f" hint-placeholder-count="0">
               <button onClick="{{ f.onPick }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;border:none;border-radius:8px;padding:7px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ f.bg }};color:{{ f.color }};">
                 <sc-if value="{{ f.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ f.img }}" alt="" style="width:28px;height:28px;flex-shrink:0;border-radius:999px;object-fit:cover;border:1px solid {{ f.ring }};" /></sc-if>
@@ -419,6 +423,59 @@ a:hover{color:#fff}
 
       <sc-if value="{{ lockedOnly }}" hint-placeholder-val="{{ false }}">
         <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">Віконце пліток відчиняють адміни — ваш аркуш ще на розгляді.</p>
+      </sc-if>
+
+      <!-- ═════ ВКЛАДКА: МОЇ АНКЕТИ (плитка: теки + анкети в рецепції) ═════ -->
+      <sc-if value="{{ showShelf }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:22px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;">
+          <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:0;white-space:nowrap;">{{ shelfHead }}</p>
+          <p style="font-size:0.76rem;color:rgba(255,255,255,0.4);margin:0;white-space:nowrap;">{{ shelfLimit }}</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <sc-for list="{{ shelfFilters }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.onPick }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.78rem;white-space:nowrap;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};transition:all 0.2s ease;">{{ f.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px;">
+          <sc-for list="{{ shelfCards }}" as="c" hint-placeholder-count="4">
+            <div style="display:flex;gap:14px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.045);border:1px {{ c.line }} {{ c.border }};transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.075);">
+              <div onClick="{{ c.onGo }}" style="position:relative;width:96px;height:128px;flex-shrink:0;border-radius:8px;overflow:hidden;background:radial-gradient(ellipse at 50% 35%,rgba(255,215,0,0.08),#111 75%);cursor:pointer;">
+                <sc-if value="{{ c.hasImg }}" hint-placeholder-val="{{ false }}">
+                  <img src="{{ c.img }}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 25%;opacity:{{ c.imgOp }};filter:{{ c.imgFilter }};" />
+                </sc-if>
+                <sc-if value="{{ c.noImg }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',Georgia,serif;font-size:2.2rem;color:rgba(255,215,0,0.28);">{{ c.initial }}</span>
+                </sc-if>
+                <sc-if value="{{ c.hot }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;left:6px;bottom:6px;border-radius:999px;padding:2px 7px;font-size:0.6rem;font-weight:700;white-space:nowrap;background:#ffd700;color:#1a1a1a;box-shadow:0 0 12px rgba(255,215,0,0.45);">ваш хід</span>
+                </sc-if>
+              </div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
+                <span style="align-self:flex-start;border-radius:999px;padding:2px 9px;font-size:0.64rem;font-weight:600;white-space:nowrap;border:1px {{ c.line }} {{ c.pillBorder }};color:{{ c.pillColor }};">{{ c.pill }}</span>
+                <p style="font-family:'Cinzel',Georgia,serif;font-size:1rem;font-weight:700;letter-spacing:0.03em;color:#fff;margin:0;overflow-wrap:anywhere;">{{ c.name }}</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.55);margin:0;">{{ c.sub }}</p>
+                <sc-if value="{{ c.hasNote }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.9rem;line-height:1.45;color:rgba(255,215,0,0.82);margin:0;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">«{{ c.note }}»</p>
+                </sc-if>
+                <div style="margin-top:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <sc-if value="{{ c.hasAct }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ c.onGo }}" style="cursor:pointer;border-radius:999px;padding:5px 13px;font-size:0.72rem;white-space:nowrap;background:{{ c.actBg }};border:1px solid {{ c.actBorder }};color:{{ c.actColor }};transition:all 0.3s ease;" style-hover="transform:scale(1.04);">{{ c.act }}</button>
+                  </sc-if>
+                  <span style="font-size:0.68rem;color:rgba(255,255,255,0.38);">{{ c.when }}</span>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+          <button onClick="{{ pickIntake }}" style="cursor:pointer;min-height:152px;border-radius:12px;border:1px dashed rgba(255,255,255,0.22);background:transparent;display:flex;align-items:center;justify-content:center;gap:10px;color:rgba(255,255,255,0.5);transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.5);color:#ffd700;background:rgba(255,215,0,0.04);">
+            <span style="font-family:'Cinzel',serif;font-size:1.5rem;line-height:1;">+</span>
+            <span style="font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:0.05em;">Нова анкета</span>
+          </button>
+        </div>
+        <sc-if value="{{ shelfEmpty }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;color:rgba(255,255,255,0.35);margin:0;">Тут порожньо — гляньте інші полиці.</p>
+        </sc-if>
+      </div>
       </sc-if>
 
       <!-- ═════ ВКЛАДКА: АНКЕТА ═════ -->
@@ -2671,7 +2728,7 @@ class Component extends DCLogic {
   }
 
   // Вхід через «Мій кабінет» відкриває не бланк нової анкети, а те, з чим
-  // приходять щодня: черга в арках → тека першого персонажа → бланк.
+  // приходять щодня: черга в арках → плитка «Мої анкети».
   // Чекаємо і персонажів, і чергу; #intake веде в бланк, як і раніше.
   _autoOpen() {
     const s = this.state;
@@ -2684,7 +2741,97 @@ class Component extends DCLogic {
     try { rows = approved && s.turns && !s.turns.error && !s.turns.missing && window.AuTurns ? window.AuTurns.rows(s.turns) : []; } catch (e) {}
     const owned = s.owned || [];
     if (rows.length) this.setState({ tab: 'turns' });
-    else if (owned.length) { this.setState({ tab: 'mine', charId: String(owned[0].id) }); this._loadStats(); }
+    else this.setState({ tab: 'shelf' });
+  }
+
+  // Плитка «Мої анкети»: персонажі з картотеки й анкети, що ще йдуть рецепцією, —
+  // в одній сітці. Нагорі те, що чекає дії від людини.
+  _shelfVals() {
+    const s = this.state, owned = s.owned || [], edits = s.edits || [], subs = s.subs || [];
+    const T = window.AuTurns;
+    let rows = [];
+    try { rows = s.turns && !s.turns.error && !s.turns.missing && T ? T.rows(s.turns) : []; } catch (e) {}
+    const isMe = (r, c) => (r.me && r.me.id && String(r.me.id) === String(c.id)) || fold(r.me && r.me.name) === fold(c.name);
+    const GOLD = '#ffd700', AZ = '#a0beff', RED = '#ff8080';
+    const ownNames = owned.map((c) => fold(c.name));
+    const godName = (v) => {
+      if (!v) return '';
+      const g = (s.gods || []).find((x) => String(x.god || x.name) === String(v) || String(x.name) === String(v));
+      return g ? String(g.name || g.god) : String(v);
+    };
+    const bits = (r) => [r.alias ? `«${r.alias}»` : '', r.age || '', godName(r.deity)].filter(Boolean).join(' · ');
+    const items = [];
+    owned.forEach((c) => {
+      const hot = rows.some((r) => r.state === 'turn' && isMe(r, c));
+      const arcs = rows.filter((r) => isMe(r, c) && r.state !== 'closed').length;
+      const edit = edits.some((r) => String(r.character_id) === String(c.id) && r.status === 'pending');
+      const k = c.is_draft ? 'form' : 'live';
+      items.push({
+        k, ord: hot ? 2 : (k === 'form' ? 5 : 3), name: c.name || '—', sub: bits(c) || 'у картотеці', img: c.image || '', hot,
+        pill: c.is_draft ? 'Прийнято · оформлюють' : (edit ? 'Правка на розгляді' : 'На сайті'),
+        pillColor: c.is_draft ? GOLD : (edit ? AZ : GOLD),
+        pillBorder: c.is_draft ? 'rgba(255,215,0,0.4)' : (edit ? 'rgba(100,149,237,0.55)' : 'rgba(255,215,0,0.45)'),
+        line: 'solid', border: c.is_draft ? 'rgba(255,215,0,0.25)' : (edit ? 'rgba(100,149,237,0.4)' : 'rgba(255,215,0,0.4)'),
+        note: '', when: arcs ? `${arcs} ${this._plural(arcs, 'арка', 'арки', 'арок')}` : (c.is_draft ? 'адміни готують сторінку' : 'ще без арок'),
+        act: 'До теки', strong: false, go: () => this._pickChar(c.id), dim: !!c.is_draft,
+      });
+    });
+    subs.forEach((r) => {
+      const st = String(r.status || 'pending');
+      if (st === 'accepted' && ownNames.indexOf(fold(r.name)) !== -1) return;   // уже лежить текою
+      const fix = st === 'pending' && !!String(r.admin_note || '').trim();
+      const k = fix ? 'fix' : st;
+      const M = {
+        fix:       ['Потрібні правки', GOLD, 'rgba(255,215,0,0.6)', 'dashed', 'rgba(255,215,0,0.55)', 'Внести правки', true, 0],
+        draft:     ['Чернетка', 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.3)', 'dashed', 'rgba(255,255,255,0.2)', 'Дописати', true, 1],
+        pending:   ['На розгляді', 'rgba(255,255,255,0.78)', 'rgba(255,255,255,0.35)', 'solid', 'rgba(255,255,255,0.14)', 'Правити', false, 6],
+        accepted:  ['Прийнято · оформлюють', GOLD, 'rgba(255,215,0,0.4)', 'solid', 'rgba(255,215,0,0.25)', '', false, 5],
+        rejected:  ['Відхилено', RED, 'rgba(255,77,77,0.5)', 'solid', 'rgba(255,77,77,0.22)', 'Подати наново', false, 8],
+        withdrawn: ['Відкликано', 'rgba(255,255,255,0.5)', 'rgba(255,255,255,0.2)', 'solid', 'rgba(255,255,255,0.1)', 'Подати наново', false, 9],
+      }[k] || ['На розгляді', 'rgba(255,255,255,0.78)', 'rgba(255,255,255,0.35)', 'solid', 'rgba(255,255,255,0.14)', 'Правити', false, 6];
+      const again = st === 'rejected' || st === 'withdrawn';
+      items.push({
+        k, ord: M[7], name: r.name || 'Без імені', sub: bits(r) || 'графи не заповнені', img: r.portrait || '', hot: false,
+        pill: M[0], pillColor: M[1], pillBorder: M[2], line: M[3], border: M[4],
+        note: (fix || st === 'rejected') ? String(r.admin_note || '').trim() : '',
+        when: `${st === 'draft' ? 'правили' : (st === 'accepted' || again ? 'вирішено' : 'подано')} ${this._when(r.decided_at && st !== 'pending' ? r.decided_at : (r.updated_at || r.created_at))}`,
+        act: M[5], strong: M[6], go: M[5] ? () => this._edit(r, again) : null, dim: true,
+      });
+    });
+    items.sort((a, b) => a.ord - b.ord);
+    const grp = {
+      act: (i) => i.k === 'fix' || i.k === 'draft' || i.hot,
+      desk: (i) => ['fix', 'pending', 'accepted', 'form'].indexOf(i.k) !== -1,
+      live: (i) => i.k === 'live',
+      gone: (i) => i.k === 'rejected' || i.k === 'withdrawn',
+    };
+    const f = grp[s.shelfF] ? s.shelfF : 'all';
+    const n = (g) => items.filter(grp[g]).length;
+    const fl = [['all', `Усі · ${items.length}`], ['act', `Чекають на вас · ${n('act')}`], ['desk', `У рецепції · ${n('desk')}`], ['live', `На сайті · ${n('live')}`]];
+    if (n('gone')) fl.push(['gone', `Відхилені · ${n('gone')}`]);
+    const shown = f === 'all' ? items : items.filter(grp[f]);
+    const onDesk = subs.filter((r) => r.status === 'pending').length;
+    return {
+      showShelf: !this.props.onlyGossip && s.tab === 'shelf',
+      pickShelf: () => this._pickTab('shelf'),
+      navShelfBg: s.tab === 'shelf' ? 'rgba(255,215,0,0.12)' : 'transparent',
+      navShelfColor: s.tab === 'shelf' ? '#ffd700' : 'rgba(255,255,255,0.75)',
+      shelfHead: `✦ Мої анкети · ${items.length}`,
+      shelfLimit: `На розгляді у вас ${onDesk} із трьох`,
+      shelfFilters: fl.map(([id, label]) => {
+        const on = id === f;
+        return { key: id, label, bg: on ? 'rgba(255,215,0,0.12)' : 'transparent', border: on ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.14)', color: on ? GOLD : 'rgba(255,255,255,0.6)', onPick: () => this.setState({ shelfF: id }) };
+      }),
+      shelfCards: shown.map((i, x) => ({
+        ...i, key: `${i.k}·${x}·${i.name}`,
+        hasImg: !!i.img, noImg: !i.img, initial: String(i.name || '?').trim().charAt(0).toUpperCase(),
+        imgOp: i.dim ? 0.5 : 0.95,
+        imgFilter: i.k === 'draft' || i.k === 'rejected' || i.k === 'withdrawn' ? 'grayscale(1)' : (i.dim ? 'saturate(0.55)' : 'none'),
+        hasNote: !!i.note, hasAct: !!i.act, onGo: i.go || (() => {}),
+        actBg: i.strong ? GOLD : 'rgba(255,255,255,0.06)', actBorder: i.strong ? GOLD : 'rgba(255,255,255,0.18)', actColor: i.strong ? '#1a1a1a' : 'rgba(255,255,255,0.82)',
+      })),
+      shelfEmpty: shown.length === 0 && f !== 'all',
+    };
   }
 
   _pickChar(id) {
@@ -3788,7 +3935,7 @@ class Component extends DCLogic {
         label: s.eBusy ? 'Несу…' : 'Віддати правку Марті', busy: !!s.eBusy,
         go: () => this._submitEdit(), cancel: () => this.setState({ eId: '', eMsg: '' }),
         cancelLabel: 'Скасувати', msg: s.eMsg };
-    } else if (!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab)) {
+    } else if (!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'shelf'].includes(s.tab)) {
       const pts = ((window.AnketaSchema || {}).ITEMS || []).map((it) => ['gos-i-' + it.num, `${it.num} · ${it.label}`]);
       items = [['gos-i-top', 'Звідки анкета'], ...pts, ['gos-i-note', 'Слово від вас'], ['gos-i-subs', 'Мої анкети']];
       const dr = this._draftVals();
@@ -4174,7 +4321,7 @@ class Component extends DCLogic {
       // взагалі, тому й смужки вкладок немає.
       showTabs: !this.props.onlyGossip,
       lockedOnly: !!this.props.onlyGossip && s.phase === 'ok' && status === 'pending',
-      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab),
+      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'shelf'].includes(s.tab),
       pickDl: () => this._pickTab('arcfile'),
       navDlBg: s.tab === 'arcfile' ? 'rgba(255,215,0,0.12)' : 'transparent',
       navDlColor: s.tab === 'arcfile' ? '#ffd700' : 'rgba(255,255,255,0.75)',
@@ -4208,6 +4355,7 @@ class Component extends DCLogic {
       navStatsColor: s.tab === 'stats' ? '#ffd700' : 'rgba(255,255,255,0.75)',
       ...this._statVals(),
       ...this._mineVals(),
+      ...this._shelfVals(),
       ...this._meVals(),
       ...this._turnVals(),
       ...this._askVals(),
