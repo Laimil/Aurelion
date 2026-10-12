@@ -520,7 +520,8 @@ class Component extends DCLogic {
       const ch = byId.get(String(p.character_id || ''))
         || byName.get(String(p.tag_name || '').trim().toLowerCase())
         || byName.get(String(p.character_name || '').trim().toLowerCase()) || null;
-      const who = (ch && ch.name) || String(p.character_name || '').trim() || String(p.tag_name || '').trim() || '—';
+      // Без імені й без анкети — допис лічиться, але учасником «—» не стає.
+      const who = (ch && ch.name) || String(p.character_name || '').trim() || String(p.tag_name || '').trim() || '';
       const seen = new Set();
       for (const a of splitArcs(p.tag_arc)) {
         const g = spell.get(a);
@@ -529,6 +530,7 @@ class Component extends DCLogic {
         g.posts++; g.times.push(at);
         if (!g.first || at < g.first.at) g.first = { at, id: p.id, who };
         if (!g.last || at >= g.last.at) g.last = { at, id: p.id, who };
+        if (!who) continue;
         const ck = ch ? 'c' + ch.id : 'n' + who.toLowerCase();
         const e = g.cast.get(ck) || { key: ck, name: who, ch, n: 0, last: 0 };
         e.n++; if (at > e.last) e.last = at;
@@ -672,12 +674,18 @@ class Component extends DCLogic {
       ['Днів', String(span)],
     ].map((x, i) => ({ k: x[0], v: x[1], sep: i > 0 }));
 
-    let summary = `Перший допис — від ${g.first.who}, ${fmtDay(g.first.at, true)}.`;
-    if (g.posts > 1) {
+    let summary = g.first.who
+      ? `Перший допис — від ${g.first.who}, ${fmtDay(g.first.at, true)}.`
+      : `Перший допис — ${fmtDay(g.first.at, true)}.`;
+    if (g.posts > 1 && k) {
       summary += k === 1
         ? ` Відтоді ${g.posts} ${plural(g.posts, POSTS_W)}, усі — від ${top.name}.`
         : ` Відтоді ${g.posts} ${plural(g.posts, POSTS_W)} від ${k} учасників; найчастіше пише ${top.name} (${top.n}).`;
-      summary += g.live ? ` Востаннє — ${rel(g.last.at)}, від ${g.last.who}.` : ` Тиша з ${fmtDay(g.last.at, true)}.`;
+    }
+    if (g.posts > 1) {
+      summary += g.live
+        ? ` Востаннє — ${rel(g.last.at)}${g.last.who ? ', від ' + g.last.who : ''}.`
+        : ` Тиша з ${fmtDay(g.last.at, true)}.`;
     }
 
     // Ритм: дні для коротких арок, тижні для середніх, місяці для довгих.
