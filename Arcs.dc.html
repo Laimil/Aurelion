@@ -44,12 +44,15 @@
             <button onClick="{{ t.pick }}" style="cursor:pointer;padding:6px 14px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.74rem;letter-spacing:0.04em;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.ink }};transition:all 0.3s ease;">{{ t.label }}</button>
           </sc-for>
         </div>
+        <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ flipMine }}" title="Арки, де пишуть ваші анкети, і ті, на які ви підписані" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:8px 15px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;background:{{ mineBg }};border:1px solid {{ mineBorder }};color:{{ mineInk }};box-shadow:{{ mineGlow }};transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.6);color:#fff;">✦ Мої<span style="font-family:Arial,sans-serif;font-size:0.68rem;padding:1px 7px;border-radius:999px;background:rgba(255,215,0,0.16);color:#ffd700;">{{ nMine }}</span></button>
+        </sc-if>
         <button onClick="{{ flipSort }}" style="cursor:pointer;border-radius:999px;padding:8px 15px;font-size:0.78rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);">{{ sortLabel }}</button>
       </div>
       <p style="text-align:center;font-size:0.76rem;color:rgba(255,255,255,0.36);margin:0 0 26px;">{{ countLine }}</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:20px;">
         <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
-          <a href="{{ c.href }}" style="display:flex;flex-direction:column;text-decoration:none;color:inherit;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.35);transition:all 0.3s ease;" style-hover="transform:translateY(-5px);border-color:rgba(255,215,0,0.4);box-shadow:0 18px 40px rgba(0,0,0,0.5);">
+          <a href="{{ c.href }}" style="display:flex;flex-direction:column;text-decoration:none;color:inherit;background:rgba(255,255,255,0.05);border:1px solid {{ c.ring }};border-radius:15px;overflow:hidden;box-shadow:{{ c.shadow }};transition:all 0.3s ease;" style-hover="transform:translateY(-5px);border-color:rgba(255,215,0,0.4);box-shadow:0 18px 40px rgba(0,0,0,0.5);">
             <div style="position:relative;height:190px;background:#0f0e0c;overflow:hidden;">
               <sc-if value="{{ c.hasCover }}" hint-placeholder-val="{{ false }}">
                 <div style="position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;background-image:url({{ c.coverUrl }});background-position:{{ c.coverPos }};"></div>
@@ -64,6 +67,9 @@
               </sc-if>
               <div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(15,14,12,0.9) 0%,rgba(15,14,12,0) 60%);"></div>
               <span style="position:absolute;top:12px;left:12px;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:{{ c.pillBg }};border:1px solid {{ c.pillBorder }};color:{{ c.pillInk }};">{{ c.status }}</span>
+              <sc-if value="{{ c.hasMark }}" hint-placeholder-val="{{ false }}">
+                <span style="position:absolute;top:12px;right:12px;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:rgba(15,14,12,0.78);border:1px solid rgba(255,215,0,0.55);color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,0.25);">{{ c.mark }}</span>
+              </sc-if>
             </div>
             <div style="padding:14px 18px 18px;display:flex;flex-direction:column;gap:8px;">
               <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;letter-spacing:0.04em;line-height:1.2;margin:0;color:#fff;text-wrap:balance;">{{ c.name }}</h3>
@@ -100,6 +106,21 @@
       <div style="max-width:1200px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <a href="#arcs" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;text-decoration:none;transition:all 0.18s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">← Усі арки</a>
         <span style="flex:1;"></span>
+        <sc-if value="{{ closeMsgOn }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size:0.78rem;color:{{ closeMsgInk }};">{{ closeMsg }}</span>
+        </sc-if>
+        <sc-if value="{{ canClose }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ closeAsk }}" hint-placeholder-val="{{ false }}">
+            <div style="display:inline-flex;align-items:center;gap:6px;">
+              <span style="font-size:0.8rem;color:rgba(255,255,255,0.6);">Закрити арку для всіх?</span>
+              <button onClick="{{ doClose }}" style="cursor:pointer;background:rgba(100,149,237,0.16);border:1px solid rgba(100,149,237,0.55);color:#fff;border-radius:999px;padding:7px 16px;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.04em;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(100,149,237,0.32);">{{ closeYes }}</button>
+              <button onClick="{{ cancelClose }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 14px;font-size:0.78rem;">ні</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ closeIdle }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ askClose }}" title="{{ closeTip }}" style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.75);border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;transition:all 0.3s ease;" style-hover="color:#fff;border-color:rgba(100,149,237,0.55);">{{ closeLabel }}</button>
+          </sc-if>
+        </sc-if>
         <sc-if value="{{ canEdit }}" hint-placeholder-val="{{ false }}">
           <button onClick="{{ toggleEdit }}" style="display:inline-flex;align-items:center;gap:7px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.38);color:#6495ed;border-radius:999px;padding:7px 18px;font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(100,149,237,0.18);box-shadow:0 0 18px rgba(100,149,237,0.28);">{{ editLabel }}</button>
         </sc-if>
@@ -268,6 +289,7 @@ const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 const BASE_H    = { apikey: SUPA_KEY };
 // Та сама межа «живої» арки, що в боті й кабінеті (ARC_LIVE).
 const LIVE_DAYS = 30;
+const STATE_UA = { live: 'жива', quiet: 'тиша', closed: 'закрита' };
 const DAY = 86400000;
 const POST_PAGE = 1000, POST_MAX = 20000;
 const COMBO_MAX = 5;
@@ -381,8 +403,8 @@ const focusOf = (v) => {
 class Component extends DCLogic {
   state = {
     phase: 'load', arcs: [], pages: {}, noPages: false, admin: false,
-    q: '', filt: 'all', sort: 'last', open: null, ex: {}, gal: {},
-    edit: null,
+    q: '', filt: 'all', sort: 'last', open: null, ex: {}, gal: {}, mineOnly: false,
+    edit: null, close: null,
   };
 
   // ── Ключ доступу (як у Posts) ──
@@ -423,9 +445,10 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
-    this._onHash = () => { this.setState({ open: this._hashArc(), edit: null }); };
+    this._onHash = () => { this.setState({ open: this._hashArc(), edit: null, close: null }); };
     window.addEventListener('hashchange', this._onHash);
     this.state.open = this._hashArc();
+    try { this.state.mineOnly = localStorage.getItem('au_arcs_mine') === '1'; } catch (e) {}
     this._load();
   }
   componentWillUnmount() { window.removeEventListener('hashchange', this._onHash); }
@@ -455,8 +478,10 @@ class Component extends DCLogic {
       const prof = sr.ok ? (await sr.json())[0] : null;
       const admin = await this._isAdmin();
       if (!admin && (!prof || prof.status !== 'approved')) { this.setState({ phase: 'locked' }); return; }
-      const [chars, posts, pages, npcs] = await Promise.all([this._chars(), this._posts(), this._pages(), this._npcs()]);
+      const [chars, posts, pages, npcs, own, fol, shut] = await Promise.all([this._chars(), this._posts(), this._pages(), this._npcs(), this._own(u.id), this._follows(), this._closed()]);
       const arcs = this._build(posts, chars, npcs);
+      this._markMine(arcs, own, fol);
+      this._markClosed(arcs, shut);
       console.log(`арки: ${posts.length} дописів → ${arcs.length} арок, анкет ${chars.length}`);
       this.setState({ phase: 'ok', arcs, admin, pages: pages || {}, noPages: pages == null });
     } catch (e) {
@@ -477,6 +502,89 @@ class Component extends DCLogic {
       console.warn('арки: анкети (' + sel + ') —', await r.text());
     }
     return [];
+  }
+  async _own(uid) {
+    try {
+      const r = await this._api(`${SUPA_URL}/characters?owner_id=eq.${encodeURIComponent(uid)}&select=id`);
+      return r.ok ? new Set((await r.json()).map((c) => String(c.id))) : new Set();
+    } catch (e) { return new Set(); }
+  }
+  // Підписки читаються лише через my_turns (у arc_follows немає політик).
+  async _follows() {
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/my_turns`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      if (!r.ok) { console.warn('арки: підписки —', await r.text()); return []; }
+      const d = await r.json();
+      return ((d && d.follows) || []).filter((f) => f && f.arc);
+    } catch (e) { return []; }
+  }
+  async _closed() {
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/arc_closed`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      if (!r.ok) { console.warn('арки: закриті —', await r.text(), '(прогнати supabase_arc_closed_migration.sql)'); return []; }
+      const d = await r.json();
+      return (d && d.arcs) || [];
+    } catch (e) { return []; }
+  }
+  // Як у turns.js: відмітка чинна, поки після неї ніхто не писав.
+  _markClosed(arcs, shut) {
+    const by = new Map();
+    for (const m of shut) by.set(arcKey(m.arc || m.akey), m);
+    for (const g of arcs) {
+      g.live = !!g.last && Date.now() - g.last.at <= LIVE_DAYS * DAY;
+      g.state = g.live ? 'live' : 'quiet';
+      g.closedAt = 0; g.closedBy = []; g.closedByMe = false;
+      const marks = g.all.map((v) => by.get(arcKey(v))).filter(Boolean).flatMap((m) => m.marks || []);
+      const hit = marks.filter((m) => new Date(m.at).getTime() >= g.last.at);
+      if (!hit.length) continue;
+      g.state = 'closed'; g.live = false;
+      g.closedAt = Math.max(...hit.map((m) => new Date(m.at).getTime()));
+      g.closedBy = [...new Set(hit.map((m) => m.nick).filter((n) => n && n !== '—'))];
+      g.closedByMe = hit.some((m) => m.mine);
+    }
+    console.log(`арки: закритих ${arcs.filter((g) => g.state === 'closed').length} (відміток ${shut.length})`);
+  }
+  // Закрити / зняти свою відмітку. arc_mark() ключує арку за точним написанням,
+  // а тут варіанти тегу зведені в одну — тому пробуємо кожне написання.
+  async _setClosed(g, on) {
+    if (this.state.close && this.state.close.busy) return;
+    this.setState({ close: { busy: true } });
+    const call = async (arc) => {
+      const r = await this._api(`${SUPA_URL}/rpc/arc_mark`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ p_arc: arc, p_on: on }) });
+      return r.ok ? await r.json() : { error: 'http ' + r.status };
+    };
+    let err = '', done = false;
+    try {
+      const spell = [g.name, ...g.all.filter((v) => v !== g.name)];
+      for (const v of spell) {
+        const d = await call(v);
+        if (d && d.ok) { done = true; if (on) break; continue; }
+        err = (d && d.error) || 'error';
+        if (err !== 'not in arc') break;
+      }
+    } catch (e) { err = 'net'; }
+    if (!done) {
+      console.warn('арки: arc_mark —', err);
+      const msg = err === 'not in arc' ? 'Закрити може лише той, чий персонаж тут писав.'
+        : err === 'not approved' ? 'Потрібен схвалений профіль.'
+        : err === 'net' ? 'Мережа не відповіла.' : 'Не вийшло.';
+      this.setState({ close: { msg, bad: true } });
+      return;
+    }
+    const shut = await this._closed();
+    this._markClosed(this.state.arcs, shut);
+    this.setState({ close: { msg: on ? 'Арку закрито.' : 'Вашу відмітку знято.' } });
+  }
+  _markMine(arcs, own, fol) {
+    const fk = new Map(fol.map((f) => [arcKey(f.arc), f]));
+    for (const g of arcs) {
+      const f = g.all.map((v) => fk.get(arcKey(v))).find(Boolean) || null;
+      const as = f && f.as ? String(f.as).trim().toLowerCase() : '';
+      g.own = g.castList.some((c) => (c.ch && own.has(String(c.ch.id))) || (as && c.name.toLowerCase() === as));
+      g.fol = !!f;
+      g.mine = g.own || g.fol;
+    }
+    console.log(`арки: моїх ${arcs.filter((g) => g.own).length}, підписок ${fol.length}`);
   }
   // Технічні НПЦ (адмінка → Технічні НПЦ): учасник без анкети, але з картинкою.
   async _npcs() {
@@ -553,7 +661,8 @@ class Component extends DCLogic {
     }
     for (const g of groups) {
       g.castList = [...g.cast.values()].sort((a, b) => b.n - a.n || b.last - a.last);
-      g.live = g.last && Date.now() - g.last.at <= LIVE_DAYS * DAY;
+      g.live = !!g.last && Date.now() - g.last.at <= LIVE_DAYS * DAY;
+      g.state = g.live ? 'live' : 'quiet';
       g.times.sort((a, b) => a - b);
     }
     return groups.filter((g) => g.posts > 0);
@@ -649,7 +758,8 @@ class Component extends DCLogic {
   _cards() {
     const s = this.state;
     const q = arcKey(s.q);
-    let list = s.arcs.filter((g) => s.filt === 'all' || (s.filt === 'live' ? g.live : !g.live));
+    let list = s.arcs.filter((g) => s.filt === 'all' || g.state === s.filt);
+    if (s.mineOnly) list = list.filter((g) => g.mine);
     if (q) list = list.filter((g) => arcKey(g.all.join(' ')).includes(q) || g.castList.some((c) => arcKey(c.name).includes(q)));
     list = list.slice().sort(s.sort === 'size' ? (a, b) => b.posts - a.posts : (a, b) => b.last.at - a.last.at);
     return list.map((g) => {
@@ -660,10 +770,14 @@ class Component extends DCLogic {
         href: '#arcs/' + encodeURIComponent(g.name),
         name: g.name,
         meta: `${g.posts} ${plural(g.posts, POSTS_W)} · ${k} ${plural(k, ['учасник', 'учасники', 'учасників'])} · востаннє ${rel(g.last.at)}`,
-        status: g.live ? 'жива' : 'тиша',
-        pillBg: g.live ? 'rgba(255,215,0,0.14)' : 'rgba(10,9,8,0.6)',
-        pillBorder: g.live ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.18)',
-        pillInk: g.live ? '#ffd700' : 'rgba(255,255,255,0.6)',
+        status: STATE_UA[g.state],
+        pillBg: g.live ? 'rgba(255,215,0,0.14)' : g.state === 'closed' ? 'rgba(15,14,12,0.78)' : 'rgba(10,9,8,0.6)',
+        pillBorder: g.live ? 'rgba(255,215,0,0.45)' : g.state === 'closed' ? 'rgba(100,149,237,0.55)' : 'rgba(255,255,255,0.18)',
+        pillInk: g.live ? '#ffd700' : g.state === 'closed' ? '#8fb0f0' : 'rgba(255,255,255,0.6)',
+        hasMark: !!g.mine,
+        mark: g.own ? '✦ ваша' : '✦ стежите',
+        ring: g.mine ? 'rgba(255,215,0,0.42)' : 'rgba(255,255,255,0.12)',
+        shadow: g.mine ? '0 8px 24px rgba(0,0,0,0.35), 0 0 22px rgba(255,215,0,0.14)' : '0 8px 24px rgba(0,0,0,0.35)',
         faces: g.castList.slice(0, 6).map((c) => ({
           name: c.name,
           letter: c.pic ? '' : initials(c.name).slice(0, 1),
@@ -697,7 +811,9 @@ class Component extends DCLogic {
         : ` Відтоді ${g.posts} ${plural(g.posts, POSTS_W)} від ${k} учасників; найчастіше пише ${top.name} (${top.n}).`;
     }
     if (g.posts > 1) {
-      summary += g.live
+      summary += g.state === 'closed'
+        ? ` Закрита ${fmtDay(g.closedAt, true)}${g.closedBy.length ? ' — ' + g.closedBy.join(', ') : ''}.`
+        : g.live
         ? ` Востаннє — ${rel(g.last.at)}${g.last.who ? ', від ' + g.last.who : ''}.`
         : ` Тиша з ${fmtDay(g.last.at, true)}.`;
     }
@@ -739,7 +855,7 @@ class Component extends DCLogic {
     return {
       ...cv,
       name: g.name,
-      overline: '✦ Арка · ' + (g.live ? 'жива' : 'тиша'),
+      overline: '✦ Арка · ' + STATE_UA[g.state],
       hasAlt: alt.length > 0,
       altLine: 'також: ' + alt.slice(0, 3).join(', '),
       stats,
@@ -796,10 +912,24 @@ class Component extends DCLogic {
     const ok = s.phase === 'ok';
     const g = ok && s.open ? this._find(s.open) : null;
     const setEd = (patch) => this.setState((st) => ({ edit: st.edit ? { ...st.edit, ...patch } : st.edit }));
-    const FILT = [['all', 'Усі'], ['live', 'Живі'], ['quiet', 'Тиша']];
+    const FILT = [['all', 'Усі'], ['live', 'Живі'], ['quiet', 'Тиша'], ['closed', 'Закриті']];
     const cards = ok && !s.open ? this._cards() : [];
     const nLive = s.arcs.filter((x) => x.live).length;
+    const nMine = s.arcs.filter((x) => x.mine).length;
+    const nShut = s.arcs.filter((x) => x.state === 'closed').length;
+    const mOn = s.mineOnly;
     return {
+      hasMine: nMine > 0 || mOn,
+      nMine,
+      mineBg: mOn ? 'rgba(255,215,0,0.16)' : 'rgba(255,215,0,0.04)',
+      mineBorder: mOn ? 'rgba(255,215,0,0.7)' : 'rgba(255,215,0,0.28)',
+      mineInk: mOn ? '#fff' : 'rgba(255,215,0,0.85)',
+      mineGlow: mOn ? '0 0 20px rgba(255,215,0,0.35)' : 'none',
+      flipMine: () => {
+        const v = !s.mineOnly;
+        try { localStorage.setItem('au_arcs_mine', v ? '1' : '0'); } catch (e) {}
+        this.setState({ mineOnly: v });
+      },
       isLoad: s.phase === 'load', isGuest: s.phase === 'guest', isLocked: s.phase === 'locked', isError: s.phase === 'error',
       showIndex: ok && !s.open,
       showMissing: ok && !!s.open && !g,
@@ -815,12 +945,36 @@ class Component extends DCLogic {
       })),
       sortLabel: s.sort === 'size' ? '↓ Найбільші' : '↓ Найсвіжіші',
       flipSort: () => this.setState({ sort: s.sort === 'size' ? 'last' : 'size' }),
-      countLine: `${s.arcs.length} ${plural(s.arcs.length, ['арка', 'арки', 'арок'])} у стрічці · ${nLive} ${plural(nLive, ['жива', 'живі', 'живих'])}`,
+      countLine: `${s.arcs.length} ${plural(s.arcs.length, ['арка', 'арки', 'арок'])} у стрічці · ${nLive} ${plural(nLive, ['жива', 'живі', 'живих'])}`
+        + (nShut ? ` · ${nShut} ${plural(nShut, ['закрита', 'закриті', 'закритих'])}` : ''),
       cards,
       noCards: ok && !s.open && !cards.length,
-      emptyLine: s.arcs.length ? 'За таким відбором арок немає.' : 'У стрічці ще немає дописів із тегом арки.',
+      emptyLine: s.mineOnly && !nMine ? 'Ваших арок поки немає: ні дописів анкетами, ні підписок.' : s.arcs.length ? 'За таким відбором арок немає.' : 'У стрічці ще немає дописів із тегом арки.',
 
       a: g ? this._arcVals(g) : {},
+      ...(() => {
+        const c = s.close || {};
+        const mineOn = !!g && g.closedByMe;
+        return {
+          canClose: !!g && (g.own || mineOn),
+          closeAsk: !!c.ask,
+          closeIdle: !c.ask,
+          closeLabel: c.busy ? '…' : mineOn ? '↺ Зняти відмітку' : '✕ Закрити арку',
+          closeTip: mineOn ? 'Арку закрили ви. Зняти відмітку — арка відкриється, якщо її не закрив хтось іще.'
+            : 'Відмітку бачать усі. Новий допис у арці відкриє її сам.',
+          closeYes: c.busy ? '…' : 'Так, закрити',
+          askClose: () => {
+            if (c.busy) return;
+            if (mineOn) this._setClosed(g, false);
+            else this.setState({ close: { ask: true } });
+          },
+          cancelClose: () => this.setState({ close: null }),
+          doClose: () => this._setClosed(g, true),
+          closeMsgOn: !!c.msg,
+          closeMsg: c.msg || '',
+          closeMsgInk: c.bad ? '#ff8080' : 'rgba(255,255,255,0.5)',
+        };
+      })(),
       canEdit: !!g && s.admin,
       editOpen: !!g && !!s.edit,
       editLabel: s.edit ? '× Закрити' : '✎ Обкладинка й опис',
