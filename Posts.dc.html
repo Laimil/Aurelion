@@ -109,6 +109,9 @@
                   <sc-if value="{{ p.unread }}" hint-placeholder-val="{{ false }}">
                     <span title="Ще не читали" style="width:6px;height:6px;border-radius:999px;background:#6495ed;flex:none;"></span>
                   </sc-if>
+                  <sc-if value="{{ p.isDup }}" hint-placeholder-val="{{ false }}">
+                    <span title="{{ p.dupHint }}" style="flex:none;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid rgba(255,77,77,0.45);color:#ff7a7a;">дубль</span>
+                  </sc-if>
                   <span style="flex:1;"></span>
                   <span style="font-size:0.7rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ p.whenShort }}</span>
                 </div>
@@ -165,7 +168,23 @@
               <span style="font-size:0.72rem;color:rgba(255,255,255,0.42);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.meta }}</span>
             </div>
             <button onClick="{{ r.copyLink }}" title="Скопіювати посилання на цей допис" style="cursor:pointer;flex:none;border:none;background:none;padding:6px;color:rgba(255,255,255,0.4);font-size:0.74rem;text-decoration:underline;">{{ r.linkLabel }}</button>
+            <sc-if value="{{ r.canDrop }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:6px;flex:none;">
+                <sc-if value="{{ r.dropIdle }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ r.dropAsk }}" title="Прибрати допис зі стрічки (тільки рецепція)" style="cursor:pointer;border-radius:999px;padding:5px 12px;font-size:0.72rem;background:none;border:1px solid rgba(255,77,77,0.35);color:rgba(255,122,122,0.85);transition:all 0.3s ease;" style-hover="background:rgba(255,77,77,0.1);color:#ff4d4d;">Прибрати</button>
+                </sc-if>
+                <sc-if value="{{ r.dropArmed }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <button onClick="{{ r.dropGo }}" disabled="{{ r.dropBusy }}" style="cursor:pointer;border-radius:999px;padding:5px 12px;font-size:0.72rem;background:#ff4d4d;border:1px solid #ff4d4d;color:#1a1a1a;font-weight:700;">{{ r.dropLabel }}</button>
+                    <button onClick="{{ r.dropCancel }}" style="cursor:pointer;border:none;background:none;padding:4px;font-size:0.72rem;color:rgba(255,255,255,0.5);text-decoration:underline;">ні</button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
           </div>
+          <sc-if value="{{ r.hasDropMsg }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;flex:none;font-size:0.76rem;color:#ff7a7a;">{{ r.dropMsg }}</p>
+          </sc-if>
           <sc-if value="{{ r.hasTracks }}" hint-placeholder-val="{{ false }}">
             <div style="{{ rd.tracks }}">
               <sc-for list="{{ r.tracks }}" as="t" hint-placeholder-count="1">
@@ -297,6 +316,7 @@ class Component extends DCLogic {
     // читалка
     sel: null, page: 0, pages: 1, toEnd: false, view: 'list', wide: true,
     read: {}, mark: null, since: 0,
+    admin: false, drop: null, dropBusy: false, dropMsg: '',
   };
   pageRef = React.createRef();
   listRef = React.createRef();
@@ -694,10 +714,47 @@ class Component extends DCLogic {
       const u = await ur.json();
       const sr = await this._api(`${SUPA_URL}/site_users?id=eq.${u.id}&select=status`);
       const prof = sr.ok ? (await sr.json())[0] : null;
-      if (!prof || prof.status !== 'approved') { this.setState({ phase: 'locked' }); return; }
+      const admin = await this._isAdmin();
+      if (!admin && (!prof || prof.status !== 'approved')) { this.setState({ phase: 'locked' }); return; }
+      this.setState({ admin });
       await this._page(true);
     } catch (e) {
       this.setState({ phase: 'error', err: String(e) });
+    }
+  }
+  async _isAdmin() {
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/is_admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      return r.ok ? (await r.json()) === true : false;
+    } catch (e) { return false; }
+  }
+  // Прибрати допис (дубль, випадкове перевикладення). Тільки рецепція;
+  // перевіряє сама база (marta_post_drop), кнопка — лише зручність.
+  async _dropPost(id) {
+    if (this.state.dropBusy) return;
+    this.setState({ dropBusy: true, dropMsg: '' });
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/marta_post_drop`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_ids: [Number(id)] }),
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        console.warn('пости: прибрати №' + id + ' —', t);
+        this.setState({ dropBusy: false, dropMsg: /marta_post_drop|function/.test(t) && !/адміна/.test(t) ? 'Немає функції — прогнати supabase_post_drop_migration.sql.' : 'Не вийшло прибрати. Ви адмін?' });
+        return;
+      }
+      console.log('пости: прибрано допис №' + id);
+      const s = this.state;
+      const idx = s.posts.findIndex((p) => String(p.id) === String(id));
+      const posts = s.posts.filter((p) => String(p.id) !== String(id));
+      const next = posts[idx] || posts[idx - 1] || null;
+      const tracks = { ...s.tracks }; delete tracks[String(id)];
+      this.setState({ posts, tracks, off: Math.max(0, s.off - 1), drop: null, dropBusy: false, sel: null }, () => {
+        if (next) this._select(next.id, {}); else this.setState({ view: 'list' });
+      });
+    } catch (e) {
+      this.setState({ dropBusy: false, dropMsg: 'Мережа не відповіла.' });
     }
   }
   async _page(reset) {
@@ -871,8 +928,20 @@ class Component extends DCLogic {
     const selIdx = s.posts.findIndex((p) => String(p.id) === String(s.sel));
     const selPost = selIdx >= 0 ? s.posts[selIdx] : null;
 
+    // Дубль: той самий підпис і той самий текст, що в іншого вже завантаженого допису.
+    const dupOf = {};
+    if (s.admin) {
+      const seen = new Map();
+      const ordered = (s.posts || []).slice().sort((a, b) => Number(a.id) - Number(b.id));
+      ordered.forEach((p) => {
+        const k = (p.tag_name || '') + '\u0001' + plainOf(p.body).replace(/\s+/g, ' ').trim();
+        if (k.length < 20) return;
+        if (seen.has(k)) dupOf[String(p.id)] = seen.get(k); else seen.set(k, p);
+      });
+    }
     const rows = (s.posts || []).map((p) => {
       const id = String(p.id);
+      const dup = dupOf[id];
       const plain = plainOf(p.body);
       const len = plain.length;
       const isSel = selPost && String(selPost.id) === id;
@@ -905,6 +974,8 @@ class Component extends DCLogic {
         rowStyle: (isSel ? 'border-left:3px solid #ffd700;background:rgba(255,215,0,0.06);' : 'border-left:3px solid transparent;')
           + (done && !isSel ? 'opacity:0.55;' : ''),
         hasImg: !!this._imgBg(p), imgBg: this._imgBg(p),
+        isDup: !!dup,
+        dupHint: dup ? 'Той самий текст уже є: ' + this._fmt(dup.created_at) : '',
         select: () => this._select(p.id, { open: true }),
       };
     });
@@ -930,6 +1001,16 @@ class Component extends DCLogic {
         hasImg: !!this._imgBg(p), imgBg: this._imgBg(p),
         blocks: this._blocks(p.body),
         copyLink: () => this._copyLink(p.id),
+        canDrop: s.admin,
+        dropIdle: String(s.drop) !== String(p.id),
+        dropArmed: String(s.drop) === String(p.id),
+        dropBusy: s.dropBusy,
+        dropLabel: s.dropBusy ? 'Прибираю…' : (dupOf[String(p.id)] ? 'Так, прибрати дубль' : 'Так, прибрати назавжди'),
+        dropAsk: () => this.setState({ drop: p.id, dropMsg: '' }),
+        dropCancel: () => this.setState({ drop: null, dropMsg: '' }),
+        dropGo: () => this._dropPost(p.id),
+        hasDropMsg: !!s.dropMsg && String(s.drop) === String(p.id),
+        dropMsg: s.dropMsg,
         linkLabel: String(s.linkCopiedId) === String(p.id) ? 'скопійовано' : 'посилання',
         hasTracks: mine.length > 0,
         tracks: mine.map((t) => {
