@@ -3406,8 +3406,231 @@ input,textarea,select{font-size:16px}
                 <sc-if value="{{ r.hasAfter }}" hint-placeholder-val="{{ true }}">
                   <div style="font-size:0.8rem;color:#ffd700;">{{ r.after }}</div>
                 </sc-if>
+                <sc-if value="{{ r.isGhost }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;">
+                    <button data-k="{{ r.key }}" onClick="{{ ghostNpc }}" disabled="{{ tuneBusy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:4px 12px;font-size:0.74rem;" style-hover="background:rgba(255,215,0,0.12);">⚙ Технічний НПЦ</button>
+                    <button data-k="{{ r.key }}" onClick="{{ ghostArc }}" disabled="{{ tuneBusy }}" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.4);color:#8fb0ff;border-radius:999px;padding:4px 12px;font-size:0.74rem;" style-hover="background:rgba(100,149,237,0.14);">Це арка</button>
+                    <select data-k="{{ r.key }}" onChange="{{ ghostChar }}" disabled="{{ tuneBusy }}" style="background:#222;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.75);border-radius:999px;padding:4px 10px;font-size:0.74rem;max-width:220px;">
+                      <option value="">Це персонаж…</option>
+                      <sc-for list="{{ tuneWhoOpts }}" as="o" hint-placeholder-count="0">
+                        <option value="{{ o.v }}">{{ o.label }}</option>
+                      </sc-for>
+                    </select>
+                  </div>
+                </sc-if>
               </div>
               <span style="font-size:0.68rem;color:rgba(255,255,255,0.28);flex-shrink:0;">{{ r.when }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- ТОНКЕ НАЛАШТУВАННЯ АРОК -->
+    <div style="margin-top:38px;padding-top:26px;border-top:1px solid rgba(255,255,255,0.08);">
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:6px;">✦ Арки — ручне налаштування</h2>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:14px;">Кожна арка стрічки з тим, скільки в ній дописів і хто писав. Якщо назву розпарсено неправильно — перейменуйте (або злийте з іншою, ввівши її назву). Якщо «арка» насправді імʼя — скажіть, чиє. Правило запамʼятовується: Марта виправлятиме такі теги в нових дописах сама.</p>
+      <sc-if value="{{ tuneNoTable }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.8rem;color:rgba(255,77,77,0.8);line-height:1.5;margin-bottom:12px;">Таблиць ще немає — прогнати <code>supabase_post_tune_migration.sql</code> у SQL Editor.</p>
+      </sc-if>
+      <sc-if value="{{ tuneNoArcs }}" hint-placeholder-val="{{ true }}">
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);font-style:italic;">Список зʼявиться після «Перевірити стрічку» вище.</p>
+      </sc-if>
+      <sc-if value="{{ tuneHasArcs }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+          <input value="{{ tuneQ }}" onInput="{{ tuneSetQ }}" placeholder="Пошук арки або імені…" style="flex:1;min-width:200px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.18);color:#fff;border-radius:999px;padding:8px 16px;font-size:0.82rem;" />
+          <span style="font-size:0.74rem;color:rgba(255,255,255,0.4);">{{ tuneArcsHead }}</span>
+        </div>
+        <datalist id="tune-arc-names">
+          <sc-for list="{{ tuneAllNames }}" as="a" hint-placeholder-count="0">
+            <option value="{{ a.name }}"></option>
+          </sc-for>
+        </datalist>
+        <div style="display:flex;flex-direction:column;gap:6px;max-height:560px;overflow-y:auto;padding-right:4px;">
+          <sc-for list="{{ tuneArcRows }}" as="g" hint-placeholder-count="4">
+            <div style="padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+              <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+                <div style="flex:1;min-width:180px;">
+                  <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;">
+                    <span style="font-size:0.88rem;color:#8fb0ff;">{{ g.name }}</span>
+                    <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);">{{ g.count }}</span>
+                    <sc-if value="{{ g.hasPerson }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:#ffd700;">{{ g.personLabel }}</span>
+                    </sc-if>
+                    <sc-if value="{{ g.hasNear }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:#ff9f4d;">{{ g.nearLabel }}</span>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ g.hasSpell }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-top:2px;">{{ g.spell }}</div>
+                  </sc-if>
+                  <sc-if value="{{ g.hasCast }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:0.72rem;color:rgba(255,255,255,0.32);margin-top:2px;">Хто писав: {{ g.cast }}</div>
+                  </sc-if>
+                </div>
+                <div style="display:flex;gap:6px;flex-shrink:0;">
+                  <button data-k="{{ g.key }}" data-m="rename" onClick="{{ tuneOpenMode }}" style="cursor:pointer;background:{{ g.bRename }};border:1px solid rgba(100,149,237,0.4);color:#8fb0ff;border-radius:999px;padding:4px 12px;font-size:0.74rem;" style-hover="background:rgba(100,149,237,0.14);">Назва</button>
+                  <button data-k="{{ g.key }}" data-m="char" onClick="{{ tuneOpenMode }}" style="cursor:pointer;background:{{ g.bChar }};border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:4px 12px;font-size:0.74rem;" style-hover="background:rgba(255,215,0,0.12);">Це особа</button>
+                  <button data-k="{{ g.key }}" data-m="drop" onClick="{{ tuneOpenMode }}" style="cursor:pointer;background:{{ g.bDrop }};border:1px solid rgba(255,77,77,0.35);color:rgba(255,120,120,0.9);border-radius:999px;padding:4px 12px;font-size:0.74rem;" style-hover="background:rgba(255,77,77,0.12);">Прибрати</button>
+                </div>
+              </div>
+              <sc-if value="{{ g.isOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.1);display:flex;flex-direction:column;gap:10px;">
+                  <sc-if value="{{ g.isRename }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                      <input list="tune-arc-names" value="{{ tuneVal }}" onInput="{{ tuneSetVal }}" placeholder="Правильна назва арки" style="background:rgba(255,255,255,0.05);border:1px solid rgba(100,149,237,0.4);color:#fff;border-radius:8px;padding:8px 12px;font-size:0.84rem;" />
+                      <span style="font-size:0.72rem;color:rgba(255,255,255,0.38);">Назва іншої наявної арки — дописи зіллються в неї.</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ g.isChar }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                      <select value="{{ tuneVal }}" onChange="{{ tuneSetVal }}" style="background:#222;border:1px solid rgba(255,215,0,0.34);color:#fff;border-radius:8px;padding:8px 12px;font-size:0.84rem;">
+                        <option value="">— хто це —</option>
+                        <option value="new">{{ g.newNpcLabel }}</option>
+                        <sc-for list="{{ tuneWhoOpts }}" as="o" hint-placeholder-count="0">
+                          <option value="{{ o.v }}">{{ o.label }}</option>
+                        </sc-for>
+                      </select>
+                      <span style="font-size:0.72rem;color:rgba(255,255,255,0.38);line-height:1.5;">Допис без анкети отримає цю особу персонажем (старий тег-імʼя переїде в арки). Де анкета вже стоїть — зайвий тег просто зникне.</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ g.isDrop }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">{{ g.dropNote }}</span>
+                  </sc-if>
+                  <div onClick="{{ tuneToggleRemember }}" style="display:flex;gap:8px;align-items:center;cursor:pointer;">
+                    <span style="width:18px;height:18px;border-radius:4px;border:1px solid rgba(255,255,255,0.25);background:{{ tuneRememberBg }};color:#1a1a1a;font-size:0.68rem;display:flex;align-items:center;justify-content:center;">{{ tuneRememberMark }}</span>
+                    <span style="font-size:0.76rem;color:rgba(255,255,255,0.6);">Запамʼятати для Марти — нові дописи з цим тегом виправлятимуться самі</span>
+                  </div>
+                  <div style="display:flex;gap:8px;">
+                    <button onClick="{{ tuneApply }}" disabled="{{ tuneBusy }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:7px 18px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.2);">{{ tuneApplyLabel }}</button>
+                    <button onClick="{{ tuneCancel }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.8rem;">Скасувати</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ ruleHas }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.36);margin:20px 0 8px;">Запамʼятані правила · для нових дописів</p>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <sc-for list="{{ ruleRows }}" as="r" hint-placeholder-count="2">
+            <div style="display:flex;gap:8px;align-items:center;font-size:0.78rem;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.03);">
+              <span style="color:rgba(255,255,255,0.7);">{{ r.tag }}</span>
+              <span style="color:rgba(255,255,255,0.35);">→ {{ r.act }}</span>
+              <sc-if value="{{ r.hasTarget }}" hint-placeholder-val="{{ true }}">
+                <span style="color:#ffd700;">{{ r.target }}</span>
+              </sc-if>
+              <button data-k="{{ r.key }}" onClick="{{ ruleDel }}" title="Забути правило" style="margin-left:auto;cursor:pointer;background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:0.85rem;" style-hover="color:#ff4d4d;">✕</button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="margin-top:38px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <span style="font-size:0.8rem;color:rgba(255,255,255,0.45);flex:1;min-width:200px;">Особи без анкети, яких Марта вважає персонажами допису, — окремим розділом.</span>
+      <button onClick="{{ goNpcs }}" style="cursor:pointer;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:999px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">⚙ Технічні НПЦ →</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- NPCS TAB -->
+<sc-if value="{{ showNpcs }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:760px;margin:0 auto;padding:28px 24px 80px;">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
+        <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">⚙ Технічні НПЦ</h2>
+        <sc-if value="{{ npcFormClosed }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ npcNew }}" style="cursor:pointer;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Додати</button>
+        </sc-if>
+      </div>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:14px;">Ті, хто пише в стрічці, але анкети не має: голос сцени, служник, «Варта» — або локація, що «говорить» сама. У «Персонажах» на сайті їх немає. Гештег з таким іменем — персонаж допису: Марта чіпляє дописи до НПЦ, арки показують його з картинкою, а гравець, за яким він записаний, бачить ці арки в своїй черзі.</p>
+      <sc-if value="{{ npcFormOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,0,0.2);margin-bottom:12px;">
+          <span style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);">{{ npcFormTitle }}</span>
+          <div style="display:flex;gap:6px;">
+            <button data-v="npc" onClick="{{ npcKind }}" style="cursor:pointer;background:{{ npcKindNpcBg }};border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:5px 14px;font-size:0.78rem;">НПЦ</button>
+            <button data-v="location" onClick="{{ npcKind }}" style="cursor:pointer;background:{{ npcKindLocBg }};border:1px solid rgba(95,179,161,0.45);color:#5fb3a1;border-radius:999px;padding:5px 14px;font-size:0.78rem;">⌂ Локація</button>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div style="width:64px;height:64px;flex-shrink:0;border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.68rem;text-align:center;">
+              <sc-if value="{{ npcHasPic }}" hint-placeholder-val="{{ false }}">
+                <img src="{{ npcPicUrl }}" style="width:100%;height:100%;object-fit:cover;display:block;" />
+              </sc-if>
+              <sc-if value="{{ npcNoPic }}" hint-placeholder-val="{{ true }}">
+                <span>без картинки</span>
+              </sc-if>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <label style="cursor:pointer;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);border-radius:999px;padding:5px 14px;font-size:0.76rem;" style-hover="background:rgba(255,255,255,0.12);">
+                {{ npcPicLabel }}
+                <input type="file" accept="image/*" onChange="{{ npcPic }}" style="display:none;" />
+              </label>
+              <sc-if value="{{ npcHasPic }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ npcPicDrop }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.55);border-radius:999px;padding:5px 14px;font-size:0.76rem;">Прибрати</button>
+              </sc-if>
+            </div>
+          </div>
+          <input data-f="name" value="{{ npcName }}" onInput="{{ npcSet }}" onKeyDown="{{ npcKey }}" autoFocus="{{ true }}" placeholder="{{ npcNamePh }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.18);color:#fff;border-radius:8px;padding:8px 12px;font-size:0.84rem;" />
+          <input data-f="aliases" value="{{ npcAliases }}" onInput="{{ npcSet }}" placeholder="Інші написання, через кому" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.18);color:#fff;border-radius:8px;padding:8px 12px;font-size:0.84rem;" />
+          <select data-f="owner_id" value="{{ npcOwner }}" onChange="{{ npcSet }}" style="background:#222;border:1px solid rgba(255,255,255,0.18);color:#fff;border-radius:8px;padding:8px 12px;font-size:0.84rem;">
+            <option value="">— не привʼязаний до гравця —</option>
+            <sc-for list="{{ npcUserOpts }}" as="o" hint-placeholder-count="0">
+              <option value="{{ o.v }}">{{ o.label }}</option>
+            </sc-for>
+          </select>
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.38);margin-top:-4px;">Гравець бачитиме арки цього НПЦ у своїй черзі як свої.</span>
+          <input data-f="note" value="{{ npcNote }}" onInput="{{ npcSet }}" placeholder="Примітка для адмінів (необовʼязково)" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.18);color:#fff;border-radius:8px;padding:8px 12px;font-size:0.84rem;" />
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.38);">Після збереження Марта причепить до нього вже написані дописи з цим гештегом.</span>
+          <div style="display:flex;gap:8px;">
+            <button onClick="{{ npcSave }}" disabled="{{ tuneBusy }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.34);color:#ffd700;border-radius:999px;padding:7px 18px;font-size:0.8rem;">Зберегти</button>
+            <button onClick="{{ npcCancel }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.8rem;">Скасувати</button>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ tuneNoTable }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.8rem;color:rgba(255,77,77,0.8);line-height:1.5;margin-bottom:12px;">Таблиці ще немає — прогнати <code>supabase_post_tune_migration.sql</code> у SQL Editor, інакше збереження не пройде.</p>
+      </sc-if>
+      <sc-if value="{{ npcOld }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.8rem;color:#ff9f4d;line-height:1.5;margin-bottom:12px;">Таблиця стара — немає типу, власника, картинки й привʼязки дописів. Прогнати <code>supabase_post_tune_migration.sql</code> ще раз (вона ідемпотентна).</p>
+      </sc-if>
+      <sc-if value="{{ npcEmpty }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ npcNew }}" style="cursor:pointer;padding:22px;border-radius:10px;border:1px dashed rgba(255,215,0,0.3);text-align:center;color:rgba(255,255,255,0.5);font-size:0.84rem;" style-hover="background:rgba(255,215,0,0.05);">Поки нікого. <span style="color:#ffd700;">+ Додати першого</span></div>
+      </sc-if>
+      <sc-if value="{{ npcHas }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.36);margin-bottom:8px;">{{ npcCount }}</p>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <sc-for list="{{ npcRows }}" as="n" hint-placeholder-count="2">
+            <div style="display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);flex-wrap:wrap;">
+              <div style="width:42px;height:42px;flex-shrink:0;border-radius:50%;overflow:hidden;background:rgba(255,255,255,0.06);border:1px solid {{ n.kindColor }};display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;color:{{ n.kindColor }};font-size:0.95rem;">
+                <sc-if value="{{ n.hasImg }}" hint-placeholder-val="{{ false }}">
+                  <img src="{{ n.img }}" style="width:100%;height:100%;object-fit:cover;display:block;" />
+                </sc-if>
+                <sc-if value="{{ n.noImg }}" hint-placeholder-val="{{ true }}">
+                  <span>{{ n.letter }}</span>
+                </sc-if>
+              </div>
+              <div style="flex:1;min-width:160px;">
+                <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;">
+                  <span style="font-family:'Cinzel',serif;font-size:0.84rem;color:#ffd700;">{{ n.name }}</span>
+                  <span style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ n.kindColor }};">{{ n.kindLabel }}</span>
+                  <sc-if value="{{ n.hasAliases }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ n.aliases }}</span>
+                  </sc-if>
+                </div>
+                <div style="display:flex;gap:10px;font-size:0.72rem;margin-top:2px;flex-wrap:wrap;">
+                  <span style="color:{{ n.ownerColor }};">{{ n.owner }}</span>
+                  <span style="color:rgba(255,255,255,0.35);">{{ n.posts }}</span>
+                </div>
+                <sc-if value="{{ n.hasNote }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:2px;">{{ n.note }}</div>
+                </sc-if>
+              </div>
+              <button data-id="{{ n.id }}" onClick="{{ npcAttach }}" disabled="{{ tuneBusy }}" title="Знайти дописи з цим гештегом і причепити до нього" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.4);color:#8fb0ff;border-radius:999px;padding:4px 12px;font-size:0.74rem;" style-hover="background:rgba(100,149,237,0.14);">Причепити дописи</button>
+              <button data-id="{{ n.id }}" onClick="{{ npcEdit }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.65);border-radius:999px;padding:4px 12px;font-size:0.74rem;">Змінити</button>
+              <button data-id="{{ n.id }}" onClick="{{ npcDel }}" title="Прибрати" style="cursor:pointer;background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:0.85rem;" style-hover="color:#ff4d4d;">✕</button>
             </div>
           </sc-for>
         </div>
@@ -5870,6 +6093,7 @@ class Component extends DCLogic {
       R('lore', 'Довідник', { meta: len('lore') }),
       R('stories', 'Історії', { meta: len('stories') }),
       R('chronicles', 'Хроніки', { meta: len('chronicles') }),
+      R('npcs', 'Технічні НПЦ', { meta: (this.state.tuneNpcs || []).length, sub: 'поза картотекою' }),
       R('pantheon', 'Пантеон', { meta: len('pantheon') }),
       R('map', 'Мапа', { meta: len('map_locations') }),
     ];
@@ -6719,7 +6943,7 @@ class Component extends DCLogic {
       ghost:  { label: 'немає в картотеці', color: 'rgba(255,255,255,0.25)' },
     };
     const out = [];
-    let ghosts = 0;
+    const ghostMap = new Map();
     posts.forEach((p) => {
       const list = splitArcs(p.tag_arc);
       const nameTag = String(p.tag_name || '').trim();
@@ -6736,10 +6960,10 @@ class Component extends DCLogic {
         const keep = list.filter((a) => a !== best.a);
         if (nameTag && !keep.some((a) => arcKey(a) === arcKey(nameTag))) keep.unshift(nameTag);
         patch.tag_name = best.m.c.name;
-        patch.character_id = best.m.c.id;
-        patch.character_name = best.m.c.name;
+        patch.character_id = best.m.c.tech ? null : best.m.c.id;
+        patch.character_name = best.m.c.tech ? null : best.m.c.name;
         patch.tag_arc = keep.join(ARC_SEP) || null;
-        why = 'в арках стояв персонаж «' + best.m.c.name + '»';
+        why = 'в арках стояв ' + (best.m.c.tech ? 'технічний НПЦ' : 'персонаж') + ' «' + best.m.c.name + '»';
       } else if (!cm && nameTag) {
         const known = arcs.get(arcKey(nameTag));
         if (known) {
@@ -6754,9 +6978,14 @@ class Component extends DCLogic {
           patch.tag_arc = keep.join(ARC_SEP) || null;
           why = 'така арка є ще в ' + known.n + ' дописах';
         } else {
-          kind = 'ghost';
-          pick = false;
-          why = 'ні такої анкети, ні такої арки — ручна справа';
+          // Привидів збираємо по імені: двадцять дописів «#Варта» — це одна
+          // ручна справа, а не двадцять рядків.
+          const gk = arcKey(nameTag);
+          const g = ghostMap.get(gk) || { name: nameTag, posts: [], last: '' };
+          g.posts.push({ id: p.id, tag_arc: p.tag_arc });
+          if (String(p.created_at || '') > g.last) g.last = String(p.created_at || '');
+          ghostMap.set(gk, g);
+          return;
         }
       } else if (cm) {
         const same = hits.filter((h) => String(h.m.c.id) === String(cm.c.id));
@@ -6772,14 +7001,13 @@ class Component extends DCLogic {
           patch.tag_arc = list.filter((a) => !other.some((h) => h.a === a)).join(ARC_SEP) || null;
           why = 'в арках — ' + other.map((h) => '«' + h.m.c.name + '»').join(', ');
         }
-        if (!p.character_id) {
+        if (!p.character_id && !cm.c.tech) {
           patch.character_id = cm.c.id;
           patch.character_name = cm.c.name;
           if (!kind) { kind = 'link'; why = 'ім’я впізнане, а допис не підв’язаний до картки'; }
         }
       }
       if (!kind) return;
-      if (kind === 'ghost' && ++ghosts > 60) return;
       // Патч, який нічого не міняє, — не знахідка.
       Object.keys(patch).forEach((k) => {
         const was = p[k] == null ? null : p[k];
@@ -6802,16 +7030,438 @@ class Component extends DCLogic {
         sort: ORDER[kind],
       });
     });
+    ghostMap.forEach((g, gk) => {
+      const n = g.posts.length;
+      out.push({
+        key: 'g:' + gk, id: null, pick: false, patch: null, kind: 'ghost', ...LABEL.ghost,
+        why: 'ні такої анкети, ні такої арки · ' + n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? 'допис' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'дописи' : 'дописів')),
+        before: '#' + g.name, after: '', ghost: g, sort: ORDER.ghost + 1 / (n + 1),
+        when: g.last ? new Date(g.last).toLocaleDateString('uk-UA', { timeZone: 'Europe/Kyiv', day: 'numeric', month: 'short', year: '2-digit' }) : '',
+      });
+    });
     out.sort((a, b) => a.sort - b.sort);
     return out;
+  }
+
+  // ── Тонке налаштування: арки й технічні НПЦ ─────────
+  // tech_npcs — особи поза картотекою (на сайті їх немає, у ревізії й у боті
+  // вони — персонаж допису). arc_rules — «цей тег насправді X» для НОВИХ
+  // дописів (бот); старі правляться одразу через rpc marta_arc_fix.
+  async _tuneLoad() {
+    if (this._tuneLoading) return;
+    this._tuneLoading = true;
+    const get = async (p) => {
+      const r = await fetch(`${SUPA_URL}/${p}`, { headers: this._authH() });
+      return r.ok ? r.json() : null;
+    };
+    try {
+      const [n0, r, u, pc] = await Promise.all([
+        get('tech_npcs?select=id,name,aliases,note,kind,owner_id,image&order=name.asc'),
+        get('arc_rules?select=akey,tag,action,target,updated_at&order=updated_at.desc'),
+        get('site_users?select=id,nick,tg_nick,status&status=eq.approved&order=nick.asc'),
+        get('marta_posts?select=npc_id&npc_id=not.is.null&limit=20000'),
+      ]);
+      // Стара таблиця без нових граф — читаємо хоч імена.
+      const n = n0 || await get('tech_npcs?select=id,name,aliases,note&order=name.asc');
+      if (!n || !r) console.warn('налаштування тегів: немає таблиць — прогнати supabase_post_tune_migration.sql');
+      else if (!n0 || !pc) console.warn('тех. НПЦ: немає граф kind/owner_id/image або marta_posts.npc_id — прогнати supabase_post_tune_migration.sql ще раз');
+      const cnt = {};
+      (pc || []).forEach((p) => { cnt[p.npc_id] = (cnt[p.npc_id] || 0) + 1; });
+      this.setState({ tuneNpcs: n || [], tuneRules: r || [], tuneNoTable: !n || !r, tuneOld: !!n && (!n0 || !pc),
+        tuneUsers: u || [], tuneNpcPosts: cnt });
+    } catch (e) {
+      this.setState({ tuneNpcs: [], tuneRules: [], tuneNoTable: true });
+    } finally { this._tuneLoading = false; }
+  }
+
+  _tuneRoster() {
+    const out = (this.state.data.characters || []).slice();
+    (this.state.tuneNpcs || []).forEach((n) => {
+      out.push({ id: null, name: n.name, alias: '', is_active: true, tech: true });
+      (n.aliases || []).forEach((a) => { if (a) out.push({ id: null, name: n.name, alias: a, is_active: true, tech: true }); });
+    });
+    return out;
+  }
+
+  _tuneArcs(posts, roster) {
+    const m = new Map();
+    posts.forEach((p) => {
+      const who = String(p.character_name || p.tag_name || '').trim();
+      splitArcs(p.tag_arc).forEach((a) => {
+        const k = arcKey(a);
+        const e = m.get(k) || { key: k, spell: new Map(), n: 0, cast: new Map() };
+        e.n++;
+        e.spell.set(a, (e.spell.get(a) || 0) + 1);
+        if (who) e.cast.set(who, (e.cast.get(who) || 0) + 1);
+        m.set(k, e);
+      });
+    });
+    const list = [...m.values()].map((e) => {
+      const all = [...e.spell.entries()].sort((a, b) => b[1] - a[1]).map((x) => x[0]);
+      const hit = postMatch(all[0], roster);
+      return {
+        key: e.key, name: all[0], all, n: e.n,
+        cast: [...e.cast.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map((x) => x[0]),
+        person: hit ? hit.c.name : '', personId: hit && !hit.c.tech ? hit.c.id : null, personTech: !!(hit && hit.c.tech),
+      };
+    });
+    list.forEach((g) => {
+      const o = list.find((h) => h !== g && (h.n > g.n || (h.n === g.n && h.name < g.name)) && nearArc(h.name, g.name));
+      g.near = o ? o.name : '';
+    });
+    list.sort((a, b) => (b.person ? 1 : 0) - (a.person ? 1 : 0) || (b.near ? 1 : 0) - (a.near ? 1 : 0) || b.n - a.n);
+    return list;
+  }
+
+  async _tuneAddNpc(name, aliases, note) {
+    const nm = String(name || '').trim();
+    if (!nm) throw new Error('порожнє імʼя');
+    const has = (this.state.tuneNpcs || []).find((n) => arcKey(n.name) === arcKey(nm));
+    if (has) return has;
+    const rows = await this._insert('tech_npcs', { name: nm, aliases: aliases || [], note: note || null });
+    console.log('тех. НПЦ: додано «' + nm + '»');
+    return rows && rows[0];
+  }
+
+  async _tuneSaveRules(spellings, rule) {
+    const seen = new Set();
+    const rows = [];
+    spellings.forEach((a) => {
+      const k = arcKey(a);
+      if (!k || seen.has(k)) return;
+      seen.add(k);
+      rows.push({ akey: k, tag: a, action: rule.action, target: rule.target || null, updated_at: new Date().toISOString() });
+    });
+    if (!rows.length) return;
+    const r = await fetch(`${SUPA_URL}/arc_rules?on_conflict=akey`, {
+      method: 'POST',
+      headers: { ...this._authHJ(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(rows),
+    });
+    if (!r.ok) console.warn('правила тегів: не збереглися —', await r.text());
+  }
+
+  // v: 'c:<id>' анкета · 't:<імʼя>' тех. НПЦ · 'new' — новий тех. НПЦ з іменем тегу
+  async _tuneWho(v, fallback) {
+    if (!v) return null;
+    if (v.startsWith('c:')) {
+      const c = (this.state.data.characters || []).find((x) => String(x.id) === v.slice(2));
+      return c ? { name: c.name, id: c.id } : null;
+    }
+    if (v.startsWith('t:')) { const n = (this.state.tuneNpcs || []).find((x) => x.name === v.slice(2)); return { name: v.slice(2), id: null, npc: n && n.id }; }
+    if (v === 'new') { const n = await this._tuneAddNpc(fallback); return { name: (n && n.name) || fallback, id: null, npc: n && n.id }; }
+    return null;
+  }
+
+  _tuneWhoOpts() {
+    const chars = (this.state.data.characters || []).filter((c) => !c.is_draft)
+      .slice().sort((a, b) => String(a.name).localeCompare(String(b.name), 'uk'))
+      .map((c) => ({ v: 'c:' + c.id, label: c.name }));
+    const tech = (this.state.tuneNpcs || []).map((n) => ({ v: 't:' + n.name, label: '⚙ ' + n.name + ' — тех. НПЦ' }));
+    return [...tech, ...chars];
+  }
+
+  async _tuneAfter(msg) {
+    this.setState({ tuneBusy: false, tuneOpen: null, tuneVal: '', postsExisting: null });
+    this._toast(msg);
+    localStorage.setItem('aurelion-refresh', Date.now().toString());
+    await this._tuneLoad();
+    await this.revScan();
+  }
+
+  tuneOpenMode = (e) => {
+    const { k, m } = e.currentTarget.dataset;
+    const g = (this.state.tuneArcs || []).find((x) => x.key === k);
+    if (!g) return;
+    if (this.state.tuneOpen === k && this.state.tuneMode === m) { this.setState({ tuneOpen: null }); return; }
+    const val = m === 'rename' ? (g.near || g.name)
+      : m === 'char' ? (g.personId ? 'c:' + g.personId : g.personTech ? 't:' + g.person : '')
+      : '';
+    this.setState({ tuneOpen: k, tuneMode: m, tuneVal: val });
+  };
+
+  tuneApply = async () => {
+    const s = this.state;
+    const g = (s.tuneArcs || []).find((x) => x.key === s.tuneOpen);
+    if (!g || s.tuneBusy) return;
+    const mode = s.tuneMode, v = String(s.tuneVal || '').trim();
+    const remember = s.tuneRemember !== false;
+    let to = null, who = null, whoId = null, rule = null, ask = '';
+    if (mode === 'rename') {
+      if (!v) { this._toast('✗ Порожня назва'); return; }
+      if (g.all.length === 1 && v === g.name) { this._toast('Назва та сама'); return; }
+      to = v; rule = { action: 'rename', target: v };
+      ask = 'Перейменувати «' + g.name + '» на «' + v + '» у ' + g.n + ' дописах?';
+    } else if (mode === 'char') {
+      if (!v) { this._toast('✗ Оберіть, хто це'); return; }
+      ask = '«' + g.name + '» — не арка, а особа. Переставити в ' + g.n + ' дописах?';
+    } else {
+      rule = { action: 'drop', target: null };
+      ask = 'Прибрати тег «' + g.name + '» з ' + g.n + ' дописів? Текст не зміниться.';
+    }
+    if (!window.confirm(ask)) return;
+    this.setState({ tuneBusy: true });
+    try {
+      if (mode === 'char') {
+        const w = await this._tuneWho(v, g.name);
+        if (!w) throw new Error('не знайшла, кого обрано');
+        who = w.name; whoId = w.id; this._lastWho = w;
+        rule = { action: w.id ? 'char' : 'npc', target: w.name };
+      }
+      const n = await this._slRpc('marta_arc_fix', { p_from: g.all, p_to: to, p_who: who, p_who_id: whoId });
+      if (mode === 'char' && this._lastWho && this._lastWho.npc) await this._npcAttach(this._lastWho.npc);
+      if (remember) await this._tuneSaveRules(mode === 'rename' ? g.all.filter((a) => arcKey(a) !== arcKey(to)) : g.all, rule);
+      console.log('арки: «' + g.name + '» —', mode, to || who || '', '· дописів', n);
+      await this._tuneAfter('✓ Виправлено дописів: ' + (n || 0) + (remember ? ' · правило запамʼятала' : ''));
+    } catch (e) {
+      const m = String(e.message || e);
+      this.setState({ tuneBusy: false });
+      this._toast('✗ ' + (/marta_arc_fix|function|tech_npcs/.test(m) ? 'Прогнати supabase_post_tune_migration.sql' : m));
+    }
+  };
+
+  // Привид у ревізії (тег-імʼя, якого немає ні в картотеці, ні в арках).
+  _ghostOf(k) { const r = (this.state.revRows || []).find((x) => x.key === k); return r && r.ghost; }
+  async _ghostPatch(g, make) {
+    let ok = 0;
+    for (const p of g.posts) {
+      const patch = make(p);
+      try {
+        await this._patch('marta_posts', p.id, patch);
+        try { await this._revTracks(p.id, patch); } catch (e) {}
+        ok++;
+      } catch (e) { console.warn('ревізія: №' + p.id, e.message || e); }
+    }
+    return ok;
+  }
+  ghostNpc = async (e) => {
+    const g = this._ghostOf(e.currentTarget.dataset.k);
+    if (!g || this.state.tuneBusy) return;
+    this.setState({ tuneBusy: true });
+    try {
+      const n = await this._tuneAddNpc(g.name);
+      if (n && n.id) await this._npcAttach(n.id);
+      await this._tuneAfter('✓ «' + g.name + '» — технічний НПЦ. У «Персонажах» його не буде.');
+    } catch (err) {
+      this.setState({ tuneBusy: false });
+      this._toast('✗ ' + (/tech_npcs/.test(String(err.message)) ? 'Прогнати supabase_post_tune_migration.sql' : err.message));
+    }
+  };
+  ghostArc = async (e) => {
+    const g = this._ghostOf(e.currentTarget.dataset.k);
+    if (!g || this.state.tuneBusy) return;
+    if (!window.confirm('«' + g.name + '» — це арка? Персонажа в ' + g.posts.length + ' дописах не буде.')) return;
+    this.setState({ tuneBusy: true });
+    const ok = await this._ghostPatch(g, (p) => ({
+      tag_name: '', character_id: null, character_name: null,
+      tag_arc: [g.name, ...splitArcs(p.tag_arc).filter((a) => arcKey(a) !== arcKey(g.name))].join(ARC_SEP),
+    }));
+    await this._tuneAfter('✓ Переставлено дописів: ' + ok);
+  };
+  ghostChar = async (e) => {
+    const k = e.currentTarget.dataset.k, v = e.currentTarget.value;
+    const g = this._ghostOf(k);
+    if (!g || !v || this.state.tuneBusy) return;
+    const w = await this._tuneWho(v, g.name).catch(() => null);
+    if (!w) return;
+    if (!window.confirm('«' + g.name + '» — це «' + w.name + '»? Виправити ' + g.posts.length + ' дописів і запамʼятати для Марти.')) { this.forceUpdate(); return; }
+    this.setState({ tuneBusy: true });
+    const ok = await this._ghostPatch(g, () => ({ tag_name: w.name, character_id: w.id, character_name: w.id ? w.name : null }));
+    if (w.npc) await this._npcAttach(w.npc);
+    if (arcKey(w.name) !== arcKey(g.name)) await this._tuneSaveRules([g.name], { action: w.id ? 'char' : 'npc', target: w.name });
+    await this._tuneAfter('✓ Привʼязано дописів: ' + ok);
+  };
+
+  npcSet = (e) => {
+    const f = e.currentTarget.dataset.f, v = e.currentTarget.value;
+    this.setState((st) => ({ npcForm: { ...(st.npcForm || {}), [f]: v } }));
+  };
+  npcEdit = (e) => {
+    const n = (this.state.tuneNpcs || []).find((x) => String(x.id) === e.currentTarget.dataset.id);
+    if (n) this.setState({ npcForm: { id: n.id, name: n.name, aliases: (n.aliases || []).join(', '), note: n.note || '',
+      kind: n.kind || 'npc', owner_id: n.owner_id || '', image: n.image || '' } });
+  };
+  npcCancel = () => this.setState({ npcForm: null });
+  npcKind = (e) => { const v = e.currentTarget.dataset.v; this.setState((st) => ({ npcForm: { ...(st.npcForm || {}), kind: v } })); };
+  npcPic = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    this.setState({ npcUp: true });
+    try {
+      const url = await this._uploadImage(file);
+      this.setState((st) => ({ npcUp: false, npcForm: { ...(st.npcForm || {}), image: url } }));
+    } catch (err) { this.setState({ npcUp: false }); this._toast('✗ Картинка не завантажилась: ' + String(err.message || err).slice(0, 120)); }
+  };
+  npcPicDrop = () => this.setState((st) => ({ npcForm: { ...(st.npcForm || {}), image: '' } }));
+  // Дописи з тегом-імʼям НПЦ (і тим, що осіли в арках) — до нього.
+  async _npcAttach(id) {
+    try { return await this._slRpc('marta_npc_attach', { p_npc: id }); }
+    catch (e) { console.warn('тех. НПЦ: привʼязка дописів —', e.message || e); return null; }
+  }
+  npcAttach = async (e) => {
+    const n = (this.state.tuneNpcs || []).find((x) => String(x.id) === e.currentTarget.dataset.id);
+    if (!n || this.state.tuneBusy) return;
+    this.setState({ tuneBusy: true });
+    const k = await this._npcAttach(n.id);
+    this.setState({ tuneBusy: false });
+    if (k == null) { this._toast('✗ Прогнати supabase_post_tune_migration.sql'); return; }
+    await this._tuneLoad();
+    this._toast('✓ За «' + n.name + '» дописів: ' + k);
+  };
+  npcSave = async () => {
+    const f = this.state.npcForm || {};
+    const name = String(f.name || '').trim();
+    if (!name || this.state.tuneBusy) { if (!name) this._toast('✗ Потрібне імʼя'); return; }
+    const aliases = String(f.aliases || '').split(',').map((x) => x.trim()).filter(Boolean);
+    const base = { name, aliases, note: String(f.note || '').trim() || null };
+    const full = { ...base, kind: f.kind === 'location' ? 'location' : 'npc', owner_id: f.owner_id || null, image: f.image || null };
+    this.setState({ tuneBusy: true });
+    try {
+      let id = f.id;
+      const put = async (body) => {
+        if (id) await this._patch('tech_npcs', id, body);
+        else { const rows = await this._insert('tech_npcs', body); id = rows && rows[0] && rows[0].id; }
+      };
+      try { await put(full); }
+      catch (err) {
+        if (!/kind|owner_id|image|column/i.test(String(err.message))) throw err;
+        await put(base);
+        this._toast('Збережено без типу, власника й картинки — прогнати міграцію ще раз');
+      }
+      const k = id ? await this._npcAttach(id) : null;
+      this.setState({ npcForm: null });
+      await this._tuneAfter('✓ «' + name + '» збережено' + (k != null ? ' · дописів за ним: ' + k : ''));
+    } catch (err) {
+      this.setState({ tuneBusy: false });
+      this._toast('✗ ' + (/duplicate|unique/i.test(err.message) ? 'Такий уже є' : err.message));
+    }
+  };
+  npcDel = async (e) => {
+    const n = (this.state.tuneNpcs || []).find((x) => String(x.id) === e.currentTarget.dataset.id);
+    if (!n || !window.confirm('Прибрати «' + n.name + '» зі списку? Дописи лишаться, але в ревізії він знову стане «немає в картотеці».')) return;
+    try { await this._remove('tech_npcs', n.id); await this._tuneLoad(); this._toast('✓ Прибрано'); }
+    catch (err) { this._toast('✗ ' + err.message); }
+  };
+  ruleDel = async (e) => {
+    const k = e.currentTarget.dataset.k;
+    const r = await fetch(`${SUPA_URL}/arc_rules?akey=eq.${encodeURIComponent(k)}`, { method: 'DELETE', headers: this._authH() });
+    if (!r.ok) { this._toast('✗ ' + (await r.text()).slice(0, 120)); return; }
+    await this._tuneLoad();
+    this._toast('✓ Правило забуте — старі дописи не змінились');
+  };
+
+  _tuneVals() {
+    const s = this.state;
+    const nn = (n, a, b, c) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? a : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? b : c));
+    const q = arcKey(s.tuneQ || '');
+    const arcs = s.tuneArcs || [];
+    const list = q ? arcs.filter((g) => arcKey(g.all.join(' ') + ' ' + g.cast.join(' ')).includes(q)) : arcs;
+    const opts = this._tuneWhoOpts();
+    const ACT = { rename: 'перейменовувати на', drop: 'прибирати', char: 'персонаж', npc: 'тех. НПЦ' };
+    const npcs = s.tuneNpcs || [];
+    const f = s.npcForm;
+    const users = s.tuneUsers || [];
+    return {
+      tuneNoTable: !!s.tuneNoTable,
+      tuneBusy: !!s.tuneBusy,
+      tuneHasArcs: arcs.length > 0,
+      tuneNoArcs: !arcs.length,
+      tuneArcsHead: arcs.length ? nn(arcs.length, 'арка', 'арки', 'арок') + ' у стрічці'
+        + (arcs.filter((g) => g.person).length ? ' · схожих на особу: ' + arcs.filter((g) => g.person).length : '')
+        + (arcs.filter((g) => g.near).length ? ' · схожих написань: ' + arcs.filter((g) => g.near).length : '') : '',
+      tuneQ: s.tuneQ || '',
+      tuneSetQ: (e) => this.setState({ tuneQ: e.target.value }),
+      tuneAllNames: arcs.map((g) => ({ name: g.name })),
+      tuneArcRows: list.map((g) => {
+        const open = s.tuneOpen === g.key;
+        return {
+          key: g.key, name: g.name, count: nn(g.n, 'допис', 'дописи', 'дописів'),
+          hasSpell: g.all.length > 1, spell: 'ще пишуть: ' + g.all.slice(1).map((x) => '«' + x + '»').join(', '),
+          hasCast: g.cast.length > 0, cast: g.cast.join(', '),
+          hasPerson: !!g.person, personLabel: (g.personTech ? 'схоже на тех. НПЦ «' : 'схоже на персонажа «') + g.person + '»',
+          hasNear: !!g.near, nearLabel: 'схоже на «' + g.near + '»',
+          isOpen: open,
+          isRename: open && s.tuneMode === 'rename', isChar: open && s.tuneMode === 'char', isDrop: open && s.tuneMode === 'drop',
+          dropNote: 'Тег зникне з ' + nn(g.n, 'допису', 'дописів', 'дописів') + '. Текст і персонажі лишаються.',
+          newNpcLabel: '＋ новий технічний НПЦ «' + g.name + '»',
+          bRename: open && s.tuneMode === 'rename' ? 'rgba(100,149,237,0.22)' : 'transparent',
+          bChar: open && s.tuneMode === 'char' ? 'rgba(255,215,0,0.16)' : 'transparent',
+          bDrop: open && s.tuneMode === 'drop' ? 'rgba(255,77,77,0.16)' : 'transparent',
+        };
+      }),
+      tuneOpenMode: this.tuneOpenMode,
+      tuneVal: s.tuneVal || '',
+      tuneSetVal: (e) => this.setState({ tuneVal: e.target.value }),
+      tuneWhoOpts: opts,
+      tuneRemember: s.tuneRemember !== false,
+      tuneRememberMark: s.tuneRemember !== false ? '✓' : '',
+      tuneRememberBg: s.tuneRemember !== false ? '#ffd700' : 'transparent',
+      tuneToggleRemember: () => this.setState((st) => ({ tuneRemember: st.tuneRemember === false })),
+      tuneApply: this.tuneApply,
+      tuneCancel: () => this.setState({ tuneOpen: null }),
+      tuneApplyLabel: s.tuneBusy ? 'Чекайте…' : 'Застосувати',
+
+      ghostNpc: this.ghostNpc, ghostArc: this.ghostArc, ghostChar: this.ghostChar,
+
+      npcHas: npcs.length > 0,
+      npcEmpty: !npcs.length && !f,
+      npcCount: npcs.length ? nn(npcs.length, 'особа', 'особи', 'осіб') : '',
+      goNpcs: () => this.setState({ tab: 'npcs', editing: null, form: {} }),
+      npcKey: (e) => { if (e.key === 'Enter') this.npcSave(); if (e.key === 'Escape') this.npcCancel(); },
+      npcRows: npcs.map((n) => {
+        const u = users.find((x) => String(x.id) === String(n.owner_id || ''));
+        const k = (s.tuneNpcPosts || {})[n.id] || 0;
+        const loc = n.kind === 'location';
+        return {
+          id: String(n.id), name: n.name,
+          hasAliases: !!(n.aliases && n.aliases.length), aliases: 'ще: ' + (n.aliases || []).join(', '),
+          hasNote: !!n.note, note: n.note || '',
+          hasImg: !!n.image, noImg: !n.image, img: n.image || '',
+          letter: loc ? '⌂' : String(n.name || '?').trim().charAt(0).toUpperCase(),
+          kindLabel: loc ? 'локація' : 'НПЦ', kindColor: loc ? '#5fb3a1' : '#ffd700',
+          owner: u ? 'веде ' + (u.nick || '—') : 'нічий',
+          ownerColor: u ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
+          posts: nn(k, 'допис', 'дописи', 'дописів'),
+        };
+      }),
+      npcOld: !!s.tuneOld,
+      npcUserOpts: users.map((u) => ({ v: String(u.id), label: (u.nick || '—') + (u.tg_nick ? ' · ' + u.tg_nick : '') })),
+      npcOwner: (f && f.owner_id) || '',
+      npcIsLoc: !!(f && f.kind === 'location'),
+      npcKindNpcBg: f && f.kind !== 'location' ? 'rgba(255,215,0,0.16)' : 'transparent',
+      npcKindLocBg: f && f.kind === 'location' ? 'rgba(95,179,161,0.18)' : 'transparent',
+      npcKind: this.npcKind,
+      npcHasPic: !!(f && f.image), npcNoPic: !(f && f.image), npcPicUrl: (f && f.image) || '',
+      npcPic: this.npcPic, npcPicDrop: this.npcPicDrop,
+      npcPicLabel: s.npcUp ? 'Завантажую…' : (f && f.image ? 'Замінити' : 'Завантажити картинку'),
+      npcNamePh: f && f.kind === 'location' ? 'Назва, як у тегах (напр. Храм Нокти)' : 'Імʼя, як у тегах (напр. Варта)',
+      npcAttach: this.npcAttach,
+      npcFormOpen: !!f,
+      npcFormClosed: !f,
+      npcFormTitle: f && f.id ? 'Змінити технічного НПЦ' : 'Новий технічний НПЦ',
+      npcName: (f && f.name) || '', npcAliases: (f && f.aliases) || '', npcNote: (f && f.note) || '',
+      npcNew: () => this.setState({ npcForm: { name: '', aliases: '', note: '', kind: 'npc', owner_id: '', image: '' } }),
+      npcSet: this.npcSet, npcSave: this.npcSave, npcCancel: this.npcCancel, npcEdit: this.npcEdit, npcDel: this.npcDel,
+
+      ruleHas: (s.tuneRules || []).length > 0,
+      ruleRows: (s.tuneRules || []).map((r) => ({
+        key: r.akey, tag: '#' + r.tag,
+        act: ACT[r.action] || r.action,
+        hasTarget: !!r.target, target: '«' + (r.target || '') + '»',
+      })),
+      ruleDel: this.ruleDel,
+    };
   }
 
   revScan = async () => {
     if (this.state.revBusy) return;
     this.setState({ revBusy: true, revNote: 'Читаю стрічку…', revRows: null });
     try {
+      await this._tuneLoad();
       const posts = await this._revFetch();
-      const rows = this._revScan(posts, this.state.data.characters || []);
+      const roster = this._tuneRoster();
+      const rows = this._revScan(posts, roster);
+      this.setState({ tuneArcs: this._tuneArcs(posts, roster) });
       const n = (k) => rows.filter((r) => r.kind === k).length;
       const parts = [
         n('swap') ? 'персонаж у арках: ' + n('swap') : '',
@@ -6893,6 +7543,7 @@ class Component extends DCLogic {
         key: r.key, label: r.label, why: r.why, color: r.color,
         before: r.before, after: r.after, hasAfter: !!r.after, when: r.when,
         locked: !r.patch,
+        isGhost: r.kind === 'ghost', newNpcLabel: '＋ новий тех. НПЦ «' + ((r.ghost && r.ghost.name) || '') + '»',
         mark: r.pick ? '✓' : '',
         boxBg: r.pick ? '#ffd700' : 'transparent',
         op: r.patch ? '1' : '0.55',
@@ -6932,6 +7583,7 @@ class Component extends DCLogic {
       postsNewCount: String(newCount) + ' нових' + (fixCount ? ' · доповнити ' + fixCount : ''),
       postsDoImport: this.postsDoImport,
       ...this._revVals(),
+      ...this._tuneVals(),
     };
   }
 
@@ -7846,6 +8498,7 @@ class Component extends DCLogic {
   componentDidUpdate(prevProps, prevState) {
     // На телефоні кожен крок углиб — запис в історії, щоб системне «назад»
     // вело на крок вище, а не геть з адмінки.
+    if (this.state.authed && this.state.tuneNpcs === undefined && !this._tuneLoading) this._tuneLoad();
     if (this.state.wide || this._popping || !prevState) return;
     if (this._depth(this.state) > this._depth(prevState)) {
       try { history.pushState({ adm: Date.now() }, ''); this._pushed++; } catch (e) {}
@@ -8788,6 +9441,8 @@ class Component extends DCLogic {
       showPantheon:   tab === 'pantheon',
       showContacts:   tab === 'contacts',
       showPosts:      tab === 'posts',
+      showNpcs:       tab === 'npcs',
+      ...this._tuneVals(),
       showMap:        tab === 'map',
       showDice:       tab === 'dice',
       showTests:      tab === 'tests',

@@ -455,8 +455,8 @@ class Component extends DCLogic {
       const prof = sr.ok ? (await sr.json())[0] : null;
       const admin = await this._isAdmin();
       if (!admin && (!prof || prof.status !== 'approved')) { this.setState({ phase: 'locked' }); return; }
-      const [chars, posts, pages] = await Promise.all([this._chars(), this._posts(), this._pages()]);
-      const arcs = this._build(posts, chars);
+      const [chars, posts, pages, npcs] = await Promise.all([this._chars(), this._posts(), this._pages(), this._npcs()]);
+      const arcs = this._build(posts, chars, npcs);
       console.log(`арки: ${posts.length} дописів → ${arcs.length} арок, анкет ${chars.length}`);
       this.setState({ phase: 'ok', arcs, admin, pages: pages || {}, noPages: pages == null });
     } catch (e) {
@@ -477,6 +477,13 @@ class Component extends DCLogic {
       console.warn('арки: анкети (' + sel + ') —', await r.text());
     }
     return [];
+  }
+  // Технічні НПЦ (адмінка → Технічні НПЦ): учасник без анкети, але з картинкою.
+  async _npcs() {
+    try {
+      const r = await this._api(`${SUPA_URL}/tech_npcs?select=id,name,aliases,image,kind`);
+      return r.ok ? await r.json() : [];
+    } catch (e) { return []; }
   }
   async _posts() {
     const out = [];
@@ -500,7 +507,12 @@ class Component extends DCLogic {
     } catch (e) { return null; }
   }
 
-  _build(posts, chars) {
+  _build(posts, chars, npcs) {
+    const npcBy = new Map();
+    for (const n of npcs || []) for (const v of [n.name, ...(n.aliases || [])]) {
+      const k = String(v || '').trim().toLowerCase();
+      if (k && !npcBy.has(k)) npcBy.set(k, n);
+    }
     const byId = new Map(chars.map((c) => [String(c.id), c]));
     const byName = new Map();
     for (const c of chars) {
@@ -521,7 +533,9 @@ class Component extends DCLogic {
         || byName.get(String(p.tag_name || '').trim().toLowerCase())
         || byName.get(String(p.character_name || '').trim().toLowerCase()) || null;
       // Без імені й без анкети — допис лічиться, але учасником «—» не стає.
-      const who = (ch && ch.name) || String(p.character_name || '').trim() || String(p.tag_name || '').trim() || '';
+      const npc = ch ? null : npcBy.get(String(p.tag_name || '').trim().toLowerCase()) || null;
+      const who = (ch && ch.name) || (npc && npc.name) || String(p.character_name || '').trim() || String(p.tag_name || '').trim() || '';
+      const pic = (ch && ch.image) || (npc && npc.image) || '';
       const seen = new Set();
       for (const a of splitArcs(p.tag_arc)) {
         const g = spell.get(a);
@@ -532,7 +546,7 @@ class Component extends DCLogic {
         if (!g.last || at >= g.last.at) g.last = { at, id: p.id, who };
         if (!who) continue;
         const ck = ch ? 'c' + ch.id : 'n' + who.toLowerCase();
-        const e = g.cast.get(ck) || { key: ck, name: who, ch, n: 0, last: 0 };
+        const e = g.cast.get(ck) || { key: ck, name: who, ch, npc, pic, n: 0, last: 0 };
         e.n++; if (at > e.last) e.last = at;
         g.cast.set(ck, e);
       }
@@ -620,7 +634,7 @@ class Component extends DCLogic {
     const pg = this._page(g);
     const cover = ed ? ed.cover : (pg && pg.cover) || null;
     const [fx, fy] = ed ? [ed.fx, ed.fy] : focusOf(pg && pg.cover_focus);
-    const urls = g.castList.map((c) => c.ch && c.ch.image).filter(Boolean).slice(0, COMBO_MAX);
+    const urls = g.castList.map((c) => c.pic).filter(Boolean).slice(0, COMBO_MAX);
     return {
       hasCover: !!cover,
       coverUrl: cover ? urlCss(cover) : '',
@@ -652,8 +666,8 @@ class Component extends DCLogic {
         pillInk: g.live ? '#ffd700' : 'rgba(255,255,255,0.6)',
         faces: g.castList.slice(0, 6).map((c) => ({
           name: c.name,
-          letter: c.ch && c.ch.image ? '' : initials(c.name).slice(0, 1),
-          style: c.ch && c.ch.image ? `background-image:url(${urlCss(c.ch.image)});` : '',
+          letter: c.pic ? '' : initials(c.name).slice(0, 1),
+          style: c.pic ? `background-image:url(${urlCss(c.pic)});` : '',
         })),
         hasMoreFaces: k > 6,
         moreFaces: '+' + (k - 6),
@@ -742,9 +756,9 @@ class Component extends DCLogic {
       toLabel: g.live ? 'сьогодні' : fmtDay(g.last.at, true),
       preArc: g.all.join('\u0001'),
       tiles: g.castList.map((c) => ({
-        href: charHref(c), title: c.ch ? 'Анкета: ' + c.name : c.name + ' — анкети немає',
-        hasImg: !!(c.ch && c.ch.image), noImg: !(c.ch && c.ch.image),
-        img: (c.ch && c.ch.image) || '', letter: initials(c.name).slice(0, 1),
+        href: charHref(c), title: c.ch ? 'Анкета: ' + c.name : c.npc ? c.name + (c.npc.kind === 'location' ? ' — локація' : ' — НПЦ') : c.name + ' — анкети немає',
+        hasImg: !!c.pic, noImg: !c.pic,
+        img: c.pic || '', letter: initials(c.name).slice(0, 1),
         name: c.name, count: c.n + ' ' + plural(c.n, POSTS_W),
       })),
       castNav: g.castList.map((c) => ({
@@ -761,11 +775,11 @@ class Component extends DCLogic {
     const seen = new Set();
     const opts = [];
     const add = (url, label) => { if (url && !seen.has(url)) { seen.add(url); opts.push({ url, label, border: ed.cover === url ? '#ffd700' : 'rgba(255,255,255,0.12)' }); } };
-    for (const c of g.castList) if (c.ch) add(c.ch.image, c.name);
+    for (const c of g.castList) if (c.pic) add(c.pic, c.name);
     const names = new Map(g.castList.filter((c) => c.ch).map((c) => [String(c.ch.id), c.name]));
     for (const x of this.state.gal[g.key] || []) add(x.url, (names.get(String(x.character_id)) || '') + (x.caption ? ' · ' + x.caption : ''));
     if (ed.cover) add(ed.cover, 'обрано');
-    const urls = g.castList.map((c) => c.ch && c.ch.image).filter(Boolean).slice(0, COMBO_MAX);
+    const urls = g.castList.map((c) => c.pic).filter(Boolean).slice(0, COMBO_MAX);
     return {
       opts,
       mini: collage(urls, seed(g.key) % 2 === 1),
