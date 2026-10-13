@@ -1407,7 +1407,7 @@ class Component extends DCLogic {
     editId: '', intakeBusy: false, intakeMsg: '', upBusy: false,
     subs: [], gods: [],
     // мої персонажі й правки до них
-    owned: [], edits: [], charId: '',
+    owned: [], edits: [], npcs: [], npcPast: [], charId: '',
     // «Про мене»: stand — те, що порахувала база (місце серед інших),
     // bits — те, що порахували ми з уже прочитаних рядків.
     stand: null, bits: null, statsBusy: false, cardBusy: false, cardMsg: '',
@@ -2726,12 +2726,24 @@ class Component extends DCLogic {
       try { const r = await this._api(`${SUPA_URL}/${q}`); return r.ok ? await r.json() : []; }
       catch (e) { return []; }
     };
-    const [owned, edits] = await Promise.all([
+    // Технічні НПЦ: нинішні (tech_npcs.owner_id) і ті, що вже передано
+    // іншому гравцеві (tech_npc_owners, supabase_npc_owner_migration.sql).
+    const [owned, edits, npcs, npcPast] = await Promise.all([
       get(`characters?owner_id=eq.${uid}&select=*&order=name.asc`),
       get(`char_edits?author_id=eq.${uid}&select=*&order=created_at.desc&limit=30`),
+      get(`tech_npcs?owner_id=eq.${uid}&select=id,name,aliases,kind,image&order=name.asc`),
+      get(`tech_npc_owners?owner_id=eq.${uid}&until=not.is.null&select=npc_id,since,until,tech_npcs(id,name,kind,image,owner_id)&order=until.desc`),
     ]);
+    const nowIds = new Set(npcs.map((n) => String(n.id)));
+    const past = [];
+    npcPast.forEach((r) => {
+      const n = r.tech_npcs;
+      if (!n || nowIds.has(String(n.id)) || past.some((p) => String(p.id) === String(n.id))) return;
+      past.push({ ...n, until: r.until });
+    });
+    console.log('кабінет: тех. НПЦ —', npcs.length, 'за вами,', past.length, 'передано');
     this._ownedDone = true;
-    this.setState({ owned, edits }, () => this._autoOpen());
+    this.setState({ owned, edits, npcs, npcPast: past }, () => this._autoOpen());
   }
 
   // Вхід через «Мій кабінет» відкриває не бланк нової анкети, а те, з чим
@@ -2783,6 +2795,30 @@ class Component extends DCLogic {
         act: 'До теки', strong: false, go: () => this._pickChar(c.id), dim: !!c.is_draft,
       });
     });
+    const dm = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`; };
+    (s.npcs || []).forEach((c) => {
+      const me = { id: null, name: c.name };
+      const hot = rows.some((r) => r.state === 'turn' && isMe(r, me));
+      const arcs = rows.filter((r) => isMe(r, me) && r.state !== 'closed').length;
+      const loc = c.kind === 'location';
+      const al = (c.aliases || []).filter(Boolean).slice(0, 3).join(' · ');
+      items.push({
+        k: 'npc', ord: hot ? 2 : 4, name: c.name || '—', sub: al || (loc ? 'локація без анкети' : 'особа без анкети'), img: c.image || '', hot,
+        pill: loc ? 'Локація · технічна' : 'Технічний НПЦ', pillColor: AZ, pillBorder: 'rgba(100,149,237,0.55)',
+        line: 'solid', border: 'rgba(100,149,237,0.35)',
+        note: '', when: arcs ? `${arcs} ${this._plural(arcs, 'арка', 'арки', 'арок')} · веде адмін` : 'записав за вами адмін',
+        act: '', strong: false, go: null, dim: false,
+      });
+    });
+    (s.npcPast || []).forEach((c) => {
+      items.push({
+        k: 'npcgone', ord: 7, name: c.name || '—', sub: 'ваші дописи за ним лишаються у вашій статистиці', img: c.image || '', hot: false,
+        pill: 'Передано іншому', pillColor: 'rgba(255,255,255,0.55)', pillBorder: 'rgba(255,255,255,0.22)',
+        line: 'dashed', border: 'rgba(255,255,255,0.14)',
+        note: '', when: c.until ? `до ${dm(c.until)}` : '',
+        act: '', strong: false, go: null, dim: true,
+      });
+    });
     subs.forEach((r) => {
       const st = String(r.status || 'pending');
       if (st === 'accepted' && ownNames.indexOf(fold(r.name)) !== -1) return;   // уже лежить текою
@@ -2810,11 +2846,13 @@ class Component extends DCLogic {
       act: (i) => i.k === 'fix' || i.k === 'draft' || i.hot,
       desk: (i) => ['fix', 'pending', 'accepted', 'form'].indexOf(i.k) !== -1,
       live: (i) => i.k === 'live',
+      npc: (i) => i.k === 'npc' || i.k === 'npcgone',
       gone: (i) => i.k === 'rejected' || i.k === 'withdrawn',
     };
     const f = grp[s.shelfF] ? s.shelfF : 'all';
     const n = (g) => items.filter(grp[g]).length;
     const fl = [['all', `Усі · ${items.length}`], ['act', `Чекають на вас · ${n('act')}`], ['desk', `У рецепції · ${n('desk')}`], ['live', `На сайті · ${n('live')}`]];
+    if (n('npc')) fl.push(['npc', `Технічні · ${n('npc')}`]);
     if (n('gone')) fl.push(['gone', `Відхилені · ${n('gone')}`]);
     const shown = f === 'all' ? items : items.filter(grp[f]);
     const onDesk = subs.filter((r) => r.status === 'pending').length;
@@ -2833,7 +2871,7 @@ class Component extends DCLogic {
         ...i, key: `${i.k}·${x}·${i.name}`,
         hasImg: !!i.img, noImg: !i.img, initial: String(i.name || '?').trim().charAt(0).toUpperCase(),
         imgOp: i.dim ? 0.5 : 0.95,
-        imgFilter: i.k === 'draft' || i.k === 'rejected' || i.k === 'withdrawn' ? 'grayscale(1)' : (i.dim ? 'saturate(0.55)' : 'none'),
+        imgFilter: i.k === 'draft' || i.k === 'rejected' || i.k === 'withdrawn' || i.k === 'npcgone' ? 'grayscale(1)' : (i.dim ? 'saturate(0.55)' : 'none'),
         hasNote: !!i.note, hasAct: !!i.act, onGo: i.go || (() => {}),
         actBg: i.strong ? GOLD : 'rgba(255,255,255,0.06)', actBorder: i.strong ? GOLD : 'rgba(255,255,255,0.18)', actColor: i.strong ? '#1a1a1a' : 'rgba(255,255,255,0.82)',
       })),
@@ -3281,7 +3319,7 @@ class Component extends DCLogic {
 
     const postBars = chars.map((c) => ({
       key: String(c.id),
-      name: `${c.name}${c.alias ? ` «${c.alias}»` : ''}`,
+      name: `${c.name}${c.alias ? ` «${c.alias}»` : ''}${c.npc ? (c.now === false ? ' · НПЦ, передано' : (c.npc === 'location' ? ' · локація' : ' · НПЦ')) : ''}`,
       num: `${num(c.posts)} ${this._plural(c.posts || 0, 'допис', 'дописи', 'дописів')}`,
       pct: `${Math.round(((c.posts || 0) / peak) * 100)}%`,
       share: total ? `${Math.round(((c.posts || 0) / total) * 100)}%` : '—',
