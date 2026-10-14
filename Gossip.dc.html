@@ -1186,6 +1186,19 @@ a:hover{color:#fff}
                 </sc-if>
                 <input class="gos-file" type="file" accept="image/*" onChange="{{ onEPortrait }}" style="font-size:0.82rem;color:rgba(255,255,255,0.4);" />
               </div>
+              <sc-if value="{{ eHasPick }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.76rem;color:rgba(255,255,255,0.4);margin:14px 0 8px;">Або оберіть з галереї:</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <sc-for list="{{ ePick }}" as="p" hint-placeholder-count="0">
+                    <button onClick="{{ p.onPick }}" title="{{ p.title }}" style="cursor:pointer;padding:0;width:52px;height:68px;border-radius:6px;overflow:hidden;background:#111;border:2px solid {{ p.border }};box-shadow:{{ p.glow }};transition:all 0.3s ease;">
+                      <img src="{{ p.url }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" />
+                    </button>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ ePortraitChanged }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ eUndoPortrait }}" class="gos-ghost" style="cursor:pointer;margin-top:8px;background:transparent;border:none;padding:0;color:rgba(255,215,0,0.7);font-size:0.74rem;">Повернути поточний портрет</button>
+                </sc-if>
+              </sc-if>
 
               </div>
               <div style="min-width:0;">
@@ -3027,11 +3040,23 @@ class Component extends DCLogic {
     E_KEYS.forEach((k) => { base[k] = String(ch[k] == null ? '' : ch[k]); });
     this.setState({
       tab: 'mine', charId: String(ch.id), eId: String(ch.id), ef: { ...base }, eBase: base,
-      eGal: [], eLinks: [], eLinkQ: '', eLinkKind: 'plain', eNote: '', eMsg: '',
+      eGal: [], eHave: [], eLinks: [], eLinkQ: '', eLinkKind: 'plain', eNote: '', eMsg: '',
       pl: null, plFail: false, pUrl: '', pNote: '', pMsg: '', navAt: '',
     });
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
     this._plLoad(String(ch.id));
+    this._eHaveLoad(String(ch.id));
+  }
+
+  // Уже опубліковані зображення теки — щоб портрет можна було обрати з них.
+  // Делікатне не пропонуємо: портрет на сайті ніде не розмивається.
+  async _eHaveLoad(id) {
+    try {
+      const r = await this._api(`${SUPA_URL}/character_images?character_id=eq.${id}&is_draft=eq.false&select=id,url,caption,is_sensitive&order=sort_order.asc,created_at.asc`);
+      const rows = r.ok ? await r.json() : [];
+      if (String(this.state.eId) !== id) return;
+      this.setState({ eHave: (Array.isArray(rows) ? rows : []).filter((g) => g && g.url && !g.is_sensitive) });
+    } catch (e) { console.warn('галерея для портрета:', e); }
   }
 
   // ── Плейліст персонажа: пишеться одразу (RLS — власник), не через заявку ──
@@ -3875,6 +3900,26 @@ class Component extends DCLogic {
           return { key: val || 'none', value: val, label: String(g.name || g.god || '—') };
         })),
       eImage: ef.image || '', eHasImg: !!ef.image,
+      ...(() => {
+        const seen = new Set();
+        const list = [...(s.eHave || []), ...(s.eGal || [])]
+          .filter((g) => g && g.url && !seen.has(g.url) && seen.add(g.url));
+        return {
+          eHasPick: list.length > 0,
+          ePortraitChanged: String(ef.image || '') !== String((s.eBase || {}).image || ''),
+          eUndoPortrait: () => this._setE('image', (this.state.eBase || {}).image || ''),
+          ePick: list.map((g) => {
+            const on = g.url === ef.image;
+            return {
+              key: g.url, url: g.url,
+              title: on ? 'Це зараз портрет' : (g.caption ? `${g.caption} — зробити портретом` : 'Зробити портретом'),
+              border: on ? '#ffd700' : 'rgba(255,255,255,0.14)',
+              glow: on ? '0 0 12px rgba(255,215,0,0.45)' : 'none',
+              onPick: () => this._setE('image', g.url),
+            };
+          }),
+        };
+      })(),
       onEPortrait: (e) => this._ePortrait(e),
       onEGallery: (e) => this._eGallery(e),
       eHasGal: (s.eGal || []).length > 0,

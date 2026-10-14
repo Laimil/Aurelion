@@ -2761,6 +2761,12 @@ input,textarea,select{font-size:16px}
                             <option value="{{ k.id }}">{{ k.label }}</option>
                           </sc-for>
                         </select>
+                        <sc-if value="{{ g.canPortrait }}" hint-placeholder-val="{{ false }}">
+                          <button type="button" data-id="{{ g.id }}" onClick="{{ cgAsPortrait }}" title="Зробити головним портретом (банер, картка, аватарки). Збережеться кнопкою «Зберегти»" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">★ Портретом</button>
+                        </sc-if>
+                        <sc-if value="{{ g.isPortrait }}" hint-placeholder-val="{{ false }}">
+                          <span style="border:1px solid rgba(255,215,0,0.45);background:rgba(255,215,0,0.16);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;">★ Портрет</span>
+                        </sc-if>
                         <button type="button" data-id="{{ g.id }}" onClick="{{ cgToggleSens }}" title="Делікатне: на сайті розмите, відкривається кліком" style="background:{{ g.sensBg }};border:1px solid {{ g.sensBd }};color:{{ g.sensCol }};border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">{{ g.sensLabel }}</button>
                         <button type="button" data-id="{{ g.id }}" onClick="{{ cgToText }}" title="Поставити в текст на всю ширину колонки — там, де стоїть курсор" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">→ у текст</button>
                         <button type="button" data-id="{{ g.id }}" onClick="{{ cgToLeft }}" title="Поставити врізкою ліворуч — текст обтікає" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:#6495ed;border-radius:5px;padding:4px 9px;font-size:0.72rem;cursor:pointer;">→ врізка</button>
@@ -10100,6 +10106,8 @@ class Component extends DCLogic {
             caption: r.caption || '',
             kind: r.kind || sp.fallback,
             hasAnn: isChar,
+            isPortrait: isChar && !!r.url && r.url === (s.form.image || ''),
+            canPortrait: isChar && !!r.url && !r.is_sensitive && r.url !== (s.form.image || ''),
             thumbBg: `background:url('${r.url}') center/cover no-repeat;`,
             border: r.is_draft ? 'rgba(255,215,0,0.32)' : 'rgba(255,255,255,0.1)',
             isDraft: !!r.is_draft,
@@ -10139,6 +10147,14 @@ class Component extends DCLogic {
             const id = e.currentTarget.dataset.id;
             const row = (this.state.galRows || []).find(r => String(r.id) === id);
             if (row) this._cgPatch(id, { is_sensitive: !row.is_sensitive });
+          },
+          cgAsPortrait: (e) => {
+            const id = e.currentTarget.dataset.id;
+            const row = (this.state.galRows || []).find(r => String(r.id) === id);
+            if (!row || !row.url) return;
+            // Новий портрет — старий кадр банера до нього не пасує, скидаємо.
+            this.setState(st => ({ form: { ...st.form, image: row.url, hero_focus: '', _hfTouched: true } }));
+            this._toast('★ Портрет обрано — натисни «Зберегти»');
           },
           cgPublish: (e) => this._cgPatch(e.currentTarget.dataset.id, { is_draft: false }),
           cgAnnounce: async (e) => {
