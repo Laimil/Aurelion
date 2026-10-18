@@ -28,6 +28,38 @@
   var el = {};
   var tick = null;
 
+  /* ── Гучність ──────────────────────────────────────────────
+     Окремий ключ, а не частина au_player: черга зникає на «✕»,
+     а рівень гучності людина виставила для себе — він мусить лишатися. */
+  var VKEY = 'au_volume';
+  var vol = 70, muted = false;
+  try {
+    var vd = JSON.parse(localStorage.getItem(VKEY) || 'null');
+    if (vd && typeof vd.v === 'number') vol = Math.max(0, Math.min(100, vd.v));
+    if (vd && vd.m) muted = true;
+  } catch (e) {}
+  function saveVol() { try { localStorage.setItem(VKEY, JSON.stringify({ v: vol, m: muted })); } catch (e) {} }
+  function applyVol() {
+    if (yt && ready) {
+      try { yt.setVolume(vol); if (muted || vol === 0) yt.mute(); else yt.unMute(); } catch (e) {}
+    }
+    if (!el.mute) return;
+    var off = muted || vol === 0;
+    // Лінійна іконка (stroke 2, як лупа в пошуку), не емодзі: кольоровий
+    // динамік серед золотих гліфів панелі виглядав би чужим.
+    el.mute.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/>' +
+      (off ? '<path d="m16 9 5 6M21 9l-5 6"/>' : (vol < 40 ? '<path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/>' : '<path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18.5 6.5a7.5 7.5 0 0 1 0 11"/>')) + '</svg>';
+    el.mute.title = off ? 'Увімкнути звук' : 'Вимкнути звук';
+    el.vol.value = String(off ? 0 : vol);
+    el.vol.title = 'Гучність: ' + (off ? 0 : vol) + '%';
+    el.vol.style.background = 'linear-gradient(90deg,#ffd700 ' + (off ? 0 : vol) + '%,rgba(255,255,255,0.14) ' + (off ? 0 : vol) + '%)';
+  }
+  function setVol(v) {
+    vol = Math.max(0, Math.min(100, Math.round(v)));
+    muted = vol === 0;
+    applyVol(); saveVol();
+  }
+
   /* ── Пам'ять ───────────────────────────────────────────────
      Вкладку закрили посеред пісні — після повернення панель стоїть на
      тому самому треку й тій самій секунді, але МОВЧИТЬ: музика, що сама
@@ -160,21 +192,56 @@
       letterSpacing: '0.08em', minWidth: '38px', textAlign: 'center',
     }, '');
     var shut = btn('✕', 'Зупинити й закрити');
+
+    var volBox = mk('div', { display: 'flex', alignItems: 'center', gap: '6px', flex: 'none', marginLeft: '4px' });
+    var mute = btn('', 'Вимкнути звук');
+    var vr = document.createElement('input');
+    vr.type = 'range'; vr.min = '0'; vr.max = '100'; vr.step = '1';
+    vr.setAttribute('aria-label', 'Гучність');
+    css(vr, {
+      width: '92px', height: '4px', cursor: 'pointer', accentColor: '#ffd700',
+      appearance: 'none', webkitAppearance: 'none', borderRadius: '999px', outline: 'none', margin: '0',
+    });
+    vr.oninput = function () { setVol(+vr.value); };
+    // Колесо над повзунком — крок по 5%, без прицілювання мишкою.
+    vr.addEventListener('wheel', function (e) { e.preventDefault(); setVol((muted ? 0 : vol) + (e.deltaY < 0 ? 5 : -5)); }, { passive: false });
+    mute.onclick = function () {
+      if (muted || vol === 0) { muted = false; if (vol === 0) vol = 50; }
+      else muted = true;
+      applyVol(); saveVol();
+    };
+    volBox.appendChild(mute); volBox.appendChild(vr);
+    // На телефоні гучність — це кнопки на корпусі (а iOS setVolume ігнорує),
+    // тому повзунок ховаємо й лишаємо тільки «без звуку».
+    var narrow = window.matchMedia ? window.matchMedia('(max-width: 620px)') : null;
+    var fit = function () { vr.style.display = narrow && narrow.matches ? 'none' : ''; };
+    fit(); if (narrow && narrow.addEventListener) narrow.addEventListener('change', fit);
+
+    if (!document.querySelector('style[data-au-vol]')) {
+      var st = document.createElement('style');
+      st.setAttribute('data-au-vol', '1');
+      st.textContent = 'input[aria-label="Гучність"]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#ffd700;border:none;box-shadow:0 0 8px rgba(255,215,0,0.55)}input[aria-label="Гучність"]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#ffd700;border:none;box-shadow:0 0 8px rgba(255,215,0,0.55)}';
+      document.head.appendChild(st);
+    }
     prev.onclick = function () { step(-1); };
     next.onclick = function () { step(1); };
     play.onclick = toggle;
     shut.onclick = stop;
-    [prev, play, next, count, shut].forEach(function (n) { ctl.appendChild(n); });
+    [prev, play, next, count, volBox, shut].forEach(function (n) { ctl.appendChild(n); });
 
     row.appendChild(frame); row.appendChild(mid); row.appendChild(ctl);
     bar.appendChild(line); bar.appendChild(row);
     document.body.appendChild(bar);
 
-    el = { bar: bar, fill: fill, host: host, title: title, sub: sub, play: play, count: count, prev: prev, next: next, frame: frame };
+    el = { bar: bar, fill: fill, host: host, title: title, sub: sub, play: play, count: count, prev: prev, next: next, frame: frame, mute: mute, vol: vr };
+    applyVol();
   }
+
+  var shown = false;
 
   function show(on) {
     if (!el.bar) return;
+    shown = !!on;
     el.bar.style.transform = on ? 'translateY(0)' : 'translateY(110%)';
     // Панель перекриває низ сторінки — відсуваємо вміст, а не накриваємо його.
     document.body.style.paddingBottom = on ? '96px' : '';
@@ -232,6 +299,7 @@
         events: {
           onReady: function () {
             ready = true;
+            applyVol();
             if (pending) { var p = pending; pending = null; swap(p.vid, p.seek, p.auto); }
             else if (auto) { try { yt.playVideo(); } catch (e) {} }
             named();
@@ -323,10 +391,34 @@
       start(list, i < 0 ? 0 : i, 0, true);
     },
     playQueue: function (list, i) { start(list, i || 0, 0, true); },
+    // Приготувати чергу й показати панель, але НЕ грати: звук без
+    // прямого «грай» — це засідка, а не сервіс.
+    cueQueue: function (list, i) { start(list, i || 0, 0, false); },
     current: function () { var t = Q[at]; return t ? { vid: t.vid, playing: playing } : null; },
     toggle: toggle,
     stop: stop,
+    volume: function (v) { if (typeof v === 'number') setVol(v); return muted ? 0 : vol; },
     onChange: function (fn) { if (typeof fn === 'function') subs.push(fn); },
+    /* ── Органи керування: висунути / прибрати ──────────────
+       Ховаємо лише панель, музику не спиняємо (для цього є stop):
+       iframe лишається в дереві, просто за краєм вікна.
+       Черги немає — пробуємо памʼять; немає й там — вертаємо false,
+       і сторінка сама вирішує, куди вести. */
+    panelOpen: function () { return shown; },
+    // Висунути панель, якщо в ній уже є що крутити (або було в пам'яті).
+    open: function () {
+      if (!Q.length) return window.AuPlayer.restore();
+      if (!el.bar) return false;
+      show(true);
+      return true;
+    },
+    togglePanel: function () {
+      // \u041f\u043e\u0440\u043e\u0436\u043d\u044f \u0447\u0435\u0440\u0433\u0430: restore() \u0441\u0430\u043c \u0432\u0438\u0441\u0443\u0432\u0430\u0454 \u043f\u0430\u043d\u0435\u043b\u044c \u2014 \u043f\u0435\u0440\u0435\u043a\u043b\u044e\u0447\u0430\u0442\u0438 \u0457\u0457 \u043f\u043e\u0442\u0456\u043c \u043d\u0435 \u0442\u0440\u0435\u0431\u0430.
+      if (!Q.length) return window.AuPlayer.restore();
+      if (!el.bar) return false;
+      show(!shown);
+      return true;
+    },
     // Панель повертається з пам'яті на паузі — жодного звуку без кліку.
     restore: function () {
       var d = load();
