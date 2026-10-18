@@ -53,7 +53,7 @@
           </sc-for>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button onClick="{{ onPet }}" style="cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-size:0.88rem;font-weight:700;background:#ffd700;color:#1a1a1a;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.45);transform:scale(1.04);">Погладити</button>
+          <button onClick="{{ onPet }}" style="cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-size:0.88rem;font-weight:700;background:#ffd700;color:#1a1a1a;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.45);transform:scale(1.04);">{{ petLabel }}</button>
           <button onClick="{{ onScout }}" disabled="{{ scoutOff }}" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-size:0.88rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:{{ scoutColor }};transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.15);">{{ scoutLabel }}</button>
           <button onClick="{{ onEdit }}" style="cursor:pointer;border-radius:999px;padding:10px 18px;font-size:0.84rem;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);transition:all 0.3s ease;" style-hover="color:#fff;">Змінити вигляд</button>
         </div>
@@ -299,6 +299,7 @@ class Component extends DCLogic {
     let note = '';
     if (d && d.error === 'tired') note = `Сьогодні вже ходив. Наступна розвідка — після ${hm(d.next)}.`;
     else if (d && d.error === 'away') note = 'Він і так на розвідці.';
+    else if (d && d.error === 'egg') note = 'Яйце на розвідку не ходить.';
     else if (d && d.error) note = 'Не вийшло. Спробуйте ще раз.';
     this.setState({ busy: false, note });
     if (!note) { this._bump(); this._load(true); }
@@ -401,9 +402,10 @@ class Component extends DCLogic {
       scoutBack: back, scoutFind: find,
       weekHead: wk.length ? `Цього тижня зʼїв · ${posts(d.week_total || 0)}` : 'Цього тижня дописів не було',
       week: wk.slice(0, 6).map(w => ({ name: w.name, n: posts(w.n) })),
-      scoutOff: away || tired || s.busy,
-      scoutLabel: away ? 'На розвідці' : tired ? 'Розвідка — завтра' : 'Послати на розвідку',
-      scoutColor: away || tired ? 'rgba(255,255,255,0.4)' : '#ffffff',
+      scoutOff: stage === 1 || away || tired || s.busy,
+      scoutLabel: stage === 1 ? 'Розвідка — коли вилупиться' : away ? 'На розвідці' : tired ? 'Розвідка — завтра' : 'Послати на розвідку',
+      scoutColor: stage === 1 || away || tired ? 'rgba(255,255,255,0.4)' : '#ffffff',
+      petLabel: stage === 1 ? 'Погріти' : 'Погладити',
       onPet: () => this._pet(),
       onScout: () => this._scout(),
       onEdit: () => this.setState({ edit: true, mode: hidden ? 'egg' : 'build', draft: { ...look }, name: fam.name, note: '' }),
