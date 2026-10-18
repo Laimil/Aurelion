@@ -152,6 +152,9 @@ a:hover{color:#fff}
             <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ pickStats }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navStatsBg }};color:{{ navStatsColor }};">Статистика</button>
             </sc-if>
+            <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickFam }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navFamBg }};color:{{ navFamColor }};">Фамільяр</button>
+            </sc-if>
             <sc-if value="{{ turnsShow }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ pickTurns }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navTurnsBg }};color:{{ navTurnsColor }};">
                 <span style="flex:1;min-width:0;">✦ Черга в арках</span>
@@ -790,6 +793,17 @@ a:hover{color:#fff}
             </sc-if>
           </div>
 
+        </div>
+      </sc-if>
+
+      <!-- ═════ ВКЛАДКА: ФАМІЛЬЯР ═════ -->
+      <sc-if value="{{ showFam }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:22px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin:0;">✦ Фамільяр</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.6);margin:0;text-wrap:pretty;">Живе у вашому кабінеті й їсть дописи всіх ваших персонажів. Не голодує і не вмирає, лише засинає, коли ви довго мовчите.</p>
+          </div>
+          <dc-import name="Familiar" variant="card" hint-size="100%,340px"></dc-import>
         </div>
       </sc-if>
 
@@ -4420,7 +4434,7 @@ class Component extends DCLogic {
       // взагалі, тому й смужки вкладок немає.
       showTabs: !this.props.onlyGossip,
       lockedOnly: !!this.props.onlyGossip && s.phase === 'ok' && status === 'pending',
-      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'shelf'].includes(s.tab),
+      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'fam', 'turns', 'arcfile', 'shelf'].includes(s.tab),
       pickDl: () => this._pickTab('arcfile'),
       navDlBg: s.tab === 'arcfile' ? 'rgba(255,215,0,0.12)' : 'transparent',
       navDlColor: s.tab === 'arcfile' ? '#ffd700' : 'rgba(255,255,255,0.75)',
@@ -4452,6 +4466,10 @@ class Component extends DCLogic {
       pickStats: () => { this._pickTab('stats'); this._loadStats(); },
       navStatsBg: s.tab === 'stats' ? 'rgba(255,215,0,0.12)' : 'transparent',
       navStatsColor: s.tab === 'stats' ? '#ffd700' : 'rgba(255,255,255,0.75)',
+      showFam: !this.props.onlyGossip && s.tab === 'fam' && status === 'approved',
+      pickFam: () => this._pickTab('fam'),
+      navFamBg: s.tab === 'fam' ? 'rgba(255,215,0,0.12)' : 'transparent',
+      navFamColor: s.tab === 'fam' ? '#ffd700' : 'rgba(255,255,255,0.75)',
       ...this._statVals(),
       ...this._mineVals(),
       ...this._shelfVals(),

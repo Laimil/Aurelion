@@ -2435,6 +2435,59 @@ input,textarea,select{font-size:16px}
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🎭 Персонажі</h2>
       <button data-section="characters" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Новий персонаж</button>
     </div>
+    <!-- Довідки для Марти -->
+    <div data-hide-split style="background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:220px;">
+          <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#ffd700;letter-spacing:0.05em;">✦ Довідки для Марти</p>
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.32);margin-top:4px;line-height:1.5;">Вивантаж картотеку → віддай Клодові з промптом «Марта - Довідки - Промпт для Клода.md» → встав його JSON сюди. Марта говоритиме про персонажів лише з цих довідок.</p>
+        </div>
+        <button onClick="{{ mbToggle }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:6px 14px;font-size:0.78rem;cursor:pointer;flex-shrink:0;" style-hover="background:rgba(255,215,0,0.18);">{{ mbToggleLabel }}</button>
+      </div>
+      <sc-if value="{{ mbOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:12px;">
+          <sc-if value="{{ mbNoTable }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.78rem;color:rgba(255,77,77,0.85);line-height:1.5;">Таблиці ще немає — прогнати <code>supabase_marta_briefs_migration.sql</code> у Supabase SQL Editor. Вивантажувати можна й без неї.</p>
+          </sc-if>
+          <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);line-height:1.5;">{{ mbStatus }}</p>
+          <sc-if value="{{ mbHasStale }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.74rem;color:#ff9f4d;line-height:1.5;">Анкету правили після довідки: {{ mbStale }}</p>
+          </sc-if>
+          <sc-if value="{{ mbHasMissing }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.42);line-height:1.5;">Без довідки: {{ mbMissing }}</p>
+          </sc-if>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onClick="{{ mbExportAll }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:7px;padding:8px 16px;font-size:0.8rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.22);">{{ mbExportLabel }}</button>
+            <button onClick="{{ mbExportStale }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.75);border-radius:7px;padding:8px 16px;font-size:0.8rem;cursor:pointer;" style-hover="background:rgba(255,255,255,0.1);">⬇ Лише застарілі й нові</button>
+          </div>
+          <textarea value="{{ mbPaste }}" onChange="{{ mbSetPaste }}" placeholder="Встав відповідь Клода — один чи кілька блоків JSON поспіль, обгортки з трьох лапок можна лишити…" style="min-height:120px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.78rem;line-height:1.55;"></textarea>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onClick="{{ mbParse }}" style="background:rgba(100,149,237,0.12);border:1px solid rgba(100,149,237,0.3);color:#6495ed;border-radius:7px;padding:8px 18px;font-size:0.82rem;cursor:pointer;" style-hover="background:rgba(100,149,237,0.22);">Розібрати</button>
+          </div>
+          <sc-if value="{{ mbHasErr }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.78rem;color:rgba(255,77,77,0.85);line-height:1.5;">✕ {{ mbErr }}</p>
+          </sc-if>
+          <sc-if value="{{ mbHasPreview }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid rgba(255,255,255,0.09);padding-top:12px;display:flex;flex-direction:column;gap:8px;">
+              <p style="font-size:0.76rem;color:rgba(255,255,255,0.5);line-height:1.5;">{{ mbSummary }}</p>
+              <div style="display:flex;flex-direction:column;gap:4px;max-height:320px;overflow-y:auto;">
+                <sc-for list="{{ mbRows }}" as="r" hint-placeholder-count="0">
+                  <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:7px 10px;background:rgba(255,255,255,0.03);border-radius:6px;">
+                    <span style="font-size:0.8rem;color:#fff;">{{ r.name }}</span>
+                    <span style="font-size:0.68rem;letter-spacing:0.06em;color:{{ r.color }};">{{ r.state }}</span>
+                    <span style="grid-column:1 / -1;font-size:0.72rem;color:rgba(255,255,255,0.4);line-height:1.45;">{{ r.note }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onClick="{{ mbSave }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:7px;padding:8px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;">{{ mbSaveLabel }}</button>
+                <button onClick="{{ mbReset }}" style="background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.6);border-radius:7px;padding:8px 16px;font-size:0.8rem;cursor:pointer;">Скинути</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
     <!-- Імпорт анкети з Telegraph -->
     <div data-hide-split style="background:rgba(100,149,237,0.055);border:1px solid rgba(100,149,237,0.2);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
@@ -5602,6 +5655,268 @@ class Component extends DCLogic {
   // Книга — seal_book (читають усі, правлять адміни), видача й зняття —
   // seal_grant/seal_revoke (supabase_seals_book_migration.sql). Оголошує їх
   // ранковий прогін telegram-report?seals=1, не адмінка.
+  // ── Довідки для Марти (marta_briefs) ─────────────────────────
+  // Картотека → JSON → Клод у чаті стискає в довідки → назад сюди.
+  // Відбиток (hash) рахується з тих самих граф, що йдуть у вивантаження:
+  // правка анкети після довідки = «застаріла».
+  _mbClean(s) {
+    return String(s == null ? '' : s)
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  }
+  _mbHash(s) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return (h >>> 0).toString(36);
+  }
+  async _mbSnapshot() {
+    const d = this.state.data || {};
+    const all = (d.characters || []).filter(c => c.is_draft !== true);
+    const byId = {}; all.forEach(c => { byId[String(c.id)] = c; });
+    const [links, mlinks] = await Promise.all([
+      this._get('character_links?select=from_id,to_id,kind,label'),
+      this._get('material_links?select=from_type,from_id,to_type,to_id,label'),
+    ]);
+    const KIND = { family: 'родина', love: 'романтика', feud: 'ворожнеча', ally: 'союз', duty: 'служба', plain: 'знайомі' };
+    const ties = {}; const typed = new Set();
+    const addTie = (a, b, kind, label) => {
+      if (!byId[a] || !byId[b] || a === b) return;
+      (ties[a] = ties[a] || {})[b] = { id: b, name: byId[b].name, kind: KIND[kind] || 'знайомі', label: label || '' };
+    };
+    (Array.isArray(links) ? links : []).forEach(l => {
+      const a = String(l.from_id), b = String(l.to_id);
+      typed.add(a + '|' + b); typed.add(b + '|' + a);
+      addTie(a, b, l.kind, l.label); addTie(b, a, l.kind, l.label);
+    });
+    all.forEach(c => {
+      String(c.connections || '').split(',').map(x => x.trim()).filter(Boolean).forEach(o => {
+        const a = String(c.id);
+        if (typed.has(a + '|' + o) || (ties[a] && ties[a][o])) return;
+        addTie(a, o, 'plain', ''); addTie(o, a, 'plain', '');
+      });
+    });
+    const TITLE = { lore: 'лор', stories: 'сюжет', chronicles: 'хроніка' };
+    const titleOf = (t, id) => { const r = (d[t] || []).find(x => String(x.id) === String(id)); return r ? (r.title || r.name || '') : ''; };
+    const mats = {};
+    (Array.isArray(mlinks) ? mlinks : []).forEach(m => {
+      [[m.from_type, m.from_id, m.to_type, m.to_id], [m.to_type, m.to_id, m.from_type, m.from_id]].forEach(([ct, cid, ot, oid]) => {
+        if (ct !== 'characters' || !byId[String(cid)] || !TITLE[ot]) return;
+        const t = titleOf(ot, oid); if (!t) return;
+        const list = mats[String(cid)] = mats[String(cid)] || [];
+        if (!list.some(x => x.title === t)) list.push({ kind: TITLE[ot], title: t, label: m.label || '' });
+      });
+    });
+    const marta = all.find(c => /^марта(\s|$)/i.test(String(c.name || '').trim()));
+    const martaKnows = new Set(marta ? Object.keys(ties[String(marta.id)] || {}) : []);
+    const TYPE = { player: 'гравецький', npc: 'НПЦ' };
+    const t = v => String(v == null ? '' : v).trim();
+    const list = all.map(c => {
+      const id = String(c.id);
+      const tl = Object.values(ties[id] || {}).sort((x, y) => x.id < y.id ? -1 : 1);
+      const card = {
+        id, name: t(c.name), alias: t(c.alias), type: TYPE[c.character_type] || 'гравецький',
+        role: t(c.role), age: t(c.age), height: t(c.height), weight: t(c.weight), deity: t(c.deity),
+        dead: c.is_dead === true ? (t(c.died_at) || 'так') : '', active: c.is_active !== false,
+        card_caption: t(c.card_caption), bio: this._mbClean(c.bio), anketa: this._mbClean(c.content),
+        ties: tl.map(x => ({ id: x.id, name: x.name, kind: x.kind, label: x.label })),
+      };
+      const hash = this._mbHash(JSON.stringify([card.name, card.alias, card.role, card.age, card.height, card.weight, card.deity, card.dead, card.bio, card.anketa, card.ties]));
+      const out = { ...card, materials: mats[id] || [], hash };
+      if (marta && id !== String(marta.id)) out.marta_knows = martaKnows.has(id);
+      if (marta && id === String(marta.id)) out.is_marta = true;
+      Object.keys(out).forEach(k => { if (out[k] === '' || (Array.isArray(out[k]) && !out[k].length)) delete out[k]; });
+      return out;
+    });
+    const hashes = {}; list.forEach(x => { hashes[x.id] = x.hash; });
+    return {
+      doc: {
+        format: 'aurelion-kartoteka/1', exported_at: new Date().toISOString(),
+        marta_id: marta ? String(marta.id) : null,
+        pantheon: (d.pantheon || []).map(g => ({ name: t(g.name), god: t(g.god), domain: t(g.domain) })),
+        characters: list,
+      },
+      hashes,
+    };
+  }
+  async _mbLoad() {
+    this.setState({ mbBusy: true });
+    let rows = [], noTable = false;
+    try {
+      const r = await fetch(`${SUPA_URL}/marta_briefs?select=character_id,name,src_hash,updated_at`, { headers: this._authH() });
+      if (r.ok) rows = await r.json();
+      else { noTable = r.status === 404 || /marta_briefs/.test(await r.text()); }
+    } catch (e) { console.warn('довідки:', e); }
+    const snap = await this._mbSnapshot();
+    const saved = {}; (rows || []).forEach(b => { saved[String(b.character_id)] = b; });
+    this.setState({ mbBusy: false, mbNoTable: noTable, mbSaved: saved, mbHashes: snap.hashes });
+    console.log('довідки: збережено ' + Object.keys(saved).length + ', анкет ' + Object.keys(snap.hashes).length);
+  }
+  async _mbExport(onlyStale) {
+    if (this.state.mbBusy) return;
+    this.setState({ mbBusy: true });
+    try {
+      const snap = await this._mbSnapshot();
+      const saved = this.state.mbSaved || {};
+      const doc = snap.doc;
+      if (onlyStale) {
+        const need = doc.characters.filter(c => !saved[c.id] || saved[c.id].src_hash !== c.hash);
+        if (!need.length) { this.setState({ mbBusy: false }); this._toast('✓ Усі довідки свіжі — вивантажувати нічого'); return; }
+        // Імена решти лишаються — Клодові треба знати, хто такі ті, з ким повʼязані.
+        doc.others = doc.characters.filter(c => need.indexOf(c) === -1).map(c => ({ id: c.id, name: c.name, alias: c.alias || undefined }));
+        doc.characters = need;
+      }
+      const json = JSON.stringify(doc, null, 1);
+      const day = new Date().toISOString().slice(0, 10);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+      a.download = `aurelion-kartoteka-${onlyStale ? 'zminy-' : ''}${day}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      console.log('довідки: вивантажено ' + doc.characters.length + ' анкет, ' + Math.round(json.length / 1024) + ' КБ');
+      this.setState({ mbBusy: false, mbHashes: snap.hashes });
+      this._toast('✓ Вивантажено анкет: ' + doc.characters.length);
+    } catch (e) {
+      this.setState({ mbBusy: false });
+      this._toast('✗ ' + (e.message || e));
+    }
+  }
+  _mbParseText(raw) {
+    const t = String(raw || '').trim();
+    if (!t) throw new Error('Порожньо — встав відповідь Клода.');
+    const fences = [...t.matchAll(/```(?:json)?\s*([\s\S]*?)```/g)].map(m => m[1].trim()).filter(Boolean);
+    const parts = fences.length ? fences : [t];
+    const out = [];
+    const take = (v) => {
+      if (Array.isArray(v)) v.forEach(take);
+      else if (v && typeof v === 'object') {
+        if (Array.isArray(v.briefs)) v.briefs.forEach(take);
+        else if (v.id || v.name) out.push(v);
+      }
+    };
+    parts.forEach((p, i) => {
+      let v;
+      try { v = JSON.parse(p); }
+      catch (e) {
+        try { v = JSON.parse(p.replace(/\]\s*,?\s*\[/g, ',')); }
+        catch (e2) {
+          try { v = JSON.parse('[' + p.replace(/\}\s*,?\s*\{\s*"format"/g, '},{"format"') + ']'); }
+          catch (e3) { throw new Error('Блок ' + (i + 1) + ' не розбирається як JSON: ' + e.message); }
+        }
+      }
+      take(v);
+    });
+    return out;
+  }
+  _mbParse() {
+    const s = this.state;
+    const chars = ((s.data || {}).characters || []);
+    const fold = (v) => String(v || '').toLowerCase().replace(/ʼ|’|'/g, '').replace(/\s+/g, ' ').trim();
+    let items;
+    try { items = this._mbParseText(s.mbPaste); }
+    catch (e) { this.setState({ mbErr: e.message, mbPreview: null }); return; }
+    if (!items.length) { this.setState({ mbErr: 'Жодної довідки не знайдено — чи це відповідь за промптом?', mbPreview: null }); return; }
+    const hashes = s.mbHashes || {}, saved = s.mbSaved || {};
+    const seen = {};
+    const prev = items.map(b => {
+      const ch = chars.find(c => String(c.id) === String(b.id)) || chars.find(c => fold(c.name) === fold(b.name));
+      const brief = String(b.brief || '').trim();
+      const name = (ch && ch.name) || b.name || '—';
+      if (!ch) return { ok: false, name, state: 'НЕВІДОМИЙ', color: '#ff4d4d', note: 'Немає такого id чи імені в картотеці — пропущено.' };
+      if (brief.length < 60) return { ok: false, name, state: 'ПОРОЖНЯ', color: '#ff4d4d', note: 'Немає тексту довідки (графа brief) — пропущено.' };
+      const id = String(ch.id);
+      const notes = [];
+      if (seen[id]) notes.push('дубль у вставці — береться останній');
+      seen[id] = true;
+      if (brief.length > 1600) notes.push('довга: ' + brief.length + ' симв. (ціль ≤1200)');
+      if (b.hash && hashes[id] && b.hash !== hashes[id]) notes.push('писано по старій анкеті — лишиться «застарілою»');
+      if (!b.hash) notes.push('без відбитка — лишиться «застарілою»');
+      const ties = Array.isArray(b.ties) ? b.ties.filter(x => x && (x.name || x.id)) : [];
+      const isNew = !saved[id];
+      return {
+        ok: true, id, name, state: isNew ? 'НОВА' : 'ОНОВЛЕННЯ', color: isNew ? '#5cd68a' : '#6495ed',
+        note: (String(b.summary || '').trim() || brief.slice(0, 120) + '…') + (notes.length ? ' · ⚠ ' + notes.join(' · ') : ''),
+        row: {
+          character_id: id, name: ch.name, src_hash: b.hash || null,
+          summary: String(b.summary || '').trim() || null, brief,
+          forms: Array.isArray(b.forms) ? b.forms.map(String).filter(Boolean) : [],
+          ties, marta_view: String(b.marta || '').trim() || null,
+          data: b, updated_at: new Date().toISOString(),
+        },
+      };
+    });
+    const last = {}; prev.forEach((p, i) => { if (p.ok) last[p.id] = i; });
+    const rows = prev.filter((p, i) => !p.ok || last[p.id] === i);
+    this.setState({ mbErr: '', mbPreview: rows });
+  }
+  async _mbSave() {
+    const rows = (this.state.mbPreview || []).filter(p => p.ok).map(p => p.row);
+    if (!rows.length || this.state.mbBusy) return;
+    this.setState({ mbBusy: true });
+    try {
+      const r = await fetch(`${SUPA_URL}/marta_briefs?on_conflict=character_id`, {
+        method: 'POST',
+        headers: { ...this._authHJ(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(rows),
+      });
+      if (!r.ok) {
+        const txt = await r.text(); let msg = txt;
+        try { const j = JSON.parse(txt); msg = j.message || j.hint || txt; } catch (e) {}
+        if (/marta_briefs/.test(msg) && /exist|schema cache|find/i.test(msg)) msg = 'Немає таблиці — проженіть supabase_marta_briefs_migration.sql';
+        throw new Error(msg);
+      }
+      this.setState({ mbBusy: false, mbPreview: null, mbPaste: '' });
+      this._toast('✓ Довідок збережено: ' + rows.length);
+      this._mbLoad();
+    } catch (e) {
+      this.setState({ mbBusy: false });
+      this._toast('✗ ' + (e.message || e));
+    }
+  }
+  _mbVals() {
+    const s = this.state;
+    const open = !!s.mbOpen;
+    const base = {
+      mbOpen: open, mbToggleLabel: open ? 'Згорнути' : 'Відкрити',
+      mbToggle: () => { const o = !this.state.mbOpen; this.setState({ mbOpen: o }); if (o) this._mbLoad(); },
+    };
+    if (!open) return base;
+    const chars = ((s.data || {}).characters || []).filter(c => c.is_draft !== true);
+    const hashes = s.mbHashes || {}, saved = s.mbSaved || {};
+    const stale = [], missing = [];
+    chars.forEach(c => {
+      const id = String(c.id), b = saved[id];
+      if (!b) missing.push(c.name);
+      else if (hashes[id] && b.src_hash !== hashes[id]) stale.push(c.name);
+    });
+    const fresh = chars.length - stale.length - missing.length;
+    const prev = s.mbPreview || [];
+    const good = prev.filter(p => p.ok).length, bad = prev.length - good;
+    return {
+      ...base,
+      mbNoTable: !!s.mbNoTable,
+      mbStatus: s.mbHashes
+        ? `Анкет ${chars.length} · свіжих довідок ${fresh} · застарілих ${stale.length} · без довідки ${missing.length}`
+        : 'Рахую…',
+      mbHasStale: stale.length > 0, mbStale: stale.join(', '),
+      mbHasMissing: !!s.mbHashes && missing.length > 0 && missing.length < chars.length, mbMissing: missing.join(', '),
+      mbExportLabel: s.mbBusy ? 'Збираю…' : '⬇ Вивантажити всю картотеку',
+      mbExportAll: () => this._mbExport(false),
+      mbExportStale: () => this._mbExport(true),
+      mbPaste: s.mbPaste || '',
+      mbSetPaste: (e) => this.setState({ mbPaste: e.target.value }),
+      mbParse: () => this._mbParse(),
+      mbHasErr: !!s.mbErr, mbErr: s.mbErr || '',
+      mbHasPreview: prev.length > 0,
+      mbRows: prev.map(p => ({ name: p.name, state: p.state, color: p.color, note: p.note })),
+      mbSummary: `Розібрано ${prev.length}: до збереження ${good}` + (bad ? `, пропущено ${bad}` : '') + '.',
+      mbSaveLabel: s.mbBusy ? 'Зберігаю…' : `Зберегти ${good}`,
+      mbSave: () => this._mbSave(),
+      mbReset: () => this.setState({ mbPreview: null, mbErr: '' }),
+    };
+  }
+
   async _loadSealsAdmin() {
     const [book, rows] = await Promise.all([
       this._get('seal_book?select=*&order=sort_order.asc,created_at.asc'),
@@ -9457,6 +9772,7 @@ class Component extends DCLogic {
       showOwnersTab:  tab === 'owners',
       showSealsTab:   tab === 'seals',
       ...this._sealsVals(),
+      ...this._mbVals(),
       showStats:      tab === 'stats',
       ...this._statsVals(),
       ...this._auditVals(),

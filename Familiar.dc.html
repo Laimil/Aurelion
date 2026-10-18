@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <script src="familiar.js"></script>
+</helmet>
+
+<sc-if value="{{ isCard }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:18px;font-family:Arial,sans-serif;color:#fff;">
+
+  <sc-if value="{{ showMsg }}" hint-placeholder-val="{{ false }}">
+    <p style="font-size:0.86rem;line-height:1.55;color:rgba(255,255,255,0.6);padding:14px 16px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);">{{ msgText }}</p>
+  </sc-if>
+
+  <sc-if value="{{ showMain }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;">
+      <div style="flex:0 0 300px;max-width:100%;height:300px;border-radius:15px;background:radial-gradient(ellipse 55% 55% at 50% 55%,rgba(255,255,255,0.07),rgba(26,26,26,0) 72%),#1a1a1a;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+        <canvas ref="{{ refMain }}" onClick="{{ onPet }}" width="48" height="48" style="width:288px;height:288px;image-rendering:pixelated;cursor:pointer;"></canvas>
+      </div>
+      <div style="flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+          <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
+            <p style="font-family:'Cinzel',Georgia,serif;font-size:1.6rem;letter-spacing:0.05em;margin:0;overflow-wrap:anywhere;">{{ famName }}</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.6);margin:0;">{{ famSub }}</p>
+          </div>
+          <span style="display:flex;align-items:center;gap:7px;font-size:0.78rem;color:{{ pillColor }};padding:4px 11px;border-radius:999px;border:1px solid {{ pillColor }};white-space:nowrap;"><span style="width:7px;height:7px;border-radius:999px;background:{{ pillColor }};"></span>{{ pillText }}</span>
+        </div>
+        <p style="font-size:0.84rem;line-height:1.5;color:rgba(255,255,255,0.7);margin:0;">{{ stageLine }}</p>
+        <sc-if value="{{ notLinked }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.82rem;line-height:1.55;color:#e59aa3;margin:0;padding:10px 12px;border-radius:8px;background:rgba(125,47,56,0.18);border:1px solid rgba(229,154,163,0.35);">Телеграм до аркуша не привʼязано, тож фамільяр не бачить ваших дописів і не росте. Привʼязати може адмін.</p>
+        </sc-if>
+        <sc-if value="{{ scoutAway }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.55;color:rgba(255,255,255,0.78);margin:0;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.2);">{{ scoutAwayLine }}</p>
+        </sc-if>
+        <sc-if value="{{ scoutBack }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:12px 14px;border-radius:10px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.3);display:flex;flex-direction:column;gap:6px;">
+            <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.8);">✦ Приніс з розвідки</span>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;line-height:1.55;color:rgba(255,255,255,0.88);margin:0;">{{ scoutFind }}</p>
+          </div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">{{ weekHead }}</span>
+          <sc-for list="{{ week }}" as="w" hint-placeholder-count="0">
+            <div style="display:flex;justify-content:space-between;gap:12px;font-size:0.86rem;"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ w.name }}</span><span style="color:rgba(255,255,255,0.55);white-space:nowrap;">{{ w.n }}</span></div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onClick="{{ onPet }}" style="cursor:pointer;border:none;border-radius:999px;padding:10px 20px;font-size:0.88rem;font-weight:700;background:#ffd700;color:#1a1a1a;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.45);transform:scale(1.04);">Погладити</button>
+          <button onClick="{{ onScout }}" disabled="{{ scoutOff }}" style="cursor:pointer;border-radius:999px;padding:10px 20px;font-size:0.88rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:{{ scoutColor }};transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.15);">{{ scoutLabel }}</button>
+          <button onClick="{{ onEdit }}" style="cursor:pointer;border-radius:999px;padding:10px 18px;font-size:0.84rem;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);transition:all 0.3s ease;" style-hover="color:#fff;">Змінити вигляд</button>
+        </div>
+        <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.8rem;color:rgba(255,255,255,0.55);margin:0;">{{ note }}</p>
+        </sc-if>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:6px;border-top:1px solid rgba(255,255,255,0.08);">
+          <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Визирати на сторінках</span>
+          <sc-for list="{{ peekOpts }}" as="o" hint-placeholder-count="3">
+            <button onClick="{{ o.on }}" style="cursor:pointer;font-size:0.8rem;padding:5px 12px;border-radius:999px;background:{{ o.bg }};border:1px solid {{ o.bd }};color:{{ o.c }};transition:all 0.3s ease;">{{ o.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showChoose }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;line-height:1.55;color:rgba(255,255,255,0.8);margin:0;text-wrap:pretty;">Марта поставила на стіл кошик. Можна взяти яйце навмання, а можна скласти фамільяра самому.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
+        <button onClick="{{ onPickEgg }}" style="cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:15px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.35);color:#fff;transition:all 0.3s ease;" style-hover="transform:translateY(-4px);box-shadow:0 0 22px rgba(255,215,0,0.25);">
+          <div style="height:170px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#1a1a1a;">
+            <canvas ref="{{ refChEgg }}" width="48" height="48" style="width:168px;height:168px;image-rendering:pixelated;"></canvas>
+          </div>
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;letter-spacing:0.04em;color:#ffd700;">Яйце-сюрприз</span>
+          <span style="font-size:0.84rem;line-height:1.5;color:rgba(255,255,255,0.65);">Обираєте лише кольори шкаралупи. Хто з нього вилупиться, побачите після 10 дописів.</span>
+        </button>
+        <button onClick="{{ onPickBuild }}" style="cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:15px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:#fff;transition:all 0.3s ease;" style-hover="transform:translateY(-4px);background:rgba(255,255,255,0.08);">
+          <div style="height:170px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#1a1a1a;">
+            <canvas ref="{{ refChBuild }}" width="48" height="48" style="width:168px;height:168px;image-rendering:pixelated;"></canvas>
+          </div>
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;letter-spacing:0.04em;">Скласти самому</span>
+          <span style="font-size:0.84rem;line-height:1.5;color:rgba(255,255,255,0.65);">Вид, хутро, очі, прикраса й місце. Почне він так само яйцем, але ви знатимете, хто там.</span>
+        </button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showEditor }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;">
+      <div style="flex:0 0 240px;max-width:100%;display:flex;flex-direction:column;gap:12px;align-items:center;">
+        <div style="width:240px;height:240px;border-radius:15px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">
+          <canvas ref="{{ refPrev }}" width="48" height="48" style="width:240px;height:240px;image-rendering:pixelated;"></canvas>
+        </div>
+        <p style="font-size:0.76rem;line-height:1.5;color:rgba(255,255,255,0.5);text-align:center;margin:0;">{{ prevNote }}</p>
+      </div>
+      <div style="flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Імʼя</span>
+          <input value="{{ draftName }}" onChange="{{ onName }}" maxlength="16" placeholder="Як його звати" style="height:40px;padding:0 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;outline:none;">
+        </div>
+        <sc-for list="{{ groups }}" as="g" hint-placeholder-count="5">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">{{ g.title }}</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <sc-for list="{{ g.chips }}" as="o" hint-placeholder-count="4">
+                <button onClick="{{ o.on }}" style="cursor:pointer;font-size:0.82rem;padding:6px 13px;border-radius:999px;background:{{ o.bg }};border:1px solid {{ o.bd }};color:{{ o.c }};transition:all 0.3s ease;">{{ o.label }}</button>
+              </sc-for>
+              <sc-for list="{{ g.dots }}" as="o" hint-placeholder-count="0">
+                <button onClick="{{ o.on }}" title="{{ o.col }}" style="cursor:pointer;width:28px;height:28px;border-radius:999px;background:{{ o.col }};border:2px solid {{ o.ring }};box-shadow:0 0 0 2px #1a1a1a inset;"></button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ eggMode }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.65);margin:0;">Усередині вже хтось є. Марта знає, хто, але не каже.</p>
+        </sc-if>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button onClick="{{ onSave }}" disabled="{{ busy }}" style="cursor:pointer;border:none;border-radius:999px;padding:10px 22px;font-size:0.88rem;font-weight:700;background:#ffd700;color:#1a1a1a;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.45);transform:scale(1.04);">{{ saveLabel }}</button>
+          <button onClick="{{ onRandom }}" style="cursor:pointer;border-radius:999px;padding:10px 18px;font-size:0.84rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;">{{ randomLabel }}</button>
+          <sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ onBack }}" style="cursor:pointer;border-radius:999px;padding:10px 18px;font-size:0.84rem;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);">← Назад</button>
+          </sc-if>
+          <sc-if value="{{ canCancel }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ onCancel }}" style="cursor:pointer;border-radius:999px;padding:10px 18px;font-size:0.84rem;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);">Скасувати</button>
+          </sc-if>
+          <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:0.8rem;color:#e59aa3;">{{ note }}</span>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ isPeek }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ peekSay }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;right:150px;bottom:44px;z-index:61;max-width:230px;padding:10px 13px;border-radius:12px 12px 4px 12px;background:#f3ecdb;color:#2f2920;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.4;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:none;">{{ peekLine }}</div>
+  </sc-if>
+  <div onMouseEnter="{{ onPeekHover }}" style="position:fixed;right:22px;bottom:0;z-index:60;width:132px;height:{{ peekBoxH }};overflow:hidden;pointer-events:{{ peekPE }};">
+    <div onClick="{{ onPeekClick }}" title="{{ famName }}" style="position:absolute;left:0;top:0;width:132px;height:132px;cursor:pointer;transform:translateY({{ peekY }});transition:transform 0.6s ease;">
+      <canvas ref="{{ refPeek }}" width="48" height="48" style="width:132px;height:132px;image-rendering:pixelated;"></canvas>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:520},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;card&quot;,&quot;peek&quot;],&quot;default&quot;:&quot;card&quot;,&quot;tsType&quot;:&quot;'card' | 'peek'&quot;},&quot;demo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;demoNew&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const FAM_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const FAM_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const FAM_CACHE = 'au_fam_cache';
+const STAGE = ['Яйце', 'Малеча', 'Дорослий'];
+const NEXT = [10, 50];
+const posts = n => { const a = n % 10, b = n % 100; return `${n} ${a === 1 && b !== 11 ? 'допис' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'дописи' : 'дописів'}`; };
+const hm = iso => { try { return new Date(iso).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } };
+const day = iso => { try { return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }); } catch (e) { return ''; } };
+
+class Component extends DCLogic {
+  state = { phase: 'load', data: null, edit: false, mode: null, draft: null, name: '', busy: false, note: '', tick: 0, pet: 0, up: false, say: '', ready: !!window.AuFamiliar };
+
+  componentDidMount() {
+    this._refs = {}; this._cv = {};
+    ['main', 'prev', 'peek', 'chEgg', 'chBuild'].forEach(k => { this._refs[k] = el => { this._cv[k] = el; this._paint(); }; });
+    this._t = setInterval(() => {
+      if (document.hidden) return;
+      if (this.isPeek() && !this.state.up) return;
+      this.setState(s => ({ tick: s.tick + 1, pet: Math.max(0, s.pet - 1) }));
+    }, 450);
+    if (!window.AuFamiliar) this._w = setInterval(() => { if (window.AuFamiliar) { clearInterval(this._w); this.setState({ ready: true }); } }, 150);
+    this._onUser = () => this._load(true);
+    this._onFam = () => this._load(true);
+    window.addEventListener('au-user', this._onUser);
+    window.addEventListener('au-fam', this._onFam);
+    this._load();
+    if (this.isPeek()) this._plan(this.props.demo ? 3000 : 40000);
+  }
+  componentWillUnmount() {
+    clearInterval(this._t); clearInterval(this._w); clearTimeout(this._pt); clearTimeout(this._ph);
+    window.removeEventListener('au-user', this._onUser);
+    window.removeEventListener('au-fam', this._onFam);
+  }
+  componentDidUpdate() { this._paint(); }
+  isPeek() { return this.props.variant === 'peek'; }
+
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  async _rpc(fn, body) {
+    if (this.props.demo) return { error: 'demo' };
+    const t = this._tok();
+    if (!t) return { error: 'signed out' };
+    const r = await fetch(`${FAM_URL}/rpc/${fn}`, { method: 'POST', headers: { apikey: FAM_KEY, Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+    if (r.status === 404) return { error: 'missing' };
+    if (!r.ok) return { error: `HTTP ${r.status}` };
+    try { return await r.json(); } catch (e) { return {}; }
+  }
+  async _load(force) {
+    if (this.props.demoNew) {
+      if (this.state.phase === 'new') return;
+      const F = window.AuFamiliar;
+      this.setState({ phase: 'new', data: { fam: null, linked: true }, draft: F ? { ...F.DEFAULT_LOOK } : null });
+      return;
+    }
+    if (this.props.demo) {
+      if (this.state.data) return;
+      const d = { fam: { name: 'Іскра', look: { sp: 'cat', eyeSt: 'round', iris: '#ffd700', pat: 'stripe', acc: 'hat', place: 'pillow', col: '#d0caff' }, peek: 'often', pets: 12, created_at: '2026-09-12T10:00:00Z' },
+        linked: true, total: 46, stage: 2, state: 'awake', week: [{ name: 'Северин', n: 6 }, { name: 'Іда Трілл', n: 2 }], week_total: 8, scout: null };
+      this.setState({ phase: 'ok', data: d, name: d.fam.name });
+      return;
+    }
+    if (!this._tok()) { this.setState({ phase: 'out', data: null }); return; }
+    if (this.isPeek() && !force) {
+      try { const c = JSON.parse(localStorage.getItem(FAM_CACHE) || 'null'); if (c && Date.now() - c.at < 10 * 60 * 1000 && c.d) { this.setState({ phase: c.d.fam ? 'ok' : 'new', data: c.d }); return; } } catch (e) {}
+    }
+    let d;
+    try { d = await this._rpc('my_familiar'); } catch (e) { d = { error: 'net' }; }
+    if (!d || d.error) {
+      if (d && d.error === 'missing') console.warn('фамільяр: немає my_familiar — прогнати supabase_familiar_migration.sql');
+      this.setState({ phase: d && d.error === 'signed out' ? 'out' : d && d.error === 'missing' ? 'missing' : 'err' });
+      return;
+    }
+    try { localStorage.setItem(FAM_CACHE, JSON.stringify({ at: Date.now(), d })); } catch (e) {}
+    const F = window.AuFamiliar;
+    this.setState(s => ({
+      phase: d.fam ? 'ok' : 'new', data: d,
+      draft: d.fam ? s.draft : (s.draft || (F ? { ...F.DEFAULT_LOOK } : null)),
+      name: d.fam && !s.edit ? d.fam.name : s.name,
+    }));
+  }
+  _bump() { try { localStorage.removeItem(FAM_CACHE); } catch (e) {} try { window.dispatchEvent(new CustomEvent('au-fam')); } catch (e) {} }
+
+  _paint() {
+    const F = window.AuFamiliar; if (!F || !this._cv) return;
+    const s = this.state, d = s.data || {}, fam = d.fam;
+    const away = !!(d.scout && d.scout.away);
+    if (this._cv.main && fam) F.draw(this._cv.main, F.frame(fam.look, d, s.tick, { pet: s.pet > 0, away }));
+    if (this._cv.prev && s.draft) F.draw(this._cv.prev, F.frame(s.draft, { stage: s.mode === 'egg' ? 1 : 3, state: 'awake' }, s.tick, {}));
+    if (this._cv.chEgg) F.draw(this._cv.chEgg, F.frame({ ...F.DEFAULT_LOOK, egg: F.SHELL[Math.floor(s.tick / 8) % F.SHELL.length], eggSpot: F.SPOT[Math.floor(s.tick / 8) % F.SPOT.length] }, { stage: 1, state: 'awake' }, s.tick, {}));
+    if (this._cv.chBuild) { const i = Math.floor(s.tick / 8); F.draw(this._cv.chBuild, F.frame({ ...F.DEFAULT_LOOK, sp: F.SP[i % F.SP.length][0], col: F.COLS[i % F.COLS.length], acc: F.ACC[(i + 1) % F.ACC.length][0] }, { stage: 3, state: 'awake' }, s.tick, {})); }
+    if (this._cv.peek && fam) F.draw(this._cv.peek, F.frame(fam.look, d, s.tick, { pet: !!s.say, noPlace: true }));
+  }
+
+  // ── визирання ─────────────────────────────────────────────
+  _canPeek() {
+    const s = this.state, d = s.data;
+    if (s.phase !== 'ok' || !d || !d.fam) return false;
+    if (d.fam.peek === 'never' || d.state === 'asleep' || (d.scout && d.scout.away)) return false;
+    if (!this.props.demo) {
+      if (window.innerWidth < 1100) return false;
+      try { if (!window.matchMedia('(hover: hover)').matches) return false; } catch (e) {}
+    }
+    return true;
+  }
+  _plan(ms) {
+    clearTimeout(this._pt);
+    this._pt = setTimeout(() => this._show(), ms);
+  }
+  _gap() {
+    const d = this.state.data, often = d && d.fam && d.fam.peek === 'often';
+    const base = this.props.demo ? 8000 : (often ? 5 : 15) * 60 * 1000;
+    return base * (0.7 + Math.random() * 0.6);
+  }
+  _show() {
+    if (!this._canPeek() || document.hidden) { this._plan(this._gap()); return; }
+    this.setState({ up: true, say: '' });
+    clearTimeout(this._ph);
+    this._ph = setTimeout(() => this._hide(), 9000);
+  }
+  _hide() {
+    clearTimeout(this._ph);
+    this.setState({ up: false, say: '' });
+    this._plan(this._gap());
+  }
+  _peekClick() {
+    const d = this.state.data, n = (d && d.fam && d.fam.name) || 'Фамільяр';
+    const L = [`${n} перевіряє, чи ви ще читаєте.`, `${n} натякає, що давно не було допису.`, `${n} задоволено мружиться.`, `${n} визирнув і робить вигляд, що просто проходив повз.`, `${n} каже, що Марта знову рахує цукерки.`];
+    this.setState({ say: L[Math.floor(Math.random() * L.length)] });
+    this._pet(true);
+    clearTimeout(this._ph);
+    this._ph = setTimeout(() => this._hide(), 5000);
+  }
+
+  // ── дії ───────────────────────────────────────────────────
+  _pet(quiet) {
+    if (!quiet) this.setState({ pet: 6 });
+    const now = Date.now();
+    if (this._lastPet && now - this._lastPet < 3000) return;
+    this._lastPet = now;
+    this._rpc('familiar_pet').catch(() => {});
+  }
+  async _scout() {
+    this.setState({ busy: true, note: '' });
+    let d; try { d = await this._rpc('familiar_scout'); } catch (e) { d = { error: 'net' }; }
+    let note = '';
+    if (d && d.error === 'tired') note = `Сьогодні вже ходив. Наступна розвідка — після ${hm(d.next)}.`;
+    else if (d && d.error === 'away') note = 'Він і так на розвідці.';
+    else if (d && d.error) note = 'Не вийшло. Спробуйте ще раз.';
+    this.setState({ busy: false, note });
+    if (!note) { this._bump(); this._load(true); }
+  }
+  async _save() {
+    const s = this.state;
+    if (!s.draft) return;
+    if (this.props.demoNew) { this.setState(st => ({ phase: 'ok', edit: false, mode: null, data: { fam: { name: st.name || 'Фамільяр', look: st.draft, peek: 'rare', pets: 0, created_at: new Date().toISOString() }, linked: true, total: 0, stage: 1, state: 'awake', week: [], week_total: 0, scout: null } })); return; }
+    if (this.props.demo) { this.setState(st => ({ edit: false, data: { ...st.data, fam: { ...st.data.fam, name: st.name || 'Фамільяр', look: st.draft } } })); return; }
+    this.setState({ busy: true, note: '' });
+    let d; try { d = await this._rpc('familiar_save', { p_name: s.name || 'Фамільяр', p_look: s.draft, p_peek: null }); } catch (e) { d = { error: 'net' }; }
+    if (d && d.error) { this.setState({ busy: false, note: d.error === 'missing' ? 'Фамільяра ще не підключено: адмінам треба прогнати міграцію.' : 'Не вийшло зберегти.' }); return; }
+    this.setState({ busy: false, edit: false, mode: null });
+    this._bump(); this._load(true);
+  }
+  async _peekMode(m) {
+    const d = this.state.data; if (!d || !d.fam) return;
+    this.setState({ data: { ...d, fam: { ...d.fam, peek: m } } });
+    try { await this._rpc('familiar_peek', { p_peek: m }); } catch (e) {}
+    this._bump();
+  }
+
+  renderVals() {
+    const s = this.state, F = window.AuFamiliar, d = s.data || {}, fam = d.fam;
+    const isPeek = this.isPeek();
+    const base = { isCard: !isPeek, isPeek, refMain: this._refs && this._refs.main, refPrev: this._refs && this._refs.prev, refPeek: this._refs && this._refs.peek, refChEgg: this._refs && this._refs.chEgg, refChBuild: this._refs && this._refs.chBuild, famName: fam ? fam.name : '' };
+    if (isPeek) {
+      return { ...base, peekY: s.up ? '28%' : '100%', peekBoxH: s.up ? '132px' : '0px', peekPE: s.up ? 'auto' : 'none', peekSay: !!s.say, peekLine: s.say,
+        onPeekHover: () => { if (!s.say) this._hide(); }, onPeekClick: () => this._peekClick() };
+    }
+    const msg = s.phase === 'load' || !s.ready ? 'Шукаю вашого фамільяра…'
+      : s.phase === 'missing' ? 'Фамільярів ще не ввімкнено: адмінам треба прогнати supabase_familiar_migration.sql.'
+      : s.phase === 'out' ? 'Увійдіть, щоб завести фамільяра.'
+      : s.phase === 'err' ? 'Не вдалося дістати фамільяра. Оновіть сторінку трохи згодом.' : '';
+    const sel = on => ({ bg: on ? 'rgba(255,215,0,0.16)' : 'rgba(255,255,255,0.05)', bd: on ? '#ffd700' : 'rgba(255,255,255,0.14)', c: on ? '#ffd700' : 'rgba(255,255,255,0.8)' });
+    const out = { ...base, showMsg: !!msg, msgText: msg, showMain: false, showEditor: false, hasNote: !!s.note, note: s.note, busy: s.busy };
+    if (msg || !F) return out;
+
+    const editing = s.phase === 'new' || s.edit;
+    if (s.phase === 'new' && !s.mode) {
+      Object.assign(out, {
+        showChoose: true,
+        onPickEgg: () => this.setState({ mode: 'egg', draft: F.random({ egg: F.SHELL[0], eggSpot: F.SPOT[0], surprise: true }) }),
+        onPickBuild: () => this.setState({ mode: 'build', draft: { ...F.DEFAULT_LOOK } }),
+      });
+      return out;
+    }
+    if (editing) {
+      const dr = s.draft || F.DEFAULT_LOOK;
+      const egg = s.mode === 'egg';
+      const set = (k, v) => () => this.setState(st => ({ draft: { ...(st.draft || F.DEFAULT_LOOK), [k]: v } }));
+      const chips = (k, list) => list.map(([v, label]) => ({ label, on: set(k, v), ...sel(dr[k] === v) }));
+      const dots = (k, list) => list.map(c => ({ col: c, on: set(k, c), ring: dr[k] === c ? '#ffffff' : 'rgba(255,255,255,0.15)' }));
+      const rnd = a => a[Math.floor(Math.random() * a.length)];
+      Object.assign(out, {
+        showEditor: true, eggMode: egg, draftName: s.name, canCancel: s.phase === 'ok', canBack: s.phase === 'new',
+        onBack: () => this.setState({ mode: null, note: '' }),
+        saveLabel: s.busy ? 'Зберігаю…' : s.phase === 'new' ? (egg ? 'Взяти яйце' : 'Завести фамільяра') : 'Зберегти',
+        randomLabel: egg ? 'Інші кольори' : 'Навмання',
+        prevNote: egg ? 'Вилупиться після 10 ваших дописів, дорослим стане після 50.' : s.phase === 'new' ? 'Почне він яйцем: вилупиться після 10 ваших дописів, дорослим стане після 50.' : 'Так він виглядатиме дорослим. Стадія й стан від вигляду не залежать.',
+        groups: egg ? [
+          { title: 'Шкаралупа', chips: [], dots: dots('egg', F.SHELL) },
+          { title: 'Плямки', chips: [], dots: dots('eggSpot', F.SPOT) },
+        ] : [
+          { title: 'Шкаралупа яйця', chips: [], dots: dots('egg', F.SHELL) },
+          { title: 'Плямки на яйці', chips: [], dots: dots('eggSpot', F.SPOT) },
+          { title: 'Вид', chips: chips('sp', F.SP), dots: [] },
+          { title: 'Хутро', chips: chips('pat', F.PAT), dots: dots('col', F.COLS) },
+          { title: 'Очі', chips: chips('eyeSt', F.EYE), dots: dots('iris', F.IRIS) },
+          { title: 'Прикраса', chips: chips('acc', F.ACC), dots: [] },
+          { title: 'Місце', chips: chips('place', F.PL), dots: [] },
+        ],
+        onName: e => this.setState({ name: e.target.value.slice(0, 16) }),
+        onSave: () => this._save(),
+        onCancel: () => this.setState({ edit: false, note: '' }),
+        onRandom: () => this.setState(st => {
+          const cur = st.draft || F.DEFAULT_LOOK;
+          if (egg) return { draft: { ...cur, egg: rnd(F.SHELL), eggSpot: rnd(F.SPOT) } };
+          return { draft: F.random({ egg: cur.egg, eggSpot: cur.eggSpot }) };
+        }),
+      });
+      return out;
+    }
+
+    const look = F.clean(fam.look), stage = d.stage || 1, total = d.total || 0;
+    const sc = d.scout || null, away = !!(sc && sc.away), back = !!(sc && !sc.away && sc.find);
+    const tired = !!(sc && sc.next && new Date(sc.next) > new Date());
+    const hidden = look.surprise && stage === 1;
+    const spName = hidden ? 'яйце-сюрприз' : (F.SP.find(x => x[0] === look.sp) || ['', 'фамільяр'])[1].toLowerCase();
+    const pill = away ? ['На розвідці', 'rgba(255,255,255,0.6)'] : d.state === 'asleep' ? ['Спить', 'rgba(255,255,255,0.45)'] : d.state === 'drowsy' ? ['Дрімає', '#d0caff'] : ['Не спить', '#ffd700'];
+    const find = back ? (sc.find.kind === 'quote' ? `«${sc.find.text}»${sc.find.author ? ' — ' + sc.find.author : ''}` : `Приніс ${sc.find.text}`) : '';
+    const wk = Array.isArray(d.week) ? d.week : [];
+    Object.assign(out, {
+      showMain: true,
+      famSub: `${spName} · з ${day(fam.created_at)}${fam.pets ? ` · гладили ${fam.pets} р.` : ''}`,
+      pillText: pill[0], pillColor: pill[1],
+      stageLine: `${STAGE[stage - 1]} · зʼїв ${posts(total)}${stage < 3 ? ` · до ${stage === 1 ? 'вилуплення' : 'дорослого'} ще ${posts(Math.max(0, NEXT[stage - 1] - total))}` : ''}`,
+      notLinked: !d.linked,
+      scoutAway: away, scoutAwayLine: away ? `Пішов на розвідку. Повернеться близько ${hm(sc.back)}.` : '',
+      scoutBack: back, scoutFind: find,
+      weekHead: wk.length ? `Цього тижня зʼїв · ${posts(d.week_total || 0)}` : 'Цього тижня дописів не було',
+      week: wk.slice(0, 6).map(w => ({ name: w.name, n: posts(w.n) })),
+      scoutOff: away || tired || s.busy,
+      scoutLabel: away ? 'На розвідці' : tired ? 'Розвідка — завтра' : 'Послати на розвідку',
+      scoutColor: away || tired ? 'rgba(255,255,255,0.4)' : '#ffffff',
+      onPet: () => this._pet(),
+      onScout: () => this._scout(),
+      onEdit: () => this.setState({ edit: true, mode: hidden ? 'egg' : 'build', draft: { ...look }, name: fam.name, note: '' }),
+      peekOpts: [['often', 'Часто'], ['rare', 'Рідко'], ['never', 'Ніколи']].map(([v, label]) => ({ label, on: () => this._peekMode(v), ...sel(fam.peek === v) })),
+    });
+    return out;
+  }
+}
+</script>
+</body>
+</html>
