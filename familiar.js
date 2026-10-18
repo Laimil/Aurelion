@@ -1,8 +1,8 @@
 // Фамільяр гравця: піксельний малюнок 48×48 з опису форм.
-// Один код для кабінету, визирання на сторінках і (пізніше) PNG для бота.
-// Усе в window.AuFamiliar; жодних залежностей.
-(function () {
-  if (window.AuFamiliar) return;
+// Один код для кабінету, визирання на сторінках і PNG для бота (pixels → RGBA без canvas).
+// Усе в AuFamiliar на window (браузер) або globalThis (Deno); жодних залежностей.
+(function (root) {
+  if (root.AuFamiliar) return;
 
   const SP = [['cat', 'Кіт'], ['owl', 'Сова'], ['crow', 'Крук'], ['fox', 'Лис'], ['dragon', 'Дракончик'], ['slime', 'Слиз']];
   const EYE = [['round', 'Круглі'], ['slit', 'Котячі'], ['button', 'Ґудзики']];
@@ -115,15 +115,12 @@
   const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
   const cache = new Map();
 
-  function draw(cv, o) {
-    if (!cv || !cv.getContext) return;
+  function pixels(o) {
     const key = JSON.stringify(o);
-    if (cv._k === key) return;
-    const N = 48, X0 = -1.35, X1 = 1.35, Y0 = -1.5, Y1 = 1.2;
-    if (cv.width !== N) { cv.width = N; cv.height = N; }
-    const ctx = cv.getContext('2d');
     const hitC = cache.get(key);
-    if (hitC) { ctx.putImageData(hitC, 0, 0); cv._k = key; return; }
+    if (hitC) return hitC;
+    const N = 48, X0 = -1.35, X1 = 1.35, Y0 = -1.5, Y1 = 1.2;
+    const buf = new Uint8ClampedArray(N * N * 4);
     const els = scene(o);
     const sh = (nx, ny, nz) => 0.15 + 0.85 * Math.max(0, -0.45 * nx - 0.55 * ny + 0.7 * nz);
     const inTri = (x, y, a, b, c) => { const s = (p, q) => (x - q[0]) * (p[1] - q[1]) - (p[0] - q[0]) * (y - q[1]); const d1 = s(a, b), d2 = s(b, c), d3 = s(c, a); return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0)); };
@@ -158,8 +155,7 @@
     const ramp = (base, v) => { const q = Math.round(v * 4) / 4; return q <= 0.5 ? mix(DK, base, 0.35 + q * 1.3) : mix(base, WH, (q - 0.5) * 0.8); };
     const pink = hx('#e59aa3'), gold = hx('#ffd700');
     const COL = { fur: v => ramp(C, v), belly: v => ramp(mix(C, WH, 0.45), v), wing: v => ramp(mix(C, DK, 0.3), v), sock: v => ramp(mix(C, DK, 0.45), v), inner: v => mix(DK, pink, 0.5 + 0.4 * v), eye: v => ramp(hx(o.iris), v), pupil: () => OL, shine: () => WH, nose: () => pink, dark: () => OL, whisk: () => mix(C, WH, 0.7), beak: v => ramp(gold, v), horn: v => ramp(hx('#f3ecdb'), v), hat: v => ramp(hx('#483d8b'), v), gold: v => ramp(gold, v), gem: v => ramp(pink, v), bow: v => ramp(pink, v), petal: v => ramp(hx('#f3ecdb'), v), pillow: v => ramp(hx('#7d2f38'), v), branch: v => ramp([90, 74, 60], v), leaf: v => ramp(hx('#7fd1c4'), v), blush: () => pink, cloud: v => ramp(hx('#d6dbe3'), v), bill: v => ramp([72, 72, 84], v), egg: v => ramp(hx(o.egg || '#f3ecdb'), v), spot: v => ramp(hx(o.eggSpot || o.col), v) };
-    ctx.clearRect(0, 0, N, N);
-    const put = (x, y, c) => { ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.fillRect(x, y, 1, 1); };
+    const put = (x, y, c) => { if (x < 0 || y < 0 || x >= N || y >= N) return; const i = (y * N + x) * 4; buf[i] = c[0]; buf[i + 1] = c[1]; buf[i + 2] = c[2]; buf[i + 3] = 255; };
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const h = P[y][x]; if (!h) continue;
       const edge = h.m !== 'whisk' && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => !(P[y + b] && P[y + b][x + a]));
@@ -167,15 +163,24 @@
       if (o.dim) { const g = (c[0] + c[1] + c[2]) / 3; c = mix(c, [g, g, g], 0.75).map(v => Math.round(v * 0.75)); }
       put(x, y, c);
     }
-    const sprite = (rows, x0, y0, c) => { ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; rows.forEach((row, j) => [...row].forEach((ch, i) => { if (ch === 'x') ctx.fillRect(x0 + i, y0 + j, 1, 1); })); };
+    const sprite = (rows, x0, y0, c) => { rows.forEach((row, j) => [...row].forEach((ch, i) => { if (ch === 'x') put(x0 + i, y0 + j, c); })); };
     const HEART = ['.xx.xx.', 'xxxxxxx', 'xxxxxxx', '.xxxxx.', '..xxx..', '...x...'];
     const Z = ['xxxx', '..x.', '.x..', 'xxxx'], z = ['xxx', '.x.', 'xxx'];
     const k = (o.tick || 0) % 3;
     if (o.hearts) { sprite(HEART, 36, 9 - k * 2, pink); if (k > 0) sprite(['x.x', 'xxx', '.x.'], 31, 5 - k, pink); }
     if (o.z === 'small') sprite(z, 37 + k, 12 - k * 2, [200, 200, 220]);
     if (o.z === 'big') { sprite(Z, 36, 12 - k * 2, [170, 170, 190]); sprite(z, 42, 6 - k, [140, 140, 160]); }
-    cache.set(key, ctx.getImageData(0, 0, N, N));
+    cache.set(key, buf);
     if (cache.size > 300) cache.delete(cache.keys().next().value);
+    return buf;
+  }
+
+  function draw(cv, o) {
+    if (!cv || !cv.getContext) return;
+    const key = JSON.stringify(o);
+    if (cv._k === key) return;
+    if (cv.width !== 48) { cv.width = 48; cv.height = 48; }
+    cv.getContext('2d').putImageData(new ImageData(pixels(o), 48, 48), 0, 0);
     cv._k = key;
   }
 
@@ -192,5 +197,5 @@
     return { ...base, eyes: blink ? 'closed' : 'open', bob: t % 2 };
   }
 
-  window.AuFamiliar = { draw, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK };
-})();
+  root.AuFamiliar = { draw, pixels, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK };
+})(typeof window !== 'undefined' ? window : globalThis);
