@@ -7551,164 +7551,282 @@ class Component extends DCLogic {
     ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
   }
 
-  _renderCharCanvas(ch, img) {
+  // Картка «тека з рецепції» (макет 1b, «Картка персонажа - Макети»).
+  _cardSpaced(ctx, text, x, y, sp, align) {
+    const chars = [...String(text)];
+    let w = 0; chars.forEach(c => { w += ctx.measureText(c).width; }); w += sp * Math.max(0, chars.length - 1);
+    this._trackedText(ctx, String(text), align === 'right' ? x - w / 2 : x + w / 2, y, sp);
+    return w;
+  }
+
+  _cardFit(ctx, text, maxW) {
+    let t = String(text || '');
+    if (ctx.measureText(t).width <= maxW) return t;
+    while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+    return t.replace(/[\s.,;:!?«»—-]+$/, '') + '…';
+  }
+
+  _coverAt(ctx, img, x, y, w, h, fx, fy) {
+    const ir = img.width / img.height, br = w / h;
+    let sw, sh, sx, sy;
+    if (ir > br) { sh = img.height; sw = sh * br; sx = (img.width - sw) * fx; sy = 0; }
+    else { sw = img.width; sh = sw / br; sx = 0; sy = (img.height - sh) * fy; }
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+  }
+
+  // Печатки для картки: [{word, title, ink, times}] — свіжі першими.
+  async _charCardSeals(ch) {
+    const id = String(ch.id);
+    let rows = null, book = null;
+    try {
+      const c = window.__auSeals;
+      if (c && c.p) { const r = await c.p; rows = (r && r.rows) || null; book = (r && r.book) || null; }
+    } catch (e) {}
+    if (!rows) {
+      const [sr, br] = await Promise.all([
+        this._getSoft('seals?select=character_id,seal,earned_at&character_id=eq.' + encodeURIComponent(id) + '&order=earned_at.asc'),
+        book ? Promise.resolve(book) : this._getSoft('seal_book?select=key,title,word,ink&retired=eq.false'),
+      ]);
+      rows = Array.isArray(sr) ? sr : []; book = Array.isArray(br) ? br : [];
+    }
+    const B = new Map((book || []).map(b => [String(b.key), b]));
+    const INK = { red: '#e0707c', gold: '#ffd700', black: '#c9c0ae' };
+    const mine = new Map();
+    rows.filter(x => String(x.character_id) === id && !String(x.seal).startsWith('prestige:')).forEach(x => {
+      const k = String(x.seal), cur = mine.get(k);
+      if (cur) { cur.times += 1; if (String(x.earned_at) > cur.at) cur.at = String(x.earned_at); }
+      else mine.set(k, { k, at: String(x.earned_at || ''), times: Math.max(1, x.times | 0) });
+    });
+    return [...mine.values()].sort((a, b) => b.at.localeCompare(a.at)).map(m => {
+      const b = B.get(m.k) || {};
+      return { word: String(b.word || '✦'), title: String(b.title || m.k), ink: INK[b.ink] || INK.red, times: m.times };
+    });
+  }
+
+  _charCardExtra(ch) {
+    const D = this.state.data || {};
+    const id = String(ch.id);
+    const chars = D.characters || [];
+    const idx = chars.findIndex(c => String(c.id) === id);
+    const GOD_C = { light: '#ffd76b', dark: '#8b8fd0', fate: '#c07882', nature: '#6ec0b0', magic: '#c8ccd8' };
+    const dk = String(ch.deity || '').trim().toLowerCase();
+    const g = dk ? (D.pantheon || []).find(x => String(x.god || '').trim().toLowerCase() === dk || String(x.name || '').trim().toLowerCase() === dk) : null;
+    const god = dk ? { name: this._deityName(ch.deity), color: (g && GOD_C[String(g.god || '').toLowerCase()]) || GOD_C[dk] || 'rgba(255,255,255,0.85)' } : null;
+    let diedFull = '', diedShort = '';
+    if (ch.died_at) { const [y, m, d] = String(ch.died_at).slice(0, 10).split('-'); if (d) { diedFull = d + '.' + m + '.' + y; diedShort = d + '.' + m; } }
+    const fm = String(ch.hero_focus || '').match(/^\s*(\d{1,3}(?:\.\d+)?)\s+(\d{1,3}(?:\.\d+)?)\s*$/);
+    const fx = fm ? Math.min(100, +fm[1]) / 100 : 0.5, fy = fm ? Math.min(100, +fm[2]) / 100 : 0.2;
+    const nWord = (n) => { const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? 'допис' : (a >= 2 && a <= 4 && (b < 12 || b > 14)) ? 'дописи' : 'дописів'; };
+    const am = new Map();
+    ((this.state.charArcs || {})[id] || []).forEach(r => {
+      const t = new Date(r.created_at).getTime() || 0;
+      splitArcs(r.tag_arc).forEach(a => {
+        let key = a; for (const k of am.keys()) { if (nearArc(k, a)) { key = k; break; } }
+        const cur = am.get(key) || { arc: key, n: 0, last: 0 }; cur.n += 1; if (t > cur.last) cur.last = t; am.set(key, cur);
+      });
+    });
+    const arcs = [...am.values()].sort((x, y) => y.last - x.last).slice(0, 2)
+      .map((a, i) => ({ t: a.arc + ' · ' + (i === 0 ? 'активна' : a.n + ' ' + nWord(a.n)), ink: i === 0 ? '#ffd700' : 'rgba(255,255,255,0.72)' }));
+    const byId = new Map(chars.map(c => [String(c.id), c]));
+    const ties = (D.character_links || []).filter(l => String(l.from_id) === id || String(l.to_id) === id).map(l => {
+      const o = byId.get(String(String(l.from_id) === id ? l.to_id : l.from_id));
+      const k = WALL_KIND[l.kind] || WALL_KIND.plain || { label: '', color: '#9aa0ab' };
+      return o ? { t: (o.name || '').trim() + (k.label ? ' — ' + k.label.toLowerCase() : ''), c: k.color } : null;
+    }).filter(Boolean).slice(0, 2);
+    return { no: String(idx >= 0 ? idx + 1 : 0).padStart(3, '0'), god, dead: ch.is_dead === true, inactive: ch.is_active === false, diedFull, diedShort, fx, fy, arcs, ties };
+  }
+
+  _renderCharCanvas(ch, img, ex) {
+    ex = ex || {};
     const W = 900, H = 1200, dpr = 2;
     const canvas = document.createElement('canvas');
     canvas.width = W * dpr; canvas.height = H * dpr;
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
+    ctx.textBaseline = 'alphabetic';
+    const L = 66, R = W - 66;
+    const deg = Math.PI / 180;
 
-    // Ground
-    ctx.fillStyle = '#161514';
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#1b1916'; ctx.fillRect(0, 0, W, H);
+    const vg = ctx.createRadialGradient(W / 2, H * 0.4, 120, W / 2, H / 2, 820);
+    vg.addColorStop(0, 'rgba(255,235,200,0.035)'); vg.addColorStop(1, 'rgba(0,0,0,0.28)');
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(255,215,0,0.28)'; ctx.lineWidth = 1.5;
+    this._roundRect(ctx, 34, 34, W - 68, H - 68, 8); ctx.stroke();
 
-    // ── Portrait panel ──
-    const px = 66, py = 66, pw = W - 132, ph = 650;
+    // ── Шапка теки ──
+    ctx.font = '600 15px "Cinzel", Georgia, serif'; ctx.fillStyle = 'rgba(255,215,0,0.75)';
+    this._cardSpaced(ctx, 'КАРТОТЕКА · ТЕКА № ' + (ex.no || '000'), L, 84, 4, 'left');
+    ctx.font = '600 14px "Cinzel", Georgia, serif'; ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    this._cardSpaced(ctx, ch.character_type === 'npc' ? 'НПЦ' : 'ГРАВЕЦЬ', R, 84, 4, 'right');
+    ctx.strokeStyle = 'rgba(255,215,0,0.22)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(L, 104); ctx.lineTo(R, 104); ctx.stroke();
+
+    // ── Фото, приклеєне до теки ──
+    const seals = Array.isArray(ex.seals) ? ex.seals : [];
+    const sealTop = seals.length ? H - 300 : H - 150;
+    const limit = sealTop - 30;
+    const px = 66, py = 140, pw = 340, ph = seals.length ? 400 : 452, bd = 10;
     ctx.save();
-    this._roundRect(ctx, px, py, pw, ph, 14);
-    ctx.clip();
+    ctx.translate(px + pw / 2, py + ph / 2); ctx.rotate(-1.5 * deg);
+    ctx.shadowColor = 'rgba(0,0,0,0.55)'; ctx.shadowBlur = 36; ctx.shadowOffsetY = 14;
+    ctx.fillStyle = '#2a2622'; ctx.fillRect(-pw / 2, -ph / 2, pw, ph);
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    const ix = -pw / 2 + bd, iy = -ph / 2 + bd, iw = pw - 2 * bd, ih = ph - 2 * bd;
+    ctx.save(); ctx.beginPath(); ctx.rect(ix, iy, iw, ih); ctx.clip();
     if (img) {
-      this._drawCover(ctx, img, px, py, pw, ph, 0);
+      this._coverAt(ctx, img, ix, iy, iw, ih, ex.fx == null ? 0.5 : ex.fx, ex.fy == null ? 0.2 : ex.fy);
+      if (ex.dead) {
+        ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = '#808080'; ctx.fillRect(ix, iy, iw, ih);
+        ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(ix, iy, iw, ih);
+      }
     } else {
-      const gg = ctx.createLinearGradient(px, py, px, py + ph);
-      gg.addColorStop(0, 'rgba(255,255,255,0.07)');
-      gg.addColorStop(1, 'rgba(255,215,0,0.05)');
-      ctx.fillStyle = gg; ctx.fillRect(px, py, pw, ph);
-      const initials = ((ch.name || '?').trim()[0] || '?').toUpperCase();
-      ctx.fillStyle = 'rgba(255,215,0,0.5)';
-      ctx.font = '900 230px "Cinzel", Georgia, serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fillRect(ix, iy, iw, ih);
+      ctx.fillStyle = 'rgba(255,215,0,0.4)'; ctx.font = '900 150px "Cinzel", Georgia, serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(initials, px + pw / 2, py + ph / 2 - 20);
+      ctx.fillText(((ch.name || '?').trim()[0] || '?').toUpperCase(), 0, 0);
       ctx.textBaseline = 'alphabetic';
     }
-    // Fade the portrait bottom seamlessly into the ground
-    const fade = ctx.createLinearGradient(0, py + ph - 220, 0, py + ph);
-    fade.addColorStop(0, 'rgba(22,21,20,0)');
-    fade.addColorStop(1, 'rgba(22,21,20,1)');
-    ctx.fillStyle = fade; ctx.fillRect(px, py + ph - 220, pw, 220);
+    ctx.restore();
+    ctx.restore();
+    ctx.save();
+    ctx.translate(px + pw - 22, py - 4); ctx.rotate(28 * deg);
+    ctx.fillStyle = 'rgba(220,205,170,0.3)'; ctx.fillRect(-48, -14, 96, 28);
     ctx.restore();
 
-    // Type tag pill (top-left over portrait)
-    const typeLabel = ch.character_type === 'npc' ? 'NPC' : 'ГРАВЕЦЬКИЙ';
-    ctx.font = '700 14px "Cinzel", Georgia, serif';
-    const chars = [...typeLabel];
-    let tw = 0; chars.forEach(c => tw += ctx.measureText(c).width); tw += 3 * (chars.length - 1);
-    const pillW = tw + 30, pillH = 30;
-    ctx.fillStyle = 'rgba(18,17,16,0.72)';
-    this._roundRect(ctx, px + 16, py + 16, pillW, pillH, 15); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,215,0,0.4)'; ctx.lineWidth = 1;
-    this._roundRect(ctx, px + 16, py + 16, pillW, pillH, 15); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,215,0,0.9)';
-    this._trackedText(ctx, typeLabel, px + 16 + pillW / 2, py + 16 + 20, 3);
-
-    // ── Content zone ──
-    ctx.textAlign = 'center';
-    let y = 762;
-
-    const role = (ch.role || '').trim();
-    if (role) {
-      ctx.fillStyle = 'rgba(255,215,0,0.82)';
-      ctx.font = '600 19px "Cinzel", Georgia, serif';
-      this._trackedText(ctx, role.toUpperCase(), W / 2, y, 3);
-      y += 46;
+    if (ex.dead) {
+      ctx.save();
+      ctx.translate(px + 150, py + ph - 76); ctx.rotate(-9 * deg);
+      ctx.font = '700 26px "Cinzel", Georgia, serif';
+      const st = '† ПОМЕР' + (ex.diedShort ? ' · ' + ex.diedShort : '');
+      const chs = [...st]; let sw = 0; chs.forEach(c => { sw += ctx.measureText(c).width; }); sw += 6 * (chs.length - 1);
+      const bw = sw + 36, bh = 48;
+      ctx.fillStyle = 'rgba(27,25,22,0.45)'; ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+      ctx.strokeStyle = 'rgba(255,90,90,0.8)'; ctx.lineWidth = 3; ctx.strokeRect(-bw / 2, -bh / 2, bw, bh);
+      ctx.fillStyle = 'rgba(255,110,110,0.92)';
+      this._trackedText(ctx, st, 0, 9, 6);
+      ctx.restore();
     }
 
-    // Name (up to 2 lines)
-    ctx.fillStyle = '#fff';
-    ctx.font = '700 50px "Cinzel", Georgia, serif';
-    const nameLines = this._wrapLines(ctx, (ch.name || '').trim(), pw - 60).slice(0, 2);
-    nameLines.forEach((ln, i) => ctx.fillText(ln, W / 2, y + i * 56));
-    y += (nameLines.length - 1) * 56 + 20;
-
-    // Alias
+    // ── Права колонка: ім'я й графи ──
+    const cx0 = 444, cw = R - cx0;
+    ctx.textAlign = 'left';
+    let y = 186;
+    ctx.fillStyle = '#fff'; ctx.font = '700 46px "Cinzel", Georgia, serif';
+    const nameLines = this._wrapLines(ctx, (ch.name || '').trim(), cw).slice(0, 2);
+    nameLines.forEach((ln, i) => ctx.fillText(this._cardFit(ctx, ln, cw), cx0, y + i * 52));
+    y += (nameLines.length - 1) * 52;
     const alias = (ch.alias || '').trim();
     if (alias) {
-      y += 30;
-      ctx.fillStyle = 'rgba(255,215,0,0.85)';
-      ctx.font = 'italic 400 29px "EB Garamond", Georgia, serif';
-      const aliasLines = this._wrapLines(ctx, '«' + alias + '»', pw - 80).slice(0, 1);
-      ctx.fillText(aliasLines[0], W / 2, y);
+      y += 40;
+      ctx.fillStyle = 'rgba(255,215,0,0.85)'; ctx.font = 'italic 400 26px "EB Garamond", Georgia, serif';
+      ctx.fillText(this._cardFit(ctx, '«' + alias + '»', cw), cx0, y);
+    }
+    const t = (v) => (v == null ? '' : String(v)).trim();
+    const unit = (v, u) => (v && !/[а-яїієґa-z]/i.test(v) ? v + ' ' + u : v);
+    const hw = [unit(t(ch.height), 'см'), unit(t(ch.weight), 'кг')].filter(Boolean).join(' · ');
+    const rows = [];
+    if (t(ch.role)) rows.push(['Роль', t(ch.role)]);
+    if (t(ch.age)) rows.push(['Вік', t(ch.age)]);
+    if (hw) rows.push([t(ch.height) && t(ch.weight) ? 'Зріст · вага' : (t(ch.height) ? 'Зріст' : 'Вага'), hw]);
+    if (ex.god && ex.god.name) rows.push(['Покровителька', ex.god.name, ex.god.color]);
+    rows.push(['Стан', ex.dead ? '† ' + (ex.diedFull || 'помер') : ex.inactive ? 'поза грою' : 'у грі', ex.dead ? 'rgba(255,120,120,0.92)' : null]);
+    y += 30;
+    rows.forEach(([k, v, ink]) => {
+      y += 42;
+      ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '600 13px Arial, sans-serif';
+      const kw = this._cardSpaced(ctx, k.toUpperCase(), cx0, y, 2, 'left');
+      ctx.textAlign = 'right'; ctx.fillStyle = ink || 'rgba(255,255,255,0.85)'; ctx.font = '400 23px "EB Garamond", Georgia, serif';
+      ctx.fillText(this._cardFit(ctx, v, cw - kw - 20), R, y + 2);
+      ctx.save(); ctx.setLineDash([2, 4]); ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx0, y + 14); ctx.lineTo(R, y + 14); ctx.stroke(); ctx.restore();
+    });
+    ctx.textAlign = 'left';
+
+    // ── З теки ──
+    y = Math.max(py + ph, y + 14) + 60;
+    const blurb = (t(ch.card_caption) || t(ch.bio)).replace(/\s+/g, ' ');
+    const hasCols = !!((ex.arcs && ex.arcs.length) || (ex.ties && ex.ties.length));
+    const maxL = Math.max(1, Math.min(hasCols ? 3 : 7, Math.floor((limit - (y + 44) - (hasCols ? 136 : 0)) / 40) + 1));
+    if (blurb) {
+      ctx.fillStyle = 'rgba(255,215,0,0.65)'; ctx.font = '600 13px Arial, sans-serif';
+      this._cardSpaced(ctx, '✦ З ТЕКИ', L, y, 4, 'left');
+      ctx.fillStyle = 'rgba(255,255,255,0.78)'; ctx.font = '400 27px "EB Garamond", Georgia, serif';
+      let lines = this._wrapLines(ctx, blurb, R - L);
+      if (lines.length > maxL) { lines = lines.slice(0, maxL); lines[maxL - 1] = this._cardFit(ctx, lines[maxL - 1] + ' …', R - L - 10).replace(/\s…$/, '…'); }
+      lines.forEach((ln, i) => ctx.fillText(ln, L, y + 44 + i * 40));
+      y += 44 + (lines.length - 1) * 40 + 60;
     }
 
-    // Stat chips (Вік / Зріст / Вага)
-    const stats = [];
-    if ((ch.age || '').toString().trim())    stats.push({ k: 'ВІК',   v: String(ch.age).trim() });
-    if ((ch.height || '').toString().trim()) stats.push({ k: 'ЗРІСТ', v: String(ch.height).trim() });
-    if ((ch.weight || '').toString().trim()) stats.push({ k: 'ВАГА',  v: String(ch.weight).trim() });
-    if (stats.length) {
-      y += 52;
-      const chipH = 60, gap = 12, padX = 20;
-      const dims = stats.map(st => {
-        ctx.font = '600 20px "Cinzel", Georgia, serif';
-        const vw = ctx.measureText(st.v).width;
-        ctx.font = '600 12px "Cinzel", Georgia, serif';
-        const kw = ctx.measureText(st.k).width + 2 * (st.k.length - 1);
-        return { w: Math.max(vw, kw) + padX * 2, ...st };
+    // ── Арки й нитки ──
+    const cols = [];
+    if (ex.arcs && ex.arcs.length) cols.push({ k: 'АРКИ', items: ex.arcs.map(a => ({ t: a.t, ink: a.ink })) });
+    if (ex.ties && ex.ties.length) cols.push({ k: 'НИТКИ', items: ex.ties.map(a => ({ t: a.t, ink: 'rgba(255,255,255,0.72)', dot: a.c })) });
+    if (cols.length && y + 40 + 36 * (Math.max(...cols.map(c => c.items.length)) - 1) <= limit) {
+      const colW = (R - L - 32) / 2;
+      cols.forEach((c, ci) => {
+        const x = L + ci * (colW + 32);
+        ctx.fillStyle = 'rgba(255,215,0,0.65)'; ctx.font = '600 13px Arial, sans-serif';
+        this._cardSpaced(ctx, c.k, x, y, 4, 'left');
+        c.items.forEach((it, i) => {
+          const iy2 = y + 40 + i * 36;
+          let tx = x;
+          if (it.dot) { ctx.fillStyle = it.dot; ctx.beginPath(); ctx.arc(x + 5, iy2 - 7, 5, 0, Math.PI * 2); ctx.fill(); tx = x + 18; }
+          ctx.fillStyle = it.ink; ctx.font = '400 23px "EB Garamond", Georgia, serif';
+          ctx.fillText(this._cardFit(ctx, it.t, colW - (tx - x)), tx, iy2);
+        });
       });
-      const totalW = dims.reduce((a, d) => a + d.w, 0) + gap * (dims.length - 1);
-      let cx = W / 2 - totalW / 2;
-      dims.forEach(d => {
-        ctx.fillStyle = 'rgba(255,255,255,0.05)';
-        this._roundRect(ctx, cx, y, d.w, chipH, 10); ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
-        this._roundRect(ctx, cx, y, d.w, chipH, 10); ctx.stroke();
-        ctx.fillStyle = 'rgba(255,215,0,0.6)';
-        ctx.font = '600 12px "Cinzel", Georgia, serif';
-        this._trackedText(ctx, d.k, cx + d.w / 2, y + 24, 2);
-        ctx.fillStyle = '#fff';
-        ctx.font = '600 20px "Cinzel", Georgia, serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(d.v, cx + d.w / 2, y + 47);
-        cx += d.w + gap;
+    }
+
+    // ── Підпис і печатки ──
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'italic 400 28px "EB Garamond", Georgia, serif';
+    ctx.fillText('— М. Ленц, рецепція', L, H - 96);
+    const now = new Date();
+    const today = String(now.getDate()).padStart(2, '0') + '.' + String(now.getMonth() + 1).padStart(2, '0') + '.' + now.getFullYear();
+    ctx.fillStyle = '#8a7d68'; ctx.font = '400 13px "Cinzel", Georgia, serif';
+    this._cardSpaced(ctx, 'AURELION · ' + today, L, H - 62, 4, 'left');
+
+    if (seals.length) {
+      const n = seals.length, MAX = 6;
+      const shown = n > MAX ? seals.slice(0, MAX - 1).concat([{ more: n - (MAX - 1) }]) : seals;
+      ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,215,0,0.65)'; ctx.font = '600 13px Arial, sans-serif';
+      this._cardSpaced(ctx, '✦ ПЕЧАТКИ · ' + n, L, sealTop, 4, 'left');
+      ctx.strokeStyle = 'rgba(255,215,0,0.16)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(L, sealTop + 14); ctx.lineTo(R, sealTop + 14); ctx.stroke();
+      const cell = (R - L) / MAX, rr = 36, cy = sealTop + 74;
+      const x0 = L + (MAX - shown.length) * cell / 2;
+      const ROT = [-8, 5, -3, 9, -5, 3];
+      shown.forEach((sv, i) => {
+        const cxs = x0 + i * cell + cell / 2;
+        const ink = sv.more ? 'rgba(255,255,255,0.5)' : sv.ink;
+        const word = sv.more ? '+' + sv.more : sv.word;
+        ctx.save(); ctx.translate(cxs, cy); ctx.rotate((sv.more ? 0 : ROT[i % ROT.length]) * deg);
+        ctx.strokeStyle = ink; ctx.fillStyle = ink;
+        ctx.lineWidth = rr * 0.1; ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.stroke();
+        ctx.lineWidth = rr * 0.035; ctx.beginPath(); ctx.arc(0, 0, rr * 0.8, 0, Math.PI * 2); ctx.stroke();
+        const wl = [...word].length, wf = (wl > 4 ? 0.36 : wl > 2 ? 0.5 : 0.78) * rr;
+        ctx.font = '700 ' + wf + 'px "Cinzel", Georgia, serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(word, 0, wf * 0.06, rr * 1.4);
+        ctx.restore();
+        ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '400 17px "EB Garamond", Georgia, serif';
+        const label = sv.more ? 'ще в листі заслуг' : sv.title + (sv.times > 1 ? ' ×' + sv.times : '');
+        ctx.fillText(this._cardFit(ctx, label, cell - 10), cxs, cy + rr + 30);
       });
-      y += chipH;
+      ctx.textAlign = 'left';
     }
-
-    // Optional card caption (руками з адмінки; порожньо → нічого)
-    const caption = (ch.card_caption || '').replace(/\s+/g, ' ').trim();
-    if (caption) {
-      y += 56;
-      ctx.fillStyle = 'rgba(255,255,255,0.62)';
-      ctx.font = 'italic 400 26px "EB Garamond", Georgia, serif';
-      ctx.textAlign = 'center';
-      let lines = this._wrapLines(ctx, caption, pw - 40);
-      if (lines.length > 3) { lines = lines.slice(0, 3); lines[2] = lines[2].replace(/[.,;:!?»]*$/, '') + '…'; }
-      lines.forEach((ln, i) => ctx.fillText(ln, W / 2, y + i * 36));
-    }
-
-    // ── Footer wordmark (pinned) ──
-    ctx.strokeStyle = 'rgba(255,215,0,0.22)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(W / 2 - 92, H - 116); ctx.lineTo(W / 2 - 28, H - 116);
-    ctx.moveTo(W / 2 + 28, H - 116); ctx.lineTo(W / 2 + 92, H - 116);
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(255,215,0,0.55)';
-    ctx.font = '15px "Cinzel", serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('✦', W / 2, H - 110);
-
-    ctx.save();
-    ctx.shadowColor = 'rgba(255,215,0,0.4)';
-    ctx.shadowBlur = 20;
-    ctx.fillStyle = '#ffd700';
-    ctx.font = '700 30px "Cinzel", Georgia, serif';
-    this._trackedText(ctx, 'AURELION', W / 2, H - 66, 8);
-    ctx.restore();
-
-    // Gold hairline frame (drawn last, on top)
-    ctx.strokeStyle = 'rgba(255,215,0,0.34)';
-    ctx.lineWidth = 1.5;
-    this._roundRect(ctx, 34, 34, W - 68, H - 68, 22);
-    ctx.stroke();
 
     return canvas;
   }
 
   async _charCardBlob(ch) {
     await this._ensureCardFonts();
-    const img = await this._loadImageSafe(ch.image);
-    const canvas = this._renderCharCanvas(ch, img);
+    const [img, seals] = await Promise.all([
+      this._loadImageSafe(ch.image),
+      this._charCardSeals(ch).catch(() => 0),
+    ]);
+    const canvas = this._renderCharCanvas(ch, img, { ...this._charCardExtra(ch), seals });
     return await new Promise(res => canvas.toBlob(res, 'image/png'));
   }
 
