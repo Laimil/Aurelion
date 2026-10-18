@@ -66,6 +66,18 @@
             <button onClick="{{ o.on }}" style="cursor:pointer;font-size:0.8rem;padding:5px 12px;border-radius:999px;background:{{ o.bg }};border:1px solid {{ o.bd }};color:{{ o.c }};transition:all 0.3s ease;">{{ o.label }}</button>
           </sc-for>
         </div>
+        <sc-if value="{{ noConfirm }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ onAskReset }}" style="align-self:flex-start;cursor:pointer;background:transparent;border:none;padding:0;font-size:0.78rem;color:rgba(255,255,255,0.45);text-decoration:underline;text-underline-offset:3px;transition:all 0.3s ease;" style-hover="color:#ff4d4d;">Скинути фамільяра</button>
+        </sc-if>
+        <sc-if value="{{ confirm }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-radius:10px;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.4);">
+            <p style="font-size:0.84rem;line-height:1.55;color:rgba(255,255,255,0.85);margin:0;">{{ confirmLine }}</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button onClick="{{ onReset }}" disabled="{{ busy }}" style="cursor:pointer;border:none;border-radius:999px;padding:8px 18px;font-size:0.84rem;font-weight:700;background:#ff4d4d;color:#1a1a1a;transition:all 0.3s ease;">Скинути</button>
+              <button onClick="{{ onKeep }}" style="cursor:pointer;border-radius:999px;padding:8px 18px;font-size:0.84rem;background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;">Лишити</button>
+            </div>
+          </div>
+        </sc-if>
       </div>
     </div>
   </sc-if>
@@ -315,6 +327,18 @@ class Component extends DCLogic {
     this.setState({ busy: false, edit: false, mode: null });
     this._bump(); this._load(true);
   }
+  async _reset() {
+    if (this.props.demo || this.props.demoNew) {
+      const F = window.AuFamiliar;
+      this.setState({ phase: 'new', data: { fam: null, linked: true }, mode: null, edit: false, confirm: false, name: '', draft: F ? { ...F.DEFAULT_LOOK } : null });
+      return;
+    }
+    this.setState({ busy: true, note: '' });
+    let d; try { d = await this._rpc('familiar_reset'); } catch (e) { d = { error: 'net' }; }
+    if (d && d.error) { this.setState({ busy: false, confirm: false, note: d.error === 'missing' ? 'Скидання ще не підключено: адмінам треба прогнати міграцію.' : 'Не вийшло. Спробуйте ще раз.' }); return; }
+    this.setState({ busy: false, confirm: false, mode: null, edit: false, name: '', draft: null });
+    this._bump(); this._load(true);
+  }
   async _peekMode(m) {
     const d = this.state.data; if (!d || !d.fam) return;
     this.setState({ data: { ...d, fam: { ...d.fam, peek: m } } });
@@ -406,6 +430,11 @@ class Component extends DCLogic {
       scoutLabel: stage === 1 ? 'Розвідка — коли вилупиться' : away ? 'На розвідці' : tired ? 'Розвідка — завтра' : 'Послати на розвідку',
       scoutColor: stage === 1 || away || tired ? 'rgba(255,255,255,0.4)' : '#ffffff',
       petLabel: stage === 1 ? 'Погріти' : 'Погладити',
+      confirm: !!s.confirm, noConfirm: !s.confirm,
+      confirmLine: `${fam.name} піде з кабінету назовсім, разом зі стадією й розвідками. Дописи лишаться, але новий фамільяр почне з яйця і рахуватиме їх від нуля.`,
+      onAskReset: () => this.setState({ confirm: true, note: '' }),
+      onReset: () => this._reset(),
+      onKeep: () => this.setState({ confirm: false }),
       onPet: () => this._pet(),
       onScout: () => this._scout(),
       onEdit: () => this.setState({ edit: true, mode: hidden ? 'egg' : 'build', draft: { ...look }, name: fam.name, note: '' }),
