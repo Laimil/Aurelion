@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="font-family:Arial,sans-serif;color:#fff;display:flex;flex-direction:column;gap:16px;">
+  <sc-if value="{{ isLoad }}" hint-placeholder-val="{{ true }}">
+    <p style="margin:0;font-size:0.85rem;color:rgba(255,255,255,0.4);">Розкладаю арки ваших персонажів…</p>
+  </sc-if>
+  <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+    <p style="margin:0;font-size:0.85rem;color:rgba(255,77,77,0.75);">{{ errText }}</p>
+  </sc-if>
+  <sc-if value="{{ noMine }}" hint-placeholder-val="{{ false }}">
+    <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;color:rgba(255,255,255,0.45);">Розставляти можна арки своїх персонажів — тих, що закріплені за вами, і лише там, де вони вже писали.</p>
+  </sc-if>
+  <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2">
+          <button onClick="{{ t.pick }}" style="cursor:pointer;padding:6px 14px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.ink }};transition:all 0.3s ease;">{{ t.label }}</button>
+        </sc-for>
+      </div>
+      <sc-if value="{{ fresh }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0;font-size:0.78rem;line-height:1.5;color:#9db8f2;text-wrap:pretty;">Ще не збережено. Це підказка за датами перших дописів — переставте, як було у світі, і збережіть.</p>
+      </sc-if>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid {{ r.ring }};">
+            <span style="flex:none;width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.8rem;color:#ffd700;border:1px solid rgba(255,215,0,0.35);">{{ r.n }}</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+                <a href="{{ r.href }}" style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:#fff;text-decoration:none;" style-hover="color:#ffd700;">{{ r.title }}</a>
+                <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);">{{ r.meta }}</span>
+                <sc-if value="{{ r.clash }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:0.68rem;padding:2px 8px;border-radius:999px;background:rgba(255,77,77,0.12);color:#ff8a8a;">{{ r.clashText }}</span>
+                </sc-if>
+              </div>
+              <input type="text" value="{{ r.note }}" onInput="{{ r.setNote }}" onChange="{{ r.setNote }}" maxlength="140" placeholder="Коротка нотатка — необов'язково" style="width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.92rem;padding:2px 0;outline:none;">
+            </div>
+            <div style="flex:none;display:flex;gap:4px;">
+              <button onClick="{{ r.up }}" title="Раніше у світі" style="cursor:pointer;width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);">↑</button>
+              <button onClick="{{ r.down }}" title="Пізніше у світі" style="cursor:pointer;width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);">↓</button>
+              <button onClick="{{ r.out }}" title="Прибрати з хронології" style="cursor:pointer;width:30px;height:30px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);">✕</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ hasPool }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.12);">
+          <span style="font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Ще не розставлені</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <sc-for list="{{ pool }}" as="p" hint-placeholder-count="1">
+              <button onClick="{{ p.add }}" style="cursor:pointer;padding:6px 14px;border-radius:999px;background:rgba(100,149,237,0.08);border:1px dashed rgba(100,149,237,0.45);color:#9db8f2;font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;" style-hover="background:rgba(100,149,237,0.16);">+ {{ p.title }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <sc-if value="{{ canSave }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ save }}" style="cursor:pointer;padding:9px 20px;border-radius:999px;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.5);color:#ffd700;font-family:'Cinzel',Georgia,serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.3);">{{ saveLabel }}</button>
+        </sc-if>
+        <sc-if value="{{ dirty }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ reset }}" style="cursor:pointer;padding:9px 16px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);font-size:0.78rem;">Скасувати зміни</button>
+        </sc-if>
+        <sc-if value="{{ hasMsg }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size:0.8rem;color:{{ msgInk }};">{{ msgText }}</span>
+        </sc-if>
+        <a href="#arcs" onClick="{{ toBoard }}" style="margin-left:auto;font-size:0.78rem;color:#ffd700;text-decoration:none;" style-hover="color:#fff;">Загальна дошка →</a>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:780,&quot;height&quot;:520}}">
+const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const BASE_H    = { apikey: SUPA_KEY };
+const POST_PAGE = 1000, POST_MAX = 20000;
+
+// ── Написання арок — як у Arcs.dc.html ──
+function arcKey(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[ʼ'’`´ь]/g, '')
+    .replace(/[iіїйиы]/g, 'и')
+    .replace(/[eеє]/g, 'е').replace(/[aа]/g, 'а').replace(/[oо]/g, 'о')
+    .replace(/[cс]/g, 'с').replace(/[pр]/g, 'р').replace(/[xх]/g, 'х')
+    .replace(/[yу]/g, 'у').replace(/ґ/g, 'г')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+}
+const splitArcs = (v) => String(v || '').split(' / ').map((s) => s.trim()).filter(Boolean);
+function editDist(a, b) {
+  if (a === b) return 0;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = prev[0]; prev[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cur = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diag = prev[j]; prev[j] = cur;
+    }
+  }
+  return prev[b.length];
+}
+function nearArc(a, b) {
+  const x = arcKey(a), y = arcKey(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  if (Math.abs(x.length - y.length) > 2) return false;
+  return editDist(x, y) <= (Math.min(x.length, y.length) <= 8 ? 1 : 2);
+}
+const MON = ['січ', 'лют', 'бер', 'квіт', 'трав', 'черв', 'лип', 'серп', 'вер', 'жовт', 'лист', 'груд'];
+function fmtDay(t) {
+  const d = new Date(t);
+  return d.getDate() + ' ' + MON[d.getMonth()] + (d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '');
+}
+function atOf(p) {
+  const c = Date.parse(p.created_at);
+  if (!p.day) return c || 0;
+  const d = Date.parse(p.day + 'T12:00:00');
+  return (c && c >= d - 12 * 3600000 && c <= d + 36 * 3600000) ? c : d;
+}
+
+class Component extends DCLogic {
+  state = { phase: 'load', err: '', mine: [], arcs: {}, chrono: {}, names: {}, edit: null, draft: {}, busy: false, msg: null };
+
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _ref() { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
+  _exp() { try { return Number(localStorage.getItem('au_user_exp')) || 0; } catch (e) { return 0; } }
+  _h() { return { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` }; }
+  _save(d) {
+    try {
+      if (!d || !d.access_token) return;
+      localStorage.setItem('au_user_token', d.access_token);
+      if (d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+      localStorage.setItem('au_user_exp', String(Date.now() + Math.max(60, Number(d.expires_in) || 3600) * 1000));
+    } catch (e) {}
+  }
+  async _renew() {
+    if (this._renewJob) return this._renewJob;
+    this._renewJob = (async () => {
+      const rt = this._ref();
+      if (!rt) return !!this._tok();
+      try {
+        const r = await fetch(`${SUPA_AUTH}/token?grant_type=refresh_token`, { method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' }, body: JSON.stringify({ refresh_token: rt }) });
+        const d = await r.json().catch(() => null);
+        if (d && d.access_token) { this._save(d); return true; }
+      } catch (e) {}
+      return !!this._tok();
+    })().finally(() => { this._renewJob = null; });
+    return this._renewJob;
+  }
+  async _api(url, opt = {}) {
+    if (this._ref() && this._exp() && this._exp() - Date.now() < 5 * 60 * 1000) await this._renew();
+    const go = () => fetch(url, { ...opt, headers: { ...(opt.headers || {}), ...this._h() } });
+    let r = await go();
+    if (r.status === 401 && await this._renew()) r = await go();
+    return r;
+  }
+
+  componentDidMount() { this._load(); }
+
+  async _load() {
+    try {
+      const ur = await this._api(`${SUPA_AUTH}/user`);
+      if (!ur.ok) { this.setState({ phase: 'error', err: 'Потрібен вхід у кабінет.' }); return; }
+      const u = await ur.json();
+      let owned = [];
+      for (const sel of ['id,name,is_draft', 'id,name']) {
+        const r = await this._api(`${SUPA_URL}/characters?owner_id=eq.${encodeURIComponent(u.id)}&select=${sel}`);
+        if (r.ok) { owned = (await r.json()).filter((c) => !c.is_draft); break; }
+      }
+      const [posts, chrono] = await Promise.all([this._posts(owned), this._chrono()]);
+      if (chrono == null) { this.setState({ phase: 'error', err: 'Хронологію ще не ввімкнено — рецепція має прогнати міграцію.' }); return; }
+      const arcs = this._arcsOf(owned, posts);
+      const names = {};
+      for (const c of owned) names[String(c.id)] = c.name;
+      const other = Object.keys(chrono).filter((id) => !names[id]);
+      if (other.length) {
+        try {
+          const r = await this._api(`${SUPA_URL}/characters?select=id,name&id=in.(${other.map(encodeURIComponent).join(',')})`);
+          if (r.ok) for (const c of await r.json()) names[String(c.id)] = c.name;
+        } catch (e) {}
+      }
+      const mine = owned.map((c) => String(c.id)).filter((id) => (arcs[id] || []).length).sort((a, b) => names[a].localeCompare(names[b], 'uk'));
+      console.log(`порядок арок: моїх персонажів ${mine.length}, дописів ${posts.length}, розставлено в базі ${Object.keys(chrono).length}`);
+      this.setState({ phase: 'ok', mine, arcs, chrono, names, edit: mine[0] || null });
+    } catch (e) {
+      console.warn('порядок арок:', String(e && e.message || e));
+      this.setState({ phase: 'error', err: 'Не вдалося зібрати арки. Спробуйте пізніше.' });
+    }
+  }
+  async _posts(owned) {
+    if (!owned.length) return [];
+    const ids = owned.map((c) => String(c.id));
+    const nm = owned.map((c) => '"' + String(c.name || '').replace(/["(),]/g, '') + '"').filter((x) => x.length > 2);
+    const or = `(character_id.in.(${ids.join(',')})${nm.length ? `,tag_name.in.(${nm.join(',')})` : ''})`;
+    const out = [];
+    for (let off = 0; off < POST_MAX; off += POST_PAGE) {
+      const r = await this._api(`${SUPA_URL}/marta_posts?select=tag_arc,tag_name,character_id,day,created_at&tag_arc=not.is.null`
+        + `&or=${encodeURIComponent(or)}&order=id.asc&limit=${POST_PAGE}&offset=${off}`);
+      if (!r.ok) throw new Error('marta_posts ' + r.status);
+      const rows = await r.json();
+      out.push(...rows);
+      if (rows.length < POST_PAGE) break;
+    }
+    return out;
+  }
+  async _chrono() {
+    try {
+      const r = await this._api(`${SUPA_URL}/arc_chrono?select=character_id,akey,arc,pos,note&order=pos.asc&limit=10000`);
+      if (!r.ok) { console.warn('порядок арок: arc_chrono —', await r.text()); return null; }
+      const m = {};
+      for (const x of await r.json()) (m[String(x.character_id)] = m[String(x.character_id)] || []).push(x);
+      return m;
+    } catch (e) { return null; }
+  }
+  // По кожному персонажу: арки (написання, що різняться на літеру, — одна), перший допис.
+  _arcsOf(owned, posts) {
+    const byName = new Map(owned.map((c) => [String(c.name || '').trim().toLowerCase(), String(c.id)]));
+    const ids = new Set(owned.map((c) => String(c.id)));
+    const groups = [];
+    const per = {};
+    for (const p of posts) {
+      const id = ids.has(String(p.character_id || '')) ? String(p.character_id) : byName.get(String(p.tag_name || '').trim().toLowerCase());
+      if (!id) continue;
+      const at = atOf(p);
+      for (const a of new Set(splitArcs(p.tag_arc))) {
+        let g = groups.find((x) => x.all.some((v) => nearArc(v, a)));
+        if (!g) { g = { name: a, all: [a], n: {} }; groups.push(g); }
+        if (!g.all.includes(a)) g.all.push(a);
+        g.n[a] = (g.n[a] || 0) + 1;
+        const m = per[id] = per[id] || new Map();
+        const e = m.get(g) || { g, first: at };
+        if (at < e.first) e.first = at;
+        m.set(g, e);
+      }
+    }
+    for (const g of groups) { g.name = Object.keys(g.n).sort((a, b) => g.n[b] - g.n[a])[0]; g.key = arcKey(g.name); }
+    const out = {};
+    for (const id of Object.keys(per)) out[id] = [...per[id].values()].map((e) => ({ key: e.g.key, all: e.g.all, name: e.g.name, first: e.first })).sort((a, b) => a.first - b.first);
+    return out;
+  }
+  _match(id, akey) {
+    return (this.state.arcs[id] || []).find((a) => a.key === akey || a.all.some((v) => arcKey(v) === akey)) || null;
+  }
+  _saved(id) {
+    return (this.state.chrono[id] || []).slice().sort((a, b) => a.pos - b.pos).map((r) => {
+      const a = this._match(id, r.akey);
+      return { key: a ? a.key : r.akey, name: a ? a.name : r.arc, note: r.note || '', gone: !a };
+    });
+  }
+  _draft(id) {
+    const d = this.state.draft[id];
+    if (d) return d;
+    const saved = this._saved(id);
+    if (saved.length) return { order: saved, dirty: false, fresh: false };
+    return { order: (this.state.arcs[id] || []).map((a) => ({ key: a.key, name: a.name, note: '' })), dirty: false, fresh: true };
+  }
+  _upd(id, fn) {
+    const d = this._draft(id);
+    const n = { order: d.order.map((x) => ({ ...x })), dirty: true, fresh: d.fresh };
+    fn(n.order);
+    this.setState((s) => ({ draft: { ...s.draft, [id]: n }, msg: null }));
+  }
+  async _store(id) {
+    if (this.state.busy) return;
+    const d = this._draft(id);
+    this.setState({ busy: true, msg: null });
+    const items = d.order.map((x) => ({ akey: x.key, arc: x.name, note: String(x.note || '').trim() || null }));
+    let err = '';
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/arc_chrono_save`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ p_char: id, p_items: items }) });
+      const j = r.ok ? await r.json() : { error: 'http ' + r.status + ' ' + await r.text() };
+      if (!j || !j.ok) err = (j && j.error) || 'error';
+    } catch (e) { err = 'net'; }
+    if (err) {
+      console.warn('порядок арок: збереження —', err);
+      const text = err === 'not owner' ? 'Це не ваш персонаж.' : err === 'net' ? 'Мережа не відповіла.' : /arc_chrono/.test(err) ? 'Хронологію ще не ввімкнено.' : 'Не збереглося.';
+      this.setState({ busy: false, msg: { bad: true, text } });
+      return;
+    }
+    console.log(`порядок арок: збережено ${items.length} для ${this.state.names[id]}`);
+    const rows = items.map((x, i) => ({ character_id: id, akey: x.akey, arc: x.arc, pos: i, note: x.note }));
+    this.setState((s) => { const dr = { ...s.draft }; delete dr[id]; return { busy: false, chrono: { ...s.chrono, [id]: rows }, draft: dr, msg: { text: 'Збережено — уже на дошці.' } }; });
+  }
+  // Хто з інших персонажів ставить ту саму пару арок навпаки.
+  _clash(id, order) {
+    const bad = {}, ka = order.map((x) => x.key);
+    for (const oid of Object.keys(this.state.chrono)) {
+      if (oid === id) continue;
+      const kb = (this.state.chrono[oid] || []).slice().sort((a, b) => a.pos - b.pos).map((r) => { const a = this._match(id, r.akey); return a ? a.key : r.akey; });
+      const shared = ka.filter((k) => kb.includes(k));
+      for (let p = 0; p < shared.length; p++) for (let q = p + 1; q < shared.length; q++) {
+        const a = shared[p], b = shared[q];
+        if ((ka.indexOf(a) < ka.indexOf(b)) !== (kb.indexOf(a) < kb.indexOf(b))) { bad[a] = bad[a] || this.state.names[oid] || 'хтось'; bad[b] = bad[b] || this.state.names[oid] || 'хтось'; }
+      }
+    }
+    return bad;
+  }
+
+  renderVals() {
+    const s = this.state, ok = s.phase === 'ok';
+    const tab = (on) => ({ bg: on ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)', border: on ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.14)', ink: on ? '#ffd700' : 'rgba(255,255,255,0.6)' });
+    const edit = s.mine.includes(s.edit) ? s.edit : s.mine[0] || null;
+    let rows = [], pool = [], d = null;
+    if (ok && edit) {
+      d = this._draft(edit);
+      const bad = this._clash(edit, d.order);
+      const own = s.arcs[edit] || [], firstOf = new Map(own.map((a) => [a.key, a.first]));
+      const inKeys = new Set(d.order.map((x) => x.key));
+      rows = d.order.map((x, i) => ({
+        n: i + 1, title: x.name, href: '#arcs/' + encodeURIComponent(x.name), note: x.note || '',
+        meta: firstOf.has(x.key) ? 'перший допис ' + fmtDay(firstOf.get(x.key)) : 'дописів у цій арці більше немає',
+        clash: !!bad[x.key], clashText: bad[x.key] ? `${bad[x.key]} ставить інакше` : '',
+        ring: bad[x.key] ? 'rgba(255,77,77,0.35)' : 'rgba(255,255,255,0.1)',
+        setNote: (e) => { const v = e.target.value; this._upd(edit, (o) => { o[i].note = v; }); },
+        up: () => { if (i > 0) this._upd(edit, (o) => { [o[i - 1], o[i]] = [o[i], o[i - 1]]; }); },
+        down: () => { if (i < d.order.length - 1) this._upd(edit, (o) => { [o[i + 1], o[i]] = [o[i], o[i + 1]]; }); },
+        out: () => this._upd(edit, (o) => { o.splice(i, 1); }),
+      }));
+      pool = own.filter((a) => !inKeys.has(a.key)).map((a) => ({ title: a.name, add: () => this._upd(edit, (o) => { o.push({ key: a.key, name: a.name, note: '' }); }) }));
+    }
+    const msg = s.msg;
+    return {
+      isLoad: s.phase === 'load', isError: s.phase === 'error', errText: s.err,
+      noMine: ok && !s.mine.length, hasMine: ok && s.mine.length > 0,
+      tabs: s.mine.map((id) => ({ label: s.names[id] + (s.draft[id] && s.draft[id].dirty ? ' ·' : ''), ...tab(id === edit), pick: () => this.setState({ edit: id, msg: null }) })),
+      rows, pool, hasPool: pool.length > 0,
+      fresh: !!(d && d.fresh && !d.dirty), dirty: !!(d && d.dirty), canSave: !!(d && (d.dirty || d.fresh)),
+      saveLabel: s.busy ? 'Зберігаю…' : 'Зберегти порядок',
+      save: () => edit && this._store(edit),
+      reset: () => this.setState((st) => { const dr = { ...st.draft }; delete dr[edit]; return { draft: dr, msg: null }; }),
+      hasMsg: !!msg, msgText: msg ? msg.text : '', msgInk: msg && msg.bad ? '#ff8a8a' : '#8fd6a8',
+      toBoard: () => { try { localStorage.setItem('au_arcs_view', 'chrono'); } catch (e) {} },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -37,6 +37,51 @@
         <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;margin:0;display:inline-flex;align-items:flex-start;gap:12px;">Арки<span style="font-family:Arial,sans-serif;font-size:0.68rem;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;line-height:1;margin-top:8px;">бета</span></h1>
         <p style="margin:12px auto 0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:480px;">Кожна арка — своя тека: хто в ній, звідки почалася і де зупинилася.</p>
       </header>
+      <div style="display:flex;justify-content:center;margin:-8px 0 24px;">
+        <div style="display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);">
+          <sc-for list="{{ viewTabs }}" as="v" hint-placeholder-count="2">
+            <button onClick="{{ v.pick }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.78rem;letter-spacing:0.05em;background:{{ v.bg }};border:1px solid {{ v.border }};color:{{ v.ink }};transition:all 0.3s ease;">{{ v.label }}<sc-if value="{{ v.beta }}" hint-placeholder-val="{{ false }}"><span style="font-family:Arial,sans-serif;font-size:0.56rem;letter-spacing:0.14em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;">бета</span></sc-if></button>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- ═══ ХРОНОЛОГІЯ (бета) ═══ -->
+      <sc-if value="{{ isChrono }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:40px;max-width:1200px;margin:0 auto;">
+          <p style="margin:0 auto;text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;color:rgba(255,255,255,0.45);max-width:560px;text-wrap:pretty;">Не коли писали, а коли це сталося у світі. Кожен розставляє арки своїх персонажів, а спільні арки зшивають ці нитки в одну дошку.</p>
+          <sc-if value="{{ cNoTable }}" hint-placeholder-val="{{ false }}">
+            <p style="text-align:center;font-size:0.85rem;color:rgba(255,77,77,0.75);margin:0;">Хронологію ще не ввімкнено — рецепція має прогнати міграцію.</p>
+          </sc-if>
+
+          <section style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;letter-spacing:0.05em;margin:0;">Загальна дошка</h2>
+                            <a href="#cabinet" style="margin-left:auto;font-size:0.78rem;color:#ffd700;text-decoration:none;" style-hover="color:#fff;">Розставити своїх — у кабінеті →</a>
+            </div>
+            <span style="font-size:0.74rem;color:rgba(255,255,255,0.4);">{{ cModeLine }}</span>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <sc-for list="{{ b2Chips }}" as="c" hint-placeholder-count="3">
+                    <span style="display:inline-flex;align-items:center;gap:8px;padding:5px 6px 5px 12px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid {{ c.color }};font-family:'Cinzel',serif;font-size:0.76rem;color:{{ c.color }};">{{ c.name }}<button onClick="{{ c.drop }}" title="Прибрати" style="cursor:pointer;width:20px;height:20px;border-radius:999px;border:none;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);font-size:0.7rem;">✕</button></span>
+                  </sc-for>
+                  <div style="position:relative;">
+                    <input type="text" value="{{ b2Q }}" onInput="{{ setB2Q }}" onChange="{{ setB2Q }}" placeholder="+ персонаж…" style="width:180px;box-sizing:border-box;border-radius:999px;padding:7px 14px;font-size:0.82rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);color:#fff;outline:none;">
+                    <sc-if value="{{ b2HasHits }}" hint-placeholder-val="{{ false }}">
+                      <div style="position:absolute;top:38px;left:0;z-index:5;min-width:220px;display:flex;flex-direction:column;padding:6px;border-radius:10px;background:#222;border:1px solid rgba(255,255,255,0.14);box-shadow:0 12px 30px rgba(0,0,0,0.5);">
+                        <sc-for list="{{ b2Hits }}" as="r" hint-placeholder-count="0">
+                          <button onClick="{{ r.add }}" style="cursor:pointer;text-align:left;padding:7px 10px;border-radius:6px;border:none;background:transparent;color:rgba(255,255,255,0.8);font-size:0.84rem;" style-hover="background:rgba(255,215,0,0.1);color:#fff;">{{ r.name }} <span style="color:rgba(255,255,255,0.35);font-size:0.72rem;">{{ r.meta }}</span></button>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+                <div style="overflow-x:auto;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:8px 0;">{{ b2Svg }}</div>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCards }}" hint-placeholder-val="{{ true }}"><div>
       <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
         <input type="text" value="{{ q }}" onInput="{{ setQ }}" onChange="{{ setQ }}" placeholder="Арка або персонаж…" style="flex:0 1 300px;min-width:0;box-sizing:border-box;border-radius:999px;padding:9px 16px;font-size:0.85rem;font-family:Arial,sans-serif;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);color:#fff;outline:none;">
         <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
@@ -89,6 +134,7 @@
       <sc-if value="{{ noCards }}" hint-placeholder-val="{{ false }}">
         <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.36);padding:40px 0;margin:0;">{{ emptyLine }}</p>
       </sc-if>
+      </div></sc-if>
     </div>
   </sc-if>
 
@@ -293,6 +339,11 @@ const STATE_UA = { live: 'жива', quiet: 'тиша', closed: 'закрита'
 const DAY = 86400000;
 const POST_PAGE = 1000, POST_MAX = 20000;
 const COMBO_MAX = 5;
+// перші шість — пантеон і азур; далі світліші/темніші відтінки тих самих, щоб 7–12-та нитки не злипались з першими
+const TCOL = ['#ffd76b', '#6495ed', '#5e9a8f', '#c46a80', '#b8bcc8', '#8b8fd6', '#e0a458', '#9fc2ff', '#8fcfbf', '#e79ab0', '#7f8696', '#b7b9f0'];
+const TMAX = TCOL.length;
+const tCut = (s, n) => (s.length > n ? s.slice(0, Math.max(1, n - 1)).trimEnd() + '…' : s);
+const tInitial = (s) => String(s || '✦').trim().slice(0, 1).toUpperCase();
 const EX_LEN = 520;
 
 // ── Написання арок — як у Posts.dc.html ──
@@ -405,6 +456,9 @@ class Component extends DCLogic {
     phase: 'load', arcs: [], pages: {}, noPages: false, admin: false,
     q: '', filt: 'all', sort: 'last', open: null, ex: {}, gal: {}, mineOnly: false,
     edit: null, close: null,
+    view: 'cards', chrono: {}, noChrono: false, ownIds: [], chars: [],
+    cEdit: null, cDraft: {}, cSel: [], cBusy: false, cMsg: null,
+    tSel: null, tZoom: null, b2Sel: null, b2Q: '',
   };
 
   // ── Ключ доступу (як у Posts) ──
@@ -449,6 +503,7 @@ class Component extends DCLogic {
     window.addEventListener('hashchange', this._onHash);
     this.state.open = this._hashArc();
     try { this.state.mineOnly = localStorage.getItem('au_arcs_mine') === '1'; } catch (e) {}
+    try { if (localStorage.getItem('au_arcs_view') === 'chrono') this.state.view = 'chrono'; } catch (e) {}
     this._load();
   }
   componentWillUnmount() { window.removeEventListener('hashchange', this._onHash); }
@@ -478,12 +533,14 @@ class Component extends DCLogic {
       const prof = sr.ok ? (await sr.json())[0] : null;
       const admin = await this._isAdmin();
       if (!admin && (!prof || prof.status !== 'approved')) { this.setState({ phase: 'locked' }); return; }
-      const [chars, posts, pages, npcs, own, fol, shut] = await Promise.all([this._chars(), this._posts(), this._pages(), this._npcs(), this._own(u.id), this._follows(), this._closed()]);
+      const [chars, posts, pages, npcs, own, fol, shut, chrono] = await Promise.all([this._chars(), this._posts(), this._pages(), this._npcs(), this._own(u.id), this._follows(), this._closed(), this._chrono()]);
       const arcs = this._build(posts, chars, npcs);
       this._markMine(arcs, own, fol);
       this._markClosed(arcs, shut);
       console.log(`арки: ${posts.length} дописів → ${arcs.length} арок, анкет ${chars.length}`);
-      this.setState({ phase: 'ok', arcs, admin, pages: pages || {}, noPages: pages == null });
+      console.log(`хронологія: ${chrono ? Object.keys(chrono).length + ' персонажів розставлено' : 'таблиці немає'}`);
+      this.setState({ phase: 'ok', arcs, admin, pages: pages || {}, noPages: pages == null,
+        chrono: chrono || {}, noChrono: chrono == null, ownIds: [...own], chars });
     } catch (e) {
       console.warn('арки:', String(e && e.message || e));
       this.setState({ phase: 'error' });
@@ -654,8 +711,9 @@ class Component extends DCLogic {
         if (!g.last || at >= g.last.at) g.last = { at, id: p.id, who };
         if (!who) continue;
         const ck = ch ? 'c' + ch.id : 'n' + who.toLowerCase();
-        const e = g.cast.get(ck) || { key: ck, name: who, ch, npc, pic, n: 0, last: 0 };
-        e.n++; if (at > e.last) e.last = at;
+        const e = g.cast.get(ck) || { key: ck, name: who, ch, npc, pic, n: 0, last: 0, first: at, days: new Set() };
+        e.n++; if (at > e.last) e.last = at; if (at < e.first) e.first = at;
+        e.days.add(Math.floor(at / DAY));
         g.cast.set(ck, e);
       }
     }
@@ -907,6 +965,393 @@ class Component extends DCLogic {
     };
   }
 
+  // ── Хронологія (бета): тут лише дошка; розставляють у кабінеті (ArcOrder.dc.html) ──
+  async _chrono() {
+    try {
+      const r = await this._api(`${SUPA_URL}/arc_chrono?select=character_id,akey,arc,pos,note&order=pos.asc&limit=10000`);
+      if (!r.ok) { console.warn('арки: хронологія —', await r.text(), '(прогнати supabase_arc_chrono_migration.sql)'); return null; }
+      const m = {};
+      for (const x of await r.json()) (m[String(x.character_id)] = m[String(x.character_id)] || []).push(x);
+      return m;
+    } catch (e) { return null; }
+  }
+  _grpOf(key, name) {
+    return this.state.arcs.find((g) => g.key === key || g.all.some((v) => arcKey(v) === key)) || (name ? this._find(name) : null);
+  }
+  _saved(id) {
+    return (this.state.chrono[id] || []).slice().sort((a, b) => a.pos - b.pos).map((r) => {
+      const g = this._grpOf(r.akey, r.arc);
+      return { key: g ? g.key : r.akey, name: g ? g.name : r.arc, note: r.note || '' };
+    });
+  }
+  // ── Хронологія (бета): дерево на гнучкій шкалі (варіант 2b); «весь світ» прибрано 2026-10-19 ──
+  // Звідки: «Хронологія - Варіанти.dc.html», хід 2.
+  _chronoPrep() {
+    const s = this.state;
+    if (this._cmFor !== s.chars) {
+      this._cm = {};
+      for (const c of s.chars || []) this._cm[String(c.id)] = { id: String(c.id), name: c.name, image: c.image || '' };
+      this._cmFor = s.chars;
+    }
+    if (this._cmArcs !== s.arcs) {
+      for (const g of s.arcs) {
+        g.cmap = new Map();
+        // «Флешбек» — збірна арка, не сюжет: у хронологію не йде (порожня cmap = арки немає)
+        if (/^\s*флешбеки?\s*$/i.test(g.name || '')) continue;
+        for (const c of g.castList) if (c.ch && this._cm[String(c.ch.id)]) g.cmap.set(String(c.ch.id), { first: c.first || g.first.at, last: c.last || g.last.at, n: c.n });
+      }
+      this._cmArcs = s.arcs;
+    }
+  }
+  // ── Дані ──
+  _orderOf(id) {
+    if (!this._oc) this._oc = new Map();
+    if (this._oc.has(id)) return this._oc.get(id);
+    const mine = this.state.arcs.filter((g) => g.cmap.has(id));
+    const saved = (this.state.chrono[id] || []).slice().sort((a, b) => a.pos - b.pos)
+      .map((r) => mine.find((g) => g.key === r.akey || g.all.some((v) => arcKey(v) === r.akey))).filter(Boolean);
+    const o = saved.length ? [...new Set(saved)] : mine.slice().sort((a, b) => a.cmap.get(id).first - b.cmap.get(id).first);
+    this._oc.set(id, o);
+    return o;
+  }
+  _shared(a, b) { return this.state.arcs.filter((g) => g.cmap.has(a) && g.cmap.has(b)).length; }
+  _active() { return Object.keys(this._cm).filter((id) => this.state.arcs.some((g) => g.cmap.has(id))); }
+  _byName(ids) { return ids.slice().sort((a, b) => this._cm[a].name.localeCompare(this._cm[b].name, 'uk')); }
+  _defaultSel(n) {
+    const act = this._active();
+    if (!act.length) return [];
+    const posts = (id) => this.state.arcs.reduce((s, g) => s + (g.cmap.get(id) ? g.cmap.get(id).n : 0), 0);
+    const links = (id) => act.filter((o) => o !== id && this._shared(id, o) > 0).length;
+    const mineOk = this.state.ownIds.filter((id) => act.includes(id) && links(id) >= 2).sort((a, b) => links(b) - links(a));
+    const me = mineOk[0] || act.slice().sort((a, b) => links(b) - links(a) || posts(b) - posts(a))[0];
+    const rest = act.filter((id) => id !== me).sort((a, b) => this._shared(me, b) - this._shared(me, a)).filter((id) => this._shared(me, id) > 0);
+    return [me, ...rest].slice(0, n);
+  }
+  _sortLanes(ids) {
+    if (ids.length < 3) return ids;
+    if (ids.length <= 6) {
+      const perms = (a) => a.length <= 1 ? [a] : a.flatMap((x, i) => perms([...a.slice(0, i), ...a.slice(i + 1)]).map((p) => [x, ...p]));
+      let best = ids, bc = Infinity;
+      for (const p of perms(ids)) {
+        let c = 0;
+        for (const g of this.state.arcs) {
+          const ix = p.map((id, i) => g.cmap.has(id) ? i : -1).filter((i) => i >= 0);
+          if (ix.length > 1) c += ix[ix.length - 1] - ix[0] - (ix.length - 1);
+        }
+        if (c < bc) { bc = c; best = p; }
+      }
+      return best;
+    }
+    const deg = (id) => ids.reduce((s, o) => s + (o !== id ? this._shared(id, o) : 0), 0);
+    const left = ids.slice().sort((a, b) => deg(b) - deg(a));
+    const out = [left.shift()];
+    while (left.length) {
+      const last = out[out.length - 1];
+      left.sort((a, b) => this._shared(last, b) - this._shared(last, a) || deg(b) - deg(a));
+      out.push(left.shift());
+    }
+    return out;
+  }
+  // Шар = найдовший шлях від початку; вузли одного шару не налазять один на одного.
+  _layout(ids) {
+    const lanes = this._sortLanes(ids).map((id) => ({ id, order: this._orderOf(id) }));
+    const idx = new Map(lanes.map((L, i) => [L.id, i]));
+    const keys = [], name = {}, pred = {}, indeg = {}, next = {};
+    for (const L of lanes) for (const g of L.order) if (!(g.key in indeg)) { keys.push(g.key); name[g.key] = g; indeg[g.key] = 0; next[g.key] = new Set(); pred[g.key] = new Set(); }
+    // Паралельні арки одного персонажа (флешбек, побічна сцена, поки пише в основній):
+    // основна доріжка — найдовший ЛАНЦЮЖОК арок, що йдуть одна за одною (спільні арки
+    // важать більше: нитка має лишатися з тими, з ким грає), а не одна найдовша арка —
+    // інакше довга арка-фон відводила основну нитку вбік від усіх інших.
+    // Перетин рахується лише відчутний: > 3 діб і > третини коротшої арки (запізнілий допис — не паралель).
+    const clash = (x, y) => {
+      const ov = Math.min(x.e.last, y.e.last) - Math.max(x.e.first, y.e.first);
+      return ov > 3 * DAY && ov > 0.34 * Math.min(x.e.last - x.e.first, y.e.last - y.e.first);
+    };
+    const onB = new Set(lanes.map((L) => L.id));
+    const board = (x) => [...x.g.cmap.keys()].filter((id) => onB.has(id)).length;
+    const tr = lanes.map((L) => {
+      const m = new Map();
+      const iv = L.order.map((g) => ({ g, e: g.cmap.get(L.id) })).filter((x) => x.e).sort((a, b) => a.e.last - b.e.last);
+      // вага — скільки людей З ДОШКИ в арці: нитка лишається там, де ділить вузли з іншими лініями
+      const w = (x) => 1 + 0.8 * (board(x) - 1) + Math.min(0.3, x.e.n / 300);
+      const best = [], prev = [];
+      iv.forEach((x, j) => {
+        best[j] = w(x); prev[j] = -1;
+        for (let i = 0; i < j; i++) if (!clash(iv[i], x) && best[i] + w(x) > best[j]) { best[j] = best[i] + w(x); prev[j] = i; }
+      });
+      const main = new Set();
+      let j = best.reduce((bj, v, k) => v > best[bj] ? k : bj, 0);
+      for (; j >= 0 && iv.length; j = prev[j]) main.add(j);
+      const tracks = [[]];
+      iv.forEach((x, k) => {
+        if (main.has(k)) { m.set(x.g.key, 0); return; }
+        // розгалуження — лише коли бічна арка «менша» за ту, з якою перетинається: сам або
+        // з меншою частиною дошки. Дві рівні спільні арки внахлест — це неточні дати, не паралель.
+        const rival = iv.filter((y, q) => main.has(q) && clash(x, y)).reduce((a, y) => Math.max(a, board(y)), 0);
+        if (board(x) > 1 && board(x) >= rival) { m.set(x.g.key, 0); return; }
+        let t = 1;
+        while (tracks[t] && tracks[t].some((y) => clash(x, y))) t++;
+        (tracks[t] = tracks[t] || []).push(x);
+        m.set(x.g.key, Math.min(t, 2));
+      });
+      return m;
+    });
+    const edge = (a, b) => { if (a === b) return; pred[b].add(a); if (!next[a].has(b)) { next[a].add(b); indeg[b]++; } };
+    lanes.forEach((L, li) => L.order.forEach((g, k) => {
+      const my = tr[li].get(g.key) || 0;
+      let same = null, main = null;
+      for (let j = k - 1; j >= 0 && !(same && main); j--) {
+        const tj = tr[li].get(L.order[j].key) || 0;
+        if (!same && tj === my) same = L.order[j];
+        if (!main && tj === 0) main = L.order[j];
+      }
+      if (same) edge(same.key, g.key);
+      if (my && main && main !== same) edge(main.key, g.key);
+    }));
+    const topo = [], left = new Set(keys);
+    while (left.size) {
+      let p = keys.find((n) => left.has(n) && indeg[n] === 0);
+      if (!p) p = [...left].sort((a, b) => indeg[a] - indeg[b])[0];
+      left.delete(p); topo.push(p); next[p].forEach((m) => indeg[m]--);
+    }
+    const nodes = {}, byLayer = [];
+    for (const k of topo) {
+      const P = lanes.map((L, i) => L.order.some((g) => g.key === k) ? i : -1).filter((i) => i >= 0);
+      const c = P.reduce((a, i) => a + i, 0) / P.length;
+      let layer = 0;
+      pred[k].forEach((p) => { if (nodes[p]) layer = Math.max(layer, nodes[p].layer + 1); });
+      const hit = (Ly) => (byLayer[Ly] || []).some((o) => o.P.some((i) => P.includes(i)) || Math.abs(o.c - c) < 0.9 ||
+        (Math.min(...o.P) < Math.max(...P) && Math.max(...o.P) > Math.min(...P) && (o.P.length > 1 || P.length > 1)));
+      while (hit(layer)) layer++;
+      nodes[k] = { key: k, g: name[k], P, c, layer };
+      (byLayer[layer] = byLayer[layer] || []).push(nodes[k]);
+    }
+    return { lanes, idx, nodes: Object.values(nodes), pred, tr, nLayers: byLayer.length };
+  }
+
+  // ── Малювання ──
+  // o: { X(n), Y(i), color(i), style 'curve'|'metro', width(i), op(i), label(n, pts) → [text, x, y, props], names, faces, LM }
+  _draw(lay, o) {
+    const h = React.createElement, kids = [], defs = [];
+    const pts = new Map();
+    for (const n of lay.nodes) {
+      const x = o.X(n), FG = o.forkGap || 16;
+      const off = (i) => n.P.length > 1 ? 0 : ((lay.tr && lay.tr[i].get(n.key)) || 0) * FG;
+      const ys = n.P.map((i) => o.Y(i) + off(i));
+      const cy = ys.reduce((a, b) => a + b, 0) / ys.length;
+      const per = new Map(n.P.map((i, r) => [i, n.P.length > 1 && (o.style === 'metro' || o.ribbon) ? cy + (r - (n.P.length - 1) / 2) * (o.style === 'metro' ? 6 : (o.ribGap || 4)) : (n.P.length > 1 ? cy : o.Y(i) + off(i))]));
+      pts.set(n.key, { key: n.key, g: n.g, x, cy, per, P: n.P });
+    }
+    lay.lanes.forEach((L, i) => {
+      const yl = o.Y(i), all = L.order.map((g) => pts.get(g.key)).filter(Boolean).sort((a, b) => a.x - b.x);
+      if (!all.length) return;
+      const trk = (p) => (lay.tr && lay.tr[i].get(p.key)) || 0;
+      const main = all.filter((p) => !trk(p)), seq = main.length ? main : all;
+      const st = { fill: 'none', stroke: o.color(i), strokeWidth: o.width(i), strokeLinecap: 'round', strokeLinejoin: 'round', opacity: o.op(i) };
+      const seg = (p, q, yb) => {
+        const y1 = p.per.get(i), y2 = q.per.get(i);
+        if (o.style === 'metro') { const d1 = Math.abs(yb - y1), d2 = Math.abs(y2 - yb); return `M${p.x} ${y1} L${p.x + d1} ${yb} L${q.x - d2} ${yb} L${q.x} ${y2} `; }
+        if (o.ribbon && p.P.length > 1 && q.P.length > 1 && p.P.filter((j) => q.P.includes(j)).length >= 2) {
+          // разом із арки в арку — не розходимось до своїх рядків
+          const m = (q.x - p.x) / 2;
+          return `M${p.x} ${y1} C${p.x + m} ${y1} ${q.x - m} ${y2} ${q.x} ${y2} `;
+        }
+        const m = Math.min(70, (q.x - p.x) / 2);
+        return `M${p.x} ${y1} C${p.x + m * 0.6} ${y1} ${p.x + m * 0.4} ${yb} ${p.x + m} ${yb} L${q.x - m} ${yb} C${q.x - m * 0.4} ${yb} ${q.x - m * 0.6} ${y2} ${q.x} ${y2} `;
+      };
+      const tailTo = (p, yb) => {
+        const tx = o.tail && o.tail(i, L, p.g);
+        if (!tx || tx <= p.x + 20) return '';
+        const y1 = p.per.get(i), m = Math.min(50, (tx - p.x) / 2);
+        return `M${p.x} ${y1} C${p.x + m * 0.6} ${y1} ${p.x + m * 0.4} ${yb} ${p.x + m} ${yb} L${tx} ${yb} `;
+      };
+      let d = '';
+      for (let k = 0; k + 1 < seq.length; k++) d += seg(seq[k], seq[k + 1], yl);
+      d += tailTo(seq[seq.length - 1], yl);
+      // бічна гілка: відходить від основної нитки перед паралельною аркою й вертається після
+      let dS = '';
+      if (main.length) for (const t of [...new Set(all.map(trk))].filter(Boolean)) {
+        const yb = yl + t * (o.forkGap || 16), runs = [];
+        for (const p of all.filter((q) => trk(q) === t)) {
+          const r = runs[runs.length - 1];
+          if (r && !main.some((m) => m.x > r[r.length - 1].x && m.x < p.x)) r.push(p); else runs.push([p]);
+        }
+        for (const R of runs) {
+          const a = R[0], z = R[R.length - 1];
+          const from = main.filter((m) => m.x < a.x).pop() || { x: o.LM, per: new Map([[i, yl]]), P: [i] };
+          const to = main.find((m) => m.x > z.x);
+          dS += seg(from, a, yb);
+          for (let k = 0; k + 1 < R.length; k++) dS += seg(R[k], R[k + 1], yb);
+          dS += to ? seg(z, to, yb) : tailTo(z, yb);
+        }
+      }
+      if (dS) kids.push(h('path', { key: 'fk' + L.id, d: dS, ...st, strokeWidth: o.width(i) * 0.8, opacity: o.op(i) * 0.85 }));
+      // хвіст до першого вузла — гілка «виростає» з імені
+      const f = seq[0];
+      const lead = o.style === 'metro' ? `M${o.LM} ${yl} L${f.x - Math.abs(f.per.get(i) - yl)} ${yl} L${f.x} ${f.per.get(i)} ` : (() => { const fy = f.per.get(i), m = Math.min(50, Math.max(0, (f.x - o.LM) / 2)); return `M${o.LM} ${yl} L${f.x - m} ${yl} C${f.x - m * 0.4} ${yl} ${f.x - m * 0.6} ${fy} ${f.x} ${fy} `; })();
+      kids.push(h('path', { key: 'lead' + L.id, d: lead, ...st, opacity: o.op(i) * (o.leadOp == null ? 0.35 : o.leadOp), strokeDasharray: '2 5' }));
+      if (d) kids.push(h('path', { key: 'p' + L.id, d, ...st }));
+    });
+    for (const n of lay.nodes) {
+      const p = pts.get(n.key), multi = n.P.length > 1, side = !multi && lay.tr && lay.tr[n.P[0]].get(n.key);
+      const tip = n.g.name + (multi ? ' · ' + n.P.map((i) => this._cm[lay.lanes[i].id].name).join(', ') : '') + (side ? ' · паралельно з іншою аркою' : '');
+      const parts = [h('title', { key: 't' }, tip)];
+      if (o.style === 'metro') {
+        if (multi) {
+          const ys = [...p.per.values()];
+          parts.push(h('rect', { key: 'r', x: p.x - 7, y: Math.min(...ys) - 7, width: 14, height: Math.max(...ys) - Math.min(...ys) + 14, rx: 7, fill: o.hotKey === n.key ? '#ffd700' : '#f3efe4', stroke: '#1a1a1a', strokeWidth: 2.5 }));
+        } else parts.push(h('circle', { key: 'c', cx: p.x, cy: p.per.get(n.P[0]), r: 5, fill: '#1a1a1a', stroke: o.color(n.P[0]), strokeWidth: 3, opacity: o.op(n.P[0]) }));
+      } else if (multi && o.ribbon) {
+        const c = o.mergeColor || '#ffd700', fade = Math.max(...n.P.map(o.op)), ys = [...p.per.values()], top = Math.min(...ys), bot = Math.max(...ys), R = o.capR || 7;
+        parts.push(h('rect', { key: 'g', x: p.x - R - 4, y: top - R - 4, width: 2 * R + 8, height: bot - top + 2 * R + 8, rx: R + 4, fill: c, opacity: 0.12 * fade }));
+        parts.push(h('rect', { key: 'n', x: p.x - R, y: top - R, width: 2 * R, height: bot - top + 2 * R, rx: R, fill: '#1a1a1a', stroke: c, strokeWidth: 2.2, opacity: fade }));
+        n.P.forEach((i) => parts.push(h('circle', { key: 'd' + i, cx: p.x, cy: p.per.get(i), r: Math.min(2.2, R / 3), fill: o.color(i), opacity: o.op(i) })));
+      } else if (multi) {
+        const c = o.mergeColor || '#ffd700', fade = Math.max(...n.P.map(o.op));
+        parts.push(h('circle', { key: 'g', cx: p.x, cy: p.cy, r: o.big ? 15 : 12, fill: c, opacity: 0.12 * fade }));
+        parts.push(h('circle', { key: 'n', cx: p.x, cy: p.cy, r: o.big ? 8 : 6.5, fill: '#1a1a1a', stroke: c, strokeWidth: 2.5, opacity: fade }));
+        parts.push(h('circle', { key: 'i', cx: p.x, cy: p.cy, r: 2.6, fill: c, opacity: fade }));
+      } else parts.push(h('circle', { key: 'n', cx: p.x, cy: p.per.get(n.P[0]), r: o.dot || 5, fill: o.color(n.P[0]), opacity: o.op(n.P[0]) }));
+      const lab = o.label && o.label(n, p);
+      if (lab) parts.push(h('text', { key: 'l', x: lab.x, y: lab.y, fill: lab.fill, fontSize: lab.size || 12.5, fontFamily: "'EB Garamond', Georgia, serif", textAnchor: lab.anchor || 'middle', transform: lab.rot ? `rotate(${lab.rot} ${lab.x} ${lab.y})` : undefined, opacity: lab.op == null ? 1 : lab.op }, lab.text));
+      kids.push(h('a', { key: 'a' + n.key, href: '#arcs/' + encodeURIComponent(n.g.name) }, parts));
+    }
+    lay.lanes.forEach((L, i) => {
+      const c = this._cm[L.id], y = o.Y(i);
+      if (o.faces) {
+        defs.push(h('clipPath', { key: 'cp' + L.id, id: 'cp' + o.uid + i }, h('circle', { cx: o.LM - 26, cy: y, r: 15 })));
+        kids.push(h('circle', { key: 'fr' + L.id, cx: o.LM - 26, cy: y, r: 17, fill: '#2a2826', stroke: o.color(i), strokeWidth: 2, opacity: o.op(i) }));
+        if (c.image) kids.push(h('image', { key: 'fi' + L.id, href: c.image, xlinkHref: c.image, x: o.LM - 41, y: y - 15, width: 30, height: 30, preserveAspectRatio: 'xMidYMid slice', clipPath: `url(#cp${o.uid}${i})`, opacity: o.op(i) }));
+        else kids.push(h('text', { key: 'fl' + L.id, x: o.LM - 26, y: y + 5, textAnchor: 'middle', fill: o.color(i), fontSize: 13, fontFamily: "'Cinzel', serif" }, tInitial(c.name)));
+      }
+      kids.push(h('text', { key: 'nm' + L.id, x: o.faces ? o.LM - 50 : o.LM - 12, y: y + 4, textAnchor: 'end', fill: o.color(i), opacity: Math.max(0.35, o.op(i)), fontSize: o.nameSize || 12.5, fontFamily: "'Cinzel', Georgia, serif", style: o.onName ? { cursor: 'pointer' } : undefined, onClick: o.onName ? () => o.onName(L.id) : undefined }, tCut(c.name, o.nameCut || 16)));
+    });
+    if (o.extra) kids.unshift(...o.extra);
+    return h('svg', { width: Math.ceil(o.W), height: Math.ceil(o.H), style: { display: 'block' } }, h('defs', { key: 'defs' }, defs), kids);
+  }
+
+  _faces(sel, max, set, colorOf) {
+    return this._byName(this._active()).map((id) => {
+      const c = this._cm[id], at = sel.indexOf(id), on = at >= 0;
+      return { name: c.name, letter: c.image ? '' : tInitial(c.name), bg: c.image ? `url(${JSON.stringify(c.image)})` : 'none',
+        ring: on ? colorOf(at) : 'rgba(255,255,255,0.12)', glow: on ? `0 0 14px ${colorOf(at)}55` : 'none', op: on ? 1 : 0.55, ink: on ? '#fff' : 'rgba(255,255,255,0.45)',
+        pick: () => set(on ? sel.filter((x) => x !== id) : [...sel, id].slice(-max)) };
+    });
+  }
+
+  // ── Хід 2: гнучка шкала часу ──
+  // Вузли йдуть топологічно (порядок гравця сильніший), але з перевагою часу. Відстань
+  // між сусідніми подіями — від тиші між ними: elastic — корінь із днів, steps — рівний крок.
+  _timeAxis(lay, mode, o) {
+    const h = React.createElement;
+    const tOf = (n) => Math.min(...n.P.map((i) => n.g.cmap.get(lay.lanes[i].id).first));
+    const byKey = {}, indeg = {}, succ = {};
+    lay.nodes.forEach((n) => { byKey[n.key] = n; indeg[n.key] = 0; succ[n.key] = []; });
+    lay.nodes.forEach((n) => lay.pred[n.key].forEach((p) => { if (p in indeg) { indeg[n.key]++; succ[p].push(n.key); } }));
+    const left = new Set(Object.keys(byKey)), ready = lay.nodes.filter((n) => !indeg[n.key]), order = [];
+    while (left.size) {
+      let pick = null;
+      ready.sort((a, b) => tOf(a) - tOf(b));
+      while (ready.length && !left.has(ready[0].key)) ready.shift();
+      if (ready.length) pick = ready.shift();
+      else pick = byKey[[...left].sort((a, b) => indeg[a] - indeg[b] || tOf(byKey[a]) - tOf(byKey[b]))[0]];
+      left.delete(pick.key); order.push(pick);
+      succ[pick.key].forEach((k) => { indeg[k]--; if (indeg[k] <= 0 && left.has(k)) ready.push(byKey[k]); });
+    }
+    const gapPx = (dt) => { const d = Math.max(0, dt / DAY); if (d < 0.5) return 0; return mode === 'steps' ? o.STEP : Math.min(o.MAXG || 170, 24 + (o.K || 20) * Math.sqrt(d)); };
+    const span = (n) => [Math.min(...n.P), Math.max(...n.P)];
+    const xs = {}, placed = [], gaps = [];
+    let px = o.X0, pt = null;
+    for (const n of order) {
+      const t = pt == null ? tOf(n) : Math.max(tOf(n), pt);
+      let x = pt == null ? o.X0 : px + gapPx(t - pt);
+      lay.pred[n.key].forEach((p) => { if (xs[p] != null) x = Math.max(x, xs[p] + o.MIN); });
+      const [a, b] = span(n);
+      for (const m of placed) { const [c, d] = span(m); if (c <= b && d >= a && Math.abs(xs[m.key] - x) < o.MIN * 0.8) x = Math.max(x, xs[m.key] + o.MIN * 0.8); }
+      if (pt != null && x > px) gaps.push({ x0: px, x1: x, t0: pt, t1: t });
+      xs[n.key] = x; placed.push(n);
+      if (x >= px) { px = x; pt = t; }
+    }
+    const now = Date.now(), todayX = px + Math.max(o.MIN, mode === 'steps' ? o.STEP : gapPx(now - pt));
+    gaps.push({ x0: px, x1: todayX, t0: pt, t1: now, end: true });
+    const extra = [], Y0 = o.top, Y1 = o.bottom, AY = Y1 + 16;
+    const fmtGap = (dt) => { const d = dt / DAY; return d < 60 ? '≈ ' + Math.max(1, Math.round(d / 7)) + ' тиж.' : '≈ ' + Math.round(d / 30) + ' міс.'; };
+    let lastLab = -1e9;
+    extra.push(h('line', { key: 'ax', x1: o.X0 - 24, x2: todayX, y1: AY - 10, y2: AY - 10, stroke: 'rgba(255,255,255,0.08)' }));
+    for (const g of gaps) {
+      const long = g.t1 - g.t0 > 21 * DAY;
+      if (mode !== 'steps' && long && !g.end) {
+        const mx = (g.x0 + g.x1) / 2;
+        extra.push(h('path', { key: 'br' + g.x0, d: `M${mx - 6} ${AY - 4} L${mx - 2} ${AY - 16} M${mx + 2} ${AY - 4} L${mx + 6} ${AY - 16}`, stroke: 'rgba(255,255,255,0.35)', strokeWidth: 1.2, fill: 'none' }));
+        extra.push(h('text', { key: 'bt' + g.x0, x: mx, y: AY + 8, textAnchor: 'middle', fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontFamily: 'Arial, sans-serif' }, fmtGap(g.t1 - g.t0)));
+        lastLab = mx;
+        continue;
+      }
+      const d0 = new Date(g.t0);
+      for (let m = new Date(d0.getFullYear(), d0.getMonth() + 1, 1); m.getTime() <= g.t1; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)) {
+        const x = g.x0 + (m.getTime() - g.t0) / Math.max(1, g.t1 - g.t0) * (g.x1 - g.x0);
+        if (x - lastLab < 54) continue;
+        lastLab = x;
+        extra.push(h('line', { key: 'm' + m.getTime(), x1: x, x2: x, y1: Y0, y2: AY - 6, stroke: mode === 'steps' ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)', strokeDasharray: mode === 'steps' ? '2 4' : undefined }));
+        extra.push(h('text', { key: 'mt' + m.getTime(), x: x + 4, y: AY + 8, fill: 'rgba(255,255,255,0.38)', fontSize: 10.5, fontFamily: 'Arial, sans-serif' }, MON[m.getMonth()] + (m.getMonth() === 0 ? ' ' + m.getFullYear() : '')));
+      }
+      // підпис «тиша N» прибрано: проміжок між вузлами — це відстань між початками арок, а не
+      // відсутність дописів (у той час гра йде всередині арок), тож слово вводило в оману
+    }
+    extra.push(h('line', { key: 'now', x1: todayX, x2: todayX, y1: Y0, y2: AY - 6, stroke: 'rgba(255,215,0,0.4)', strokeDasharray: '3 4' }));
+    extra.push(h('text', { key: 'nowt', x: todayX, y: AY + 8, textAnchor: 'middle', fill: 'rgba(255,215,0,0.7)', fontSize: 10.5, fontFamily: 'Arial, sans-serif' }, 'сьогодні'));
+    return { xs, extra, todayX, H: AY + 14 };
+  }
+  _liveTail(lay, todayX) {
+    return (i, L, g) => {
+      const last = g || L.order[L.order.length - 1];
+      const e = last && last.cmap.get(L.id);
+      return e && Date.now() - e.last < 30 * DAY ? todayX : null;
+    };
+  }
+
+  _v2b() {
+    const s = this.state, sel = (s.b2Sel || this._defaultSel(4)).filter((id) => this._cm[id]);
+    const set = (v) => this.setState({ b2Sel: v, b2Q: '' });
+    const q = (s.b2Q || '').trim().toLowerCase();
+    const hits = q ? this._byName(this._active()).filter((id) => !sel.includes(id) && this._cm[id].name.toLowerCase().includes(q)).slice(0, 7) : [];
+    const out = {
+      b2Chips: sel.map((id, i) => ({ name: this._cm[id].name, color: TCOL[i % TMAX], drop: () => set(sel.filter((x) => x !== id)) })),
+      b2Q: s.b2Q || '', setB2Q: (e) => this.setState({ b2Q: e.target.value }),
+      b2Hits: hits.map((id) => ({ name: this._cm[id].name, meta: this._orderOf(id).length + ' арк.', add: () => set([...sel, id].slice(-TMAX)) })), b2HasHits: hits.length > 0,
+      b2Svg: null,
+    };
+    if (!sel.length) return out;
+    const lay = this._layout(sel), LM = 130, G = 54, TOP = 120;
+    const bottom = TOP + (lay.lanes.length - 1) * G + 24;
+    const T = this._timeAxis(lay, 'steps', { X0: LM + 50, MIN: 70, STEP: 96, top: TOP - 40, bottom });
+    out.b2Svg = this._draw(lay, { uid: 'b2', LM, style: 'curve', ribbon: true, ribGap: 4, capR: 7, forkGap: 20, extra: T.extra, tail: this._liveTail(lay, T.todayX), leadOp: 0.25,
+      X: (n) => T.xs[n.key], Y: (i) => TOP + i * G, color: (i) => TCOL[sel.indexOf(lay.lanes[i].id) % TMAX], width: () => 2.5, op: () => 1, dot: 4.5,
+      label: (n, p) => ({ text: tCut(n.g.name, 30), x: p.x + 4, y: Math.min(...p.per.values()) - (n.P.length > 1 ? 14 : 10), rot: -32, anchor: 'start', fill: n.P.length > 1 ? '#ffe9a3' : 'rgba(255,255,255,0.7)', size: 12 }),
+      W: T.todayX + 80, H: T.H });
+    return out;
+  }
+
+  _chronoVals() {
+    const s = this.state, ok = s.phase === 'ok' && s.view === 'chrono';
+    const tab = (on) => ({ bg: on ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)', border: on ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.14)', ink: on ? '#ffd700' : 'rgba(255,255,255,0.6)' });
+    let board = {};
+    if (ok) {
+      this._chronoPrep();
+      this._oc = null;
+      try { board = this._v2b(); } catch (e) { console.warn('хронологія: дошка —', String(e && e.message || e)); }
+    }
+    return {
+      isCards: s.view !== 'chrono', isChrono: s.view === 'chrono',
+      viewTabs: [['cards', 'Теки', false], ['chrono', 'Хронологія', true]].map(([k, label, beta]) => ({ label, beta, ...tab(s.view === k),
+        pick: () => { try { localStorage.setItem('au_arcs_view', k); } catch (e) {} this.setState({ view: k }); } })),
+      cNoTable: !!s.noChrono,
+      cModeLine: 'До дванадцяти персонажів. Кожна нова арка — рівний крок, тож довгий проміжок стиснутий; місяці — на шкалі внизу. Дві арки водночас — нитка роздвоюється.',
+      b2Chips: [], b2Q: s.b2Q || '', setB2Q: (e) => this.setState({ b2Q: e.target.value }), b2Hits: [], b2HasHits: false, b2Svg: null,
+      ...board,
+    };
+  }
+
   renderVals() {
     const s = this.state;
     const ok = s.phase === 'ok';
@@ -919,6 +1364,7 @@ class Component extends DCLogic {
     const nShut = s.arcs.filter((x) => x.state === 'closed').length;
     const mOn = s.mineOnly;
     return {
+      ...this._chronoVals(),
       hasMine: nMine > 0 || mOn,
       nMine,
       mineBg: mOn ? 'rgba(255,215,0,0.16)' : 'rgba(255,215,0,0.04)',

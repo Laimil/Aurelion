@@ -164,6 +164,9 @@ a:hover{color:#fff}
             <sc-if value="{{ dlNav }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ pickDl }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navDlBg }};color:{{ navDlColor }};">Арку — у файл</button>
             </sc-if>
+            <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ pickChrono }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:8px;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navChronoBg }};color:{{ navChronoColor }};"><span>Порядок арок</span><span style="font-size:0.54rem;letter-spacing:0.14em;text-transform:uppercase;padding:2px 6px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;">бета</span></button>
+            </sc-if>
             <p style="font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:12px 10px 4px;">Мої теки</p>
             <button onClick="{{ pickShelf }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;border:none;border-radius:8px;padding:7px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navShelfBg }};color:{{ navShelfColor }};">
               <span style="width:28px;height:28px;flex-shrink:0;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:6px;box-sizing:border-box;border-radius:999px;border:1px solid rgba(255,255,255,0.16);"><span style="background:currentColor;border-radius:2px;opacity:0.7;"></span><span style="background:currentColor;border-radius:2px;opacity:0.7;"></span><span style="background:currentColor;border-radius:2px;opacity:0.7;"></span><span style="background:currentColor;border-radius:2px;opacity:0.7;"></span></span>
@@ -804,6 +807,17 @@ a:hover{color:#fff}
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.6);margin:0;text-wrap:pretty;">Живе у вашому кабінеті й їсть дописи всіх ваших персонажів. Не голодує і не вмирає, лише засинає, коли ви довго мовчите.</p>
           </div>
           <dc-import name="Familiar" variant="card" hint-size="100%,340px"></dc-import>
+        </div>
+      </sc-if>
+
+      <!-- ═════ ВКЛАДКА: ПОРЯДОК АРОК (бета) ═════ -->
+      <sc-if value="{{ showChrono }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:22px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <p style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin:0;">✦ Порядок арок · бета</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.6);margin:0;text-wrap:pretty;">Не коли писали, а коли це сталося у світі. Розставте арки своїх персонажів — спільні арки зшиють їх із чужими на загальній дошці.</p>
+          </div>
+          <dc-import name="ArcOrder" hint-size="100%,360px"></dc-import>
         </div>
       </sc-if>
 
@@ -4434,7 +4448,11 @@ class Component extends DCLogic {
       // взагалі, тому й смужки вкладок немає.
       showTabs: !this.props.onlyGossip,
       lockedOnly: !!this.props.onlyGossip && s.phase === 'ok' && status === 'pending',
-      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'fam', 'turns', 'arcfile', 'shelf'].includes(s.tab),
+      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'fam', 'turns', 'arcfile', 'shelf', 'chrono'].includes(s.tab),
+      showChrono: !this.props.onlyGossip && s.tab === 'chrono' && status === 'approved',
+      pickChrono: () => this._pickTab('chrono'),
+      navChronoBg: s.tab === 'chrono' ? 'rgba(255,215,0,0.12)' : 'transparent',
+      navChronoColor: s.tab === 'chrono' ? '#ffd700' : 'rgba(255,255,255,0.75)',
       pickDl: () => this._pickTab('arcfile'),
       navDlBg: s.tab === 'arcfile' ? 'rgba(255,215,0,0.12)' : 'transparent',
       navDlColor: s.tab === 'arcfile' ? '#ffd700' : 'rgba(255,255,255,0.75)',
@@ -4493,7 +4511,7 @@ class Component extends DCLogic {
         let n = 0;
         try { n = d && !d.error && !d.missing && T ? T.yourTurn(d) : 0; } catch (e) {}
         const row = (on) => ({ bg: on ? 'rgba(255,215,0,0.12)' : 'transparent', color: on ? '#ffd700' : 'rgba(255,255,255,0.75)' });
-        const tT = row(s.tab === 'turns'), tI = row(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab));
+        const tT = row(s.tab === 'turns'), tI = row(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'chrono'].includes(s.tab));
         const tG = row(s.tab === 'gossip'), tM = row(s.tab === 'me');
         const orphan = this._mineVals().myEdits.filter((r) => orphanIds.indexOf(String(r.key)) !== -1);
         return {
@@ -4511,7 +4529,7 @@ class Component extends DCLogic {
       notEditingAny: !s.eId && !s.editId,
       notEditingChar: !s.eId,
       ...(() => {
-        const a = this._pillStyle(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile'].includes(s.tab));
+        const a = this._pillStyle(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'chrono'].includes(s.tab));
         const b = this._pillStyle(s.tab === 'gossip');
         const c = this._pillStyle(s.tab === 'mine');
         const d = this._pillStyle(s.tab === 'me');
