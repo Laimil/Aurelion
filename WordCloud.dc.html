@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;margin:0}
+a{color:#ffd700;text-decoration:none}
+a:hover{color:#fff}
+</style>
+</helmet>
+
+<div style="width:100%;max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+
+  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:15px;padding:14px 16px;">
+    <div style="display:flex;align-items:center;gap:12px;flex:1 1 280px;min-width:0;">
+      <div style="flex:none;width:46px;height:46px;border-radius:50%;overflow:hidden;border:1px solid rgba(255,215,0,0.5);box-shadow:0 0 14px rgba(255,215,0,0.18);background:rgba(255,255,255,0.06);">
+        <sc-if value="{{ hasImg }}" hint-placeholder-val="{{ false }}">
+          <img src="{{ charImg }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </sc-if>
+      </div>
+      <select value="{{ charId }}" onChange="{{ onChar }}" style="flex:1;min-width:0;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:11px 16px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;outline:none;cursor:pointer;">
+        <sc-for list="{{ charOpts }}" as="c" hint-placeholder-count="1">
+          <option value="{{ c.id }}" style="background:#222;color:#fff;">{{ c.label }}</option>
+        </sc-for>
+      </select>
+    </div>
+    <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+      <sc-for list="{{ srcOpts }}" as="o" hint-placeholder-count="2">
+        <button onClick="{{ o.pick }}" style="cursor:pointer;border-radius:999px;padding:7px 15px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;transition:all 0.3s ease;border:1px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }};">{{ o.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position:relative;background:radial-gradient(ellipse at 50% 45%,rgba(255,215,0,0.07) 0%,rgba(255,255,255,0.02) 55%,rgba(0,0,0,0) 100%),rgba(255,255,255,0.03);border:1px solid rgba(255,215,0,0.22);border-radius:15px;box-shadow:0 16px 46px rgba(0,0,0,0.45);padding:38px 26px 30px;min-height:380px;display:flex;flex-direction:column;justify-content:center;">
+    <sc-if value="{{ showCloud }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 16px;line-height:1.15;">
+        <sc-for list="{{ words }}" as="w" hint-placeholder-count="0">
+          <button onClick="{{ w.pick }}" title="{{ w.title }}" style-hover="color:#fff;text-shadow:0 0 18px rgba(255,215,0,0.55)" style="cursor:pointer;background:none;border:none;padding:2px 2px;font-family:'EB Garamond',Georgia,serif;font-size:{{ w.size }};font-weight:{{ w.weight }};font-style:{{ w.fs }};color:{{ w.color }};text-shadow:{{ w.glow }};transition:all 0.3s ease;">{{ w.text }}</button>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showMsg }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;">
+        <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.06em;color:rgba(255,215,0,0.8);">{{ msgTitle }}</p>
+        <p style="margin:0;max-width:420px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.5);text-wrap:pretty;">{{ msgText }}</p>
+        <sc-if value="{{ msgSwitch }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ toBio }}" style-hover="color:#fff;border-color:rgba(255,215,0,0.5)" style="cursor:pointer;margin-top:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:9px 20px;color:rgba(255,255,255,0.8);font-family:'Cinzel',Georgia,serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.3s ease;">Показати хмару з анкети</button>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ showCloud }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px;">
+
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:15px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;">
+        <sc-if value="{{ hasPick }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+              <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:1.7rem;font-weight:600;color:#ffd700;">{{ pickWord }}</p>
+              <span style="font-size:0.76rem;color:rgba(255,255,255,0.5);white-space:nowrap;">{{ pickCount }}</span>
+            </div>
+            <sc-if value="{{ pickHasForms }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:0;font-size:0.74rem;color:rgba(255,255,255,0.4);">Форми: {{ pickForms }}</p>
+            </sc-if>
+            <sc-for list="{{ pickLines }}" as="l" hint-placeholder-count="2">
+              <p style="margin:0;padding-left:12px;border-left:1px solid rgba(255,215,0,0.35);font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.02rem;line-height:1.55;color:rgba(255,255,255,0.75);text-wrap:pretty;">{{ l.before }}<b style="font-style:normal;color:#fff;">{{ l.hit }}</b>{{ l.after }}</p>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noPick }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <p style="margin:0;font-size:0.66rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.4);">У цифрах</p>
+            <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+              <div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.07);">
+                <span style="font-size:0.84rem;color:rgba(255,255,255,0.55);">{{ s.k }}</span>
+                <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:#fff;">{{ s.v }}</span>
+              </div>
+            </sc-for>
+            <p style="margin:6px 0 0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,255,255,0.42);">Натисніть на слово в хмарі — покажу, де воно стоїть.</p>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:15px;padding:18px 20px;display:flex;flex-direction:column;gap:6px;">
+        <p style="margin:0 0 4px;font-size:0.66rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Десятка найчастіших</p>
+        <sc-for list="{{ top }}" as="t" hint-placeholder-count="10">
+          <button onClick="{{ t.pick }}" style-hover="background:rgba(255,255,255,0.06)" style="cursor:pointer;display:grid;grid-template-columns:22px minmax(0,1fr) 44px;align-items:center;gap:10px;background:none;border:none;border-radius:6px;padding:4px 6px;text-align:left;transition:all 0.3s ease;">
+            <span style="font-family:'Cinzel',Georgia,serif;font-size:0.74rem;color:rgba(255,215,0,0.7);">{{ t.n }}</span>
+            <span style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ t.text }}</span>
+              <span style="height:3px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden;"><span style="display:block;height:100%;width:{{ t.pct }};background:linear-gradient(90deg,rgba(255,215,0,0.4),#ffd700);border-radius:2px;"></span></span>
+            </span>
+            <span style="font-size:0.8rem;color:rgba(255,255,255,0.5);text-align:right;">{{ t.count }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <p style="margin:0;text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,255,255,0.38);text-wrap:pretty;">Службові слова («що», «який», «вже»…) відсіяно, а різні відмінки зведено до одного слова.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;1080px&quot;,&quot;height&quot;:&quot;1100px&quot;},&quot;palette&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;gold&quot;,&quot;azure&quot;,&quot;mixed&quot;],&quot;default&quot;:&quot;gold&quot;,&quot;tsType&quot;:&quot;'gold'|'azure'|'mixed'&quot;},&quot;maxWords&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:20,&quot;max&quot;:160,&quot;step&quot;:10,&quot;default&quot;:70,&quot;tsType&quot;:&quot;number&quot;},&quot;hideNames&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const SUPA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const LS = 'au_wordcloud_v1';
+const STOP = new Set(('і й та а але або що це як не ні так же ж би б бо ще вже лише тільки навіть теж також він вона воно вони його її їх їй йому ним нею ними мене мені мною тебе тобі тобою себе собі собою ми ви ти я нас нам вас вам наш наша наше наші нашого нашої ваш ваша ваше ваші свій своя своє свої свого своєї своїм своєю своїх цей ця ці цього цієї цим цих цю той те ті того тієї тим тих ту там тут де куди звідки коли тоді потім щоб якщо хоч хоча чи у в на до від з із зі за по про під над між через для без при біля після перед коло крізь аж ось от ну ой ах ох був була було були буде будуть будемо бути є може можна треба має мав мала мали маю мати весь вся все всі всього всіх всім усе усі увесь усього усіх кожен кожна кожне кожного інший інша інше інші іншого який яка яке які якого якої яким якій яких якою хто кого кому чого чому чим нічого ніхто нікого щось хтось щоcь якось дуже трохи більше менше знову просто зараз сьогодні раз лиш навіщо адже немов наче ніби мов неї нього них ньому ній нею собою тому того цьому цій тоді тепер завжди ніколи іноді досі поки доки бувало або ані ніж аніж нехай хай давай можливо мабуть певно справді звісно вже ще так-так ага угу ото оце оцей отак отже також але проте однак зате хіба невже лишень лише дещо деякі декілька кілька багато мало своїм самий сама саме самі самого самої сам ним них їм їхній їхня їхнє їхні неї ньому щоразу знов якби колись десь кудись звідси звідти сюди туди тому-то бо ж-бо зовсім цілком майже вельми надто такий така таке такі такого такої таким таких стільки скільки чимало обидва обидві один одна одне одні одного одної перший друга другий'
+).split(/\s+/));
+const fold = s => s.toLowerCase().replace(/[’'`]/g, 'ʼ').replace(/ё/g, 'е');
+const stem = w => w.length >= 5 ? w.slice(0, Math.max(4, w.length - 2)) : w;
+const plain = s => String(s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/https?:\/\/\S+/g, ' ').replace(/#\S+/g, ' ');
+const WORD_RE = /[a-zа-яіїєґʼ'’\-]+/gi;
+const PALETTES = {
+  gold: ['#ffd700', '#ffe24d', '#f3d27a', 'rgba(255,255,255,0.92)', 'rgba(255,255,255,0.72)', 'rgba(255,255,255,0.55)'],
+  azure: ['#9db8f5', '#6495ed', '#c6d6fa', 'rgba(255,255,255,0.9)', 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.52)'],
+  mixed: ['#ffd700', '#6495ed', '#f3d27a', '#9db8f5', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0.58)'],
+};
+
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(LS) || '{}') || {}; } catch (e) {}
+    this.state = { chars: [], charId: saved.charId || '', src: saved.src || 'posts', phase: 'loading', texts: [], pick: null, why: '' };
+    this._cache = {};
+  }
+  componentDidMount() { this._loadChars(); }
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _ref() { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
+  _h() { return { apikey: SUPA_KEY, Authorization: 'Bearer ' + (this._tok() || SUPA_KEY) }; }
+  async _renew() {
+    const rt = this._ref();
+    if (!rt) return false;
+    try {
+      const r = await fetch(SUPA_AUTH + '/token?grant_type=refresh_token', { method: 'POST', headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ refresh_token: rt }) });
+      const d = await r.json();
+      if (d && d.access_token) {
+        localStorage.setItem('au_user_token', d.access_token);
+        if (d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+        localStorage.setItem('au_user_exp', String(Date.now() + Math.max(60, Number(d.expires_in) || 3600) * 1000));
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+  async _api(url) {
+    const exp = Number(localStorage.getItem('au_user_exp')) || 0;
+    if (this._ref() && exp && exp - Date.now() < 5 * 60 * 1000) await this._renew();
+    let r = await fetch(url, { headers: this._h() });
+    if (r.status === 401 && await this._renew()) r = await fetch(url, { headers: this._h() });
+    return r;
+  }
+  _save() { try { localStorage.setItem(LS, JSON.stringify({ charId: this.state.charId, src: this.state.src })); } catch (e) {} }
+  async _loadChars() {
+    try {
+      let r = await this._api(SUPA_URL + '/characters?select=id,name,alias,image,bio&order=sort_order.asc,created_at.asc');
+      if (!r.ok) { console.warn('хмара: картотека —', await r.text()); this.setState({ phase: 'error' }); return; }
+      const chars = (await r.json()).filter(c => c && c.name);
+      const keep = chars.find(c => String(c.id) === String(this.state.charId));
+      const charId = keep ? String(keep.id) : (chars[0] ? String(chars[0].id) : '');
+      this.setState({ chars, charId }, () => this._loadText());
+    } catch (e) { console.warn('хмара:', e); this.setState({ phase: 'error' }); }
+  }
+  async _loadText() {
+    const { charId, src, chars } = this.state;
+    const ch = chars.find(c => String(c.id) === charId);
+    if (!ch) { this.setState({ phase: 'empty', texts: [] }); return; }
+    this.setState({ pick: null });
+    if (src === 'bio') {
+      const t = plain(ch.bio).trim();
+      this.setState({ phase: t ? 'ok' : 'empty', texts: t ? [t] : [], why: 'bio' });
+      return;
+    }
+    if (!this._tok() && !this._ref()) { this.setState({ phase: 'locked', texts: [] }); return; }
+    const key = 'p' + charId;
+    if (this._cache[key]) { this.setState({ phase: this._cache[key].length ? 'ok' : 'empty', texts: this._cache[key], why: 'posts' }); return; }
+    this.setState({ phase: 'loading' });
+    try {
+      const or = encodeURIComponent('(character_id.eq.' + ch.id + ',tag_name.eq."' + String(ch.name).replace(/"/g, '') + '")');
+      const texts = [];
+      for (let off = 0; off < 3000; off += 1000) {
+        const r = await this._api(SUPA_URL + '/marta_posts?select=body&or=' + or + '&order=created_at.desc&limit=1000&offset=' + off);
+        if (!r.ok) {
+          console.warn('хмара: дописи —', await r.text());
+          if (r.status === 401 || r.status === 403) { this.setState({ phase: 'locked', texts: [] }); return; }
+          break;
+        }
+        const rows = await r.json();
+        rows.forEach(x => { const t = plain(x.body).trim(); if (t) texts.push(t); });
+        if (rows.length < 1000) break;
+      }
+      if (String(this.state.charId) !== charId || this.state.src !== 'posts') return;
+      this._cache[key] = texts;
+      this.setState({ phase: texts.length ? 'ok' : 'empty', texts, why: 'posts' });
+    } catch (e) { console.warn('хмара:', e); this.setState({ phase: 'error' }); }
+  }
+  _names() {
+    if (this._nameSet) return this._nameSet;
+    const s = new Set();
+    this.state.chars.forEach(c => (String(c.name || '') + ' ' + String(c.alias || '')).split(/[^a-zа-яіїєґʼ'’]+/i).forEach(w => { w = fold(w); if (w.length >= 3) s.add(stem(w)); }));
+    return this._nameSet = s;
+  }
+  _count() {
+    const texts = this.state.texts;
+    if (this._memo && this._memo.texts === texts && this._memo.hide === this._hide()) return this._memo.res;
+    const names = this._hide() ? this._names() : new Set();
+    const groups = new Map();
+    let total = 0;
+    texts.forEach(t => {
+      (t.match(WORD_RE) || []).forEach(raw => {
+        const w = fold(raw).replace(/^[-ʼ]+|[-ʼ]+$/g, '');
+        if (w.length < 3 || /^[a-z]+$/.test(w)) return;
+        total++;
+        if (STOP.has(w)) return;
+        const k = stem(w);
+        if (names.has(k)) return;
+        let g = groups.get(k);
+        if (!g) { g = { key: k, n: 0, forms: new Map() }; groups.set(k, g); }
+        g.n++;
+        g.forms.set(w, (g.forms.get(w) || 0) + 1);
+      });
+    });
+    const list = Array.from(groups.values()).map(g => {
+      const forms = Array.from(g.forms.entries()).sort((a, b) => b[1] - a[1]);
+      return { key: g.key, n: g.n, word: forms[0][0], forms: forms.map(f => f[0]) };
+    }).filter(g => g.n >= (texts.length > 3 ? 2 : 1)).sort((a, b) => b.n - a.n || a.word.localeCompare(b.word, 'uk'));
+    const res = { list, total, unique: groups.size };
+    this._memo = { texts, hide: this._hide(), res };
+    return res;
+  }
+  _hide() { return this.props.hideNames ?? true; }
+  _lines(g) {
+    const out = [];
+    const re = new RegExp('(^|[^a-zа-яіїєґʼ\'’])(' + g.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[a-zа-яіїєґʼ\'’]*)', 'i');
+    for (const t of this.state.texts) {
+      const sents = t.split(/(?<=[.!?…])\s+|\n+/);
+      for (const s of sents) {
+        const m = s.match(re);
+        if (!m) continue;
+        const at = m.index + m[1].length;
+        let before = s.slice(0, at), after = s.slice(at + m[2].length);
+        if (before.length > 90) before = '…' + before.slice(-88);
+        if (after.length > 110) after = after.slice(0, 108) + '…';
+        out.push({ before, hit: m[2], after });
+        if (out.length >= 3) return out;
+        break;
+      }
+    }
+    return out;
+  }
+  renderVals() {
+    const { chars, charId, src, phase, pick } = this.state;
+    const ch = chars.find(c => String(c.id) === charId) || null;
+    const chip = on => on ? { bg: 'rgba(255,215,0,0.14)', bd: 'rgba(255,215,0,0.5)', fg: '#ffd700' } : { bg: 'transparent', bd: 'transparent', fg: 'rgba(255,255,255,0.55)' };
+    const max = Math.max(20, Math.min(160, this.props.maxWords ?? 70));
+    const pal = PALETTES[this.props.palette] || PALETTES.gold;
+    const ok = phase === 'ok';
+    const res = ok ? this._count() : { list: [], total: 0, unique: 0 };
+    const list = res.list.slice(0, max);
+    const hi = list.length ? list[0].n : 1, lo = list.length ? list[list.length - 1].n : 1;
+    const arranged = [];
+    list.forEach((g, i) => { if (i % 2) arranged.push(g); else arranged.unshift(g); });
+    const pickG = pick ? res.list.find(g => g.key === pick) : null;
+    const setPick = k => this.setState(s => ({ pick: s.pick === k ? null : k }));
+    let msgTitle = '', msgText = '', msgSwitch = false;
+    if (phase === 'loading') { msgTitle = 'Марта гортає теку…'; msgText = 'Збираю слова з усіх дописів.'; }
+    else if (phase === 'locked') { msgTitle = 'Дописи — лише для своїх'; msgText = 'Увійдіть в аркуш, щоб хмара зібралася з дописів у рольовому чаті. А поки — можна з анкети.'; msgSwitch = true; }
+    else if (phase === 'empty') { msgTitle = src === 'posts' ? 'Дописів поки немає' : 'Анкета порожня'; msgText = src === 'posts' ? 'Персонаж ще не писав у чаті під своїм тегом — або тег інший, ніж імʼя в картотеці.' : 'У цій анкеті ще немає біографії.'; msgSwitch = src === 'posts'; }
+    else if (phase === 'error') { msgTitle = 'Не вдалося дістати теку'; msgText = 'База не відповіла. Спробуйте трохи пізніше.'; }
+    else if (ok && !list.length) { msgTitle = 'Замало слів'; msgText = 'Тексту поки забагато службового і замало свого, щоб скласти хмару.'; }
+    return {
+      charOpts: chars.length ? chars.map(c => ({ id: String(c.id), label: c.alias ? c.name + ' «' + c.alias + '»' : c.name })) : [{ id: '', label: 'Завантаження…' }],
+      charId,
+      onChar: e => this.setState({ charId: e.target.value }, () => { this._save(); this._loadText(); }),
+      hasImg: !!(ch && ch.image),
+      charImg: ch ? ch.image : '',
+      srcOpts: [{ id: 'posts', label: 'Дописи' }, { id: 'bio', label: 'Анкета' }].map(o => Object.assign({ label: o.label, pick: () => this.setState({ src: o.id }, () => { this._save(); this._loadText(); }) }, chip(src === o.id))),
+      showCloud: ok && list.length > 0,
+      showMsg: !(ok && list.length > 0),
+      msgTitle, msgText, msgSwitch,
+      toBio: () => this.setState({ src: 'bio' }, () => { this._save(); this._loadText(); }),
+      words: arranged.map(g => {
+        const r = hi === lo ? 0.5 : Math.pow((g.n - lo) / (hi - lo), 0.65);
+        const rank = list.indexOf(g);
+        const color = rank < 3 ? pal[0] : rank < 8 ? pal[1 + (rank % 2)] : pal[3 + (rank % 3)];
+        const on = pick === g.key;
+        return {
+          text: g.word, title: g.word + ' · ' + g.n,
+          size: (0.95 + r * 2.9).toFixed(2) + 'rem',
+          weight: r > 0.55 ? 600 : r > 0.25 ? 500 : 400,
+          fs: rank % 7 === 3 ? 'italic' : 'normal',
+          color: on ? '#fff' : color,
+          glow: on ? '0 0 18px rgba(255,215,0,0.7)' : rank < 3 ? '0 0 22px rgba(255,215,0,0.25)' : 'none',
+          pick: () => setPick(g.key),
+        };
+      }),
+      hasPick: !!pickG, noPick: !pickG,
+      pickWord: pickG ? pickG.word : '',
+      pickCount: pickG ? pickG.n + ' ' + (pickG.n % 10 === 1 && pickG.n % 100 !== 11 ? 'раз' : (pickG.n % 10 >= 2 && pickG.n % 10 <= 4 && (pickG.n % 100 < 10 || pickG.n % 100 >= 20)) ? 'рази' : 'разів') : '',
+      pickHasForms: !!(pickG && pickG.forms.length > 1),
+      pickForms: pickG ? pickG.forms.slice(0, 6).join(', ') : '',
+      pickLines: pickG ? this._lines(pickG) : [],
+      stats: [
+        { k: src === 'posts' ? 'Дописів' : 'Джерело', v: src === 'posts' ? String(this.state.texts.length) : 'біографія' },
+        { k: 'Слів усього', v: String(res.total) },
+        { k: 'Різних слів', v: String(res.unique) },
+        { k: 'Улюблене слово', v: list[0] ? '«' + list[0].word + '»' : '—' },
+      ],
+      top: list.slice(0, 10).map((g, i) => ({ n: String(i + 1), text: g.word, count: String(g.n), pct: Math.round(g.n / hi * 100) + '%', pick: () => setPick(g.key) })),
+    };
+  }
+}
+</script>
+</body>
+</html>

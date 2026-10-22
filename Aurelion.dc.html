@@ -2682,6 +2682,28 @@ a:hover{color:#a8c4f7;}
   </main>
 </sc-if>
 
+<!-- ═══ ХМАРА СЛІВ (бета) ═══ -->
+<sc-if value="{{ showWords }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 90px;max-width:1100px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забавки</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
+            <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}" style="display:inline-flex;align-items:center;gap:6px;">{{ t.label }}<sc-if value="{{ t.beta }}" hint-placeholder-val="{{ false }}"><span style="font-family:Arial,sans-serif;font-size:0.54rem;letter-spacing:0.12em;text-transform:uppercase;padding:2px 6px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;line-height:1;">бета</span></sc-if></a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <header style="text-align:center;margin-bottom:30px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Що в нього на язиці</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;display:inline-flex;align-items:flex-start;gap:12px;">Хмара слів<span style="font-family:Arial,sans-serif;font-size:0.68rem;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;line-height:1;margin-top:8px;">бета</span></h1>
+      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:480px;margin-left:auto;margin-right:auto;">Слова, які персонаж повторює найчастіше, — з його дописів у чаті або з анкети.</p>
+    </header>
+    <dc-import name="WordCloud" hint-size="100%,900px"></dc-import>
+  </main>
+</sc-if>
+
 <!-- ═══ ЦИТАТНИК ═══ -->
 <sc-if value="{{ showQuotes }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 90px;max-width:880px;margin:0 auto;">
@@ -3885,7 +3907,7 @@ const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице
 const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
 // «Забавки» — парасолька для дрібних послуг рецепції: тести, віконце пліток
 // і цитатник. Дайс і мапа лишилися окремими пунктами — так попросили гравці.
-const FUN_SEGS = ['tests', 'gossip', 'quotes', 'glyphs'];
+const FUN_SEGS = ['tests', 'gossip', 'quotes', 'glyphs', 'words'];
 // «Спільнота» — те, що росте з рольового чату й відкрите лише своїм:
 // стрічка дописів і аудіотека. Пульс бачать усі, тому він окремим пунктом.
 const LIFE_SEGS = ['posts', 'arcs', 'audio', 'seals'];
@@ -3936,7 +3958,7 @@ function splitArcs(v) {
   return String(v || '').split(ARC_SEP).map((s) => s.trim()).filter(Boolean);
 }
 
-const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake', 'posts', 'arcs', 'audio', 'seals', 'glyphs'].concat(ARCHIVE_SEGS);
+const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake', 'posts', 'arcs', 'audio', 'seals', 'glyphs', 'words'].concat(ARCHIVE_SEGS);
 
 // ── Галерея персонажа ──────────────────────────────────────
 // Головний портрет лишається в characters.image; усе інше (арти від
@@ -8702,6 +8724,7 @@ class Component extends DCLogic {
       // ── Цитатник: фрази, які Марта записала з чату ──
       showQuotes:      page === 'quotes',
       showGlyphs:      page === 'glyphs',
+      showWords:       page === 'words',
       ...(() => {
         const all = (data.quotes || []).filter(q => q && q.text);
         const nameOf = (q) => ((q.author || '').trim() || 'без підпису');
@@ -9308,6 +9331,7 @@ class Component extends DCLogic {
         ...(gossipNav ? [{ id: 'gossip', label: 'Пліткарка', active: page === 'gossip' }] : []),
         { id: 'quotes', label: 'Цитатник',  active: page === 'quotes' },
         { id: 'glyphs', label: 'Письмена',  active: page === 'glyphs', beta: true },
+        { id: 'words', label: 'Хмара слів',  active: page === 'words', beta: true },
       ],
       // Смужка «Спільноти» — лише для своїх: стрічка й аудіотека.
       lifeTabs: [
