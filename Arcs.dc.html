@@ -274,6 +274,9 @@
             </a>
           </sc-for>
           <div style="height:1px;background:rgba(255,255,255,0.08);margin:20px 0 10px;"></div>
+          <sc-if value="{{ a.hasChron }}" hint-placeholder-val="{{ false }}">
+            <a href="{{ a.chronHref }}" title="{{ a.chronTitle }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.75);text-decoration:none;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>✦ {{ a.chronLabel }}</span><span>→</span></a>
+          </sc-if>
           <button onClick="{{ toReader }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>Читати арку</span><span>↓</span></button>
         </nav>
 
@@ -539,12 +542,32 @@ class Component extends DCLogic {
       this._markClosed(arcs, shut);
       console.log(`арки: ${posts.length} дописів → ${arcs.length} арок, анкет ${chars.length}`);
       console.log(`хронологія: ${chrono ? Object.keys(chrono).length + ' персонажів розставлено' : 'таблиці немає'}`);
+      this._chrons(admin).then((chrons) => this.setState({ chrons }));
       this.setState({ phase: 'ok', arcs, admin, pages: pages || {}, noPages: pages == null,
         chrono: chrono || {}, noChrono: chrono == null, ownIds: [...own], chars });
     } catch (e) {
       console.warn('арки:', String(e && e.message || e));
       this.setState({ phase: 'error' });
     }
+  }
+  // Хроніки, привʼязані до арок (chronicles.arc). Приховані й усе при вимкненому
+  // розділі — лише адмінам, як на самому сайті. Збій тут сторінки арок не гасить.
+  async _chrons(admin) {
+    try {
+      const st = await this._api(`${SUPA_URL}/site_settings?select=value&key=eq.chronicles_section_on`);
+      const on = st.ok ? String(((await st.json())[0] || {}).value || '') === '1' : false;
+      if (!on && !admin) return {};
+      let r = await this._api(`${SUPA_URL}/chronicles?select=id,title,arc,is_hidden&arc=not.is.null`);
+      if (!r.ok) r = await this._api(`${SUPA_URL}/chronicles?select=id,title,arc&arc=not.is.null`);
+      if (!r.ok) return {};
+      const m = {};
+      for (const c of await r.json()) {
+        if (!c.arc || (c.is_hidden && !admin)) continue;
+        m[arcKey(c.arc)] = { id: c.id, title: c.title || '', hidden: !!c.is_hidden || !on };
+      }
+      console.log(`арки: хронік з аркою ${Object.keys(m).length}`);
+      return m;
+    } catch (e) { return {}; }
   }
   async _isAdmin() {
     try {
@@ -929,6 +952,16 @@ class Component extends DCLogic {
       fromLabel: fmtDay(g.first.at, true),
       toLabel: g.live ? 'сьогодні' : fmtDay(g.last.at, true),
       preArc: g.all.join('\u0001'),
+      ...(() => {
+        const C = this.state.chrons || {};
+        const ch = C[g.key] || g.all.map((v) => C[arcKey(v)]).find(Boolean) || null;
+        return {
+          hasChron: !!ch,
+          chronHref: ch ? '#chronicles/' + encodeURIComponent(ch.id) : '',
+          chronTitle: ch ? 'Хроніка: ' + ch.title : '',
+          chronLabel: ch && ch.hidden ? 'Хроніка · прихована' : 'Хроніка арки',
+        };
+      })(),
       tiles: g.castList.map((c) => ({
         href: charHref(c), title: c.ch ? 'Анкета: ' + c.name : c.npc ? c.name + (c.npc.kind === 'location' ? ' — локація' : ' — НПЦ') : c.name + ' — анкети немає',
         hasImg: !!c.pic, noImg: !c.pic,

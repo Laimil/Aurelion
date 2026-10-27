@@ -5988,7 +5988,7 @@ class Component extends DCLogic {
       if (seg === 'characters')      { patch.selectedChar = find(data.characters); if (patch.selectedChar) this._markRead(id); }
       else if (seg === 'lore')       patch.selectedLore      = find(data.lore);
       else if (seg === 'stories')    patch.selectedHistory   = find(data.stories);
-      else if (seg === 'chronicles') patch.selectedChronicle = find(data.chronicles);
+      else if (seg === 'chronicles') patch.selectedChronicle = find((data.chronicles || []).filter(c => !c.is_hidden || this.state.siteAdmin));
     }
     // Пости: адреса може нести і фільтр (?char=…&arc=…&asc=1), і конкретний
     // допис (#posts/<id>) — так стрічку можна лишити посиланням, а не лише
@@ -6373,9 +6373,10 @@ class Component extends DCLogic {
         // Окремим тихим запитом, а не фільтром у головному: доки міграція не
         // прогнана, колонки немає — і головний запит упав би разом з усією
         // картотекою.
-        this._getSoft('characters?select=id&is_draft=eq.true'),
-        // Лічильник дописів на картках — лише числа; без міграції просто порожньо.
+        this._getSoft('characters?select=id&is_draft=eq.true'),        // Лічильник дописів на картках — лише числа; без міграції просто порожньо.
         this._getSoft('character_post_stats?select=character_id,posts,posts_week,last_at'),
+        // Приховані хроніки — окремим тихим запитом: без міграції графи немає.
+        this._getSoft('chronicles?select=id&is_hidden=eq.true'),
       ]);
     } catch (e) {
       if (silent) return; // тихе оновлення — лишаємо те, що вже показано
@@ -6386,7 +6387,8 @@ class Component extends DCLogic {
       });
       return;
     }
-    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows, charLinkRows, galRows, matGalRows, draftChars, postStats] = res;
+    const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, postActivity, pulseMonths, pulseTotals, quoteRows, testRows, linkRows, charLinkRows, galRows, matGalRows, draftChars, postStats, hiddenChron] = res;
+    const hiddenChronIds = new Set((Array.isArray(hiddenChron) ? hiddenChron : []).map(c => String(c.id)));
     const draftIds = new Set((Array.isArray(draftChars) ? draftChars : []).map(c => String(c.id)));
     const charsLive = (Array.isArray(characters) ? characters : []).filter(c => !draftIds.has(String(c.id)));
     const site = {};
@@ -6395,7 +6397,7 @@ class Component extends DCLogic {
         site,
         lore:          Array.isArray(lore)       ? lore       : [],
         stories:       Array.isArray(stories)    ? stories    : [],
-        chronicles:    Array.isArray(chronicles) ? chronicles : [],
+        chronicles:    (Array.isArray(chronicles) ? chronicles : []).map(c => hiddenChronIds.has(String(c.id)) ? { ...c, is_hidden: true } : c),
         characters:    charsLive,
         pantheon:      Array.isArray(pantheon)   ? pantheon   : [],
         contacts:      Array.isArray(contacts)   ? contacts   : [],
@@ -8822,14 +8824,16 @@ class Component extends DCLogic {
 
     // ── Хроніки: сорт + теги
     const chronSortBy = s.chronSortBy || 'order';
+    // Приховані в адмінці хроніки бачать лише адміни сайту (з позначкою).
+    const chronVisible = (data.chronicles || []).filter(c => !c.is_hidden || s.siteAdmin);
     const chronStatusOrder = { active:0, planned:1, completed:2 };
     const sortedChronData = chronSortBy === 'status'
-      ? [...(data.chronicles||[])].sort((a,b)=>(chronStatusOrder[a.status]??3)-(chronStatusOrder[b.status]??3))
+      ? [...chronVisible].sort((a,b)=>(chronStatusOrder[a.status]??3)-(chronStatusOrder[b.status]??3))
       : chronSortBy === 'az'
-      ? [...(data.chronicles||[])].sort((a,b)=>(a.title||'').localeCompare(b.title||'','uk',{sensitivity:'base'}))
-      : (data.chronicles||[]);
+      ? [...chronVisible].sort((a,b)=>(a.title||'').localeCompare(b.title||'','uk',{sensitivity:'base'}))
+      : chronVisible;
     const chronTagFilter = s.chronTagFilter || null;
-    const allChronTags = [...new Set((data.chronicles||[]).flatMap(c => (c.tags||'').split(',').map(t=>t.trim().toLowerCase()).filter(Boolean)))].sort();
+    const allChronTags = [...new Set(chronVisible.flatMap(c => (c.tags||'').split(',').map(t=>t.trim().toLowerCase()).filter(Boolean)))].sort();
     const chronTags = allChronTags.map(t => ({ value:t, label:t, active: chronTagFilter===t }));
     const filteredChronData = chronTagFilter
       ? sortedChronData.filter(c => (c.tags||'').split(',').map(t=>t.trim().toLowerCase()).includes(chronTagFilter))
@@ -10864,7 +10868,7 @@ class Component extends DCLogic {
         const cov = c.cover || (av.arcCover && av.arcCover.cover) || '';
         return {
           ...c,
-          statusLabel:  STATUS_LABELS[c.status] || '',
+          statusLabel:  (STATUS_LABELS[c.status] || '') + (c.is_hidden ? ' · прихована' : ''),
           hasCover:     !!cov,
           noCover:      !cov && !av.comboUrls.length,
           hasCombo:     !cov && av.comboUrls.length > 0,
