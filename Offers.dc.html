@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/base.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/styles.css">
+  <script src="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/_ds_bundle.js"></script>
+  <style>a{color:#ffd700;text-decoration:none}a:hover{color:#fff}</style>
+</helmet>
+<div style="display:flex;flex-direction:column;gap:22px;color:#fff;max-width:1100px;margin:0 auto;width:100%;">
+
+  <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 16px;">
+    <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+      <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+        <button onClick="{{ f.go }}" style="cursor:pointer;border:none;border-radius:999px;padding:7px 16px;font-size:0.8rem;background:{{ f.bg }};color:{{ f.color }};transition:all 0.3s ease;">{{ f.label }}</button>
+      </sc-for>
+    </div>
+    <sc-if value="{{ canPost }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ toggleForm }}" style="cursor:pointer;border:1px solid rgba(255,215,0,0.55);background:rgba(255,215,0,0.12);color:#ffd700;border-radius:999px;padding:8px 18px;font-size:0.82rem;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.22);box-shadow:0 0 18px rgba(255,215,0,0.25);">{{ formBtn }}</button>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ hint }}" hint-placeholder-val="{{ false }}">
+    <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;color:rgba(255,255,255,0.5);margin:0;text-wrap:pretty;">{{ hint }}</p>
+  </sc-if>
+
+  <!-- ── Форма ── -->
+  <sc-if value="{{ formOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:640px;width:100%;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.25);border-radius:15px;padding:22px clamp(16px,3vw,26px);display:flex;flex-direction:column;gap:16px;box-shadow:0 10px 30px rgba(0,0,0,0.35);">
+      <p style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.06em;margin:0;">Нове оголошення</p>
+      <label style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Хто вільний</span>
+        <select value="{{ fChar }}" onChange="{{ setChar }}" style="color-scheme:dark;width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;padding:10px 12px;font-family:'Cinzel',Georgia,serif;font-size:0.92rem;outline:none;">
+          <sc-for list="{{ charOpts }}" as="o" hint-placeholder-count="2"><option value="{{ o.value }}" selected="{{ o.sel }}" style="background:#222;color:#fff;">{{ o.label }}</option></sc-for>
+        </select>
+      </label>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Для чого</span>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <sc-for list="{{ modeOpts }}" as="m" hint-placeholder-count="2">
+            <button onClick="{{ m.go }}" style="cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:10px 16px;border-radius:10px;background:{{ m.bg }};border:1px solid {{ m.border }};color:#fff;transition:all 0.3s ease;flex:1 1 200px;">
+              <span style="font-size:0.88rem;color:{{ m.color }};">{{ m.mark }} {{ m.label }}</span>
+              <span style="font-size:0.74rem;color:rgba(255,255,255,0.5);">{{ m.sub }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:6px;">
+        <span style="display:flex;justify-content:space-between;font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);"><span>Що шукаєте</span><span style="letter-spacing:0;">{{ noteLeft }}</span></span>
+        <textarea value="{{ fNote }}" onInput="{{ setNote }}" rows="4" maxlength="600" placeholder="Епоха, місце, настрій сцени, з ким хотілося б перетнутися…" style="color-scheme:dark;width:100%;box-sizing:border-box;resize:vertical;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;padding:10px 12px;font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.5;outline:none;"></textarea>
+      </label>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;">
+        <span style="font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Висить</span>
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
+          <sc-for list="{{ dayOpts }}" as="d" hint-placeholder-count="3">
+            <button onClick="{{ d.go }}" style="cursor:pointer;border:none;border-radius:999px;padding:5px 13px;font-size:0.78rem;background:{{ d.bg }};color:{{ d.color }};">{{ d.label }}</button>
+          </sc-for>
+        </div>
+        <span style="font-size:0.76rem;color:rgba(255,255,255,0.4);">{{ untilNote }}</span>
+      </div>
+      <p style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin:0;">{{ contactNote }}</p>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;">
+        <button onClick="{{ submit }}" disabled="{{ busy }}" style="cursor:pointer;border:none;background:#ffd700;color:#1a1a1a;border-radius:999px;padding:10px 22px;font-size:0.86rem;font-weight:700;transition:all 0.3s ease;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.45);transform:scale(1.03);">{{ submitLabel }}</button>
+        <span style="font-size:0.8rem;color:#ff8080;">{{ formErr }}</span>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ── Мої ── -->
+  <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:8px;">
+      <p style="font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin:0 0 2px;">✦ Ваші оголошення</p>
+      <sc-for list="{{ mine }}" as="m" hint-placeholder-count="1">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;">
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:0.92rem;">{{ m.name }}</span>
+          <span style="font-size:0.76rem;color:{{ m.stColor }};">{{ m.state }}</span>
+          <span style="flex:1;"></span>
+          <sc-for list="{{ m.acts }}" as="a" hint-placeholder-count="2">
+            <button onClick="{{ a.go }}" style="cursor:pointer;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.85);border-radius:999px;padding:5px 12px;font-size:0.76rem;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.14);color:#fff;">{{ a.label }}</button>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+    <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.45);">Марта знімає з дошки прострочене…</p>
+  </sc-if>
+  <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+    <p style="text-align:center;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.45);text-wrap:pretty;">{{ emptyLine }}</p>
+  </sc-if>
+
+  <!-- ── Дошка ── -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:16px;">
+    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="0">
+      <article style="display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,0.35);transition:all 0.3s ease;" style-hover="transform:translateY(-4px);background:rgba(255,255,255,0.08);box-shadow:0 14px 34px rgba(0,0,0,0.45);">
+        <div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;align-items:start;">
+          <a href="{{ c.href }}" style="display:block;width:64px;height:82px;border-radius:8px;border:1px solid rgba(255,215,0,0.35);background-color:#141414;background-size:cover;background-position:center top;background-image:{{ c.img }};"></a>
+          <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+            <a href="{{ c.href }}" style="font-family:'Cinzel',Georgia,serif;font-size:1.02rem;letter-spacing:0.04em;color:#fff;line-height:1.2;overflow-wrap:anywhere;">{{ c.name }}</a>
+            <sc-if value="{{ c.alias }}" hint-placeholder-val="{{ false }}">
+              <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.9rem;color:rgba(255,255,255,0.5);">«{{ c.alias }}»</span>
+            </sc-if>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <sc-for list="{{ c.modes }}" as="m" hint-placeholder-count="1">
+                <span style="font-size:0.7rem;padding:3px 9px;border-radius:999px;border:1px solid {{ m.border }};color:{{ m.color }};background:{{ m.bg }};">{{ m.mark }} {{ m.label }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <sc-if value="{{ c.note }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.55;color:rgba(255,255,255,0.82);margin:0;white-space:pre-line;text-wrap:pretty;overflow-wrap:anywhere;">{{ c.note }}</p>
+        </sc-if>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;margin-top:auto;">
+          <span style="font-size:0.74rem;color:rgba(255,255,255,0.45);">{{ c.meta }}</span>
+          <span style="flex:1;"></span>
+          <sc-if value="{{ c.tgHref }}" hint-placeholder-val="{{ false }}">
+            <a href="{{ c.tgHref }}" target="_blank" rel="noopener" style="font-size:0.78rem;padding:6px 14px;border-radius:999px;border:1px solid rgba(100,149,237,0.5);color:#9dbcf7;background:rgba(100,149,237,0.1);transition:all 0.3s ease;" style-hover="background:rgba(100,149,237,0.22);color:#fff;">Написати {{ c.tg }}</a>
+          </sc-if>
+          <sc-if value="{{ c.noTg }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:0.78rem;color:rgba(255,255,255,0.6);">у чаті — {{ c.nick }}</span>
+          </sc-if>
+        </div>
+      </article>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:800}}">
+const OF_REST = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1/';
+const OF_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const OF_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const OF_MODES = {
+  flashback: { label: 'Флешбек', mark: '↺', sub: 'Спільне минуле, давня зустріч', color: '#ffd700', border: 'rgba(255,215,0,0.45)', bg: 'rgba(255,215,0,0.08)' },
+  now: { label: 'Вільний зараз', mark: '✦', sub: 'Нова сцена в теперішньому', color: '#9dbcf7', border: 'rgba(100,149,237,0.5)', bg: 'rgba(100,149,237,0.1)' },
+};
+const OF_DAYS = [7, 14, 30];
+const OF_SEL = 'id,character_id,char_name,author_id,author_nick,author_tg,modes,note,status,until,created_at,characters(name,alias,image)';
+const ofDay = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const ofFmt = (iso) => { if (!iso) return ''; const d = new Date(iso + (iso.length === 10 ? 'T12:00:00' : '')); return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0'); };
+const ofP = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
+
+class Component extends DCLogic {
+  state = {
+    loaded: false, noTable: false, offers: [], mine: [], me: null, user: null, myChars: [],
+    filter: '', formOpen: false, fChar: '', fModes: ['flashback'], fNote: '', fDays: 14, busy: false, formErr: '',
+  };
+
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _uid() {
+    const t = this._tok(); if (!t) return null;
+    try { const p = JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); return p.sub || null; } catch (e) { return null; }
+  }
+  async _refresh() {
+    let rt = ''; try { rt = localStorage.getItem('au_user_refresh') || ''; } catch (e) {}
+    if (!rt) return false;
+    try {
+      const r = await fetch(OF_AUTH + '/token?grant_type=refresh_token', { method: 'POST', headers: { apikey: OF_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ refresh_token: rt }) });
+      const d = await r.json();
+      if (!d || !d.access_token) return false;
+      localStorage.setItem('au_user_token', d.access_token);
+      if (d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+      localStorage.setItem('au_user_exp', String(Date.now() + Math.max(60, Number(d.expires_in) || 3600) * 1000));
+      return true;
+    } catch (e) { return false; }
+  }
+  async _api(path, opt = {}) {
+    let exp = 0; try { exp = Number(localStorage.getItem('au_user_exp')) || 0; } catch (e) {}
+    if (exp && exp - Date.now() < 5 * 60 * 1000) await this._refresh();
+    const go = () => fetch(OF_REST + path, { ...opt, headers: { apikey: OF_KEY, Authorization: 'Bearer ' + (this._tok() || OF_KEY), 'Content-Type': 'application/json', ...(opt.headers || {}) } });
+    let r = await go();
+    if (r.status === 401 && await this._refresh()) r = await go();
+    return r;
+  }
+  async _get(path) {
+    try { const r = await this._api(path); if (!r.ok) return { err: r.status }; return { rows: await r.json() }; } catch (e) { return { err: 0 }; }
+  }
+
+  componentDidMount() { this._alive = true; this._load(); }
+  componentWillUnmount() { this._alive = false; }
+
+  // Приклад: окремо відкритий файл або prop demo. Справжні теки з картотеки,
+  // вигадані лише оголошення; нічого не пишеться в базу.
+  _demo() { return this.props.demo ?? /Offers\.dc\.html/.test(decodeURIComponent(location.pathname)); }
+  async _loadDemo() {
+    let chars = [];
+    try {
+      const r = await fetch(OF_REST + 'characters?select=id,name,alias,image&image=not.is.null&order=name.asc&limit=40', { headers: { apikey: OF_KEY, Authorization: 'Bearer ' + OF_KEY } });
+      if (r.ok) chars = await r.json();
+    } catch (e) {}
+    if (chars.length < 6) chars = ['Дарен', 'Казимир', 'Северин', 'Іда', 'Шинʼю', 'Генрі', 'Сяо'].map((n, i) => ({ id: 'd' + i, name: n, alias: '', image: null }));
+    chars = chars.sort(() => 0.5 - Math.random()).slice(0, 7);
+    const notes = [
+      ['flashback', 'now'], 'Шукаю когось, хто знав її до Академії. Дощовий порт, борг, який досі не повернуто. Можу і в теперішньому — якщо зустрінемося в штабі.',
+      ['flashback'], 'Флешбек на десять років назад: перша служба, перша помилка. Потрібен свідок — або той, кого тоді підставили.',
+      ['now'], 'Вільний для сцени в місті. Таверна, ринок, нічна варта — без різниці, аби з розмовою.',
+      ['now'], '',
+      ['flashback'], 'Дитинство в храмі Лести. Хто ріс поруч — пишіть, придумаємо спільне.',
+      ['flashback', 'now'], 'Відкритий до всього. Особливо хочу сварку, яка триває роками.',
+    ];
+    const ago = (n) => new Date(Date.now() - n * 864e5).toISOString();
+    const mk = (c, i, mine) => ({
+      id: 'o' + i, character_id: c.id, char_name: c.name, author_id: mine ? 'me' : 'x' + i, author_nick: ['лісова_відьма', 'zhukhh', 'Мирося', 'kassandra', 'Тарас'][i % 5],
+      author_tg: i % 3 === 2 ? '' : ['aurelion_mira', 'kass_rp', 'taras_writes'][i % 3], modes: notes[(i % 6) * 2], note: notes[(i % 6) * 2 + 1],
+      status: 'open', until: ofDay([12, 3, 25, 0, 8, 19][i % 6]), created_at: ago([2, 11, 5, 14, 6, 1][i % 6]),
+      characters: { name: c.name, alias: c.alias, image: c.image },
+    });
+    const offers = chars.slice(0, 5).map((c, i) => mk(c, i, false));
+    const mineOffer = mk(chars[5], 5, true);
+    if (!this._alive) return;
+    this.setState({
+      loaded: true, demoMode: true, noTable: false, offers: [mineOffer].concat(offers), mine: [mineOffer],
+      me: 'me', user: { id: 'me', nick: 'Мирося', tg_nick: '@aurelion_mira', status: 'approved' },
+      myChars: [chars[5], chars[6]].filter(Boolean), formOpen: true,
+    });
+  }
+  _demoPatch(id, patch, del) {
+    const ap = (l) => (del ? l.filter(o => o.id !== id) : l.map(o => (o.id === id ? { ...o, ...patch } : o)));
+    this.setState(st => {
+      const mine = ap(st.mine);
+      const live = (o) => o.status === 'open' && o.until >= ofDay(0);
+      return { mine, offers: st.offers.filter(o => !mine.some(m => m.id === o.id)).concat(mine.filter(live)) };
+    });
+  }
+
+  async _load() {
+    if (this._demo()) return this._loadDemo();
+    const me = this._uid();
+    const today = ofDay(0);
+    const [board, mine, user, chars] = await Promise.all([
+      this._get('char_offers?select=' + OF_SEL + '&status=eq.open&until=gte.' + today + '&order=created_at.desc&limit=200'),
+      me ? this._get('char_offers?select=' + OF_SEL + '&author_id=eq.' + me + '&order=created_at.desc&limit=30') : { rows: [] },
+      me ? this._get('site_users?select=id,nick,tg_nick,status&id=eq.' + me) : { rows: [] },
+      me ? this._get('characters?select=id,name,alias&owner_id=eq.' + me + '&order=name.asc') : { rows: [] },
+    ]);
+    if (!this._alive) return;
+    if (board.err) console.warn('оголошення:', board.err);
+    const myChars = (chars.rows || []);
+    this.setState({
+      loaded: true, noTable: board.err === 404 || board.err === 400, offers: board.rows || [], mine: mine.rows || [],
+      me, user: (user.rows || [])[0] || null, myChars,
+      fChar: this.state.fChar || '',
+    });
+  }
+
+  _err(d, status) {
+    const m = (d && (d.message || d.hint)) || '';
+    if (d && d.code === '23505') return 'На цього персонажа оголошення вже висить — поправте його у «Ваших оголошеннях».';
+    return m || ('Дошка не прийняла аркуш (' + status + ').');
+  }
+  async _submit() {
+    const s = this.state;
+    const free = this._freeChars();
+    const cid = s.fChar && free.some(c => String(c.id) === s.fChar) ? s.fChar : (free[0] && String(free[0].id));
+    if (!cid) return this.setState({ formErr: 'Усі ваші персонажі вже на дошці.' });
+    if (!s.fModes.length) return this.setState({ formErr: 'Позначте хоча б одне: флешбек чи зараз.' });
+    if (s.demoMode) {
+      const c = s.myChars.find(x => String(x.id) === String(cid)) || {};
+      const o = { id: 'n' + Date.now(), character_id: cid, char_name: c.name, author_id: 'me', author_nick: s.user.nick, author_tg: 'aurelion_mira', modes: s.fModes, note: s.fNote.trim(), status: 'open', until: ofDay(s.fDays), created_at: new Date().toISOString(), characters: { name: c.name, alias: c.alias, image: c.image } };
+      return this.setState(st => ({ mine: [o].concat(st.mine), offers: [o].concat(st.offers), formOpen: false, fNote: '', fChar: '', fModes: ['flashback'] }));
+    }
+    this.setState({ busy: true, formErr: '' });
+    const body = { character_id: cid, modes: s.fModes, note: s.fNote.trim() || null, until: ofDay(s.fDays), author_id: s.me };
+    try {
+      const r = await this._api('char_offers', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(body) });
+      if (!r.ok) { let d = null; try { d = await r.json(); } catch (e) {} return this.setState({ busy: false, formErr: this._err(d, r.status) }); }
+      this.setState({ busy: false, formOpen: false, fNote: '', fChar: '', fModes: ['flashback'] });
+      this._load();
+    } catch (e) { this.setState({ busy: false, formErr: 'Немає зв’язку з дошкою. Спробуйте ще раз.' }); }
+  }
+  async _patch(id, patch, del) {
+    if (this.state.demoMode) return this._demoPatch(id, patch, del);
+    try {
+      const r = await this._api('char_offers?id=eq.' + id, { method: del ? 'DELETE' : 'PATCH', headers: { Prefer: 'return=minimal' }, body: del ? undefined : JSON.stringify(patch) });
+      if (!r.ok) { let d = null; try { d = await r.json(); } catch (e) {} this.setState({ formErr: this._err(d, r.status) }); }
+    } catch (e) {}
+    this._load();
+  }
+  _freeChars() {
+    const busyIds = new Set((this.state.mine || []).filter(o => o.status === 'open' && o.until >= ofDay(0)).map(o => String(o.character_id)));
+    return (this.state.myChars || []).filter(c => !busyIds.has(String(c.id)));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const today = ofDay(0);
+    const approved = s.user && s.user.status === 'approved';
+    const free = this._freeChars();
+    const canPost = !!(s.loaded && !s.noTable && approved && free.length);
+    const fChar = s.fChar && free.some(c => String(c.id) === s.fChar) ? s.fChar : (free[0] ? String(free[0].id) : '');
+
+    let hint = '';
+    if (s.demoMode) hint = 'Приклад: теки справжні, оголошення вигадані. Кнопки працюють, у базу нічого не йде.';
+    else if (s.loaded && s.noTable) hint = 'Дошку ще не прибили до стіни — адмінам треба прогнати міграцію.';
+    else if (s.loaded && !s.me) hint = 'Дошку бачать ті, хто увійшов у кабінет.';
+    else if (s.loaded && s.user && !approved) hint = 'Вивішувати оголошення можна, коли аркуш підтвердять. Читати — вже зараз.';
+    else if (s.loaded && approved && !(s.myChars || []).length) hint = 'На вас ще не записано жодного персонажа — попросіть адміна, і тоді зможете вивісити.';
+
+    const list = (s.offers || []).filter(o => !s.filter || (o.modes || []).indexOf(s.filter) !== -1);
+    const count = (k) => (s.offers || []).filter(o => !k || (o.modes || []).indexOf(k) !== -1).length;
+    const filters = [['', 'Усі'], ['flashback', 'Флешбек'], ['now', 'Вільні зараз']].map(([id, label]) => ({
+      label: label + ' · ' + count(id), go: () => this.setState({ filter: id }),
+      bg: s.filter === id ? 'rgba(255,215,0,0.14)' : 'transparent', color: s.filter === id ? '#ffd700' : 'rgba(255,255,255,0.6)',
+    }));
+
+    const cards = list.map(o => {
+      const ch = o.characters || {};
+      const tg = String(o.author_tg || '').trim().replace(/^@/, '').replace(/^https?:\/\/t\.me\//, '');
+      const days = Math.round((new Date(o.until + 'T12:00:00') - new Date(today + 'T12:00:00')) / 864e5);
+      return {
+        name: ch.name || o.char_name || '—', alias: ch.alias || '',
+        href: '#characters/' + o.character_id,
+        img: ch.image ? 'url(' + JSON.stringify(ch.image) + ')' : 'none',
+        modes: (o.modes || []).filter(k => OF_MODES[k]).map(k => OF_MODES[k]),
+        note: o.note || '',
+        meta: 'вивішено ' + ofFmt(String(o.created_at).slice(0, 10)) + ' · ' + (days <= 0 ? 'останній день' : 'ще ' + days + ' ' + ofP(days, 'день', 'дні', 'днів')),
+        tg: tg ? '@' + tg : '', tgHref: tg ? 'https://t.me/' + encodeURIComponent(tg) : '', noTg: !tg, nick: o.author_nick || 'автор',
+      };
+    });
+
+    const mine = (s.mine || []).map(o => {
+      const live = o.status === 'open' && o.until >= today;
+      const state = live ? 'висить до ' + ofFmt(o.until) : o.status === 'taken' ? 'пару знайдено' : o.status === 'closed' ? 'знято' : 'прострочено ' + ofFmt(o.until);
+      const acts = live
+        ? [{ label: 'Знайшли пару', go: () => this._patch(o.id, { status: 'taken' }) },
+           { label: '+14 днів', go: () => this._patch(o.id, { until: ofDay(Math.max(0, Math.round((new Date(o.until) - new Date(today)) / 864e5)) + 14) }) },
+           { label: 'Зняти', go: () => this._patch(o.id, { status: 'closed' }) }]
+        : [{ label: 'Вивісити знову', go: () => this._patch(o.id, { status: 'open', until: ofDay(14) }) },
+           { label: 'Викинути', go: () => this._patch(o.id, null, true) }];
+      return { name: (o.characters && o.characters.name) || o.char_name || '—', state, stColor: live ? '#ffd700' : 'rgba(255,255,255,0.4)', acts };
+    });
+
+    const tgSelf = s.user && String(s.user.tg_nick || '').trim();
+    return {
+      filters, canPost, hint,
+      formBtn: s.formOpen ? 'Згорнути' : '✦ Вивісити оголошення',
+      toggleForm: () => this.setState({ formOpen: !s.formOpen, formErr: '' }),
+      formOpen: canPost && s.formOpen,
+      fChar, setChar: (e) => this.setState({ fChar: e.currentTarget.value }),
+      charOpts: free.map(c => ({ value: String(c.id), label: c.name + (c.alias ? ' «' + c.alias + '»' : ''), sel: String(c.id) === fChar })),
+      modeOpts: Object.keys(OF_MODES).map(k => {
+        const on = s.fModes.indexOf(k) !== -1, m = OF_MODES[k];
+        return { ...m, mark: on ? '☑' : '☐', bg: on ? m.bg : 'rgba(255,255,255,0.03)', border: on ? m.border : 'rgba(255,255,255,0.14)', color: on ? m.color : 'rgba(255,255,255,0.75)',
+          go: () => this.setState({ fModes: on ? s.fModes.filter(x => x !== k) : s.fModes.concat([k]) }) };
+      }),
+      fNote: s.fNote, setNote: (e) => this.setState({ fNote: e.currentTarget.value.slice(0, 600) }),
+      noteLeft: (600 - s.fNote.length) + '',
+      dayOpts: OF_DAYS.map(n => ({ label: n + ' ' + ofP(n, 'день', 'дні', 'днів'), go: () => this.setState({ fDays: n }),
+        bg: s.fDays === n ? 'rgba(255,215,0,0.14)' : 'transparent', color: s.fDays === n ? '#ffd700' : 'rgba(255,255,255,0.6)' })),
+      untilNote: 'до ' + ofFmt(ofDay(s.fDays)) + ', далі зникне саме',
+      contactNote: tgSelf ? 'Для зв’язку покажемо ваш телеграм — ' + (tgSelf[0] === '@' ? tgSelf : '@' + tgSelf) + '.' : 'Телеграму в аркуші немає — покажемо нік «' + ((s.user && s.user.nick) || '') + '». Додати телеграм можна в кабінеті.',
+      submit: () => this._submit(), busy: s.busy, submitLabel: s.busy ? 'Прибиваю…' : 'Прибити до дошки', formErr: s.formErr,
+      hasMine: mine.length > 0, mine,
+      loading: !s.loaded, cards,
+      empty: s.loaded && !s.noTable && !!s.me && !cards.length,
+      emptyLine: s.filter ? 'Під цим знаком поки ніхто не вільний.' : 'На дошці порожньо. Хтось мусить бути першим.',
+    };
+  }
+}
+</script>
+</body>
+</html>
