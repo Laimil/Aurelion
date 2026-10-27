@@ -2671,6 +2671,28 @@ a:hover{color:#a8c4f7;}
   </main>
 </sc-if>
 
+<!-- ═══ ОГОЛОШЕННЯ (вільні для відіграшу) ═══ -->
+<sc-if value="{{ showOffers }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 110px;max-width:1240px;margin:0 auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:22px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Спільнота</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <sc-for list="{{ lifeTabs }}" as="t" hint-placeholder-count="5">
+            <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}" style="display:inline-flex;align-items:center;gap:6px;">{{ t.label }}<sc-if value="{{ t.beta }}" hint-placeholder-val="{{ false }}"><span style="font-family:Arial,sans-serif;font-size:0.54rem;letter-spacing:0.12em;text-transform:uppercase;padding:2px 6px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;line-height:1;">бета</span></sc-if></a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <header style="text-align:center;margin-bottom:26px;">
+      <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ Дошка біля рецепції</p>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;">Оголошення</h1>
+      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:480px;margin-left:auto;margin-right:auto;">Хто вільний для флешбеку, а хто — для нової сцени просто зараз.</p>
+    </header>
+    <dc-import name="Offers" hint-size="100%,700px"></dc-import>
+  </main>
+</sc-if>
+
 <!-- ═══ ПЕЧАТКИ: порівняння персонажів ═══ -->
 <sc-if value="{{ showSealsCmp }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 110px;max-width:1240px;margin:0 auto;">
@@ -3943,7 +3965,7 @@ const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
 const FUN_SEGS = ['tests', 'gossip', 'quotes', 'glyphs', 'words'];
 // «Спільнота» — те, що росте з рольового чату й відкрите лише своїм:
 // стрічка дописів і аудіотека. Пульс бачать усі, тому він окремим пунктом.
-const LIFE_SEGS = ['posts', 'arcs', 'audio', 'seals'];
+const LIFE_SEGS = ['posts', 'arcs', 'audio', 'offers', 'seals'];
 // `cabinet` і `intake` — той самий кабінет, різниця лише в тому, яка
 // вкладка відкриється. `gossip` лишили живим: посилання на віконце
 // вже розіслані по чатах.
@@ -3991,7 +4013,7 @@ function splitArcs(v) {
   return String(v || '').split(ARC_SEP).map((s) => s.trim()).filter(Boolean);
 }
 
-const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake', 'posts', 'arcs', 'audio', 'seals', 'glyphs', 'words'].concat(ARCHIVE_SEGS);
+const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake', 'posts', 'arcs', 'audio', 'offers', 'seals', 'glyphs', 'words'].concat(ARCHIVE_SEGS);
 
 // ── Галерея персонажа ──────────────────────────────────────
 // Головний портрет лишається в characters.image; усе інше (арти від
@@ -4500,7 +4522,7 @@ class Component extends DCLogic {
       // Не показуємо лише під заслоною інтро (там свій штамп) і в кабінеті,
       // віконці пліток та адмінських лічках, де внизу свої панелі.
       entryStamp: !!no && !this.state.introOn
-        && ['gossip', 'cabinet', 'intake', 'posts', 'arcs', 'audio', 'seals'].indexOf(this.state.page) === -1,
+        && ['gossip', 'cabinet', 'intake', 'posts', 'arcs', 'audio', 'offers', 'seals'].indexOf(this.state.page) === -1,
       entryTotalLabel: tot ? ('записаних у книзі — ' + tot) : 'книга відвідувачів',
       entryTitle: 'Ваш номер у книзі відвідувачів Ауреліону — видається раз і назавжди',
       // Клас, а не інлайн: приїзд напису грає лише в того, хто щойно
@@ -8611,6 +8633,7 @@ class Component extends DCLogic {
       // Аудіотека й арки читають ті самі дописи — той самий доступ.
       : (s.page === 'audio' && !postsReader) ? 'posts'
       : (s.page === 'seals' && !postsApproved) ? 'home'
+      : (s.page === 'offers' && !postsReader) ? 'posts'
       : (s.page === 'arcs' && !postsReader) ? 'posts' : s.page;
     // Маршрут #gossip відкритий завжди — інакше вийшло б замкнене коло:
     // щоб увійти, треба потрапити у віконце, а воно показується тільки тим, хто
@@ -8728,6 +8751,7 @@ class Component extends DCLogic {
       showAudio:       page === 'audio' && postsReader,
       showSealsCmp:    page === 'seals' && postsApproved,
       showArcs:        page === 'arcs' && postsReader,
+      showOffers:      page === 'offers' && postsReader,
       // Вкладка кабінету береться з сегмента: #gossip — віконце (такі
       // посилання вже розіслані), #cabinet і #intake — анкета.
       // #cabinet — теку першого персонажа відкриває сам кабінет, коли знає, чиї вони.
@@ -9398,6 +9422,7 @@ class Component extends DCLogic {
         ...(postsReader ? [
           { id: 'arcs', label: 'Арки', active: page === 'arcs', beta: true },
           { id: 'audio', label: 'Аудіотека', active: page === 'audio' },
+          { id: 'offers', label: 'Оголошення', active: page === 'offers' },
         ] : []),
         ...(postsApproved ? [{ id: 'seals', label: 'Печатки', active: page === 'seals' }] : []),
       ],
