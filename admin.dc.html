@@ -2249,6 +2249,28 @@ input,textarea,select{font-size:16px}
         <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:1px;line-height:1.45;">{{ chrSecHint }}</p>
       </div>
     </div>
+    <div style="background:rgba(100,149,237,0.055);border:1px solid rgba(100,149,237,0.2);border-radius:10px;padding:14px 16px;margin-bottom:18px;">
+      <div onClick="{{ chrPasteToggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;">
+        <div style="min-width:0;">
+          <p style="font-family:'Cinzel',serif;font-size:0.9rem;color:#6495ed;letter-spacing:0.05em;">✦ Вставити хроніку від Клода</p>
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.32);margin-top:4px;line-height:1.5;">Кабінет → арка → ↓ .md, потім Клодові разом із промптом «Хроніки - Промпт для Клода». Сюди вставляєш блок <code>aurelion-chronicle/1</code>, і він потрапить у форму нижче, нічого не збережеться без вас.</p>
+        </div>
+        <span style="color:rgba(100,149,237,0.8);font-size:0.8rem;flex-shrink:0;">{{ chrPasteArrow }}</span>
+      </div>
+      <sc-if value="{{ chrPasteOpen }}" hint-placeholder-val="{{ false }}">
+        <textarea value="{{ chrPaste }}" onChange="{{ chrSetPaste }}" placeholder="{ &quot;format&quot;: &quot;aurelion-chronicle/1&quot;, … } — обгортку з трьох лапок приберу сама" style="margin-top:10px;min-height:140px;font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:0.78rem;line-height:1.6;"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+          <button onClick="{{ chrDoParse }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:7px;padding:8px 18px;font-size:0.82rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.22);">Розібрати → у форму</button>
+          <button onClick="{{ chrPasteClear }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:7px;padding:8px 16px;font-size:0.82rem;cursor:pointer;">Скинути</button>
+        </div>
+        <sc-if value="{{ chrPasteHasErr }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.78rem;color:rgba(255,77,77,0.85);margin-top:8px;line-height:1.5;">{{ chrPasteErr }}</p>
+        </sc-if>
+        <sc-if value="{{ chrPasteHasNote }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.76rem;color:rgba(255,255,255,0.6);margin-top:8px;line-height:1.55;">{{ chrPasteNote }}</p>
+        </sc-if>
+      </sc-if>
+    </div>
     <div class="sort-chips">
       <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
       <button class="sort-chip" data-section="chronicles" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
@@ -2294,6 +2316,11 @@ input,textarea,select{font-size:16px}
             <label>Ведучий / ведуча</label>
             <input value="{{ formGm }}" onChange="{{ handleInput }}" data-field="gm" placeholder="Skyline" />
           </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Арка (точно як тег у дописах)</label>
+          <input value="{{ formArc }}" onChange="{{ handleInput }}" data-field="arc" placeholder="Зламаний вівтар" />
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:4px;">Позначки [№6] у тексті стануть посиланнями на 6-й допис цієї арки, а в шапці зʼявиться «Читати арку». Порожньо: номери лишаться без посилань.</p>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
           <div>
@@ -4219,7 +4246,7 @@ function parseReading(raw) {
 const SECTION_FIELDS = {
   lore:       ['title', 'category', 'excerpt', 'cover', 'content', 'sort_order'],
   stories:    ['title', 'author_name', 'author_telegram', 'description', 'chapters', 'telegraph_url', 'content', 'tags', 'sort_order', 'status_label', 'status_color', 'cover_color', 'cover_ornament', 'cover_icon', 'author_label'],
-  chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order'],
+  chronicles: ['title', 'subtitle', 'character_id', 'cover', 'period', 'gm', 'status', 'summary', 'content', 'tags', 'sort_order', 'arc'],
   characters: ['name', 'alias', 'role', 'image', 'telegraph_url', 'age', 'height', 'weight', 'build', 'bio', 'content', 'card_caption', 'character_type', 'is_active', 'is_draft', 'is_dead', 'died_at', 'deity', 'tags', 'connections', 'open_effect', 'hero_focus', 'sort_order'],
   pantheon:   ['name', 'domain', 'god', 'description', 'sort_order', 'image'],
   contacts:   ['icon', 'label', 'url', 'sort_order'],
@@ -5668,6 +5695,53 @@ class Component extends DCLogic {
   // Картотека → JSON → Клод у чаті стискає в довідки → назад сюди.
   // Відбиток (hash) рахується з тих самих граф, що йдуть у вивантаження:
   // правка анкети після довідки = «застаріла».
+  // ── Хроніка від Клода (aurelion-chronicle/1) ─────────────────
+  // Вставка → форма, не база: людина ще раз дивиться й тисне «Зберегти».
+  // Та сама арка (або назва) — правимо наявну хроніку, обкладинку й
+  // ведучого не чіпаємо.
+  _chrApplyPaste() {
+    const src = String(this.state.chrPaste || '').replace(/```[a-z]*\s*/gi, '').replace(/```/g, '');
+    const a = src.indexOf('{'), b = src.lastIndexOf('}');
+    let o;
+    try {
+      if (a === -1 || b <= a) throw new Error('не бачу фігурних дужок');
+      o = JSON.parse(src.slice(a, b + 1));
+    } catch (e) {
+      this.setState({ chrPasteErr: 'Не JSON: ' + (e.message || e) + '. Скопіюй блок повністю, від { до }.', chrPasteNote: '' });
+      return;
+    }
+    if (o.format && o.format !== 'aurelion-chronicle/1') { this.setState({ chrPasteErr: 'Формат «' + o.format + '», а чекаю aurelion-chronicle/1.', chrPasteNote: '' }); return; }
+    const t = (v) => String(v == null ? '' : v).trim();
+    const content = t(o.content);
+    if (!t(o.title) || !content) { this.setState({ chrPasteErr: 'У блоці немає title або content.', chrPasteNote: '' }); return; }
+    const arc = t(o.arc) || t(o.title);
+    const fields = {
+      title: t(o.title), subtitle: t(o.subtitle) || 'хроніка арки', period: t(o.period),
+      status: ['active', 'completed', 'planned'].includes(o.status) ? o.status : 'active',
+      summary: t(o.summary), tags: Array.isArray(o.tags) ? o.tags.join(', ') : t(o.tags), content, arc,
+    };
+    // Перевірка позначок: скільки їх, найбільший номер, абзаци без жодної.
+    const nums = [];
+    (content.match(/\[№[^\]]*\]/g) || []).forEach(g => (g.match(/\d+/g) || []).forEach(n => nums.push(+n)));
+    const paras = content.split(/\n{2,}/).filter(p => p.trim());
+    const bare = paras.filter(p => !/\[№/.test(p)).length;
+    const list = this.state.data.chronicles || [];
+    const fold = (v) => t(v).toLowerCase();
+    const idx = list.findIndex(r => (r.arc && fold(r.arc) === fold(arc)) || fold(r.title) === fold(fields.title));
+    const prev = idx === -1 ? {} : list[idx];
+    this.setState({
+      editing: { section: 'chronicles', index: idx }, form: { ...prev, ...fields },
+      linkManual: [], linkSearch: '', dxRes: null, dxMsg: '', dxBad: false, dxBusy: false,
+      chrPasteErr: '',
+      chrPasteNote: (idx === -1 ? 'Нова хроніка у формі нижче.' : 'Оновлюю наявну «' + (prev.title || '') + '»: обкладинка й ведучий лишились.')
+        + ' Абзаців ' + paras.length + ', позначок [№] ' + nums.length + (nums.length ? ', найбільший №' + Math.max(...nums) : '')
+        + (bare ? '. ⚠ Абзаців без жодної позначки: ' + bare + ', їх варто перечитати.' : '.')
+        + ' Не забудь «Зберегти».',
+    });
+    console.log('хроніка від Клода: «' + fields.title + '», арка «' + arc + '», абзаців ' + paras.length + ', позначок ' + nums.length + ', без позначок ' + bare);
+    setTimeout(() => { const f = document.querySelector('[data-edit-form]'); if (f) window.scrollTo({ top: f.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' }); }, 60);
+  }
+
   _mbClean(s) {
     return String(s == null ? '' : s)
       .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
@@ -9775,6 +9849,17 @@ class Component extends DCLogic {
           chrSecHint: on
             ? 'Увімкнено: вкладка в розділі «Світ» і плитка на Головній.'
             : 'Вимкнено: немає в меню й на Головній, #chronicles веде на Головну (адмінам — відкривається).',
+          chrPasteOpen: !!this.state.chrPasteOpen,
+          chrPasteArrow: this.state.chrPasteOpen ? '▴ згорнути' : '▾ розгорнути',
+          chrPasteToggle: () => this.setState({ chrPasteOpen: !this.state.chrPasteOpen }),
+          chrPaste: this.state.chrPaste || '',
+          chrSetPaste: (e) => this.setState({ chrPaste: e.target.value }),
+          chrPasteClear: () => this.setState({ chrPaste: '', chrPasteErr: '', chrPasteNote: '' }),
+          chrPasteErr: this.state.chrPasteErr || '',
+          chrPasteHasErr: !!this.state.chrPasteErr,
+          chrPasteNote: this.state.chrPasteNote || '',
+          chrPasteHasNote: !!this.state.chrPasteNote,
+          chrDoParse: () => this._chrApplyPaste(),
           chrToggleSection: async () => {
             const next = on ? '0' : '1';
             this._setSite('chronicles_section_on', next);
@@ -10031,6 +10116,7 @@ class Component extends DCLogic {
       formCover:           form.cover            || '',
       formSummary:         form.summary          || '',
       formCharacterId:     form.character_id     || '',
+      formArc:             form.arc              || '',
       showChronForm:       showFor('chronicles'),
       formAuthorName:     form.author_name     || '',
       formAuthorTelegram: form.author_telegram || '',
