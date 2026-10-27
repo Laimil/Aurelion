@@ -66,8 +66,15 @@ a:hover{color:#fff}
       <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.65;color:rgba(255,255,255,0.5);margin-bottom:22px;text-wrap:pretty;">{{ guestIntro }}</p>
 
       <div style="display:flex;flex-direction:column;gap:12px;">
-        <input class="gos-field" type="email" value="{{ email }}" onChange="{{ setEmail }}" onKeyDown="{{ onAuthEnter }}" placeholder="Пошта" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
-        <input class="gos-field" type="password" value="{{ pass }}" onChange="{{ setPass }}" onKeyDown="{{ onAuthEnter }}" placeholder="Пароль" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+        <input class="gos-field" type="email" name="email" autocomplete="username" value="{{ email }}" onChange="{{ setEmail }}" onKeyDown="{{ onAuthEnter }}" placeholder="Пошта" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+        <input class="gos-field" type="password" name="password" autocomplete="{{ passAuto }}" value="{{ pass }}" onChange="{{ setPass }}" onKeyDown="{{ onAuthEnter }}" placeholder="{{ passHint }}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
+
+        <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:8px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.18);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.7);">✦ Про пароль</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;line-height:1.55;color:rgba(255,255,255,0.7);text-wrap:pretty;">Паролів ми не бачимо й не зберігаємо. Але заради кібергігієни завжди радимо брати згенерований — Chrome запропонує його просто в цьому полі й сам запам'ятає.</p>
+          </div>
+        </sc-if>
 
         <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:12px;">
@@ -1434,7 +1441,7 @@ class Component extends DCLogic {
   state = {
     phase: 'load',
     tab: 'intake',
-    mode: 'login',
+    mode: (() => { try { const m = sessionStorage.getItem('au_cab_mode'); sessionStorage.removeItem('au_cab_mode'); return m === 'signup' ? 'signup' : 'login'; } catch (e) { return 'login'; } })(),
     email: '', pass: '', nick: '', tg: '', about: '',
     authErr: '', authBusy: false,
     prof: null, uid: '',
@@ -4415,9 +4422,11 @@ class Component extends DCLogic {
       gossipLocked: s.phase === 'ok' && status === 'pending',
       statusWord: status === 'approved'
         ? 'віконце відчинене'
-        : 'доступ до пліток ще на розгляді — анкету можна подати вже зараз',
+        : 'доступ до пліток ще на розгляді — пости вже можна читати, анкету подати теж',
 
       isSignup,
+      passAuto: isSignup ? 'new-password' : 'current-password',
+      passHint: isSignup ? 'Пароль — можна згенерований браузером' : 'Пароль',
       guestIntro: isSignup
         ? 'Запишіться — і кабінет відчиниться одразу: анкету персонажа можна подати ще до того, як вам відкриють віконце пліток.'
         : 'Кабінет — для тих, хто вже записався. Анкети, плітки й ваш аркуш лежать тут.',

@@ -614,6 +614,39 @@ a:hover{color:#a8c4f7;}
       </div>
     </section>
 
+    <!-- ═══ ЗАПРОШЕННЯ — лише гостям без входу ═══ -->
+    <sc-if value="{{ joinShow }}" hint-placeholder-val="{{ false }}">
+    <section style="max-width:1200px;margin:0 auto;padding:0 24px 46px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:28px;align-items:center;background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.2);border-radius:15px;padding:30px 30px;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p style="font-size:0.66rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.75);">✦ Двері відчинені</p>
+          <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.15rem,2.4vw,1.5rem);font-weight:700;color:#fff;letter-spacing:0.05em;text-wrap:balance;">Зазирніть у сам відіграш</h2>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.06rem;line-height:1.65;color:rgba(255,255,255,0.72);text-wrap:pretty;">{{ joinLead }}</p>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:0.86rem;color:rgba(255,255,255,0.66);">
+            <span>✦ Уся стрічка постів — з першого дня запису</span>
+            <span>✦ Свій кабінет і анкета персонажа</span>
+            <span>✦ Плітки й правки — щойно рецепція познайомиться</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
+          <sc-if value="{{ joinHasNums }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:28px;justify-content:center;flex-wrap:wrap;">
+              <sc-for list="{{ joinNums }}" as="n" hint-placeholder-count="2">
+                <div style="display:flex;flex-direction:column;gap:2px;">
+                  <span style="font-family:'Cinzel',serif;font-size:1.9rem;color:#ffd700;letter-spacing:0.03em;">{{ n.num }}</span>
+                  <span style="font-size:0.74rem;color:rgba(255,255,255,0.55);">{{ n.cap }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <a href="#cabinet" onClick="{{ joinGo }}" style="display:inline-block;padding:13px 30px;border-radius:999px;background:#ffd700;color:#1a1a1a;text-decoration:none;font-family:'Cinzel',serif;font-weight:700;font-size:0.86rem;letter-spacing:0.08em;transition:all 0.3s ease;" style-hover="box-shadow:0 0 24px rgba(255,215,0,0.35);transform:scale(1.03);">Записатися — це хвилина</a>
+          <a href="#posts" style="font-size:0.8rem;color:rgba(255,255,255,0.5);text-decoration:none;transition:color 0.25s ease;" style-hover="color:#ffd700;">Глянути, що за дверима →</a>
+          <p style="font-size:0.76rem;line-height:1.5;color:rgba(255,255,255,0.45);max-width:300px;text-wrap:pretty;">Паролів ми не бачимо й не зберігаємо. Потрібні лише пошта й нік із чату.</p>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
     <!-- ═══ СВІЖЕ ═══ -->
     <sc-if value="{{ freshHas }}" hint-placeholder-val="{{ false }}">
     <section ref="{{ freshRef }}" style="max-width:1200px;margin:0 auto;padding:8px 24px 46px;scroll-margin-top:74px;">
@@ -6808,7 +6841,7 @@ class Component extends DCLogic {
   // відкритим доступом — тому запит іде з токеном віконця, а не з
   // анонімним ключем, як решта сайту. Раз на персонажа, ліниво.
   async _loadArcs(ch) {
-    if (!ch || this.state.userStatus !== 'approved') return;
+    if (!ch || (this.state.userStatus !== 'approved' && this.state.userStatus !== 'pending')) return;
     const key = String(ch.id);
     this._arcReq = this._arcReq || {};
     if (this._arcReq[key]) return;
@@ -6901,7 +6934,19 @@ class Component extends DCLogic {
   };
   _turnsTick = () => { if (document.visibilityState === 'visible') this._loadTurns(); };
 
+  // Запрошення на Головній: знеособлені числа постів, лише гостям.
+  async _loadJoinTease() {
+    if (this._userTok() || this._userRef()) return;
+    const rows = await this._getSoft('pulse_posts_daily?select=day,posts');
+    if (!Array.isArray(rows) || !rows.length) return;
+    const wk = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+    let total = 0, week = 0;
+    for (const x of rows) { const n = Number(x.posts) || 0; total += n; if (String(x.day).slice(0, 10) >= wk) week += n; }
+    this.setState({ joinTease: { total, week } });
+  }
+
   componentDidMount() {
+    this._loadJoinTease();
     window.addEventListener('scroll', this._pulseCheck, { passive: true });
     window.addEventListener('scroll', this._toTopWatch, { passive: true });
     // Вітрина в «Персонажах» гортається сама, поки її видно й над нею немає курсора.
@@ -8557,17 +8602,16 @@ class Component extends DCLogic {
     // показаний усім: інакше на тестах треба було б кидати посилання руками.
     const signedIn = !!s.userNick;
     const gossipNav = gossipOn || signedIn;
-    // «Пости» — стрічка дописів із рольового чату; бачать лише ті, кому
-    // рецепція вже відкрила доступ (approved), а не всі увійшлі.
+    // «Пости» — стрічка дописів із рольового чату. Сторінка відкрита всім: гість
+    // бачить тизер із запрошенням, читає будь-хто з аркушем, крім blocked
+    // (supabase_posts_open_migration.sql). Печатки — як і раніше, лише своїм.
     const postsApproved = s.userStatus === 'approved';
+    const postsReader = postsApproved || s.userStatus === 'pending';
     const pageT = (s.page === 'tests' && !testsOn) ? 'home'
-      : (s.page === 'posts' && !postsApproved) ? 'home'
-      // Аудіотека читає ту саму таблицю, що й стрічка, — той самий доступ.
-      : (s.page === 'audio' && !postsApproved) ? 'home'
-      // Порівняння печаток — у «Спільноті», тому й доступ той самий.
+      // Аудіотека й арки читають ті самі дописи — той самий доступ.
+      : (s.page === 'audio' && !postsReader) ? 'posts'
       : (s.page === 'seals' && !postsApproved) ? 'home'
-      // Арки збираються з тих самих дописів — доступ той самий.
-      : (s.page === 'arcs' && !postsApproved) ? 'home' : s.page;
+      : (s.page === 'arcs' && !postsReader) ? 'posts' : s.page;
     // Маршрут #gossip відкритий завжди — інакше вийшло б замкнене коло:
     // щоб увійти, треба потрапити у віконце, а воно показується тільки тим, хто
     // ввійшов. Схований розділ не згадується ні в ряду розділів, ні на Головній —
@@ -8653,6 +8697,21 @@ class Component extends DCLogic {
       retryLoad: () => this._loadAll(),
 
       showHome:        page === 'home',
+      ...(() => {
+        const guest = page === 'home' && !this._userTok() && !this._userRef();
+        const t = s.joinTease;
+        const f = (n) => Number(n).toLocaleString('uk-UA');
+        const nums = t ? [{ num: f(t.total), cap: 'постів у стрічці' }, ...(t.week ? [{ num: f(t.week), cap: 'за цей тиждень' }] : [])] : [];
+        return {
+          joinShow: guest,
+          joinHasNums: nums.length > 0,
+          joinNums: nums,
+          joinLead: t && t.week
+            ? `Анкети й лор — тільки половина. Друга — пости рольового чату: лише за тиждень їх ${f(t.week)}. Читати можуть усі, хто записався, — без перевірок і чекання.`
+            : 'Анкети й лор — тільки половина. Друга — пости рольового чату. Читати їх можуть усі, хто записався, — без перевірок і чекання.',
+          joinGo: () => { try { sessionStorage.setItem('au_cab_mode', 'signup'); } catch (e) {} },
+        };
+      })(),
       showLore:        page === 'lore',
       showLoreGallery: page === 'lore' && !s.selectedLore,
       showLoreReader:  page === 'lore' && !!s.selectedLore,
@@ -8665,10 +8724,10 @@ class Component extends DCLogic {
       showDice:        page === 'dice',
       showTests:       page === 'tests',
       showGossip:      page === 'gossip',
-      showPosts:       page === 'posts' && postsApproved,
-      showAudio:       page === 'audio' && postsApproved,
+      showPosts:       page === 'posts',
+      showAudio:       page === 'audio' && postsReader,
       showSealsCmp:    page === 'seals' && postsApproved,
-      showArcs:        page === 'arcs' && postsApproved,
+      showArcs:        page === 'arcs' && postsReader,
       // Вкладка кабінету береться з сегмента: #gossip — віконце (такі
       // посилання вже розіслані), #cabinet і #intake — анкета.
       // #cabinet — теку першого персонажа відкриває сам кабінет, коли знає, чиї вони.
@@ -9322,7 +9381,7 @@ class Component extends DCLogic {
         { id: 'quotes',      label: 'Забавки',    active: FUN_SEGS.indexOf(page) !== -1 },
         { id: 'map',         label: 'Мапа',       active: page === 'map' },
         { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
-        ...(postsApproved ? [{ id: 'posts', label: 'Спільнота', active: LIFE_SEGS.indexOf(page) !== -1 }] : []),
+        { id: 'posts', label: 'Спільнота', active: LIFE_SEGS.indexOf(page) !== -1 },
       ],
       // Смужка вкладок «Забавок» — на трьох сторінках; тести й пліткарка
       // показуються за тими самими прапорцями, що були в шапці.
@@ -9333,15 +9392,17 @@ class Component extends DCLogic {
         { id: 'glyphs', label: 'Письмена',  active: page === 'glyphs', beta: true },
         { id: 'words', label: 'Хмара слів',  active: page === 'words', beta: true },
       ],
-      // Смужка «Спільноти» — лише для своїх: стрічка й аудіотека.
+      // Смужка «Спільноти»: пости — усім (гість бачить тизер), решта — за доступом.
       lifeTabs: [
         { id: 'posts', label: 'Пости', active: page === 'posts', beta: true },
-        { id: 'arcs', label: 'Арки', active: page === 'arcs', beta: true },
-        { id: 'audio', label: 'Аудіотека', active: page === 'audio' },
-        { id: 'seals', label: 'Печатки', active: page === 'seals' },
+        ...(postsReader ? [
+          { id: 'arcs', label: 'Арки', active: page === 'arcs', beta: true },
+          { id: 'audio', label: 'Аудіотека', active: page === 'audio' },
+        ] : []),
+        ...(postsApproved ? [{ id: 'seals', label: 'Печатки', active: page === 'seals' }] : []),
       ],
       // Вушко аудіотеки — усюди, крім самої аудіотеки й мапи (там свої кнопки).
-      audioDockShow: postsApproved && page !== 'audio' && page !== 'map',
+      audioDockShow: postsReader && page !== 'audio' && page !== 'map',
       toggleAudioDock: () => this._dockPlayer(),
       navJoinActive: page === 'contacts',
       copyShareLink: () => this.copyShareLink(),
@@ -10241,7 +10302,7 @@ class Component extends DCLogic {
       },
       ...(() => {
         const off = { charArcsVisible: false, charArcsLoading: false, charArcsFailed: false, charArcsEmpty: false, charArcs: [], charArcsN: '', charArcsShown: [], charArcsHasMore: false };
-        if (!sc || !postsApproved) return off;
+        if (!sc || !postsReader) return off;
         const rows = (s.charArcs || {})[String(sc.id)];
         if (!rows && (s.charArcsFail || {})[String(sc.id)]) return { ...off, charArcsVisible: true, charArcsFailed: true };
         if (!rows) return { ...off, charArcsVisible: true, charArcsLoading: true };

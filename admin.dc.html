@@ -8407,7 +8407,7 @@ class Component extends DCLogic {
     const setStatus = async (p, next) => {
       if (p.status === next) return;
       if (next === 'blocked' && !window.confirm(`Відмовити «${p.nick}»?\n\nКабінет зачиниться: ні анкет, ні пліток, ні правок.`)) return;
-      if (next === 'pending' && !window.confirm(`Повернути «${p.nick}» на розгляд?\n\nПлітки, правки й пости закриються, доки не вирішите знову.`)) return;
+      if (next === 'pending' && !window.confirm(`Повернути «${p.nick}» на розгляд?\n\nПлітки й правки закриються, доки не вирішите знову. Пости лишаться відкриті.`)) return;
       const body = { status: next, decided_at: new Date().toISOString(), decided_by: me };
       try {
         await this._patch('site_users', p.id, body);
@@ -8420,7 +8420,7 @@ class Component extends DCLogic {
       { key: 'intake', label: 'Анкети',          ok: st => st !== 'blocked' },
       { key: 'gossip', label: 'Плітки',          ok: st => st === 'approved' },
       { key: 'edits',  label: 'Правки своїх',    ok: (st, n) => st === 'approved' && n > 0, why: (st, n) => st === 'approved' && !n ? 'немає персонажа' : '' },
-      { key: 'posts',  label: 'Пости й аудіо',   ok: st => st === 'approved' },
+      { key: 'posts',  label: 'Пости й аудіо',   ok: st => st !== 'blocked' },
       { key: 'tests',  label: 'Тести',           ok: st => st === 'approved' },
       { key: 'me',     label: '«Про мене»',      ok: st => st === 'approved' },
     ];
