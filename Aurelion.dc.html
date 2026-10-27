@@ -440,10 +440,10 @@ a:hover{color:#a8c4f7;}
 
 <!-- ═══ NAV ═══ Шапка винесена в Nav.dc.html (класична) і Nav New.dc.html (нова).
      Яку показати — state.navStyle, з localStorage «au_nav_style». -->
-<sc-if value="{{ navClassic }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ navClassic }}" hint-placeholder-val="{{ false }}">
   <dc-import name="Nav" nav-items="{{ navItems }}" nav-open="{{ navOpen }}" toggle-nav="{{ toggleNav }}" close-nav="{{ closeNav }}" nav-burger-label="{{ navBurgerLabel }}" nav-join-active="{{ navJoinActive }}" show-nav-search="{{ showNavSearch }}" home-search-val="{{ homeSearchVal }}" set-home-search="{{ setHomeSearch }}" home-search-key="{{ homeSearchKey }}" home-search-active="{{ homeSearchActive }}" home-search-results="{{ homeSearchResults }}" home-search-empty="{{ homeSearchEmpty }}" open-search-result="{{ openSearchResult }}" user-chip-active="{{ userChipActive }}" user-chip-title="{{ userChipTitle }}" user-chip-bg="{{ userChipBg }}" user-chip-border="{{ userChipBorder }}" user-chip-color="{{ userChipColor }}" user-chip-glyph="{{ userChipGlyph }}" user-chip-label="{{ userChipLabel }}" turns-has="{{ turnsHas }}" turns-num="{{ turnsNum }}" turns-p-has="{{ turnsPHas }}" turns-p-num="{{ turnsPNum }}" nav-style-opts="{{ navStyleOpts }}" set-nav-style="{{ setNavStyle }}" hint-size="100%,0px"></dc-import>
 </sc-if>
-<sc-if value="{{ navNew }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ navNew }}" hint-placeholder-val="{{ true }}">
   <dc-import name="Nav New" site-admin="{{ siteAdmin }}" chron-on="{{ chronOn }}" page="{{ navPage }}" char-mode="{{ navCharMode }}" fun-tabs="{{ funTabs }}" life-tabs="{{ lifeTabs }}" audio-dock-show="{{ audioDockShow }}" toggle-audio-dock="{{ toggleAudioDock }}" signed-in="{{ signedIn }}" user-chip-title="{{ userChipTitle }}" turns-has="{{ turnsHas }}" turns-num="{{ turnsNum }}" turns-p-has="{{ turnsPHas }}" turns-p-num="{{ turnsPNum }}" home-search-val="{{ homeSearchVal }}" set-home-search="{{ setHomeSearch }}" home-search-key="{{ homeSearchKey }}" home-search-results="{{ homeSearchResults }}" home-search-empty="{{ homeSearchEmpty }}" open-search-result="{{ openSearchResult }}" clear-home-search="{{ clearHomeSearch }}" set-nav-style="{{ setNavStyle }}" hint-size="100%,0px"></dc-import>
 </sc-if>
 
@@ -4112,7 +4112,7 @@ class Component extends DCLogic {
     rolledAt: null, shareMsg: '', sharing: false, diceQuote: '',
     diceToday: null, diceTotal: null,
     charSharing: false, charShareMsg: '',
-    navStyle: (() => { try { return localStorage.getItem('au_nav_style') === 'new' ? 'new' : 'classic'; } catch (e) { return 'classic'; } })(),
+    navStyle: (() => { try { return localStorage.getItem('au_nav_style') === 'classic' ? 'classic' : 'new'; } catch (e) { return 'new'; } })(),
     diceName: (() => { try { return localStorage.getItem('au_dice_name') || ''; } catch (e) { return ''; } })(),
     rollHistory: [], selectedChar: null, peekChar: null, selectedLore: null, selectedHistory: null,
     relHoverId: null, relPinId: null, relMx: 0, relMy: 0,
@@ -9434,7 +9434,7 @@ class Component extends DCLogic {
       navCharMode: s.charMode || 'gallery',
       audioDockSide: postsReader && page !== 'audio' && page !== 'map' && s.navStyle !== 'new',
       setNavStyle: (e) => {
-        const v = e && e.currentTarget && e.currentTarget.dataset.style === 'new' ? 'new' : 'classic';
+        const v = e && e.currentTarget && e.currentTarget.dataset.style === 'classic' ? 'classic' : 'new';
         try { localStorage.setItem('au_nav_style', v); } catch (er) {}
         this.setState({ navStyle: v, navOpen: false });
       },
