@@ -2240,6 +2240,15 @@ input,textarea,select{font-size:16px}
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🪶 Хроніки</h2>
       <button data-section="chronicles" onClick="{{ startAdd }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;" style-hover="background:rgba(255,215,0,0.18);">+ Нова хроніка</button>
     </div>
+    <div onClick="{{ chrToggleSection }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;margin-bottom:16px;">
+      <div style="width:40px;height:22px;border-radius:999px;flex-shrink:0;position:relative;transition:background 0.2s;background:{{ chrSecTrackBg }};">
+        <div style="position:absolute;top:2px;left:{{ chrSecKnobLeft }};width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s;"></div>
+      </div>
+      <div>
+        <p style="font-size:0.84rem;color:#fff;">Розділ «Хроніки» на сайті</p>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:1px;line-height:1.45;">{{ chrSecHint }}</p>
+      </div>
+    </div>
     <div class="sort-chips">
       <span style="font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Сорт.:</span>
       <button class="sort-chip" data-section="chronicles" data-sort="az" onClick="{{ quickSort }}">A → Я</button>
@@ -9758,6 +9767,28 @@ class Component extends DCLogic {
       showLore:       tab === 'lore',
       showStories:    tab === 'stories',
       showChronicles: tab === 'chronicles',
+      ...(() => {
+        const on = String((this.state.data.site || {}).chronicles_section_on || '') === '1';
+        return {
+          chrSecTrackBg: on ? 'rgba(255,215,0,0.6)' : 'rgba(255,255,255,0.15)',
+          chrSecKnobLeft: on ? '20px' : '2px',
+          chrSecHint: on
+            ? 'Увімкнено: вкладка в розділі «Світ» і плитка на Головній.'
+            : 'Вимкнено: немає в меню й на Головній, #chronicles веде на Головну (адмінам — відкривається).',
+          chrToggleSection: async () => {
+            const next = on ? '0' : '1';
+            this._setSite('chronicles_section_on', next);
+            try {
+              await this._upsertSetting('chronicles_section_on', next);
+              localStorage.setItem('aurelion-refresh', Date.now().toString());
+              this._toast(next === '1' ? '✓ Хроніки на сайті' : '✓ Хроніки сховано');
+            } catch (ex) {
+              this._setSite('chronicles_section_on', on ? '1' : '0');
+              this._toast('✗ Не вдалося зберегти вимикач');
+            }
+          },
+        };
+      })(),
       showCharacters: tab === 'characters',
       showPantheon:   tab === 'pantheon',
       showContacts:   tab === 'contacts',

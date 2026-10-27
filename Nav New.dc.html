@@ -21,12 +21,17 @@
       .nv2-hide-m{display:none!important}
       .nv2-mob{display:grid!important}
       html.au-nav2 body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+      html.au-nav2 .au-totop{bottom:calc(78px + env(safe-area-inset-bottom))!important;right:14px!important;width:44px!important;height:44px!important}
     }
     .nv2-in::placeholder{color:rgba(255,255,255,0.32)}
+    .nv2-sub::-webkit-scrollbar{display:none}
+    .nv2-fade{display:none}
+    html.au-sub body{padding-top:44px}
+    @media(max-width:880px){.nv2-fade{display:block}.nv2-sub a{padding:0 11px!important}}
   </style>
 </helmet>
 
-<nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);">
+<nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);transform:{{ navTf }};transition:transform 0.3s ease;">
   <div style="max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;padding:0 20px;box-sizing:border-box;">
     <a href="#home" style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;white-space:nowrap;">✦ AURELION</a>
     <div class="nv2-desk" style="align-items:stretch;height:100%;gap:2px;">
@@ -38,7 +43,7 @@
       <sc-if value="{{ audioDockShow }}" hint-placeholder-val="{{ false }}">
         <button onClick="{{ toggleAudioDock }}" title="Плеєр" aria-label="Плеєр" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border-radius:999px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:#9db8f0;font-size:0.78rem;transition:all 0.3s ease;" style-hover="background:rgba(100,149,237,0.2);color:#fff;">♪<span class="nv2-lbl">Плеєр</span></button>
       </sc-if>
-      <a href="#dice" title="Дайс" aria-label="Дайс" style="display:inline-flex;align-items:center;justify-content:center;height:32px;padding:0 11px;border-radius:999px;border:1px solid {{ diceBd }};color:{{ diceC }};font-size:0.76rem;font-weight:600;letter-spacing:0.04em;text-decoration:none;transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.45);color:#ffd700;">d20</a>
+      <a href="#dice" title="Кинути кубик (d20)" aria-label="Кинути кубик" style="display:inline-flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ diceBd }};color:{{ diceC }};font-size:0.76rem;font-weight:600;letter-spacing:0.04em;text-decoration:none;transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.45);color:#ffd700;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"></polygon><polygon points="12,7 17,15.5 7,15.5"></polygon><line x1="12" y1="2" x2="12" y2="7"></line><line x1="21" y1="7" x2="17" y2="15.5"></line><line x1="3" y1="7" x2="7" y2="15.5"></line><line x1="7" y1="15.5" x2="3" y2="17"></line><line x1="17" y1="15.5" x2="21" y2="17"></line><line x1="7" y1="15.5" x2="12" y2="22"></line><line x1="17" y1="15.5" x2="12" y2="22"></line></svg><span class="nv2-lbl" style="font-weight:500;letter-spacing:0;">Кубик</span></a>
       <button onClick="{{ openSearch }}" aria-label="Пошук" title="Пошук ( / )" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 11px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.78rem;transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.45);color:#ffd700;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg><span class="nv2-lbl">Пошук</span><span class="nv2-lbl nv2-hide-m" style="font-size:0.66rem;border:1px solid rgba(255,255,255,0.18);border-radius:4px;padding:1px 5px;">/</span></button>
       <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}">
         <a href="#cabinet" class="nv2-hide-m" title="{{ userChipTitle }}" style="display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 6px 0 14px;box-sizing:border-box;border-radius:999px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.25);color:rgba(255,215,0,0.9);font-size:0.78rem;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.15);color:#ffd700;">Кабінет<sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="height:22px;padding:0 9px;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.7rem;font-weight:700;display:inline-flex;align-items:center;box-shadow:0 0 12px rgba(255,215,0,0.45);">ваш хід · {{ turnsNum }}</span></sc-if><sc-if value="{{ turnsPHas }}" hint-placeholder-val="{{ false }}"><span style="height:22px;min-width:22px;padding:0 7px;box-sizing:border-box;border-radius:999px;background:#6495ed;color:#fff;font-size:0.7rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">{{ turnsPNum }}</span></sc-if><sc-if value="{{ noBadge }}" hint-placeholder-val="{{ true }}"><span style="width:8px;"></span></sc-if></a>
@@ -75,6 +80,23 @@
   </sc-if>
 </nav>
 
+<sc-if value="{{ subOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:0;right:0;top:{{ subTop }};height:44px;z-index:99;box-sizing:border-box;background:rgba(24,23,20,0.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(255,215,0,0.18);border-bottom:1px solid rgba(255,255,255,0.08);transform:{{ subTf }};transition:transform 0.3s ease,top 0.3s ease;">
+    <div style="position:relative;max-width:1200px;height:100%;margin:0 auto;padding:0 20px;box-sizing:border-box;display:flex;align-items:stretch;">
+      <span class="nv2-hide-m" style="flex-shrink:0;display:flex;align-items:center;padding-right:16px;margin-right:10px;border-right:1px solid rgba(255,255,255,0.1);font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7);white-space:nowrap;">✦ {{ subLabel }}</span>
+      <div class="nv2-sub" ref="{{ subRef }}" style="flex:1;min-width:0;display:flex;align-items:stretch;gap:2px;overflow-x:auto;scrollbar-width:none;">
+        <sc-for list="{{ subItems }}" as="it" hint-placeholder-count="4">
+          <a href="{{ it.href }}" data-on="{{ it.active }}" aria-current="{{ it.cur }}" style="flex-shrink:0;display:flex;align-items:center;gap:6px;padding:0 13px;font-size:0.86rem;white-space:nowrap;text-decoration:none;color:{{ it.c }};box-shadow:inset 0 -2px 0 {{ it.line }};transition:color 0.3s ease;" style-hover="color:#fff;">{{ it.t }}<sc-if value="{{ it.beta }}" hint-placeholder-val="{{ false }}"><span title="Бета" style="width:6px;height:6px;border-radius:50%;background:#6495ed;"></span></sc-if></a>
+        </sc-for>
+      </div>
+      <span class="nv2-fade" style="position:absolute;right:0;top:0;bottom:0;width:44px;pointer-events:none;background:linear-gradient(90deg,rgba(24,23,20,0),rgba(24,23,20,1));"></span>
+    </div>
+  </div>
+  <sc-if value="{{ slimOn }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ toTop }}" aria-label="Нагору" style="position:fixed;left:0;right:0;top:0;height:40px;z-index:99;cursor:pointer;border:none;border-bottom:1px solid rgba(255,215,0,0.18);background:rgba(24,23,20,0.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;gap:8px;padding:0 16px;text-align:left;"><span style="font-family:'Cinzel',Georgia,serif;font-size:0.9rem;letter-spacing:0.05em;color:#fff;">{{ subActive }}</span><span style="font-size:0.68rem;color:rgba(255,255,255,0.4);">· {{ subLabel }}</span></button>
+  </sc-if>
+</sc-if>
+
 <sc-if value="{{ hasOpen }}" hint-placeholder-val="{{ false }}">
   <div onClick="{{ closeAll }}" style="position:fixed;inset:60px 0 0 0;z-index:99;background:rgba(0,0,0,0.35);"></div>
 </sc-if>
@@ -100,7 +122,7 @@
   </div>
 </sc-if>
 
-<div class="nv2-mob" style="position:fixed;left:0;right:0;bottom:0;z-index:103;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);box-sizing:border-box;border-top:1px solid rgba(255,255,255,0.1);background:rgba(28,27,24,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);grid-template-columns:repeat(5,1fr);">
+<div class="nv2-mob" style="transform:{{ barTf }};transition:transform 0.3s ease;position:fixed;left:0;right:0;bottom:0;z-index:103;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);box-sizing:border-box;border-top:1px solid rgba(255,255,255,0.1);background:rgba(28,27,24,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);grid-template-columns:repeat(5,1fr);">
   <sc-for list="{{ tabbar }}" as="t" hint-placeholder-count="5">
     <a href="{{ t.href }}" data-id="{{ t.id }}" onClick="{{ t.go }}" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:0.7rem;letter-spacing:0.02em;text-decoration:none;color:{{ t.color }};box-shadow:inset 0 2px 0 {{ t.line }};">
       <span style="font-size:1.05rem;line-height:1;">{{ t.g }}</span>{{ t.l }}
@@ -156,7 +178,7 @@
 const WORLD = [
   { id: 'lore',       t: 'Довідник', d: 'Лор, географія, магія і закони' },
   { id: 'stories',    t: 'Історії',  d: 'Авторські статті та серії від гравців спільноти' },
-  { id: 'chronicles', t: 'Хроніки',  d: 'Літописи відіграшів персонажів та арок' },
+  { id: 'chronicles', t: 'Хроніки',  d: 'Літописи відіграшів персонажів та арок', opt: 'chronOn' },
   { id: 'pantheon',   t: 'Пантеон',  d: 'П\u2019ятеро богів, що тримають рівновагу' },
   { id: 'map',        t: 'Мапа',     d: 'Інтерактивна мапа світу Ауреліону' },
 ];
@@ -181,13 +203,31 @@ const LABEL = { world: 'Світ', chars: 'Персонажі', life: 'Спіл�
 const GLYPH = { world: '◈', chars: '◎', life: '✦', fun: '❖' };
 
 class Component extends DCLogic {
-  state = { open: null, sheet: null, search: false, admin: false };
+  state = { open: null, sheet: null, search: false, admin: false, mob: false, mode: 'top' };
   searchRef = React.createRef();
+  subRef = React.createRef();
+
+  // Підшапка — у всіх розділах, крім Мапи (там полотно на весь екран).
+  _pickSub(groups) {
+    if ((this.props.page || 'home') === 'map') return null;
+    const g = groups.find(x => x.current);
+    return g && g.items.length > 1 ? g : null;
+  }
+  _sub() { return this._pickSub(this._groups()); }
+  _syncSub() {
+    document.documentElement.classList.toggle('au-sub', !!this._sub());
+    const el = this.subRef.current;
+    if (el && this._subPage !== this.props.page) {
+      this._subPage = this.props.page;
+      const a = el.querySelector('[data-on="true"]');
+      if (a) el.scrollLeft = Math.max(0, a.offsetLeft - el.offsetLeft - 24);
+    }
+  }
 
   componentDidMount() {
     document.documentElement.classList.add('au-nav2');
     try { this.setState({ admin: !!localStorage.getItem('aur-admin-token') }); } catch (e) {}
-    this._onHash = () => this.setState({ open: null, sheet: null, search: false });
+    this._onHash = () => { this._lastY = window.scrollY; this.setState({ open: null, sheet: null, search: false, mode: 'top' }); };
     this._onKey = (e) => {
       const t = e.target, tag = t && t.tagName;
       const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable);
@@ -200,13 +240,35 @@ class Component extends DCLogic {
     };
     window.addEventListener('hashchange', this._onHash);
     window.addEventListener('keydown', this._onKey);
+    // Телефон: гортаємо вниз — шапки ховаються, вгору — вертаються вкладки.
+    this._mq = window.matchMedia('(max-width:880px)');
+    this._onMq = () => this.setState({ mob: this._mq.matches });
+    this._onMq();
+    this._mq.addEventListener('change', this._onMq);
+    this._lastY = window.scrollY;
+    this._onScroll = () => {
+      if (this._raf) return;
+      this._raf = requestAnimationFrame(() => {
+        this._raf = 0;
+        const y = window.scrollY, dy = y - this._lastY;
+        let m;
+        if (y < 80) m = 'top'; else if (dy > 8) m = 'down'; else if (dy < -8) m = 'up'; else return;
+        this._lastY = y;
+        if (m !== this.state.mode) this.setState({ mode: m });
+      });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._syncSub();
   }
   componentWillUnmount() {
-    document.documentElement.classList.remove('au-nav2');
+    document.documentElement.classList.remove('au-nav2', 'au-sub');
+    window.removeEventListener('scroll', this._onScroll);
+    if (this._mq) this._mq.removeEventListener('change', this._onMq);
     window.removeEventListener('hashchange', this._onHash);
     window.removeEventListener('keydown', this._onKey);
   }
   componentDidUpdate(pp, ps) {
+    this._syncSub();
     if (this.state.search && !ps.search) setTimeout(() => { const el = this.searchRef.current; if (el) el.focus(); }, 30);
   }
 
@@ -219,7 +281,7 @@ class Component extends DCLogic {
     const fun = p.funTabs || [];
     const mk = (x) => ({ id: x.id, href: '#' + x.id, t: x.t || x.label, d: x.d || DESC[x.id] || '', beta: !!x.beta, active: !!x.active });
     return [
-      { id: 'world', items: WORLD.map(x => mk({ ...x, active: page === x.id })) },
+      { id: 'world', items: WORLD.filter(x => !x.opt || p[x.opt]).map(x => mk({ ...x, active: page === x.id })) },
       { id: 'chars', items: CHARS.map(x => mk({ ...x, active: cm === x.mode })) },
       { id: 'life',  items: life.map(mk) },
       { id: 'fun',   items: fun.map(mk) },
@@ -254,7 +316,19 @@ class Component extends DCLogic {
       badgeBg: p.turnsHas ? '#ffd700' : '#6495ed', badgeC: p.turnsHas ? '#1a1a1a' : '#fff',
       go: () => this.setState({ sheet: null }),
     }]);
+    const sub = this._pickSub(groups);
+    const away = s.mob && !!sub && s.mode !== 'top';
+    const subAct = sub ? sub.items.find(i => i.active) : null;
     return {
+      subOn: !!sub, subLabel: sub ? sub.label : '', subActive: subAct ? subAct.t : '', subRef: this.subRef,
+      subItems: sub ? sub.items.map(it => ({ ...it, cur: it.active ? 'page' : undefined,
+        c: it.active ? '#fff' : 'rgba(255,255,255,0.58)', line: it.active ? '#ffd700' : 'transparent' })) : [],
+      navTf: away ? 'translateY(-120%)' : 'none',
+      subTop: away ? '0px' : '60px',
+      subTf: away && s.mode === 'down' ? 'translateY(-120%)' : 'none',
+      slimOn: away && s.mode === 'down',
+      barTf: away && s.mode === 'down' ? 'translateY(110%)' : 'none',
+      toTop: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
       groups: groups.map(g => ({ id: g.id, label: g.label, open: s.open === g.id,
         color: s.open === g.id || g.current ? '#ffd700' : 'rgba(255,255,255,0.72)',
         line: g.current ? '#ffd700' : 'transparent' })),
@@ -265,7 +339,7 @@ class Component extends DCLogic {
       audioDockShow: !!p.audioDockShow, toggleAudioDock: () => { if (p.toggleAudioDock) p.toggleAudioDock(); },
       diceBd: page === 'dice' ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.14)',
       diceC: page === 'dice' ? '#ffd700' : 'rgba(255,255,255,0.75)',
-      signedIn, isGuest: !signedIn, isAdmin: !!s.admin,
+      signedIn, isGuest: !signedIn, isAdmin: !!s.admin || !!p.siteAdmin,
       userChipTitle: p.userChipTitle || '',
       turnsHas: !!p.turnsHas, turnsNum: p.turnsNum || '', turnsPHas: !!p.turnsPHas, turnsPNum: p.turnsPNum || '',
       noBadge: !p.turnsHas && !p.turnsPHas,
