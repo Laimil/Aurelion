@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/styles.css">
+  <script src="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/_ds_bundle.js"></script>
+  <style>
+    .nv2-desk{display:flex}
+    .nv2-mob{display:none}
+    @media(max-width:1060px){.nv2-lbl{display:none!important}}
+    @media(max-width:880px){
+      .nv2-desk{display:none!important}
+      .nv2-hide-m{display:none!important}
+      .nv2-mob{display:grid!important}
+      html.au-nav2 body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+    }
+    .nv2-in::placeholder{color:rgba(255,255,255,0.32)}
+  </style>
+</helmet>
+
+<nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);">
+  <div style="max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;padding:0 20px;box-sizing:border-box;">
+    <a href="#home" style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;white-space:nowrap;">✦ AURELION</a>
+    <div class="nv2-desk" style="align-items:stretch;height:100%;gap:2px;">
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
+        <button data-id="{{ g.id }}" onClick="{{ pick }}" aria-expanded="{{ g.open }}" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0 14px;font-size:0.9rem;letter-spacing:0.02em;white-space:nowrap;color:{{ g.color }};box-shadow:inset 0 -2px 0 {{ g.line }};transition:all 0.3s ease;" style-hover="color:#fff;">{{ g.label }}<span style="font-size:0.6rem;opacity:0.6;">▾</span></button>
+      </sc-for>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+      <sc-if value="{{ audioDockShow }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ toggleAudioDock }}" title="Плеєр" aria-label="Плеєр" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border-radius:999px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:#9db8f0;font-size:0.78rem;transition:all 0.3s ease;" style-hover="background:rgba(100,149,237,0.2);color:#fff;">♪<span class="nv2-lbl">Плеєр</span></button>
+      </sc-if>
+      <a href="#dice" title="Дайс" aria-label="Дайс" style="display:inline-flex;align-items:center;justify-content:center;height:32px;padding:0 11px;border-radius:999px;border:1px solid {{ diceBd }};color:{{ diceC }};font-size:0.76rem;font-weight:600;letter-spacing:0.04em;text-decoration:none;transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.45);color:#ffd700;">d20</a>
+      <button onClick="{{ openSearch }}" aria-label="Пошук" title="Пошук ( / )" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 11px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.78rem;transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.45);color:#ffd700;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg><span class="nv2-lbl">Пошук</span><span class="nv2-lbl nv2-hide-m" style="font-size:0.66rem;border:1px solid rgba(255,255,255,0.18);border-radius:4px;padding:1px 5px;">/</span></button>
+      <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}">
+        <a href="#cabinet" class="nv2-hide-m" title="{{ userChipTitle }}" style="display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 6px 0 14px;box-sizing:border-box;border-radius:999px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.25);color:rgba(255,215,0,0.9);font-size:0.78rem;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.15);color:#ffd700;">Кабінет<sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="height:22px;padding:0 9px;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.7rem;font-weight:700;display:inline-flex;align-items:center;box-shadow:0 0 12px rgba(255,215,0,0.45);">ваш хід · {{ turnsNum }}</span></sc-if><sc-if value="{{ turnsPHas }}" hint-placeholder-val="{{ false }}"><span style="height:22px;min-width:22px;padding:0 7px;box-sizing:border-box;border-radius:999px;background:#6495ed;color:#fff;font-size:0.7rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">{{ turnsPNum }}</span></sc-if><sc-if value="{{ noBadge }}" hint-placeholder-val="{{ true }}"><span style="width:8px;"></span></sc-if></a>
+      </sc-if>
+      <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+        <a href="#cabinet" class="nv2-hide-m" style="display:inline-flex;align-items:center;height:32px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.65);font-size:0.78rem;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.45);color:#ffd700;">Увійти</a>
+        <a href="#contacts" class="nv2-hide-m" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 15px;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.78rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.45);transform:scale(1.04);">✦ Долучитися</a>
+      </sc-if>
+      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+        <a href="admin.dc.html" class="nv2-hide-m" title="Адмінка" style="margin-left:4px;font-size:0.72rem;color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:4px 9px;text-decoration:none;transition:all 0.3s ease;" style-hover="color:rgba(255,255,255,0.7);">⚙</a>
+      </sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{ hasOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;top:60px;left:0;right:0;background:rgba(22,20,15,0.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,0.2);box-shadow:0 18px 48px rgba(0,0,0,0.6);padding:26px 24px 28px;max-height:calc(100dvh - 60px);overflow-y:auto;box-sizing:border-box;">
+      <div style="max-width:1152px;margin:0 auto;display:grid;grid-template-columns:240px minmax(0,1fr);gap:34px;">
+        <div style="display:flex;flex-direction:column;gap:10px;border-right:1px solid rgba(255,255,255,0.08);padding-right:26px;">
+          <p style="margin:0;font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:#ffd700;">✦ Розділ</p>
+          <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.6rem;letter-spacing:0.06em;color:#fff;">{{ open.label }}</p>
+          <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;line-height:1.55;color:rgba(255,255,255,0.62);">{{ open.cap }}</p>
+          <button data-style="classic" onClick="{{ setNavStyle }}" style="margin-top:auto;align-self:flex-start;cursor:pointer;background:none;border:none;padding:8px 0 0;font-size:0.74rem;color:rgba(255,255,255,0.38);transition:color 0.3s ease;" style-hover="color:#fff;">← Повернути класичне меню</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;align-content:start;">
+          <sc-for list="{{ open.items }}" as="it" hint-placeholder-count="5">
+            <a href="{{ it.href }}" onClick="{{ closeAll }}" style="padding:14px 16px;border-radius:10px;background:{{ it.bg }};border:1px solid {{ it.bd }};display:flex;flex-direction:column;gap:4px;text-decoration:none;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.1);">
+              <span style="display:flex;align-items:center;gap:8px;font-family:'Cinzel',Georgia,serif;font-size:0.98rem;letter-spacing:0.03em;color:{{ it.tc }};">{{ it.t }}<sc-if value="{{ it.beta }}" hint-placeholder-val="{{ false }}"><span title="Бета" style="width:6px;height:6px;border-radius:50%;background:#6495ed;"></span></sc-if></span>
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.55);line-height:1.4;">{{ it.d }}</span>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</nav>
+
+<sc-if value="{{ hasOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeAll }}" style="position:fixed;inset:60px 0 0 0;z-index:99;background:rgba(0,0,0,0.35);"></div>
+</sc-if>
+
+<sc-if value="{{ hasSheet }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeAll }}" style="position:fixed;inset:0;z-index:101;background:rgba(0,0,0,0.55);"></div>
+  <div style="position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:102;background:rgba(24,22,18,0.99);border-top:1px solid rgba(255,215,0,0.25);border-radius:20px 20px 0 0;padding:10px 18px 14px;box-shadow:0 -18px 40px rgba(0,0,0,0.6);max-height:calc(100dvh - 140px);overflow-y:auto;box-sizing:border-box;">
+    <div style="width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:0 auto 14px;"></div>
+    <p style="margin:0 0 4px;font-family:'Cinzel',Georgia,serif;font-size:1.3rem;letter-spacing:0.05em;color:#fff;">{{ sheet.label }}</p>
+    <p style="margin:0 0 10px;font-family:'EB Garamond',Georgia,serif;font-style:italic;color:rgba(255,255,255,0.55);">{{ sheet.cap }}</p>
+    <div style="display:flex;flex-direction:column;">
+      <sc-for list="{{ sheet.items }}" as="it" hint-placeholder-count="5">
+        <a href="{{ it.href }}" onClick="{{ closeAll }}" style="min-height:54px;display:flex;align-items:center;gap:12px;border-top:1px solid rgba(255,255,255,0.07);text-decoration:none;">
+          <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;">
+            <span style="display:flex;align-items:center;gap:8px;font-size:0.98rem;color:{{ it.tc }};">{{ it.t }}<sc-if value="{{ it.beta }}" hint-placeholder-val="{{ false }}"><span style="width:6px;height:6px;border-radius:50%;background:#6495ed;"></span></sc-if></span>
+            <span style="font-family:'EB Garamond',Georgia,serif;font-size:0.9rem;color:rgba(255,255,255,0.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ it.d }}</span>
+          </span>
+          <span style="color:rgba(255,255,255,0.3);">→</span>
+        </a>
+      </sc-for>
+    </div>
+    <button data-style="classic" onClick="{{ setNavStyle }}" style="margin-top:8px;cursor:pointer;background:none;border:none;padding:10px 0 2px;font-size:0.76rem;color:rgba(255,255,255,0.38);">← Повернути класичне меню</button>
+  </div>
+</sc-if>
+
+<div class="nv2-mob" style="position:fixed;left:0;right:0;bottom:0;z-index:103;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);box-sizing:border-box;border-top:1px solid rgba(255,255,255,0.1);background:rgba(28,27,24,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);grid-template-columns:repeat(5,1fr);">
+  <sc-for list="{{ tabbar }}" as="t" hint-placeholder-count="5">
+    <a href="{{ t.href }}" data-id="{{ t.id }}" onClick="{{ t.go }}" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:0.7rem;letter-spacing:0.02em;text-decoration:none;color:{{ t.color }};box-shadow:inset 0 2px 0 {{ t.line }};">
+      <span style="font-size:1.05rem;line-height:1;">{{ t.g }}</span>{{ t.l }}
+      <sc-if value="{{ t.badge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:7px;left:calc(50% + 7px);min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:999px;background:{{ t.badgeBg }};color:{{ t.badgeC }};font-size:0.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;">{{ t.badgeN }}</span></sc-if>
+    </a>
+  </sc-for>
+</div>
+
+<sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeSearch }}" style="position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.62);display:flex;justify-content:center;align-items:flex-start;padding:11vh 14px 14px;box-sizing:border-box;">
+    <div onClick="{{ stop }}" style="width:min(640px,100%);background:rgba(22,20,15,0.98);border:1px solid rgba(255,215,0,0.22);border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,0.6);overflow:hidden;display:flex;flex-direction:column;max-height:78vh;">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.08);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,215,0,0.7)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+        <input class="nv2-in" ref="{{ searchRef }}" value="{{ homeSearchVal }}" onInput="{{ setHomeSearch }}" onKeyDown="{{ searchKey }}" placeholder="Персонаж, бог, місце, історія…" style="flex:1;min-width:0;background:none;border:none;outline:none;color:#fff;font-size:1rem;padding:4px 0;">
+        <button onClick="{{ closeSearch }}" style="flex-shrink:0;cursor:pointer;font-size:0.68rem;color:rgba(255,255,255,0.45);background:none;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:3px 7px;">Esc</button>
+      </div>
+      <div style="overflow-y:auto;padding:6px;">
+        <sc-for list="{{ homeSearchResults }}" as="r" hint-placeholder-count="0">
+          <button data-type="{{ r.type }}" data-id="{{ r.id }}" onClick="{{ onResult }}" style="display:flex;align-items:center;gap:14px;width:100%;background:none;border:none;border-radius:10px;padding:11px 14px;cursor:pointer;text-align:left;transition:background 0.15s;" style-hover="background:rgba(255,255,255,0.07);">
+            <span style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;width:92px;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ r.accent }};"><span style="width:5px;height:5px;border-radius:50%;background:{{ r.accent }};flex-shrink:0;"></span>{{ r.typeLabel }}</span>
+            <span style="min-width:0;flex:1;">
+              <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:0.92rem;color:#fff;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.title }}</span>
+              <span style="display:block;font-size:0.74rem;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.sub }}</span>
+              <sc-if value="{{ r.hasSnip }}" hint-placeholder-val="{{ false }}">
+                <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.84rem;color:rgba(255,255,255,0.46);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">{{ r.snipA }}<mark style="background:rgba(255,215,0,0.15);color:#ffd700;border-radius:3px;padding:0 2px;">{{ r.snipHit }}</mark>{{ r.snipB }}</span>
+              </sc-if>
+            </span>
+            <span style="flex-shrink:0;color:rgba(255,255,255,0.25);">→</span>
+          </button>
+        </sc-for>
+        <sc-if value="{{ homeSearchEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:26px 20px;color:rgba(255,255,255,0.35);font-size:0.86rem;">✦ Нічого не знайдено</div>
+        </sc-if>
+        <sc-if value="{{ noQuery }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:2px;padding:6px 8px 8px;">
+            <p style="margin:6px 6px 6px;font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Швидко</p>
+            <sc-for list="{{ quick }}" as="q" hint-placeholder-count="4">
+              <a href="{{ q.href }}" onClick="{{ closeSearch }}" style="display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,0.8);font-size:0.9rem;transition:background 0.15s;" style-hover="background:rgba(255,255,255,0.07);"><span style="width:22px;text-align:center;color:rgba(255,215,0,0.75);">{{ q.g }}</span>{{ q.t }}</a>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <div class="nv2-hide-m" style="display:flex;gap:18px;padding:10px 18px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.72rem;color:rgba(255,255,255,0.38);">
+        <span>↵ відкрити перше</span><span>Esc закрити</span><span style="margin-left:auto;">«/» відкриває пошук з будь-якої сторінки</span>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+// Нова шапка: чотири розділи з панелями, кубик/пошук/кабінет праворуч,
+// на телефоні — нижня панель зі шторками. Маршрути ті самі, що в класичній.
+const WORLD = [
+  { id: 'lore',       t: 'Довідник', d: 'Лор, географія, магія і закони' },
+  { id: 'stories',    t: 'Історії',  d: 'Авторські статті та серії від гравців спільноти' },
+  { id: 'chronicles', t: 'Хроніки',  d: 'Літописи відіграшів персонажів та арок' },
+  { id: 'pantheon',   t: 'Пантеон',  d: 'П\u2019ятеро богів, що тримають рівновагу' },
+  { id: 'map',        t: 'Мапа',     d: 'Інтерактивна мапа світу Ауреліону' },
+];
+const CHARS = [
+  { id: 'characters',  mode: 'gallery', t: 'Галерея', d: 'Гравецькі та ключові герої' },
+  { id: 'connections', mode: 'conn',    t: 'Зв\u2019язки', d: 'Хто з ким пов\u2019язаний' },
+  { id: 'ruler',       mode: 'ruler',   t: 'Лінійка', d: 'Пліч-о-пліч за зростом' },
+];
+const DESC = {
+  posts: 'Дописи з рольового чату', arcs: 'Сторінки, зібрані з дописів', audio: 'Музика, підшита з дописів',
+  offers: 'Хто вільний для відіграшу', seals: 'Печатки персонажів', pulse: 'Хто скільки пише',
+  tests: 'Дзеркало для вас і для вашого персонажа', gossip: 'Принесіть Марті те, що почули',
+  quotes: 'Що сказали й записали', glyphs: 'Химерний текст для чату', words: 'Якими словами пише персонаж',
+};
+const CAP = {
+  world: 'Як тут усе влаштовано.',
+  chars: 'Так-так, вони ваші.',
+  life: 'Те, що росте з рольового чату.',
+  fun: 'Дрібні послуги рецепції.',
+};
+const LABEL = { world: 'Світ', chars: 'Персонажі', life: 'Спільнота', fun: 'Забавки' };
+const GLYPH = { world: '◈', chars: '◎', life: '✦', fun: '❖' };
+
+class Component extends DCLogic {
+  state = { open: null, sheet: null, search: false, admin: false };
+  searchRef = React.createRef();
+
+  componentDidMount() {
+    document.documentElement.classList.add('au-nav2');
+    try { this.setState({ admin: !!localStorage.getItem('aur-admin-token') }); } catch (e) {}
+    this._onHash = () => this.setState({ open: null, sheet: null, search: false });
+    this._onKey = (e) => {
+      const t = e.target, tag = t && t.tagName;
+      const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable);
+      if (e.key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.setState({ search: true, open: null, sheet: null });
+      } else if (e.key === 'Escape' && (this.state.open || this.state.sheet)) {
+        this.setState({ open: null, sheet: null });
+      }
+    };
+    window.addEventListener('hashchange', this._onHash);
+    window.addEventListener('keydown', this._onKey);
+  }
+  componentWillUnmount() {
+    document.documentElement.classList.remove('au-nav2');
+    window.removeEventListener('hashchange', this._onHash);
+    window.removeEventListener('keydown', this._onKey);
+  }
+  componentDidUpdate(pp, ps) {
+    if (this.state.search && !ps.search) setTimeout(() => { const el = this.searchRef.current; if (el) el.focus(); }, 30);
+  }
+
+  _groups() {
+    const p = this.props;
+    const page = p.page || 'home';
+    const cm = page === 'connections' ? 'conn' : page === 'ruler' ? 'ruler'
+      : page === 'characters' ? (p.charMode || 'gallery') : null;
+    const life = (p.lifeTabs || []).concat([{ id: 'pulse', label: 'Пульс', active: page === 'pulse' }]);
+    const fun = p.funTabs || [];
+    const mk = (x) => ({ id: x.id, href: '#' + x.id, t: x.t || x.label, d: x.d || DESC[x.id] || '', beta: !!x.beta, active: !!x.active });
+    return [
+      { id: 'world', items: WORLD.map(x => mk({ ...x, active: page === x.id })) },
+      { id: 'chars', items: CHARS.map(x => mk({ ...x, active: cm === x.mode })) },
+      { id: 'life',  items: life.map(mk) },
+      { id: 'fun',   items: fun.map(mk) },
+    ].map(g => ({ ...g, label: LABEL[g.id], cap: CAP[g.id], current: g.items.some(i => i.active) }));
+  }
+
+  renderVals() {
+    const p = this.props, s = this.state;
+    const groups = this._groups();
+    const deco = (it) => ({ ...it,
+      bg: it.active ? 'rgba(255,215,0,0.06)' : 'rgba(255,255,255,0.05)',
+      bd: it.active ? 'rgba(255,215,0,0.28)' : 'rgba(255,255,255,0.09)',
+      tc: it.active ? '#ffd700' : '#fff' });
+    const full = (g) => g ? { label: g.label, cap: g.cap, items: g.items.map(deco) } : { label: '', cap: '', items: [] };
+    const open = groups.find(g => g.id === s.open) || null;
+    const sheet = groups.find(g => g.id === s.sheet) || null;
+    const closeAll = () => this.setState({ open: null, sheet: null });
+    const closeSearch = () => { this.setState({ search: false }); if (p.clearHomeSearch) p.clearHomeSearch(); };
+    const results = p.homeSearchResults || [];
+    const page = p.page || 'home';
+    const signedIn = !!p.signedIn;
+    const cabOn = page === 'cabinet' || page === 'intake' || page === 'gossip';
+    const tabbar = groups.map(g => {
+      const on = s.sheet === g.id || (!s.sheet && g.current);
+      return { id: g.id, href: '#' + (g.items[0] ? g.items[0].id : 'home'), g: GLYPH[g.id], l: g.label,
+        color: on ? '#ffd700' : 'rgba(255,255,255,0.58)', line: on ? '#ffd700' : 'transparent', badge: false, badgeN: '', badgeBg: '', badgeC: '',
+        go: (e) => { e.preventDefault(); this.setState(st => ({ sheet: st.sheet === g.id ? null : g.id, open: null })); } };
+    }).concat([{
+      id: 'cab', href: '#cabinet', g: '⌂', l: signedIn ? 'Кабінет' : 'Увійти',
+      color: cabOn && !s.sheet ? '#ffd700' : 'rgba(255,255,255,0.58)', line: cabOn && !s.sheet ? '#ffd700' : 'transparent',
+      badge: !!(p.turnsHas || p.turnsPHas), badgeN: p.turnsHas ? p.turnsNum : p.turnsPNum,
+      badgeBg: p.turnsHas ? '#ffd700' : '#6495ed', badgeC: p.turnsHas ? '#1a1a1a' : '#fff',
+      go: () => this.setState({ sheet: null }),
+    }]);
+    return {
+      groups: groups.map(g => ({ id: g.id, label: g.label, open: s.open === g.id,
+        color: s.open === g.id || g.current ? '#ffd700' : 'rgba(255,255,255,0.72)',
+        line: g.current ? '#ffd700' : 'transparent' })),
+      pick: (e) => { const id = e.currentTarget.dataset.id; this.setState(st => ({ open: st.open === id ? null : id, sheet: null })); },
+      hasOpen: !!open, open: full(open),
+      hasSheet: !!sheet, sheet: full(sheet),
+      closeAll, tabbar,
+      audioDockShow: !!p.audioDockShow, toggleAudioDock: () => { if (p.toggleAudioDock) p.toggleAudioDock(); },
+      diceBd: page === 'dice' ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.14)',
+      diceC: page === 'dice' ? '#ffd700' : 'rgba(255,255,255,0.75)',
+      signedIn, isGuest: !signedIn, isAdmin: !!s.admin,
+      userChipTitle: p.userChipTitle || '',
+      turnsHas: !!p.turnsHas, turnsNum: p.turnsNum || '', turnsPHas: !!p.turnsPHas, turnsPNum: p.turnsPNum || '',
+      noBadge: !p.turnsHas && !p.turnsPHas,
+      setNavStyle: (e) => { if (p.setNavStyle) p.setNavStyle(e); },
+      searchOpen: !!s.search,
+      openSearch: () => this.setState({ search: true, open: null, sheet: null }),
+      closeSearch, stop: (e) => e.stopPropagation(),
+      searchRef: this.searchRef,
+      homeSearchVal: p.homeSearchVal || '',
+      setHomeSearch: (e) => { if (p.setHomeSearch) p.setHomeSearch(e); },
+      searchKey: (e) => {
+        if (e.key === 'Escape') { closeSearch(); return; }
+        if (p.homeSearchKey) p.homeSearchKey(e);
+        if (e.key === 'Enter' && results.length) this.setState({ search: false });
+      },
+      homeSearchResults: results,
+      homeSearchEmpty: !!p.homeSearchEmpty,
+      noQuery: !(p.homeSearchVal || '').trim(),
+      onResult: (e) => { if (p.openSearchResult) p.openSearchResult(e); this.setState({ search: false }); },
+      quick: [
+        { g: 'd20', t: 'Кинути кубик', href: '#dice' },
+        { g: '⌂', t: signedIn ? 'Мій кабінет' : 'Увійти', href: '#cabinet' },
+        { g: '◈', t: 'Мапа світу', href: '#map' },
+        { g: '◎', t: 'Усі персонажі', href: '#characters' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

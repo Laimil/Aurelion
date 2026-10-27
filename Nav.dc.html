@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/styles.css">
+  <script src="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/_ds_bundle.js"></script>
+</helmet>
+<!-- Класична шапка, винесена з Aurelion.dc.html 1:1. Її CSS (.au-navfull,
+     .au-navburger, nav a[data-active], .au-navsearch…) поки лишився в helmet
+     батька — переїде сюди окремим кроком. -->
+<nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);">
+  <div style="max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;padding:0 24px;gap:0;">
+    <a href="#home" class="au-brand" style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;">✦<span class="au-wm-full"> AURELION</span></a>
+    <div class="au-navfull" style="display:flex;align-items:center;gap:2px;flex:0 0 auto;margin-right:auto;min-width:0;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
+        <a href="#{{ item.id }}" data-active="{{ item.active }}" style="padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;flex-shrink:0;text-decoration:none;">{{ item.label }}</a>
+      </sc-for>
+    </div>
+    <button class="au-navburger" onClick="{{ toggleNav }}" aria-label="Розділи" aria-expanded="{{ navOpen }}" style="margin-right:auto;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.72);border-radius:999px;padding:7px 16px;font-size:0.82rem;letter-spacing:0.02em;cursor:pointer;transition:all 0.2s ease;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">{{ navBurgerLabel }}</button>
+    <a href="#contacts" data-active="{{ navJoinActive }}" data-cta="true" style="flex-shrink:0;margin-left:10px;padding:6px 13px;font-size:0.855rem;letter-spacing:0.02em;border-radius:6px;white-space:nowrap;text-decoration:none;">Долучитися</a>
+    <sc-if value="{{ showNavSearch }}" hint-placeholder-val="{{ false }}">
+      <div class="au-navsearch" style="position:relative;flex-shrink:0;margin-left:12px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+        <input value="{{ homeSearchVal }}" onInput="{{ setHomeSearch }}" onKeyDown="{{ homeSearchKey }}" placeholder="Пошук…" style="width:140px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:7px 12px 7px 33px;font-size:0.8rem;color:#fff;outline:none;transition:all 0.25s;" style-focus="width:220px;border-color:rgba(255,215,0,0.45);background:rgba(255,255,255,0.09);">
+        <sc-if value="{{ homeSearchActive }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:calc(100% + 14px);right:0;width:min(420px,calc(100vw - 32px));background:rgba(22,20,15,0.97);border:1px solid rgba(255,215,0,0.22);border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,0.6);max-height:70vh;overflow-y:auto;padding:6px;text-align:left;">
+            <sc-for list="{{ homeSearchResults }}" as="r" hint-placeholder-count="0">
+              <button data-type="{{ r.type }}" data-id="{{ r.id }}" onClick="{{ openSearchResult }}" style="display:flex;align-items:center;gap:14px;width:100%;background:none;border:none;border-radius:10px;padding:11px 14px;cursor:pointer;text-align:left;transition:background 0.15s;" style-hover="background:rgba(255,255,255,0.07);">
+                <span style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;width:92px;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:{{ r.accent }};"><span style="width:5px;height:5px;border-radius:50%;background:{{ r.accent }};flex-shrink:0;"></span>{{ r.typeLabel }}</span>
+                <span style="min-width:0;flex:1;">
+                  <span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:0.9rem;color:#fff;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.title }}</span>
+                  <span style="display:block;font-size:0.74rem;color:rgba(255,255,255,0.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.sub }}</span>
+                  <sc-if value="{{ r.hasSnip }}" hint-placeholder-val="{{ false }}">
+                    <span style="display:block;font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;color:rgba(255,255,255,0.44);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">{{ r.snipA }}<mark style="background:rgba(255,215,0,0.15);color:#ffd700;border-radius:3px;padding:0 2px;">{{ r.snipHit }}</mark>{{ r.snipB }}</span>
+                  </sc-if>
+                </span>
+                <span style="flex-shrink:0;color:rgba(255,255,255,0.25);font-size:0.85rem;">→</span>
+              </button>
+            </sc-for>
+            <sc-if value="{{ homeSearchEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:26px 20px;color:rgba(255,255,255,0.32);font-size:0.85rem;">✦ Нічого не знайдено</div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+    <a href="#cabinet" data-active="{{ userChipActive }}" title="{{ userChipTitle }}" style="flex-shrink:0;margin-left:12px;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:0.75rem;letter-spacing:0.03em;text-decoration:none;transition:all 0.25s ease;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};" style-hover="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,0.22);">{{ userChipGlyph }}<span class="au-share-label">{{ userChipLabel }}</span><sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.66rem;font-weight:700;box-shadow:0 0 10px rgba(255,215,0,0.45);">{{ turnsNum }}</span></sc-if><sc-if value="{{ turnsPHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#6495ed;color:#fff;font-size:0.66rem;font-weight:700;box-shadow:0 0 10px rgba(100,149,237,0.5);">{{ turnsPNum }}</span></sc-if></a>
+    <a href="admin.dc.html" style="flex-shrink:0;margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.09);border-radius:4px;padding:4px 10px;text-decoration:none;transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.22);">⚙</a>
+  </div>
+  <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="au-navpanel" style="position:fixed;top:60px;left:0;right:0;background:rgba(22,20,15,0.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,0.2);box-shadow:0 18px 48px rgba(0,0,0,0.6);padding:12px 20px 18px;max-height:calc(100dvh - 60px);overflow-y:auto;box-sizing:border-box;">
+      <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:4px;">
+        <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
+          <a href="#{{ item.id }}" onClick="{{ closeNav }}" data-active="{{ item.active }}" style="padding:12px 15px;border-radius:8px;font-size:0.94rem;letter-spacing:0.02em;text-decoration:none;transition:background 0.18s;">{{ item.label }}</a>
+        </sc-for>
+      </div>
+      <div style="max-width:1200px;margin:10px auto 0;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+        <a href="#cabinet" onClick="{{ closeNav }}" style="display:flex;align-items:center;justify-content:center;gap:9px;padding:13px 16px;border-radius:999px;font-size:0.94rem;letter-spacing:0.03em;text-decoration:none;background:{{ userChipBg }};border:1px solid {{ userChipBorder }};color:{{ userChipColor }};transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.15);color:#ffd700;">{{ userChipGlyph }}<span>{{ userChipLabel }}</span><sc-if value="{{ turnsHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.7rem;font-weight:700;">{{ turnsNum }}</span></sc-if><sc-if value="{{ turnsPHas }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#6495ed;color:#fff;font-size:0.66rem;font-weight:700;box-shadow:0 0 10px rgba(100,149,237,0.5);">{{ turnsPNum }}</span></sc-if></a>
+      </div>
+      <div style="max-width:1200px;margin:14px auto 0;display:flex;justify-content:center;align-items:center;gap:10px;font-size:0.78rem;color:rgba(255,255,255,0.42);">
+        <span>Вигляд меню</span>
+        <div style="display:inline-flex;gap:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
+          <sc-for list="{{ navStyleOpts }}" as="o" hint-placeholder-count="2">
+            <button data-style="{{ o.id }}" onClick="{{ setNavStyle }}" style="cursor:pointer;border:none;border-radius:999px;padding:7px 15px;font-size:0.8rem;background:{{ o.bg }};color:{{ o.c }};transition:all 0.3s ease;">{{ o.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return { ...this.props };
+  }
+}
+</script>
+</body>
+</html>
