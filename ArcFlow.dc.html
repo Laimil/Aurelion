@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="font-family:Arial,sans-serif;color:#fff;display:flex;flex-direction:column;gap:14px;">
+  <sc-if value="{{ isLoad }}" hint-placeholder-val="{{ true }}">
+    <p style="margin:0;font-size:0.85rem;color:rgba(255,255,255,0.4);">Розкладаю арки ваших персонажів…</p>
+  </sc-if>
+  <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+    <p style="margin:0;font-size:0.85rem;color:rgba(255,77,77,0.75);">{{ errText }}</p>
+  </sc-if>
+  <sc-if value="{{ noMine }}" hint-placeholder-val="{{ false }}">
+    <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;color:rgba(255,255,255,0.45);">Розставляти можна арки своїх персонажів — тих, що закріплені за вами, і лише там, де вони вже писали.</p>
+  </sc-if>
+  <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <sc-if value="{{ isDemo }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0;font-size:0.78rem;color:#9db8f2;">Це зразок — увійдіть у кабінет, щоб розставити арки своїх персонажів. Тут можна погратися, але не зберегти.</p>
+      </sc-if>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2">
+          <button onClick="{{ t.pick }}" style="cursor:pointer;padding:6px 14px;border-radius:999px;font-family:'Cinzel',Georgia,serif;font-size:0.76rem;letter-spacing:0.04em;background:{{ t.bg }};border:1px solid {{ t.border }};color:{{ t.ink }};transition:all 0.3s ease;">{{ t.label }}</button>
+        </sc-for>
+        <span style="flex:1;"></span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          <button onClick="{{ undo }}" disabled="{{ noUndo }}" style="cursor:pointer;padding:7px 12px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);font-size:0.74rem;" style-hover="border-color:rgba(255,255,255,0.35);color:#fff;">⟲ Крок назад</button>
+          <button onClick="{{ relayout }}" title="Розставити вузли рівно, звʼязки лишаються" style="cursor:pointer;padding:7px 12px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.7);font-size:0.74rem;" style-hover="border-color:rgba(255,255,255,0.35);color:#fff;">Розкласти самі</button>
+          <button onClick="{{ byDates }}" title="Одна лінія за датою першого допису — звʼязки буде перебудовано" style="cursor:pointer;padding:7px 12px;border-radius:999px;background:transparent;border:1px solid rgba(100,149,237,0.4);color:#9db8f2;font-size:0.74rem;" style-hover="background:rgba(100,149,237,0.12);">Підказка за датами</button>
+          <span style="display:flex;align-items:center;gap:2px;padding:2px 4px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);font-size:0.74rem;">
+            <button onClick="{{ zoomOut }}" style="cursor:pointer;width:26px;height:26px;border-radius:999px;background:transparent;border:none;color:rgba(255,255,255,0.7);font-size:0.9rem;">−</button>
+            <span style="min-width:40px;text-align:center;color:#fff;">{{ zoomText }}</span>
+            <button onClick="{{ zoomIn }}" style="cursor:pointer;width:26px;height:26px;border-radius:999px;background:transparent;border:none;color:rgba(255,255,255,0.7);font-size:0.9rem;">+</button>
+          </span>
+        </div>
+      </div>
+      <sc-if value="{{ fresh }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0;font-size:0.78rem;line-height:1.5;color:#9db8f2;text-wrap:pretty;">Ще не збережено. Це підказка за датами перших дописів — переставте, як було у світі, і збережіть.</p>
+      </sc-if>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:stretch;">
+        <!-- палітра -->
+        <aside style="flex:1 1 170px;max-width:220px;min-width:160px;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <p style="margin:0;font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Ще не на полі</p>
+            <sc-for list="{{ pool }}" as="p" hint-placeholder-count="1">
+              <div onPointerDown="{{ p.down }}" title="Перетягніть на поле або натисніть" style="box-sizing:border-box;touch-action:none;user-select:none;cursor:grab;padding:9px 12px;border-radius:10px;background:rgba(100,149,237,0.08);border:1px dashed rgba(100,149,237,0.45);display:flex;flex-direction:column;gap:3px;transition:all 0.3s ease;" style-hover="background:rgba(100,149,237,0.16);">
+                <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;">{{ p.title }}</span>
+                <span style="font-size:0.66rem;color:rgba(255,255,255,0.4);">{{ p.meta }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ poolEmpty }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:0;font-size:0.74rem;color:rgba(255,255,255,0.35);">Усі арки вже на полі.</p>
+            </sc-if>
+            <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.88rem;line-height:1.45;color:rgba(255,255,255,0.42);text-wrap:pretty;">Перетягніть на поле. Щоб зʼєднати — тягніть від золотої точки праворуч на іншу арку.</p>
+          </div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);">
+            <p style="margin:0;font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Звʼязки</p>
+            <div style="display:flex;align-items:center;gap:10px;font-size:0.74rem;color:rgba(255,255,255,0.75);"><span style="width:26px;height:2px;background:#ffd700;flex:none;"></span>далі</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:0.74rem;color:rgba(255,255,255,0.75);"><span style="width:26px;height:0;border-top:2px dashed #6495ed;flex:none;"></span>водночас</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:0.74rem;color:rgba(255,255,255,0.75);"><span style="width:26px;height:0;border-top:2px dotted rgba(255,255,255,0.5);flex:none;"></span>відлунює</div>
+          </div>
+        </aside>
+
+        <!-- поле -->
+        <div ref="{{ viewRef }}" style="flex:1 1 520px;min-width:0;height:540px;overflow:auto;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:#141414;">
+          <div style="position:relative;width:{{ sizeW }}px;height:{{ sizeH }}px;">
+            <div ref="{{ worldRef }}" onPointerDown="{{ bgDown }}" style="position:absolute;left:0;top:0;width:{{ worldW }}px;height:{{ worldH }}px;transform:scale({{ zoom }});transform-origin:0 0;user-select:none;background-image:radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1px);background-size:20px 20px;">
+              <div style="position:absolute;left:10px;top:{{ zoneTop }}px;width:{{ zoneW }}px;height:{{ zoneH }}px;border-radius:12px;border:1px dashed {{ zoneRing }};background:{{ zoneBg }};transition:background 0.3s ease, border-color 0.3s ease;">
+                <span style="position:absolute;left:14px;top:10px;font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Окремо · поза лінією</span>
+                <span style="position:absolute;right:14px;top:9px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.84rem;color:rgba(255,255,255,0.35);">спогади, сни, одноразові сцени</span>
+              </div>
+              <svg width="{{ worldW }}" height="{{ worldH }}" style="position:absolute;left:0;top:0;pointer-events:none;overflow:visible;">
+                <path d="{{ lineD }}" style="fill:none;stroke:#ffd700;stroke-width:2;"></path>
+                <path d="{{ selD }}" style="fill:none;stroke:#ffd700;stroke-width:3.5;opacity:0.9;"></path>
+                <path d="{{ arrowD }}" style="fill:#ffd700;"></path>
+                <path d="{{ forkD }}" style="fill:none;stroke:#6495ed;stroke-width:2;stroke-dasharray:5 5;"></path>
+                <path d="{{ echoD }}" style="fill:none;stroke:rgba(255,255,255,0.45);stroke-width:2;stroke-dasharray:2 5;stroke-linecap:round;"></path>
+                <path d="{{ echoArrowD }}" style="fill:rgba(255,255,255,0.55);"></path>
+                <path d="{{ ghostD }}" style="fill:none;stroke:{{ ghostInk }};stroke-width:2;stroke-dasharray:6 4;"></path>
+              </svg>
+              <sc-for list="{{ gapLabels }}" as="g" hint-placeholder-count="0">
+                <span style="position:absolute;left:{{ g.x }}px;top:{{ g.y }}px;transform:translate(-50%,-50%);padding:1px 7px;border-radius:999px;background:#141414;font-size:0.6rem;color:rgba(255,215,0,0.85);white-space:nowrap;pointer-events:none;">{{ g.text }}</span>
+              </sc-for>
+              <sc-for list="{{ forkPills }}" as="f" hint-placeholder-count="0">
+                <span style="position:absolute;left:{{ f.x }}px;top:{{ f.y }}px;transform:translate(-50%,-50%);padding:3px 10px;border-radius:999px;background:#141414;border:1px solid rgba(100,149,237,0.55);color:#9db8f2;font-size:0.64rem;white-space:nowrap;pointer-events:none;">⇅ водночас</span>
+              </sc-for>
+              <sc-for list="{{ echoPills }}" as="f" hint-placeholder-count="0">
+                <span style="position:absolute;left:{{ f.x }}px;top:{{ f.y }}px;transform:translate(-50%,-50%);padding:3px 10px;border-radius:999px;background:#141414;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);font-size:0.62rem;font-style:italic;white-space:nowrap;pointer-events:none;">згадується тут</span>
+              </sc-for>
+              <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="3">
+                <div onPointerDown="{{ n.down }}" style="position:absolute;left:{{ n.left }}px;top:{{ n.top }}px;width:168px;height:80px;box-sizing:border-box;overflow:visible;z-index:{{ n.z }};border-radius:10px;background:{{ n.bg }};border:1px {{ n.lineStyle }} {{ n.ring }};box-shadow:{{ n.shadow }};padding:9px 12px;display:flex;flex-direction:column;gap:4px;cursor:grab;touch-action:none;transition:box-shadow 0.3s ease, border-color 0.3s ease;">
+                  <span style="display:flex;align-items:center;gap:7px;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:{{ n.ink }};white-space:nowrap;overflow:hidden;"><span style="width:7px;height:7px;border-radius:999px;flex:none;background:{{ n.dot }};box-shadow:{{ n.dotGlow }};"></span><span style="overflow:hidden;text-overflow:ellipsis;">{{ n.title }}</span></span>
+                  <span style="font-size:0.66rem;color:rgba(255,255,255,0.42);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ n.meta }}</span>
+                  <sc-if value="{{ n.hasClash }}" hint-placeholder-val="{{ false }}">
+                    <span style="align-self:flex-start;max-width:100%;font-size:0.62rem;padding:2px 7px;border-radius:999px;background:rgba(255,77,77,0.12);color:#ff8a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ n.clashText }}</span>
+                  </sc-if>
+                  <sc-if value="{{ n.showLive }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:0.66rem;color:#ffd700;">триває</span>
+                  </sc-if>
+                  <sc-if value="{{ n.showNote }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.8rem;color:rgba(255,255,255,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ n.note }}</span>
+                  </sc-if>
+                  <sc-if value="{{ n.inPort }}" hint-placeholder-val="{{ false }}">
+                    <span style="position:absolute;left:-6px;top:34px;width:11px;height:11px;border-radius:999px;background:#1a1a1a;border:2px solid #ffd700;pointer-events:none;"></span>
+                  </sc-if>
+                  <span onPointerDown="{{ n.portDown }}" title="{{ n.portTitle }}" style="position:absolute;right:-9px;top:30px;width:19px;height:19px;border-radius:999px;background:#1a1a1a;border:2px {{ n.portStyle }} {{ n.portInk }};cursor:crosshair;touch-action:none;display:flex;align-items:center;justify-content:center;" style-hover="background:#ffd700;"><span style="width:5px;height:5px;border-radius:999px;background:{{ n.portInk }};"></span></span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ noNodes }}" hint-placeholder-val="{{ false }}">
+                <p style="position:absolute;left:40px;top:120px;margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.4);">Поле порожнє. Перетягніть сюди арку з лівої колонки.</p>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+
+        <!-- інспектор -->
+        <aside style="flex:0 1 260px;min-width:220px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);padding:16px;display:flex;flex-direction:column;gap:14px;">
+          <sc-if value="{{ noSel }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <p style="margin:0;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ Як це працює</p>
+              <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.55;color:rgba(255,255,255,0.65);text-wrap:pretty;">Зліва направо — як ішов час у світі. Дві арки з однієї точки йдуть водночас. Спогади й сни киньте в «Окремо» внизу — їх можна привʼязати пунктиром до арки, де про них згадують.</p>
+              <p style="margin:0;font-size:0.74rem;color:rgba(255,255,255,0.4);">Натисніть на арку, щоб додати нотатку чи звʼязок без перетягування.</p>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <p style="margin:0;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">{{ selKicker }}</p>
+                <a href="{{ selHref }}" style="font-family:'Cinzel',Georgia,serif;font-size:1.08rem;letter-spacing:0.03em;color:#fff;text-decoration:none;" style-hover="color:#ffd700;">{{ selTitle }}</a>
+                <p style="margin:0;font-size:0.72rem;color:rgba(255,255,255,0.45);">{{ selMeta }}</p>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <p style="margin:0;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Нотатка</p>
+                <input type="text" value="{{ selNote }}" onInput="{{ setNote }}" onChange="{{ setNote }}" maxlength="140" placeholder="Необовʼязково" style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.14);background:rgba(0,0,0,0.25);font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,255,255,0.85);outline:none;">
+              </div>
+
+              <sc-if value="{{ selLine }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <p style="margin:0;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Перед нею</p>
+                    <sc-for list="{{ prevRows }}" as="r" hint-placeholder-count="0">
+                      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,0.04);font-size:0.8rem;">
+                        <span style="width:12px;height:2px;background:#ffd700;flex:none;"></span>
+                        <button onClick="{{ r.go }}" style="flex:1;min-width:0;text-align:left;background:none;border:none;padding:0;color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</button>
+                        <button onClick="{{ r.cycle }}" title="Скільки минуло — натисніть, щоб змінити" style="flex:none;background:none;border:none;padding:0;cursor:pointer;font-size:0.68rem;color:{{ r.gapInk }};">{{ r.gap }} ↻</button>
+                        <button onClick="{{ r.cut }}" title="Розірвати" style="flex:none;background:none;border:none;padding:0 2px;cursor:pointer;color:rgba(255,255,255,0.35);">✕</button>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{ prevOpen }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                        <sc-for list="{{ prevOpts }}" as="o" hint-placeholder-count="0">
+                          <button onClick="{{ o.pick }}" style="cursor:pointer;padding:4px 10px;border-radius:999px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.35);color:#ffd700;font-size:0.72rem;">{{ o.label }}</button>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ prevCan }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ togglePrev }}" style="align-self:flex-start;cursor:pointer;background:none;border:none;padding:2px 0;color:rgba(255,215,0,0.75);font-size:0.74rem;">{{ prevBtn }}</button>
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <p style="margin:0;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);">{{ nextHead }}</p>
+                    <sc-for list="{{ nextRows }}" as="r" hint-placeholder-count="0">
+                      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,0.04);font-size:0.8rem;">
+                        <span style="width:12px;height:2px;background:#ffd700;flex:none;"></span>
+                        <button onClick="{{ r.go }}" style="flex:1;min-width:0;text-align:left;background:none;border:none;padding:0;color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</button>
+                        <button onClick="{{ r.cycle }}" title="Скільки минуло — натисніть, щоб змінити" style="flex:none;background:none;border:none;padding:0;cursor:pointer;font-size:0.68rem;color:{{ r.gapInk }};">{{ r.gap }} ↻</button>
+                        <button onClick="{{ r.cut }}" title="Розірвати" style="flex:none;background:none;border:none;padding:0 2px;cursor:pointer;color:rgba(255,255,255,0.35);">✕</button>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{ nextOpen }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                        <sc-for list="{{ nextOpts }}" as="o" hint-placeholder-count="0">
+                          <button onClick="{{ o.pick }}" style="cursor:pointer;padding:4px 10px;border-radius:999px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.35);color:#ffd700;font-size:0.72rem;">{{ o.label }}</button>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ nextCan }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ toggleNext }}" style="align-self:flex-start;cursor:pointer;background:none;border:none;padding:2px 0;color:rgba(255,215,0,0.75);font-size:0.74rem;">{{ nextBtn }}</button>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ hasEchoIn }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                      <p style="margin:0;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Відлунює тут</p>
+                      <sc-for list="{{ echoInRows }}" as="r" hint-placeholder-count="0">
+                        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,0.04);font-size:0.8rem;color:rgba(255,255,255,0.75);">
+                          <span style="width:12px;height:0;border-top:2px dotted rgba(255,255,255,0.5);flex:none;"></span>
+                          <button onClick="{{ r.go }}" style="flex:1;min-width:0;text-align:left;background:none;border:none;padding:0;color:rgba(255,255,255,0.8);font-size:0.8rem;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</button>
+                          <button onClick="{{ r.cut }}" title="Розірвати" style="flex:none;background:none;border:none;padding:0 2px;cursor:pointer;color:rgba(255,255,255,0.35);">✕</button>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ selApart }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <p style="margin:0;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Згадується в</p>
+                  <sc-for list="{{ echoOutRows }}" as="r" hint-placeholder-count="0">
+                    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,0.04);font-size:0.8rem;">
+                      <span style="width:12px;height:0;border-top:2px dotted rgba(255,255,255,0.5);flex:none;"></span>
+                      <button onClick="{{ r.go }}" style="flex:1;min-width:0;text-align:left;background:none;border:none;padding:0;color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</button>
+                      <button onClick="{{ r.cut }}" title="Розірвати" style="flex:none;background:none;border:none;padding:0 2px;cursor:pointer;color:rgba(255,255,255,0.35);">✕</button>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ echoOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                      <sc-for list="{{ echoOpts }}" as="o" hint-placeholder-count="0">
+                        <button onClick="{{ o.pick }}" style="cursor:pointer;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px dotted rgba(255,255,255,0.45);color:rgba(255,255,255,0.85);font-size:0.72rem;">{{ o.label }}</button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ echoCan }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ toggleEcho }}" style="align-self:flex-start;cursor:pointer;background:none;border:none;padding:2px 0;color:rgba(255,255,255,0.65);font-size:0.74rem;">{{ echoBtn }}</button>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button onClick="{{ flipApart }}" style="cursor:pointer;padding:7px 12px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.75);font-size:0.74rem;" style-hover="border-color:rgba(255,255,255,0.4);color:#fff;">{{ flipLabel }}</button>
+                <button onClick="{{ unplace }}" style="cursor:pointer;padding:7px 12px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.45);font-size:0.74rem;" style-hover="color:#ff8a8a;border-color:rgba(255,77,77,0.35);">Зняти з поля</button>
+              </div>
+            </div>
+          </sc-if>
+        </aside>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <sc-if value="{{ canSave }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ save }}" style="cursor:pointer;padding:9px 20px;border-radius:999px;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.5);color:#ffd700;font-family:'Cinzel',Georgia,serif;font-size:0.8rem;letter-spacing:0.05em;transition:all 0.3s ease;" style-hover="box-shadow:0 0 18px rgba(255,215,0,0.3);">{{ saveLabel }}</button>
+        </sc-if>
+        <sc-if value="{{ dirty }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ reset }}" style="cursor:pointer;padding:9px 16px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);font-size:0.78rem;">Скасувати зміни</button>
+        </sc-if>
+        <sc-if value="{{ hasMsg }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size:0.8rem;color:{{ msgInk }};">{{ msgText }}</span>
+        </sc-if>
+        <a href="#arcs" onClick="{{ toBoard }}" style="margin-left:auto;font-size:0.78rem;color:#ffd700;text-decoration:none;" style-hover="color:#fff;">Загальна дошка →</a>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ hasGhost }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:{{ ghostX }}px;top:{{ ghostY }}px;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;padding:9px 14px;border-radius:10px;background:rgba(36,36,36,0.95);border:1px dashed #6495ed;color:#9db8f2;font-family:'EB Garamond',Georgia,serif;font-size:1rem;box-shadow:0 10px 30px rgba(0,0,0,0.6);white-space:nowrap;">{{ ghostText }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:760}}">
+const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SUPA_AUTH = 'https://ztltzghfkppuwixhylng.supabase.co/auth/v1';
+const SUPA_KEY  = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const BASE_H    = { apikey: SUPA_KEY };
+const POST_PAGE = 1000, POST_MAX = 20000;
+const NW = 168, NH = 80, GX = 64, GY = 34, ZH = 40, PAD = 24, LIVE = 14 * 864e5, SNAP = 10;
+const GAPS = ['', 'одразу', 'за кілька днів', 'за тиждень', 'за місяць', 'за пів року', 'за рік', 'за роки'];
+const FLOW_COLS = 'character_id,akey,arc,pos,note,x,y,apart,prev,echo';
+
+// ── Написання арок — як у Arcs.dc.html ──
+function arcKey(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[ʼ'’`´ь]/g, '')
+    .replace(/[iіїйиы]/g, 'и')
+    .replace(/[eеє]/g, 'е').replace(/[aа]/g, 'а').replace(/[oо]/g, 'о')
+    .replace(/[cс]/g, 'с').replace(/[pр]/g, 'р').replace(/[xх]/g, 'х')
+    .replace(/[yу]/g, 'у').replace(/ґ/g, 'г')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+}
+const splitArcs = (v) => String(v || '').split(' / ').map((s) => s.trim()).filter(Boolean);
+function editDist(a, b) {
+  if (a === b) return 0;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = prev[0]; prev[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cur = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diag = prev[j]; prev[j] = cur;
+    }
+  }
+  return prev[b.length];
+}
+function nearArc(a, b) {
+  const x = arcKey(a), y = arcKey(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  if (Math.abs(x.length - y.length) > 2) return false;
+  return editDist(x, y) <= (Math.min(x.length, y.length) <= 8 ? 1 : 2);
+}
+const MON = ['січ', 'лют', 'бер', 'квіт', 'трав', 'черв', 'лип', 'серп', 'вер', 'жовт', 'лист', 'груд'];
+function fmtDay(t) {
+  const d = new Date(t);
+  return d.getDate() + ' ' + MON[d.getMonth()] + (d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '');
+}
+function span(f, l) {
+  const a = new Date(f), b = new Date(l);
+  if (a.toDateString() === b.toDateString()) return fmtDay(f);
+  if (a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear()) return a.getDate() + '–' + fmtDay(l);
+  return fmtDay(f) + ' – ' + fmtDay(l);
+}
+const posts = (n) => { const a = n % 10, b = n % 100; return n + ' ' + (a === 1 && b !== 11 ? 'допис' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'дописи' : 'дописів'); };
+function atOf(p) {
+  const c = Date.parse(p.created_at);
+  if (!p.day) return c || 0;
+  const d = Date.parse(p.day + 'T12:00:00');
+  return (c && c >= d - 12 * 3600000 && c <= d + 36 * 3600000) ? c : d;
+}
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const snap = (v) => Math.round(v / SNAP) * SNAP;
+
+// ── Граф ──
+function nextMap(nodes) {
+  const m = {};
+  for (const n of Object.values(nodes)) if (!n.apart) for (const p of n.prev) if (nodes[p.k] && !nodes[p.k].apart) (m[p.k] = m[p.k] || []).push(n.key);
+  return m;
+}
+function reach(next, from) {
+  const seen = new Set(), st = [from];
+  while (st.length) { const k = st.pop(); for (const c of next[k] || []) if (!seen.has(c)) { seen.add(c); st.push(c); } }
+  return seen;
+}
+function layout(nodes) {
+  const line = Object.values(nodes).filter((n) => !n.apart);
+  const lv = {}, busy = {};
+  const L = (k) => {
+    if (lv[k] != null) return lv[k];
+    if (busy[k]) return 0;
+    busy[k] = 1;
+    let v = 0;
+    for (const p of nodes[k].prev) if (nodes[p.k] && !nodes[p.k].apart) v = Math.max(v, L(p.k) + 1);
+    return (lv[k] = v);
+  };
+  line.forEach((n) => L(n.key));
+  const cols = [];
+  line.forEach((n) => (cols[lv[n.key]] = cols[lv[n.key]] || []).push(n));
+  let max = 1;
+  for (const c of cols) if (c && c.length > max) max = c.length;
+  cols.forEach((c, i) => {
+    if (!c) return;
+    c.sort((a, b) => a.y - b.y || a.name.localeCompare(b.name, 'uk'));
+    c.forEach((n, j) => { n.x = PAD + i * (NW + GX); n.y = snap(PAD + j * (NH + GY) + (max - c.length) * (NH + GY) / 2); });
+  });
+  Object.values(nodes).filter((n) => n.apart).sort((a, b) => a.y - b.y || a.x - b.x)
+    .forEach((n, i) => { n.x = PAD + (i % 4) * (NW + 24); n.y = Math.floor(i / 4) * (NH + 16); });
+  return nodes;
+}
+function topo(nodes) {
+  const line = Object.values(nodes).filter((n) => !n.apart);
+  const indeg = {}, next = nextMap(nodes), out = [];
+  line.forEach((n) => { indeg[n.key] = n.prev.filter((p) => nodes[p.k] && !nodes[p.k].apart).length; });
+  const ord = (a, b) => nodes[a].x - nodes[b].x || nodes[a].y - nodes[b].y;
+  let ready = line.filter((n) => !indeg[n.key]).map((n) => n.key).sort(ord);
+  while (ready.length) {
+    const k = ready.shift(); out.push(k);
+    for (const c of next[k] || []) if (--indeg[c] === 0) ready.push(c);
+    ready.sort(ord);
+  }
+  line.forEach((n) => { if (!out.includes(n.key)) out.push(n.key); });
+  Object.values(nodes).filter((n) => n.apart).sort((a, b) => a.y - b.y || a.x - b.x).forEach((n) => out.push(n.key));
+  return out;
+}
+function geo(nodes, frozenLine) {
+  let lineB = 0, apartB = 0, right = 0;
+  for (const n of Object.values(nodes)) {
+    right = Math.max(right, n.x + NW);
+    if (n.apart) apartB = Math.max(apartB, n.y + NH); else lineB = Math.max(lineB, n.y + NH);
+  }
+  const lineH = frozenLine || Math.max(320, lineB + 60);
+  const zoneH = ZH + Math.max(NH + 20, apartB + 20);
+  const W = Math.max(900, right + 140);
+  return { lineH, zoneTop: lineH, zoneH, W, H: lineH + zoneH + 20 };
+}
+const absOf = (n, g) => ({ x: n.x, y: n.apart ? g.zoneTop + ZH + n.y : n.y });
+function curve(x1, y1, x2, y2) {
+  const dx = Math.max(28, Math.abs(x2 - x1) / 2);
+  return `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2} `;
+}
+
+// ── Зразок для перегляду без входу ──
+const DEMO_ARCS = [
+  ['Нічний ринок', 12, '2026-09-01', '2026-09-03'], ['Лист без печатки', 7, '2026-09-04', '2026-09-12'],
+  ['Храм Нокти', 9, '2026-09-14', '2026-09-28'], ['Повінь у нижньому місті', 4, '2026-09-18', '2026-09-20'],
+  ['Тиша на Сірому мосту', 5, '2026-09-20', '2026-10-02'], ['Шепіт у бібліотеці', 3, '2026-10-02', '2026-10-05'],
+  ['Бал у Кабали', 21, '2026-10-03', null], ['Лист до матері', 1, '2026-10-07', '2026-10-07'],
+];
+
+class Component extends DCLogic {
+  state = { phase: 'load', err: '', mine: [], arcs: {}, chrono: {}, names: {}, edit: null, draft: {}, hist: {}, sel: null, open: null,
+    busy: false, msg: null, zoom: 1, drag: null, link: null, spawn: null, flow: true, demo: false };
+  viewRef = React.createRef();
+  worldRef = React.createRef();
+
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _ref() { try { return localStorage.getItem('au_user_refresh') || ''; } catch (e) { return ''; } }
+  _exp() { try { return Number(localStorage.getItem('au_user_exp')) || 0; } catch (e) { return 0; } }
+  _h() { return { ...BASE_H, 'Authorization': `Bearer ${this._tok() || SUPA_KEY}` }; }
+  _saveTok(d) {
+    try {
+      if (!d || !d.access_token) return;
+      localStorage.setItem('au_user_token', d.access_token);
+      if (d.refresh_token) localStorage.setItem('au_user_refresh', d.refresh_token);
+      localStorage.setItem('au_user_exp', String(Date.now() + Math.max(60, Number(d.expires_in) || 3600) * 1000));
+    } catch (e) {}
+  }
+  async _renew() {
+    if (this._renewJob) return this._renewJob;
+    this._renewJob = (async () => {
+      const rt = this._ref();
+      if (!rt) return !!this._tok();
+      try {
+        const r = await fetch(`${SUPA_AUTH}/token?grant_type=refresh_token`, { method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' }, body: JSON.stringify({ refresh_token: rt }) });
+        const d = await r.json().catch(() => null);
+        if (d && d.access_token) { this._saveTok(d); return true; }
+      } catch (e) {}
+      return !!this._tok();
+    })().finally(() => { this._renewJob = null; });
+    return this._renewJob;
+  }
+  async _api(url, opt = {}) {
+    if (this._ref() && this._exp() && this._exp() - Date.now() < 5 * 60 * 1000) await this._renew();
+    const go = () => fetch(url, { ...opt, headers: { ...(opt.headers || {}), ...this._h() } });
+    let r = await go();
+    if (r.status === 401 && await this._renew()) r = await go();
+    return r;
+  }
+
+  componentDidMount() {
+    window.addEventListener('pointermove', this._move);
+    window.addEventListener('pointerup', this._up);
+    window.addEventListener('pointercancel', this._cancel);
+    this._load();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('pointermove', this._move);
+    window.removeEventListener('pointerup', this._up);
+    window.removeEventListener('pointercancel', this._cancel);
+  }
+
+  _demo() {
+    const id = 'demo', arcs = {}, now = Date.now();
+    arcs[id] = DEMO_ARCS.map(([name, n, f, l]) => ({ key: arcKey(name), all: [name], name, n, first: Date.parse(f + 'T12:00:00'), last: l ? Date.parse(l + 'T12:00:00') : now - 864e5 }));
+    const k = (s) => arcKey(s);
+    const row = (arc, pos, x, y, prev, extra = {}) => ({ character_id: id, akey: k(arc), arc, pos, note: extra.note || null, x, y, apart: !!extra.apart, prev: prev.map((p) => ({ k: k(p[0]), gap: p[1] || '' })), echo: (extra.echo || []).map(k) });
+    const chrono = {
+      [id]: [
+        row('Нічний ринок', 0, 24, 110, [], { note: 'Ще до вступу в Кабалу' }),
+        row('Храм Нокти', 1, 256, 110, [['Нічний ринок', 'за тиждень']], { note: 'Тут уперше бачить Іду' }),
+        row('Лист без печатки', 2, 488, 40, [['Храм Нокти']]),
+        row('Тиша на Сірому мосту', 3, 488, 190, [['Храм Нокти']]),
+        row('Бал у Кабали', 4, 720, 110, [['Лист без печатки'], ['Тиша на Сірому мосту']]),
+        row('Повінь у нижньому місті', 5, 24, 0, [], { apart: true, echo: ['Храм Нокти'], note: 'спогад дитинства' }),
+      ],
+      sev: [
+        { character_id: 'sev', akey: k('Лист без печатки'), arc: 'Лист без печатки', pos: 0, prev: [], apart: false },
+        { character_id: 'sev', akey: k('Нічний ринок'), arc: 'Нічний ринок', pos: 1, prev: [], apart: false },
+      ],
+    };
+    this.setState({ phase: 'ok', demo: true, mine: [id], arcs, chrono, names: { [id]: 'Дарен', sev: 'Северин' }, edit: id });
+  }
+
+  async _load() {
+    try {
+      if (!this._tok()) { this._demo(); return; }
+      const ur = await this._api(`${SUPA_AUTH}/user`);
+      if (!ur.ok) { this._demo(); return; }
+      const u = await ur.json();
+      let owned = [];
+      for (const sel of ['id,name,is_draft', 'id,name']) {
+        const r = await this._api(`${SUPA_URL}/characters?owner_id=eq.${encodeURIComponent(u.id)}&select=${sel}`);
+        if (r.ok) { owned = (await r.json()).filter((c) => !c.is_draft); break; }
+      }
+      const [list, ch] = await Promise.all([this._posts(owned), this._chrono()]);
+      if (ch == null) { this.setState({ phase: 'error', err: 'Хронологію ще не ввімкнено — рецепція має прогнати міграцію.' }); return; }
+      const arcs = this._arcsOf(owned, list);
+      const names = {};
+      for (const c of owned) names[String(c.id)] = c.name;
+      const other = Object.keys(ch.map).filter((id) => !names[id]);
+      if (other.length) {
+        try {
+          const r = await this._api(`${SUPA_URL}/characters?select=id,name&id=in.(${other.map(encodeURIComponent).join(',')})`);
+          if (r.ok) for (const c of await r.json()) names[String(c.id)] = c.name;
+        } catch (e) {}
+      }
+      const mine = owned.map((c) => String(c.id)).filter((id) => (arcs[id] || []).length).sort((a, b) => names[a].localeCompare(names[b], 'uk'));
+      console.log(`схема арок: моїх персонажів ${mine.length}, дописів ${list.length}, у базі ${Object.keys(ch.map).length}, схема ${ch.flow ? 'є' : 'НЕМА (прогнати supabase_arc_flow_migration.sql)'}`);
+      this.setState({ phase: 'ok', mine, arcs, chrono: ch.map, flow: ch.flow, names, edit: mine[0] || null });
+    } catch (e) {
+      console.warn('схема арок:', String(e && e.message || e));
+      this.setState({ phase: 'error', err: 'Не вдалося зібрати арки. Спробуйте пізніше.' });
+    }
+  }
+  async _posts(owned) {
+    if (!owned.length) return [];
+    const ids = owned.map((c) => String(c.id));
+    const nm = owned.map((c) => '"' + String(c.name || '').replace(/["(),]/g, '') + '"').filter((x) => x.length > 2);
+    const or = `(character_id.in.(${ids.join(',')})${nm.length ? `,tag_name.in.(${nm.join(',')})` : ''})`;
+    const out = [];
+    for (let off = 0; off < POST_MAX; off += POST_PAGE) {
+      const r = await this._api(`${SUPA_URL}/marta_posts?select=tag_arc,tag_name,character_id,day,created_at&tag_arc=not.is.null`
+        + `&or=${encodeURIComponent(or)}&order=id.asc&limit=${POST_PAGE}&offset=${off}`);
+      if (!r.ok) throw new Error('marta_posts ' + r.status);
+      const rows = await r.json();
+      out.push(...rows);
+      if (rows.length < POST_PAGE) break;
+    }
+    return out;
+  }
+  // Спершу з графами схеми; немає їх — старий порядок, а збереження піде через arc_chrono_save.
+  async _chrono() {
+    try {
+      for (const [cols, flow] of [[FLOW_COLS, true], ['character_id,akey,arc,pos,note', false]]) {
+        const r = await this._api(`${SUPA_URL}/arc_chrono?select=${cols}&order=pos.asc&limit=10000`);
+        if (!r.ok) { console.warn('схема арок: arc_chrono —', await r.text()); continue; }
+        const m = {};
+        for (const x of await r.json()) (m[String(x.character_id)] = m[String(x.character_id)] || []).push(x);
+        return { map: m, flow };
+      }
+      return null;
+    } catch (e) { return null; }
+  }
+  _arcsOf(owned, list) {
+    const byName = new Map(owned.map((c) => [String(c.name || '').trim().toLowerCase(), String(c.id)]));
+    const ids = new Set(owned.map((c) => String(c.id)));
+    const groups = [], per = {};
+    for (const p of list) {
+      const id = ids.has(String(p.character_id || '')) ? String(p.character_id) : byName.get(String(p.tag_name || '').trim().toLowerCase());
+      if (!id) continue;
+      const at = atOf(p);
+      for (const a of new Set(splitArcs(p.tag_arc))) {
+        let g = groups.find((x) => x.all.some((v) => nearArc(v, a)));
+        if (!g) { g = { name: a, all: [a], n: {} }; groups.push(g); }
+        if (!g.all.includes(a)) g.all.push(a);
+        g.n[a] = (g.n[a] || 0) + 1;
+        const m = per[id] = per[id] || new Map();
+        const e = m.get(g) || { g, first: at, last: at, n: 0 };
+        if (at < e.first) e.first = at;
+        if (at > e.last) e.last = at;
+        e.n += 1;
+        m.set(g, e);
+      }
+    }
+    for (const g of groups) { g.name = Object.keys(g.n).sort((a, b) => g.n[b] - g.n[a])[0]; g.key = arcKey(g.name); }
+    const out = {};
+    for (const id of Object.keys(per)) out[id] = [...per[id].values()].map((e) => ({ key: e.g.key, all: e.g.all, name: e.g.name, first: e.first, last: e.last, n: e.n })).sort((a, b) => a.first - b.first);
+    return out;
+  }
+  _match(id, akey) {
+    return (this.state.arcs[id] || []).find((a) => a.key === akey || a.all.some((v) => arcKey(v) === akey)) || null;
+  }
+  _keyOf(id, akey) { const a = this._match(id, akey); return a ? a.key : akey; }
+
+  // ── Чернетка схеми ──
+  _initial(id) {
+    if (this._icFor !== this.state.chrono) { this._ic = {}; this._icFor = this.state.chrono; }
+    if (this._ic[id]) return this._ic[id];
+    const rows = (this.state.chrono[id] || []).slice().sort((a, b) => a.pos - b.pos);
+    const nodes = {};
+    let fresh = false;
+    if (rows.length) {
+      const hasXY = rows.some((r) => r.x != null);
+      let last = null;
+      for (const r of rows) {
+        const a = this._match(id, r.akey), key = a ? a.key : r.akey;
+        const apart = !!r.apart;
+        const prev = hasXY
+          ? (Array.isArray(r.prev) ? r.prev : []).map((p) => ({ k: this._keyOf(id, String(p.k || '')), gap: String(p.gap || '') })).filter((p) => p.k)
+          : (last && !apart ? [{ k: last, gap: '' }] : []);
+        nodes[key] = { key, name: a ? a.name : r.arc, note: r.note || '', x: Number(r.x) || 0, y: Number(r.y) || 0, apart, prev, echo: (r.echo || []).map((k) => this._keyOf(id, k)), gone: !a };
+        if (!apart) last = key;
+      }
+      if (!hasXY) layout(nodes);
+    } else {
+      fresh = true;
+      let last = null;
+      for (const a of this.state.arcs[id] || []) {
+        nodes[a.key] = { key: a.key, name: a.name, note: '', x: 0, y: 0, apart: false, prev: last ? [{ k: last, gap: '' }] : [], echo: [] };
+        last = a.key;
+      }
+      layout(nodes);
+    }
+    return (this._ic[id] = { nodes, dirty: false, fresh });
+  }
+  _draft(id) { return this.state.draft[id] || this._initial(id); }
+  _upd(id, fn, sel) {
+    const d = this._draft(id);
+    const nodes = clone(d.nodes);
+    if (fn(nodes) === false) return;
+    this.setState((s) => ({
+      draft: { ...s.draft, [id]: { nodes, dirty: true, fresh: d.fresh } },
+      hist: { ...s.hist, [id]: [...(s.hist[id] || []).slice(-29), d] },
+      msg: null, open: null, ...(sel !== undefined ? { sel } : {}),
+    }));
+  }
+  _say(text, bad = true) { this.setState({ msg: { text, bad } }); }
+  _setApart(nodes, key, on) {
+    const n = nodes[key];
+    n.apart = on;
+    if (on) {
+      n.prev = [];
+      for (const o of Object.values(nodes)) { o.prev = o.prev.filter((p) => p.k !== key); o.echo = o.echo.filter((k) => k !== key); }
+    } else n.echo = [];
+  }
+  _connect(from, to) {
+    const id = this._edit();
+    const nodes = this._draft(id).nodes, F = nodes[from], T = nodes[to];
+    if (!F || !T || from === to) return;
+    if (F.apart) {
+      if (T.apart) return this._say('Окрему арку можна привʼязати лише до арки на лінії.');
+      if (F.echo.includes(to)) return this._say('Цей звʼязок уже є.');
+      this._upd(id, (ns) => { ns[from].echo.push(to); }, from);
+      return;
+    }
+    if (T.apart) return this._say(`«${T.name}» лежить в «Окремо». Щоб поставити її в лінію — перетягніть на поле.`);
+    if (T.prev.some((p) => p.k === from)) return this._say('Цей звʼязок уже є.');
+    if (reach(nextMap(nodes), to).has(from)) return this._say(`Так вийде коло: «${T.name}» уже стоїть раніше за «${F.name}».`);
+    this._upd(id, (ns) => { ns[to].prev.push({ k: from, gap: '' }); }, to);
+  }
+  _place(key, w) {
+    const id = this._edit(), a = this._match(id, key);
+    if (!a) return;
+    const nodes = this._draft(id).nodes, g = geo(nodes);
+    this._upd(id, (ns) => {
+      let x, y, apart = false;
+      if (w) {
+        x = snap(Math.max(0, w.x - NW / 2)); y = snap(Math.max(0, w.y - NH / 2));
+        if (w.y > g.lineH) { apart = true; y = Math.max(0, snap(w.y - NH / 2 - g.zoneTop - ZH)); }
+      } else {
+        const line = Object.values(ns).filter((n) => !n.apart);
+        x = line.length ? Math.max(...line.map((n) => n.x)) + NW + GX : PAD;
+        y = PAD;
+      }
+      ns[key] = { key, name: a.name, note: '', x, y, apart, prev: [], echo: [] };
+    }, key);
+  }
+  _hit(w) {
+    const id = this._edit(), nodes = this._draft(id).nodes, g = geo(nodes);
+    for (const n of Object.values(nodes)) { const p = absOf(n, g); if (w.x >= p.x - 8 && w.x <= p.x + NW + 8 && w.y >= p.y - 8 && w.y <= p.y + NH + 8) return n.key; }
+    return null;
+  }
+  _w(e) {
+    const el = this.worldRef.current;
+    if (!el) return { x: 0, y: 0 };
+    const r = el.getBoundingClientRect(), z = this.state.zoom;
+    return { x: (e.clientX - r.left) / z, y: (e.clientY - r.top) / z };
+  }
+  _edit() { const s = this.state; return s.mine.includes(s.edit) ? s.edit : s.mine[0] || null; }
+
+  _nodeDown = (e, key) => {
+    if (e.button != null && e.button > 0) return;
+    e.stopPropagation();
+    const id = this._edit(), nodes = this._draft(id).nodes, g = geo(nodes), p = absOf(nodes[key], g), w = this._w(e);
+    this.setState({ sel: key, open: null, drag: { key, ox: w.x - p.x, oy: w.y - p.y, ax: p.x, ay: p.y, sx: e.clientX, sy: e.clientY, moved: false, lineH: g.lineH, zoneTop: g.zoneTop } });
+  };
+  _portDown = (e, key) => {
+    if (e.button != null && e.button > 0) return;
+    e.stopPropagation(); e.preventDefault();
+    const w = this._w(e);
+    this.setState({ sel: key, open: null, link: { from: key, x: w.x, y: w.y } });
+  };
+  _poolDown = (e, key, name) => {
+    if (e.button != null && e.button > 0) return;
+    e.preventDefault();
+    this.setState({ spawn: { key, name, cx: e.clientX, cy: e.clientY, sx: e.clientX, sy: e.clientY, moved: false } });
+  };
+  _move = (e) => {
+    const s = this.state;
+    if (s.drag) {
+      const w = this._w(e);
+      const moved = s.drag.moved || Math.abs(e.clientX - s.drag.sx) + Math.abs(e.clientY - s.drag.sy) > 4;
+      this.setState({ drag: { ...s.drag, ax: Math.max(0, w.x - s.drag.ox), ay: Math.max(0, w.y - s.drag.oy), moved } });
+    } else if (s.link) {
+      const w = this._w(e);
+      this.setState({ link: { ...s.link, x: w.x, y: w.y } });
+    } else if (s.spawn) {
+      const moved = s.spawn.moved || Math.abs(e.clientX - s.spawn.sx) + Math.abs(e.clientY - s.spawn.sy) > 4;
+      this.setState({ spawn: { ...s.spawn, cx: e.clientX, cy: e.clientY, moved } });
+    }
+  };
+  _up = (e) => {
+    const s = this.state;
+    if (s.drag) {
+      const d = s.drag;
+      this.setState({ drag: null });
+      if (!d.moved) return;
+      const apart = d.ay + NH / 2 > d.lineH;
+      this._upd(this._edit(), (ns) => {
+        const n = ns[d.key];
+        if (!n) return false;
+        const was = n.apart;
+        n.x = snap(d.ax);
+        n.y = apart ? Math.max(0, snap(d.ay - d.zoneTop - ZH)) : snap(Math.min(d.ay, d.lineH - NH - 20));
+        if (apart !== was) this._setApart(ns, d.key, apart);
+      });
+    } else if (s.link) {
+      const l = s.link;
+      this.setState({ link: null });
+      const t = this._hit(this._w(e));
+      if (t && t !== l.from) this._connect(l.from, t);
+    } else if (s.spawn) {
+      const sp = s.spawn;
+      this.setState({ spawn: null });
+      if (!sp.moved) { this._place(sp.key); return; }
+      const v = this.viewRef.current, r = v && v.getBoundingClientRect();
+      if (r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) this._place(sp.key, this._w(e));
+    }
+  };
+  _cancel = () => this.setState({ drag: null, link: null, spawn: null });
+
+  async _store(id) {
+    if (this.state.busy) return;
+    if (this.state.demo) { this._say('Це зразок — щоб зберегти, увійдіть у кабінет.'); return; }
+    const nodes = this._draft(id).nodes;
+    const order = topo(nodes);
+    const items = order.map((k) => {
+      const n = nodes[k];
+      return {
+        akey: k, arc: n.name, note: String(n.note || '').trim() || null, x: Math.round(n.x), y: Math.round(n.y), apart: !!n.apart,
+        prev: n.apart ? [] : n.prev.filter((p) => nodes[p.k] && !nodes[p.k].apart).map((p) => ({ k: p.k, gap: p.gap || '' })),
+        echo: n.apart ? n.echo.filter((t) => nodes[t] && !nodes[t].apart) : [],
+      };
+    });
+    this.setState({ busy: true, msg: null });
+    const call = async (fn, body) => {
+      try {
+        const r = await this._api(`${SUPA_URL}/rpc/${fn}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (r.status === 404) return { missing: true };
+        const j = r.ok ? await r.json() : { error: 'http ' + r.status + ' ' + await r.text() };
+        return j && j.ok ? { ok: true } : { error: (j && j.error) || 'error' };
+      } catch (e) { return { error: 'net' }; }
+    };
+    let res = { missing: true }, onlyOrder = false;
+    if (this.state.flow) res = await call('arc_flow_save', { p_char: id, p_items: items });
+    if (res.missing) {
+      onlyOrder = true;
+      res = await call('arc_chrono_save', { p_char: id, p_items: items.map((x) => ({ akey: x.akey, arc: x.arc, note: x.note })) });
+      if (res.missing) res = { error: 'arc_chrono missing' };
+    }
+    if (!res.ok) {
+      const err = res.error || 'error';
+      console.warn('схема арок: збереження —', err);
+      const text = err === 'not owner' ? 'Це не ваш персонаж.' : err === 'net' ? 'Мережа не відповіла.' : /arc_chrono|arc_flow/.test(err) ? 'Хронологію ще не ввімкнено.' : 'Не збереглося.';
+      this.setState({ busy: false, msg: { bad: true, text } });
+      return;
+    }
+    console.log(`схема арок: збережено ${items.length} для ${this.state.names[id]}${onlyOrder ? ' (лише порядок — немає arc_flow_save)' : ''}`);
+    const rows = items.map((x, i) => ({ character_id: id, akey: x.akey, arc: x.arc, pos: i, note: x.note, x: onlyOrder ? null : x.x, y: onlyOrder ? null : x.y, apart: x.apart, prev: x.prev, echo: x.echo }));
+    this.setState((s) => {
+      const dr = { ...s.draft }; delete dr[id];
+      const h = { ...s.hist }; delete h[id];
+      return { busy: false, chrono: { ...s.chrono, [id]: rows }, draft: dr, hist: h,
+        msg: onlyOrder ? { bad: true, text: 'Збережено лише порядок: для схеми рецепція має прогнати supabase_arc_flow_migration.sql.' } : { text: 'Збережено — уже на дошці.' } };
+    });
+  }
+
+  // Хто з інших персонажів ставить ту саму пару арок навпаки.
+  _clash(id, nodes) {
+    const bad = {}, mineNext = nextMap(nodes);
+    const mineKeys = Object.keys(nodes).filter((k) => !nodes[k].apart);
+    const mineR = {}; mineKeys.forEach((k) => { mineR[k] = reach(mineNext, k); });
+    for (const oid of Object.keys(this.state.chrono)) {
+      if (oid === id) continue;
+      const rows = (this.state.chrono[oid] || []).filter((r) => !r.apart).slice().sort((a, b) => a.pos - b.pos);
+      const ks = rows.map((r) => this._keyOf(id, r.akey));
+      const graph = rows.some((r) => Array.isArray(r.prev) && r.prev.length);
+      const nx = {};
+      rows.forEach((r, i) => {
+        if (graph) for (const p of r.prev || []) (nx[this._keyOf(id, String(p.k || ''))] = nx[this._keyOf(id, String(p.k || ''))] || []).push(ks[i]);
+        else if (i > 0) (nx[ks[i - 1]] = nx[ks[i - 1]] || []).push(ks[i]);
+      });
+      const shared = mineKeys.filter((k) => ks.includes(k));
+      for (let p = 0; p < shared.length; p++) for (let q = p + 1; q < shared.length; q++) {
+        const a = shared[p], b = shared[q];
+        const mAB = mineR[a].has(b), mBA = mineR[b].has(a);
+        const tAB = reach(nx, a).has(b), tBA = reach(nx, b).has(a);
+        if ((mAB && tBA) || (mBA && tAB)) { const who = this.state.names[oid] || 'хтось'; bad[a] = bad[a] || who; bad[b] = bad[b] || who; }
+      }
+    }
+    return bad;
+  }
+
+  renderVals() {
+    const s = this.state, ok = s.phase === 'ok';
+    const tab = (on) => ({ bg: on ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)', border: on ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.14)', ink: on ? '#ffd700' : 'rgba(255,255,255,0.6)' });
+    const edit = this._edit();
+    const base = {
+      isLoad: s.phase === 'load', isError: s.phase === 'error', errText: s.err,
+      noMine: ok && !s.mine.length, hasMine: ok && s.mine.length > 0, isDemo: s.demo,
+      viewRef: this.viewRef, worldRef: this.worldRef,
+    };
+    if (!ok || !edit) return { ...base, tabs: [], pool: [], nodes: [], gapLabels: [], forkPills: [], echoPills: [], noSel: true, hasSel: false };
+
+    const d = this._draft(edit), nodes = d.nodes;
+    const own = s.arcs[edit] || [], info = new Map(own.map((a) => [a.key, a]));
+    const g = geo(nodes, s.drag ? s.drag.lineH : 0);
+    const pos = {};
+    for (const n of Object.values(nodes)) pos[n.key] = (s.drag && s.drag.key === n.key && s.drag.moved) ? { x: s.drag.ax, y: s.drag.ay } : absOf(n, g);
+    const bad = this._clash(edit, nodes);
+    const sel = nodes[s.sel] ? s.sel : null;
+
+    // ребра
+    let lineD = '', selD = '', arrowD = '', forkD = '', echoD = '', echoArrowD = '';
+    const gapLabels = [], forkPills = [], echoPills = [];
+    const kids = {};
+    for (const n of Object.values(nodes)) {
+      if (n.apart) continue;
+      for (const p of n.prev) {
+        const P = nodes[p.k];
+        if (!P || P.apart) continue;
+        (kids[p.k] = kids[p.k] || []).push(n.key);
+        const a = pos[p.k], b = pos[n.key];
+        const x1 = a.x + NW, y1 = a.y + NH / 2, x2 = b.x - 8, y2 = b.y + NH / 2;
+        const c = curve(x1, y1, x2, y2);
+        if (sel && (sel === p.k || sel === n.key)) selD += c; else lineD += c;
+        arrowD += `M${x2},${y2 - 4} L${x2 + 8},${y2} L${x2},${y2 + 4} Z `;
+        if (p.gap) gapLabels.push({ x: (x1 + x2) / 2, y: (y1 + y2) / 2 - 11, text: p.gap });
+      }
+    }
+    for (const k of Object.keys(kids)) {
+      const cs = kids[k].slice().sort((a, b) => pos[a].y - pos[b].y);
+      for (let i = 0; i + 1 < cs.length; i++) {
+        const A = pos[cs[i]], B = pos[cs[i + 1]];
+        const ax = A.x + NW / 2, bx = B.x + NW / 2, ay = A.y + NH, by = B.y;
+        if (by > ay + 10) forkD += `M${ax},${ay} L${bx},${by} `;
+        forkPills.push({ x: (ax + bx) / 2, y: by > ay + 10 ? (ay + by) / 2 : (A.y + B.y) / 2 + NH / 2 });
+      }
+    }
+    for (const n of Object.values(nodes)) {
+      if (!n.apart) continue;
+      for (const t of n.echo) {
+        const T = nodes[t];
+        if (!T || T.apart) continue;
+        const a = pos[n.key], b = pos[t];
+        const x1 = a.x + NW / 2, y1 = a.y, x2 = b.x + NW / 2, y2 = b.y + NH + 8;
+        const dy = Math.max(40, (y1 - y2) / 2);
+        echoD += `M${x1},${y1} C${x1},${y1 - dy} ${x2},${y2 + dy} ${x2},${y2} `;
+        echoArrowD += `M${x2 - 4},${y2} L${x2},${y2 - 8} L${x2 + 4},${y2} Z `;
+        echoPills.push({ x: (x1 + x2) / 2, y: (y1 + y2) / 2 });
+      }
+    }
+    let ghostD = '', ghostInk = '#ffd700';
+    if (s.link && pos[s.link.from]) {
+      const F = nodes[s.link.from], a = pos[s.link.from];
+      if (F.apart) { ghostInk = 'rgba(255,255,255,0.6)'; ghostD = `M${a.x + NW / 2},${a.y} L${s.link.x},${s.link.y}`; }
+      else ghostD = curve(a.x + NW, a.y + NH / 2, s.link.x, s.link.y);
+    }
+
+    const nodeList = Object.values(nodes).map((n) => {
+      const a = info.get(n.key), p = pos[n.key];
+      const live = !!(a && Date.now() - a.last < LIVE);
+      const on = sel === n.key, dragging = s.drag && s.drag.key === n.key && s.drag.moved;
+      const clash = !n.apart && !!bad[n.key];
+      return {
+        key: n.key, title: n.name, left: p.x, top: p.y, z: dragging ? 30 : on ? 20 : 10,
+        meta: a ? `${posts(a.n)} · ${span(a.first, a.last)}` : 'дописів у цій арці більше немає',
+        bg: on ? '#2a2716' : n.apart ? '#202020' : '#242424',
+        ring: on ? '#ffd700' : clash ? 'rgba(255,77,77,0.55)' : live ? 'rgba(255,215,0,0.4)' : n.apart ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.18)',
+        lineStyle: n.apart ? 'dashed' : 'solid',
+        shadow: dragging ? '0 16px 36px rgba(0,0,0,0.65)' : on ? '0 0 0 3px rgba(255,215,0,0.12), 0 0 22px rgba(255,215,0,0.25)' : '0 6px 18px rgba(0,0,0,0.5)',
+        ink: on ? '#ffd700' : '#fff',
+        dot: live ? '#ffd700' : 'rgba(255,255,255,0.3)', dotGlow: live ? '0 0 8px rgba(255,215,0,0.8)' : 'none',
+        hasClash: clash, clashText: clash ? `⚠ у ${bad[n.key]} — інакше` : '',
+        showLive: !clash && live, showNote: !clash && !live && !!n.note, note: n.note,
+        inPort: !n.apart,
+        portInk: n.apart ? 'rgba(255,255,255,0.6)' : '#ffd700', portStyle: n.apart ? 'dotted' : 'solid',
+        portTitle: n.apart ? 'Потягніть на арку, де це згадують' : 'Потягніть на арку, що йде далі',
+        down: (e) => this._nodeDown(e, n.key),
+        portDown: (e) => this._portDown(e, n.key),
+      };
+    });
+
+    const pool = own.filter((a) => !nodes[a.key]).map((a) => ({
+      title: a.name, meta: `${posts(a.n)} · ${span(a.first, a.last)}`,
+      down: (e) => this._poolDown(e, a.key, a.name),
+    }));
+
+    // інспектор
+    const S = sel ? nodes[sel] : null, sa = S ? info.get(sel) : null;
+    const line = Object.values(nodes).filter((n) => !n.apart).sort((a, b) => a.x - b.x || a.y - b.y);
+    const next = nextMap(nodes);
+    const go = (k) => () => this.setState({ sel: k, open: null });
+    const cycleGap = (child, parent) => () => this._upd(edit, (ns) => {
+      const e = ns[child].prev.find((p) => p.k === parent); if (!e) return false;
+      e.gap = GAPS[(GAPS.indexOf(e.gap || '') + 1) % GAPS.length];
+    });
+    const gapRow = (child, parent, gap) => ({ gap: gap || 'коли', gapInk: gap ? 'rgba(255,215,0,0.85)' : 'rgba(255,255,255,0.35)', cycle: cycleGap(child, parent) });
+    let prevRows = [], nextRows = [], echoInRows = [], echoOutRows = [], prevOpts = [], nextOpts = [], echoOpts = [];
+    if (S && !S.apart) {
+      prevRows = S.prev.filter((p) => nodes[p.k] && !nodes[p.k].apart).map((p) => ({ name: nodes[p.k].name, go: go(p.k), ...gapRow(sel, p.k, p.gap),
+        cut: () => this._upd(edit, (ns) => { ns[sel].prev = ns[sel].prev.filter((q) => q.k !== p.k); }) }));
+      nextRows = (next[sel] || []).map((k) => { const e = nodes[k].prev.find((p) => p.k === sel); return { name: nodes[k].name, go: go(k), ...gapRow(k, sel, e && e.gap),
+        cut: () => this._upd(edit, (ns) => { ns[k].prev = ns[k].prev.filter((q) => q.k !== sel); }) }; });
+      echoInRows = Object.values(nodes).filter((n) => n.apart && n.echo.includes(sel)).map((n) => ({ name: n.name, go: go(n.key),
+        cut: () => this._upd(edit, (ns) => { ns[n.key].echo = ns[n.key].echo.filter((t) => t !== sel); }) }));
+      const down = reach(next, sel);
+      const up = new Set(line.filter((n) => reach(next, n.key).has(sel)).map((n) => n.key));
+      prevOpts = line.filter((n) => n.key !== sel && !down.has(n.key) && !S.prev.some((p) => p.k === n.key))
+        .map((n) => ({ label: n.name, pick: () => this._connect(n.key, sel) }));
+      nextOpts = line.filter((n) => n.key !== sel && !up.has(n.key) && !(next[sel] || []).includes(n.key))
+        .map((n) => ({ label: n.name, pick: () => this._connect(sel, n.key) }));
+    }
+    if (S && S.apart) {
+      echoOutRows = S.echo.filter((t) => nodes[t] && !nodes[t].apart).map((t) => ({ name: nodes[t].name, go: go(t),
+        cut: () => this._upd(edit, (ns) => { ns[sel].echo = ns[sel].echo.filter((x) => x !== t); }) }));
+      echoOpts = line.filter((n) => !S.echo.includes(n.key)).map((n) => ({ label: n.name, pick: () => this._connect(sel, n.key) }));
+    }
+    const tog = (k) => () => this.setState((st) => ({ open: st.open === k ? null : k }));
+    const hist = s.hist[edit] || [];
+    const msg = s.msg;
+    const overZone = !!(s.drag && s.drag.moved && s.drag.ay + NH / 2 > s.drag.lineH) || !!(s.spawn && s.spawn.moved);
+
+    return {
+      ...base,
+      tabs: s.mine.map((id) => ({ label: s.names[id] + (s.draft[id] && s.draft[id].dirty ? ' ·' : ''), ...tab(id === edit), pick: () => this.setState({ edit: id, sel: null, open: null, msg: null }) })),
+      undo: () => { if (!hist.length) return; this.setState((st) => { const h = (st.hist[edit] || []).slice(); const prevD = h.pop(); return { hist: { ...st.hist, [edit]: h }, draft: { ...st.draft, [edit]: prevD }, msg: null }; }); },
+      noUndo: !hist.length,
+      relayout: () => this._upd(edit, (ns) => { layout(ns); }),
+      byDates: () => this._upd(edit, (ns) => {
+        const ln = Object.values(ns).filter((n) => !n.apart).sort((a, b) => ((info.get(a.key) || {}).first || 0) - ((info.get(b.key) || {}).first || 0));
+        ln.forEach((n, i) => { n.prev = i ? [{ k: ln[i - 1].key, gap: '' }] : []; });
+        layout(ns);
+      }),
+      zoomText: Math.round(s.zoom * 100) + '%',
+      zoomIn: () => this.setState((st) => ({ zoom: Math.min(1.4, Math.round((st.zoom + 0.1) * 10) / 10) })),
+      zoomOut: () => this.setState((st) => ({ zoom: Math.max(0.5, Math.round((st.zoom - 0.1) * 10) / 10) })),
+      fresh: !!(d.fresh && !d.dirty),
+      pool, poolEmpty: !pool.length,
+      zoom: s.zoom, sizeW: Math.round(g.W * s.zoom), sizeH: Math.round(g.H * s.zoom), worldW: g.W, worldH: g.H,
+      zoneTop: g.zoneTop, zoneW: g.W - 20, zoneH: g.zoneH,
+      zoneRing: overZone ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.22)', zoneBg: overZone ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.025)',
+      lineD, selD, arrowD, forkD, echoD, echoArrowD, ghostD, ghostInk,
+      gapLabels, forkPills, echoPills,
+      nodes: nodeList, noNodes: !nodeList.length,
+      bgDown: () => { if (s.sel || s.open) this.setState({ sel: null, open: null }); },
+      noSel: !S, hasSel: !!S,
+      selKicker: S ? (S.apart ? '✦ Окремо' : '✦ Обрана арка') : '',
+      selTitle: S ? S.name : '', selHref: S ? '#arcs/' + encodeURIComponent(S.name) : '#arcs',
+      selMeta: sa ? `${posts(sa.n)} · ${span(sa.first, sa.last)}${Date.now() - sa.last < LIVE ? ' · триває' : ''}` : (S ? 'дописів у цій арці більше немає' : ''),
+      selNote: S ? S.note : '',
+      setNote: (e) => { const v = e.target.value; if (!sel) return; const cur = this._draft(edit); if (cur.nodes[sel].note === v) return;
+        this.setState((st) => { const dd = st.draft[edit] || cur; const ns = clone(dd.nodes); ns[sel].note = v; return { draft: { ...st.draft, [edit]: { nodes: ns, dirty: true, fresh: dd.fresh } }, msg: null }; }); },
+      selLine: !!(S && !S.apart), selApart: !!(S && S.apart),
+      prevRows, nextRows, echoInRows, echoOutRows, hasEchoIn: echoInRows.length > 0,
+      nextHead: nextRows.length > 1 ? 'Після неї · водночас' : 'Після неї',
+      prevOpts, nextOpts, echoOpts,
+      prevOpen: s.open === 'prev', nextOpen: s.open === 'next', echoOpen: s.open === 'echo',
+      prevCan: prevOpts.length > 0, nextCan: nextOpts.length > 0, echoCan: echoOpts.length > 0,
+      prevBtn: s.open === 'prev' ? 'Згорнути' : '+ перед нею…', nextBtn: s.open === 'next' ? 'Згорнути' : (nextRows.length ? '+ ще водночас…' : '+ що далі…'), echoBtn: s.open === 'echo' ? 'Згорнути' : '+ де згадується…',
+      togglePrev: tog('prev'), toggleNext: tog('next'), toggleEcho: tog('echo'),
+      flipLabel: S && S.apart ? 'На лінію' : 'В «Окремо»',
+      flipApart: () => { if (!sel) return; this._upd(edit, (ns) => {
+        const n = ns[sel], to = !n.apart; this._setApart(ns, sel, to);
+        if (to) { const ap = Object.values(ns).filter((x) => x.apart && x.key !== sel); n.x = PAD + (ap.length % 4) * (NW + 24); n.y = Math.floor(ap.length / 4) * (NH + 16); }
+        else { const ln = Object.values(ns).filter((x) => !x.apart && x.key !== sel); n.x = ln.length ? Math.max(...ln.map((x) => x.x)) + NW + GX : PAD; n.y = PAD; }
+      }); },
+      unplace: () => { if (!sel) return; this._upd(edit, (ns) => { this._setApart(ns, sel, true); delete ns[sel]; }, null); },
+      canSave: !!(d.dirty || d.fresh), dirty: !!d.dirty,
+      saveLabel: s.busy ? 'Зберігаю…' : 'Зберегти схему',
+      save: () => this._store(edit),
+      reset: () => this.setState((st) => { const dr = { ...st.draft }; delete dr[edit]; const h = { ...st.hist }; delete h[edit]; return { draft: dr, hist: h, msg: null, sel: null }; }),
+      hasMsg: !!msg, msgText: msg ? msg.text : '', msgInk: msg && msg.bad ? '#ff8a8a' : '#8fd6a8',
+      toBoard: () => { try { localStorage.setItem('au_arcs_view', 'chrono'); } catch (e) {} },
+      hasGhost: !!(s.spawn && s.spawn.moved), ghostX: s.spawn ? s.spawn.cx : 0, ghostY: s.spawn ? s.spawn.cy : 0, ghostText: s.spawn ? s.spawn.name : '',
+    };
+  }
+}
+</script>
+</body>
+</html>
