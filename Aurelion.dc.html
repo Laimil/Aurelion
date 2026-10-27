@@ -216,6 +216,13 @@ a:hover{color:#a8c4f7;}
 .chron-toc-sticky{position:sticky;top:84px;max-height:calc(100vh - 108px);overflow-y:auto;}
 .chron-toc-sticky .lore-toc{display:block;width:100%;margin-bottom:0;}
 @media(max-width:880px){.chron-reader-grid{grid-template-columns:1fr;gap:24px;}.chron-toc-sticky{position:static;max-height:none;}}
+.chron-reader-grid[data-toc="off"]{grid-template-columns:minmax(0,1fr);max-width:720px;}
+.chron-reader-grid[data-toc="off"] > div:first-child{display:none;}
+.chron-read .lore-md{font-size:1.24rem;line-height:1.72;color:rgba(255,255,255,0.86);}
+.chron-read .lore-md p{text-align:left;hyphens:manual;text-wrap:pretty;margin-bottom:1.35em;}
+.chron-read .lore-md > p:first-child::first-letter{font-family:'Cinzel',Georgia,serif;float:left;font-size:3.3em;line-height:0.9;padding:0.06em 0.12em 0 0;color:#ffd700;}
+.chron-read[data-refs="on"] .lore-md sup.chron-ref{font-size:0.55em;color:rgba(255,215,0,0.4);vertical-align:0.55em;}
+.chron-read[data-refs="on"] .lore-md sup.chron-ref a{color:rgba(255,215,0,0.55);border-bottom:none;}
 .char-reader-grid{display:grid;grid-template-columns:300px 1fr;gap:44px;align-items:start;max-width:1060px;margin:0 auto;}
 /* Липка колонка, вища за екран, свій низ прокручуванням не показує — тому
    на низьких вікнах вона перестає бути липкою і їде разом зі сторінкою. */
@@ -1353,6 +1360,13 @@ a:hover{color:#a8c4f7;}
                 <sc-if value="{{ c.hasCover }}" hint-placeholder-val="{{ false }}">
                   <div class="chron-card-cover" style="position:absolute;inset:0;{{ c.coverBg }}"></div>
                 </sc-if>
+                <sc-if value="{{ c.hasCombo }}" hint-placeholder-val="{{ false }}">
+                  <div class="chron-card-cover" style="position:absolute;inset:0;">
+                    <sc-for list="{{ c.strips }}" as="st" hint-placeholder-count="0">
+                      <div style="position:absolute;top:0;bottom:0;background-size:cover;background-repeat:no-repeat;background-position:center 16%;{{ st.style }}"></div>
+                    </sc-for>
+                  </div>
+                </sc-if>
                 <sc-if value="{{ c.noCover }}" hint-placeholder-val="{{ true }}">
                   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,rgba(255,215,0,0.07) 0%,transparent 68%);">
                     <span style="font-family:'Cinzel',serif;font-size:3rem;color:rgba(255,215,0,0.18);font-weight:700;letter-spacing:0.06em;">{{ c.initials }}</span>
@@ -1403,6 +1417,14 @@ a:hover{color:#a8c4f7;}
             <div style="position:absolute;inset:0;{{ chronCoverBg }}"></div>
             <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(24,22,17,0.97) 8%,rgba(24,22,17,0.72) 52%,rgba(24,22,17,0.5) 100%);"></div>
           </sc-if>
+          <sc-if value="{{ chronHasCombo }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:0;right:0;bottom:0;width:max(62%,min(100%,560px));background:#0f0e0c;">
+              <sc-for list="{{ chronStrips }}" as="st" hint-placeholder-count="0">
+                <div style="position:absolute;top:0;bottom:0;background-size:cover;background-repeat:no-repeat;background-position:center 16%;{{ st.style }}"></div>
+              </sc-for>
+            </div>
+            <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#1a1a1a 34%,rgba(26,26,26,0.72) 50%,rgba(26,26,26,0) 72%),linear-gradient(0deg,#1a1a1a 0%,rgba(26,26,26,0.55) 30%,rgba(26,26,26,0) 58%);"></div>
+          </sc-if>
           <div style="position:relative;padding:44px 40px 34px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;">
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
               <span class="status-tag" style="font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;border-radius:999px;padding:4px 14px;">{{ chronStatusLabel }}</span>
@@ -1412,6 +1434,14 @@ a:hover{color:#a8c4f7;}
             </div>
             <p style="font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin-bottom:8px;">{{ chronSubtitle }}</p>
             <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,4.5vw,2.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;line-height:1.12;">{{ chronTitle }}</h1>
+            <sc-if value="{{ chronHasFaces }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;margin-top:16px;">
+                <sc-for list="{{ chronFaces }}" as="f" hint-placeholder-count="4">
+                  <button data-id="{{ f.id }}" onClick="{{ f.onPick }}" title="{{ f.name }}" style="width:34px;height:34px;border-radius:999px;border:2px solid #1a1a1a;margin-right:-8px;padding:0;background:#2a2826;background-size:cover;background-position:center 18%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.8rem;color:rgba(255,215,0,0.7);cursor:{{ f.cursor }};transition:all 0.3s ease;{{ f.style }}" style-hover="transform:translateY(-3px);">{{ f.letter }}</button>
+                </sc-for>
+                <span style="margin-left:18px;font-size:0.8rem;color:rgba(255,255,255,0.55);">{{ chronCastLabel }}</span>
+              </div>
+            </sc-if>
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px;">
               <sc-if value="{{ chronHasGm }}" hint-placeholder-val="{{ false }}">
                 <span style="font-size:0.82rem;color:rgba(255,255,255,0.5);">✦ Ведучий — <span style="color:rgba(255,255,255,0.8);">{{ chronGm }}</span></span>
@@ -1436,7 +1466,7 @@ a:hover{color:#a8c4f7;}
           </div>
         </header>
 
-        <div class="chron-reader-grid">
+        <div class="chron-reader-grid" data-toc="{{ chronTocAttr }}">
           <div>
             <sc-if value="{{ chronHasToc }}" hint-placeholder-val="{{ false }}">
               <div class="chron-toc-sticky">
@@ -3676,7 +3706,7 @@ const _storyMin = (arc) => { const w = _storyWords(arc); return w >= 30 ? Math.m
 const LIST_SELECT = {
   lore:       'id,title,category,excerpt,cover,sort_order,created_at',
   stories:    'id,title,status,description,sort_order,created_at,author_name,author_telegram,telegraph_url,chapters,tags,status_label,status_color,cover_color,cover_ornament,cover_icon,author_label',
-  chronicles: 'id,title,subtitle,character_id,cover,period,gm,status,summary,tags,sort_order,created_at',
+  chronicles: 'id,title,subtitle,character_id,cover,period,gm,status,summary,tags,sort_order,created_at,arc',
   characters: 'id,name,alias,role,image,telegraph_url,created_at,age,height,weight,build,bio,character_type,connections,sort_order,open_effect,card_caption,is_active,deity,owner_id,hero_focus',
 };
 const HEAVY_TABLES = ['characters', 'lore', 'stories', 'chronicles'];
@@ -4154,7 +4184,7 @@ class Component extends DCLogic {
     libView: (() => { try { return localStorage.getItem('au_lib_view') === 'list' ? 'list' : 'grid'; } catch (e) { return 'grid'; } })(),
     libSearch: '', libSort: 'order', libSpot: 0,
     selectedChronicle: null, chronSortBy: 'order', chronTagFilter: null,
-    chronPosts: null, chronRefsOff: (() => { try { return localStorage.getItem('au_chron_refs') === 'off'; } catch (e) { return false; } })(),
+    chronArcs: {}, chronRefsOff: (() => { try { return localStorage.getItem('au_chron_refs') !== 'on'; } catch (e) { return true; } })(),
     hoveredStoryId: null,
     mapScale: 1, mapPanX: 0, mapPanY: 0,
     mapDragging: false, mapDragStartX: 0, mapDragStartY: 0, mapPanStartX: 0, mapPanStartY: 0,
@@ -6071,22 +6101,102 @@ class Component extends DCLogic {
   // Порядок і відбір — точно як у вивантаженні арки (Gossip._exportArc):
   // інакше №6 у хроніці вказував би не на той допис, з якого його взято.
   async _loadChronPosts(arc) {
-    this._chronLoading = arc;
+    this._chronLoading = this._chronLoading || {};
+    this._chronLoading[arc] = 1;
     const q = (x) => '"' + String(x).replace(/["\\]/g, '') + '"';
     const S = ' / ';
     const or = [`tag_arc.eq.${q(arc)}`];
     if (!/[*%]/.test(arc)) or.push(`tag_arc.ilike.${q(arc + S + '*')}`, `tag_arc.ilike.${q('*' + S + arc)}`, `tag_arc.ilike.${q('*' + S + arc + S + '*')}`);
-    const ids = [];
+    const ids = [], cast = new Map();
+    let page = null;
+    // Дописи RLS віддає лише увійшлим з доступом — запит з токеном віконця, як в арках
+    // персонажа. Анонімний ключ дав би порожньо, і номери лишалися б текстом.
+    const tokKey = this._userTok() ? 'u' : 'a';
     try {
+      await this._userFresh();
       for (let off = 0; off < 50000; off += 1000) {
-        const got = await this._get(`marta_posts?select=id&or=${encodeURIComponent('(' + or.join(',') + ')')}&order=created_at.asc,id.asc&limit=1000&offset=${off}`);
-        got.forEach(r => ids.push(r.id));
+        const url = `${SUPA_URL}/marta_posts?select=id,character_id,tag_name,character_name&or=${encodeURIComponent('(' + or.join(',') + ')')}&order=created_at.asc,id.asc&limit=1000&offset=${off}`;
+        const go = () => fetch(url, { headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + (this._userTok() || SUPA_KEY) } });
+        let r = await go();
+        if (r.status === 401 && await this._userRenew(true)) r = await go();
+        if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + await r.text());
+        const got = await r.json();
+        got.forEach(x => {
+          ids.push(x.id);
+          const nm = String(x.character_name || x.tag_name || '').trim();
+          const k = x.character_id ? 'c' + x.character_id : 'n' + nm.toLowerCase();
+          if (!nm && !x.character_id) return;
+          const e = cast.get(k) || { cid: x.character_id ? String(x.character_id) : '', name: nm, n: 0 };
+          e.n++; cast.set(k, e);
+        });
         if (got.length < 1000) break;
       }
-      console.log(`хроніка: арка «${arc}» — дописів ${ids.length}`);
-    } catch (e) { console.warn('хроніка: дописи арки не прочиталися —', e); }
-    this._chronLoading = null;
-    this.setState({ chronPosts: { arc, ids } });
+      console.log(`хроніка: арка «${arc}» — дописів ${ids.length}${tokKey === 'a' ? ' (не увійшли, дописи закриті)' : ''}`);
+    } catch (e) { console.warn('хроніка: дописи арки не прочиталися —', e && e.message); }
+    // Обкладинка, яку обрали на сторінці арки (arc_pages), має перевагу над колажем.
+    try {
+      const pg = await this._getSoft(`arc_pages?select=cover,cover_focus&arc=eq.${encodeURIComponent(q(arc))}&limit=1`);
+      if (Array.isArray(pg) && pg[0] && pg[0].cover) page = pg[0];
+    } catch (e) {}
+    const castList = [...cast.values()].sort((a, b) => b.n - a.n);
+    delete this._chronLoading[arc];
+    this.setState(st => ({ chronArcs: { ...(st.chronArcs || {}), [arc]: { ids, tok: tokKey, cast: castList, page } } }));
+  }
+  // Арка хроніки: дописи, учасники з портретами, обкладинка сторінки арки або колаж.
+  // Спільне для картки в галереї й шапки читалки; чого ще немає — вантажиться раз.
+  _chronArcView(c) {
+    const arc = c ? String(c.arc || '').trim() : '';
+    const empty = { arc, ids: null, cast: [], arcCover: null, comboUrls: [] };
+    if (!arc) return empty;
+    const cp = (this.state.chronArcs || {})[arc];
+    const fresh = cp && cp.tok === (this._userTok() ? 'u' : 'a');
+    if (!fresh && !(this._chronLoading && this._chronLoading[arc])) setTimeout(() => this._loadChronPosts(arc), 0);
+    if (!fresh) return empty;
+    const chars = (this.state.data && this.state.data.characters) || [];
+    if (this._chronCm !== chars) {
+      this._chronCm = chars;
+      this._chronById = new Map(chars.map(x => [String(x.id), x]));
+      this._chronByNm = new Map();
+      chars.forEach(x => { [x.name, x.alias].forEach(n => { if (n) this._chronByNm.set(String(n).trim().toLowerCase(), x); }); });
+    }
+    const cast = (cp.cast || []).map(e => {
+      const ch = (e.cid && this._chronById.get(e.cid)) || this._chronByNm.get(e.name.toLowerCase()) || null;
+      return { ch, name: (ch && ch.name) || e.name, pic: (ch && ch.image) || '', n: e.n };
+    });
+    const arcCover = !c.cover && cp.page ? cp.page : null;
+    const comboUrls = !c.cover && !arcCover ? cast.map(x => x.pic).filter(Boolean).slice(0, 5) : [];
+    return { arc, ids: cp.ids.length ? cp.ids : null, cast, arcCover, comboUrls };
+  }
+  _chronFocus(v) {
+    const m = String(v || '').match(/^\s*(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)\s*$/);
+    return m ? m[1] + '% ' + m[2] + '%' : 'center';
+  }
+  // Довгий абзац ділимо по межі речення (після позначки [№] або крапки), кусками
+  // по ~450 символів: стіну тексту з екрана не читають. Заголовки, цитати, списки не чіпаємо.
+  _chronSplit(raw) {
+    return String(raw).split(/\n{2,}/).map(b => {
+      if (b.length < 650 || /^\s*([#>\-*|!]|\d+\.)/.test(b) || b.indexOf('\n') !== -1) return b;
+      const sents = b.split(/(?<=[.!?…](?:[»"”])?(?:\s*\[№[^\]]*\])?)\s+(?=[«"„A-ZА-ЯІЇЄҐ])/);
+      const out = []; let cur = '';
+      sents.forEach(x => { if (cur && cur.length + x.length > 480) { out.push(cur); cur = x; } else cur = cur ? cur + ' ' + x : x; });
+      if (cur) { if (out.length && cur.length < 160) out[out.length - 1] += ' ' + cur; else out.push(cur); }
+      return out.join('\n\n');
+    }).join('\n\n');
+  }
+  // Колаж як на сторінці арки (Arcs.dc.html, collage): портрети похилими смугами.
+  _chronCollage(urls, flip) {
+    const n = urls.length, css = (u) => JSON.stringify(String(u));
+    if (!n) return [];
+    if (n === 1) return [{ style: `left:0;width:100%;background-image:url(${css(urls[0])});` }];
+    const W = 100 / n, sk = n > 3 ? 5 : 8, g = 0.3, d = flip ? -1 : 1;
+    return urls.map((u, i) => {
+      const x0 = i * W, x1 = (i + 1) * W, first = i === 0, last = i === n - 1;
+      const tl = first ? 0 : x0 + sk * d + g, bl = first ? 0 : x0 - sk * d + g;
+      const tr = last ? 100 : x1 + sk * d - g, br = last ? 100 : x1 - sk * d - g;
+      const L = Math.max(0, Math.min(tl, bl)), R = Math.min(100, Math.max(tr, br)), w = R - L;
+      const loc = (x) => ((x - L) / w * 100).toFixed(2) + '%';
+      return { style: `left:${L.toFixed(2)}%;width:${w.toFixed(2)}%;background-image:url(${css(u)});clip-path:polygon(${loc(tl)} 0,${loc(tr)} 0,${loc(br)} 100%,${loc(bl)} 100%);` };
+    });
   }
   _chronPlural(n) { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? 'допис' : m >= 2 && m <= 4 && (h < 12 || h > 14) ? 'дописи' : 'дописів'; }
   // [№6] · [№12–№15] · [№3, №4] → надрядкові номери; з відомими дописами — посилання.
@@ -6095,7 +6205,7 @@ class Component extends DCLogic {
       const id = ids && ids[n - 1];
       return id != null ? `<a href="#posts/${encodeURIComponent(id)}" title="Допис №${n}">${n}</a>` : String(n);
     };
-    return String(html).replace(/\[(№[^\]<]{0,80})\]/g, (all, inner) => {
+    return String(html).replace(/(?:\s|&nbsp;)*\[(№[^\]<]{0,80})\]/g, (all, inner) => {
       const parts = inner.split(/[,;]/).map(p => p.match(/№?\s*(\d+)(?:\s*[–—-]\s*№?\s*(\d+))?/)).filter(Boolean);
       if (!parts.length) return all;
       return '<sup class="chron-ref">' + parts.map(m => m[2] ? one(+m[1]) + '–' + one(+m[2]) : one(+m[1])).join(', ') + '</sup>';
@@ -10750,12 +10860,16 @@ class Component extends DCLogic {
       // ──────────── ХРОНІКИ ────────────
       chronicleItems: filteredChronData.map(c => {
         const tagsArr = (c.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+        const av = this._chronArcView(c);
+        const cov = c.cover || (av.arcCover && av.arcCover.cover) || '';
         return {
           ...c,
           statusLabel:  STATUS_LABELS[c.status] || '',
-          hasCover:     !!c.cover,
-          noCover:      !c.cover,
-          coverBg:      c.cover ? ('background-image:url(' + JSON.stringify(c.cover) + ');background-size:cover;background-position:center;') : '',
+          hasCover:     !!cov,
+          noCover:      !cov && !av.comboUrls.length,
+          hasCombo:     !cov && av.comboUrls.length > 0,
+          strips:       cov ? [] : this._chronCollage(av.comboUrls, av.arc.length % 2 === 1),
+          coverBg:      cov ? ('background-image:url(' + JSON.stringify(cov) + ');background-size:cover;background-position:' + (c.cover ? 'center' : this._chronFocus(av.arcCover.cover_focus)) + ';') : '',
           initials:     (c.title||'?').trim().slice(0,1).toUpperCase(),
           subtitleText: c.subtitle || 'хроніка',
           hasPeriod:    !!c.period,
@@ -10781,15 +10895,16 @@ class Component extends DCLogic {
       },
       closeChronicle: () => this._nav('chronicles'),
       ...(() => {
-        const c = s.selectedChronicle;
-        const raw = c ? (c.content || '') : '';
+        // Обʼєкт у стані — знімок на момент відкриття (часто ще з кешу); свіжі
+        // графи (arc) приходять пізніше з фонового оновлення, тож беремо рядок з data.
+        const c0 = s.selectedChronicle;
+        const c = c0 ? ((data.chronicles || []).find(x => String(x.id) === String(c0.id)) || c0) : null;
+        const raw = c ? (c.content || c0.content || '') : '';
         const toc = c ? extractToc(raw) : [];
         const linkedChar = c && c.character_id ? (data.characters||[]).find(x => x.id === c.character_id) : null;
         const tagsArr = c ? (c.tags||'').split(',').map(t=>t.trim()).filter(Boolean) : [];
-        const chronArc = c ? String(c.arc || '').trim() : '';
-        const cp = s.chronPosts;
-        const chronIds = chronArc && cp && cp.arc === chronArc ? cp.ids : null;
-        if (chronArc && (!cp || cp.arc !== chronArc) && this._chronLoading !== chronArc) setTimeout(() => this._loadChronPosts(chronArc), 0);
+        const av = this._chronArcView(c);
+        const chronArc = av.arc, chronIds = av.ids, chronCast = av.cast, arcCover = av.arcCover, comboUrls = av.comboUrls;
         return {
           chronStatus:      c ? (c.status || 'active') : 'active',
           chronStatusLabel: c ? (STATUS_LABELS[c.status] || '') : '',
@@ -10799,9 +10914,20 @@ class Component extends DCLogic {
           chronHasPeriod:   !!(c && c.period),
           chronGm:          c ? (c.gm || '') : '',
           chronHasGm:       !!(c && c.gm),
-          chronHasCover:    !!(c && c.cover),
-          chronCoverBg:     (c && c.cover) ? ('background-image:url(' + JSON.stringify(c.cover) + ');background-size:cover;background-position:center;') : '',
-          chronHeaderMinH:  (c && c.cover) ? 'min-height:280px;' : '',
+          chronHasCover:    !!(c && (c.cover || arcCover)),
+          chronCoverBg:     (c && (c.cover || arcCover)) ? ('background-image:url(' + JSON.stringify(c.cover || arcCover.cover) + ');background-size:cover;background-position:' + (c.cover ? 'center' : this._chronFocus(arcCover.cover_focus)) + ';') : '',
+          chronHeaderMinH:  (c && (c.cover || arcCover)) ? 'min-height:280px;' : comboUrls.length ? 'min-height:380px;background:#1a1a1a;' : '',
+          chronHasCombo:    comboUrls.length > 0,
+          chronStrips:      this._chronCollage(comboUrls, chronArc.length % 2 === 1),
+          chronHasFaces:    chronCast.length > 0,
+          chronFaces:       chronCast.slice(0, 8).map(x => ({
+            id: x.ch ? x.ch.id : '', name: x.name + ' · ' + x.n + ' ' + this._chronPlural(x.n),
+            letter: x.pic ? '' : (x.name.trim()[0] || '✦').toUpperCase(),
+            style: x.pic ? 'background-image:url(' + JSON.stringify(x.pic) + ');' : '',
+            cursor: x.ch ? 'pointer' : 'default',
+            onPick: (e) => { if (x.ch) this._nav('characters', x.ch.id); },
+          })),
+          chronCastLabel:   chronCast.length > 8 ? ('і ще ' + (chronCast.length - 8)) : (chronCast.length + ' ' + (chronCast.length === 1 ? 'дійова особа' : chronCast.length < 5 ? 'дійові особи' : 'дійових осіб')),
           chronHasChar:     !!linkedChar,
           chronCharId:      linkedChar ? linkedChar.id : '',
           chronCharName:    linkedChar ? (linkedChar.name || '') : '',
@@ -10809,9 +10935,10 @@ class Component extends DCLogic {
           chronTagList:     tagsArr,
           chronToc:         toc.map(h => ({ level: String(h.level), text: h.text, id: h.id })),
           chronHasToc:      toc.length >= 2,
+          chronTocAttr:     toc.length >= 2 ? 'on' : 'off',
           chronHasContent:  !!raw,
           chronNoContent:   !!(c && !raw),
-          chronBodyEl:      raw ? React.createElement('div', { 'data-refs': s.chronRefsOff ? 'off' : 'on' }, React.createElement('div', { className:'lore-md', dangerouslySetInnerHTML:{ __html: this._chronRefsHtml(parseMarkdown(raw), chronIds) } })) : null,
+          chronBodyEl:      raw ? React.createElement('div', { className: 'chron-read', 'data-refs': s.chronRefsOff ? 'off' : 'on' }, React.createElement('div', { className:'lore-md', dangerouslySetInnerHTML:{ __html: this._chronRefsHtml(parseMarkdown(this._chronSplit(raw)), chronIds) } })) : null,
           chronHasArc:      !!chronArc,
           chronArcHref:     chronArc ? ('?' + new URLSearchParams([['arc', chronArc], ['asc', '1']]).toString() + '#posts') : '',
           chronArcCount:    chronIds ? (chronIds.length + ' ' + this._chronPlural(chronIds.length)) : 'дописи',
