@@ -441,6 +441,78 @@ a:hover{color:#fff}
       </div>
       </sc-if>
 
+      <!-- ═════ ЗБІРКИ АРОК: кілька коротких арок однією назвою ═════ -->
+      <sc-if value="{{ bShow }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:22px 22px 20px;box-shadow:0 12px 34px rgba(0,0,0,0.42);display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ Збірки арок</p>
+          <span style="font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(160,190,255,0.9);border:1px solid rgba(100,149,237,0.35);border-radius:999px;padding:2px 8px;">бета</span>
+          <sc-if value="{{ bCanNew }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ bNew }}" class="gos-ghost" style="margin-left:auto;cursor:pointer;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:999px;padding:5px 14px;font-size:0.76rem;transition:all 0.2s ease;">+ Нова збірка</button>
+          </sc-if>
+        </div>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.6);text-wrap:pretty;">Кілька коротких арок, що разом складають одну історію, можна зшити в збірку. Дописи в ній ідуть за часом, номери наскрізні, тож хроніку на збірку складають так само, як на арку. У «Арках» збірка стоїть окремою карткою з міткою «Збірка».</p>
+
+        <sc-if value="{{ bFormOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,215,0,0.28);">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">{{ bFormTitle }}</p>
+            <input class="gos-field" value="{{ bName }}" onChange="{{ setBName }}" placeholder="Назва збірки — під нею буде хроніка" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 16px;color:#fff;font-size:0.88rem;outline:none;transition:all 0.2s ease;" />
+            <sc-if value="{{ bHasPicked }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                <sc-for list="{{ bPicked }}" as="a" hint-placeholder-count="2">
+                  <button onClick="{{ a.onDrop }}" class="gos-hit" title="Прибрати зі збірки" style="cursor:pointer;display:inline-flex;align-items:baseline;gap:6px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.45);color:#ffd700;border-radius:999px;padding:5px 12px;font-size:0.8rem;transition:all 0.2s ease;"><span>{{ a.name }}</span><span style="font-size:0.68rem;opacity:0.6;">{{ a.sub }}</span><span style="opacity:0.7;">×</span></button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <input class="gos-field" value="{{ bQ }}" onChange="{{ setBQ }}" placeholder="Додати арку — почніть писати назву, як у тегу" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 16px;color:#fff;font-size:0.88rem;outline:none;transition:all 0.2s ease;" />
+            <sc-if value="{{ bHasHits }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto;">
+                <sc-for list="{{ bHits }}" as="h" hint-placeholder-count="4">
+                  <button onClick="{{ h.onAdd }}" class="gos-hit" style="cursor:pointer;display:inline-flex;align-items:baseline;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.75);border-radius:999px;padding:5px 12px;font-size:0.8rem;transition:all 0.2s ease;"><span>+ {{ h.name }}</span><span style="font-size:0.68rem;opacity:0.6;">{{ h.sub }}</span></button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);text-wrap:pretty;">{{ bFormNote }}</p>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <button onClick="{{ bCancel }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);border-radius:999px;padding:6px 14px;font-size:0.78rem;transition:all 0.2s ease;">Скасувати</button>
+              <button onClick="{{ bSave }}" disabled="{{ bSaveDisabled }}" class="gos-go" style="margin-left:auto;cursor:pointer;background:{{ bSaveBg }};color:{{ bSaveColor }};border:1px solid {{ bSaveBorder }};border-radius:999px;padding:7px 18px;font-size:0.8rem;transition:all 0.2s ease;">{{ bSaveLabel }}</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ bHasRows }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ bRows }}" as="b" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);">
+                <div style="display:flex;align-items:baseline;gap:6px 12px;flex-wrap:wrap;">
+                  <span style="flex:1;min-width:0;font-family:'Cinzel',Georgia,serif;font-size:0.98rem;color:#fff;letter-spacing:0.03em;overflow-wrap:anywhere;">{{ b.name }}</span>
+                  <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">{{ b.sub }}</span>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <sc-for list="{{ b.arcs }}" as="a" hint-placeholder-count="2">
+                    <span style="font-size:0.72rem;color:rgba(160,190,255,0.9);border:1px solid rgba(100,149,237,0.3);border-radius:999px;padding:2px 9px;">{{ a.name }}</span>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                  <button onClick="{{ b.onDl }}" class="gos-ghost" data-busy="{{ b.dlBusy }}" title="Уся збірка одним файлом" style="cursor:pointer;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.32);color:#ffd700;border-radius:999px;padding:4px 12px;font-size:0.74rem;transition:all 0.2s ease;">{{ b.dlLabel }}</button>
+                  <sc-if value="{{ b.mine }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ b.onEdit }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;padding:4px 12px;font-size:0.74rem;transition:all 0.2s ease;">Правити</button>
+                    <button onClick="{{ b.onDel }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid {{ b.delBorder }};color:{{ b.delColor }};border-radius:999px;padding:4px 12px;font-size:0.74rem;transition:all 0.2s ease;">{{ b.delLabel }}</button>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ bHasNote }}" hint-placeholder-val="{{ true }}">
+          <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);text-wrap:pretty;">{{ bNote }}</p>
+        </sc-if>
+        <sc-if value="{{ bHasErr }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.8rem;line-height:1.5;color:rgba(255,160,160,0.8);">{{ bErr }}</p>
+        </sc-if>
+      </div>
+      </sc-if>
+
       <sc-if value="{{ lockedOnly }}" hint-placeholder-val="{{ false }}">
         <p style="border-radius:10px;padding:14px 18px;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.6;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.42);">Віконце пліток відчиняють адміни — ваш аркуш ще на розгляді.</p>
       </sc-if>
@@ -1714,7 +1786,7 @@ class Component extends DCLogic {
     // тягнеться завжди, а плітки лише для своїх.
     this._loadSubs(u.id);
     this._loadOwned(u.id);
-    if (prof.status === 'approved') { this._loadLists(u.id); this._loadTurns(true); this._loadArcTags(); this._loadAsks(); }
+    if (prof.status === 'approved') { this._loadLists(u.id); this._loadTurns(true); this._loadArcTags(); this._loadBundles(); this._loadAsks(); }
   }
 
   // ── черга в арках (бета) ──────────────────────────────────
@@ -4195,20 +4267,181 @@ class Component extends DCLogic {
     };
   }
 
+  // ── Збірки арок (arc_bundles) ─────────────────────────────
+  // Кілька коротких арок однією назвою: вивантажуються разом, за часом, з
+  // наскрізною нумерацією — і хроніка на збірку рахує №N так само.
+  async _loadBundles() {
+    if (this._bLoadBusy) return;
+    this._bLoadBusy = true;
+    try {
+      const r = await this._api(`${SUPA_URL}/arc_bundles?select=id,name,arcs,created_by,updated_at&order=updated_at.desc&limit=200`);
+      if (r.ok) {
+        const list = await r.json();
+        console.log(`збірки: ${list.length}`);
+        this.setState({ bundles: list, bundlesOff: false });
+      } else {
+        console.warn('збірки: arc_bundles —', r.status, await r.text());
+        this.setState({ bundles: [], bundlesOff: true });
+      }
+    } catch (e) { this.setState({ bundles: [], bundlesOff: true }); }
+    this._bLoadBusy = false;
+  }
+
+  async _saveBundle() {
+    const s = this.state;
+    const name = String(s.bName || '').trim().replace(/\s+/g, ' ');
+    const arcs = [...new Set(s.bPicked || [])];
+    const fail = (m) => this.setState({ bErr: m });
+    if (name.length < 2) return fail('Дайте збірці назву.');
+    if (name.length > 80) return fail('Назва задовга — до 80 знаків.');
+    if (/[\/#]/.test(name)) return fail('Без «/» і «#» у назві: так зшиваються теги арок.');
+    if (arcs.length < 2) return fail('У збірці мусить бути щонайменше дві арки.');
+    if ((s.dlArcs || []).some((a) => fold(a.arc) === fold(name))) return fail('Так уже зветься справжня арка. Оберіть іншу назву, інакше хроніка не знатиме, про що вона.');
+    if ((s.bundles || []).some((b) => b.id !== s.bEdit && fold(b.name) === fold(name))) return fail('Збірка з такою назвою вже є.');
+    this.setState({ bBusy: true, bErr: '' });
+    try {
+      const body = JSON.stringify({ name, arcs });
+      const opt = { method: s.bEdit ? 'PATCH' : 'POST', headers: { Prefer: 'return=representation' }, body };
+      const r = await this._api(`${SUPA_URL}/arc_bundles${s.bEdit ? `?id=eq.${s.bEdit}` : ''}`, opt, true);
+      if (!r.ok) {
+        const t = await r.text();
+        console.warn('збірки: не записалося —', r.status, t);
+        throw new Error(r.status === 409 || /23505/.test(t) ? 'dup' : r.status === 404 || /42P01|PGRST205/.test(t) ? 'nomig' : 'x');
+      }
+      const got = await r.json();
+      if (!got.length) throw new Error('rls');
+      console.log(`збірки: ${s.bEdit ? 'оновлено' : 'зшито'} «${name}» — арок ${arcs.length}`);
+      this.setState({ bOpen: false, bEdit: null, bName: '', bPicked: [], bQ: '', bBusy: false });
+      this._loadBundles();
+    } catch (e) {
+      const why = e && e.message;
+      this.setState({ bBusy: false, bErr: why === 'dup' ? 'Збірка з такою назвою вже є.'
+        : why === 'nomig' ? 'Збірки ще не ввімкнено: не прогнано supabase_arc_bundles_migration.sql.'
+        : why === 'rls' ? 'Цю збірку може правити лише той, хто її зшив, або адмін.'
+        : 'Не вдалося зберегти. Спробуйте ще раз за хвилину.' });
+    }
+  }
+
+  async _delBundle(b) {
+    this.setState({ bDelAsk: null, bBusy: true, bErr: '' });
+    try {
+      const r = await this._api(`${SUPA_URL}/arc_bundles?id=eq.${b.id}`, { method: 'DELETE', headers: { Prefer: 'return=representation' } });
+      const got = r.ok ? await r.json() : [];
+      if (!got.length) throw new Error(r.status + ' ' + (r.ok ? 'rls' : await r.text()));
+      console.log(`збірки: розшито «${b.name}»`);
+    } catch (e) {
+      console.warn('збірки: не розшилося —', e && e.message);
+      this.setState({ bErr: `Не вдалося розшити «${b.name}».` });
+    }
+    this.setState({ bBusy: false });
+    this._loadBundles();
+  }
+
+  _bundleVals() {
+    const s = this.state;
+    const prof = s.prof || {};
+    const show = prof.status === 'approved' && !this.props.onlyGossip && s.tab === 'arcfile';
+    const arcs = s.dlArcs || [];
+    const nOf = new Map(arcs.map((a) => [fold(a.arc), a.n]));
+    const P = (n) => this._plural(n, 'допис', 'дописи', 'дописів');
+    const A = (n) => this._plural(n, 'арка', 'арки', 'арок');
+    const sum = (list) => list.reduce((t, a) => t + (nOf.get(fold(a)) || 0), 0);
+    const fmt = this._arcFmt();
+    const list = s.bundles || [];
+    const rows = list.map((b) => {
+      const ar = Array.isArray(b.arcs) ? b.arcs : [];
+      const n = sum(ar);
+      const key = 'b:' + b.id;
+      const ask = s.bDelAsk === b.id;
+      return {
+        key: b.id, name: b.name,
+        sub: `${ar.length} ${A(ar.length)} · ${n} ${P(n)}`,
+        arcs: ar.map((a) => ({ key: a, name: a })),
+        dlLabel: s.arcDl === key ? 'Збираю…' : `↓ .${fmt}`,
+        dlBusy: s.arcDl === key ? 'true' : 'false',
+        onDl: () => this._exportArcs({ key, title: b.name, arcs: ar, kind: 'Збірка' }),
+        mine: !!s.uid && b.created_by === s.uid,
+        onEdit: () => this.setState({ bOpen: true, bEdit: b.id, bName: b.name, bPicked: [...ar], bQ: '', bErr: '', bDelAsk: null }),
+        delLabel: ask ? 'Точно розшити?' : 'Розшити',
+        delColor: ask ? 'rgba(255,160,160,0.9)' : 'rgba(255,255,255,0.4)',
+        delBorder: ask ? 'rgba(255,77,77,0.45)' : 'rgba(255,255,255,0.14)',
+        onDel: () => (ask ? this._delBundle(b) : this.setState({ bDelAsk: b.id })),
+      };
+    });
+    const picked = s.bPicked || [];
+    const pk = new Set(picked.map(fold));
+    const q = fold(String(s.bQ || '').trim());
+    const hits = q.length < 2 ? [] : arcs.filter((a) => !pk.has(fold(a.arc)) && fold(a.arc).includes(q)).slice(0, 16);
+    const total = sum(picked);
+    let formNote = picked.length < 2
+      ? (q.length < 2 ? 'Почніть писати назву арки — і додайте щонайменше дві.' : 'Щонайменше дві арки.')
+      : `Разом ${total} ${P(total)}. Дописи підуть за часом, як їх писали, з наскрізними номерами.`;
+    if (q.length >= 2 && !hits.length) formNote = 'Такої арки немає (або вона вже у збірці).';
+    if (s.bEdit) formNote += ' Якщо на збірку вже є хроніка, назву краще не міняти: хроніка шукає збірку за назвою.';
+    let note = '';
+    if (s.bundlesOff) note = 'Збірки ще не ввімкнено: адміну треба прогнати supabase_arc_bundles_migration.sql.';
+    else if (!s.bundles) note = 'Збираю збірки…';
+    else if (!list.length) note = 'Збірок ще немає. Зшийте першу.';
+    const canSave = !s.bBusy && picked.length >= 2 && String(s.bName || '').trim().length >= 2;
+    return {
+      bShow: show,
+      bRows: rows, bHasRows: rows.length > 0,
+      bNote: note, bHasNote: !!note,
+      bCanNew: !s.bOpen && !s.bundlesOff,
+      bNew: () => this.setState({ bOpen: true, bEdit: null, bName: '', bPicked: [], bQ: '', bErr: '', bDelAsk: null }),
+      bFormOpen: !!s.bOpen,
+      bFormTitle: s.bEdit ? 'Правка збірки' : 'Нова збірка',
+      bName: s.bName || '',
+      setBName: (e) => this.setState({ bName: e.target.value, bErr: '' }),
+      bQ: s.bQ || '',
+      setBQ: (e) => this.setState({ bQ: e.target.value, bErr: '' }),
+      bPicked: picked.map((a) => {
+        const n = nOf.get(fold(a)) || 0;
+        return { key: a, name: a, sub: `${n}`, onDrop: () => this.setState((st) => ({ bPicked: (st.bPicked || []).filter((x) => x !== a), bErr: '' })) };
+      }),
+      bHasPicked: picked.length > 0,
+      bHits: hits.map((a) => ({ key: a.arc, name: a.arc, sub: `${a.n} ${P(a.n)}`,
+        onAdd: () => this.setState((st) => ({ bPicked: [...(st.bPicked || []), a.arc], bQ: '', bErr: '' })) })),
+      bHasHits: hits.length > 0,
+      bFormNote: formNote,
+      bCancel: () => this.setState({ bOpen: false, bEdit: null, bErr: '' }),
+      bSave: () => this._saveBundle(),
+      bSaveLabel: s.bBusy ? 'Зшиваю…' : s.bEdit ? 'Зберегти збірку' : 'Зшити збірку',
+      bSaveDisabled: !canSave,
+      bSaveBg: canSave ? 'rgba(255,215,0,0.14)' : 'transparent',
+      bSaveBorder: canSave ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.12)',
+      bSaveColor: canSave ? '#ffd700' : 'rgba(255,255,255,0.35)',
+      bHasErr: !!s.bErr, bErr: s.bErr || '',
+    };
+  }
+
   async _exportArc(arc, fmt) {
     arc = String(arc || '').trim();
+    if (!arc) return;
+    return this._exportArcs({ key: arc, title: arc, arcs: [arc] }, fmt);
+  }
+
+  // Одна арка або збірка (kind: 'Збірка'): дописи всіх арок одним запитом,
+  // кожен рівно раз, у тому ж порядку, що й нумерація хроніки на сайті.
+  async _exportArcs(job, fmt) {
     fmt = fmt || this._arcFmt();
-    if (!arc || this.state.arcDl) return;
-    this.setState({ arcDl: arc, arcDlErr: '' });
+    if (this.state.arcDl) return;
+    const { key, title } = job;
+    const bundle = job.kind === 'Збірка';
+    const arc = title;
+    this.setState({ arcDl: key, arcDlErr: '' });
     try {
       const lib = await this._arcLib();
       const q = (x) => '"' + String(x).replace(/["\\]/g, '') + '"';
       const S = ' / ';
-      const or = [`tag_arc.eq.${q(arc)}`];
-      if (!/[*%]/.test(arc)) or.push(`tag_arc.ilike.${q(arc + S + '*')}`, `tag_arc.ilike.${q('*' + S + arc)}`, `tag_arc.ilike.${q('*' + S + arc + S + '*')}`);
+      const or = [];
+      (job.arcs || []).forEach((a) => {
+        or.push(`tag_arc.eq.${q(a)}`);
+        if (!/[*%]/.test(a)) or.push(`tag_arc.ilike.${q(a + S + '*')}`, `tag_arc.ilike.${q('*' + S + a)}`, `tag_arc.ilike.${q('*' + S + a + S + '*')}`);
+      });
       const rows = [];
       for (let off = 0; off < 50000; off += 1000) {
-        const url = `${SUPA_URL}/marta_posts?select=id,tag_name,character_name,body,created_at`
+        const url = `${SUPA_URL}/marta_posts?select=id,tag_name,tag_arc,character_name,body,created_at`
           + `&or=${encodeURIComponent('(' + or.join(',') + ')')}&order=created_at.asc,id.asc&limit=1000&offset=${off}`;
         const r = await this._api(url);
         if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
@@ -4216,11 +4449,15 @@ class Component extends DCLogic {
         rows.push(...got);
         if (got.length < 1000) break;
       }
-      console.log(`арка у файл: «${arc}» — дописів ${rows.length}`);
-      if (!rows.length) { this.setState({ arcDlErr: `В арці «${arc}» дописів не знайшлося.` }); return; }
+      console.log(`${bundle ? 'збірка' : 'арка'} у файл: «${arc}» — дописів ${rows.length}`);
+      if (!rows.length) { this.setState({ arcDlErr: bundle ? `У збірці «${arc}» дописів не знайшлося.` : `В арці «${arc}» дописів не знайшлося.` }); return; }
+      if (bundle) {
+        const keys = job.arcs.map((a) => String(a).trim().toLowerCase());
+        rows.forEach((p) => { p._arc = String(p.tag_arc || '').split(S).map((x) => x.trim()).filter((x) => keys.includes(x.toLowerCase())).join(S); });
+      }
 
-      const blob = lib.build(fmt, arc, rows);
-      const name = `Арка - ${arc}`.replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) + '.' + fmt;
+      const blob = lib.build(fmt, arc, rows, bundle ? { kind: 'Збірка', arcs: job.arcs } : undefined);
+      const name = `${bundle ? 'Збірка' : 'Арка'} - ${arc}`.replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) + '.' + fmt;
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = name;
@@ -4505,6 +4742,7 @@ class Component extends DCLogic {
       ...this._askVals(),
       arcDlHasErr: !!s.arcDlErr, arcDlErr: s.arcDlErr || '',
       ...this._dlVals(),
+      ...this._bundleVals(),
       arcFmts: ['docx', 'md', 'txt'].map((f) => {
         const on = this._arcFmt() === f;
         return { key: f, label: '.' + f, onPick: () => this._setArcFmt(f),

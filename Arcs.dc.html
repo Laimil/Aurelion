@@ -117,6 +117,9 @@
               </sc-if>
             </div>
             <div style="padding:14px 18px 18px;display:flex;flex-direction:column;gap:8px;">
+              <sc-if value="{{ c.isBundle }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:#8fb0f0;margin:0;">{{ c.bundleLine }}</p>
+              </sc-if>
               <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.18rem;font-weight:700;letter-spacing:0.04em;line-height:1.2;margin:0;color:#fff;text-wrap:balance;">{{ c.name }}</h3>
               <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);margin:0;">{{ c.meta }}</p>
               <div style="display:flex;align-items:center;margin-top:4px;">
@@ -277,10 +280,24 @@
           <sc-if value="{{ a.hasChron }}" hint-placeholder-val="{{ false }}">
             <a href="{{ a.chronHref }}" title="{{ a.chronTitle }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,215,0,0.75);text-decoration:none;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>✦ {{ a.chronLabel }}</span><span>→</span></a>
           </sc-if>
+          <sc-for list="{{ a.inBundles }}" as="b" hint-placeholder-count="0">
+            <a href="{{ b.href }}" title="Ця арка входить у збірку" style="display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:#8fb0f0;text-decoration:none;transition:all 0.3s ease;" style-hover="color:#fff;"><span>✦ Збірка: {{ b.name }}</span><span>→</span></a>
+          </sc-for>
           <button onClick="{{ toReader }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s ease;" style-hover="color:#ffd700;"><span>Читати арку</span><span>↓</span></button>
         </nav>
 
         <article style="flex:1 1 460px;min-width:0;max-width:720px;">
+          <sc-if value="{{ a.hasMembers }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:0 0 12px;">✦ Арки у збірці</p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 32px;">
+              <sc-for list="{{ a.members }}" as="m" hint-placeholder-count="2">
+                <a href="{{ m.href }}" style="display:flex;flex-direction:column;gap:3px;padding:10px 15px;border-radius:10px;background:rgba(100,149,237,0.06);border:1px solid rgba(100,149,237,0.32);text-decoration:none;transition:all 0.3s ease;" style-hover="border-color:rgba(100,149,237,0.65);transform:translateY(-2px);">
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:0.88rem;letter-spacing:0.03em;color:#fff;">{{ m.name }}</span>
+                  <span style="font-size:0.68rem;color:rgba(255,255,255,0.42);">{{ m.meta }}</span>
+                </a>
+              </sc-for>
+            </div>
+          </sc-if>
           <sc-if value="{{ a.hasBlurb }}" hint-placeholder-val="{{ false }}">
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.32rem;line-height:1.6;color:rgba(255,255,255,0.82);margin:0 0 18px;white-space:pre-line;text-wrap:pretty;">{{ a.blurb }}</p>
           </sc-if>
@@ -321,7 +338,7 @@
         <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
           <div>
             <p style="font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin:0 0 5px;">✦ Читалка</p>
-            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.5rem,3vw,1.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;margin:0;">Уся арка</h2>
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.5rem,3vw,1.9rem);font-weight:700;color:#fff;letter-spacing:0.05em;margin:0;">{{ a.readTitle }}</h2>
           </div>
           <button onClick="{{ readFeed }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 16px;font-size:0.78rem;cursor:pointer;transition:all 0.3s ease;" style-hover="color:#fff;border-color:rgba(255,255,255,0.3);">Відкрити в «Постах» →</button>
         </div>
@@ -536,10 +553,13 @@ class Component extends DCLogic {
       const prof = sr.ok ? (await sr.json())[0] : null;
       const admin = await this._isAdmin();
       if (!admin && (!prof || prof.status !== 'approved')) { this.setState({ phase: 'locked' }); return; }
-      const [chars, posts, pages, npcs, own, fol, shut, chrono] = await Promise.all([this._chars(), this._posts(), this._pages(), this._npcs(), this._own(u.id), this._follows(), this._closed(), this._chrono()]);
+      const [chars, posts, pages, npcs, own, fol, shut, chrono, bundles] = await Promise.all([this._chars(), this._posts(), this._pages(), this._npcs(), this._own(u.id), this._follows(), this._closed(), this._chrono(), this._bundles()]);
       const arcs = this._build(posts, chars, npcs);
       this._markMine(arcs, own, fol);
       this._markClosed(arcs, shut);
+      const bund = this._bundleGroups(bundles, arcs, posts, chars, npcs);
+      arcs.push(...bund);
+      if (bund.length) console.log(`арки: збірок ${bund.length}`);
       console.log(`арки: ${posts.length} дописів → ${arcs.length} арок, анкет ${chars.length}`);
       console.log(`хронологія: ${chrono ? Object.keys(chrono).length + ' персонажів розставлено' : 'таблиці немає'}`);
       this._chrons(admin).then((chrons) => this.setState({ chrons }));
@@ -565,9 +585,57 @@ class Component extends DCLogic {
         if (!c.arc || (c.is_hidden && !admin)) continue;
         m[arcKey(c.arc)] = { id: c.id, title: c.title || '', hidden: !!c.is_hidden || !on };
       }
+      // Хроніка на збірці арок — показуємо її й на кожній арці збірки, якщо своєї там немає.
+      try {
+        const rb = await this._api(`${SUPA_URL}/arc_bundles?select=name,arcs`);
+        if (rb.ok) for (const b of await rb.json()) {
+          const c = m[arcKey(b.name)];
+          if (c) for (const a of b.arcs || []) if (!m[arcKey(a)]) m[arcKey(a)] = c;
+        }
+      } catch (e) {}
       console.log(`арки: хронік з аркою ${Object.keys(m).length}`);
       return m;
     } catch (e) { return {}; }
+  }
+  // Збірки арок (arc_bundles, кабінет): окрема картка з дописами всіх своїх арок.
+  async _bundles() {
+    try {
+      const r = await this._api(`${SUPA_URL}/arc_bundles?select=id,name,arcs`);
+      if (!r.ok) { console.warn('арки: збірки —', r.status, '(прогнати supabase_arc_bundles_migration.sql)'); return []; }
+      return await r.json();
+    } catch (e) { return []; }
+  }
+  _bundleGroups(list, arcs, posts, chars, npcs) {
+    const out = [];
+    for (const b of list || []) {
+      const mem = [...new Set((b.arcs || []).map((a) => {
+        const k = arcKey(a);
+        return arcs.find((g) => !g.bundle && g.all.some((v) => arcKey(v) === k)) || null;
+      }).filter(Boolean))];
+      if (mem.length < 2) { console.warn(`арки: збірка «${b.name}» — у стрічці знайшлося арок ${mem.length}, не показуємо`); continue; }
+      const spell = new Set(mem.flatMap((m) => m.all));
+      // Дописи всіх арок збірки, кожен раз, під однією назвою — і _build рахує решту сам.
+      const ps = posts.filter((p) => splitArcs(p.tag_arc).some((a) => spell.has(a))).map((p) => ({ ...p, tag_arc: b.name }));
+      const g = this._build(ps, chars, npcs)[0];
+      if (!g) continue;
+      mem.sort((x, y) => x.first.at - y.first.at);
+      Object.assign(g, { bundle: true, bid: b.id, members: mem, spell: [...spell], name: b.name, key: arcKey(b.name), all: [b.name] });
+      this._deriveBundle(g);
+      for (const m of mem) (m.inBundles = m.inBundles || []).push(g);
+      out.push(g);
+    }
+    return out;
+  }
+  // Стан збірки — зі стану її арок: закрита, лише коли закриті всі.
+  _deriveBundle(g) {
+    const ms = g.members || [];
+    g.own = ms.some((m) => m.own); g.fol = ms.some((m) => m.fol); g.mine = g.own || g.fol;
+    const shut = ms.length > 0 && ms.every((m) => m.state === 'closed');
+    g.live = !shut && !!g.last && Date.now() - g.last.at <= LIVE_DAYS * DAY;
+    g.state = shut ? 'closed' : g.live ? 'live' : 'quiet';
+    g.closedAt = shut ? Math.max(...ms.map((m) => m.closedAt || 0)) : 0;
+    g.closedBy = shut ? [...new Set(ms.flatMap((m) => m.closedBy || []))] : [];
+    g.closedByMe = false;
   }
   async _isAdmin() {
     try {
@@ -611,6 +679,7 @@ class Component extends DCLogic {
     const by = new Map();
     for (const m of shut) by.set(arcKey(m.arc || m.akey), m);
     for (const g of arcs) {
+      if (g.bundle) continue;
       g.live = !!g.last && Date.now() - g.last.at <= LIVE_DAYS * DAY;
       g.state = g.live ? 'live' : 'quiet';
       g.closedAt = 0; g.closedBy = []; g.closedByMe = false;
@@ -622,6 +691,7 @@ class Component extends DCLogic {
       g.closedBy = [...new Set(hit.map((m) => m.nick).filter((n) => n && n !== '—'))];
       g.closedByMe = hit.some((m) => m.mine);
     }
+    for (const g of arcs) if (g.bundle) this._deriveBundle(g);
     console.log(`арки: закритих ${arcs.filter((g) => g.state === 'closed').length} (відміток ${shut.length})`);
   }
   // Закрити / зняти свою відмітку. arc_mark() ключує арку за точним написанням,
@@ -780,7 +850,7 @@ class Component extends DCLogic {
   _feed(g, asc) {
     try {
       const qs = new URLSearchParams();
-      g.all.forEach((v) => qs.append('arc', v));
+      (g.spell || g.all).forEach((v) => qs.append('arc', v));
       if (asc) qs.set('asc', '1');
       const base = window.location.pathname;
       history.pushState(null, '', base + '?' + qs.toString() + '#posts');
@@ -839,7 +909,7 @@ class Component extends DCLogic {
   _cards() {
     const s = this.state;
     const q = arcKey(s.q);
-    let list = s.arcs.filter((g) => s.filt === 'all' || g.state === s.filt);
+    let list = s.arcs.filter((g) => s.filt === 'all' || (s.filt === 'bundle' ? g.bundle : g.state === s.filt));
     if (s.mineOnly) list = list.filter((g) => g.mine);
     if (q) list = list.filter((g) => arcKey(g.all.join(' ')).includes(q) || g.castList.some((c) => arcKey(c.name).includes(q)));
     list = list.slice().sort(s.sort === 'size' ? (a, b) => b.posts - a.posts : (a, b) => b.last.at - a.last.at);
@@ -857,7 +927,9 @@ class Component extends DCLogic {
         pillInk: g.live ? '#ffd700' : g.state === 'closed' ? '#8fb0f0' : 'rgba(255,255,255,0.6)',
         hasMark: !!g.mine,
         mark: g.own ? '✦ ваша' : '✦ стежите',
-        ring: g.mine ? 'rgba(255,215,0,0.42)' : 'rgba(255,255,255,0.12)',
+        ring: g.mine ? 'rgba(255,215,0,0.42)' : g.bundle ? 'rgba(100,149,237,0.4)' : 'rgba(255,255,255,0.12)',
+        isBundle: !!g.bundle,
+        bundleLine: g.bundle ? `✦ Збірка · ${g.members.length} ${plural(g.members.length, ['арка', 'арки', 'арок'])}` : '',
         shadow: g.mine ? '0 8px 24px rgba(0,0,0,0.35), 0 0 22px rgba(255,215,0,0.14)' : '0 8px 24px rgba(0,0,0,0.35)',
         faces: g.castList.slice(0, 6).map((c) => ({
           name: c.name,
@@ -877,6 +949,7 @@ class Component extends DCLogic {
     const k = g.castList.length, top = g.castList[0];
     const span = Math.max(1, Math.round((g.last.at - g.first.at) / DAY) + 1);
     const stats = [
+      ...(g.bundle ? [['Арок', String(g.members.length)]] : []),
       ['Дописів', String(g.posts)],
       ['Учасників', String(k)],
       ['Період', period(g.first.at, g.last.at)],
@@ -936,7 +1009,14 @@ class Component extends DCLogic {
     return {
       ...cv,
       name: g.name,
-      overline: '✦ Арка · ' + STATE_UA[g.state],
+      overline: (g.bundle ? '✦ Збірка · ' : '✦ Арка · ') + STATE_UA[g.state],
+      readTitle: g.bundle ? 'Уся збірка' : 'Уся арка',
+      hasMembers: !!g.bundle,
+      members: g.bundle ? g.members.map((m) => ({
+        key: m.key, name: m.name, href: '#arcs/' + encodeURIComponent(m.name),
+        meta: `${m.posts} ${plural(m.posts, POSTS_W)} · ${period(m.first.at, m.last.at)}`,
+      })) : [],
+      inBundles: (g.inBundles || []).map((b) => ({ key: b.key, name: b.name, href: '#arcs/' + encodeURIComponent(b.name) })),
       hasAlt: alt.length > 0,
       altLine: 'також: ' + alt.slice(0, 3).join(', '),
       stats,
@@ -951,7 +1031,7 @@ class Component extends DCLogic {
       barGap: few ? '10px' : '3px',
       fromLabel: fmtDay(g.first.at, true),
       toLabel: g.live ? 'сьогодні' : fmtDay(g.last.at, true),
-      preArc: g.all.join('\u0001'),
+      preArc: (g.spell || g.all).join('\u0001'),
       ...(() => {
         const C = this.state.chrons || {};
         const ch = C[g.key] || g.all.map((v) => C[arcKey(v)]).find(Boolean) || null;
@@ -1029,6 +1109,7 @@ class Component extends DCLogic {
     if (this._cmArcs !== s.arcs) {
       for (const g of s.arcs) {
         g.cmap = new Map();
+        if (g.bundle) continue;
         // «Флешбек» — збірна арка, не сюжет: у хронологію не йде (порожня cmap = арки немає)
         if (/^\s*флешбеки?\s*$/i.test(g.name || '')) continue;
         for (const c of g.castList) if (c.ch && this._cm[String(c.ch.id)]) g.cmap.set(String(c.ch.id), { first: c.first || g.first.at, last: c.last || g.last.at, n: c.n });
@@ -1392,9 +1473,11 @@ class Component extends DCLogic {
     const setEd = (patch) => this.setState((st) => ({ edit: st.edit ? { ...st.edit, ...patch } : st.edit }));
     const FILT = [['all', 'Усі'], ['live', 'Живі'], ['quiet', 'Тиша'], ['closed', 'Закриті']];
     const cards = ok && !s.open ? this._cards() : [];
-    const nLive = s.arcs.filter((x) => x.live).length;
+    const nLive = s.arcs.filter((x) => x.live && !x.bundle).length;
     const nMine = s.arcs.filter((x) => x.mine).length;
-    const nShut = s.arcs.filter((x) => x.state === 'closed').length;
+    const nShut = s.arcs.filter((x) => !x.bundle && x.state === 'closed').length;
+    const nBund = s.arcs.filter((x) => x.bundle).length;
+    const nArc = s.arcs.length - nBund;
     const mOn = s.mineOnly;
     return {
       ...this._chronoVals(),
@@ -1415,7 +1498,7 @@ class Component extends DCLogic {
       showArc: !!g,
       q: s.q,
       setQ: (e) => this.setState({ q: e.target.value }),
-      filtTabs: FILT.map(([id, label]) => ({
+      filtTabs: FILT.concat(nBund ? [['bundle', 'Збірки']] : []).map(([id, label]) => ({
         label,
         bg: s.filt === id ? 'rgba(255,215,0,0.14)' : 'transparent',
         border: s.filt === id ? 'rgba(255,215,0,0.32)' : 'transparent',
@@ -1424,8 +1507,9 @@ class Component extends DCLogic {
       })),
       sortLabel: s.sort === 'size' ? '↓ Найбільші' : '↓ Найсвіжіші',
       flipSort: () => this.setState({ sort: s.sort === 'size' ? 'last' : 'size' }),
-      countLine: `${s.arcs.length} ${plural(s.arcs.length, ['арка', 'арки', 'арок'])} у стрічці · ${nLive} ${plural(nLive, ['жива', 'живі', 'живих'])}`
-        + (nShut ? ` · ${nShut} ${plural(nShut, ['закрита', 'закриті', 'закритих'])}` : ''),
+      countLine: `${nArc} ${plural(nArc, ['арка', 'арки', 'арок'])} у стрічці · ${nLive} ${plural(nLive, ['жива', 'живі', 'живих'])}`
+        + (nShut ? ` · ${nShut} ${plural(nShut, ['закрита', 'закриті', 'закритих'])}` : '')
+        + (nBund ? ` · ${nBund} ${plural(nBund, ['збірка', 'збірки', 'збірок'])}` : ''),
       cards,
       noCards: ok && !s.open && !cards.length,
       emptyLine: s.mineOnly && !nMine ? 'Ваших арок поки немає: ні дописів анкетами, ні підписок.' : s.arcs.length ? 'За таким відбором арок немає.' : 'У стрічці ще немає дописів із тегом арки.',
@@ -1435,7 +1519,7 @@ class Component extends DCLogic {
         const c = s.close || {};
         const mineOn = !!g && g.closedByMe;
         return {
-          canClose: !!g && (g.own || mineOn),
+          canClose: !!g && !g.bundle && (g.own || mineOn),
           closeAsk: !!c.ask,
           closeIdle: !c.ask,
           closeLabel: c.busy ? '…' : mineOn ? '↺ Зняти відмітку' : '✕ Закрити арку',

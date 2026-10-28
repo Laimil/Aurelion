@@ -6182,15 +6182,26 @@ class Component extends DCLogic {
     this._chronLoading[arc] = 1;
     const q = (x) => '"' + String(x).replace(/["\\]/g, '') + '"';
     const S = ' / ';
-    const or = [`tag_arc.eq.${q(arc)}`];
-    if (!/[*%]/.test(arc)) or.push(`tag_arc.ilike.${q(arc + S + '*')}`, `tag_arc.ilike.${q('*' + S + arc)}`, `tag_arc.ilike.${q('*' + S + arc + S + '*')}`);
+    const or = [];
+    const orFor = (a) => {
+      or.push(`tag_arc.eq.${q(a)}`);
+      if (!/[*%]/.test(a)) or.push(`tag_arc.ilike.${q(a + S + '*')}`, `tag_arc.ilike.${q('*' + S + a)}`, `tag_arc.ilike.${q('*' + S + a + S + '*')}`);
+    };
     const ids = [], cast = new Map();
-    let page = null;
+    let page = null, members = null;
     // Дописи RLS віддає лише увійшлим з доступом — запит з токеном віконця, як в арках
     // персонажа. Анонімний ключ дав би порожньо, і номери лишалися б текстом.
     const tokKey = this._userTok() ? 'u' : 'a';
     try {
       await this._userFresh();
+      // Хроніка може стояти на збірці арок (arc_bundles): тоді дописи всіх її арок,
+      // за часом, кожен раз — точно як у вивантаженні збірки (Gossip._exportArcs).
+      try {
+        const b = await this._getSoft(`arc_bundles?select=arcs&akey=eq.${encodeURIComponent(q(arc.trim().toLowerCase()))}&limit=1`);
+        if (Array.isArray(b) && b[0] && Array.isArray(b[0].arcs) && b[0].arcs.length) members = b[0].arcs;
+      } catch (e) {}
+      (members || [arc]).forEach(orFor);
+      if (members) console.log(`хроніка: «${arc}» — збірка з ${members.length} арок`);
       for (let off = 0; off < 50000; off += 1000) {
         const url = `${SUPA_URL}/marta_posts?select=id,character_id,tag_name,character_name&or=${encodeURIComponent('(' + or.join(',') + ')')}&order=created_at.asc,id.asc&limit=1000&offset=${off}`;
         const go = () => fetch(url, { headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + (this._userTok() || SUPA_KEY) } });
