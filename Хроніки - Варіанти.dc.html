@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/typography.css">
+  <style>
+    html,body{margin:0;background:#101012;font-family:system-ui,Arial,sans-serif;color:#fff}
+    a{color:#6495ed;text-decoration:none} a:hover{color:#a8c4f7}
+    *{box-sizing:border-box}
+    h1,h2,h3,p{margin:0}
+  </style>
+</helmet>
+
+<section id="t1" style="padding:40px 44px 56px;">
+  <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 10px;">
+    <a href="#t1" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#ffd700;color:#1a1a1a;border-radius:4px;">1</a>
+    <span style="font:600 13px/1.2 system-ui,sans-serif;color:#fff;">Хроніки в «Світі» — в одній мові з галереєю персонажів</span>
+  </div>
+  <div style="max-width:980px;margin:0 0 30px;font:13px/1.6 system-ui,sans-serif;color:rgba(255,255,255,0.58);display:flex;flex-direction:column;gap:8px;">
+    <p><b style="color:#fff;font-weight:600;">Що зараз.</b> Галерея хронік має власні картки (300px, обкладинка 190px, зведення під нею) — ні вітрини, ні сегментів, ні рядка «ліворуч / праворуч», як у персонажів. Читалка тримає ліву колонку під «Зміст», але промпт прямо забороняє заголовки в тексті — тож змісту в хроніки від Клода не буде ніколи, і колонка порожня.</p>
+    <p><b style="color:#fff;font-weight:600;">Що дає промпт.</b> Кожна хроніка тепер має однаковий набір: назва, арка, період, зведення до 200 знаків, 3–6 тегів, склад із шапок дописів, кількість дописів і <span style="color:#ffd700;">[№]</span> після кожного речення. Під це й зібрано варіанти: <a href="#1a">1a</a> і <a href="#1b">1b</a> — галерея, <a href="#1c">1c</a> — читалка (стає з будь-якою з галерей).</p>
+    <p><b style="color:#fff;font-weight:600;">Лише закриті арки.</b> Хроніка — літопис того, що давно дописано, тож статусу «триває» немає ніде: пігулка статусу з карток зникає, натомість фільтр за роком і позначка «Нова» для щойно підшитих.</p>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;">
+
+    <!-- ═══ 1a ═══ -->
+    <div id="1a" style="display:flex;flex-direction:column;gap:9px;">
+      <div style="display:flex;align-items:baseline;gap:8px;font:11px/1.3 system-ui,sans-serif;color:rgba(255,255,255,0.55);"><a href="#1a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(255,255,255,0.12);color:#fff;border-radius:5px;">1a</a>«Як персонажі» — вітрина, та сама панель, плитки з підписом знизу</div>
+      <div style="width:1000px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.5);padding:44px 32px 48px;">
+
+        <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:24px;">
+          <div>
+            <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:8px;">✦ Літопис відіграшів</p>
+            <h1 style="font-family:'Cinzel',Georgia,serif;font-size:2.6rem;font-weight:700;letter-spacing:0.07em;">Хроніки</h1>
+          </div>
+          <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;">
+            <span style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',serif;font-size:0.76rem;color:rgba(255,255,255,0.5);border:1px solid transparent;">Довідник</span>
+            <span style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',serif;font-size:0.76rem;color:rgba(255,255,255,0.5);border:1px solid transparent;">Історії</span>
+            <span style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',serif;font-size:0.76rem;color:#fff;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.32);">Хроніки</span>
+            <span style="padding:7px 15px;border-radius:999px;font-family:'Cinzel',serif;font-size:0.76rem;color:rgba(255,255,255,0.5);border:1px solid transparent;">Пантеон</span>
+          </div>
+        </header>
+
+        <!-- Вітрина — як cs-spot у персонажів -->
+        <div style="display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);border-radius:15px;overflow:hidden;border:1px solid rgba(255,215,0,0.18);background:#141414;margin-bottom:22px;">
+          <div style="position:relative;min-height:320px;background:url(mock/chars/kastor.jpg) center 22%/cover;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(20,20,20,0) 45%,#141414 100%);"></div>
+          </div>
+          <div style="padding:34px 40px 30px 20px;display:flex;flex-direction:column;justify-content:center;gap:12px;min-width:0;">
+            <p style="font-size:0.7rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.85);">✦ Нова в літописі</p>
+            <h2 style="font-family:'Cinzel',Georgia,serif;font-size:2.3rem;font-weight:700;letter-spacing:0.05em;line-height:1.1;">Попіл над Кабалою</h2>
+            <p style="font-size:0.9rem;color:rgba(255,255,255,0.62);">12 – 27 жовтня · 64 дописи · ведучий Лаймі</p>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;line-height:1.7;color:rgba(255,255,255,0.8);max-width:520px;text-wrap:pretty;">Штаб горить уночі, і ніхто не пам'ятає, хто першим відчинив двері. Наступного ранку в списку присутніх бракує одного імені.</p>
+            <div style="display:flex;align-items:center;">
+              <span style="width:30px;height:30px;border-radius:999px;border:2px solid #141414;margin-right:-8px;background:url(mock/chars/kastor.jpg) center 20%/cover;"></span>
+              <span style="width:30px;height:30px;border-radius:999px;border:2px solid #141414;margin-right:-8px;background:url(mock/chars/luna.jpg) center 20%/cover;"></span>
+              <span style="width:30px;height:30px;border-radius:999px;border:2px solid #141414;margin-right:-8px;background:url(mock/chars/henry.jpg) center 20%/cover;"></span>
+              <span style="width:30px;height:30px;border-radius:999px;border:2px solid #141414;margin-right:-8px;background:url(mock/chars/mor.jpg) center 20%/cover;"></span>
+              <span style="margin-left:18px;font-size:0.8rem;color:rgba(255,255,255,0.55);">Кастор, Луна, Генрі, Мор</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:6px;">
+              <span style="background:#ffd700;color:#1a1a1a;border-radius:999px;padding:10px 22px;font-size:0.88rem;font-weight:600;">Читати хроніку</span>
+              <span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);border-radius:999px;padding:10px 20px;font-size:0.86rem;">Наступна →</span>
+              <div style="display:flex;gap:6px;margin-left:6px;">
+                <span style="width:22px;height:8px;border-radius:999px;background:#ffd700;"></span>
+                <span style="width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,0.25);"></span>
+                <span style="width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,0.25);"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Панель — та сама, що в персонажів -->
+        <div style="display:flex;flex-direction:column;gap:12px;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;margin-bottom:12px;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="position:relative;flex:1;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+              <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 38px 10px 40px;font-size:0.9rem;color:rgba(255,255,255,0.35);">Назва, арка, персонаж, тег…</div>
+            </div>
+            <div style="display:inline-flex;gap:3px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
+              <span style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:6px 14px;font-size:0.8rem;display:flex;gap:6px;">Усі<span style="opacity:0.55;font-size:0.7rem;">14</span></span>
+              <span style="border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;display:flex;gap:6px;">2026<span style="opacity:0.55;font-size:0.7rem;">9</span></span>
+              <span style="border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;display:flex;gap:6px;">2025<span style="opacity:0.55;font-size:0.7rem;">5</span></span>
+            </div>
+            <div style="display:inline-flex;gap:3px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
+              <span style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:6px 14px;font-size:0.8rem;">Усі теги</span>
+              <span style="border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;">Мої</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span style="font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-right:6px;">Порядок</span>
+            <span style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:5px 13px;font-size:0.78rem;">Найновіші</span>
+            <span style="border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);border-radius:999px;padding:5px 13px;font-size:0.78rem;">Найдовші</span>
+            <span style="border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);border-radius:999px;padding:5px 13px;font-size:0.78rem;">Найбільший склад</span>
+            <span style="border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);border-radius:999px;padding:5px 13px;font-size:0.78rem;">За абеткою</span>
+          </div>
+        </div>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.45);margin:0 4px 18px;">14 хронік · 612 дописів переказано</p>
+
+        <!-- Плитки — як char-card: усе на обкладинці, рядок «ліворуч / праворуч» знизу -->
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;">
+          <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,215,0,0.3);border-radius:10px;overflow:hidden;">
+            <div style="position:relative;aspect-ratio:4/3;background:url(mock/chars/luna.jpg) center 22%/cover;">
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,26,0.95) 0%,rgba(26,26,26,0.25) 60%,transparent 100%);"></div>
+              <span style="position:absolute;top:10px;left:10px;background:rgba(255,215,0,0.16);border:1px solid rgba(255,215,0,0.5);border-radius:999px;padding:3px 9px;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#ffd700;">Нова</span>
+              <div style="position:absolute;left:14px;right:14px;bottom:12px;display:flex;flex-direction:column;gap:7px;">
+                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;line-height:1.25;letter-spacing:0.03em;">Нічна варта</h3>
+                <div style="display:flex;">
+                  <span style="width:22px;height:22px;border-radius:999px;border:1.5px solid #1f1e1c;margin-right:-6px;background:url(mock/chars/luna.jpg) center 20%/cover;"></span>
+                  <span style="width:22px;height:22px;border-radius:999px;border:1.5px solid #1f1e1c;margin-right:-6px;background:url(mock/chars/kaan.jpg) center 20%/cover;"></span>
+                </div>
+              </div>
+            </div>
+            <div style="padding:10px 14px 12px;display:flex;justify-content:space-between;gap:8px;font-size:0.72rem;color:rgba(255,255,255,0.55);"><span>19 – 26 жовт.</span><span style="color:rgba(255,255,255,0.8);">38 дописів</span></div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;overflow:hidden;">
+            <div style="position:relative;aspect-ratio:4/3;background:#0f0e0c;display:grid;grid-template-columns:1fr 1fr;">
+              <div style="background:url(mock/chars/idatrill.png) center 18%/cover;"></div>
+              <div style="background:url(mock/chars/sjao.jpg) center 18%/cover;"></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,26,0.95) 0%,rgba(26,26,26,0.25) 60%,transparent 100%);"></div>
+              <div style="position:absolute;left:14px;right:14px;bottom:12px;">
+                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;line-height:1.25;letter-spacing:0.03em;">Лист без підпису</h3>
+                <p style="font-size:0.76rem;color:rgba(255,255,255,0.55);margin-top:2px;">Іда, Сяо</p>
+              </div>
+            </div>
+            <div style="padding:10px 14px 12px;display:flex;justify-content:space-between;gap:8px;font-size:0.72rem;color:rgba(255,255,255,0.55);"><span>3 – 9 жовт.</span><span style="color:rgba(255,255,255,0.8);">31 допис</span></div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;overflow:hidden;">
+            <div style="position:relative;aspect-ratio:4/3;background:url(mock/arbo.jpg) center 30%/cover;">
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,26,0.95) 0%,rgba(26,26,26,0.25) 60%,transparent 100%);"></div>
+              <div style="position:absolute;left:14px;right:14px;bottom:12px;">
+                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;line-height:1.25;letter-spacing:0.03em;">Торг біля старого млина</h3>
+                <p style="font-size:0.76rem;color:rgba(255,255,255,0.55);margin-top:2px;">Арбо, Генрі, Ясмина</p>
+              </div>
+            </div>
+            <div style="padding:10px 14px 12px;display:flex;justify-content:space-between;gap:8px;font-size:0.72rem;color:rgba(255,255,255,0.55);"><span>22 вер. – 1 жовт.</span><span style="color:rgba(255,255,255,0.8);">52 дописи</span></div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;overflow:hidden;">
+            <div style="position:relative;aspect-ratio:4/3;background:radial-gradient(ellipse at 50% 40%,rgba(255,215,0,0.08) 0%,transparent 70%),#111;display:flex;align-items:center;justify-content:center;">
+              <span style="font-family:'Cinzel',serif;font-size:2.6rem;font-weight:700;color:rgba(255,215,0,0.2);">ДЗ</span>
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,26,0.95) 0%,rgba(26,26,26,0.25) 60%,transparent 100%);"></div>
+              <div style="position:absolute;left:14px;right:14px;bottom:12px;">
+                <h3 style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;line-height:1.25;letter-spacing:0.03em;">Дзвін без язика</h3>
+                <p style="font-size:0.76rem;color:rgba(255,255,255,0.55);margin-top:2px;">Амадей, Амелія</p>
+              </div>
+            </div>
+            <div style="padding:10px 14px 12px;display:flex;justify-content:space-between;gap:8px;font-size:0.72rem;color:rgba(255,255,255,0.55);"><span>8 – 14 вер.</span><span style="color:rgba(255,255,255,0.8);">19 дописів</span></div>
+          </div>
+        </div>
+        <p style="margin-top:22px;font-size:0.78rem;line-height:1.6;color:rgba(255,255,255,0.45);max-width:760px;">Порожня обкладинка → портрети складу смугами (як зараз), а якщо й їх нема — ініціали. Зведення (summary) живе тільки у вітрині й у підказці при наведенні: на плитці 4 в ряд воно не читається.</p>
+      </div>
+    </div>
+
+    <!-- ═══ 1b ═══ -->
+    <div id="1b" style="display:flex;flex-direction:column;gap:9px;">
+      <div style="display:flex;align-items:baseline;gap:8px;font:11px/1.3 system-ui,sans-serif;color:rgba(255,255,255,0.55);"><a href="#1b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(255,255,255,0.12);color:#fff;border-radius:5px;">1b</a>«Літопис» — та сама шапка й панель, але стрічка за місяцями з повним зведенням</div>
+      <div style="width:760px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.5);padding:44px 32px 48px;">
+        <p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:8px;">✦ Літопис відіграшів</p>
+        <h1 style="font-family:'Cinzel',Georgia,serif;font-size:2.6rem;font-weight:700;letter-spacing:0.07em;margin-bottom:24px;">Хроніки</h1>
+        <div style="padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;margin-bottom:30px;display:flex;gap:10px;">
+          <div style="flex:1;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 20px;font-size:0.9rem;color:rgba(255,255,255,0.35);">Назва, арка, персонаж, тег…</div>
+          <div style="display:inline-flex;gap:3px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
+            <span style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:6px 14px;font-size:0.8rem;">Усі</span>
+            <span style="border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;">2026</span>
+            <span style="border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:6px 14px;font-size:0.8rem;">2025</span>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+          <span style="font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.18em;color:#ffd700;">ЖОВТЕНЬ 2026</span>
+          <span style="flex:1;height:1px;background:rgba(255,215,0,0.2);"></span>
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">3 хроніки · 133 дописи</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:34px;">
+          <div style="display:grid;grid-template-columns:170px minmax(0,1fr);background:rgba(255,255,255,0.07);border:1px solid rgba(255,215,0,0.3);border-radius:10px;overflow:hidden;">
+            <div style="background:url(mock/chars/kastor.jpg) center 22%/cover;min-height:170px;"></div>
+            <div style="padding:16px 20px;display:flex;flex-direction:column;gap:7px;min-width:0;">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <span style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);border-radius:999px;padding:3px 9px;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#ffd700;">Нова</span>
+                <span style="font-size:0.74rem;color:rgba(255,255,255,0.5);">12 – 27 жовт. · 64 дописи</span>
+              </div>
+              <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;letter-spacing:0.04em;">Попіл над Кабалою</h3>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.65);text-wrap:pretty;">Штаб горить уночі, і ніхто не пам'ятає, хто першим відчинив двері. Наступного ранку в списку присутніх бракує одного імені.</p>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;">
+                <div style="display:flex;align-items:center;">
+                  <span style="width:24px;height:24px;border-radius:999px;border:1.5px solid #2a2a2a;margin-right:-6px;background:url(mock/chars/kastor.jpg) center 20%/cover;"></span>
+                  <span style="width:24px;height:24px;border-radius:999px;border:1.5px solid #2a2a2a;margin-right:-6px;background:url(mock/chars/luna.jpg) center 20%/cover;"></span>
+                  <span style="width:24px;height:24px;border-radius:999px;border:1.5px solid #2a2a2a;margin-right:-6px;background:url(mock/chars/henry.jpg) center 20%/cover;"></span>
+                  <span style="margin-left:14px;font-size:0.72rem;color:rgba(255,255,255,0.45);">+1 · вед. Лаймі</span>
+                </div>
+                <div style="display:flex;gap:5px;">
+                  <span style="background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.2);color:rgba(255,215,0,0.7);border-radius:999px;padding:2px 10px;font-size:0.66rem;">Кабала</span>
+                  <span style="background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.2);color:rgba(255,215,0,0.7);border-radius:999px;padding:2px 10px;font-size:0.66rem;">штаб</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:170px minmax(0,1fr);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;overflow:hidden;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;min-height:150px;"><div style="background:url(mock/chars/idatrill.png) center 18%/cover;"></div><div style="background:url(mock/chars/sjao.jpg) center 18%/cover;"></div></div>
+            <div style="padding:16px 20px;display:flex;flex-direction:column;gap:7px;min-width:0;">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <span style="font-size:0.74rem;color:rgba(255,255,255,0.5);">3 – 9 жовт. · 31 допис</span>
+              </div>
+              <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;letter-spacing:0.04em;">Лист без підпису</h3>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.65);text-wrap:pretty;">Іда приносить конверт, якого не мала б бачити, і Сяо береться за нього надто охоче.</p>
+              <p style="font-size:0.72rem;color:rgba(255,255,255,0.45);margin-top:auto;">Іда, Сяо · вед. Аркан</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+          <span style="font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.18em;color:rgba(255,215,0,0.6);">ВЕРЕСЕНЬ 2026</span>
+          <span style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></span>
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">4 хроніки · 140 дописів</span>
+        </div>
+        <div style="display:grid;grid-template-columns:170px minmax(0,1fr);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;overflow:hidden;">
+          <div style="background:url(mock/arbo.jpg) center 30%/cover;min-height:120px;"></div>
+          <div style="padding:16px 20px;display:flex;flex-direction:column;gap:7px;">
+            <span style="font-size:0.74rem;color:rgba(255,255,255,0.5);">22 вер. – 1 жовт. · 52 дописи</span>
+            <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;letter-spacing:0.04em;">Торг біля старого млина</h3>
+            <p style="font-size:0.72rem;color:rgba(255,255,255,0.45);">Арбо, Генрі, Ясмина · вед. Лаймі</p>
+          </div>
+        </div>
+        <p style="margin-top:22px;font-size:0.78rem;line-height:1.6;color:rgba(255,255,255,0.45);">Хроніка — про час, тож групуємо за місяцем першого допису (поле «період» уже є). Зведення від Клода тут читається повністю. Плитки 1a можна лишити як другий вигляд — перемикач «Плитки / Літопис» поряд із сегментами.</p>
+      </div>
+    </div>
+
+    <!-- ═══ 1c ═══ -->
+    <div id="1c" style="display:flex;flex-direction:column;gap:9px;">
+      <div style="display:flex;align-items:baseline;gap:8px;font:11px/1.3 system-ui,sans-serif;color:rgba(255,255,255,0.55);"><a href="#1c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(255,255,255,0.12);color:#fff;border-radius:5px;">1c</a>Читалка «як тека персонажа» — ліва колонка стає паспортом арки замість порожнього змісту</div>
+      <div style="width:1000px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.5);padding:30px 32px 48px;">
+        <span style="display:inline-block;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);border-radius:999px;padding:7px 18px;font-size:0.82rem;margin-bottom:22px;">← Усі хроніки</span>
+
+        <div style="display:grid;grid-template-columns:280px minmax(0,1fr);gap:44px;align-items:start;">
+          <!-- паспорт арки -->
+          <aside style="display:flex;flex-direction:column;gap:16px;">
+            <div style="position:relative;aspect-ratio:3/4;border-radius:15px;overflow:hidden;border:1px solid rgba(255,215,0,0.25);background:url(mock/chars/kastor.jpg) center 22%/cover;box-shadow:0 14px 36px rgba(0,0,0,0.55);">
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,26,0.95) 0%,rgba(26,26,26,0) 50%);"></div>
+              <div style="position:absolute;left:16px;right:16px;bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div><p style="font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;">64</p><p style="font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);">дописи</p></div>
+                <div><p style="font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;">16</p><p style="font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);">днів</p></div>
+              </div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:9px;font-size:0.8rem;">
+              <div style="display:flex;justify-content:space-between;gap:10px;"><span style="color:rgba(255,255,255,0.45);">Період</span><span>12 – 27 жовтня</span></div>
+              <div style="height:1px;background:rgba(255,255,255,0.08);"></div>
+              <div style="display:flex;justify-content:space-between;gap:10px;"><span style="color:rgba(255,255,255,0.45);">Ведучий</span><span>Лаймі</span></div>
+              <div style="height:1px;background:rgba(255,255,255,0.08);"></div>
+              <div style="display:flex;justify-content:space-between;gap:10px;"><span style="color:rgba(255,255,255,0.45);">Арка</span><span style="color:#ffd700;">Читати · 64 ↗</span></div>
+            </div>
+            <div>
+              <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:10px;">Склад</p>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.04);">
+                  <span style="width:30px;height:30px;border-radius:999px;background:url(mock/chars/kastor.jpg) center 20%/cover;"></span>
+                  <span style="flex:1;font-size:0.84rem;">Кастор</span><span style="font-size:0.72rem;color:rgba(255,255,255,0.45);">24 дописи</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.04);">
+                  <span style="width:30px;height:30px;border-radius:999px;background:url(mock/chars/luna.jpg) center 20%/cover;"></span>
+                  <span style="flex:1;font-size:0.84rem;">Луна</span><span style="font-size:0.72rem;color:rgba(255,255,255,0.45);">19</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.04);">
+                  <span style="width:30px;height:30px;border-radius:999px;background:url(mock/chars/henry.jpg) center 20%/cover;"></span>
+                  <span style="flex:1;font-size:0.84rem;">Генрі</span><span style="font-size:0.72rem;color:rgba(255,255,255,0.45);">14</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.04);">
+                  <span style="width:30px;height:30px;border-radius:999px;background:url(mock/chars/mor.jpg) center 20%/cover;"></span>
+                  <span style="flex:1;font-size:0.84rem;">Мор</span><span style="font-size:0.72rem;color:rgba(255,255,255,0.45);">7</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <span style="background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.2);color:rgba(255,215,0,0.7);border-radius:999px;padding:3px 12px;font-size:0.7rem;">Кабала</span>
+              <span style="background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.2);color:rgba(255,215,0,0.7);border-radius:999px;padding:3px 12px;font-size:0.7rem;">штаб</span>
+              <span style="background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.2);color:rgba(255,215,0,0.7);border-radius:999px;padding:3px 12px;font-size:0.7rem;">пожежа</span>
+            </div>
+          </aside>
+
+          <!-- текст -->
+          <article style="min-width:0;max-width:640px;">
+            <p style="font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin-bottom:8px;">Хроніка арки</p>
+            <h1 style="font-family:'Cinzel',Georgia,serif;font-size:2.7rem;font-weight:700;letter-spacing:0.05em;line-height:1.12;margin-bottom:16px;">Попіл над Кабалою</h1>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.2rem;line-height:1.6;color:rgba(255,255,255,0.7);padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:16px;">Штаб горить уночі, і ніхто не пам'ятає, хто першим відчинив двері.</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;">
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.45);">Складено з дописів арки · 5 хв читання</span>
+              <div style="display:inline-flex;gap:3px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:3px;">
+                <span style="border:1px solid transparent;color:rgba(255,255,255,0.6);border-radius:999px;padding:5px 12px;font-size:0.74rem;">Текст</span>
+                <span style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:5px 12px;font-size:0.74rem;">З номерами</span>
+              </div>
+            </div>
+            <div style="font-family:'EB Garamond',Georgia,serif;font-size:1.24rem;line-height:1.72;color:rgba(255,255,255,0.86);display:flex;flex-direction:column;gap:1.2em;">
+              <p style="text-wrap:pretty;"><span style="font-family:'Cinzel',Georgia,serif;float:left;font-size:3.3em;line-height:0.9;padding:0.06em 0.12em 0 0;color:#ffd700;">Д</span>им над штабом Кабали помітили ще до півночі.<sup style="font-family:system-ui,sans-serif;font-size:0.55em;color:rgba(255,215,0,0.55);margin-left:2px;">№1</sup> Кастор першим вибіг на подвір'я й гукнув вартових, але відповіді не почув.<sup style="font-family:system-ui,sans-serif;font-size:0.55em;color:rgba(255,215,0,0.55);margin-left:2px;">№2–4</sup> Луна тим часом стояла біля бічних дверей і тримала в руці ключ, якого раніше в неї ніхто не бачив.<sup style="font-family:system-ui,sans-serif;font-size:0.55em;color:rgba(255,215,0,0.55);margin-left:2px;">№5</sup></p>
+              <p style="text-wrap:pretty;">Генрі сказав, що двері були відчинені ще ввечері.<sup style="font-family:system-ui,sans-serif;font-size:0.55em;color:rgba(255,215,0,0.55);margin-left:2px;">№7</sup> Луна заперечила й назвала годину, коли сама їх зачиняла.<sup style="font-family:system-ui,sans-serif;font-size:0.55em;color:rgba(255,215,0,0.55);margin-left:2px;">№8</sup> Далі — уже в залі, де від столу лишилося тільки обвуглене півколо.<sup style="font-family:system-ui,sans-serif;font-size:0.55em;color:rgba(255,215,0,0.55);margin-left:2px;">№9, №11</sup></p>
+            </div>
+            <!-- кінець хроніки -->
+            <div style="margin-top:34px;padding:18px 20px;border-radius:10px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);display:flex;align-items:center;justify-content:space-between;gap:16px;">
+              <div>
+                <p style="font-family:'Cinzel',serif;font-size:0.9rem;letter-spacing:0.06em;color:#ffd700;margin-bottom:4px;">✦ Арку закрито</p>
+                <p style="font-size:0.8rem;color:rgba(255,255,255,0.55);">Останній допис — №64, 27 жовтня · хроніка охоплює всю арку</p>
+              </div>
+              <span style="background:#ffd700;color:#1a1a1a;border-radius:999px;padding:9px 20px;font-size:0.84rem;font-weight:600;white-space:nowrap;">Читати арку від №1 →</span>
+            </div>
+          </article>
+        </div>
+        <p style="margin-top:28px;font-size:0.78rem;line-height:1.6;color:rgba(255,255,255,0.45);max-width:820px;">Кількість дописів на кожного в складі рахується з шапок <span style="color:rgba(255,255,255,0.7);">### ✦ Ім'я — дата</span> того ж вивантаження арки — нового поля в базі не треба. Номери за замовчуванням увімкнені, бо головна обіцянка промпту — «будь-яку фразу можна звірити»; перемикач лишається. Блок у кінці закриває хроніку й веде в саму арку — перечитати або звірити.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+</body>
+</html>
