@@ -170,6 +170,7 @@ a:hover{color:#fff}
             </sc-if>
             <sc-if value="{{ dlNav }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ pickDl }}" class="gos-hit" style="cursor:pointer;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navDlBg }};color:{{ navDlColor }};">Арку — у файл</button>
+              <button onClick="{{ pickBund }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:8px;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navBundBg }};color:{{ navBundColor }};"><span style="flex:1;min-width:0;">Збірки арок</span><sc-if value="{{ navBundHas }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.7rem;color:rgba(255,255,255,0.45);">{{ navBundN }}</span></sc-if></button>
             </sc-if>
             <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ pickChrono }}" class="gos-hit" style="cursor:pointer;display:flex;align-items:center;gap:8px;text-align:left;border:none;border-radius:8px;padding:9px 10px;font-size:0.86rem;transition:all 0.2s ease;background:{{ navChronoBg }};color:{{ navChronoColor }};"><span>Порядок арок</span><span style="font-size:0.54rem;letter-spacing:0.14em;text-transform:uppercase;padding:2px 6px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;">бета</span></button>
@@ -4132,7 +4133,7 @@ class Component extends DCLogic {
         label: s.eBusy ? 'Несу…' : 'Віддати правку Марті', busy: !!s.eBusy,
         go: () => this._submitEdit(), cancel: () => this.setState({ eId: '', eMsg: '' }),
         cancelLabel: 'Скасувати', msg: s.eMsg };
-    } else if (!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'shelf'].includes(s.tab)) {
+    } else if (!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'bundles', 'shelf'].includes(s.tab)) {
       const pts = ((window.AnketaSchema || {}).ITEMS || []).map((it) => ['gos-i-' + it.num, `${it.num} · ${it.label}`]);
       items = [['gos-i-top', 'Звідки анкета'], ...pts, ['gos-i-note', 'Слово від вас'], ['gos-i-subs', 'Мої анкети']];
       const dr = this._draftVals();
@@ -4340,7 +4341,7 @@ class Component extends DCLogic {
   _bundleVals() {
     const s = this.state;
     const prof = s.prof || {};
-    const show = prof.status === 'approved' && !this.props.onlyGossip && s.tab === 'arcfile';
+    const show = prof.status === 'approved' && !this.props.onlyGossip && s.tab === 'bundles';
     const arcs = s.dlArcs || [];
     const nOf = new Map(arcs.map((a) => [fold(a.arc), a.n]));
     const P = (n) => this._plural(n, 'допис', 'дописи', 'дописів');
@@ -4385,6 +4386,7 @@ class Component extends DCLogic {
     const canSave = !s.bBusy && picked.length >= 2 && String(s.bName || '').trim().length >= 2;
     return {
       bShow: show,
+      navBundHas: list.length > 0, navBundN: String(list.length),
       bRows: rows, bHasRows: rows.length > 0,
       bNote: note, bHasNote: !!note,
       bCanNew: !s.bOpen && !s.bundlesOff,
@@ -4694,12 +4696,15 @@ class Component extends DCLogic {
       // взагалі, тому й смужки вкладок немає.
       showTabs: !this.props.onlyGossip,
       lockedOnly: !!this.props.onlyGossip && s.phase === 'ok' && status === 'pending',
-      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'fam', 'turns', 'arcfile', 'shelf', 'chrono'].includes(s.tab),
+      showIntake: !this.props.onlyGossip && !['gossip', 'mine', 'me', 'stats', 'fam', 'turns', 'arcfile', 'bundles', 'shelf', 'chrono'].includes(s.tab),
       showChrono: !this.props.onlyGossip && s.tab === 'chrono' && status === 'approved',
       pickChrono: () => this._pickTab('chrono'),
       navChronoBg: s.tab === 'chrono' ? 'rgba(255,215,0,0.12)' : 'transparent',
       navChronoColor: s.tab === 'chrono' ? '#ffd700' : 'rgba(255,255,255,0.75)',
       pickDl: () => this._pickTab('arcfile'),
+      pickBund: () => this._pickTab('bundles'),
+      navBundBg: s.tab === 'bundles' ? 'rgba(255,215,0,0.12)' : 'transparent',
+      navBundColor: s.tab === 'bundles' ? '#ffd700' : 'rgba(255,255,255,0.75)',
       navDlBg: s.tab === 'arcfile' ? 'rgba(255,215,0,0.12)' : 'transparent',
       navDlColor: s.tab === 'arcfile' ? '#ffd700' : 'rgba(255,255,255,0.75)',
       showTurns: !this.props.onlyGossip && s.tab === 'turns',
@@ -4758,7 +4763,7 @@ class Component extends DCLogic {
         let n = 0;
         try { n = d && !d.error && !d.missing && T ? T.yourTurn(d) : 0; } catch (e) {}
         const row = (on) => ({ bg: on ? 'rgba(255,215,0,0.12)' : 'transparent', color: on ? '#ffd700' : 'rgba(255,255,255,0.75)' });
-        const tT = row(s.tab === 'turns'), tI = row(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'chrono'].includes(s.tab));
+        const tT = row(s.tab === 'turns'), tI = row(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'bundles', 'chrono'].includes(s.tab));
         const tG = row(s.tab === 'gossip'), tM = row(s.tab === 'me');
         const orphan = this._mineVals().myEdits.filter((r) => orphanIds.indexOf(String(r.key)) !== -1);
         return {
@@ -4776,7 +4781,7 @@ class Component extends DCLogic {
       notEditingAny: !s.eId && !s.editId,
       notEditingChar: !s.eId,
       ...(() => {
-        const a = this._pillStyle(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'chrono'].includes(s.tab));
+        const a = this._pillStyle(!['gossip', 'mine', 'me', 'stats', 'turns', 'arcfile', 'bundles', 'chrono'].includes(s.tab));
         const b = this._pillStyle(s.tab === 'gossip');
         const c = this._pillStyle(s.tab === 'mine');
         const d = this._pillStyle(s.tab === 'me');
