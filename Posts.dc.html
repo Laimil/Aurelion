@@ -135,6 +135,9 @@
                   <sc-if value="{{ p.isDup }}" hint-placeholder-val="{{ false }}">
                     <span title="{{ p.dupHint }}" style="flex:none;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid rgba(255,77,77,0.45);color:#ff7a7a;">дубль</span>
                   </sc-if>
+                  <sc-if value="{{ p.stranger }}" hint-placeholder-val="{{ false }}">
+                    <span title="{{ p.strangerHint }}" style="flex:none;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid rgba(100,149,237,0.5);color:#8fb0f0;">чужа рука</span>
+                  </sc-if>
                   <span style="flex:1;"></span>
                   <span style="font-size:0.7rem;color:rgba(255,255,255,0.4);white-space:nowrap;">{{ p.whenShort }}</span>
                 </div>
@@ -191,6 +194,9 @@
               <span style="font-size:0.72rem;color:rgba(255,255,255,0.42);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.meta }}</span>
             </div>
             <button onClick="{{ r.copyLink }}" title="Скопіювати посилання на цей допис" style="cursor:pointer;flex:none;border:none;background:none;padding:6px;color:rgba(255,255,255,0.4);font-size:0.74rem;text-decoration:underline;">{{ r.linkLabel }}</button>
+            <sc-if value="{{ r.canEdit }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ r.edToggle }}" title="Хто пише і в якій арці — виправити для цього допису" style="cursor:pointer;flex:none;border-radius:999px;padding:5px 12px;font-size:0.72rem;background:{{ r.edBtnBg }};border:1px solid rgba(100,149,237,0.45);color:#8fb0f0;transition:all 0.3s ease;" style-hover="background:rgba(100,149,237,0.16);color:#fff;">Теги</button>
+            </sc-if>
             <sc-if value="{{ r.canDrop }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;align-items:center;gap:6px;flex:none;">
                 <sc-if value="{{ r.dropIdle }}" hint-placeholder-val="{{ true }}">
@@ -208,6 +214,15 @@
           <sc-if value="{{ r.hasDropMsg }}" hint-placeholder-val="{{ false }}">
             <p style="margin:0;flex:none;font-size:0.76rem;color:#ff7a7a;">{{ r.dropMsg }}</p>
           </sc-if>
+          <sc-if value="{{ r.strangerBar }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 20px 0;padding:9px 10px 9px 16px;border-radius:10px;background:rgba(100,149,237,0.08);border:1px solid rgba(100,149,237,0.28);">
+              <p style="flex:1;min-width:200px;margin:0;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.4;color:rgba(255,255,255,0.78);text-wrap:pretty;"><span style="color:#8fb0f0;">✦</span> {{ r.strangerLine }}</p>
+              <div style="display:flex;align-items:center;gap:6px;flex:none;">
+                <button onClick="{{ r.edToggle }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.74rem;background:rgba(100,149,237,0.16);border:1px solid rgba(100,149,237,0.5);color:#fff;">Виправити теги</button>
+                <button onClick="{{ r.strangerOk }}" title="Сховати плашку для цього допису" style="cursor:pointer;border:none;background:none;padding:6px;font-size:0.72rem;color:rgba(255,255,255,0.5);text-decoration:underline;">так і задумано</button>
+              </div>
+            </div>
+          </sc-if>
           <sc-if value="{{ r.hasTracks }}" hint-placeholder-val="{{ false }}">
             <div style="{{ rd.tracks }}">
               <sc-for list="{{ r.tracks }}" as="t" hint-placeholder-count="1">
@@ -221,6 +236,94 @@
             </div>
           </sc-if>
           <div style="{{ rd.box }}">
+            <sc-if value="{{ ed.on }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:0;z-index:3;background:#141414;overflow:auto;overscroll-behavior:contain;padding:20px 22px 28px;">
+                <div style="max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:22px;">
+                  <div style="display:flex;align-items:flex-start;gap:12px;">
+                    <div style="flex:1;min-width:0;">
+                      <p style="margin:0 0 4px;font-size:0.64rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);">✦ Теги допису</p>
+                      <h3 style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.15rem;letter-spacing:0.05em;color:#fff;">Хто пише і в якій арці</h3>
+                      <p style="margin:6px 0 0;font-size:0.76rem;color:rgba(255,255,255,0.42);">{{ ed.whoCan }}</p>
+                    </div>
+                    <button onClick="{{ ed.close }}" title="Закрити без змін" style="cursor:pointer;flex:none;width:36px;height:36px;border-radius:999px;background:none;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.6);font-size:0.9rem;">✕</button>
+                  </div>
+
+                  <sc-if value="{{ ed.stranger }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:12px 16px;border-radius:10px;background:rgba(100,149,237,0.08);border:1px solid rgba(100,149,237,0.28);display:flex;flex-direction:column;gap:4px;">
+                      <p style="margin:0;font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:#8fb0f0;">Надіслано не від власника анкети</p>
+                      <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.5;color:rgba(255,255,255,0.78);text-wrap:pretty;">{{ ed.strangerLine }}</p>
+                    </div>
+                  </sc-if>
+
+                  <div style="display:flex;flex-direction:column;gap:10px;">
+                    <p style="margin:0;font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Персонаж</p>
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid {{ ed.curBorder }};">
+                      <span style="{{ ed.curImg }}width:40px;height:40px;border-radius:999px;flex:none;background-color:rgba(255,255,255,0.06);border:1px solid rgba(255,215,0,0.35);"></span>
+                      <div style="flex:1;min-width:0;">
+                        <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1rem;color:#ffd700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ ed.curName }}</p>
+                        <p style="margin:2px 0 0;font-size:0.72rem;color:rgba(255,255,255,0.45);">{{ ed.curKind }}</p>
+                      </div>
+                      <sc-if value="{{ ed.charChanged }}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{ ed.resetChar }}" style="cursor:pointer;flex:none;border:none;background:none;padding:4px;font-size:0.72rem;color:rgba(255,255,255,0.5);text-decoration:underline;">як було</button>
+                      </sc-if>
+                    </div>
+                    <input type="text" value="{{ ed.q }}" onInput="{{ ed.setQ }}" placeholder="Знайти в картотеці або вписати імʼя…" style="width:100%;box-sizing:border-box;border-radius:999px;padding:9px 16px;font-size:0.84rem;font-family:Arial,sans-serif;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.88);outline:none;">
+                    <sc-if value="{{ ed.hasHitsHead }}" hint-placeholder-val="{{ false }}">
+                      <p style="margin:0;font-size:0.7rem;color:rgba(255,255,255,0.35);">{{ ed.hitsHead }}</p>
+                    </sc-if>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                      <sc-for list="{{ ed.charHits }}" as="c" hint-placeholder-count="0">
+                        <button onClick="{{ ed.pickChar }}" data-id="{{ c.id }}" data-name="{{ c.name }}" title="{{ c.sub }}" style="cursor:pointer;display:flex;align-items:center;gap:7px;border-radius:999px;padding:4px 12px 4px 4px;font-size:0.8rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.82);transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.45);color:#ffd700;">
+                          <span style="{{ c.img }}width:24px;height:24px;border-radius:999px;flex:none;background-color:rgba(255,255,255,0.08);"></span>
+                          <span>{{ c.name }}</span>
+                          <span style="font-size:0.62rem;color:rgba(255,255,255,0.35);">{{ c.tag }}</span>
+                        </button>
+                      </sc-for>
+                      <sc-if value="{{ ed.freeOk }}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{ ed.pickFree }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.8rem;background:none;border:1px dashed rgba(255,255,255,0.28);color:rgba(255,255,255,0.7);">{{ ed.freeLabel }}</button>
+                      </sc-if>
+                    </div>
+                  </div>
+
+                  <div style="display:flex;flex-direction:column;gap:10px;">
+                    <p style="margin:0;font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Арки <span style="text-transform:none;letter-spacing:0;color:rgba(255,255,255,0.25);">— до чотирьох; порожньо = допис поза аркою</span></p>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;min-height:32px;align-items:center;">
+                      <sc-for list="{{ ed.arcs }}" as="a" hint-placeholder-count="1">
+                        <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 6px 5px 13px;font-size:0.82rem;background:{{ a.bg }};border:1px solid {{ a.border }};color:{{ a.color }};">
+                          {{ a.v }}
+                          <button onClick="{{ ed.dropArc }}" data-v="{{ a.v }}" title="Прибрати з допису" style="cursor:pointer;width:22px;height:22px;border-radius:999px;border:none;background:none;color:inherit;font-size:0.75rem;opacity:0.7;">✕</button>
+                        </span>
+                      </sc-for>
+                      <sc-if value="{{ ed.noArcs }}" hint-placeholder-val="{{ false }}">
+                        <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,255,255,0.35);">поза аркою</span>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ ed.canAddArc }}" hint-placeholder-val="{{ true }}">
+                      <input type="text" value="{{ ed.aq }}" onInput="{{ ed.setAq }}" onKeyDown="{{ ed.aqKey }}" placeholder="Додати арку…" style="width:100%;box-sizing:border-box;border-radius:999px;padding:9px 16px;font-size:0.84rem;font-family:Arial,sans-serif;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.88);outline:none;">
+                      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        <sc-for list="{{ ed.arcHits }}" as="h" hint-placeholder-count="0">
+                          <button onClick="{{ ed.addArc }}" data-v="{{ h.v }}" title="{{ h.title }}" style="cursor:pointer;border-radius:999px;padding:6px 12px;font-size:0.78rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.75);transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.45);color:#ffd700;">+ {{ h.v }}</button>
+                        </sc-for>
+                        <sc-if value="{{ ed.newArcOk }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ ed.addNew }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.78rem;background:none;border:1px dashed rgba(255,215,0,0.4);color:rgba(255,215,0,0.85);">{{ ed.newArcLabel }}</button>
+                        </sc-if>
+                      </div>
+                    </sc-if>
+                  </div>
+
+                  <div style="display:flex;flex-direction:column;gap:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+                    <p style="margin:0;font-size:0.76rem;line-height:1.5;color:rgba(255,255,255,0.42);text-wrap:pretty;">{{ ed.scope }}</p>
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                      <button onClick="{{ ed.save }}" disabled="{{ ed.saveOff }}" style="cursor:pointer;border-radius:999px;padding:9px 22px;font-size:0.84rem;font-weight:600;background:{{ ed.saveBg }};border:1px solid {{ ed.saveBorder }};color:{{ ed.saveInk }};transition:all 0.3s ease;">{{ ed.saveLabel }}</button>
+                      <button onClick="{{ ed.close }}" style="cursor:pointer;border:none;background:none;padding:6px;font-size:0.8rem;color:rgba(255,255,255,0.5);text-decoration:underline;">Скасувати</button>
+                      <sc-if value="{{ ed.hasMsg }}" hint-placeholder-val="{{ false }}">
+                        <p style="margin:0;font-size:0.78rem;color:#ff7a7a;">{{ ed.msg }}</p>
+                      </sc-if>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
             <div id="posts-pages" ref="{{ pageRef }}" style="{{ rd.cols }}">
               <sc-for list="{{ r.blocks }}" as="b" hint-placeholder-count="3">
                 <sc-if value="{{ b.plain }}" hint-placeholder-val="{{ true }}">
@@ -276,6 +379,10 @@ const POST_SEL = 'id,tag_name,tag_arc,character_id,character_name,body,parts,cre
 const POST_SEL_LEAN = POST_SEL.replace(',parts', '');
 const TRACK_SEL = 'id,post_id,video_id,url,title,author,tag_name,tag_arc';
 const LS_READ = 'au_posts_read', LS_MARK = 'au_posts_mark', LS_SINCE = 'au_posts_since';
+// «Так і задумано» на чужій руці — щоб плашка не нагадувала щоразу.
+const LS_OKSTR = 'au_posts_ok_stranger';
+const ARC_MAX = 4;
+const foldName = (x) => String(x || '').toLowerCase().replace(/[ʼ'’`ь]/g, '').replace(/[іїий]/g, 'и').replace(/[еє]/g, 'е').replace(/\s+/g, ' ').trim();
 
 // ── Написання арок ── (див. Posts - стара: та сама логіка)
 function arcKey(s) {
@@ -340,6 +447,9 @@ class Component extends DCLogic {
     sel: null, page: 0, pages: 1, toEnd: false, view: 'list', wide: true,
     read: {}, mark: null, since: 0,
     admin: false, drop: null, dropBusy: false, dropMsg: '',
+    // правка тегів допису (supabase_post_retag_migration.sql)
+    rights: {}, noRights: false, ed: null, edBusy: false, edMsg: '', cards: null, npcs: [],
+    okStranger: lsGet(LS_OKSTR, []),
   };
   pageRef = React.createRef();
   listRef = React.createRef();
@@ -583,6 +693,7 @@ class Component extends DCLogic {
     const s = this.state;
     if (s.phase !== 'ok' || s.sel == null) return;
     if (!s.wide && s.view !== 'read') return;
+    if (s.ed) { if (e.key === 'Escape') this.setState({ ed: null, edMsg: '' }); return; }
     const tag = (e.target && e.target.tagName) || '';
     if (/INPUT|TEXTAREA|SELECT/.test(tag) || (e.target && e.target.isContentEditable)) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -683,7 +794,7 @@ class Component extends DCLogic {
       if (!got.length) { console.warn('пости: допису №' + id + ' немає в базі'); return; }
       this.setState((st) => ({
         posts: [got[0]].concat(st.posts.filter((p) => String(p.id) !== String(id))),
-      }), () => { this._select(id, { open: true }); this._loadTracks(got); });
+      }), () => { this._select(id, { open: true }); this._loadTracks(got); this._rights(got); });
     } catch (e) { console.warn('пости: не знайшла допис за посиланням', e); }
   }
   _queryString() {
@@ -798,6 +909,225 @@ class Component extends DCLogic {
       this.setState({ dropBusy: false, dropMsg: 'Мережа не відповіла.' });
     }
   }
+
+  // ── Теги допису: хто пише і в якій арці ──
+  // Права рахує база (marta_post_rights): рецепція, автор (його Telegram
+  // надіслав допис) або власник анкети/НПЦ. Там же — «чужа рука»: допис
+  // записаний за анкетою, а прийшов з іншого Telegram.
+  async _rights(rows) {
+    if (this.state.noRights) return;
+    const ids = (rows || []).map((p) => Number(p.id)).filter((n) => n > 0);
+    if (!ids.length) return;
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/marta_post_rights`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_ids: ids }),
+      });
+      if (!r.ok) {
+        console.warn('пости: права на теги —', await r.text(), '(прогнати supabase_post_retag_migration.sql)');
+        this.setState({ noRights: true });
+        return;
+      }
+      const got = await r.json();
+      const add = {};
+      (got || []).forEach((x) => { if (x && x.post_id != null) add[String(x.post_id)] = x; });
+      this.setState((st) => ({ rights: { ...st.rights, ...add } }));
+    } catch (e) { console.warn('пости: права на теги', e); }
+  }
+  async _cards() {
+    if (this.state.cards) return;
+    this.setState({ cards: [] });
+    let cards = [], npcs = [];
+    try {
+      const r = await this._api(`${SUPA_URL}/characters?select=id,name,alias,image&order=name.asc`);
+      if (r.ok) cards = await r.json();
+      else console.warn('пости: картотека для тегів —', await r.text());
+    } catch (e) {}
+    for (const sel of ['id,name,aliases,kind,image', 'id,name,aliases']) {
+      try {
+        const r = await this._api(`${SUPA_URL}/tech_npcs?select=${sel}&order=name.asc`);
+        if (r.ok) { npcs = await r.json(); break; }
+      } catch (e) {}
+    }
+    this.setState({ cards: Array.isArray(cards) ? cards : [], npcs: Array.isArray(npcs) ? npcs : [] });
+  }
+  _edOpen(p) {
+    if (!p) return;
+    if (this.state.ed && String(this.state.ed.id) === String(p.id)) { this.setState({ ed: null, edMsg: '' }); return; }
+    const orig = { charId: p.character_id || null, name: p.character_name || p.tag_name || '', arcs: splitArcs(p.tag_arc) };
+    this.setState({ ed: { id: p.id, ...orig, arcs: orig.arcs.slice(), q: '', aq: '', orig }, edMsg: '' });
+    this._cards();
+    this._tags();
+  }
+  _edPatch(patch) {
+    this.setState((st) => (st.ed ? { ed: { ...st.ed, ...patch }, edMsg: '' } : null));
+  }
+  _edAddArc(v) {
+    const e = this.state.ed;
+    const name = String(v || '').replace(/\s*\/\s*/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!e || !name || e.arcs.length >= ARC_MAX) return;
+    if (e.arcs.some((x) => nearArc(x, name))) { this._edPatch({ aq: '' }); return; }
+    this._edPatch({ arcs: e.arcs.concat(name), aq: '' });
+  }
+  async _edSave() {
+    const s = this.state, e = s.ed;
+    if (!e || s.edBusy) return;
+    const sameChar = String(e.charId || '') === String(e.orig.charId || '') && foldName(e.name) === foldName(e.orig.name);
+    const body = {
+      p_id: Number(e.id),
+      p_char: sameChar ? null : (e.charId || null),
+      p_name: sameChar || e.charId ? null : e.name.trim(),
+      p_arcs: e.arcs,
+    };
+    this.setState({ edBusy: true, edMsg: '' });
+    try {
+      const r = await this._api(`${SUPA_URL}/rpc/marta_post_retag`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        console.warn('пости: теги №' + e.id + ' —', t);
+        const msg = /немає прав/.test(t) ? 'Цей допис правлять автор, власник анкети або рецепція.'
+          : /чотирьох/.test(t) ? 'Не більше чотирьох арок на допис.'
+          : /анкети немає/.test(t) ? 'Цієї анкети вже немає в картотеці.'
+          : /marta_post_retag|function/.test(t) ? 'Немає функції — прогнати supabase_post_retag_migration.sql.'
+          : 'Не вдалося зберегти — спробуйте ще раз.';
+        this.setState({ edBusy: false, edMsg: msg });
+        return;
+      }
+      const d = await r.json();
+      const card = d.character_id ? (s.cards || []).find((c) => String(c.id) === String(d.character_id)) : null;
+      this.setState((st) => ({
+        edBusy: false, ed: null, edMsg: '', tagsPhase: 'none',
+        posts: st.posts.map((p) => String(p.id) !== String(e.id) ? p : {
+          ...p,
+          tag_name: d.tag_name, tag_arc: d.tag_arc, character_id: d.character_id,
+          character_name: d.character_name, npc_id: d.npc_id,
+          characters: card ? { image: card.image } : (d.character_id && String(d.character_id) === String(p.character_id) ? p.characters : null),
+        }),
+      }), () => {
+        this._rights([{ id: e.id }]);
+        if (this.state.filtOpen) this._tags();
+      });
+    } catch (err) {
+      this.setState({ edBusy: false, edMsg: 'Мережа не відповіла.' });
+    }
+  }
+  // Плашку «чужа рука» бачать лише ті, хто може виправити, і поки її не
+  // зняли кнопкою «так і задумано».
+  _strangerOn(p) {
+    const rt = p && (this.state.rights || {})[String(p.id)];
+    return !!(rt && rt.can_edit && rt.stranger && !(this.state.okStranger || []).includes(String(p.id)));
+  }
+  _okStranger(id) {
+    const list = (this.state.okStranger || []).concat(String(id)).slice(-300);
+    lsSet(LS_OKSTR, list);
+    this.setState({ okStranger: list });
+  }
+  _edView(p) {
+    const s = this.state, e = s.ed;
+    if (!e || !p || String(e.id) !== String(p.id)) return { on: false };
+    const rt = (s.rights || {})[String(p.id)] || {};
+    const cards = s.cards || [], npcs = s.npcs || [];
+    const imgOf = (u) => (u ? 'background-image:url(' + JSON.stringify(u) + ');background-size:cover;background-position:center top;' : '');
+    const npcOf = (name) => npcs.find((n) => foldName(n.name) === foldName(name) || (n.aliases || []).some((a) => foldName(a) === foldName(name)));
+    const card = e.charId ? cards.find((c) => String(c.id) === String(e.charId)) : null;
+    const npc = e.charId ? null : npcOf(e.name);
+    const asOrig = String(e.charId || '') === String(e.orig.charId || '') && foldName(e.name) === foldName(e.orig.name);
+    const curImg = card ? imgOf(card.image) : npc ? imgOf(npc.image) : (asOrig ? this._imgBg(p) : '');
+    const curKind = card ? 'анкета з картотеки' + (card.alias ? ' · «' + card.alias + '»' : '')
+      : npc ? (npc.kind === 'location' ? 'локація' : 'технічний НПЦ')
+      : (e.charId ? 'анкета з картотеки' : 'без анкети — лише імʼя з тегу');
+
+    // Кого запропонувати: пошук по картотеці й НПЦ, а без запиту — тих,
+    // хто вже пише в арках цього допису (найчастіше справжній автор там).
+    const q = foldName(e.q);
+    const pool = cards.map((c) => ({ id: c.id, name: c.name, keys: [c.name, c.alias], img: imgOf(c.image), tag: 'анкета', sub: c.alias ? '«' + c.alias + '»' : 'анкета' }))
+      .concat(npcs.map((n) => ({ id: '', name: n.name, keys: [n.name].concat(n.aliases || []), img: imgOf(n.image), tag: n.kind === 'location' ? 'локація' : 'НПЦ', sub: 'технічний НПЦ' })));
+    const isCur = (h) => (h.id ? String(h.id) === String(e.charId || '') : !e.charId && foldName(h.name) === foldName(e.name));
+    let hits = [], hitsHead = '';
+    if (q) {
+      hits = pool.filter((h) => !isCur(h) && h.keys.some((k) => k && foldName(k).includes(q))).slice(0, 10);
+    } else {
+      const alt = s.arcAlt || {}, who = s.arcChars || {};
+      const names = [];
+      e.arcs.forEach((a) => {
+        const box = Object.keys(alt).find((b) => (alt[b] || [b]).some((v) => nearArc(v, a))) || a;
+        (who[box] || []).forEach((n) => { if (!names.some((x) => foldName(x) === foldName(n))) names.push(n); });
+      });
+      hits = names.map((n) => pool.find((h) => h.keys.some((k) => k && foldName(k) === foldName(n)))
+        || { id: '', name: n, img: '', tag: '', sub: 'імʼя з тегів' })
+        .filter((h) => !isCur(h)).slice(0, 8);
+      if (hits.length) hitsHead = 'Хто ще пише в цих арках:';
+    }
+    const freeOk = !!q && !pool.some((h) => h.keys.some((k) => k && foldName(k) === q));
+
+    const origArcs = e.orig.arcs;
+    const arcsDirty = e.arcs.join('\u0001') !== origArcs.join('\u0001');
+    const dirty = !asOrig || arcsDirty;
+    const aq = foldName(e.aq);
+    const free = (s.arcs || []).filter((v) => !e.arcs.some((x) => nearArc(x, v)));
+    const arcHits = (aq ? free.filter((v) => foldName(v).includes(aq)) : free).slice(0, aq ? 8 : 6)
+      .map((v) => ({ v, title: ((s.arcAlt || {})[v] || [v]).join(' · ') }));
+    const near = aq ? (s.arcs || []).find((v) => nearArc(v, e.aq)) : null;
+    const saveOff = !dirty || s.edBusy || !String(e.name || '').trim();
+    const via = rt.via;
+    return {
+      on: true,
+      whoCan: via === 'admin' ? 'Ви правите як рецепція.'
+        : via === 'author' ? 'Ви правите як автор — допис прийшов з вашого Telegram.'
+        : via === 'owner' ? 'Ви правите як власник анкети, за якою записаний допис.' : '',
+      stranger: !!rt.stranger,
+      strangerLine: this._strangerLine(p, rt),
+      curName: e.name || 'Без підпису', curKind, curImg,
+      curBorder: asOrig ? 'rgba(255,255,255,0.12)' : 'rgba(100,149,237,0.5)',
+      charChanged: !asOrig,
+      resetChar: () => this._edPatch({ charId: e.orig.charId, name: e.orig.name, q: '' }),
+      q: e.q, setQ: (ev) => this._edPatch({ q: ev.target.value }),
+      hasHitsHead: !!hitsHead, hitsHead,
+      charHits: hits.map((h) => ({ id: h.id || '', name: h.name, img: h.img, tag: h.tag, sub: h.sub })),
+      pickChar: (ev) => { const d = ev.currentTarget.dataset; this._edPatch({ charId: d.id || null, name: d.name || '', q: '' }); },
+      freeOk, freeLabel: 'Без анкети: «' + String(e.q).trim() + '»',
+      pickFree: () => this._edPatch({ charId: null, name: String(e.q).trim(), q: '' }),
+      arcs: e.arcs.map((v) => {
+        const was = origArcs.some((x) => x === v);
+        return was
+          ? { v, bg: 'rgba(255,215,0,0.12)', border: 'rgba(255,215,0,0.45)', color: '#ffd700' }
+          : { v, bg: 'rgba(100,149,237,0.14)', border: 'rgba(100,149,237,0.5)', color: '#c5d6f7' };
+      }),
+      noArcs: !e.arcs.length,
+      dropArc: (ev) => { const v = ev.currentTarget.dataset.v; this._edPatch({ arcs: e.arcs.filter((x) => x !== v) }); },
+      canAddArc: e.arcs.length < ARC_MAX,
+      aq: e.aq, setAq: (ev) => this._edPatch({ aq: ev.target.value }),
+      aqKey: (ev) => {
+        if (ev.key !== 'Enter') return;
+        ev.preventDefault();
+        if (near) this._edAddArc(near);
+        else if (arcHits.length && aq) this._edAddArc(arcHits[0].v);
+        else this._edAddArc(e.aq);
+      },
+      arcHits,
+      addArc: (ev) => this._edAddArc(ev.currentTarget.dataset.v),
+      newArcOk: !!aq && !near && !e.arcs.some((x) => nearArc(x, e.aq)),
+      newArcLabel: 'Нова арка: «' + String(e.aq).trim() + '»',
+      addNew: () => this._edAddArc(e.aq),
+      scope: 'Зміниться лише цей допис — у стрічці, на сторінці арки, у черзі ходів і в лічильнику персонажа. Правка підписується вашим ніком.'
+        + (via === 'admin' ? ' Те саме написання в усіх дописах — адмінка → Пости → Арки.' : ''),
+      save: () => this._edSave(),
+      saveOff,
+      saveLabel: s.edBusy ? 'Зберігаю…' : dirty ? 'Зберегти теги' : 'Змін немає',
+      saveBg: saveOff ? 'rgba(255,255,255,0.06)' : '#ffd700',
+      saveBorder: saveOff ? 'rgba(255,255,255,0.12)' : '#ffd700',
+      saveInk: saveOff ? 'rgba(255,255,255,0.35)' : '#1a1a1a',
+      close: () => this.setState({ ed: null, edMsg: '' }),
+      hasMsg: !!s.edMsg, msg: s.edMsg,
+    };
+  }
+  _strangerLine(p, rt) {
+    const who = p.character_name || p.tag_name || 'персонаж';
+    return `Допис надіслав ${rt.author_name || 'інший гравець'}, а власник анкети «${who}» — ${rt.owner_nick || 'інший гравець'}. `
+      + 'Якщо тег стоїть помилково — оберіть, чий це насправді персонаж; якщо писали за домовленістю — лишіть як є.';
+  }
   async _page(reset) {
     const s = this.state;
     const off = reset ? 0 : s.off;
@@ -828,6 +1158,7 @@ class Component extends DCLogic {
         posts: reset ? rows : st.posts.concat(rows),
       }), () => {
         this._loadTracks(rows);
+        this._rights(rows);
         if (reset && !this._want) {
           // На ПК читалка ніколи не стоїть порожня — відкриваємо перший допис.
           if (this.state.wide && rows[0]) this._select(rows[0].id, {});
@@ -1016,6 +1347,8 @@ class Component extends DCLogic {
           + (done && !isSel ? 'opacity:0.55;' : ''),
         hasImg: !!this._imgBg(p), imgBg: this._imgBg(p),
         isDup: !!dup,
+        stranger: this._strangerOn(p),
+        strangerHint: this._strangerOn(p) ? this._strangerLine(p, s.rights[String(p.id)]) : '',
         dupHint: dup ? 'Той самий текст уже є: ' + this._fmt(dup.created_at) : '',
         select: () => this._select(p.id, { open: true }),
       };
@@ -1034,7 +1367,16 @@ class Component extends DCLogic {
       bits.push(this._fmt(p.created_at));
       bits.push(len.toLocaleString('uk-UA') + ' знаків');
       if (parts > 1) bits.push(parts + ' ' + this._partsWord(parts));
+      const rt = (s.rights || {})[String(p.id)] || {};
+      if (rt.edited_nick) bits.push('теги виправлено · ' + rt.edited_nick);
+      const editing = !!s.ed && String(s.ed.id) === String(p.id);
       r = {
+        canEdit: !!rt.can_edit,
+        edToggle: () => this._edOpen(p),
+        edBtnBg: editing ? 'rgba(100,149,237,0.18)' : 'none',
+        strangerBar: this._strangerOn(p) && !editing,
+        strangerLine: this._strangerLine(p, rt),
+        strangerOk: () => this._okStranger(p.id),
         name: p.character_name || p.tag_name || 'Без підпису',
         meta: bits.join(' · '),
         linked: !!p.character_id, unlinked: !p.character_id,
@@ -1111,6 +1453,7 @@ class Component extends DCLogic {
       ? 'position:relative;border-right:1px solid rgba(255,255,255,0.08);background:#1a1a1a;overflow:auto;min-height:0;'
       : 'position:relative;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:15px;overflow:hidden;';
 
+    const ed = this._edView(selPost);
     const markPost = s.mark ? s.posts.find((p) => String(p.id) === String(s.mark.id)) : null;
     const hasMark = !!s.mark && String(s.mark.id) !== String(s.sel) && (!markPost || !s.read[String(s.mark.id)]);
     const markLabel = s.mark
@@ -1151,7 +1494,7 @@ class Component extends DCLogic {
       })(),
       goSignup: () => { try { sessionStorage.setItem('au_cab_mode', 'signup'); } catch (e) {} },
       isError: s.phase === 'error', isOk: s.phase === 'ok',
-      shellStyle, listStyle, rd, listRef: this.listRef, pageRef: this.pageRef,
+      shellStyle, listStyle, rd, listRef: this.listRef, pageRef: this.pageRef, ed,
       narrow: !wide,
       hasPosts: rows.length > 0, noPosts: rows.length === 0, rows,
       hasMore: s.more, atEnd: !s.more && rows.length > PAGE - 1,
@@ -1167,7 +1510,7 @@ class Component extends DCLogic {
       fewPages: s.pages > 1 && s.pages <= 12,
       dotsMax: wide ? '220px' : '100%',
       dots: Array.from({ length: dotN }, (_, i) => ({ bg: i <= s.page ? '#ffd700' : 'rgba(255,255,255,0.18)' })),
-      touchStart: (e) => { const t = e.touches && e.touches[0]; if (t) this._tx = { x: t.clientX, y: t.clientY }; },
+      touchStart: (e) => { const t = e.touches && e.touches[0]; this._tx = t && !this.state.ed ? { x: t.clientX, y: t.clientY } : null; },
       touchEnd: (e) => {
         const t = e.changedTouches && e.changedTouches[0];
         const o = this._tx; this._tx = null;
