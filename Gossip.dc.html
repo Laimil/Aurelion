@@ -156,6 +156,17 @@ a:hover{color:#fff}
             <p style="font-family:'Cinzel',Georgia,serif;font-size:1.1rem;color:#fff;letter-spacing:0.04em;overflow-wrap:anywhere;">{{ myNick }}</p>
             <p style="font-size:0.74rem;line-height:1.5;color:rgba(255,255,255,0.4);margin-top:6px;text-wrap:pretty;">{{ statusWord }}</p>
           </div>
+          <sc-if value="{{ hasDeskReplies }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:8px;padding:12px 12px 10px;border-radius:10px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.22);">
+              <p style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,215,0,0.7);">✦ Рецепція відповіла</p>
+              <sc-for list="{{ deskReplies }}" as="r" hint-placeholder-count="0">
+                <div style="display:flex;flex-direction:column;gap:3px;">
+                  <p style="font-size:0.66rem;color:rgba(255,255,255,0.4);overflow-wrap:anywhere;">{{ r.head }}</p>
+                  <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.96rem;line-height:1.5;color:#fff;white-space:pre-wrap;overflow-wrap:anywhere;">{{ r.reply }}</p>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
           <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;flex-direction:column;gap:2px;">
             <sc-if value="{{ canMe }}" hint-placeholder-val="{{ false }}">
@@ -1793,6 +1804,7 @@ class Component extends DCLogic {
     // тягнеться завжди, а плітки лише для своїх.
     this._loadSubs(u.id);
     this._loadOwned(u.id);
+    this._loadDeskReplies(u.id);
     if (prof.status === 'approved') { this._loadLists(u.id); this._loadTurns(true); this._loadArcTags(); this._loadBundles(); this._loadAsks(); }
   }
 
@@ -2385,6 +2397,14 @@ class Component extends DCLogic {
     try {
       const r = await fetch(`${SUPA_URL}/pantheon?select=id,name,god,domain&order=sort_order.asc`, { headers: BASE_H });
       if (r.ok) this.setState({ gods: await r.json() });
+    } catch (e) {}
+  }
+
+  // Відповіді з віконця рецепції (supabase_feedback_migration.sql). Немає таблиці — блоку немає.
+  async _loadDeskReplies(uid) {
+    try {
+      const r = await this._api(`${SUPA_URL}/feedback?author_id=eq.${uid}&reply=not.is.null&select=id,num,text,reply,replied_at&order=replied_at.desc&limit=3`);
+      if (r.ok) this.setState({ deskReplies: await r.json() });
     } catch (e) {}
   }
 
@@ -4697,6 +4717,12 @@ class Component extends DCLogic {
       inside: s.phase === 'ok' && status !== 'blocked',
       canGossip: s.phase === 'ok' && status === 'approved',
       gossipLocked: s.phase === 'ok' && status === 'pending',
+      hasDeskReplies: s.phase === 'ok' && (s.deskReplies || []).length > 0,
+      deskReplies: (s.deskReplies || []).map((r) => ({
+        key: String(r.id),
+        head: `вх. № ${r.num} · «${String(r.text || '').replace(/\s+/g, ' ').slice(0, 60)}${String(r.text || '').length > 60 ? '…' : ''}»`,
+        reply: r.reply,
+      })),
       statusWord: status === 'approved'
         ? 'віконце відчинене'
         : 'доступ до пліток ще на розгляді — пости вже можна читати, анкету подати теж',

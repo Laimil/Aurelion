@@ -3579,8 +3579,102 @@ a:hover{color:#a8c4f7;}
     <span class="au-keep-sign">— М.</span>
   </div>
 </sc-if>
+<!-- ═══ ВІКОНЦЕ РЕЦЕПЦІЇ — зворотний звʼязок для гостей і «на розгляді» ═══ -->
+<sc-if value="{{ fbDock }}" hint-placeholder-val="{{ false }}">
+  <button onClick="{{ openFb }}" title="{{ fbDockLabel }}" aria-label="{{ fbDockLabel }}" style="position:fixed;right:22px;bottom:22px;z-index:9999;height:48px;min-width:48px;padding:0 18px 0 16px;border-radius:999px;border:1px solid rgba(255,215,0,0.45);background:rgba(26,24,20,0.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#ffd700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:9px;transition:all 0.25s ease;font-family:'Cinzel',Georgia,serif;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;" style-hover="background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.85);box-shadow:0 0 22px rgba(255,215,0,0.35);transform:translateY(-3px);">
+    <span style="font-size:1.05rem;line-height:1;letter-spacing:0;">✦</span>
+    <span>Рецепція</span>
+    <sc-if value="{{ fbUnread }}" hint-placeholder-val="{{ false }}">
+      <span style="width:8px;height:8px;border-radius:999px;background:#ffd700;box-shadow:0 0 10px rgba(255,215,0,0.9);"></span>
+    </sc-if>
+  </button>
+</sc-if>
+<sc-if value="{{ fbOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeFb }}" style="position:fixed;inset:0;z-index:10000;background:rgba(10,9,8,0.45);"></div>
+  <div role="dialog" aria-label="Віконце рецепції" onClick="{{ fbStop }}" style="position:fixed;right:16px;bottom:16px;z-index:10001;width:min(420px, calc(100vw - 32px));max-height:calc(100vh - 92px);overflow-y:auto;box-sizing:border-box;background:rgba(22,20,17,0.97);border:1px solid rgba(255,215,0,0.28);border-radius:15px;box-shadow:0 22px 60px rgba(0,0,0,0.7);padding:20px 20px 18px;display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+      <div style="min-width:0;">
+        <p style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:6px;">✦ Віконце рецепції</p>
+        <p style="font-family:'Cinzel',Georgia,serif;font-size:1.12rem;color:#fff;letter-spacing:0.05em;">Напишіть Марті</p>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.5;color:rgba(255,255,255,0.6);margin-top:6px;text-wrap:pretty;">Питання, скарга чи подяка — підшиваю і передаю адміністрації того ж дня.</p>
+      </div>
+      <button onClick="{{ closeFb }}" aria-label="Закрити" style="flex-shrink:0;cursor:pointer;width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,0.16);background:transparent;color:rgba(255,255,255,0.6);font-size:1rem;line-height:1;transition:all 0.2s ease;" style-hover="color:#fff;border-color:rgba(255,255,255,0.4);">✕</button>
+    </div>
+    <div style="display:flex;gap:18px;border-bottom:1px solid rgba(255,255,255,0.1);">
+      <button onClick="{{ fbPickWrite }}" style="cursor:pointer;background:transparent;border:none;border-bottom:2px solid {{ fbTabWriteLine }};padding:4px 0 9px;margin-bottom:-1px;font-size:0.8rem;color:{{ fbTabWriteColor }};">Написати</button>
+      <button onClick="{{ fbPickMine }}" style="cursor:pointer;background:transparent;border:none;border-bottom:2px solid {{ fbTabMineLine }};padding:4px 0 9px;margin-bottom:-1px;font-size:0.8rem;color:{{ fbTabMineColor }};display:flex;align-items:center;gap:7px;">{{ fbMineLabel }}<sc-if value="{{ fbUnread }}" hint-placeholder-val="{{ false }}"><span style="width:7px;height:7px;border-radius:999px;background:#ffd700;"></span></sc-if></button>
+    </div>
+
+    <sc-if value="{{ fbWriteView }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          <sc-for list="{{ fbKinds }}" as="k" hint-placeholder-count="6">
+            <button onClick="{{ k.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 13px;font-size:0.78rem;transition:all 0.2s ease;background:{{ k.bg }};border:1px solid {{ k.border }};color:{{ k.color }};">{{ k.label }}</button>
+          </sc-for>
+        </div>
+        <div>
+          <textarea value="{{ fbText }}" onChange="{{ fbSetText }}" placeholder="{{ fbHint }}" rows="5" style="width:100%;box-sizing:border-box;resize:vertical;min-height:110px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:11px 13px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.55;outline:none;"></textarea>
+          <p style="font-size:0.66rem;color:rgba(255,255,255,0.3);text-align:right;margin-top:3px;">{{ fbCount }}</p>
+        </div>
+        <sc-if value="{{ fbGuest }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;">
+            <input value="{{ fbNick }}" onChange="{{ fbSetNick }}" placeholder="Як до вас звертатися" autocomplete="nickname" style="grid-column:1 / -1;box-sizing:border-box;width:100%;height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:0 13px;color:#fff;font-size:0.88rem;outline:none;" />
+            <input value="{{ fbTg }}" onChange="{{ fbSetTg }}" placeholder="@нік у телеграмі" autocomplete="off" style="box-sizing:border-box;width:100%;height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:0 13px;color:#fff;font-size:0.88rem;outline:none;" />
+            <input value="{{ fbEmail }}" onChange="{{ fbSetEmail }}" placeholder="або пошта" type="email" autocomplete="email" style="box-sizing:border-box;width:100%;height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:0 13px;color:#fff;font-size:0.88rem;outline:none;" />
+            <p style="grid-column:1 / -1;font-size:0.72rem;line-height:1.5;color:rgba(255,255,255,0.42);text-wrap:pretty;">{{ fbContactNote }}</p>
+          </div>
+        </sc-if>
+        <sc-if value="{{ fbSigned }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.76rem;line-height:1.5;color:rgba(255,255,255,0.5);text-wrap:pretty;">{{ fbSignedLine }}</p>
+        </sc-if>
+        <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
+          <label>Сайт <input value="{{ fbTrap }}" onChange="{{ fbSetTrap }}" name="website" tabIndex="-1" autocomplete="off" /></label>
+        </div>
+        <sc-if value="{{ fbHasErr }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:0.8rem;line-height:1.5;color:#ff8a8a;">{{ fbErr }}</p>
+        </sc-if>
+        <button onClick="{{ fbSend }}" style="cursor:pointer;align-self:flex-start;height:44px;padding:0 24px;border-radius:999px;border:1px solid rgba(255,215,0,0.9);background:#ffd700;color:#1a1a1a;font-weight:600;font-size:0.88rem;transition:all 0.3s ease;" style-hover="box-shadow:0 0 22px rgba(255,215,0,0.45);transform:scale(1.03);">{{ fbSendLabel }}</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ fbDoneView }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding:6px 0 2px;">
+        <div style="transform:rotate(-4deg);border:1px solid rgba(255,215,0,0.5);border-radius:6px;padding:10px 16px;background:rgba(255,215,0,0.06);">
+          <p style="font-family:'Cinzel',Georgia,serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.65);">Рецепція · прийнято</p>
+          <p style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.09em;color:#ffd700;margin-top:3px;">вх. № {{ fbDoneNo }}</p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.82rem;color:rgba(255,255,255,0.45);margin-top:2px;">— М.</p>
+        </div>
+        <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.72);text-wrap:pretty;">Підшила. Коли відповідуть — побачите золоту крапку на віконці.</p>
+        <button onClick="{{ fbAgain }}" style="cursor:pointer;height:40px;padding:0 18px;border-radius:999px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);color:#fff;font-size:0.82rem;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.12);">Написати ще</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ fbMineView }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <sc-if value="{{ fbNoMine }}" hint-placeholder-val="{{ false }}">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:rgba(255,255,255,0.5);">Від вас ще нічого не підшито.</p>
+        </sc-if>
+        <sc-for list="{{ fbMine }}" as="m" hint-placeholder-count="0">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:7px;">
+            <p style="font-size:0.64rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.6);">{{ m.head }}</p>
+            <p style="font-size:0.82rem;line-height:1.5;color:rgba(255,255,255,0.6);white-space:pre-wrap;overflow-wrap:anywhere;">{{ m.text }}</p>
+            <sc-if value="{{ m.hasReply }}" hint-placeholder-val="{{ false }}">
+              <div style="border-top:1px solid rgba(255,215,0,0.18);padding-top:8px;">
+                <p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:#ffd700;margin-bottom:4px;">✦ Відповідь</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.55;color:#fff;white-space:pre-wrap;overflow-wrap:anywhere;">{{ m.reply }}</p>
+              </div>
+            </sc-if>
+            <sc-if value="{{ m.hasState }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.72rem;color:rgba(255,255,255,0.38);">{{ m.state }}</p>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
 <sc-if value="{{ showToTop }}" hint-placeholder-val="{{ false }}">
-  <button class="au-totop" onClick="{{ scrollToTop }}" title="Нагору" aria-label="Нагору" style="position:fixed;right:22px;bottom:22px;z-index:9999;width:48px;height:48px;border-radius:999px;border:1px solid rgba(255,215,0,0.4);background:rgba(26,24,20,0.82);backdrop-filter:blur(10px);color:#ffd700;font-size:1.3rem;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.8);box-shadow:0 0 22px rgba(255,215,0,0.35);transform:translateY(-3px);">↑</button>
+  <button class="au-totop" onClick="{{ scrollToTop }}" title="Нагору" aria-label="Нагору" style="position:fixed;right:22px;bottom:{{ toTopBottom }};z-index:9999;width:48px;height:48px;border-radius:999px;border:1px solid rgba(255,215,0,0.4);background:rgba(26,24,20,0.82);backdrop-filter:blur(10px);color:#ffd700;font-size:1.3rem;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.8);box-shadow:0 0 22px rgba(255,215,0,0.35);transform:translateY(-3px);">↑</button>
 </sc-if>
 <!-- ── ПАВУТИНА ЗВ'ЯЗКІВ ── -->
 <sc-if value="{{ webVisible }}" hint-placeholder-val="{{ false }}">
@@ -7195,8 +7289,186 @@ class Component extends DCLogic {
     this.setState({ joinTease: { total, week } });
   }
 
+  // ── Віконце рецепції (зворотний звʼязок) ─────────────────────────
+  // Пишемо лише через feedback_send(): ліміт, пастку й вимикач тримає база
+  // (supabase_feedback_migration.sql). Гість бачить свої звернення за id браузера.
+  _fbClient(make) {
+    try {
+      let c = localStorage.getItem('au_fb_client') || '';
+      if (c.length < 16 && make) {
+        c = (window.crypto && crypto.randomUUID) ? crypto.randomUUID().replace(/-/g, '')
+          : Math.random().toString(36).slice(2) + Date.now().toString(36) + Math.random().toString(36).slice(2);
+        localStorage.setItem('au_fb_client', c);
+      }
+      return c;
+    } catch (e) { return ''; }
+  }
+  async _fbRpc(fn, body) {
+    await this._userFresh();
+    const go = () => fetch(`${SUPA_URL}/rpc/${fn}`, {
+      method: 'POST',
+      headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + (this._userTok() || SUPA_KEY), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    let r = await go();
+    if (r.status === 401 && this._userRef() && await this._userRenew(true)) r = await go();
+    return r;
+  }
+  async _fbLoadMine() {
+    const c = this._fbClient(false);
+    if (!c && !this._userTok()) return;
+    try {
+      const r = await this._fbRpc('feedback_mine', { p_client: c || null });
+      if (!r.ok) return;
+      const rows = await r.json();
+      this.setState({ fbMine: Array.isArray(rows) ? rows : [] });
+    } catch (e) {}
+  }
+  _fbOpen = () => {
+    const p = (() => { try { return JSON.parse(localStorage.getItem('au_user_card') || 'null') || {}; } catch (e) { return {}; } })();
+    this.setState(st => ({ fbOpen: true, fbErr: '', fbView: (st.fbMine || []).some(m => m.reply && !m.reply_seen_at) ? 'mine' : (st.fbView || 'write'),
+      fbNick: st.fbNick != null ? st.fbNick : (p.nick || '') }));
+    this._fbLoadMine();
+  };
+  _fbClose = () => this.setState({ fbOpen: false });
+  _fbShowMine = async () => {
+    this.setState({ fbView: 'mine' });
+    await this._fbLoadMine();
+    if ((this.state.fbMine || []).some(m => m.reply && !m.reply_seen_at)) {
+      try { await this._fbRpc('feedback_seen', { p_client: this._fbClient(false) || null }); } catch (e) {}
+      const now = new Date().toISOString();
+      this.setState(st => ({ fbSeenNow: (st.fbMine || []).filter(m => m.reply && !m.reply_seen_at).map(m => m.id),
+        fbMine: (st.fbMine || []).map(m => m.reply && !m.reply_seen_at ? { ...m, reply_seen_at: now } : m) }));
+    }
+  };
+  _fbSend = async () => {
+    const s = this.state;
+    if (s.fbBusy) return;
+    const text = String(s.fbText || '').trim();
+    const tg = String(s.fbTg || '').trim();
+    const em = String(s.fbEmail || '').trim();
+    const signed = !!this._userTok() && !!s.userStatus;
+    if (!s.fbKind) return this.setState({ fbErr: 'Оберіть, про що звернення.' });
+    if (text.length < 10) return this.setState({ fbErr: 'Напишіть хоч речення — від десяти знаків.' });
+    if (!signed && !tg && !em) return this.setState({ fbErr: 'Залиште телеграм або пошту — інакше нема куди відповісти.' });
+    if (tg && !/^@?[A-Za-z0-9_]{5,32}$/.test(tg)) return this.setState({ fbErr: 'Телеграм — це @нік з 5–32 латинських літер, цифр або _.' });
+    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) return this.setState({ fbErr: 'Пошта виглядає не так — перевірте, будь ласка.' });
+    this.setState({ fbBusy: true, fbErr: '' });
+    try {
+      const r = await this._fbRpc('feedback_send', {
+        p_kind: s.fbKind, p_text: text, p_nick: String(s.fbNick || '').trim() || null,
+        p_tg: tg || null, p_email: em || null,
+        p_page: (window.location.hash || '#home').slice(0, 120),
+        p_client: this._fbClient(true), p_trap: s.fbTrap || null,
+      });
+      let d = null;
+      try { d = await r.json(); } catch (e) {}
+      if (!r.ok) {
+        const msg = d && d.message ? String(d.message) : '';
+        const missing = r.status === 404 || /feedback_send/.test(msg);
+        throw new Error(missing ? 'Віконце ще не добудоване — спробуйте трохи згодом.' : (msg || 'Не вийшло записати. Спробуйте ще раз.'));
+      }
+      // Марта стукає адмінам сама; не дійшло — підбере на найближчому цоканні крону.
+      if (d && d.id) {
+        fetch(`${SUPA_URL.replace('/rest/v1', '/functions/v1')}/telegram-report?knock=note&id=${d.id}`, {
+          method: 'POST', headers: { apikey: SUPA_KEY, 'Authorization': 'Bearer ' + (this._userTok() || SUPA_KEY) },
+        }).catch(() => {});
+      }
+      this.setState({ fbBusy: false, fbDone: (d && d.num) || '—', fbText: '', fbKind: '' });
+      this._fbLoadMine();
+    } catch (e) {
+      this.setState({ fbBusy: false, fbErr: e.message || String(e) });
+    }
+  };
+  _fbVals(page) {
+    const s = this.state;
+    const site = (s.data && s.data.site) || {};
+    const on = String(site.feedback_on == null ? '1' : site.feedback_on) !== '0';
+    const st = s.userStatus || '';
+    const signed = !!s.userNick && !!st;
+    const show = on && st !== 'approved' && st !== 'blocked' && !s.introOn && page !== 'map';
+    const KINDS = [['question', 'Питання'], ['join', 'Хочу долучитися'], ['bug', 'Щось зламалось'], ['complaint', 'Скарга'], ['thanks', 'Подяка'], ['other', 'Інше']];
+    const KL = Object.fromEntries(KINDS);
+    const HINT = {
+      question: 'Що саме хочете дізнатися?',
+      join: 'Коротко: хто ви, як нас знайшли і в кого хочете грати.',
+      bug: 'Де саме, що ви робили і що побачили. Сторінку я запишу сама.',
+      complaint: 'Що сталося? Пишіть як є — далі адміністрації це не піде.',
+      thanks: 'Кому і за що? Передам дослівно.',
+      other: 'Слухаю.',
+    };
+    const fmt = (ts) => { try { return new Date(ts).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }); } catch (e) { return ''; } };
+    const mine = (s.fbMine || []).map(m => ({
+      key: String(m.id),
+      head: 'вх. № ' + m.num + ' · ' + (KL[m.kind] || 'Інше') + ' · ' + fmt(m.created_at),
+      text: m.text,
+      hasReply: !!m.reply,
+      reply: m.reply || '',
+      fresh: (s.fbSeenNow || []).indexOf(m.id) !== -1,
+      state: m.reply ? '' : (m.status === 'closed' ? 'Закрито без слова' : 'Читають'),
+      hasState: !m.reply,
+    }));
+    const unread = (s.fbMine || []).filter(m => m.reply && !m.reply_seen_at).length;
+    const tgOk = String(s.fbTg || '').trim(), emOk = String(s.fbEmail || '').trim();
+    const view = s.fbView || 'write';
+    return {
+      fbShow: show,
+      fbOpen: show && !!s.fbOpen,
+      fbDock: show && !s.fbOpen,
+      fbUnread: unread > 0,
+      fbDockLabel: unread ? 'Відповідь на рецепції' : 'Написати на рецепцію',
+      toTopBottom: (show && !s.fbOpen) ? '82px' : '22px',
+      openFb: this._fbOpen,
+      closeFb: this._fbClose,
+      fbWriteView: view === 'write' && !s.fbDone,
+      fbDoneView: view === 'write' && !!s.fbDone,
+      fbMineView: view === 'mine',
+      fbHasMine: mine.length > 0,
+      fbNoMine: mine.length === 0,
+      fbMineLabel: 'Мої' + (mine.length ? ' · ' + mine.length : ''),
+      fbTabWriteColor: view === 'write' ? '#ffd700' : 'rgba(255,255,255,0.55)',
+      fbTabWriteLine: view === 'write' ? 'rgba(255,215,0,0.7)' : 'transparent',
+      fbTabMineColor: view === 'mine' ? '#ffd700' : 'rgba(255,255,255,0.55)',
+      fbTabMineLine: view === 'mine' ? 'rgba(255,215,0,0.7)' : 'transparent',
+      fbPickWrite: () => this.setState({ fbView: 'write', fbDone: null }),
+      fbPickMine: this._fbShowMine,
+      fbMine: mine,
+      fbKinds: KINDS.map(([id, label]) => {
+        const on = s.fbKind === id;
+        return { id, label, onPick: () => this.setState({ fbKind: id, fbErr: '' }),
+          bg: on ? 'rgba(255,215,0,0.16)' : 'rgba(255,255,255,0.05)',
+          border: on ? 'rgba(255,215,0,0.65)' : 'rgba(255,255,255,0.16)',
+          color: on ? '#ffd700' : 'rgba(255,255,255,0.75)' };
+      }),
+      fbHint: HINT[s.fbKind] || 'Спершу оберіть, про що, — і пишіть.',
+      fbText: s.fbText || '',
+      fbSetText: (e) => this.setState({ fbText: e.target.value.slice(0, 2000), fbErr: '' }),
+      fbCount: (String(s.fbText || '').length) + ' / 2000',
+      fbGuest: !signed,
+      fbSigned: signed,
+      fbSignedLine: 'Ви в кабінеті як «' + (s.userNick || '') + '» — відповідь ляже туди ж і сюди.',
+      fbNick: s.fbNick || '',
+      fbSetNick: (e) => this.setState({ fbNick: e.target.value.slice(0, 40) }),
+      fbTg: s.fbTg || '',
+      fbSetTg: (e) => this.setState({ fbTg: e.target.value.slice(0, 33), fbErr: '' }),
+      fbEmail: s.fbEmail || '',
+      fbSetEmail: (e) => this.setState({ fbEmail: e.target.value.slice(0, 120), fbErr: '' }),
+      fbContactNote: (tgOk || emOk) ? 'Відповім туди — і сюди ж, у «Мої», якщо зайдете з цього браузера.' : 'Телеграм або пошта — щось одне обовʼязково.',
+      fbTrap: s.fbTrap || '',
+      fbSetTrap: (e) => this.setState({ fbTrap: e.target.value }),
+      fbErr: s.fbErr || '',
+      fbHasErr: !!s.fbErr,
+      fbSend: this._fbSend,
+      fbSendLabel: s.fbBusy ? 'Записую…' : 'Передати Марті',
+      fbDoneNo: s.fbDone || '',
+      fbAgain: () => this.setState({ fbDone: null, fbView: 'write' }),
+      fbStop: (e) => e.stopPropagation(),
+    };
+  }
+
   componentDidMount() {
     this._loadJoinTease();
+    setTimeout(() => this._fbLoadMine(), 2500);
     window.addEventListener('scroll', this._pulseCheck, { passive: true });
     window.addEventListener('scroll', this._toTopWatch, { passive: true });
     // Вітрина в «Персонажах» гортається сама, поки її видно й над нею немає курсора.
@@ -11170,6 +11442,7 @@ class Component extends DCLogic {
       loreIntroQuote: ((data.site && data.site.lore_intro_quote != null && data.site.lore_intro_quote !== '') ? data.site.lore_intro_quote : DEFAULT_LORE_QUOTE),
       hasLoreQuote: !(data.site && data.site.lore_intro_quote === ''),
       showToTop: !!s.showToTop,
+      ...this._fbVals(s.page),
       scrollToTop: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
       loreSortOptions: [
         { value: 'order', label: '✦ Порядок', active: loreSortBy === 'order' },

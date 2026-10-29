@@ -1444,6 +1444,62 @@ input,textarea,select{font-size:16px}
   </div>
 </sc-if>
 
+<!-- NOTES (RECEPTION) TAB -->
+<sc-if value="{{ showNotesTab }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:900px;margin:0 auto;padding:28px 24px 80px;">
+    <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:6px;">✦ Звернення на рецепцію</h2>
+    <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.55;">Віконце в куті сайту бачать гості й ті, кому доступ ще на розгляді. Гість мусить лишити телеграм або пошту; ліміт — три звернення на добу з браузера чи адреси. Марта стукає в лічку про кожне нове.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px;">
+      <button onClick="{{ fbToggle }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.78rem;transition:all 0.2s ease;background:{{ fbToggleBg }};border:1px solid {{ fbToggleBorder }};color:{{ fbToggleColor }};">{{ fbToggleLabel }}</button>
+      <sc-for list="{{ fbFilters }}" as="f" hint-placeholder-count="4">
+        <button onClick="{{ f.onPick }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.78rem;transition:all 0.2s ease;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};">{{ f.label }}</button>
+      </sc-for>
+      <button onClick="{{ fbReload }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:999px;padding:7px 15px;font-size:0.78rem;">↻ Оновити</button>
+      <span style="font-size:0.76rem;color:rgba(255,255,255,0.3);">{{ fbNote }}</span>
+    </div>
+    <sc-if value="{{ fbNoRows }}" hint-placeholder-val="{{ true }}">
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);">{{ fbEmptyLine }}</p>
+    </sc-if>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <sc-for list="{{ fbRows }}" as="f" hint-placeholder-count="0">
+        <div style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);border-radius:11px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:{{ f.accent }};">{{ f.head }}</span>
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);">{{ f.when }}</span>
+          </div>
+          <p style="font-size:0.76rem;color:rgba(255,255,255,0.45);">{{ f.from }}</p>
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.65;color:rgba(255,255,255,0.85);white-space:pre-wrap;overflow-wrap:anywhere;text-wrap:pretty;">{{ f.text }}</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <sc-if value="{{ f.hasTg }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ f.tgUrl }}" target="_blank" rel="noopener noreferrer" style="font-size:0.78rem;color:#9dbcf7;border:1px solid rgba(100,149,237,0.4);border-radius:999px;padding:5px 12px;text-decoration:none;">✈ {{ f.tgLabel }}</a>
+            </sc-if>
+            <sc-if value="{{ f.hasEmail }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ f.emailUrl }}" style="font-size:0.78rem;color:#9dbcf7;border:1px solid rgba(100,149,237,0.4);border-radius:999px;padding:5px 12px;text-decoration:none;">✉ {{ f.emailLabel }}</a>
+            </sc-if>
+            <sc-if value="{{ f.noKnock }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:0.74rem;color:rgba(255,180,120,0.85);padding:5px 0;">⚠ Марта ще не постукала — підбере на найближчому цоканні крону</span>
+            </sc-if>
+          </div>
+          <textarea value="{{ f.draft }}" onChange="{{ f.setDraft }}" rows="3" placeholder="Відповідь — людина побачить її на сайті" style="width:100%;box-sizing:border-box;resize:vertical;"></textarea>
+          <p style="font-size:0.72rem;line-height:1.5;color:rgba(255,255,255,0.32);">{{ f.guestNote }}</p>
+          <sc-if value="{{ f.hasReply }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:0.72rem;color:rgba(120,220,170,0.85);">{{ f.replyMeta }}</p>
+          </sc-if>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button onClick="{{ f.onReply }}" style="cursor:pointer;border-radius:999px;padding:8px 18px;font-size:0.8rem;background:#ffd700;border:1px solid #ffd700;color:#1a1a1a;font-weight:600;">{{ f.replyLabel }}</button>
+            <sc-if value="{{ f.canClose }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ f.onClose }}" style="cursor:pointer;border-radius:999px;padding:8px 16px;font-size:0.8rem;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);">Закрити</button>
+            </sc-if>
+            <sc-if value="{{ f.canReopen }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ f.onReopen }}" style="cursor:pointer;border-radius:999px;padding:8px 16px;font-size:0.8rem;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);">Повернути</button>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
 <!-- OWNERS &amp; EDITS TAB -->
 <sc-if value="{{ showOwnersTab }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:900px;margin:0 auto;padding:28px 24px 80px;">
@@ -5182,6 +5238,7 @@ class Component extends DCLogic {
       this._loadGossipAdmin();
       this._loadIntake();
       this._loadEdits();
+      this._loadNotes();
       this._loadSealsAdmin();
     } catch(e) { this.setState({ loading: false }); }
   }
@@ -5537,6 +5594,96 @@ class Component extends DCLogic {
               this._toast('✓ Видалено');
             } catch (e) { this._toast('✗ Не вийшло видалити'); }
           },
+        };
+      }),
+    };
+  }
+
+  // ── Звернення з віконця рецепції (supabase_feedback_migration.sql) ──
+  async _loadNotes() {
+    const rows = await this._get('feedback?select=*&order=created_at.desc&limit=300');
+    this.setState({ fbRows: Array.isArray(rows) ? rows : [] });
+  }
+
+  _notesVals() {
+    const s = this.state;
+    const rows = Array.isArray(s.fbRows) ? s.fbRows : [];
+    const site = (s.data && s.data.site) || {};
+    const on = String(site.feedback_on == null ? '1' : site.feedback_on) !== '0';
+    const me = s.userEmail || '';
+    const KL = { question: 'Питання', join: 'Хоче долучитися', bug: 'Щось зламалось', complaint: 'Скарга', thanks: 'Подяка', other: 'Інше' };
+    const KC = { question: '#9dbcf7', join: '#ffd700', bug: '#ff8a8a', complaint: 'rgba(255,170,110,0.95)', thanks: 'rgba(120,220,170,0.95)', other: 'rgba(255,255,255,0.6)' };
+    const WHO = { guest: 'гість', pending: 'доступ на розгляді', approved: 'свій' };
+    const flt = s.fbFilter || 'new';
+    const cnt = { new: 0, answered: 0, closed: 0, all: rows.length };
+    rows.forEach(r => { if (cnt[r.status] != null) cnt[r.status]++; });
+    const when = (ts) => { try { return new Date(ts).toLocaleString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } };
+    const patch = async (r, body, note) => {
+      try {
+        await this._patch('feedback', r.id, body);
+        this.setState(st => ({ fbRows: (st.fbRows || []).map(x => String(x.id) === String(r.id) ? { ...x, ...body } : x) }));
+        this._toast(note);
+      } catch (e) { this._toast('✗ Не вдалося: ' + String(e.message || e).slice(0, 120)); }
+    };
+    const shown = rows.filter(r => flt === 'all' || r.status === flt);
+    const drafts = s.fbDrafts || {};
+    return {
+      fbOn: on,
+      fbToggleLabel: on ? '✓ Віконце на сайті' : 'Віконце сховане',
+      fbToggleBg: on ? 'rgba(255,215,0,0.14)' : 'transparent',
+      fbToggleBorder: on ? 'rgba(255,215,0,0.6)' : 'rgba(255,255,255,0.18)',
+      fbToggleColor: on ? '#ffd700' : 'rgba(255,255,255,0.55)',
+      fbToggle: async () => {
+        const next = on ? '0' : '1';
+        this._setSite('feedback_on', next);
+        try {
+          await this._upsertSetting('feedback_on', next);
+          localStorage.setItem('aurelion-refresh', Date.now().toString());
+          this._toast(next === '1' ? '✓ Віконце рецепції відчинене' : '✓ Віконце рецепції сховане');
+        } catch (e) {
+          this._setSite('feedback_on', on ? '1' : '0');
+          this._toast('✗ Не вдалося зберегти вимикач');
+        }
+      },
+      fbReload: () => this._loadNotes(),
+      fbNote: `Нових ${cnt.new} · з відповіддю ${cnt.answered} · закритих ${cnt.closed}`,
+      fbFilters: [['new', 'Нові'], ['answered', 'З відповіддю'], ['closed', 'Закриті'], ['all', 'Усі']].map(([id, label]) => {
+        const a = flt === id;
+        return { id, label: label + ' · ' + cnt[id], onPick: () => this.setState({ fbFilter: id }),
+          bg: a ? 'rgba(100,149,237,0.18)' : 'transparent', border: a ? 'rgba(100,149,237,0.7)' : 'rgba(255,255,255,0.14)', color: a ? '#fff' : 'rgba(255,255,255,0.55)' };
+      }),
+      fbNoRows: shown.length === 0,
+      fbEmptyLine: rows.length ? 'Тут порожньо.' : 'Звернень ще немає. Якщо ви щойно прогнали міграцію — це нормально.',
+      fbRows: shown.map(r => {
+        const tg = String(r.tg_nick || '').replace(/^@/, '');
+        const draft = drafts[r.id] != null ? drafts[r.id] : (r.reply || '');
+        return {
+          key: String(r.id),
+          accent: KC[r.kind] || KC.other,
+          head: `№${r.num} · ${KL[r.kind] || 'Інше'}`,
+          when: when(r.created_at),
+          from: [(r.nick || 'без імені'), WHO[r.who] || r.who, r.page ? 'зі сторінки ' + r.page : ''].filter(Boolean).join(' · '),
+          text: r.text,
+          hasTg: !!tg, tgUrl: 'https://t.me/' + tg, tgLabel: '@' + tg,
+          hasEmail: !!r.email, emailUrl: 'mailto:' + (r.email || '') + '?subject=' + encodeURIComponent('Aurelion · звернення №' + r.num), emailLabel: r.email || '',
+          noKnock: !r.notified_at,
+          guestNote: r.who === 'guest'
+            ? 'Гість побачить відповідь у віконці, лише якщо зайде з того самого браузера — напишіть ще й у телеграм чи пошту.'
+            : 'Відповідь людина побачить у віконці рецепції й у кабінеті.',
+          draft,
+          setDraft: (e) => { const v = e.target.value; this.setState(st => ({ fbDrafts: { ...(st.fbDrafts || {}), [r.id]: v } })); },
+          hasReply: !!r.reply,
+          replyMeta: r.reply ? `Відповіли ${when(r.replied_at)}${r.replied_by ? ' · ' + r.replied_by : ''}${r.reply_seen_at ? ' · прочитано' : ' · ще не прочитано'}` : '',
+          replyLabel: r.reply ? 'Оновити відповідь' : 'Відповісти',
+          onReply: () => {
+            const t = String(draft || '').trim();
+            if (t.length < 2) { this._toast('✗ Відповідь порожня'); return; }
+            patch(r, { reply: t, status: 'answered', replied_at: new Date().toISOString(), replied_by: me, reply_seen_at: null }, '✓ Відповідь підшита');
+          },
+          canClose: r.status !== 'closed',
+          onClose: () => patch(r, { status: 'closed' }, '✓ Закрито'),
+          canReopen: r.status === 'closed',
+          onReopen: () => patch(r, { status: r.reply ? 'answered' : 'new' }, '✓ Повернули'),
         };
       }),
     };
@@ -6496,6 +6643,7 @@ class Component extends DCLogic {
       R('owners', 'Правки від власників', { badge: c.owners, sub: c.owners ? nn(c.owners, 'правка', 'правки', 'правок') + ' на розгляді' : 'нових немає' }),
       R('people', 'Люди під дверима', { badge: c.people, sub: c.people ? 'чекають доступу' : 'нікого немає' }),
       R('gossip', 'Плітки', { badge: c.gossip, sub: c.gossip ? 'на столі' : 'стіл чистий' }),
+      R('notes', 'Звернення', { badge: c.notes, sub: c.notes ? nn(c.notes, 'нове', 'нових', 'нових') + ' на рецепції' : 'усі розібрані' }),
     ];
     const world = [
       R('characters', 'Персонажі', { meta: len('characters'), badge: 0, sub: c.characters ? nn(c.characters, 'чернетка', 'чернетки', 'чернеток') : '' }),
@@ -6647,6 +6795,12 @@ class Component extends DCLogic {
       kind: 'gossip', key: 'g' + g.id, at: g.created_at, go: { gosFilter: 'pending' },
       title: clip(g.text, 90) || 'плітка', sub: g.sign === 'secret' ? 'таємно' : `від ${g.author_nick || '?'}`,
     }));
+    (s.fbRows || []).filter(f => f.status === 'new').forEach(f => out.push({
+      kind: 'notes', key: 'f' + f.id, at: f.created_at, go: { fbFilter: 'new' },
+      title: `№${f.num} · ${clip(f.text, 80)}`,
+      sub: (f.nick || f.tg_nick || f.email || 'без імені') + (f.who === 'guest' ? ' · гість' : '') + (f.notified_at ? '' : ' · Марта не постукала'),
+      warn: !f.notified_at,
+    }));
     (d.tests || []).filter(t => t.status === 'pending').forEach(t => out.push({
       kind: 'tests', key: 't' + t.id, at: t.submitted_at || t.updated_at || t.created_at,
       title: t.title || 'тест без назви', sub: `автор ${t.author_nick || 'невідомо хто'}`,
@@ -6659,7 +6813,7 @@ class Component extends DCLogic {
   }
 
   _deskCounts() {
-    const c = { total: 0, people: 0, intake: 0, owners: 0, gossip: 0, tests: 0, characters: 0 };
+    const c = { total: 0, people: 0, intake: 0, owners: 0, gossip: 0, tests: 0, characters: 0, notes: 0 };
     this._deskOpen().forEach(x => { c[x.kind]++; c.total++; });
     return c;
   }
@@ -6686,6 +6840,7 @@ class Component extends DCLogic {
       gossip:     { tag: 'Плітка',   tab: 'gossip',     color: 'rgba(255,190,130,0.95)',   title: 'Плітки на столі',        empty: 'стіл чистий' },
       tests:      { tag: 'Тест',     tab: 'tests',      color: 'rgba(120,220,170,0.95)',   title: 'Тести на розгляді',      empty: 'нових немає' },
       characters: { tag: 'Чернетка', tab: 'characters', color: 'rgba(255,255,255,0.7)',    title: 'Чернетки персонажів',    empty: 'усі на сайті' },
+      notes:      { tag: 'Звернення', tab: 'notes',     color: '#6495ed',                  title: 'Звернення на рецепцію',  empty: 'усі розібрані' },
     };
     const go = (x) => {
       const k = K[x.kind];
@@ -6764,7 +6919,7 @@ class Component extends DCLogic {
       deskGosReady: gosReady ? `У черзі пліток готових до появи — ${gosReady}` : '',
       deskHasGosReady: gosReady > 0,
       deskGoGossip: () => this.setState({ tab: 'gossip', gosFilter: 'ready' }),
-      deskReload: () => { this._loadGossipAdmin(); this._loadIntake(); this._loadEdits(); this._refreshTable('tests'); this._refreshTable('characters'); this._toast('↺ Оновлюю'); },
+      deskReload: () => { this._loadGossipAdmin(); this._loadIntake(); this._loadEdits(); this._loadNotes(); this._refreshTable('tests'); this._refreshTable('characters'); this._toast('↺ Оновлюю'); },
     };
   }
 
@@ -9892,6 +10047,8 @@ class Component extends DCLogic {
       showGossipTab:  tab === 'gossip',
       showIntakeTab:  tab === 'intake',
       showOwnersTab:  tab === 'owners',
+      showNotesTab:   tab === 'notes',
+      ...this._notesVals(),
       showSealsTab:   tab === 'seals',
       ...this._sealsVals(),
       ...this._mbVals(),
