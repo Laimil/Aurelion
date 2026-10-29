@@ -8,20 +8,23 @@
   const clean = (s) => String(s || '').replace(/\r\n?/g, '\n').trim();
   const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
 
+  // Збірка арок: інша шапка, перелік арок і арка в шапці кожного допису.
+  let OPT = {};
   function meta(arc, rows) {
     const cast = [];
     rows.forEach((p) => { const w = who(p); if (!cast.includes(w)) cast.push(w); });
     const f = rows[0].created_at, l = rows[rows.length - 1].created_at;
     return {
-      title: `Арка · ${arc}`,
+      title: `${OPT.kind || 'Арка'} · ${arc}`,
       lines: [
         `Ауреліон · вивантажено ${day(new Date().toISOString())}`,
         `${rows.length} ${plural(rows.length, 'допис', 'дописи', 'дописів')} · ${day(f) === day(l) ? day(f) : `з ${day(f)} по ${day(l)}`}`,
         `Учасники: ${cast.join(', ')}`,
+        ...(OPT.arcs && OPT.arcs.length ? [`Арки у збірці: ${OPT.arcs.join(', ')}`] : []),
       ],
     };
   }
-  const postHead = (p) => `✦ ${who(p)} — ${day(p.created_at)}, ${time(p.created_at)}`;
+  const postHead = (p) => `✦ ${who(p)} — ${day(p.created_at)}, ${time(p.created_at)}${p._arc ? ` · ${p._arc}` : ''}`;
 
   function txt(arc, rows) {
     const m = meta(arc, rows);
@@ -129,6 +132,6 @@
   const MAKERS = { txt, md, docx };
   window.AuArcExport = {
     formats: ['txt', 'md', 'docx'],
-    build(fmt, arc, rows) { return (MAKERS[fmt] || txt)(arc, rows); },
+    build(fmt, arc, rows, opt) { OPT = opt || {}; try { return (MAKERS[fmt] || txt)(arc, rows); } finally { OPT = {}; } },
   };
 })();
