@@ -3791,6 +3791,34 @@ a:hover{color:#a8c4f7;}
     </div>
   </div>
 </sc-if>
+
+<!-- ── ПІДТВЕРДЖЕННЯ ВІКУ: при першому вході, памʼятається на пристрої ── -->
+<sc-if value="{{ ageGateVisible }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-modal="true" aria-labelledby="au-age-title" style="position:fixed;inset:0;z-index:20000;background:rgba(8,7,6,0.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto;">
+    <div style="width:100%;max-width:460px;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.28);border-radius:15px;box-shadow:0 30px 80px rgba(0,0,0,0.7);padding:38px 32px 30px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;">
+      <span style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;font-weight:700;letter-spacing:0.14em;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,0.45);">AURELION</span>
+      <sc-if value="{{ ageGateAsk }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:18px;">
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.7);">✦ 18+ ✦</span>
+          <h2 id="au-age-title" style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.5rem;font-weight:600;letter-spacing:0.05em;color:#fff;line-height:1.3;">Вам уже виповнилося 18?</h2>
+          <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;line-height:1.6;color:rgba(255,255,255,0.72);text-wrap:pretty;">У світі Ауреліону жорстокі історії, а на деяких артах персонажів — оголеність. Тому двері відчиняємо лише дорослим.</p>
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:6px;">
+            <button onClick="{{ ageYes }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:12px 26px;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.3s ease;" style-hover="transform:scale(1.05);box-shadow:0 0 24px rgba(255,215,0,0.5);">Так, мені є 18</button>
+            <button onClick="{{ ageNo }}" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:12px 26px;font-size:0.92rem;cursor:pointer;transition:all 0.3s ease;" style-hover="color:#fff;border-color:rgba(255,255,255,0.4);">Ні</button>
+          </div>
+          <p style="margin:0;font-size:0.76rem;color:rgba(255,255,255,0.4);">Запамʼятаємо на цьому пристрої — більше не питатимемо.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{ ageGateDenied }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+          <h2 style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.35rem;font-weight:600;letter-spacing:0.05em;color:#fff;line-height:1.3;">Тоді — до зустрічі згодом</h2>
+          <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;line-height:1.6;color:rgba(255,255,255,0.72);text-wrap:pretty;">Цей світ для дорослих. Повертайтеся, коли виповниться 18, — теки нікуди не дінуться.</p>
+          <button onClick="{{ ageBack }}" style="background:transparent;color:rgba(255,255,255,0.55);border:none;padding:6px 10px;font-size:0.82rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px;" style-hover="color:#fff;">Натиснули не те — повернутися</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 const SUPA_URL  = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
@@ -11031,6 +11059,28 @@ class Component extends DCLogic {
       charReaderFxEffect: sc ? readerOpenEffect : 'sparks',
       charReaderFxSeed:   sc ? (sc.id + '|r|' + readerOpenEffect) : '',
       showCharReaderFx:   !!sc && readerOpenEffect !== 'none',
+
+      // ── Підтвердження віку ──
+      // Флаг у localStorage читаємо раз і тримаємо в this._adult; відмову
+      // не запамʼятовуємо — щоб людина могла виправити помилкове «ні».
+      ...(() => {
+        if (this._adult === undefined) {
+          try { this._adult = localStorage.getItem('au_adult_ok') === '1'; } catch (_) { this._adult = false; }
+        }
+        const open = !this._adult;
+        return {
+          ageGateVisible: open,
+          ageGateAsk:     open && !s.ageDenied,
+          ageGateDenied:  open && !!s.ageDenied,
+          ageYes: () => {
+            try { localStorage.setItem('au_adult_ok', '1'); } catch (_) {}
+            this._adult = true;
+            this.setState({ ageDenied: false });
+          },
+          ageNo:   () => this.setState({ ageDenied: true }),
+          ageBack: () => this.setState({ ageDenied: false }),
+        };
+      })(),
 
       // ── Галерея зображень персонажа ──
       // Плитка під портретом і кнопка ведуть в один оверлей; лайтбокс —
