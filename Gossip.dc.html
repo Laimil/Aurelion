@@ -80,13 +80,17 @@ a:hover{color:#fff}
           <div style="display:flex;flex-direction:column;gap:12px;">
             <input class="gos-field" value="{{ nick }}" onChange="{{ setNick }}" placeholder="Як вас звати в чаті" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
             <input class="gos-field" value="{{ tg }}" onChange="{{ setTg }}" placeholder="Нік у телеграмі — @хтось" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
-            <textarea class="gos-field" value="{{ about }}" onChange="{{ setAbout }}" placeholder="Пару слів про себе — щоб адміни впізнали" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+            <textarea class="gos-field" value="{{ about }}" onChange="{{ setAbout }}" placeholder="{{ aboutHint }}" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+            <p style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.42);text-wrap:pretty;">{{ draftNote }}</p>
           </div>
         </sc-if>
       </div>
 
       <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}">
         <div style="margin-top:16px;background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.25);border-radius:8px;padding:10px 14px;font-size:0.84rem;color:#ff8080;">{{ authErr }}</div>
+      </sc-if>
+      <sc-if value="{{ canResend }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ doResend }}" class="gos-ghost" style="width:100%;margin-top:10px;cursor:pointer;background:transparent;border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.85);border-radius:999px;padding:10px;font-size:0.82rem;transition:all 0.3s ease;">{{ resendBtn }}</button>
       </sc-if>
 
       <button onClick="{{ doAuth }}" class="gos-go" data-busy="{{ authBusy }}" style="width:100%;margin-top:20px;cursor:pointer;background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:13px;font-family:'Cinzel',serif;font-size:0.86rem;font-weight:700;letter-spacing:0.08em;transition:box-shadow 0.25s ease;">{{ authBtn }}</button>
@@ -121,7 +125,8 @@ a:hover{color:#fff}
       <div style="display:flex;flex-direction:column;gap:12px;">
         <input class="gos-field" value="{{ nick }}" onChange="{{ setNick }}" placeholder="Як вас звати в чаті" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
         <input class="gos-field" value="{{ tg }}" onChange="{{ setTg }}" placeholder="Нік у телеграмі — @хтось" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.2s ease;" />
-        <textarea class="gos-field" value="{{ about }}" onChange="{{ setAbout }}" placeholder="Пару слів про себе" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+        <textarea class="gos-field" value="{{ about }}" onChange="{{ setAbout }}" placeholder="{{ aboutHint }}" rows="3" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:12px 16px;color:#fff;font-size:0.92rem;font-family:'EB Garamond',Georgia,serif;line-height:1.6;outline:none;resize:vertical;transition:all 0.2s ease;"></textarea>
+        <p style="font-size:0.78rem;line-height:1.5;color:rgba(255,255,255,0.42);text-wrap:pretty;">{{ draftNote }}</p>
       </div>
       <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}">
         <div style="margin-top:16px;background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.25);border-radius:8px;padding:10px 14px;font-size:0.84rem;color:#ff8080;">{{ authErr }}</div>
@@ -1510,6 +1515,7 @@ const fold = (s) => String(s || '').toLowerCase()
 const ASK_WORD = { close: 'закрито', play: 'ще граємо', pause: 'на паузі' };
 const ASK_BTN = { close: 'Закрити', play: 'Ще граємо', pause: 'На паузі' };
 
+const ABOUT_MIN = 40;
 class Component extends DCLogic {
   state = {
     phase: 'load',
@@ -2300,14 +2306,43 @@ class Component extends DCLogic {
     }
   }
 
+  // Імʼя обовʼязкове завжди; телеграм — або коректний @нік, або (якщо
+  // людина не з чату) кілька речень про себе, щоб адмін мав що прочитати.
+  // Ті самі правила тримає база (supabase_signup_check_migration.sql).
+  _checkDraft() {
+    const s = this.state;
+    const nick = s.nick.trim().replace(/\s+/g, ' ');
+    let tg = s.tg.trim().replace(/^https?:\/\/t\.me\//i, '');
+    if (tg && tg[0] !== '@') tg = '@' + tg;
+    const about = s.about.trim();
+    if (nick.length < 2) return { err: 'Скажіть, як вас звати, — бодай дві літери.' };
+    if (nick.length > 40) return { err: 'Імʼя довше за сорок знаків — скоротіть, будь ласка.' };
+    if (tg && !/^@[A-Za-z0-9_]{5,32}$/.test(tg)) return { err: 'Нік у телеграмі виглядає як @хтось: латинка, цифри, підкреслення, від пʼяти знаків.' };
+    if (!tg && about.length < ABOUT_MIN) return { err: `Без телеграму напишіть кілька речень про себе — звідки дізналися про гру і що хочете почитати (від ${ABOUT_MIN} знаків, зараз ${about.length}).` };
+    return { draft: { nick, tg, about } };
+  }
+
+  async _resend() {
+    const email = this.state.email.trim();
+    if (!email) { this.setState({ authErr: 'Впишіть пошту, на яку записувалися.' }); return; }
+    this.setState({ resendBusy: true });
+    try {
+      const r = await fetch(`${SUPA_AUTH}/resend?redirect_to=${encodeURIComponent(location.href.split('#')[0])}`, {
+        method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'signup', email }),
+      });
+      this.setState({ resendBusy: false, authErr: r.ok
+        ? `Лист надіслано ще раз на ${email}. Загляньте й у «Спам».`
+        : 'Надіслати не вийшло — зачекайте хвилину й спробуйте знову.' });
+    } catch (e) { this.setState({ resendBusy: false, authErr: 'Звʼязку немає. Спробуйте ще раз.' }); }
+  }
+
   async _fillProfile() {
     const s = this.state;
-    if (!s.nick.trim()) { this.setState({ authErr: 'Скажіть, як вас звати в чаті.' }); return; }
+    const chk = this._checkDraft();
+    if (chk.err) { this.setState({ authErr: chk.err }); return; }
     this.setState({ authBusy: true, authErr: '' });
-    const prof = await this._createProfile(
-      { id: s.uid, email: s.email },
-      { nick: s.nick.trim(), tg: s.tg.trim(), about: s.about.trim() },
-    );
+    const prof = await this._createProfile({ id: s.uid, email: s.email }, chk.draft);
     if (!prof) {
       this.setState({ authBusy: false, authErr: 'Не вийшло завести аркуш. Міграція прогнана?' });
       return;
@@ -2396,18 +2431,16 @@ class Component extends DCLogic {
     const s = this.state;
     const email = s.email.trim(), pass = s.pass;
     if (!email || !pass) { this.setState({ authErr: 'Пошта й пароль — обовʼязково.' }); return; }
-    if (s.mode === 'signup' && !s.nick.trim()) { this.setState({ authErr: 'Скажіть, як вас звати в чаті.' }); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { this.setState({ authErr: 'Пошта виглядає не так — перевірте, будь ласка.' }); return; }
+    const chk = s.mode === 'signup' ? this._checkDraft() : {};
+    if (chk.err) { this.setState({ authErr: chk.err }); return; }
     if (s.mode === 'signup' && pass.length < 6) { this.setState({ authErr: 'Пароль коротший за шість знаків.' }); return; }
-    this.setState({ authBusy: true, authErr: '' });
+    this.setState({ authBusy: true, authErr: '', canResend: false });
 
     try {
       if (s.mode === 'signup') {
-        try {
-          localStorage.setItem('au_gossip_profile', JSON.stringify({
-            nick: s.nick.trim(), tg: s.tg.trim(), about: s.about.trim(),
-          }));
-        } catch (e) {}
-        const r = await fetch(`${SUPA_AUTH}/signup`, {
+        try { localStorage.setItem('au_gossip_profile', JSON.stringify(chk.draft)); } catch (e) {}
+        const r = await fetch(`${SUPA_AUTH}/signup?redirect_to=${encodeURIComponent(location.href.split('#')[0])}`, {
           method: 'POST', headers: { ...BASE_H, 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password: pass }),
         });
@@ -2420,14 +2453,14 @@ class Component extends DCLogic {
           // У Supabase увімкнене підтвердження пошти — аркуш створимо
           // при першому вході, чернетка вже лежить у браузері.
           this.setState({
-            authBusy: false, mode: 'login', pass: '',
-            authErr: 'Перевірте пошту: лист із підтвердженням. Тоді увійдіть.',
+            authBusy: false, mode: 'login', pass: '', canResend: true,
+            authErr: `Лист із посиланням пішов на ${email}. Натисніть його — і входьте. Немає листа? Гляньте в «Спам».`,
           });
           return;
         }
         this._save(d);
         const u = d.user || await this._me();
-        const prof = await this._createProfile(u, { nick: s.nick.trim(), tg: s.tg.trim(), about: s.about.trim() });
+        const prof = await this._createProfile(u, chk.draft);
         this._card(prof);
         this.setState({ authBusy: false, pass: '', phase: 'ok', uid: u.id, prof });
         return;
@@ -2439,7 +2472,12 @@ class Component extends DCLogic {
       });
       const d = await r.json();
       if (!d.access_token) {
-        this.setState({ authBusy: false, authErr: d.error_description || d.msg || 'Невірна пошта або пароль.' });
+        const raw = String(d.error_description || d.msg || d.error_code || '');
+        if (/not.?confirmed/i.test(raw)) {
+          this.setState({ authBusy: false, canResend: true, authErr: 'Пошту ще не підтверджено — натисніть посилання з листа. Лист загубився? Надішлю ще раз.' });
+          return;
+        }
+        this.setState({ authBusy: false, authErr: /invalid/i.test(raw) ? 'Невірна пошта або пароль.' : (raw || 'Невірна пошта або пароль.') });
         return;
       }
       this._save(d);
@@ -4684,6 +4722,15 @@ class Component extends DCLogic {
       setNick:  (e) => this.setState({ nick: e.target.value }),
       setTg:    (e) => this.setState({ tg: e.target.value }),
       setAbout: (e) => this.setState({ about: e.target.value }),
+      aboutHint: s.tg.trim()
+        ? 'Пару слів про себе — щоб адміни впізнали'
+        : 'Звідки дізналися про гру і що хочете почитати',
+      draftNote: s.tg.trim()
+        ? 'Імʼя обовʼязкове. Телеграм — щоб адміни впізнали вас у чаті.'
+        : `Імʼя обовʼязкове. Не з чату? Тоді замість телеграму — кілька речень про себе (${Math.min(s.about.trim().length, ABOUT_MIN)}/${ABOUT_MIN}). Пости гри відкриються, щойно підтвердите пошту.`,
+      canResend: !!s.canResend && !isSignup,
+      resendBtn: s.resendBusy ? 'Надсилаю…' : 'Надіслати лист ще раз',
+      doResend: () => this._resend(),
       onAuthEnter: (e) => { if (e.key === 'Enter') this._auth(); },
       pickLogin:  () => this.setState({ mode: 'login', authErr: '' }),
       pickSignup: () => this.setState({ mode: 'signup', authErr: '' }),
