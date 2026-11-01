@@ -13,6 +13,30 @@
   const IRIS = ['#ffd700', '#ffb347', '#ff4d4d', '#e59aa3', '#d0caff', '#6495ed', '#7fd1c4', '#8fd18a', '#d6dbe3', '#ffffff'];
   const SHELL = ['#f3ecdb', '#d6dbe3', '#3a3a48', '#ffd700', '#e59aa3', '#d0caff', '#7fd1c4', '#6495ed'];
   const SPOT = ['#d0caff', '#ffd700', '#6495ed', '#7fd1c4', '#e59aa3', '#ff4d4d', '#8fd18a', '#3a3a48', '#ffffff'];
+  // Крамниця: те, що в редакторі не видається, а купується за зернятка.
+  const SHOP_ACC = [['glasses', 'Окуляри'], ['scarf', 'Шарф'], ['horns', 'Ріжки'], ['halo', 'Ореол'], ['monocle', 'Монокль']];
+  const SHOP_PL = [['books', 'Стос книжок'], ['basket', 'Кошик'], ['throne', 'Трон'], ['candle', 'Свічка'], ['chest', 'Скриня']];
+  const SHOP_COLS = ['#2b2540', '#9c4f63', '#c8794a', '#a8e6c1', '#ff7a45'];
+  const SHOP_IRIS = ['#c8794a', '#5e9a8f', '#9b5de5'];
+  const TOYS = [['none', 'Без'], ['star', 'Зірочки'], ['note', 'Дзвіночок'], ['yarn', 'Клубок'], ['moth', 'Метелики']];
+  // Фони картки (лише сайт; у PNG бота фону немає) і благословення пантеону — спільні для Familiar і FamiliarShop.
+  const BG = {
+    none: 'radial-gradient(ellipse 55% 55% at 50% 55%,rgba(255,255,255,0.07),rgba(26,26,26,0) 72%),#1a1a1a',
+    lamp: 'radial-gradient(ellipse 60% 55% at 30% 18%,rgba(255,215,0,0.18),rgba(26,26,26,0) 70%),#1d1a14',
+    night: 'radial-gradient(ellipse 70% 60% at 50% 0%,rgba(107,111,174,0.3),rgba(17,17,24,0) 70%),#121219',
+    garden: 'radial-gradient(ellipse 65% 60% at 50% 85%,rgba(94,154,143,0.28),rgba(26,26,26,0) 72%),#131917',
+    archive: 'radial-gradient(ellipse 60% 60% at 50% 60%,rgba(156,79,99,0.24),rgba(26,26,26,0) 72%),#1a1416',
+    moon: 'radial-gradient(circle at 72% 22%,rgba(243,236,219,0.32) 0,rgba(243,236,219,0.08) 9%,rgba(18,18,26,0) 34%),#14141c',
+    snow: 'radial-gradient(ellipse 70% 55% at 50% 0%,rgba(214,219,227,0.26),rgba(20,22,26,0) 70%),#15171b',
+  };
+  const GODS = {
+    lesta: ['Леста', '#ffd76b', 'Розвідка повертається за дві години, а не за три.'],
+    nokta: ['Нокта', '#6b6fae', 'Засинає лише після трьох тижнів тиші, а не двох.'],
+    konk: ['Конкорфату', '#9c4f63', 'З розвідки частіше приносить цитати, ніж ґудзики.'],
+    flor: ['Флоріана', '#5e9a8f', 'Кожен пʼятий допис дає зайве зернятко.'],
+    ark: ['Арканія', '#b8bcc8', 'На розвідку можна раз на 14 годин, а не на 20.'],
+  };
+  const glow = g => GODS[g] ? `0 0 0 1px ${GODS[g][1]}, 0 0 34px ${GODS[g][1]}55` : '0 12px 34px rgba(0,0,0,0.42)';
   const DEFAULT_LOOK = { sp: 'cat', eyeSt: 'round', iris: '#ffd700', pat: 'stripe', acc: 'none', place: 'pillow', col: '#d0caff', egg: '#f3ecdb', eggSpot: '#d0caff' };
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const key0 = x => Array.isArray(x) ? x[0] : x;
@@ -29,9 +53,9 @@
     const l = look || {}, d = DEFAULT_LOOK;
     return {
       sp: has(SP, l.sp) ? l.sp : d.sp, eyeSt: has(EYE, l.eyeSt) ? l.eyeSt : d.eyeSt,
-      iris: has(IRIS, l.iris) ? l.iris : d.iris, pat: has(PAT, l.pat) ? l.pat : d.pat,
-      acc: has(ACC, l.acc) ? l.acc : d.acc, place: has(PL, l.place) ? l.place : d.place,
-      col: has(COLS, l.col) ? l.col : d.col,
+      iris: has(IRIS, l.iris) || has(SHOP_IRIS, l.iris) ? l.iris : d.iris, pat: has(PAT, l.pat) ? l.pat : d.pat,
+      acc: has(ACC, l.acc) || has(SHOP_ACC, l.acc) ? l.acc : d.acc, place: has(PL, l.place) || has(SHOP_PL, l.place) ? l.place : d.place,
+      col: has(COLS, l.col) || has(SHOP_COLS, l.col) ? l.col : d.col, toy: has(TOYS, l.toy) ? l.toy : 'none',
       egg: has(SHELL, l.egg) ? l.egg : d.egg,
       eggSpot: has(SPOT, l.eggSpot) ? l.eggSpot : (has(COLS, l.col) ? l.col : d.eggSpot),
       surprise: !!l.surprise,
@@ -59,35 +83,36 @@
       }
       return both(...L);
     };
-    let body = [], head = [], anchor = [0, -0.56], cheek = [0.32, -0.02];
+    let body = [], head = [], anchor = [0, -0.56], cheek = [0.32, -0.02], eyeP = [0.2, -0.2, 0.14], neck = [0.24, 0.36];
+    const ring = (cx, cy, rx, ry, w, mat) => { const L = []; for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, b = (i + 1) * Math.PI / 6; L.push(G([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry], [cx + Math.cos(b) * rx, cy + Math.sin(b) * ry], w, mat)); } return L; };
     if (o.mode === 'egg') return [E(0, 0.4, 0.55, 0.7, 'egg'), E(-0.2, 0.2, 0.1, 0.1, 'spot'), E(0.25, 0.45, 0.12, 0.1, 'spot'), E(-0.12, 0.72, 0.09, 0.08, 'spot'), E(0.15, 0.02, 0.07, 0.07, 'spot'), E(-0.3, 0.5, 0.06, 0.06, 'spot')];
     if (o.sp === 'cat') {
       for (let i = 0; i <= 13; i++) { const t = i / 13; body.push(E(0.45 + 0.38 * Math.sin(t * 1.7), 0.92 - 1.05 * t, 0.1 - 0.03 * t, 0.1 - 0.03 * t, 'fur', pat)); }
       body.push(E(0, 0.42, 0.5, 0.55, 'fur', pat), ...both(E(-0.36, 0.72, 0.22, 0.26, 'fur', pat)), E(0, 0.5, 0.25, 0.42, 'belly'), ...both(E(-0.14, 0.72, 0.1, 0.26, 'fur')), ...both(E(-0.15, 0.94, 0.13, 0.08, 'belly')));
       head.push(...both(T([-0.46, -0.36], [-0.12, -0.52], [-0.38, -0.95], 'fur', [-0.35, -0.5])), ...both(T([-0.39, -0.42], [-0.2, -0.5], [-0.36, -0.8], 'inner', [-0.3, -0.4])), E(0, -0.18, 0.5, 0.4, 'fur', pat), ...both(E(-0.3, 0.0, 0.24, 0.17, 'fur')), E(0, -0.01, 0.21, 0.13, 'belly'), ...eyes(-0.2, -0.2, 0.14), T([-0.055, -0.085], [0.055, -0.085], [0, -0.03], 'nose'), ...both(A(-0.045, -0.03, 0.045, 0.03, 'dark', false)), ...both(G([-0.22, -0.03], [-0.78, -0.1], 0.02, 'whisk'), G([-0.22, 0.03], [-0.74, 0.13], 0.02, 'whisk')));
     } else if (o.sp === 'owl') {
-      anchor = [0, -0.8]; cheek = [0.44, -0.2];
+      anchor = [0, -0.8]; cheek = [0.44, -0.2]; eyeP = [0.24, -0.37, 0.15]; neck = [0.06, 0.44];
       body.push(E(0, 0.33, 0.56, 0.62, 'fur', pat), ...both(E(-0.5, 0.38, 0.2, 0.48, 'wing', 'feather')), E(0, 0.45, 0.36, 0.44, 'belly', 'chev'), ...both(E(-0.16, 0.96, 0.1, 0.06, 'beak')));
       head.push(...both(T([-0.52, -0.58], [-0.22, -0.74], [-0.66, -1.0], 'fur', [-0.4, -0.5])), E(0, -0.38, 0.6, 0.45, 'fur', pat), ...both(E(-0.24, -0.37, 0.23, 0.23, 'belly')), ...eyes(-0.24, -0.37, 0.15, 'belly'), T([-0.065, -0.25], [0.065, -0.25], [0, -0.07], 'beak', [0, 0.2]));
     } else if (o.sp === 'fox') {
-      anchor = [0, -0.5]; cheek = [0.3, 0.0];
+      anchor = [0, -0.5]; cheek = [0.3, 0.0]; eyeP = [0.2, -0.2, 0.13]; neck = [0.22, 0.34];
       for (let i = 0; i <= 12; i++) { const t = i / 12; body.push(E(0.4 + 0.5 * Math.sin(t * 1.5), 0.95 - 0.95 * t, 0.12 + 0.12 * Math.sin(t * 3.0), 0.12 + 0.12 * Math.sin(t * 3.0), t > 0.78 ? 'belly' : 'fur', t > 0.78 ? null : pat)); }
       body.push(E(0, 0.45, 0.45, 0.52, 'fur', pat), E(0, 0.28, 0.25, 0.3, 'belly'), ...both(E(-0.15, 0.8, 0.09, 0.2, 'fur')), ...both(E(-0.15, 0.97, 0.1, 0.06, 'sock')));
       head.push(...both(T([-0.45, -0.3], [-0.12, -0.5], [-0.42, -1.05], 'fur', [-0.35, -0.5])), ...both(T([-0.38, -0.38], [-0.2, -0.48], [-0.39, -0.85], 'inner', [-0.3, -0.4])), E(0, -0.15, 0.48, 0.36, 'fur', pat), ...both(E(-0.32, 0.02, 0.22, 0.15, 'belly')), T([-0.22, -0.04], [0.22, -0.04], [0, 0.22], 'belly', [0, 0.3]), ...eyes(-0.2, -0.2, 0.13), E(0, 0.16, 0.06, 0.045, 'dark'));
     } else if (o.sp === 'dragon') {
-      cheek = [0.3, -0.05];
+      cheek = [0.3, -0.05]; eyeP = [0.2, -0.25, 0.14]; neck = [0.2, 0.36];
       body.push(...both(T([-0.25, 0.05], [-0.98, -0.5], [-0.78, 0.45], 'wing', [-0.5, -0.3])));
       for (let i = 0; i <= 12; i++) { const t = i / 12; body.push(E(0.35 + 0.55 * t, 0.9 - 0.25 * t - 0.35 * t * t, 0.13 - 0.08 * t, 0.13 - 0.08 * t, 'fur', pat)); }
       body.push(T([0.82, 0.38], [1.02, 0.22], [1.05, 0.48], 'horn', [0.4, -0.3]), E(0, 0.45, 0.48, 0.52, 'fur', pat), E(0, 0.5, 0.27, 0.4, 'belly', 'chev'), ...both(E(-0.28, 0.85, 0.16, 0.14, 'fur')));
       head.push(...both(T([-0.32, -0.5], [-0.16, -0.55], [-0.42, -0.92], 'horn', [-0.3, -0.5])), E(0, -0.2, 0.48, 0.38, 'fur', pat), T([-0.07, -0.56], [0.07, -0.56], [0, -0.72], 'horn'), E(0, 0.03, 0.3, 0.17, 'belly'), ...both(E(-0.08, 0.0, 0.03, 0.025, 'dark')), ...eyes(-0.2, -0.25, 0.14));
     } else if (o.sp === 'crow') {
-      anchor = [0, -0.72]; cheek = [0.36, -0.12];
+      anchor = [0, -0.72]; cheek = [0.36, -0.12]; eyeP = [0.24, -0.26, 0.16]; neck = [0.28, 0.4];
       body.push(T([-0.2, 0.7], [0.2, 0.7], [0, 1.05], 'wing'), ...both(E(-0.18, 0.97, 0.1, 0.05, 'bill')),
         E(0, 0.45, 0.6, 0.55, 'fur', pat), ...both(E(-0.52, 0.42, 0.18, 0.36, 'wing', 'feather')), E(0, 0.55, 0.32, 0.34, 'belly'));
       head.push(E(0, -0.2, 0.55, 0.5, 'fur', pat), ...both(T([-0.04, -0.66], [0.06, -0.68], [-0.1, -0.88], 'fur', [-0.2, -0.5])),
         ...eyes(-0.24, -0.26, 0.16), T([-0.1, -0.06], [0.1, -0.06], [0, 0.14], 'gold', [0, 0.3]), E(0, -0.07, 0.1, 0.04, 'gold'));
     } else {
-      anchor = [0, -0.18]; cheek = [0.42, 0.42];
+      anchor = [0, -0.18]; cheek = [0.42, 0.42]; eyeP = [0.22, 0.25, 0.15]; neck = [0.62, 0.5];
       body.push(E(0, 1.02, 0.85, 0.08, 'wing'), E(0, 0.6, 0.8, 0.45, 'fur', pat), ...both(E(-0.55, 0.92, 0.12, 0.1, 'fur')), E(-0.45, 0.48, 0.09, 0.07, 'shine'));
       head.push(E(0, 0.22, 0.5, 0.42, 'fur', pat), ...eyes(-0.22, 0.25, 0.15), A(0, 0.42, 0.1, 0.035, 'dark', false), E(-0.25, 0.0, 0.08, 0.06, 'shine'));
     }
@@ -98,22 +123,33 @@
       if (o.acc === 'crown') acc.push(R(ax - 0.24, ay - 0.14, ax + 0.24, ay + 0.03, 'gold'), T([ax - 0.24, ay - 0.13], [ax - 0.1, ay - 0.13], [ax - 0.2, ay - 0.34], 'gold'), T([ax - 0.08, ay - 0.13], [ax + 0.08, ay - 0.13], [ax, ay - 0.38], 'gold'), T([ax + 0.1, ay - 0.13], [ax + 0.24, ay - 0.13], [ax + 0.2, ay - 0.34], 'gold'), E(ax, ay - 0.06, 0.05, 0.05, 'gem'));
       if (o.acc === 'bow') { const bx = ax + 0.3, by = ay + 0.06; acc.push(T([bx, by], [bx - 0.26, by - 0.16], [bx - 0.26, by + 0.14], 'bow', [-0.3, -0.3]), T([bx, by], [bx + 0.26, by - 0.16], [bx + 0.26, by + 0.14], 'bow', [0.3, -0.3]), E(bx, by, 0.07, 0.07, 'bow')); }
       if (o.acc === 'flower') { const fx = ax - 0.28, fy = ay + 0.04; for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 - Math.PI / 2; acc.push(E(fx + Math.cos(a) * 0.1, fy + Math.sin(a) * 0.1, 0.075, 0.075, 'petal')); } acc.push(E(fx, fy, 0.055, 0.055, 'gold')); }
+      if (o.acc === 'glasses') { const [ex, ey, er] = eyeP, r = er * 1.45; acc.push(...both(...ring(-ex, ey, r, r, 0.03, 'frame'), G([-ex - r, ey], [-ex - r - 0.14, ey - 0.05], 0.03, 'frame')), G([-ex + r, ey], [ex - r, ey], 0.03, 'frame')); }
+      if (o.acc === 'scarf') { const [ny, nr] = neck; acc.push(E(0, ny, nr, 0.1, 'scarf', 'stripe'), R(0.1, ny, 0.24, ny + 0.3, 'scarf')); }
+      if (o.acc === 'monocle') { const [ex, ey, er] = eyeP, r = er * 1.45; acc.push(...ring(ex, ey, r, r, 0.03, 'mono'), G([ex + r * 0.7, ey + r * 0.7], [ex + 0.2, ey + 0.5], 0.022, 'mono')); }
+      if (o.acc === 'halo') acc.push(...ring(ax, ay - 0.26, 0.32, 0.08, 0.035, 'halo'));
+      if (o.acc === 'horns') acc.push(...both(T([-0.24, ay + 0.12], [-0.06, ay + 0.06], [-0.18, ay - 0.34], 'branch', [-0.3, -0.5])));
     }
-    const place = [];
+    const place = [], front = [];
     if (o.mode !== 'small' && !o.noPlace) {
       if (o.place === 'pillow') place.push(E(0, 1.04, 0.98, 0.14, 'pillow'), ...both(E(-0.98, 1.0, 0.06, 0.06, 'gold')));
       if (o.place === 'cloud') place.push(E(-0.55, 1.02, 0.36, 0.16, 'cloud'), E(0.55, 1.02, 0.36, 0.16, 'cloud'), E(-0.22, 0.97, 0.36, 0.2, 'cloud'), E(0.25, 0.98, 0.34, 0.19, 'cloud'), E(0, 1.08, 0.8, 0.12, 'cloud'));
       if (o.place === 'branch') place.push(E(0, 1.0, 1.1, 0.06, 'branch'), E(0.7, 0.9, 0.09, 0.05, 'leaf'), E(-0.8, 1.06, 0.08, 0.045, 'leaf'));
+      if (o.place === 'books') place.push(R(-0.96, 1.04, 0.92, 1.19, 'bookB'), R(-0.86, 0.93, 0.82, 1.04, 'bookA'), R(-0.8, 0.96, 0.76, 0.99, 'page'));
+      if (o.place === 'candle') { const fl = 0.045 + 0.012 * ((o.tick || 0) % 3); place.push(E(-0.93, 1.1, 0.24, 0.06, 'gold'), R(-1.08, 0.5, -0.78, 1.08, 'wax'), E(-0.93, 0.36, fl + 0.02, 0.12, 'flame'), E(-0.93, 0.4, 0.03, 0.05, 'shine')); }
+      if (o.place === 'basket') { place.push(E(0, 0.84, 0.9, 0.1, 'wickerIn')); front.push(E(0, 1.0, 0.92, 0.2, 'wicker', 'weave'), E(0, 0.83, 0.92, 0.05, 'wicker')); }
+      if (o.place === 'chest') place.push(R(-0.95, 0.84, 0.95, 1.18, 'chestW'), R(-0.95, 0.84, 0.95, 0.91, 'gold'), ...both(R(-0.8, 0.84, -0.7, 1.18, 'gold')), R(-0.07, 0.93, 0.07, 1.06, 'gold'));
+      if (o.place === 'throne') place.push(R(-0.7, -0.95, 0.7, 1.0, 'velvet'), ...both(R(-0.84, -1.0, -0.7, 1.12, 'gold')), T([-0.84, -1.0], [0.84, -1.0], [0, -1.32], 'gold', [0, -0.6]), E(0, -1.1, 0.07, 0.07, 'gem'), E(0, 1.05, 1.0, 0.13, 'velvet'));
     }
-    if (o.away) return place;
+    if (o.away) return [...place, ...front];
     head.forEach(e => { e.up = true; }); acc.forEach(e => { e.up = true; });
-    return [...place, ...body, ...head, ...acc];
+    return [...place, ...body, ...head, ...acc, ...front];
   }
 
-  const MAT = { fur: v => v, belly: v => v * 0.9 + 0.2, inner: v => v * 0.55, eye: v => 0.65 + 0.35 * v, pupil: () => 0.04, shine: () => 1, nose: () => 0.6, dark: () => 0.05, whisk: () => 0.8, wing: v => v * 0.75, beak: v => 0.55 + 0.4 * v, horn: v => 0.3 + 0.6 * v, hat: v => v, gold: v => 0.3 + 0.7 * v, gem: v => 0.5 + 0.5 * v, bow: v => v, petal: v => 0.4 + 0.6 * v, pillow: v => v, branch: v => 0.2 + 0.6 * v, leaf: v => v, blush: () => 0.7, cloud: v => 0.45 + 0.55 * v, bill: v => 0.3 + 0.5 * v, egg: v => 0.3 + 0.7 * v, spot: v => v, sock: v => v * 0.6 };
+  const MAT = { fur: v => v, belly: v => v * 0.9 + 0.2, inner: v => v * 0.55, eye: v => 0.65 + 0.35 * v, pupil: () => 0.04, shine: () => 1, nose: () => 0.6, dark: () => 0.05, whisk: () => 0.8, wing: v => v * 0.75, beak: v => 0.55 + 0.4 * v, horn: v => 0.3 + 0.6 * v, hat: v => v, gold: v => 0.3 + 0.7 * v, gem: v => 0.5 + 0.5 * v, bow: v => v, petal: v => 0.4 + 0.6 * v, pillow: v => v, branch: v => 0.2 + 0.6 * v, leaf: v => v, blush: () => 0.7, cloud: v => 0.45 + 0.55 * v, frame: () => 0.7, mono: () => 0.8, chestW: v => 0.3 + 0.6 * v, scarf: v => v, halo: () => 0.85, bookA: v => v, bookB: v => v, page: () => 0.9, wax: v => 0.4 + 0.6 * v, flame: () => 0.9, wicker: v => 0.3 + 0.6 * v, wickerIn: v => 0.15 + 0.3 * v, velvet: v => v * 0.8 + 0.1, bill: v => 0.3 + 0.5 * v, egg: v => 0.3 + 0.7 * v, spot: v => v, sock: v => v * 0.6 };
   const hx = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
   const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
   const cache = new Map();
+  const NOEDGE = { whisk: 1, halo: 1, frame: 1, mono: 1 };
 
   function pixels(o) {
     const key = JSON.stringify(o);
@@ -139,6 +175,7 @@
             if (e.fx === 'stripe' && Math.sin(yy * 22 + Math.abs(x) * 6) > 0.55) v *= 0.6;
             if (e.fx === 'spots' && Math.sin(x * 17 + 1) * Math.sin(yy * 17) > 0.55) v *= 0.55;
             if (e.fx === 'chev' && Math.sin(yy * 26 - Math.abs(x) * 14) > 0.6) v *= 0.62;
+            if (e.fx === 'weave' && Math.sin(x * 26) * Math.sin(yy * 34) > 0.15) v *= 0.62;
             if (e.fx === 'feather' && Math.sin(yy * 30 + Math.abs(x) * 4) > 0.45) v *= 0.68;
           }
         } else if (e.t === 'tri') { if (inTri(x, yy, e.a, e.b, e.c)) v = sh(e.n[0], e.n[1], Math.sqrt(Math.max(0, 1 - e.n[0] ** 2 - e.n[1] ** 2))); }
@@ -154,11 +191,11 @@
     const C = hx(o.col), DK = [20, 16, 28], OL = [8, 6, 12], WH = [255, 255, 255];
     const ramp = (base, v) => { const q = Math.round(v * 4) / 4; return q <= 0.5 ? mix(DK, base, 0.35 + q * 1.3) : mix(base, WH, (q - 0.5) * 0.8); };
     const pink = hx('#e59aa3'), gold = hx('#ffd700');
-    const COL = { fur: v => ramp(C, v), belly: v => ramp(mix(C, WH, 0.45), v), wing: v => ramp(mix(C, DK, 0.3), v), sock: v => ramp(mix(C, DK, 0.45), v), inner: v => mix(DK, pink, 0.5 + 0.4 * v), eye: v => ramp(hx(o.iris), v), pupil: () => OL, shine: () => WH, nose: () => pink, dark: () => OL, whisk: () => mix(C, WH, 0.7), beak: v => ramp(gold, v), horn: v => ramp(hx('#f3ecdb'), v), hat: v => ramp(hx('#483d8b'), v), gold: v => ramp(gold, v), gem: v => ramp(pink, v), bow: v => ramp(pink, v), petal: v => ramp(hx('#f3ecdb'), v), pillow: v => ramp(hx('#7d2f38'), v), branch: v => ramp([90, 74, 60], v), leaf: v => ramp(hx('#7fd1c4'), v), blush: () => pink, cloud: v => ramp(hx('#d6dbe3'), v), bill: v => ramp([72, 72, 84], v), egg: v => ramp(hx(o.egg || '#f3ecdb'), v), spot: v => ramp(hx(o.eggSpot || o.col), v) };
+    const COL = { fur: v => ramp(C, v), belly: v => ramp(mix(C, WH, 0.45), v), wing: v => ramp(mix(C, DK, 0.3), v), sock: v => ramp(mix(C, DK, 0.45), v), inner: v => mix(DK, pink, 0.5 + 0.4 * v), eye: v => ramp(hx(o.iris), v), pupil: () => OL, shine: () => WH, nose: () => pink, dark: () => OL, whisk: () => mix(C, WH, 0.7), beak: v => ramp(gold, v), horn: v => ramp(hx('#f3ecdb'), v), hat: v => ramp(hx('#483d8b'), v), gold: v => ramp(gold, v), gem: v => ramp(pink, v), bow: v => ramp(pink, v), petal: v => ramp(hx('#f3ecdb'), v), pillow: v => ramp(hx('#7d2f38'), v), branch: v => ramp([90, 74, 60], v), leaf: v => ramp(hx('#7fd1c4'), v), blush: () => pink, cloud: v => ramp(hx('#d6dbe3'), v), frame: v => ramp([92, 70, 48], v), mono: v => ramp(gold, v), chestW: v => ramp([110, 74, 48], v), scarf: v => ramp(hx('#9c4f63'), v), halo: v => ramp(hx('#ffd76b'), v), bookA: v => ramp(hx('#7d2f38'), v), bookB: v => ramp(hx('#483d8b'), v), page: v => ramp(hx('#f3ecdb'), v), wax: v => ramp(hx('#f3ecdb'), v), flame: v => ramp(hx('#ffb347'), v), wicker: v => ramp([168, 124, 74], v), wickerIn: v => ramp([168, 124, 74], v), velvet: v => ramp(hx('#483d8b'), v), bill: v => ramp([72, 72, 84], v), egg: v => ramp(hx(o.egg || '#f3ecdb'), v), spot: v => ramp(hx(o.eggSpot || o.col), v) };
     const put = (x, y, c) => { if (x < 0 || y < 0 || x >= N || y >= N) return; const i = (y * N + x) * 4; buf[i] = c[0]; buf[i + 1] = c[1]; buf[i + 2] = c[2]; buf[i + 3] = 255; };
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const h = P[y][x]; if (!h) continue;
-      const edge = h.m !== 'whisk' && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => !(P[y + b] && P[y + b][x + a]));
+      const edge = !NOEDGE[h.m] && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => !(P[y + b] && P[y + b][x + a]));
       let c = edge ? OL : COL[h.m](h.v);
       if (o.dim) { const g = (c[0] + c[1] + c[2]) / 3; c = mix(c, [g, g, g], 0.75).map(v => Math.round(v * 0.75)); }
       put(x, y, c);
@@ -167,7 +204,16 @@
     const HEART = ['.xx.xx.', 'xxxxxxx', 'xxxxxxx', '.xxxxx.', '..xxx..', '...x...'];
     const Z = ['xxxx', '..x.', '.x..', 'xxxx'], z = ['xxx', '.x.', 'xxx'];
     const k = (o.tick || 0) % 3;
-    if (o.hearts) { sprite(HEART, 36, 9 - k * 2, pink); if (k > 0) sprite(['x.x', 'xxx', '.x.'], 31, 5 - k, pink); }
+    const STAR = ['...x...', '...x...', '..xxx..', 'xxxxxxx', '..xxx..', '...x...', '...x...'];
+    const NOTE = ['.xxxxx', '.x...x', '.x...x', 'xx..xx', 'xx..xx'], NOTE2 = ['.xx', '.x.', '.x.', 'xx.', 'xx.'];
+    const YARN = ['.xxxx.', 'xx..xx', 'x.xx.x', 'xxx..x', '.xxxx.'];
+    if (o.hearts) {
+      if (o.toy === 'star') { sprite(STAR, 36, 8 - k * 2, gold); if (k > 0) sprite(['.x.', 'xxx', '.x.'], 30, 6 - k, [255, 240, 170]); }
+      else if (o.toy === 'note') { sprite(NOTE, 36, 9 - k * 2, hx('#d0caff')); if (k > 0) sprite(NOTE2, 30, 6 - k, hx('#6495ed')); }
+      else if (o.toy === 'moth') { const M = ['x...x', 'xx.xx', '.xxx.', 'xx.xx', 'x...x']; sprite(M, 36 + (k === 1 ? 1 : 0), 9 - k * 2, hx('#f3ecdb')); if (k > 0) sprite(M, 29, 5 - k, hx('#d0caff')); }
+      else if (o.toy === 'yarn') { sprite(YARN, 38, k === 1 ? 34 : 37, hx('#6495ed')); sprite(['x.x', 'xxx', '.x.'], 36, 9 - k, pink); }
+      else { sprite(HEART, 36, 9 - k * 2, pink); if (k > 0) sprite(['x.x', 'xxx', '.x.'], 31, 5 - k, pink); }
+    }
     if (o.z === 'small') sprite(z, 37 + k, 12 - k * 2, [200, 200, 220]);
     if (o.z === 'big') { sprite(Z, 36, 12 - k * 2, [170, 170, 190]); sprite(z, 42, 6 - k, [140, 140, 160]); }
     cache.set(key, buf);
@@ -197,5 +243,5 @@
     return { ...base, eyes: blink ? 'closed' : 'open', bob: t % 2 };
   }
 
-  root.AuFamiliar = { draw, pixels, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK };
+  root.AuFamiliar = { draw, pixels, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK, SHOP_ACC, SHOP_PL, SHOP_COLS, SHOP_IRIS, TOYS, BG, GODS, glow };
 })(typeof window !== 'undefined' ? window : globalThis);
