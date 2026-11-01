@@ -10,7 +10,7 @@
 <helmet>
   <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
   <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
-  <script src="familiar.js"></script>
+  <script src="familiar.js?v=3"></script>
 </helmet>
 
 <div style="display:flex;flex-direction:column;gap:22px;font-family:Arial,sans-serif;color:#fff;">
@@ -235,6 +235,12 @@ const RARE_SAYS = [
   'Це я показую не всім. Тобто всім, але тихо.',
   'Повернеться не скоро. Якщо взагалі. Я не обіцяю, я записую.',
 ];
+const FALLBACK_BG = { none: '#1a1a1a' };
+const FALLBACK_GODS = {
+  lesta: ['Леста', '#ffd76b', 'Розвідка повертається за дві години, а не за три.'], nokta: ['Нокта', '#6b6fae', 'Засинає лише після трьох тижнів тиші, а не двох.'],
+  konk: ['Конкорфату', '#9c4f63', 'З розвідки частіше приносить цитати, ніж ґудзики.'], flor: ['Флоріана', '#5e9a8f', 'Кожен пʼятий допис дає зайве зернятко.'],
+  ark: ['Арканія', '#b8bcc8', 'На розвідку можна раз на 14 годин, а не на 20.'],
+};
 const HELLO = 'Прилавок відчинено. Платять тут зернятками: гривні не беру, їх нема куди записати.';
 const KIND_LINE = {
   acc: 'Прикраси з бюро знахідок. Власників шукали, чесно.', place: 'Меблі для дрібних. Дорослому на подушці вже тісно, я бачу.',
@@ -360,7 +366,10 @@ class Component extends DCLogic {
     const out = { showMsg: !!msg, msgText: msg, ready: !msg && !!d };
     if (msg || !d) return out;
 
-    const BG = F.BG, GODS = F.GODS, cat = this._cat(), bal = d.balance, dep = d.deposit || 5;
+    // Стара копія familiar.js (без BG/GODS) — не падаємо, а малюємо без фонів і кажемо в консоль.
+    if (!F.BG && !this._warned) { this._warned = true; console.warn('крамниця: familiar.js стара копія (немає AuFamiliar.BG) — оновити файл на сайті й скинути кеш'); }
+    const BG = F.BG || FALLBACK_BG, GODS = F.GODS || FALLBACK_GODS, glowOf = F.glow || (g => GODS[g] ? `0 0 0 1px ${GODS[g][1]}, 0 0 34px ${GODS[g][1]}55` : '0 12px 34px rgba(0,0,0,0.42)');
+    const cat = this._cat(), bal = d.balance, dep = d.deposit || 5;
     const owned = new Set(d.owned || []), reserved = new Set(d.reserved || []);
     const sh = d.week || {}, abs = sh.abs ?? absOf(new Date());
     const onSale = new Set([...(sh.vitrine || []), sh.rare].filter(Boolean));
@@ -403,7 +412,7 @@ class Component extends DCLogic {
       depositLine: resN ? `ще ${SEED(resN * dep)} завдатком` : '1 допис = 1 зернятко',
       say: s.say, sayTag: s.tag, busy: s.busy,
       refFit: this._ref('fit'), onPet: () => this.setState({ pet: 6 }),
-      fitBg: BG[fitBgKey] || BG.none, fitGlow: F.glow(fitBless), fitHasTitle: !!fitTitle, fitTitle,
+      fitBg: BG[fitBgKey] || BG.none, fitGlow: glowOf(fitBless), fitHasTitle: !!fitTitle, fitTitle,
       fitHint: this._hidden() ? 'Поки це яйце, приміряти не вийде: шкаралупа не носить капелюхів. Купити можна вже зараз.'
         : `Натисніть на річ, і ${famName} одразу її приміряє.${this._stage() < 3 ? ' Прикраси й місця видно лише на дорослому, тож у примірочній — він дорослий.' : ''} Куплене зʼявляється в «Змінити вигляд».`,
       weekHead: `Тиждень ${sh.w || keyOf(abs).w}${sh.special ? ' · особливий' : ''}`,

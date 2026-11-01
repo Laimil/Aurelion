@@ -2,7 +2,9 @@
 // Один код для кабінету, визирання на сторінках і PNG для бота (pixels → RGBA без canvas).
 // Усе в AuFamiliar на window (браузер) або globalThis (Deno); жодних залежностей.
 (function (root) {
-  if (root.AuFamiliar) return;
+  // Версія: стара копія з кешу браузера не має блокувати нову (раніше тут стояв голий return).
+  const V = 3;
+  if (root.AuFamiliar && root.AuFamiliar.v >= V) return;
 
   const SP = [['cat', 'Кіт'], ['owl', 'Сова'], ['crow', 'Крук'], ['fox', 'Лис'], ['dragon', 'Дракончик'], ['slime', 'Слиз']];
   const EYE = [['round', 'Круглі'], ['slit', 'Котячі'], ['button', 'Ґудзики']];
@@ -264,5 +266,5 @@
     return { ...base, eyes: blink ? 'closed' : 'open', bob: t % 2 };
   }
 
-  root.AuFamiliar = { draw, pixels, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK, SHOP_ACC, SHOP_PL, SHOP_COLS, SHOP_IRIS, TOYS, BG, GODS, glow, BG_PX, bgPixel };
+  root.AuFamiliar = { v: V, draw, pixels, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK, SHOP_ACC, SHOP_PL, SHOP_COLS, SHOP_IRIS, TOYS, BG, GODS, glow, BG_PX, bgPixel };
 })(typeof window !== 'undefined' ? window : globalThis);
