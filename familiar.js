@@ -36,6 +36,27 @@
     flor: ['Флоріана', '#5e9a8f', 'Кожен пʼятий допис дає зайве зернятко.'],
     ark: ['Арканія', '#b8bcc8', 'На розвідку можна раз на 14 годин, а не на 20.'],
   };
+  // Ті самі фони для PNG бота: радіальне світло поверх тла, у клітинках спрайта (пікселізовано, як сам фамільяр).
+  // cx, cy, rx, ry — частки кадру, як у CSS вище; a — непрозорість світла в центрі; згасає до 72% радіуса.
+  const BG_PX = {
+    none: { base: '#1a1a1a', glow: '#ffffff', a: 0.07, cx: 0.5, cy: 0.55, rx: 0.55, ry: 0.55 },
+    lamp: { base: '#1d1a14', glow: '#ffd700', a: 0.18, cx: 0.3, cy: 0.18, rx: 0.6, ry: 0.55 },
+    night: { base: '#121219', glow: '#6b6fae', a: 0.3, cx: 0.5, cy: 0, rx: 0.7, ry: 0.6 },
+    garden: { base: '#131917', glow: '#5e9a8f', a: 0.28, cx: 0.5, cy: 0.85, rx: 0.65, ry: 0.6 },
+    archive: { base: '#1a1416', glow: '#9c4f63', a: 0.24, cx: 0.5, cy: 0.6, rx: 0.6, ry: 0.6 },
+    moon: { base: '#14141c', glow: '#f3ecdb', a: 0.08, cx: 0.72, cy: 0.22, rx: 0.34, ry: 0.34, disc: 0.09, discA: 0.32 },
+    snow: { base: '#15171b', glow: '#d6dbe3', a: 0.26, cx: 0.5, cy: 0, rx: 0.7, ry: 0.55 },
+  };
+  const hx2 = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  // u, v — 0..1 по кадру. Світло квантоване на 5 кроків, щоб не було гладкого градієнта під піксельним котом.
+  function bgPixel(key, u, v) {
+    const b = BG_PX[key] || BG_PX.none, base = hx2(b.base), g = hx2(b.glow);
+    const t = Math.hypot((u - b.cx) / b.rx, (v - b.cy) / b.ry);
+    let a = b.a * Math.max(0, 1 - t / 0.72);
+    if (b.disc) { const d = Math.hypot(u - b.cx, v - b.cy); if (d < b.disc) a = b.discA; else if (d < b.disc * 1.6) a = Math.max(a, b.discA * 0.5); }
+    a = Math.round(a * 20) / 20;
+    return base.map((c, i) => Math.round(c + (g[i] - c) * a));
+  }
   const glow = g => GODS[g] ? `0 0 0 1px ${GODS[g][1]}, 0 0 34px ${GODS[g][1]}55` : '0 12px 34px rgba(0,0,0,0.42)';
   const DEFAULT_LOOK = { sp: 'cat', eyeSt: 'round', iris: '#ffd700', pat: 'stripe', acc: 'none', place: 'pillow', col: '#d0caff', egg: '#f3ecdb', eggSpot: '#d0caff' };
   const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -243,5 +264,5 @@
     return { ...base, eyes: blink ? 'closed' : 'open', bob: t % 2 };
   }
 
-  root.AuFamiliar = { draw, pixels, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK, SHOP_ACC, SHOP_PL, SHOP_COLS, SHOP_IRIS, TOYS, BG, GODS, glow };
+  root.AuFamiliar = { draw, pixels, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK, SHOP_ACC, SHOP_PL, SHOP_COLS, SHOP_IRIS, TOYS, BG, GODS, glow, BG_PX, bgPixel };
 })(typeof window !== 'undefined' ? window : globalThis);
