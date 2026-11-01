@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <script src="familiar.js"></script>
+</helmet>
+
+<div style="display:flex;flex-direction:column;gap:22px;font-family:Arial,sans-serif;color:#fff;">
+
+  <sc-if value="{{ showMsg }}" hint-placeholder-val="{{ false }}">
+    <p style="font-size:0.86rem;line-height:1.55;color:rgba(255,255,255,0.6);padding:14px 16px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);margin:0;">{{ msgText }}</p>
+  </sc-if>
+
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:22px;">
+
+      <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+        <div style="flex:1 1 380px;min-width:0;padding:14px 18px;border-radius:12px 12px 12px 4px;background:#f3ecdb;color:#2f2920;box-shadow:0 8px 24px rgba(0,0,0,0.45);display:flex;flex-direction:column;gap:6px;">
+          <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;line-height:1.5;margin:0;text-wrap:pretty;">{{ say }}</p>
+          <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.92rem;color:#6b5f4b;">{{ sayTag }}</span>
+        </div>
+        <div style="flex:0 0 auto;display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);">
+          <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Скарбничка</span>
+          <span style="font-family:'Cinzel',Georgia,serif;font-size:1.45rem;letter-spacing:0.04em;color:#ffd700;">{{ balanceText }}</span>
+          <span style="font-size:0.74rem;color:rgba(255,255,255,0.5);">{{ depositLine }}</span>
+        </div>
+      </div>
+
+      <sc-if value="{{ notLinked }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:0.82rem;line-height:1.55;color:#e59aa3;margin:0;padding:10px 12px;border-radius:8px;background:rgba(125,47,56,0.18);border:1px solid rgba(229,154,163,0.35);">Телеграм до аркуша не привʼязано, тож дописи не рахуються і зернятка не капають. Привʼязати може адмін.</p>
+      </sc-if>
+
+      <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;">
+
+        <div style="flex:0 0 260px;max-width:100%;display:flex;flex-direction:column;gap:12px;position:sticky;top:76px;">
+          <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Примірочна</span>
+          <div style="width:260px;max-width:100%;height:260px;border-radius:15px;background:{{ fitBg }};border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;box-shadow:{{ fitGlow }};transition:all 0.3s ease;">
+            <canvas ref="{{ refFit }}" onClick="{{ onPet }}" width="48" height="48" style="width:240px;height:240px;image-rendering:pixelated;cursor:pointer;"></canvas>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span style="font-family:'Cinzel',Georgia,serif;font-size:1.1rem;letter-spacing:0.05em;">{{ famName }}</span>
+            <sc-if value="{{ fitHasTitle }}" hint-placeholder-val="{{ false }}">
+              <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1rem;color:#ffd700;">{{ fitTitle }}</span>
+            </sc-if>
+          </div>
+          <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);">
+              <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">
+                <span style="font-size:0.92rem;font-weight:700;">{{ selName }}</span>
+                <span style="font-size:0.8rem;color:{{ selPriceC }};white-space:nowrap;">{{ selPrice }}</span>
+              </div>
+              <sc-if value="{{ selHasNote }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:0.8rem;line-height:1.5;color:rgba(255,255,255,0.6);">{{ selNote }}</span>
+              </sc-if>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onClick="{{ onAct }}" disabled="{{ actOff }}" style="cursor:pointer;border:none;border-radius:999px;padding:9px 18px;font-size:0.86rem;font-weight:700;background:{{ actBg }};color:{{ actC }};transition:all 0.3s ease;">{{ actLabel }}</button>
+                <sc-if value="{{ canReserve }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ onReserve }}" disabled="{{ busy }}" style="cursor:pointer;border-radius:999px;padding:9px 16px;font-size:0.82rem;background:transparent;border:1px solid #ffd700;color:#ffd700;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.12);">{{ reserveLabel }}</button>
+                </sc-if>
+                <button onClick="{{ onClear }}" style="cursor:pointer;border-radius:999px;padding:9px 16px;font-size:0.82rem;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.65);">Зняти примірку</button>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noSel }}" hint-placeholder-val="{{ true }}">
+            <p style="font-size:0.8rem;line-height:1.55;color:rgba(255,255,255,0.5);margin:0;">{{ fitHint }}</p>
+          </sc-if>
+        </div>
+
+        <div style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:24px;">
+
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:0.82rem;color:rgba(255,255,255,0.6);">{{ weekHead }}</span>
+            <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Вітрина стоїть {{ weekUntil }}</span>
+          </div>
+
+          <sc-if value="{{ hasRare }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ rare.on }}" style="cursor:pointer;text-align:left;display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:16px;border-radius:15px;background:rgba(255,215,0,0.06);border:1px solid {{ rare.bd }};color:#fff;box-shadow:0 0 26px rgba(255,215,0,0.12);transition:all 0.3s ease;" style-hover="transform:translateY(-3px);box-shadow:0 0 30px rgba(255,215,0,0.25);">
+              <div style="flex:0 0 132px;height:132px;border-radius:10px;background:{{ rare.bg }};display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:{{ rare.glow }};">
+                <sc-if value="{{ rare.isCanvas }}" hint-placeholder-val="{{ true }}">
+                  <canvas ref="{{ rare.ref }}" width="48" height="48" style="width:128px;height:128px;image-rendering:pixelated;"></canvas>
+                </sc-if>
+                <sc-if value="{{ rare.isTitle }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;line-height:1.3;color:#ffd700;text-align:center;padding:10px;text-wrap:balance;">{{ rare.val }}</span>
+                </sc-if>
+              </div>
+              <div style="flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:6px;">
+                <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.95rem;color:rgba(255,215,0,0.85);">✦ З-під прилавка</span>
+                <span style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;letter-spacing:0.04em;color:#ffd700;">{{ rare.name }}</span>
+                <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.5;color:rgba(255,255,255,0.78);text-wrap:pretty;">{{ rareSay }}</span>
+                <span style="font-size:0.8rem;color:{{ rare.priceC }};">{{ rare.price }} · {{ rareBack }}</span>
+              </div>
+            </button>
+          </sc-if>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;flex-direction:column;gap:3px;">
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.05em;">Вітрина тижня</span>
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.5;color:rgba(255,255,255,0.65);text-wrap:pretty;">{{ weekSay }}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;">
+              <sc-for list="{{ vitrine }}" as="it" hint-placeholder-count="5">
+                <button onClick="{{ it.on }}" style="cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid {{ it.bd }};color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.3);transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);transform:translateY(-3px);">
+                  <div style="height:104px;border-radius:8px;background:{{ it.bg }};display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:{{ it.glow }};">
+                    <sc-if value="{{ it.isCanvas }}" hint-placeholder-val="{{ true }}">
+                      <canvas ref="{{ it.ref }}" width="48" height="48" style="width:100px;height:100px;image-rendering:pixelated;"></canvas>
+                    </sc-if>
+                    <sc-if value="{{ it.isTitle }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.3;color:#ffd700;text-align:center;padding:8px;text-wrap:balance;">{{ it.val }}</span>
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:2px;padding:0 2px;">
+                    <span style="font-size:0.82rem;line-height:1.3;">{{ it.name }}</span>
+                    <span style="font-size:0.74rem;color:{{ it.priceC }};">{{ it.price }}</span>
+                  </div>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;flex-direction:column;gap:3px;">
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.05em;">Завжди на прилавку</span>
+              <span style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Не зникає. На це можна спокійно копити.</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;">
+              <sc-for list="{{ perm }}" as="it" hint-placeholder-count="8">
+                <button onClick="{{ it.on }}" style="cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid {{ it.bd }};color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.3);transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);transform:translateY(-3px);">
+                  <div style="height:104px;border-radius:8px;background:{{ it.bg }};display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:{{ it.glow }};">
+                    <sc-if value="{{ it.isCanvas }}" hint-placeholder-val="{{ true }}">
+                      <canvas ref="{{ it.ref }}" width="48" height="48" style="width:100px;height:100px;image-rendering:pixelated;"></canvas>
+                    </sc-if>
+                    <sc-if value="{{ it.isTitle }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.3;color:#ffd700;text-align:center;padding:8px;text-wrap:balance;">{{ it.val }}</span>
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:2px;padding:0 2px;">
+                    <span style="font-size:0.82rem;line-height:1.3;">{{ it.name }}</span>
+                    <span style="font-size:0.74rem;color:{{ it.priceC }};">{{ it.price }}</span>
+                  </div>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+
+          <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.05em;">Ваше з минулих тижнів</span>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;">
+                <sc-for list="{{ mine }}" as="it" hint-placeholder-count="0">
+                  <button onClick="{{ it.on }}" style="cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid {{ it.bd }};color:#fff;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);">
+                    <div style="height:104px;border-radius:8px;background:{{ it.bg }};display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                      <sc-if value="{{ it.isCanvas }}" hint-placeholder-val="{{ true }}">
+                        <canvas ref="{{ it.ref }}" width="48" height="48" style="width:100px;height:100px;image-rendering:pixelated;"></canvas>
+                      </sc-if>
+                      <sc-if value="{{ it.isTitle }}" hint-placeholder-val="{{ false }}">
+                        <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.3;color:#ffd700;text-align:center;padding:8px;">{{ it.val }}</span>
+                      </sc-if>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:2px;padding:0 2px;">
+                      <span style="font-size:0.82rem;line-height:1.3;">{{ it.name }}</span>
+                      <span style="font-size:0.74rem;color:{{ it.priceC }};">{{ it.price }}</span>
+                    </div>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:15px;background:rgba(0,0,0,0.25);border:1px dashed rgba(255,255,255,0.16);">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;">
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.05em;color:rgba(255,255,255,0.8);">У шафі</span>
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">{{ closetCount }}</span>
+            </div>
+            <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.5;color:rgba(255,255,255,0.6);">Повертаються на вітрину по черзі. Що саме і коли, Марта показує лише тим, хто відклав.</span>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;">
+              <sc-for list="{{ closet }}" as="it" hint-placeholder-count="16">
+                <div title="{{ it.hint }}" style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+                  <div style="width:100%;height:64px;border-radius:8px;background:#141414;border:1px solid {{ it.bd }};display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                    <sc-if value="{{ it.isCanvas }}" hint-placeholder-val="{{ true }}">
+                      <canvas ref="{{ it.ref }}" width="48" height="48" style="width:60px;height:60px;image-rendering:pixelated;filter:{{ it.filter }};"></canvas>
+                    </sc-if>
+                    <sc-if value="{{ it.isTitle }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.9rem;color:{{ it.tc }};">{{ it.tlabel }}</span>
+                    </sc-if>
+                  </div>
+                  <span style="font-size:0.66rem;line-height:1.25;color:#ffd700;text-align:center;">{{ it.when }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <p style="font-size:0.76rem;line-height:1.6;color:rgba(255,255,255,0.42);margin:0;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;">Відкласти можна річ з вітрини або з-під прилавка: завдаток 5 зерняток зараховується в ціну, коли річ повернеться. Благословення діє 7 днів, одне за раз. Речі з-під прилавка повертаються не раніше ніж через 8 тижнів. Куплене лишається за вами, навіть якщо скинути фамільяра.</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1040,&quot;height&quot;:900},&quot;demo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;posts&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:186,&quot;min&quot;:0,&quot;max&quot;:1000,&quot;tsType&quot;:&quot;number&quot;}}">
+const FAM_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const FAM_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const plural = (n, a, b, c) => { const x = n % 10, y = n % 100; return x === 1 && y !== 11 ? a : x >= 2 && x <= 4 && (y < 12 || y > 14) ? b : c; };
+const SEED = n => `${n} ${plural(n, 'зернятко', 'зернятка', 'зерняток')}`;
+const WEEKS = n => `${n} ${plural(n, 'тиждень', 'тижні', 'тижнів')}`;
+const LOOKK = ['acc', 'place', 'col', 'iris', 'toy'];
+// Каталог для демо; на сайті склад, ціни й порядок приходять з familiar_items (supabase_familiar_shop_migration.sql).
+const DEMO_CATALOG = [
+  ['glasses', 'perm', 'acc', 'glasses', 'Окуляри', 20], ['scarf', 'perm', 'acc', 'scarf', 'Шарф', 25], ['books', 'perm', 'place', 'books', 'Стос книжок', 30], ['basket', 'perm', 'place', 'basket', 'Кошик', 35], ['mint', 'perm', 'col', '#a8e6c1', 'Хутро «Мʼята»', 30], ['amber', 'perm', 'iris', '#c8794a', 'Очі «Бурштин»', 20], ['star', 'perm', 'toy', 'star', 'Зірочки', 20], ['t1', 'perm', 'title', 'Охоронець штампу', '«Охоронець штампу»', 10],
+  ['b_lesta', 'perm', 'bless', 'lesta', 'Благословення: Леста', 60], ['b_nokta', 'perm', 'bless', 'nokta', 'Благословення: Нокта', 60], ['b_konk', 'perm', 'bless', 'konk', 'Благословення: Конкорфату', 60], ['b_flor', 'perm', 'bless', 'flor', 'Благословення: Флоріана', 60], ['b_ark', 'perm', 'bless', 'ark', 'Благословення: Арканія', 60],
+  ['horns', 'pool', 'acc', 'horns', 'Ріжки', 30], ['candle', 'pool', 'place', 'candle', 'Свічка', 25], ['crimson', 'pool', 'col', '#9c4f63', 'Хутро «Багрянець»', 35], ['copper', 'pool', 'col', '#c8794a', 'Хутро «Мідь»', 35], ['ember', 'pool', 'col', '#ff7a45', 'Хутро «Жар»', 40], ['moss', 'pool', 'iris', '#5e9a8f', 'Очі «Мох»', 20], ['note', 'pool', 'toy', 'note', 'Дзвіночок', 20], ['yarn', 'pool', 'toy', 'yarn', 'Клубок', 25], ['moth', 'pool', 'toy', 'moth', 'Метелики', 25], ['lamp', 'pool', 'bg', 'lamp', 'Лампа рецепції', 30], ['night', 'pool', 'bg', 'night', 'Нічне вікно', 30], ['garden', 'pool', 'bg', 'garden', 'Сад', 40], ['archive', 'pool', 'bg', 'archive', 'Архів', 40], ['snow', 'pool', 'bg', 'snow', 'Зимове вікно', 35], ['t2', 'pool', 'title', 'Гроза мишей', '«Гроза мишей»', 10], ['t3', 'pool', 'title', 'Нічний вартовий', '«Нічний вартовий»', 15], ['t4', 'pool', 'title', 'Улюбленець рецепції', '«Улюбленець рецепції»', 25], ['t6', 'pool', 'title', 'Тінь за шафою', '«Тінь за шафою»', 20], ['t7', 'pool', 'title', 'Перший у черзі', '«Перший у черзі»', 15],
+  ['throne', 'rare', 'place', 'throne', 'Трон', 70], ['halo', 'rare', 'acc', 'halo', 'Ореол', 55], ['t5', 'rare', 'title', 'Той, хто бачив Нокту', '«Той, хто бачив Нокту»', 40], ['ash', 'rare', 'col', '#2b2540', 'Хутро «Попіл»', 50], ['monocle', 'rare', 'acc', 'monocle', 'Монокль', 45], ['chest', 'rare', 'place', 'chest', 'Скриня', 55], ['amethyst', 'rare', 'iris', '#9b5de5', 'Очі «Аметист»', 40], ['moon', 'rare', 'bg', 'moon', 'Місячна ніч', 45],
+].map(([id, tier, kind, val, name, price]) => ({ id, tier, kind, val, name, price }));
+const NOTES = {
+  throne: 'Списаний з театру. З якого — Марта не каже.', candle: 'Горить, поки відкрита сторінка.',
+  monocle: 'Видає в ньому особу, що читає дрібний шрифт.', chest: 'Що всередині — не ваша справа. І не його.',
+  star: 'Коли гладите — замість сердечок іскри.', note: 'Коли гладите — дзенькає нотами.', yarn: 'Коли гладите — підкидає клубок.', moth: 'Коли гладите — злітають нічні метелики.',
+};
+const SAYS = [
+  'Розклала, що знайшла. Що не знайшла, те, значить, і не треба було.',
+  'Цього тижня пахне нафталіном. Це не товар, це шафа.',
+  'Нове не завжди нове. Але витерте від пилу — завжди.',
+  'Беріть, поки лежить. Наступного тижня лежатиме інше, і я не сперечаюся з шафою.',
+  'Половину цього принесли фамільяри з розвідки. Я лише вписала ціну.',
+];
+const RARE_SAYS = [
+  'Дістаю з-під прилавка рідко. Не дивіться так, я його не ховала, воно саме сховалося.',
+  'Це я показую не всім. Тобто всім, але тихо.',
+  'Повернеться не скоро. Якщо взагалі. Я не обіцяю, я записую.',
+];
+const HELLO = 'Прилавок відчинено. Платять тут зернятками: гривні не беру, їх нема куди записати.';
+const KIND_LINE = {
+  acc: 'Прикраси з бюро знахідок. Власників шукали, чесно.', place: 'Меблі для дрібних. Дорослому на подушці вже тісно, я бачу.',
+  col: 'Фарба тримається довше, ніж обіцянки. Перевіряла.', iris: 'Очі міняти — справа делікатна. Він не проти, я питала.',
+  toy: 'Іграшки видаю під розписку. Шум — за ваш рахунок.', bg: 'Фон — це просто стіна за спиною. Але стіна має значення.',
+  title: 'Титул пишу від руки. Почерк, кажуть, переконливий.', bless: 'Благословення я не продаю, а передаю. На папері різниця суттєва.',
+};
+const ERR = { short: 'Бракує зерняток. Пишіть дописи — він їх і так їсть.', 'not this week': 'Цього вже нема на вітрині. Шафа зачинилась раніше, ніж ви встигли.', owned: 'Це вже ваше. Я двічі не продаю, совість не дозволяє.', active: 'Це благословення ще діє. Двічі не просять.', reserved: 'Вже відкладено. Олівцем, але надійно.', 'not owned': 'Спершу купити, потім вдягати. Порядок такий.' };
+const no = () => `— М., вх. № ${4100 + Math.floor(Math.random() * 900)}`;
+// Та сама формула, що в familiar_week_abs / familiar_shelf. Лише для «повернеться за N тижнів»: вирішує база.
+const absOf = d => Math.floor((Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000) + 3) / 7);
+const keyOf = abs => { const t = new Date((abs * 7 - 3 + 3) * 86400000); const y = t.getUTCFullYear(); const w = Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7); return { key: `${y}-W${String(w).padStart(2, '0')}`, w, mon: new Date((abs * 7 - 3) * 86400000) }; };
+const shelfAt = (cat, plans, abs, n) => {
+  const pool = cat.filter(x => x.tier === 'pool').map(x => x.id), rares = cat.filter(x => x.tier === 'rare').map(x => x.id);
+  const k = keyOf(abs), pl = (plans || []).find(p => p.key === k.key) || {};
+  const vit = pl.vitrine || (pool.length ? Array.from({ length: Math.min(n, pool.length) }, (_, i) => pool[(abs * n + i) % pool.length]) : []);
+  return { abs, key: k.key, w: k.w, vitrine: vit, rare: pl.rare || (rares.length ? rares[abs % rares.length] : null), special: !!pl.key, ends: new Date(k.mon.getTime() + 6 * 86400000).toISOString() };
+};
+
+class Component extends DCLogic {
+  state = { phase: 'load', d: null, sel: null, say: HELLO, tag: '— М.', tick: 0, pet: 0, busy: false };
+
+  componentDidMount() {
+    this._cv = {}; this._rf = {};
+    this._t = setInterval(() => { if (!document.hidden) this.setState(s => ({ tick: s.tick + 1, pet: Math.max(0, s.pet - 1) })); }, 450);
+    this._w = setInterval(() => { if (window.AuFamiliar) { clearInterval(this._w); this.forceUpdate(); } }, 150);
+    this._load();
+  }
+  componentWillUnmount() { clearInterval(this._t); clearInterval(this._w); }
+  componentDidUpdate() { this._paint(); }
+  _ref(k) { if (!this._rf) return undefined; if (!this._rf[k]) this._rf[k] = el => { this._cv[k] = el; if (el) this._paint(); }; return this._rf[k]; }
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _demo() { return !!this.props.demo || !this._tok(); }
+
+  async _rpc(fn, body) {
+    const r = await fetch(`${FAM_URL}/rpc/${fn}`, { method: 'POST', headers: { apikey: FAM_KEY, Authorization: `Bearer ${this._tok()}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+    if (r.status === 404) return { error: 'missing' };
+    if (!r.ok) return { error: `HTTP ${r.status}` };
+    try { return await r.json(); } catch (e) { return { error: 'bad json' }; }
+  }
+  async _load() {
+    if (this._demo()) { this.setState({ phase: 'ok', d: this._demoState() }); return; }
+    let d; try { d = await this._rpc('familiar_shop'); } catch (e) { d = { error: 'net' }; }
+    if (!d || d.error) {
+      if (d && d.error === 'missing') console.warn('крамниця: немає familiar_shop — прогнати supabase_familiar_shop_migration.sql');
+      this.setState({ phase: d && d.error === 'missing' ? 'missing' : d && d.error === 'no familiar' ? 'nofam' : 'err' });
+      return;
+    }
+    this.setState({ phase: 'ok', d });
+  }
+  _demoState() {
+    const total = this.props.posts ?? 186, abs = absOf(new Date());
+    return { name: 'Іскра', total, spent: 120, bonus: 0, balance: total - 120, linked: true, deposit: 5,
+      look: { sp: 'cat', eyeSt: 'round', iris: '#ffd700', pat: 'stripe', acc: 'glasses', place: 'pillow', col: '#d0caff' }, base: { acc: 'hat' },
+      equip: { title: 'Охоронець штампу' }, bless: { g: 'lesta', until: new Date(Date.now() + 5 * 86400000).toISOString() },
+      owned: ['glasses', 't1', 'b_lesta', 'night'], reserved: ['throne'], catalog: DEMO_CATALOG, plans: [],
+      week: shelfAt(DEMO_CATALOG, [], abs, 5) };
+  }
+  // Демо повторює правила familiar_shop_buy / _reserve / _equip, щоб макет поводився як сайт.
+  _demoOp(op, it) {
+    const d = { ...this.state.d, owned: [...this.state.d.owned], reserved: [...this.state.d.reserved], look: { ...this.state.d.look }, equip: { ...this.state.d.equip }, base: { ...this.state.d.base } };
+    const res = d.reserved.includes(it.id), cost = it.price - (res ? d.deposit : 0), shop = new Set(d.catalog.filter(x => x.kind === it.kind).map(x => x.val));
+    const keep = () => { if (d.look[it.kind] && !shop.has(d.look[it.kind])) d.base[it.kind] = d.look[it.kind]; };
+    if (op === 'buy') {
+      if (d.balance < cost) return { error: 'short', need: cost - d.balance };
+      d.spent += cost; d.balance -= cost;
+      if (it.kind === 'bless') d.bless = { g: it.val, until: new Date(Date.now() + 7 * 86400000).toISOString() };
+      else { d.owned.push(it.id); d.reserved = d.reserved.filter(x => x !== it.id); if (LOOKK.includes(it.kind)) { keep(); d.look[it.kind] = it.val; } else d.equip[it.kind] = it.val; }
+    } else if (op === 'reserve') {
+      if (d.balance < d.deposit) return { error: 'short', need: d.deposit - d.balance };
+      d.spent += d.deposit; d.balance -= d.deposit; d.reserved.push(it.id);
+    } else {
+      const on = op === 'on', dflt = { acc: 'none', place: 'none', toy: 'none', col: '#d0caff', iris: '#ffd700' };
+      if (LOOKK.includes(it.kind)) { if (on) { keep(); d.look[it.kind] = it.val; } else if (d.look[it.kind] === it.val) d.look[it.kind] = d.base[it.kind] || dflt[it.kind]; }
+      else if (on) d.equip[it.kind] = it.val; else if (d.equip[it.kind] === it.val) delete d.equip[it.kind];
+    }
+    return { ...d, ok: true };
+  }
+  async _do(op, it, say) {
+    if (this.state.busy) return;
+    this.setState({ busy: true });
+    let r;
+    if (this._demo()) r = this._demoOp(op, it);
+    else {
+      const fn = op === 'buy' ? 'familiar_shop_buy' : op === 'reserve' ? 'familiar_shop_reserve' : 'familiar_shop_equip';
+      const body = op === 'buy' || op === 'reserve' ? { p_item: it.id } : { p_item: it.id, p_on: op === 'on' };
+      try { r = await this._rpc(fn, body); } catch (e) { r = { error: 'net' }; }
+    }
+    if (!r || r.error) {
+      const line = r && r.error === 'short' && r.need ? `Бракує ${SEED(r.need)}. Пишіть дописи — він їх і так їсть.` : (r && ERR[r.error]) || 'Не вийшло. Папери заїло, спробуйте ще раз.';
+      this.setState({ busy: false, say: line, tag: '— М.' });
+      if (r && r.error === 'not this week') this._load();
+      return;
+    }
+    this.setState({ busy: false, d: r, say, tag: op === 'on' || op === 'off' ? '— М.' : no() });
+    try { localStorage.removeItem('au_fam_cache'); window.dispatchEvent(new CustomEvent('au-fam')); } catch (e) {}
+  }
+
+  _cat() { return (this.state.d && this.state.d.catalog) || []; }
+  _by(id) { return this._cat().find(x => x.id === id); }
+  _hidden() { const d = this.state.d; return !!(d && d.look && d.look.surprise && d.total < 10); }
+  _stage() { const t = (this.state.d && this.state.d.total) || 0; return t < 10 ? 1 : t < 50 ? 2 : 3; }
+  _look(extra) { const d = this.state.d; return { ...((d && d.look) || {}), ...(extra || {}) }; }
+  _itemLook(it) { return LOOKK.includes(it.kind) ? this._look({ [it.kind]: it.val }) : this._look(); }
+  _info() { return this._hidden() ? { stage: 1, state: 'awake' } : { stage: 3, state: 'awake' }; }
+  _paint() {
+    const F = window.AuFamiliar; if (!F || !this._cv || !this.state.d) return;
+    const s = this.state, info = this._info(), it = this._by(s.sel);
+    const fitLook = it && LOOKK.includes(it.kind) ? this._itemLook(it) : this._look();
+    if (this._cv.fit) F.draw(this._cv.fit, F.frame(fitLook, info, s.tick, { pet: s.pet > 0 || (it && it.kind === 'toy') }));
+    Object.keys(this._cv).forEach(k => {
+      const m = /^(it|sh)_(.+)$/.exec(k); if (!m || !this._cv[k]) return;
+      const x = this._by(m[2]); if (x) F.draw(this._cv[k], F.frame(this._itemLook(x), info, 0, { pet: x.kind === 'toy' }));
+    });
+  }
+
+  renderVals() {
+    const s = this.state, F = window.AuFamiliar, d = s.d;
+    const msg = s.phase === 'load' || !F ? 'Марта відмикає прилавок…'
+      : s.phase === 'missing' ? 'Крамницю ще не відчинено: адмінам треба прогнати supabase_familiar_shop_migration.sql.'
+      : s.phase === 'nofam' ? 'Спершу заведіть фамільяра — крамниця для нього.'
+      : s.phase === 'err' ? 'Прилавок не відчинився. Оновіть сторінку трохи згодом.' : '';
+    const out = { showMsg: !!msg, msgText: msg, ready: !msg && !!d };
+    if (msg || !d) return out;
+
+    const BG = F.BG, GODS = F.GODS, cat = this._cat(), bal = d.balance, dep = d.deposit || 5;
+    const owned = new Set(d.owned || []), reserved = new Set(d.reserved || []);
+    const sh = d.week || {}, abs = sh.abs ?? absOf(new Date());
+    const onSale = new Set([...(sh.vitrine || []), sh.rare].filter(Boolean));
+    const bl = d.bless && GODS[d.bless.g] ? d.bless : null;
+    const blDays = bl ? Math.max(1, Math.ceil((new Date(bl.until) - Date.now()) / 86400000)) : 0;
+    const equipped = it => it.kind === 'bless' ? !!(bl && bl.g === it.val) : LOOKK.includes(it.kind) ? d.look[it.kind] === it.val : d.equip[it.kind] === it.val;
+    const cost = it => it.price - (reserved.has(it.id) ? dep : 0);
+    const sale = it => it.tier === 'perm' || onSale.has(it.id);
+    const next = id => { for (let k = 1; k <= 60; k++) { const x = shelfAt(cat, d.plans, abs + k, (sh.vitrine || []).length || 5); if (x.vitrine.includes(id) || x.rare === id) return k; } return null; };
+    const famName = d.name || 'Фамільяр';
+    const card = (it, pre) => {
+      const own = owned.has(it.id), eq = equipped(it), c = cost(it), short = !own && bal < c, isB = it.kind === 'bless', res = reserved.has(it.id);
+      return {
+        ...it, ref: this._ref((pre || 'it') + '_' + it.id), isCanvas: it.kind !== 'title', isTitle: it.kind === 'title',
+        bg: it.kind === 'bg' ? (BG[it.val] || BG.none) : '#1a1a1a',
+        glow: isB && GODS[it.val] ? `inset 0 0 0 1px ${GODS[it.val][1]}, inset 0 0 26px ${GODS[it.val][1]}55` : 'none',
+        bd: s.sel === it.id ? '#ffd700' : eq || res ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
+        price: eq ? (isB ? `Діє · ще ${blDays} дн.` : 'Вдягнено') : own && !isB ? 'Куплено' : res ? `Відкладено · ${SEED(c)}` : SEED(c),
+        priceC: eq || res ? '#ffd700' : own && !isB ? 'rgba(255,255,255,0.7)' : short ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.75)',
+        on: () => this.setState({ sel: s.sel === it.id ? null : it.id, say: it.tier === 'rare' ? RARE_SAYS[abs % RARE_SAYS.length] : KIND_LINE[it.kind] || s.say, tag: '— М.' }),
+      };
+    };
+    const hiddenIds = cat.filter(x => x.tier !== 'perm' && !onSale.has(x.id) && !owned.has(x.id)).map(x => x.id);
+    const closet = hiddenIds.map(id => {
+      const it = this._by(id), res = reserved.has(id), back = res ? next(id) : null;
+      return { ref: this._ref('sh_' + id), isCanvas: it.kind !== 'title', isTitle: it.kind === 'title',
+        filter: res ? 'none' : 'brightness(0) opacity(0.35)', tc: res ? '#ffd700' : 'rgba(255,255,255,0.25)', tlabel: res ? '«✦»' : '«···»',
+        bd: res ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.08)', when: res ? (back ? `за ${WEEKS(back)}` : 'відкладено') : '', hint: res ? `${it.name} · відкладено` : 'Щось у шафі' };
+    }).sort((a, b) => (b.when ? 1 : 0) - (a.when ? 1 : 0));
+    const it = this._by(s.sel);
+    const fitBgKey = it && it.kind === 'bg' ? it.val : d.equip.bg || 'none';
+    const fitTitle = it && it.kind === 'title' ? it.val : d.equip.title || '';
+    const fitBless = it && it.kind === 'bless' ? it.val : bl ? bl.g : null;
+    const rareIt = sh.rare ? this._by(sh.rare) : null;
+    const rareNext = rareIt ? next(rareIt.id) : null;
+    const ends = sh.ends ? new Date(sh.ends) : null;
+    const resN = reserved.size;
+    Object.assign(out, {
+      famName, balanceText: SEED(bal), notLinked: d.linked === false,
+      depositLine: resN ? `ще ${SEED(resN * dep)} завдатком` : '1 допис = 1 зернятко',
+      say: s.say, sayTag: s.tag, busy: s.busy,
+      refFit: this._ref('fit'), onPet: () => this.setState({ pet: 6 }),
+      fitBg: BG[fitBgKey] || BG.none, fitGlow: F.glow(fitBless), fitHasTitle: !!fitTitle, fitTitle,
+      fitHint: this._hidden() ? 'Поки це яйце, приміряти не вийде: шкаралупа не носить капелюхів. Купити можна вже зараз.'
+        : `Натисніть на річ, і ${famName} одразу її приміряє.${this._stage() < 3 ? ' Прикраси й місця видно лише на дорослому, тож у примірочній — він дорослий.' : ''} Куплене зʼявляється в «Змінити вигляд».`,
+      weekHead: `Тиждень ${sh.w || keyOf(abs).w}${sh.special ? ' · особливий' : ''}`,
+      weekUntil: ends ? `до неділі, ${ends.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', timeZone: 'UTC' })}` : 'до неділі',
+      weekSay: sh.say || SAYS[abs % SAYS.length],
+      hasRare: !!rareIt, rare: rareIt ? card(rareIt) : {}, rareSay: RARE_SAYS[abs % RARE_SAYS.length],
+      rareBack: rareNext ? `знову — за ${WEEKS(rareNext)}` : 'коли знову — невідомо',
+      vitrine: (sh.vitrine || []).map(id => this._by(id)).filter(Boolean).map(x => card(x)),
+      perm: cat.filter(x => x.tier === 'perm').map(x => card(x)),
+      mine: cat.filter(x => x.tier !== 'perm' && owned.has(x.id) && !onSale.has(x.id)).map(x => card(x)),
+      hasMine: cat.some(x => x.tier !== 'perm' && owned.has(x.id) && !onSale.has(x.id)),
+      closet, closetCount: `${hiddenIds.length} ${plural(hiddenIds.length, 'річ', 'речі', 'речей')}${resN ? ` · відкладено ${resN}` : ''}`,
+      hasSel: !!it, noSel: !it, canReserve: false, reserveLabel: '',
+      onClear: () => this.setState({ sel: null }),
+    });
+    if (it) {
+      const own = owned.has(it.id), eq = equipped(it), isB = it.kind === 'bless', c = cost(it), short = bal < c, res = reserved.has(it.id), ok = sale(it);
+      let label, off = s.busy, gold = true, act = null;
+      if (isB) {
+        if (eq) { label = `Діє ще ${blDays} дн.`; off = true; gold = false; }
+        else if (short) { label = `Бракує ${SEED(c - bal)}`; off = true; gold = false; }
+        else { label = bl ? `Замінити за ${SEED(c)}` : `Попросити за ${SEED(c)}`; act = () => this._do('buy', it, `Передала. ${GODS[it.val][0]} тепер дивиться на ${famName} тиждень. Що буде потім, вирішує не рецепція.`); }
+      } else if (!own) {
+        if (!ok) { label = 'Не цього тижня'; off = true; gold = false; }
+        else if (short) { label = `Бракує ${SEED(c - bal)}`; off = true; gold = false; }
+        else { label = `Купити за ${SEED(c)}`; act = () => this._do('buy', it, res ? `Видала з полиці відкладеного: ${it.name}. Завдаток зарахувала, решту вписала.` : `Записала: ${it.name}. Уже на місці. Чек не друкую, але памʼятаю.`); }
+      } else {
+        label = eq ? 'Зняти' : 'Вдягнути'; gold = !eq;
+        act = () => this._do(eq ? 'off' : 'on', it, eq ? 'Зняла й поклала в шухляду. Нікуди не дінеться.' : 'Вдягнула. Сидить рівно, я поправила.');
+      }
+      const godNote = isB && GODS[it.val] ? GODS[it.val][2] : '';
+      const note = [NOTES[it.id], godNote, isB && bl && !eq ? `Замінить благословення: ${GODS[bl.g][0]}.` : '',
+        res ? `Відкладено для вас: завдаток ${dep} уже в ціні.` : '',
+        !own && it.tier === 'rare' ? 'З-під прилавка: повернеться не раніше ніж через 8 тижнів.' : !own && it.tier === 'pool' ? 'Вітрина тижня: потім піде в шафу.' : ''].filter(Boolean).join(' ');
+      Object.assign(out, {
+        selName: it.name, selPrice: own && !isB ? 'ваше' : SEED(c), selPriceC: own && !isB ? '#ffd700' : 'rgba(255,255,255,0.6)',
+        selHasNote: !!note, selNote: note, actLabel: s.busy ? 'Записую…' : label, actOff: off,
+        actBg: off ? 'rgba(255,255,255,0.1)' : gold ? '#ffd700' : 'rgba(255,255,255,0.14)', actC: off ? 'rgba(255,255,255,0.45)' : gold ? '#1a1a1a' : '#fff',
+        onAct: () => { if (act) act(); },
+        canReserve: !own && !res && ok && it.tier !== 'perm' && !isB && bal >= dep, reserveLabel: `Відкласти за ${dep}`,
+        onReserve: () => { const k = next(it.id); this._do('reserve', it, `Відклала: ${it.name}. Підписала олівцем, щоб ніхто не чіпав. ${k ? `Повернеться за ${WEEKS(k)}` : 'Коли повернеться, скажу'}, і завдаток піде в ціну.`); },
+      });
+    }
+    return out;
+  }
+}
+</script>
+</body>
+</html>

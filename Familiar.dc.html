@@ -20,15 +20,31 @@
     <p style="font-size:0.86rem;line-height:1.55;color:rgba(255,255,255,0.6);padding:14px 16px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);">{{ msgText }}</p>
   </sc-if>
 
+  <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:4px;align-items:flex-end;border-bottom:1px solid rgba(255,255,255,0.1);flex-wrap:wrap;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2">
+        <button onClick="{{ t.on }}" style="cursor:pointer;background:transparent;border:none;border-bottom:2px solid {{ t.bd }};padding:10px 16px;margin-bottom:-1px;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;letter-spacing:0.06em;color:{{ t.c }};transition:all 0.3s ease;">{{ t.label }}</button>
+      </sc-for>
+      <span style="margin-left:auto;padding:0 4px 10px;font-size:0.82rem;color:rgba(255,255,255,0.6);">У скарбничці <b style="color:#ffd700;font-weight:700;">{{ balanceText }}</b></span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showShop }}" hint-placeholder-val="{{ false }}">
+    <dc-import name="FamiliarShop" demo="{{ demoShop }}" hint-size="100%,640px"></dc-import>
+  </sc-if>
+
   <sc-if value="{{ showMain }}" hint-placeholder-val="{{ false }}">
     <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;">
-      <div style="flex:0 0 300px;max-width:100%;height:300px;border-radius:15px;background:radial-gradient(ellipse 55% 55% at 50% 55%,rgba(255,255,255,0.07),rgba(26,26,26,0) 72%),#1a1a1a;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 34px rgba(0,0,0,0.42);">
+      <div style="flex:0 0 300px;max-width:100%;height:300px;border-radius:15px;background:{{ mainBg }};border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;box-shadow:{{ mainGlow }};transition:all 0.3s ease;">
         <canvas ref="{{ refMain }}" onClick="{{ onPet }}" width="48" height="48" style="width:288px;height:288px;image-rendering:pixelated;cursor:pointer;"></canvas>
       </div>
       <div style="flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:16px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
           <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
             <p style="font-family:'Cinzel',Georgia,serif;font-size:1.6rem;letter-spacing:0.05em;margin:0;overflow-wrap:anywhere;">{{ famName }}</p>
+            <sc-if value="{{ hasTitle }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:#ffd700;margin:0;">{{ titleText }}</p>
+            </sc-if>
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.6);margin:0;">{{ famSub }}</p>
           </div>
           <span style="display:flex;align-items:center;gap:7px;font-size:0.78rem;color:{{ pillColor }};padding:4px 11px;border-radius:999px;border:1px solid {{ pillColor }};white-space:nowrap;"><span style="width:7px;height:7px;border-radius:999px;background:{{ pillColor }};"></span>{{ pillText }}</span>
@@ -36,6 +52,12 @@
         <p style="font-size:0.84rem;line-height:1.5;color:rgba(255,255,255,0.7);margin:0;">{{ stageLine }}</p>
         <sc-if value="{{ notLinked }}" hint-placeholder-val="{{ false }}">
           <p style="font-size:0.82rem;line-height:1.55;color:#e59aa3;margin:0;padding:10px 12px;border-radius:8px;background:rgba(125,47,56,0.18);border:1px solid rgba(229,154,163,0.35);">Телеграм до аркуша не привʼязано, тож фамільяр не бачить ваших дописів і не росте. Привʼязати може адмін.</p>
+        </sc-if>
+        <sc-if value="{{ hasBless }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid {{ blessCol }};display:flex;flex-direction:column;gap:5px;">
+            <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:{{ blessCol }};">{{ blessHead }}</span>
+            <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.5;color:rgba(255,255,255,0.85);margin:0;">{{ blessPerk }}</p>
+          </div>
         </sc-if>
         <sc-if value="{{ scoutAway }}" hint-placeholder-val="{{ false }}">
           <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.02rem;line-height:1.55;color:rgba(255,255,255,0.78);margin:0;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.2);">{{ scoutAwayLine }}</p>
@@ -59,6 +81,15 @@
         </div>
         <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}">
           <p style="font-size:0.8rem;color:rgba(255,255,255,0.55);margin:0;">{{ note }}</p>
+        </sc-if>
+        <sc-if value="{{ hasShop }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;border-radius:10px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.28);">
+            <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+              <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.8);">✦ Скарбничка</span>
+              <span style="font-size:0.86rem;line-height:1.5;color:rgba(255,255,255,0.75);">{{ balanceText }}. По одному за кожен допис з дня заведення.</span>
+            </div>
+            <button onClick="{{ toShop }}" style="cursor:pointer;border-radius:999px;padding:8px 18px;font-size:0.84rem;background:transparent;border:1px solid #ffd700;color:#ffd700;transition:all 0.3s ease;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.12);">До прилавка →</button>
+          </div>
         </sc-if>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:6px;border-top:1px solid rgba(255,255,255,0.08);">
           <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Визирати на сторінках</span>
@@ -175,7 +206,7 @@ const hm = iso => { try { return new Date(iso).toLocaleTimeString('uk-UA', { hou
 const day = iso => { try { return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }); } catch (e) { return ''; } };
 
 class Component extends DCLogic {
-  state = { phase: 'load', data: null, edit: false, mode: null, draft: null, name: '', busy: false, note: '', tick: 0, pet: 0, up: false, say: '', ready: !!window.AuFamiliar };
+  state = { phase: 'load', data: null, edit: false, mode: null, draft: null, name: '', busy: false, note: '', tick: 0, pet: 0, up: false, say: '', tab: 'fam', ready: !!window.AuFamiliar };
 
   componentDidMount() {
     this._refs = {}; this._cv = {};
@@ -221,7 +252,8 @@ class Component extends DCLogic {
     if (this.props.demo) {
       if (this.state.data) return;
       const d = { fam: { name: 'Іскра', look: { sp: 'cat', eyeSt: 'round', iris: '#ffd700', pat: 'stripe', acc: 'hat', place: 'pillow', col: '#d0caff' }, peek: 'often', pets: 12, created_at: '2026-09-12T10:00:00Z' },
-        linked: true, total: 46, stage: 2, state: 'awake', week: [{ name: 'Северин', n: 6 }, { name: 'Іда Трілл', n: 2 }], week_total: 8, scout: null };
+        linked: true, total: 46, stage: 2, state: 'awake', week: [{ name: 'Северин', n: 6 }, { name: 'Іда Трілл', n: 2 }], week_total: 8, scout: null,
+        shop: { equip: { title: 'Охоронець штампу', bg: 'night' }, balance: 66, bless: { g: 'lesta', until: new Date(Date.now() + 5 * 86400000).toISOString() }, owned: [{ k: 'acc', v: 'glasses' }, { k: 'col', v: '#a8e6c1' }] } };
       this.setState({ phase: 'ok', data: d, name: d.fam.name });
       return;
     }
@@ -323,7 +355,7 @@ class Component extends DCLogic {
     if (this.props.demo) { this.setState(st => ({ edit: false, data: { ...st.data, fam: { ...st.data.fam, name: st.name || 'Фамільяр', look: st.draft } } })); return; }
     this.setState({ busy: true, note: '' });
     let d; try { d = await this._rpc('familiar_save', { p_name: s.name || 'Фамільяр', p_look: s.draft, p_peek: null }); } catch (e) { d = { error: 'net' }; }
-    if (d && d.error) { this.setState({ busy: false, note: d.error === 'missing' ? 'Фамільяра ще не підключено: адмінам треба прогнати міграцію.' : 'Не вийшло зберегти.' }); return; }
+    if (d && d.error) { this.setState({ busy: false, note: d.error === 'missing' ? 'Фамільяра ще не підключено: адмінам треба прогнати міграцію.' : d.error === 'not owned' ? 'Цю річ ще не куплено — вона в крамниці.' : 'Не вийшло зберегти.' }); return; }
     this.setState({ busy: false, edit: false, mode: null });
     this._bump(); this._load(true);
   }
@@ -359,7 +391,7 @@ class Component extends DCLogic {
       : s.phase === 'out' ? 'Увійдіть, щоб завести фамільяра.'
       : s.phase === 'err' ? 'Не вдалося дістати фамільяра. Оновіть сторінку трохи згодом.' : '';
     const sel = on => ({ bg: on ? 'rgba(255,215,0,0.16)' : 'rgba(255,255,255,0.05)', bd: on ? '#ffd700' : 'rgba(255,255,255,0.14)', c: on ? '#ffd700' : 'rgba(255,255,255,0.8)' });
-    const out = { ...base, showMsg: !!msg, msgText: msg, showMain: false, showEditor: false, hasNote: !!s.note, note: s.note, busy: s.busy };
+    const out = { ...base, showMsg: !!msg, msgText: msg, showMain: false, showEditor: false, showTabs: false, showShop: false, hasNote: !!s.note, note: s.note, busy: s.busy };
     if (msg || !F) return out;
 
     const editing = s.phase === 'new' || s.edit;
@@ -378,6 +410,12 @@ class Component extends DCLogic {
       const chips = (k, list) => list.map(([v, label]) => ({ label, on: set(k, v), ...sel(dr[k] === v) }));
       const dots = (k, list) => list.map(c => ({ col: c, on: set(k, c), ring: dr[k] === c ? '#ffffff' : 'rgba(255,255,255,0.15)' }));
       const rnd = a => a[Math.floor(Math.random() * a.length)];
+      // Куплене в крамниці (d.shop.owned) дописується до вибору зі значком ✦; familiar_save чужого не прийме.
+      const ownL = (d.shop && Array.isArray(d.shop.owned)) ? d.shop.owned : [];
+      const has = (k, v) => ownL.some(o => o.k === k && o.v === v);
+      const plus = (k, list) => (list || []).filter(([v]) => has(k, v)).map(([v, l]) => [v, `✦ ${l}`]);
+      const plusC = (k, list) => (list || []).filter(c => has(k, c));
+      const toys = plus('toy', F.TOYS);
       Object.assign(out, {
         showEditor: true, eggMode: egg, draftName: s.name, canCancel: s.phase === 'ok', canBack: s.phase === 'new',
         onBack: () => this.setState({ mode: null, note: '' }),
@@ -391,10 +429,11 @@ class Component extends DCLogic {
           { title: 'Шкаралупа яйця', chips: [], dots: dots('egg', F.SHELL) },
           { title: 'Плямки на яйці', chips: [], dots: dots('eggSpot', F.SPOT) },
           { title: 'Вид', chips: chips('sp', F.SP), dots: [] },
-          { title: 'Хутро', chips: chips('pat', F.PAT), dots: dots('col', F.COLS) },
-          { title: 'Очі', chips: chips('eyeSt', F.EYE), dots: dots('iris', F.IRIS) },
-          { title: 'Прикраса', chips: chips('acc', F.ACC), dots: [] },
-          { title: 'Місце', chips: chips('place', F.PL), dots: [] },
+          { title: 'Хутро', chips: chips('pat', F.PAT), dots: dots('col', [...F.COLS, ...plusC('col', F.SHOP_COLS)]) },
+          { title: 'Очі', chips: chips('eyeSt', F.EYE), dots: dots('iris', [...F.IRIS, ...plusC('iris', F.SHOP_IRIS)]) },
+          { title: 'Прикраса', chips: chips('acc', [...F.ACC, ...plus('acc', F.SHOP_ACC)]), dots: [] },
+          { title: 'Місце', chips: chips('place', [...F.PL, ...plus('place', F.SHOP_PL)]), dots: [] },
+          ...(toys.length ? [{ title: 'Іграшка', chips: chips('toy', [['none', 'Без'], ...toys]), dots: [] }] : []),
         ],
         onName: e => this.setState({ name: e.target.value.slice(0, 16) }),
         onSave: () => this._save(),
@@ -416,6 +455,20 @@ class Component extends DCLogic {
     const pill = away ? ['На розвідці', 'rgba(255,255,255,0.6)'] : d.state === 'asleep' ? ['Спить', 'rgba(255,255,255,0.45)'] : d.state === 'drowsy' ? ['Дрімає', '#d0caff'] : ['Не спить', '#ffd700'];
     const find = back ? (sc.find.kind === 'quote' ? `«${sc.find.text}»${sc.find.author ? ' — ' + sc.find.author : ''}` : `Приніс ${sc.find.text}`) : '';
     const wk = Array.isArray(d.week) ? d.week : [];
+    const shop = d.shop || null, eqp = (shop && shop.equip) || {}, GODS = F.GODS || {};
+    const bl = shop && shop.bless && GODS[shop.bless.g] ? shop.bless : null, god = bl ? GODS[bl.g] : null;
+    const blDays = bl ? Math.max(1, Math.ceil((new Date(bl.until) - Date.now()) / 86400000)) : 0;
+    const seeds = n => { const a = n % 10, b = n % 100; return `${n} ${a === 1 && b !== 11 ? 'зернятко' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'зернятка' : 'зерняток'}`; };
+    const tab = shop ? s.tab : 'fam';
+    Object.assign(out, {
+      showTabs: !!shop, showShop: tab === 'shop', demoShop: !!this.props.demo,
+      tabs: [['fam', 'Фамільяр'], ['shop', 'Крамниця']].map(([v, label]) => ({ label, c: tab === v ? '#ffd700' : 'rgba(255,255,255,0.6)', bd: tab === v ? '#ffd700' : 'transparent', on: () => this.setState({ tab: v, note: '' }) })),
+      balanceText: shop ? seeds(Number(shop.balance) || 0) : '', hasShop: !!shop, toShop: () => this.setState({ tab: 'shop' }),
+      mainBg: (F.BG && F.BG[eqp.bg]) || (F.BG && F.BG.none) || '#1a1a1a', mainGlow: F.glow ? F.glow(bl && bl.g) : '0 12px 34px rgba(0,0,0,0.42)',
+      hasTitle: !!eqp.title, titleText: eqp.title || '',
+      hasBless: !!god, blessCol: god ? god[1] : '#fff', blessHead: god ? `✦ Благословення: ${god[0]} · ще ${blDays} дн.` : '', blessPerk: god ? god[2] : '',
+    });
+    if (tab === 'shop') return out;
     Object.assign(out, {
       showMain: true,
       famSub: `${spName} · з ${day(fam.created_at)}${fam.pets ? ` · гладили ${fam.pets} р.` : ''}`,
