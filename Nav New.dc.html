@@ -116,7 +116,12 @@
         </a>
       </sc-for>
     </div>
-    <button data-style="classic" onClick="{{ setNavStyle }}" style="margin-top:8px;cursor:pointer;background:none;border:none;padding:10px 0 2px;font-size:0.76rem;color:rgba(255,255,255,0.38);">← Повернути класичне меню</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;">
+      <button data-style="classic" onClick="{{ setNavStyle }}" style="cursor:pointer;background:none;border:none;padding:10px 0 2px;font-size:0.76rem;color:rgba(255,255,255,0.38);">← Повернути класичне меню</button>
+      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+        <a href="admin.dc.html" style="display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(100,149,237,0.4);background:rgba(100,149,237,0.1);color:#9dbcf7;font-size:0.78rem;text-decoration:none;">⚙ Адмінка</a>
+      </sc-if>
+    </div>
   </div>
 </sc-if>
 
