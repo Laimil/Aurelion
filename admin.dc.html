@@ -1132,6 +1132,7 @@ input,textarea,select{font-size:16px}
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
               <button onClick="{{ p.onEdit }}" style="cursor:pointer;background:transparent;border:1px solid rgba(100,149,237,0.3);color:rgba(140,175,255,0.85);border-radius:999px;padding:6px 16px;font-size:0.76rem;">✎ Правити аркуш</button>
               <button onClick="{{ p.onTempPw }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,215,0,0.28);color:rgba(255,215,0,0.8);border-radius:999px;padding:6px 16px;font-size:0.76rem;">{{ p.pwBtn }}</button>
+              <button onClick="{{ p.onDropUser }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,77,77,0.3);color:rgba(255,130,130,0.85);border-radius:999px;padding:6px 16px;font-size:0.76rem;margin-left:auto;">Видалити аркуш</button>
             </div>
           </sc-if>
           <sc-if value="{{ p.hasPwNote }}" hint-placeholder-val="{{ false }}">
@@ -3961,9 +3962,9 @@ input,textarea,select{font-size:16px}
         </div>
         <button onClick="{{ onNoteCancel }}" aria-label="Закрити" style="cursor:pointer;flex:none;width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.7);font-size:1.1rem">✕</button>
       </div>
-      <textarea value="{{ noteText }}" onChange="{{ onNoteInput }}" onKeyDown="{{ onNoteKey }}" autoFocus="{{ true }}" rows="7" placeholder="Напишіть тут…" style="width:100%;box-sizing:border-box;min-height:170px;max-height:50vh;resize:vertical;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:12px 14px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:16px;line-height:1.55;outline:none"></textarea>
+      <sc-if value="{{ noteHasField }}" hint-placeholder-val="{{ true }}"><textarea value="{{ noteText }}" onChange="{{ onNoteInput }}" onKeyDown="{{ onNoteKey }}" autoFocus="{{ true }}" rows="7" placeholder="Напишіть тут…" style="width:100%;box-sizing:border-box;min-height:170px;max-height:50vh;resize:vertical;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:12px 14px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:16px;line-height:1.55;outline:none"></textarea></sc-if>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <span style="font-size:0.78rem;color:rgba(255,255,255,0.4)">{{ noteCount }} · Ctrl+Enter — надіслати</span>
+        <sc-if value="{{ noteHasField }}" hint-placeholder-val="{{ true }}"><span style="font-size:0.78rem;color:rgba(255,255,255,0.4)">{{ noteCount }} · Ctrl+Enter — надіслати</span></sc-if>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-left:auto">
           <button onClick="{{ onNoteCancel }}" style="cursor:pointer;border-radius:999px;padding:12px 20px;min-height:46px;font-size:1rem;background:transparent;border:1px solid rgba(255,255,255,0.22);color:rgba(255,255,255,0.75)">Скасувати</button>
           <button onClick="{{ onNoteOk }}" style="{{ noteOkStyle }}">{{ noteOk }}</button>
@@ -8649,11 +8650,22 @@ class Component extends DCLogic {
 
     const setStatus = async (p, next) => {
       if (p.status === next) return;
-      if (next === 'blocked' && !window.confirm(`Відмовити «${p.nick}»?\n\nКабінет зачиниться: ні анкет, ні пліток, ні правок.`)) return;
-      if (next === 'pending' && !window.confirm(`Повернути «${p.nick}» на розгляд?\n\nПлітки й правки закриються, доки не вирішите знову. Пости лишаться відкриті.`)) return;
-      const body = { status: next, decided_at: new Date().toISOString(), decided_by: me };
+      if (next === 'blocked' && !(await this._askYes({ title: `Відмовити «${p.nick}»?`, hint: 'Кабінет зачиниться: ні анкет, ні пліток, ні правок, ні постів.', ok: 'Відмовити', danger: true }))) return;
+      if (next === 'pending' && !(await this._askYes({ title: `Повернути «${p.nick}» на розгляд?`, hint: 'Плітки, правки, тести й печатки закриються, доки не вирішите знову. Анкети, пости, арки й аудіо лишаться відкриті.', ok: 'Повернути' }))) return;
+      let body = { status: next, decided_at: new Date().toISOString(), decided_by: me };
       try {
-        await this._patch('site_users', p.id, body);
+        // Спершу функція (supabase_admin_users_migration.sql) — вона каже, якщо не вийшло.
+        // Немає її — звичайний PATCH, але порожня відповідь тепер теж помилка:
+        // раніше політика тихо відсікала рядок, а адмінка писала «✓ Відмовлено».
+        let row = null;
+        try { row = await this._slRpc('admin_set_status', { p_user: p.id, p_status: next }); }
+        catch (e) { if (!/admin_set_status|PGRST202|404/i.test(String(e.message || e))) throw e; }
+        if (!row) {
+          const out = await this._patch('site_users', p.id, body);
+          if (!Array.isArray(out) || !out.length) throw new Error('База не змінила рядок — схоже, немає прав. Прогоніть supabase_admin_users_migration.sql');
+          row = out[0];
+        }
+        body = { status: row.status || next, decided_at: row.decided_at || body.decided_at, decided_by: row.decided_by || me };
         this.setState(st => ({ gosPeople: (st.gosPeople || []).map(x => String(x.id) === String(p.id) ? { ...x, ...body } : x) }));
         this._toast(next === 'approved' ? '✓ Доступ відкрито' : next === 'blocked' ? '✓ Відмовлено' : '✓ Повернуто на розгляд');
       } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
@@ -8661,12 +8673,34 @@ class Component extends DCLogic {
 
     const RIGHTS = [
       { key: 'intake', label: 'Анкети',          ok: st => st !== 'blocked' },
+      { key: 'posts',  label: 'Пости, арки, аудіо', ok: st => st !== 'blocked' },
+      { key: 'offers', label: 'Оголошення',      ok: st => st !== 'blocked' },
       { key: 'gossip', label: 'Плітки',          ok: st => st === 'approved' },
       { key: 'edits',  label: 'Правки своїх',    ok: (st, n) => st === 'approved' && n > 0, why: (st, n) => st === 'approved' && !n ? 'немає персонажа' : '' },
-      { key: 'posts',  label: 'Пости й аудіо',   ok: st => st !== 'blocked' },
       { key: 'tests',  label: 'Тести',           ok: st => st === 'approved' },
+      { key: 'seals',  label: 'Печатки',         ok: st => st === 'approved' },
       { key: 'me',     label: '«Про мене»',      ok: st => st === 'approved' },
     ];
+
+    const dropUser = async (p) => {
+      const own = ownOf(p.id);
+      const ok = await this._askYes({
+        title: `Видалити аркуш «${p.nick || p.email}»?`,
+        hint: 'Акаунт зникне разом із входом: печатки, фамільяр і підписки на арки — теж. Анкети, плітки й дописи лишаться, але без автора.'
+          + (own.length ? ` Персонажі (${own.map(c => c.name).join(', ')}) стануть нічиїми.` : '')
+          + ' Скасувати не можна. Якщо людина просто не підходить, краще «Відмовлено».',
+        ok: 'Видалити назовсім', danger: true,
+      });
+      if (!ok) return;
+      try {
+        await this._slRpc('admin_drop_user', { p_user: p.id });
+        this.setState(st => ({ gosPeople: (st.gosPeople || []).filter(x => String(x.id) !== String(p.id)), pplOpen: '' }));
+        this._toast('✓ Аркуш видалено');
+      } catch (e) {
+        const m = String(e.message || e);
+        this._toast('✗ ' + (/admin_drop_user|PGRST202|404/i.test(m) ? 'Спершу прогоніть supabase_admin_users_migration.sql' : m));
+      }
+    };
 
     return {
       showPeopleTab: s.tab === 'people',
@@ -8762,6 +8796,7 @@ class Component extends DCLogic {
           email: p.email || '—',
           pwBtn: s.pwBusy === String(p.id) ? 'Записую…' : '⚷ Тимчасовий пароль',
           onTempPw: () => this._tempPass(p),
+          onDropUser: () => dropUser(p),
           hasPw: !!(s.pPw && String(s.pPw.id) === String(p.id)),
           pw: s.pPw && String(s.pPw.id) === String(p.id) ? s.pPw.pw : '',
           onCopyPw: () => { try { navigator.clipboard.writeText(s.pPw.pw); this._toast('✓ Скопійовано'); } catch (e) { this._toast('Виділіть і скопіюйте вручну'); } },
@@ -9781,6 +9816,16 @@ class Component extends DCLogic {
       this._noteResolve = res;
       this.setState({ noteDlg: { title, hint, ok, danger }, noteText: text || '' });
     });
+  }
+  // Замість window.confirm: у вбудованому перегляді системне віконце мовчки
+  // повертає «ні», і дія просто не відбувалася — без жодного сліду.
+  async _askYes({ title = '', hint = '', ok = 'Так', danger = false } = {}) {
+    if (this._noteResolve) this._noteResolve(null);
+    const v = await new Promise((res) => {
+      this._noteResolve = res;
+      this.setState({ noteDlg: { title, hint, ok, danger, plain: true }, noteText: '' });
+    });
+    return v !== null;
   }
   _closeNote(val) {
     const res = this._noteResolve;
@@ -11028,6 +11073,7 @@ class Component extends DCLogic {
       toastMsg:  s.toast,
 
       noteOpen:  !!s.noteDlg,
+      noteHasField: !(s.noteDlg && s.noteDlg.plain),
       noteTitle: s.noteDlg ? s.noteDlg.title : '',
       noteHint:  s.noteDlg ? s.noteDlg.hint : '',
       noteOk:    s.noteDlg ? s.noteDlg.ok : '',

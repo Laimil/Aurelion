@@ -552,7 +552,8 @@ class Component extends DCLogic {
       const sr = await this._api(`${SUPA_URL}/site_users?id=eq.${u.id}&select=status`);
       const prof = sr.ok ? (await sr.json())[0] : null;
       const admin = await this._isAdmin();
-      if (!admin && (!prof || prof.status !== 'approved')) { this.setState({ phase: 'locked' }); return; }
+      // Той самий доступ, що й у стрічки: будь-хто з аркушем, крім blocked (supabase_posts_open_migration.sql).
+      if (!admin && (!prof || prof.status === 'blocked')) { this.setState({ phase: 'locked' }); return; }
       const [chars, posts, pages, npcs, own, fol, shut, chrono, bundles] = await Promise.all([this._chars(), this._posts(), this._pages(), this._npcs(), this._own(u.id), this._follows(), this._closed(), this._chrono(), this._bundles()]);
       const arcs = this._build(posts, chars, npcs);
       this._markMine(arcs, own, fol);

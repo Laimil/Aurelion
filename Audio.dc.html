@@ -483,7 +483,8 @@ class Component extends DCLogic {
       const u = await ur.json();
       const sr = await this._api(`${SUPA_URL}/site_users?id=eq.${u.id}&select=status`);
       const prof = sr.ok ? (await sr.json())[0] : null;
-      if (!prof || prof.status !== 'approved') { this.setState({ phase: 'locked' }); return; }
+      // Той самий доступ, що й у стрічки: будь-хто з аркушем, крім blocked.
+      if (!prof || prof.status === 'blocked') { this.setState({ phase: 'locked', lock: prof ? 'blocked' : 'noprof' }); return; }
       await this._page(true);
     } catch (e) {
       this.setState({ phase: 'error', err: String(e) });
@@ -815,7 +816,8 @@ class Component extends DCLogic {
       isGate: gate,
       isShell: !gate,
       gateText: s.phase === 'guest' ? 'Аудіотека — для тих, хто увійшов у кабінет.'
-        : 'Доступ ще на розгляді. Щойно рецепція відкриє кабінет — музика зі стрічки з\'явиться тут.',
+        : s.lock === 'blocked' ? 'Кабінет для вас зачинений — і аудіотека разом із ним.'
+        : 'Лишилося завести аркуш у кабінеті — і музика зі стрічки зʼявиться тут.',
       gateBtn: s.phase === 'guest' ? 'Увійти в кабінет' : 'До кабінету',
 
       plHas: pl.length > 0,
