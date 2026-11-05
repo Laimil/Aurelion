@@ -3618,9 +3618,9 @@ a:hover{color:#a8c4f7;}
         </div>
         <sc-if value="{{ fbGuest }}" hint-placeholder-val="{{ true }}">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;">
-            <input value="{{ fbNick }}" onChange="{{ fbSetNick }}" placeholder="Як до вас звертатися" autocomplete="nickname" style="grid-column:1 / -1;box-sizing:border-box;width:100%;height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:0 13px;color:#fff;font-size:0.88rem;outline:none;" />
-            <input value="{{ fbTg }}" onChange="{{ fbSetTg }}" placeholder="@нік у телеграмі" autocomplete="off" style="box-sizing:border-box;width:100%;height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:0 13px;color:#fff;font-size:0.88rem;outline:none;" />
-            <input value="{{ fbEmail }}" onChange="{{ fbSetEmail }}" placeholder="або пошта" type="email" autocomplete="email" style="box-sizing:border-box;width:100%;height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:0 13px;color:#fff;font-size:0.88rem;outline:none;" />
+            <input value="{{ fbNick }}" onChange="{{ fbSetNick }}" placeholder="Як до вас звертатися" autocomplete="nickname" style="grid-column:1 / -1;box-sizing:border-box;width:100%;height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:0 13px;color:#fff;font-size:0.88rem;outline:none;">
+            <input value="{{ fbTg }}" onChange="{{ fbSetTg }}" placeholder="@нік у телеграмі" autocomplete="off" style="box-sizing:border-box;width:100%;height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:0 13px;color:#fff;font-size:0.88rem;outline:none;">
+            <input value="{{ fbEmail }}" onChange="{{ fbSetEmail }}" placeholder="або пошта" type="email" autocomplete="email" style="box-sizing:border-box;width:100%;height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:0 13px;color:#fff;font-size:0.88rem;outline:none;">
             <p style="grid-column:1 / -1;font-size:0.72rem;line-height:1.5;color:rgba(255,255,255,0.42);text-wrap:pretty;">{{ fbContactNote }}</p>
           </div>
         </sc-if>
@@ -3628,7 +3628,7 @@ a:hover{color:#a8c4f7;}
           <p style="font-size:0.76rem;line-height:1.5;color:rgba(255,255,255,0.5);text-wrap:pretty;">{{ fbSignedLine }}</p>
         </sc-if>
         <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
-          <label>Сайт <input value="{{ fbTrap }}" onChange="{{ fbSetTrap }}" name="website" tabIndex="-1" autocomplete="off" /></label>
+          <label>Сайт <input value="{{ fbTrap }}" onChange="{{ fbSetTrap }}" name="website" tabIndex="-1" autocomplete="off"></label>
         </div>
         <sc-if value="{{ fbHasErr }}" hint-placeholder-val="{{ false }}">
           <p style="font-size:0.8rem;line-height:1.5;color:#ff8a8a;">{{ fbErr }}</p>
@@ -4376,7 +4376,7 @@ class Component extends DCLogic {
     wallSharing: false, wallShareMsg: '',
     relSharing: false, relShareMsg: '',
     loreTagFilter: null, loreSortBy: 'order',
-    charSortBy: 'order',
+    charSortBy: 'fresh',
     charActiveFilter: 'active',
     storiesSortBy: 'order',
     histTagFilter: null,
@@ -7662,12 +7662,12 @@ class Component extends DCLogic {
     const kind = s.charKind || 'all';
     let list = base.filter(ch => kind === 'all' || (kind === 'npc' ? isNpc(ch) : !isNpc(ch)));
 
-    let sort = s.charSortBy || 'order';
+    let sort = s.charSortBy || 'fresh';
     if ((sort === 'posts' || sort === 'last') && !hasStats) sort = 'order';
     const cmp = {
       posts: (a, b) => posts(b) - posts(a),
       last:  (a, b) => (last(a) ?? 1e9) - (last(b) ?? 1e9),
-      fresh: (a, b) => (ago(a.created_at) ?? 1e9) - (ago(b.created_at) ?? 1e9),
+      fresh: (a, b) => { const t = (ch) => { const x = ch.created_at ? new Date(ch.created_at).getTime() : NaN; return isNaN(x) ? -Infinity : x; }; return t(b) - t(a) || 0; },
       az:    (a, b) => (a.name || '').localeCompare(b.name || '', 'uk', { sensitivity: 'base' }),
       za:    (a, b) => (b.name || '').localeCompare(a.name || '', 'uk', { sensitivity: 'base' }),
       age:   (a, b) => (ageNum(b) ?? -1) - (ageNum(a) ?? -1),
