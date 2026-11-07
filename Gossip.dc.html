@@ -1326,6 +1326,23 @@ a:hover{color:#fff}
 
               </div>
               <div style="min-width:0;">
+              <sc-if value="{{ eHasHave }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 6px;">Уже в галереї</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.38);margin:0 0 10px;line-height:1.5;">Позначте, що прибрати, — запит піде разом із заявкою, і зображення зникне, коли адмін її прийме.</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <sc-for list="{{ eHaveRows }}" as="h" hint-placeholder-count="0">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:84px;">
+                      <div title="{{ h.title }}" style="width:72px;height:92px;border-radius:6px;overflow:hidden;background:#111;border:2px solid {{ h.border }};transition:all 0.3s ease;">
+                        <img src="{{ h.url }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;opacity:{{ h.op }};filter:{{ h.filter }};transition:all 0.3s ease;" />
+                      </div>
+                      <button onClick="{{ h.onToggle }}" class="gos-ghost" style="cursor:pointer;background:transparent;border:1px solid {{ h.bd }};color:{{ h.color }};border-radius:999px;padding:4px 8px;font-size:0.66rem;line-height:1.3;white-space:normal;text-align:center;width:100%;">{{ h.label }}</button>
+                    </div>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ eHasDropNote }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-size:0.76rem;color:rgba(255,140,140,0.85);margin:10px 0 0;">{{ eDropNote }}</p>
+                </sc-if>
+              </sc-if>
               <p style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin:20px 0 10px;">Додати в галерею</p>
               <input class="gos-file" type="file" accept="image/*" multiple="{{ true }}" onChange="{{ onEGallery }}" style="font-size:0.82rem;color:rgba(255,255,255,0.4);" />
               <sc-if value="{{ eHasGal }}" hint-placeholder-val="{{ false }}">
@@ -3152,6 +3169,7 @@ class Component extends DCLogic {
       const bits = [
         keys.length ? keys.map((k) => E_LABEL[k] || k).join(', ') : '',
         (r.gallery || []).length ? `${r.gallery.length} ${P(r.gallery.length, 'зображення', 'зображення', 'зображень')}` : '',
+        (r.gallery_drop || []).length ? `прибрати ${r.gallery_drop.length} ${P(r.gallery_drop.length, 'зображення', 'зображення', 'зображень')}` : '',
         (r.links || []).length ? `${r.links.length} ${P(r.links.length, 'нитка', 'нитки', 'ниток')}` : '',
       ].filter(Boolean);
       return {
@@ -3206,7 +3224,7 @@ class Component extends DCLogic {
     E_KEYS.forEach((k) => { base[k] = String(ch[k] == null ? '' : ch[k]); });
     this.setState({
       tab: 'mine', charId: String(ch.id), eId: String(ch.id), ef: { ...base }, eBase: base,
-      eGal: [], eHave: [], eLinks: [], eLinkQ: '', eLinkKind: 'plain', eNote: '', eMsg: '',
+      eGal: [], eHave: [], eHaveAll: [], eDrop: [], eLinks: [], eLinkQ: '', eLinkKind: 'plain', eNote: '', eMsg: '',
       pl: null, plFail: false, pUrl: '', pNote: '', pMsg: '', navAt: '',
     });
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
@@ -3214,15 +3232,25 @@ class Component extends DCLogic {
     this._eHaveLoad(String(ch.id));
   }
 
-  // Уже опубліковані зображення теки — щоб портрет можна було обрати з них.
-  // Делікатне не пропонуємо: портрет на сайті ніде не розмивається.
+  // Уже опубліковані зображення теки — щоб портрет можна було обрати з них
+  // (eHave, без делікатного: портрет на сайті ніде не розмивається) і щоб
+  // власник міг попросити прибрати будь-яке (eHaveAll, разом із делікатним).
   async _eHaveLoad(id) {
     try {
       const r = await this._api(`${SUPA_URL}/character_images?character_id=eq.${id}&is_draft=eq.false&select=id,url,caption,is_sensitive&order=sort_order.asc,created_at.asc`);
       const rows = r.ok ? await r.json() : [];
       if (String(this.state.eId) !== id) return;
-      this.setState({ eHave: (Array.isArray(rows) ? rows : []).filter((g) => g && g.url && !g.is_sensitive) });
+      const all = (Array.isArray(rows) ? rows : []).filter((g) => g && g.url && g.id);
+      this.setState({ eHaveAll: all, eHave: all.filter((g) => !g.is_sensitive) });
     } catch (e) { console.warn('галерея для портрета:', e); }
+  }
+
+  _eToggleDrop(id) {
+    const k = String(id);
+    this.setState((st) => {
+      const cur = (st.eDrop || []).map(String);
+      return { eDrop: cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k], eMsg: '' };
+    });
   }
 
   // ── Плейліст персонажа: пишеться одразу (RLS — власник), не через заявку ──
@@ -3328,8 +3356,11 @@ class Component extends DCLogic {
     });
     const gallery = (s.eGal || []).filter((g) => g && g.url);
     const links = (s.eLinks || []).filter((l) => l && l.to_id);
+    const dropIds = (s.eDrop || []).map(String);
+    const galleryDrop = (s.eHaveAll || []).filter((g) => dropIds.includes(String(g.id)))
+      .map((g) => ({ id: g.id, url: g.url, caption: g.caption || '' }));
     if (!String(s.ef.name || '').trim()) { this.setState({ eMsg: 'Імʼя не можна лишити порожнім.' }); return; }
-    if (!Object.keys(patch).length && !gallery.length && !links.length) {
+    if (!Object.keys(patch).length && !gallery.length && !links.length && !galleryDrop.length) {
       this.setState({ eMsg: 'Нічого не змінилося — нести нічого.' });
       return;
     }
@@ -3340,12 +3371,16 @@ class Component extends DCLogic {
         body: JSON.stringify({
           character_id: ch.id, author_id: s.uid,
           patch, before, gallery, links, note: String(s.eNote || '').trim(),
+          // Графу шлемо лише коли є що прибрати: без міграції заявки без
+          // видалення ходять, як і раніше.
+          ...(galleryDrop.length ? { gallery_drop: galleryDrop } : {}),
         }),
       }, true);
       if (!r.ok) {
         const t = await r.text();
         let msg = 'Не вийшло віднести правку. Міграція прогнана?';
         try { const j = JSON.parse(t); if (j && j.message) msg = j.message; } catch (err) {}
+        if (galleryDrop.length && /gallery_drop/.test(msg)) msg = 'Запит на видалення фото ще не ввімкнено — адмінам треба прогнати supabase_char_gallery_drop_migration.sql.';
         this.setState({ eBusy: false, eMsg: msg });
         return;
       }
@@ -3358,7 +3393,7 @@ class Component extends DCLogic {
           if (!k.ok) console.warn('стук про правку:', k.status, await k.text());
         }).catch((e) => console.warn('стук про правку:', e));
       }
-      this.setState({ eBusy: false, eId: '', eGal: [], eLinks: [], eNote: '' });
+      this.setState({ eBusy: false, eId: '', eGal: [], eDrop: [], eLinks: [], eNote: '' });
       this._loadOwned(s.uid);
     } catch (e) { this.setState({ eBusy: false, eMsg: 'Не вийшло віднести правку.' }); }
   }
@@ -4097,6 +4132,30 @@ class Component extends DCLogic {
         },
         onDrop: () => this.setState((st) => ({ eGal: (st.eGal || []).filter((x, j) => j !== i) })),
       })),
+      ...(() => {
+        const drop = (s.eDrop || []).map(String);
+        const have = s.eHaveAll || [];
+        const n = have.filter((g) => drop.includes(String(g.id))).length;
+        return {
+          eHasHave: have.length > 0,
+          eDropNote: n ? `Попросите прибрати: ${n}. Зникнуть, коли адмін прийме заявку.` : '',
+          eHasDropNote: n > 0,
+          eHaveRows: have.map((g) => {
+            const on = drop.includes(String(g.id));
+            return {
+              key: g.id, url: g.url,
+              title: g.caption || (g.is_sensitive ? 'Делікатне зображення' : 'Зображення з галереї'),
+              op: on ? 0.35 : 1,
+              filter: on ? 'grayscale(1)' : (g.is_sensitive ? 'blur(6px)' : 'none'),
+              border: on ? 'rgba(255,120,120,0.7)' : 'rgba(255,255,255,0.14)',
+              label: on ? '↺ Лишити' : 'Попросити прибрати',
+              color: on ? 'rgba(255,215,0,0.8)' : 'rgba(255,140,140,0.8)',
+              bd: on ? 'rgba(255,215,0,0.35)' : 'rgba(255,77,77,0.25)',
+              onToggle: () => this._eToggleDrop(g.id),
+            };
+          }),
+        };
+      })(),
 
       eLinkQ: s.eLinkQ, setELinkQ: (e) => this.setState({ eLinkQ: e.target.value }),
       eLinkKind: s.eLinkKind, setELinkKind: (e) => this.setState({ eLinkKind: e.target.value }),
@@ -4147,6 +4206,7 @@ class Component extends DCLogic {
         const bits = [
           keys.length ? `графи: ${keys.map((k) => E_LABEL[k] || k).join(', ')}` : '',
           (r.gallery || []).length ? `зображень: ${r.gallery.length}` : '',
+          (r.gallery_drop || []).length ? `прибрати з галереї: ${r.gallery_drop.length}` : '',
           (r.links || []).length ? `ниток: ${r.links.length}` : '',
         ].filter(Boolean);
         return {
