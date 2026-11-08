@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-$RULE
+select{color-scheme:dark}select option,select optgroup{background:#222;color:#fff}select option:disabled{color:rgba(255,255,255,0.4)}
 body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;margin:0}
 a{color:#ffd700;text-decoration:none}
 a:hover{color:#fff}
@@ -28,7 +28,7 @@ a:hover{color:#fff}
           <img src="{{ charImg }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">
         </sc-if>
       </div>
-      <select value="{{ charId }}" onChange="{{ onChar }}" style="flex:1;min-width:0;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:11px 16px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;outline:none;cursor:pointer;">
+      <select value="{{ charId }}" onChange="{{ onChar }}" style="color-scheme:dark;flex:1;min-width:0;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:11px 16px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;outline:none;cursor:pointer;">
         <sc-for list="{{ charOpts }}" as="c" hint-placeholder-count="1">
           <option value="{{ c.id }}" style="background:#222;color:#fff;">{{ c.label }}</option>
         </sc-for>
