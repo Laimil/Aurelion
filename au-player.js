@@ -8,10 +8,14 @@
    Хто вміє її кликати:
      AuPlayer.play(track, queue)   — почати з цього треку (черга — сусіди)
      AuPlayer.playQueue(list, i)   — «грати все» з i-го
-     AuPlayer.current()            — {vid, playing} або null
-     AuPlayer.onChange(fn)         — сповіщення для позначок ♪ у стрічці
+     AuPlayer.current()            — {vid, playing, track, at, total} або null
+     AuPlayer.queue()              — копія черги в тому порядку, як вона грає
+     AuPlayer.onChange(fn)         — fn(vid, playing, track): позначки ♪ у стрічці
 
-   track = { vid, title, author, name, arc, postId }
+   track = { vid, title, author, name, arc, postId, cid, img, src }
+     name — ЧИЙ трек (персонаж), img — його портрет, cid — його тека;
+     src  — з якої черги: 'all' (усі плейлісти разом), 'pl:<id>', 'shelf'.
+     Усе, крім vid, необов'язкове: стара черга з пам'яті грає як грала.
    ═══════════════════════════════════════════════════════════════ */
 (function () {
   if (window.AuPlayer) return;
@@ -86,7 +90,7 @@
 
   function fire() {
     var t = Q[at] || null;
-    subs.forEach(function (fn) { try { fn(t ? t.vid : null, playing); } catch (e) {} });
+    subs.forEach(function (fn) { try { fn(t ? t.vid : null, playing, t); } catch (e) {} });
   }
 
   /* ── Панель ──────────────────────────────────────────────── */
@@ -162,10 +166,22 @@
     };
     frame.appendChild(zoom);
 
-    var mid = mk('div', { flex: '1 1 200px', minWidth: '0' });
+    // Чий трек: портрет персонажа ліворуч від назви. У змішаній черзі
+    // («усі плейлісти разом») це єдине, що каже, чию пісню чути.
+    var mid = mk('div', { flex: '1 1 200px', minWidth: '0', display: 'flex', alignItems: 'center', gap: '12px' });
+    var who = document.createElement('img');
+    who.alt = '';
+    css(who, {
+      width: '40px', height: '40px', flex: 'none', borderRadius: '999px',
+      objectFit: 'cover', objectPosition: 'top', display: 'none',
+      border: '2px solid #ffd700', boxShadow: '0 0 14px rgba(255,215,0,0.3)',
+    });
+    who.onerror = function () { who.style.display = 'none'; };
+    var txt = mk('div', { flex: '1', minWidth: '0' });
     var kicker = mk('p', {
       margin: '0 0 3px', font: '400 0.6rem/1 Arial, sans-serif', letterSpacing: '0.2em',
       textTransform: 'uppercase', color: 'rgba(255,215,0,0.7)',
+      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
     }, '✦ Грає');
     var title = mk('p', {
       margin: '0', font: "700 0.98rem/1.3 'Cinzel', Georgia, serif", letterSpacing: '0.03em',
@@ -178,7 +194,8 @@
     }, '');
     sub.onmouseenter = function () { sub.style.color = 'rgba(255,255,255,0.78)'; };
     sub.onmouseleave = function () { sub.style.color = 'rgba(255,255,255,0.46)'; };
-    mid.appendChild(kicker); mid.appendChild(title); mid.appendChild(sub);
+    txt.appendChild(kicker); txt.appendChild(title); txt.appendChild(sub);
+    mid.appendChild(who); mid.appendChild(txt);
 
     var ctl = mk('div', { display: 'flex', alignItems: 'center', gap: '8px', flex: 'none' });
     var prev = btn('‹', 'Попередній трек');
@@ -233,7 +250,7 @@
     bar.appendChild(line); bar.appendChild(row);
     document.body.appendChild(bar);
 
-    el = { bar: bar, fill: fill, host: host, title: title, sub: sub, play: play, count: count, prev: prev, next: next, frame: frame, mute: mute, vol: vr };
+    el = { bar: bar, fill: fill, host: host, kicker: kicker, who: who, title: title, sub: sub, play: play, count: count, prev: prev, next: next, frame: frame, mute: mute, vol: vr };
     applyVol();
   }
 
@@ -251,12 +268,25 @@
     var t = Q[at];
     if (!t) return;
     el.title.textContent = t.title || 'Трек із допису';
-    var bits = [];
-    if (t.name) bits.push(t.name);
-    if (t.arc) bits.push(t.arc);
-    if (!bits.length && t.author) bits.push(t.author);
-    el.sub.textContent = bits.join(' · ') + (t.postId ? ' — до допису ↗' : '');
-    el.sub.href = t.postId ? '#posts/' + encodeURIComponent(t.postId) : 'javascript:void(0)';
+    el.kicker.textContent = t.src === 'all' ? '✦ Грає · усі разом' : '✦ Грає';
+    if (t.img) {
+      if (el.who.getAttribute('src') !== t.img) el.who.src = t.img;
+      el.who.style.display = '';
+      el.who.title = t.name || '';
+    } else {
+      el.who.style.display = 'none';
+    }
+    // Ім'я — золотом і окремим вузлом: у рядку «ім'я · арка» воно тонуло.
+    el.sub.textContent = '';
+    if (t.name) el.sub.appendChild(mk('span', { color: 'rgba(255,215,0,0.9)' }, t.name));
+    var rest = [];
+    if (t.arc) rest.push(t.arc);
+    if (!t.name && !t.arc && t.author) rest.push(t.author);
+    var tail = (t.name && rest.length ? ' · ' : '') + rest.join(' · ') +
+      (t.postId ? ' — до допису ↗' : (t.cid ? ' — до теки ↗' : ''));
+    el.sub.appendChild(document.createTextNode(tail));
+    el.sub.href = t.postId ? '#posts/' + encodeURIComponent(t.postId)
+      : (t.cid ? '#characters/' + encodeURIComponent(t.cid) : 'javascript:void(0)');
     el.play.textContent = playing ? '❙❙' : '▶';
     el.play.title = playing ? 'Пауза' : 'Грати';
     el.count.textContent = Q.length > 1 ? (at + 1) + ' / ' + Q.length : '';
@@ -394,7 +424,10 @@
     // Приготувати чергу й показати панель, але НЕ грати: звук без
     // прямого «грай» — це засідка, а не сервіс.
     cueQueue: function (list, i) { start(list, i || 0, 0, false); },
-    current: function () { var t = Q[at]; return t ? { vid: t.vid, playing: playing } : null; },
+    current: function () { var t = Q[at]; return t ? { vid: t.vid, playing: playing, track: t, at: at, total: Q.length } : null; },
+    // Сторінка малює чергу списком (аудіотека, «Усі разом»): перетасований
+    // порядок знає лише плеєр, а після перезавантаження — лише його пам'ять.
+    queue: function () { return Q.slice(); },
     toggle: toggle,
     stop: stop,
     volume: function (v) { if (typeof v === 'number') setVol(v); return muted ? 0 : vol; },

@@ -7115,6 +7115,8 @@ class Component extends DCLogic {
     return ((this.state.charPl || {})[String(ch.id)] || []).map(r => ({
       vid: r.video_id, title: r.title || '', author: r.author || '',
       name: ch.name || '', arc: 'Плейліст',
+      // чий трек: портрет і тека — панель плеєра показує їх поряд із назвою
+      cid: ch.id, img: ch.image || '', src: 'pl:' + ch.id,
     }));
   }
 

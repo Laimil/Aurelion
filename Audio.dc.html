@@ -28,6 +28,15 @@
             <sc-if value="{{ plHas }}" hint-placeholder-val="{{ true }}">
               <p style="margin:0 0 10px 10px;font-size:0.64rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.75);">✦ Плейлісти</p>
             </sc-if>
+            <sc-if value="{{ allShow }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ allOpen }}" title="{{ allOpenHint }}" style="display:flex;align-items:center;gap:12px;margin-bottom:6px;padding:8px 10px;border-radius:8px;cursor:pointer;background:{{ allBg }};border:1px solid {{ allLine }};text-align:left;color:#fff;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.5);">
+                <span style="width:36px;height:36px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;background:#ffd700;color:#1a1a1a;font-size:1rem;">♫</span>
+                <span style="display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;">
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:0.86rem;color:#ffd700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Усі разом</span>
+                  <span style="font-size:0.68rem;color:{{ allMetaInk }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ allMeta }}</span>
+                </span>
+              </button>
+            </sc-if>
             <sc-for list="{{ side }}" as="p" hint-placeholder-count="5">
               <button onClick="{{ p.pick }}" title="{{ p.name }}" style="display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;cursor:pointer;opacity:{{ p.op }};background:{{ p.bg }};border:none;text-align:left;color:#fff;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.05);opacity:1;">
                 <img src="{{ p.img }}" alt="" loading="lazy" style="width:36px;height:36px;flex:none;border-radius:999px;object-fit:cover;object-position:top;border:2px solid {{ p.ring }};">
@@ -62,6 +71,12 @@
       <main style="min-width:0;display:flex;flex-direction:column;">
         <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;gap:14px;overflow-x:auto;padding:16px 18px 12px;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <sc-if value="{{ allShow }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ allOpen }}" title="{{ allOpenHint }}" aria-label="{{ allOpenHint }}" style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:none;width:58px;padding:0;background:none;border:none;color:#ffd700;cursor:pointer;">
+                <span style="width:46px;height:46px;box-sizing:border-box;border-radius:999px;display:flex;align-items:center;justify-content:center;background:#ffd700;color:#1a1a1a;font-size:1.05rem;border:2px solid #ffd700;">♫</span>
+                <span style="font-size:0.68rem;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Усі разом</span>
+              </button>
+            </sc-if>
             <sc-for list="{{ side }}" as="p" hint-placeholder-count="5">
               <button onClick="{{ p.pick }}" style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:none;width:58px;background:none;border:none;color:#fff;cursor:pointer;opacity:{{ p.op }};">
                 <img src="{{ p.img }}" alt="" loading="lazy" style="width:46px;height:46px;border-radius:999px;object-fit:cover;object-position:top;border:2px solid {{ p.ring }};">
@@ -184,8 +199,61 @@
             </div>
           </sc-if>
 
+          <sc-if value="{{ allListShow }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 0 4px;">
+              <button onClick="{{ backToPls }}" style="flex:none;border:none;background:none;padding:0;cursor:pointer;font-size:0.8rem;color:rgba(255,255,255,0.5);" style-hover="color:#ffd700;">← усі плейлісти</button>
+              <span style="color:rgba(255,255,255,0.2);">·</span>
+              <span style="min-width:0;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:#fff;letter-spacing:0.04em;">Усі разом</span>
+              <span style="font-size:0.78rem;color:rgba(255,215,0,0.8);">{{ allHeadCount }}</span>
+              <span style="flex:1;"></span>
+              <button onClick="{{ allPlay }}" style="flex:none;display:flex;align-items:center;gap:9px;height:36px;padding:0 18px 0 14px;border-radius:999px;border:none;background:#ffd700;color:#1a1a1a;font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:0.8rem;letter-spacing:0.05em;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:#ffe14d;box-shadow:0 0 18px rgba(255,215,0,0.35);"><span style="font-size:0.7rem;">{{ allIcon }}</span>{{ allPlayLabel }}</button>
+              <button onClick="{{ allMix }}" title="{{ allMixHint }}" style="flex:none;display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:999px;border:1px solid {{ allMixLine }};background:{{ allMixBg }};color:#ffd700;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.16);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"></path><path d="m18 2 4 4-4 4"></path><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"></path><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"></path><path d="m18 14 4 4-4 4"></path></svg>{{ allMixLabel }}</button>
+              <sc-if value="{{ allRoundShow }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ allRound }}" title="Скласти чергу наново: по одній пісні від кожного персонажа" style="flex:none;height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);font-size:0.8rem;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.12);color:#fff;">↺ колом</button>
+              </sc-if>
+            </div>
+            <p style="margin:6px 0 0;font-size:0.76rem;color:rgba(255,255,255,0.45);">{{ allNote }}</p>
+            <div style="display:flex;flex-direction:column;padding-top:10px;">
+              <sc-for list="{{ allRows }}" as="t" hint-placeholder-count="6">
+                <div onClick="{{ t.play }}" title="{{ t.hint }}" style="display:grid;grid-template-columns:{{ allCols }};gap:14px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:{{ t.rowBg }};transition:background 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);">
+                  <div style="position:relative;width:48px;height:36px;border-radius:5px;overflow:hidden;background:#111;">
+                    <img src="{{ t.thumb }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+                    <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);color:#ffd700;font-size:0.7rem;">{{ t.icon }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:2px;min-width:0;">
+                    <span style="font-size:0.9rem;color:{{ t.ink }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.title }}</span>
+                    <span style="font-size:0.74rem;color:rgba(255,255,255,0.42);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.sub }}</span>
+                  </div>
+                  <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+                    <span style="display:flex;align-items:center;gap:9px;min-width:0;">
+                      <img src="{{ t.face }}" alt="" loading="lazy" style="width:26px;height:26px;flex:none;border-radius:999px;object-fit:cover;object-position:top;border:1px solid {{ t.ring }};">
+                      <span style="min-width:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;color:{{ t.whoInk }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ t.who }}</span>
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-size:0.76rem;color:rgba(255,255,255,0.4);text-align:right;white-space:nowrap;">{{ t.when }}</span>
+                  </sc-if>
+                  <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+                    <img src="{{ t.face }}" alt="{{ t.who }}" title="{{ t.who }}" loading="lazy" style="width:30px;height:30px;border-radius:999px;object-fit:cover;object-position:top;border:1px solid {{ t.ring }};">
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ allNoRows }}" hint-placeholder-val="{{ false }}">
+              <p style="text-align:center;color:rgba(255,255,255,0.35);font-size:0.9rem;padding:24px 0;margin:0;">✦ Серед усіх плейлістів такої пісні немає.</p>
+            </sc-if>
+          </sc-if>
+
           <sc-if value="{{ showPls }}" hint-placeholder-val="{{ false }}">
-            <p style="margin:16px 0 0;font-size:0.76rem;color:rgba(255,255,255,0.45);">{{ plsLabel }}</p>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;">
+              <p style="flex:1 1 220px;min-width:0;margin:0;font-size:0.76rem;color:rgba(255,255,255,0.45);">{{ plsLabel }}</p>
+              <sc-if value="{{ allShow }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ allStart }}" title="{{ allHint }}" style="flex:none;display:flex;align-items:center;gap:9px;height:36px;padding:0 18px 0 14px;border-radius:999px;border:none;background:#ffd700;color:#1a1a1a;font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:0.8rem;letter-spacing:0.05em;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:#ffe14d;box-shadow:0 0 18px rgba(255,215,0,0.35);"><span style="font-size:0.7rem;">{{ allIcon }}</span>{{ allBtn }}</button>
+                <button onClick="{{ allStartMix }}" title="Усі пісні з усіх плейлістів — упереміш" style="flex:none;display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,215,0,0.4);background:rgba(255,215,0,0.06);color:#ffd700;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;white-space:nowrap;cursor:pointer;transition:all 0.3s ease;" style-hover="background:rgba(255,215,0,0.14);">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"></path><path d="m18 2 4 4-4 4"></path><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"></path><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"></path><path d="m18 14 4 4-4 4"></path></svg>упереміш</button>
+              </sc-if>
+            </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ cardMin }},1fr));gap:14px;padding-top:14px;">
               <sc-for list="{{ plCards }}" as="c" hint-placeholder-count="6">
                 <div onClick="{{ c.open }}" title="Відкрити плейліст" style="cursor:pointer;overflow:hidden;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid {{ c.line }};box-shadow:0 4px 15px rgba(0,0,0,0.3);transition:transform 0.28s ease,box-shadow 0.28s ease;" style-hover="transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,0.5);">
@@ -346,9 +414,13 @@ class Component extends DCLogic {
     phase: 'load', err: '', raw: [], off: 0, more: false, busy: false,
     fArc: [], q: '', view: 'list',
     nowVid: null, nowPlay: false, titles: {},
+    // Чий трек і з якої черги (див. track.src в au-player.js).
+    nowCid: null, nowSrc: '', nowAt: -1, nowN: 0, nowTitle: '',
+    nowMix: false, nowQ: null,   // «усі разом»: чи впереміш і сама черга
     pl: [], spot: 0, pinned: false, hold: false, plAll: false, arcOpen: false,
     bodies: {}, narrow: false,
-    // Що під шапкою: полиця зі стрічки, огляд плейлістів або один плейліст.
+    // Що під шапкою: полиця зі стрічки ('shelf'), огляд плейлістів ('pls'),
+    // один плейліст ('pl') або всі плейлісти одним списком ('all').
     src: 'shelf',
   };
 
@@ -403,7 +475,7 @@ class Component extends DCLogic {
     this._spin = setInterval(() => {
       const s = this.state;
       const n = Math.min(s.pl.length, SPIN_N);
-      if (s.pinned || s.hold || n < 2 || document.hidden) return;
+      if (s.pinned || s.hold || n < 2 || document.hidden || s.nowSrc === 'all') return;
       this.setState({ spot: (s.spot + 1) % n });
     }, SPIN);
   }
@@ -446,29 +518,100 @@ class Component extends DCLogic {
     } catch (e) { console.warn('аудіотека: плейлісти —', e && e.message); }
   }
 
+  // Трек плейліста для плеєра: з ім'ям, портретом і текою власника —
+  // саме з них панель і шапка показують, ЧИЯ пісня грає.
+  _plTrack(p, t, src) {
+    return { vid: t.vid, title: t.title, author: t.author, name: p.name, arc: 'Плейліст', cid: p.id, img: p.image || '', src };
+  }
+
+  // Що зараз у плеєрі. src порожній у черг, запущених не звідси (сторінка
+  // персонажа, стара черга з пам'яті) — тоді впізнаємо по самій пісні.
+  _cur() {
+    const c = window.AuPlayer && window.AuPlayer.current();
+    const t = (c && c.track) || {};
+    return { vid: c ? c.vid : null, src: t.src || '', cid: t.cid || null };
+  }
+
+  // Чи грає саме ЧЕРГА цього плейліста (а не його пісня з «усіх разом»).
+  _mine(p, cur) {
+    if (!cur.vid) return false;
+    return cur.src ? cur.src === 'pl:' + p.id : p.tracks.some((t) => t.vid === cur.vid);
+  }
+
   _playPl(p) {
     const P = window.AuPlayer;
     if (!P || !p || !p.tracks.length) return;
-    const cur = P.current();
-    if (cur && p.tracks.some((t) => t.vid === cur.vid)) { P.toggle(); return; }
-    P.playQueue(p.tracks.map((t) => ({ vid: t.vid, title: t.title, author: t.author, name: p.name, arc: 'Плейліст' })), 0);
+    if (this._mine(p, this._cur())) { P.toggle(); return; }
+    P.playQueue(p.tracks.map((t) => this._plTrack(p, t, 'pl:' + p.id)), 0);
   }
 
   _playPlAt(p, i) {
     const P = window.AuPlayer;
     if (!P || !p || !p.tracks[i]) return;
-    const cur = P.current();
-    if (cur && cur.vid === p.tracks[i].vid) { P.toggle(); return; }
-    P.playQueue(p.tracks.map((t) => ({ vid: t.vid, title: t.title, author: t.author, name: p.name, arc: 'Плейліст' })), i);
+    const cur = this._cur();
+    if (cur.vid === p.tracks[i].vid && this._mine(p, cur)) { P.toggle(); return; }
+    P.playQueue(p.tracks.map((t) => this._plTrack(p, t, 'pl:' + p.id)), i);
+  }
+
+  // Усі плейлісти однією чергою. Колом — по одній пісні від кожного
+  // персонажа (перші пісні всіх, тоді другі…): порядок усередині плейліста
+  // лишається таким, як його склав власник, і ніхто не грає тридцять
+  // пісень поспіль. Упереміш — просто перетасована купа.
+  // Та сама пісня у двох плейлістах лишається двічі: вона «чия» в обох.
+  _allQueue(mix) {
+    const pl = (this.state.pl || []).filter((p) => p.tracks.length);
+    const q = [];
+    if (mix) {
+      pl.forEach((p) => p.tracks.forEach((t) => q.push({ ...this._plTrack(p, t, 'all'), mix: true })));
+      for (let i = q.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [q[i], q[j]] = [q[j], q[i]];
+      }
+      return q;
+    }
+    const deep = pl.reduce((m, p) => Math.max(m, p.tracks.length), 0);
+    for (let i = 0; i < deep; i++) pl.forEach((p) => { if (p.tracks[i]) q.push(this._plTrack(p, p.tracks[i], 'all')); });
+    return q;
+  }
+
+  // Уже грають усі разом — головна кнопка стає паузою; «упереміш» завжди
+  // тасує наново, а force складає чергу колом спочатку.
+  _playAll(mix, force) {
+    const P = window.AuPlayer;
+    if (!P) return;
+    if (!mix && !force && this._cur().src === 'all') { P.toggle(); return; }
+    const q = this._allQueue(mix);
+    if (q.length) P.playQueue(q, 0);
+  }
+
+  // Клік по рядку списку: q — та сама черга, що намальована (жива з плеєра
+  // або заготовка колом), тому номер рядка і є місцем у черзі.
+  _playAllAt(q, i) {
+    const P = window.AuPlayer;
+    if (!P || !q[i]) return;
+    const c = P.current();
+    if (c && c.track && c.track.src === 'all' && c.at === i && c.vid === q[i].vid) { P.toggle(); return; }
+    P.playQueue(q, i);
   }
 
   _hookPlayer() {
     let left = 30;
     const tie = () => {
       if (!window.AuPlayer) return --left > 0;
-      window.AuPlayer.onChange((vid, on) => this.setState({ nowVid: vid, nowPlay: on }));
-      const cur = window.AuPlayer.current();
-      if (cur) this.setState({ nowVid: cur.vid, nowPlay: cur.playing });
+      // Читаємо current(), а не аргументи: там ще й місце в черзі.
+      const read = () => {
+        const c = window.AuPlayer.current();
+        const t = (c && c.track) || {};
+        this.setState({
+          nowVid: c ? c.vid : null, nowPlay: !!(c && c.playing),
+          nowCid: t.cid || null, nowSrc: t.src || '', nowTitle: t.title || '',
+          nowAt: c && c.at != null ? c.at : -1, nowN: (c && c.total) || 0,
+          nowMix: !!t.mix,
+          nowQ: t.src === 'all' && window.AuPlayer.queue ? window.AuPlayer.queue() : null,
+        });
+      };
+      window.AuPlayer.onChange(read);
+      if (window.AuPlayer.current()) read();
       return false;
     };
     if (!tie()) return;
@@ -584,11 +727,12 @@ class Component extends DCLogic {
       const key = t.video_id;
       const nm = this._name(t);
       let s = box.get(key);
-      if (!s) { s = { vid: key, title: nm.title, author: nm.author, arcs: [], who: [], uses: [], last: t.created_at }; box.set(key, s); }
+      if (!s) { s = { vid: key, title: nm.title, author: nm.author, arcs: [], who: [], cids: [], uses: [], last: t.created_at }; box.set(key, s); }
       if (!s.title && nm.title) s.title = nm.title;
       if (!s.author && nm.author) s.author = nm.author;
       const name = t.character_name || t.tag_name || '';
       if (name && !s.who.includes(name)) s.who.push(name);
+      if (t.character_id && !s.cids.includes(t.character_id)) s.cids.push(t.character_id);
       splitArcs(t.tag_arc).forEach((a) => { if (!s.arcs.includes(a)) s.arcs.push(a); });
       s.uses.push({ postId: t.post_id, name, when: t.created_at });
       if (new Date(t.created_at) > new Date(s.last)) s.last = t.created_at;
@@ -629,12 +773,21 @@ class Component extends DCLogic {
     });
   }
 
+  // Портрет у плеєрі — лише коли пісня звучала під ОДНИМ персонажем:
+  // під двома іменами одне обличчя було б неправдою.
   _queue(list) {
-    return list.map((t) => ({
-      vid: t.vid, title: t.title, author: t.author,
-      name: t.who.join(', '), arc: t.arcs.join(ARC_SEP),
-      postId: t.uses.length ? t.uses[0].postId : null,
-    }));
+    const bodies = this.state.bodies || {};
+    return list.map((t) => {
+      const postId = t.uses.length ? t.uses[0].postId : null;
+      const solo = t.who.length === 1 && t.cids.length === 1;
+      return {
+        vid: t.vid, title: t.title, author: t.author,
+        name: t.who.join(', '), arc: t.arcs.join(ARC_SEP),
+        postId, src: 'shelf',
+        cid: solo ? t.cids[0] : null,
+        img: solo ? ((bodies[postId] || {}).img || '') : '',
+      };
+    });
   }
 
   // Тимчасовий плейліст YouTube: недокументована адреса watch_videos сама
@@ -711,14 +864,31 @@ class Component extends DCLogic {
     const pl = s.pl || [];
     const P = (n, a, b, c) => this._pl(n, a, b, c);
 
-    const plNow = (p) => p.tracks.some((t) => t.vid === s.nowVid);
-    const spotP = pl[s.spot] || null;
+    // owns — чия пісня зараз у плеєрі; mine — чи грає саме черга цього
+    // плейліста. В «усіх разом» перше правда для власника, друге — ні для кого.
+    const vidIn = (p) => p.tracks.some((t) => t.vid === s.nowVid);
+    const owns = (p) => (s.nowSrc ? s.nowSrc !== 'shelf' && s.nowCid === p.id : vidIn(p));
+    const mine = (p) => (s.nowSrc ? s.nowSrc === 'pl:' + p.id : vidIn(p));
+    const plNow = owns;
+    // Режим під шапкою. «pl» без персонажа у світлі — це огляд.
+    const mode = s.src === 'pl' && pl[s.spot] ? 'pl'
+      : (s.src === 'all' && pl.length > 1 ? 'all' : (s.src === 'shelf' ? 'shelf' : 'pls'));
+    // Грають усі разом — у світлі той, чия пісня. Не забираємо з-під очей
+    // лише відкритий список одного плейліста: там людина читає.
+    const allOn = s.nowSrc === 'all';
+    const ownerI = allOn && s.nowCid ? pl.findIndex((p) => p.id === s.nowCid) : -1;
+    const follow = ownerI >= 0 && mode !== 'pl';
+    const spot = follow ? ownerI : s.spot;
+    const spotP = pl[spot] || null;
+    // Список «Усі разом» відкрито, але він ще не грає: шапка каже про всю
+    // чергу, а не про персонажа, що випадково стоїть у світлі.
+    const allHero = mode === 'all' && !follow;
     const thumbOf = (p) => p.image || yt(p.tracks[0].vid, 'hqdefault');
 
     const sideList = s.plAll || narrow ? pl : pl.slice(0, SIDE_N);
     const side = sideList.map((p) => {
       const i = pl.indexOf(p);
-      const on = i === s.spot;
+      const on = i === spot && !allHero;
       const play = plNow(p);
       return {
         name: p.name, img: thumbOf(p),
@@ -730,8 +900,6 @@ class Component extends DCLogic {
       };
     });
 
-    // Режим під шапкою. «pl» без персонажа у світлі — це огляд.
-    const mode = s.src === 'pl' && spotP ? 'pl' : (s.src === 'shelf' ? 'shelf' : 'pls');
     const isShelf = mode === 'shelf';
     // У плейлісті персонажа полиця не ховається, а з'їжджає нижче.
     const shelfOn = isShelf || mode === 'pl';
@@ -742,7 +910,7 @@ class Component extends DCLogic {
       .filter((p) => this._hit([p.name, p.alias, p.tracks.map((t) => t.title + ' ' + t.author).join(' ')].join(' ')))
       .map((p) => {
         const i = pl.indexOf(p);
-        const on = plNow(p) && s.nowPlay;
+        const on = mine(p) && s.nowPlay;
         const n = p.tracks.length;
         return {
           name: p.name, img: thumbOf(p), n, count: n + ' ' + P(n, 'пісня', 'пісні', 'пісень'),
@@ -761,7 +929,7 @@ class Component extends DCLogic {
     const plRows = listP ? listP.tracks.map((t, i) => ({ t, i }))
       .filter(({ t }) => this._hit([t.title, t.author, t.note].join(' ')))
       .map(({ t, i }) => {
-        const on = s.nowVid === t.vid; const go = on && s.nowPlay;
+        const on = s.nowVid === t.vid && (!s.nowSrc || owns(listP)); const go = on && mine(listP) && s.nowPlay;
         return {
           title: t.title || 'Пісня без назви', thumb: yt(t.vid),
           icon: go ? '❙❙' : '▶', hint: go ? 'Пауза' : 'Грати звідси й далі плейлістом',
@@ -776,9 +944,31 @@ class Component extends DCLogic {
     // Шапка: персонаж у світлі, або вся полиця, коли плейлістів ще немає.
     const fresh = songs.slice().sort((a, b) => new Date(b.last) - new Date(a.last))[0];
     const layers = spotP
-      ? pl.filter((p, i) => i < 12 || i === s.spot).map((p) => ({ img: thumbOf(p), op: p === spotP ? '1' : '0' }))
+      ? pl.filter((p, i) => i < 12 || i === spot).map((p) => ({ img: thumbOf(p), op: p === spotP ? '1' : '0' }))
       : (fresh ? [{ img: yt(fresh.vid, 'hqdefault'), op: '0.8' }] : []);
-    const spotOn = spotP && plNow(spotP) && s.nowPlay;
+    const spotOn = spotP && !allHero && s.nowPlay && (follow || mine(spotP));
+
+    // Список усіх разом. Грає — малюємо чергу плеєра (вона може бути
+    // перетасована); ні — заготовку колом, з якої й почнеться гра.
+    const allQ = mode !== 'all' ? [] : (allOn && s.nowQ && s.nowQ.length ? s.nowQ : this._allQueue(false));
+    const allRows = allQ.map((t, i) => ({ t, i }))
+      .filter(({ t }) => this._hit([t.title, t.author, t.name].join(' ')))
+      .map(({ t, i }) => {
+        const on = allOn && i === s.nowAt && t.vid === s.nowVid; const go = on && s.nowPlay;
+        return {
+          title: t.title || 'Пісня без назви', thumb: yt(t.vid), face: t.img || yt(t.vid),
+          icon: go ? '❙❙' : '▶', hint: go ? 'Пауза' : `Грати звідси — ${t.name}`,
+          ink: on ? '#ffd700' : 'rgba(255,255,255,0.88)',
+          // На телефоні окремої колонки з іменем немає — воно йде в підпис.
+          sub: narrow ? [t.name, t.author].filter(Boolean).join(' · ') : (t.author || ''),
+          who: t.name, whoInk: on ? '#ffd700' : 'rgba(255,255,255,0.75)',
+          ring: on ? '#ffd700' : 'rgba(255,255,255,0.2)',
+          when: '№ ' + (i + 1),
+          rowBg: on ? 'rgba(255,215,0,0.07)' : 'transparent',
+          play: () => this._playAllAt(allQ, i),
+        };
+      });
+    const ownerP = ownerI >= 0 ? pl[ownerI] : null;
     const nSpin = Math.min(pl.length, SPIN_N);
 
     const posts = new Set(); songs.forEach((t) => t.uses.forEach((u) => posts.add(u.postId)));
@@ -821,6 +1011,41 @@ class Component extends DCLogic {
       gateBtn: s.phase === 'guest' ? 'Увійти в кабінет' : 'До кабінету',
 
       plHas: pl.length > 0,
+      // «Усі разом» має сенс від двох плейлістів: один — це він сам.
+      allShow: pl.length > 1,
+      // Збоку — лише відкрити список: звідти видно всю чергу й обирають,
+      // як грати. З огляду плейлістів кнопки грають і відкривають список.
+      allOpen: () => this.setState({ src: 'all' }),
+      allOpenHint: 'Відкрити список усіх пісень з усіх плейлістів',
+      allStart: () => { const was = allOn; this._playAll(false); if (!was) this.setState({ src: 'all' }); },
+      allStartMix: () => { this._playAll(true); this.setState({ src: 'all' }); },
+      allPlay: () => this._playAll(false),
+      allMix: () => this._playAll(true),
+      allRound: () => this._playAll(false, true),
+      allListShow: mode === 'all',
+      allRows,
+      allNoRows: mode === 'all' && allRows.length === 0,
+      allCols: narrow ? '48px minmax(0,1fr) 30px' : '48px minmax(0,2fr) minmax(0,1.2fr) 60px',
+      allHeadCount: `${plTotal} ${P(plTotal, 'пісня', 'пісні', 'пісень')} · ${pl.length} ${P(pl.length, 'персонаж', 'персонажі', 'персонажів')}`,
+      allPlayLabel: allOn ? (s.nowPlay ? 'Пауза' : 'Грати далі') : 'Грати колом',
+      allMixLabel: allOn && s.nowMix ? 'перетасувати' : 'упереміш',
+      allMixHint: allOn && s.nowMix ? 'Перетасувати наново й почати спочатку' : 'Усі пісні з усіх плейлістів — упереміш',
+      allMixBg: allOn && s.nowMix ? 'rgba(255,215,0,0.16)' : 'rgba(255,215,0,0.06)',
+      allMixLine: allOn && s.nowMix ? 'rgba(255,215,0,0.7)' : 'rgba(255,215,0,0.4)',
+      allRoundShow: allOn && s.nowMix,
+      allNote: allOn
+        ? (s.nowMix ? 'Грає впереміш — список нижче стоїть у тому порядку, як іде черга. Клік по рядку — перескочити.'
+          : 'Грає колом: по одній пісні від кожного персонажа. Клік по рядку — перескочити.')
+        : 'Порядок колом: по одній пісні від кожного персонажа. Клік по рядку — грати звідси.',
+      allIcon: allOn && s.nowPlay ? '❙❙' : '▶',
+      allBtn: allOn && s.nowPlay ? 'Пауза' : 'Усі разом',
+      allHint: allOn ? (s.nowPlay ? 'Пауза' : 'Грати далі')
+        : `Усі ${plTotal} ${P(plTotal, 'пісня', 'пісні', 'пісень')} однією чергою — по одній від кожного персонажа, колом`,
+      allMeta: allOn && ownerP ? `${s.nowPlay ? '♦ грає' : 'пауза'} · ${ownerP.name}`
+        : `${plTotal} ${P(plTotal, 'пісня', 'пісні', 'пісень')} · по одній від кожного`,
+      allMetaInk: allOn ? 'rgba(255,215,0,0.85)' : 'rgba(255,255,255,0.45)',
+      allBg: allOn || mode === 'all' ? 'rgba(255,215,0,0.1)' : 'rgba(255,215,0,0.04)',
+      allLine: allOn || mode === 'all' ? 'rgba(255,215,0,0.45)' : 'rgba(255,215,0,0.2)',
       side,
       sideMore: pl.length > SIDE_N,
       sideMoreLabel: s.plAll ? 'згорнути' : `ще ${pl.length - SIDE_N} →`,
@@ -844,30 +1069,38 @@ class Component extends DCLogic {
       holdOn: () => { if (!s.hold) this.setState({ hold: true }); },
       holdOff: () => { if (s.hold) this.setState({ hold: false }); },
       layers,
-      heroOver: spotP ? '✦ Плейліст персонажа' : '✦ Полиця зі стрічки',
-      heroName: spotP ? spotP.name : 'Аудіотека',
-      heroHref: spotP ? '#characters/' + encodeURIComponent(spotP.id) : '#audio',
-      heroHasLine: !!(spotP ? spotP.alias : true),
-      heroLine: spotP ? (spotP.alias ? `«${spotP.alias}»` : '') : 'Пісні, які кидали в дописах, — під тими самими арками й іменами.',
-      heroBtn: spotOn ? 'Пауза' : (spotP ? 'Увімкнути музику' : 'Увімкнути полицю'),
+      heroOver: allHero ? '✦ Плейлісти персонажів' : follow ? '♦ Усі плейлісти разом · зараз грає' : (spotP ? '✦ Плейліст персонажа' : '✦ Полиця зі стрічки'),
+      heroName: allHero ? 'Усі разом' : spotP ? spotP.name : 'Аудіотека',
+      heroHref: allHero ? '#audio' : spotP ? '#characters/' + encodeURIComponent(spotP.id) : '#audio',
+      heroHasLine: !!(allHero || (follow ? (s.nowTitle || spotP.alias) : (spotP ? spotP.alias : true))),
+      heroLine: allHero ? `${plTotal} ${P(plTotal, 'пісня', 'пісні', 'пісень')} від ${pl.length} ${P(pl.length, 'персонажа', 'персонажів', 'персонажів')} — однією чергою.`
+        : follow && s.nowTitle ? `♪ ${s.nowTitle}`
+        : spotP ? (spotP.alias ? `«${spotP.alias}»` : '') : 'Пісні, які кидали в дописах, — під тими самими арками й іменами.',
+      heroBtn: allHero ? 'Грати колом' : spotOn ? 'Пауза' : (follow ? 'Грати далі' : (spotP ? 'Увімкнути музику' : 'Увімкнути полицю')),
       heroPaused: !spotOn,
       heroPlaying: !!spotOn,
-      heroListShow: !!spotP && mode !== 'pl',
+      heroListShow: !!spotP && mode !== 'pl' && !allHero,
       heroListLabel: spotP ? `Усі ${spotP.tracks.length} ${P(spotP.tracks.length, 'пісня', 'пісні', 'пісень')} ↓` : '',
-      heroList: () => this.setState({ src: 'pl', pinned: true }),
-      heroMeta: spotP
+      heroList: () => this.setState({ src: 'pl', pinned: true, spot }),
+      heroMeta: allHero ? 'по одній пісні від кожного — або впереміш'
+        : follow
+        ? (s.nowAt >= 0 && s.nowN ? `пісня ${s.nowAt + 1} з ${s.nowN} · ` : '') + 'з плейліста персонажа'
+        : spotP
         ? (mode === 'pl' ? `${spotP.tracks.length} ${P(spotP.tracks.length, 'пісня', 'пісні', 'пісень')}` : '') + (spotP.tracks[0].title ? `${mode === 'pl' ? ' · ' : ''}відкриває «${spotP.tracks[0].title}»` : '')
         : (ok ? `${songs.length} ${P(songs.length, 'пісня', 'пісні', 'пісень')} · з ${posts.size} ${P(posts.size, 'допису', 'дописів', 'дописів')}` : ''),
       heroPlay: () => {
+        if (allHero) { this._playAll(false); return; }
+        if (follow) { if (window.AuPlayer) window.AuPlayer.toggle(); return; }
         if (spotP) { this._playPl(spotP); return; }
         if (shown.length && window.AuPlayer) window.AuPlayer.playQueue(this._queue(shown), 0);
       },
-      ytOpen: () => this._toYouTube(spotP ? spotP.tracks : shown),
+      ytOpen: () => this._toYouTube(mode === 'all' ? allQ : (spotP ? spotP.tracks : shown)),
       ytHint: (() => {
-        const n = spotP ? spotP.tracks.length : shown.length;
+        const n = mode === 'all' ? allQ.length : (spotP ? spotP.tracks.length : shown.length);
         return n > YT_MAX ? `Відкрити на YouTube — ${YT_MAX} навмання з ${n}` : 'Відкрити цим плейлістом на YouTube';
       })(),
-      dots: nSpin > 1 ? pl.slice(0, nSpin).map((p, i) => ({
+      // Шапка йде за піснею — крапки нічого б не перемикали.
+      dots: nSpin > 1 && !follow && !allHero ? pl.slice(0, nSpin).map((p, i) => ({
         name: p.name, w: i === s.spot ? '22px' : '7px',
         bg: i === s.spot ? '#ffd700' : 'rgba(255,255,255,0.3)',
         go: () => this.setState({ spot: i, pinned: true }),
@@ -882,6 +1115,8 @@ class Component extends DCLogic {
       tabListBg: s.view === 'list' ? 'rgba(255,215,0,0.18)' : 'transparent',
       tabListInk: s.view === 'list' ? '#ffd700' : 'rgba(255,255,255,0.65)',
       shuffle: () => {
+        // У списку «Усі разом» кнопка в шапці тасує його, а не полицю.
+        if (mode === 'all') { this._playAll(true); return; }
         if (!shown.length || !window.AuPlayer) return;
         const q = this._queue(shown);
         for (let i = q.length - 1; i > 0; i--) {
@@ -973,7 +1208,7 @@ class Component extends DCLogic {
         };
       }),
 
-      noRows: mode === 'pls' ? (pl.length > 0 && plCards.length === 0)
+      noRows: mode === 'all' ? false : mode === 'pls' ? (pl.length > 0 && plCards.length === 0)
         : ok && (s.view === 'chron' ? scenes.length === 0 : shown.length === 0),
       hasMore: shelfOn && ok && s.more,
       moreLabel: s.busy ? 'Гортаю…' : 'Показати ще',
