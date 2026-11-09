@@ -184,7 +184,7 @@ class Component extends DCLogic {
   async _load(force) {
     if (this.props.demo) { this.setState({ phase: 'ok', rows: DEMO }); return; }
     if (!force) {
-      try { const c = JSON.parse(sessionStorage.getItem(MD_CACHE) || 'null'); if (c && Date.now() - c.at < 5 * 60 * 1000 && Array.isArray(c.rows)) { this.setState({ phase: 'ok', rows: c.rows }); return; } } catch (e) {}
+      try { const c = JSON.parse(sessionStorage.getItem(MD_CACHE) || 'null'); if (c && Date.now() - c.at < 2 * 60 * 1000 && Array.isArray(c.rows) && c.rows.length) { this.setState({ phase: 'ok', rows: c.rows }); return; } } catch (e) {}
     }
     try {
       const r = await fetch(`${MD_URL}/rpc/familiar_meadow`, { method: 'POST', headers: { apikey: MD_KEY, Authorization: `Bearer ${MD_KEY}`, 'Content-Type': 'application/json' }, body: '{}' });
@@ -192,7 +192,8 @@ class Component extends DCLogic {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const rows = await r.json();
       const list = Array.isArray(rows) ? rows : [];
-      try { sessionStorage.setItem(MD_CACHE, JSON.stringify({ at: Date.now(), rows: list })); } catch (e) {}
+      // Порожню галявину не запамʼятовуємо: інакше щойно випущений фамільяр не зʼявився б ще кілька хвилин.
+      try { if (list.length) sessionStorage.setItem(MD_CACHE, JSON.stringify({ at: Date.now(), rows: list })); else sessionStorage.removeItem(MD_CACHE); } catch (e) {}
       this.setState({ phase: 'ok', rows: list });
     } catch (e) {
       console.warn('галявина:', e && e.message);
@@ -284,7 +285,7 @@ class Component extends DCLogic {
     const away = rows.filter(x => x.away).length;
     return {
       isPage: true, isTop: false, showMsg: false, hasRows: true,
-      sceneH: `${H}px`, sceneW: `${sceneMin}px`, scrollHint: !wide && sceneMin > window.innerWidth - 40, sky, spots,
+      sceneH: `${H}px`, sceneW: `${sceneMin}px`, scrollHint: perLane > 3 && sceneMin > window.innerWidth - 40, sky, spots,
       hasSel: !!r, refSel: this._ref('sel'),
       sel: {
         name: r.name, hasTitle: !!r.title, title: r.title || '',

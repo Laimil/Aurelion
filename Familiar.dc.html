@@ -302,7 +302,7 @@ class Component extends DCLogic {
       name: d.fam && !s.edit ? d.fam.name : s.name,
     }));
   }
-  _bump() { try { localStorage.removeItem(FAM_CACHE); } catch (e) {} try { window.dispatchEvent(new CustomEvent('au-fam')); } catch (e) {} }
+  _bump() { try { localStorage.removeItem(FAM_CACHE); sessionStorage.removeItem('au_meadow_cache'); } catch (e) {} try { window.dispatchEvent(new CustomEvent('au-fam')); } catch (e) {} }
 
   _paint() {
     const F = window.AuFamiliar; if (!F || !this._cv) return;
