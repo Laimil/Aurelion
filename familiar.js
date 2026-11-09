@@ -3,7 +3,7 @@
 // Усе в AuFamiliar на window (браузер) або globalThis (Deno); жодних залежностей.
 (function (root) {
   // Версія: стара копія з кешу браузера не має блокувати нову (раніше тут стояв голий return).
-  const V = 3;
+  const V = 4;
   if (root.AuFamiliar && root.AuFamiliar.v >= V) return;
 
   const SP = [['cat', 'Кіт'], ['owl', 'Сова'], ['crow', 'Крук'], ['fox', 'Лис'], ['dragon', 'Дракончик'], ['slime', 'Слиз']];
@@ -48,17 +48,70 @@
     archive: { base: '#1a1416', glow: '#9c4f63', a: 0.24, cx: 0.5, cy: 0.6, rx: 0.6, ry: 0.6 },
     moon: { base: '#14141c', glow: '#f3ecdb', a: 0.08, cx: 0.72, cy: 0.22, rx: 0.34, ry: 0.34, disc: 0.09, discA: 0.32 },
     snow: { base: '#15171b', glow: '#d6dbe3', a: 0.26, cx: 0.5, cy: 0, rx: 0.7, ry: 0.55 },
+    // ── Фони з листопада 2026 (supabase_familiar_meadow_migration.sql) ──
+    // more — ще джерела світла; dots — іскри/зорі/бульбашки (u, v від 0 до 1, у клітинках 48×48);
+    // rain — косі струмені. CSS для сайту складається з цього ж опису нижче (cssOf).
+    hearth: { base: '#1c1410', glow: '#ff7a45', a: 0.32, cx: 0.5, cy: 1.02, rx: 0.85, ry: 0.62,
+      more: [{ glow: '#ffd700', a: 0.14, cx: 0.5, cy: 0.98, rx: 0.38, ry: 0.3 }],
+      dots: { col: '#ffb347', d: 0.03, v0: 0.55, v1: 0.95, a: 0.7 } },
+    rain: { base: '#12151a', glow: '#6495ed', a: 0.14, cx: 0.5, cy: 0.25, rx: 0.75, ry: 0.6,
+      rain: { col: '#d6dbe3', a: 0.16, step: 6 } },
+    sea: { base: '#0b1520', glow: '#6495ed', a: 0.3, cx: 0.5, cy: -0.05, rx: 0.55, ry: 1.0,
+      more: [{ glow: '#7fd1c4', a: 0.12, cx: 0.5, cy: 1.05, rx: 0.9, ry: 0.35 }],
+      dots: { col: '#a8d8ff', d: 0.025, v0: 0.2, v1: 0.9, a: 0.45 } },
+    sunset: { base: '#1a1217', glow: '#ff7a45', a: 0.3, cx: 0.5, cy: 1.05, rx: 1.1, ry: 0.55,
+      more: [{ glow: '#e59aa3', a: 0.22, cx: 0.5, cy: 0.6, rx: 1.1, ry: 0.45 }, { glow: '#9c4f63', a: 0.2, cx: 0.5, cy: 0.12, rx: 1.1, ry: 0.42 }] },
+    candles: { base: '#18140e', glow: '#ff7a45', a: 0.1, cx: 0.5, cy: 0.62, rx: 0.95, ry: 0.65,
+      more: [{ glow: '#ffd700', a: 0.26, cx: 0.16, cy: 0.86, rx: 0.2, ry: 0.3 }, { glow: '#ffb347', a: 0.28, cx: 0.5, cy: 0.92, rx: 0.2, ry: 0.28 }, { glow: '#ffd700', a: 0.24, cx: 0.84, cy: 0.84, rx: 0.2, ry: 0.3 }] },
+    fireflies: { base: '#111814', glow: '#5e9a8f', a: 0.24, cx: 0.5, cy: 0.92, rx: 0.75, ry: 0.55,
+      dots: { col: '#e8f58a', d: 0.03, v0: 0.08, v1: 0.85, a: 0.85 } },
+    aurora: { base: '#0d1316', glow: '#7fd1c4', a: 0.32, cx: 0.28, cy: 0.08, rx: 0.75, ry: 0.28,
+      more: [{ glow: '#9b5de5', a: 0.28, cx: 0.74, cy: 0.16, rx: 0.6, ry: 0.3 }, { glow: '#8fd18a', a: 0.14, cx: 0.5, cy: 0.02, rx: 0.9, ry: 0.18 }],
+      dots: { col: '#ffffff', d: 0.02, v0: 0, v1: 0.6, a: 0.55 } },
+    stars: { base: '#0c0d15', glow: '#6b6fae', a: 0.2, cx: 0.5, cy: 0, rx: 0.95, ry: 0.6,
+      dots: { col: '#f3ecdb', d: 0.045, v0: 0, v1: 1, a: 0.8 } },
+    temple: { base: '#141318', glow: '#ffd76b', a: 0.22, cx: 0.5, cy: 0.1, rx: 0.32, ry: 0.26,
+      more: [{ glow: '#6b6fae', a: 0.24, cx: 0.15, cy: 0.38, rx: 0.32, ry: 0.36 }, { glow: '#9c4f63', a: 0.22, cx: 0.85, cy: 0.38, rx: 0.32, ry: 0.36 },
+        { glow: '#5e9a8f', a: 0.2, cx: 0.22, cy: 0.8, rx: 0.32, ry: 0.32 }, { glow: '#b8bcc8', a: 0.18, cx: 0.78, cy: 0.8, rx: 0.32, ry: 0.32 }] },
   };
   const hx2 = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  // Детермінований «шум» по клітинці: ті самі іскри на сайті й у PNG.
+  const hash = (i, j, k) => { let h = (i * 374761393 + j * 668265263 + k * 2147483647) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+  const lightA = (L, u, v) => {
+    const t = Math.hypot((u - L.cx) / L.rx, (v - L.cy) / L.ry);
+    let a = L.a * Math.max(0, 1 - t / 0.72);
+    if (L.disc) { const d = Math.hypot(u - L.cx, v - L.cy); if (d < L.disc) a = L.discA; else if (d < L.disc * 1.6) a = Math.max(a, L.discA * 0.5); }
+    return Math.round(a * 20) / 20;
+  };
+  const mixC = (c, g, a) => c.map((x, i) => Math.round(x + (g[i] - x) * a));
   // u, v — 0..1 по кадру. Світло квантоване на 5 кроків, щоб не було гладкого градієнта під піксельним котом.
   function bgPixel(key, u, v) {
-    const b = BG_PX[key] || BG_PX.none, base = hx2(b.base), g = hx2(b.glow);
-    const t = Math.hypot((u - b.cx) / b.rx, (v - b.cy) / b.ry);
-    let a = b.a * Math.max(0, 1 - t / 0.72);
-    if (b.disc) { const d = Math.hypot(u - b.cx, v - b.cy); if (d < b.disc) a = b.discA; else if (d < b.disc * 1.6) a = Math.max(a, b.discA * 0.5); }
-    a = Math.round(a * 20) / 20;
-    return base.map((c, i) => Math.round(c + (g[i] - c) * a));
+    const b = BG_PX[key] || BG_PX.none;
+    let c = mixC(hx2(b.base), hx2(b.glow), lightA(b, u, v));
+    (b.more || []).forEach(L => { c = mixC(c, hx2(L.glow), lightA(L, u, v)); });
+    const i = Math.floor(u * 48), j = Math.floor(v * 48);
+    if (b.dots && v >= b.dots.v0 && v <= b.dots.v1) {
+      const h = hash(i, j, 7);
+      if (h < b.dots.d) c = mixC(c, hx2(b.dots.col), b.dots.a * (0.55 + 0.45 * (h / b.dots.d)));
+    }
+    if (b.rain && (i + Math.floor(j / 2)) % b.rain.step === 0 && hash(Math.floor((i + Math.floor(j / 2)) / b.rain.step), Math.floor(j / 7), 3) < 0.5) c = mixC(c, hx2(b.rain.col), b.rain.a);
+    return c;
   }
+  // CSS-фон із того самого опису: світло — radial-gradient, іскри — маленькі кола, дощ — косі смужки.
+  function cssOf(b) {
+    const rgba = (h, a) => { const [r, g, bb] = hx2(h); return `rgba(${r},${g},${bb},${a})`; };
+    const pc = x => `${Math.round(x * 100)}%`;
+    const L = [b, ...(b.more || [])].map(x => `radial-gradient(ellipse ${pc(x.rx)} ${pc(x.ry)} at ${pc(x.cx)} ${pc(x.cy)},${rgba(x.glow, x.a)},${rgba(b.base, 0)} 72%)`);
+    const dots = [];
+    if (b.dots) for (let j = 0; j < 48; j++) for (let i = 0; i < 48; i++) {
+      const v = (j + 0.5) / 48; if (v < b.dots.v0 || v > b.dots.v1) continue;
+      const h = hash(i, j, 7);
+      if (h < b.dots.d && dots.length < 48) dots.push(`radial-gradient(circle at ${(((i + 0.5) / 48) * 100).toFixed(1)}% ${(v * 100).toFixed(1)}%,${rgba(b.dots.col, (b.dots.a * (0.55 + 0.45 * (h / b.dots.d))).toFixed(2))} 0 1.4px,${rgba(b.dots.col, 0)} 2.6px)`);
+    }
+    const rain = b.rain ? [`repeating-linear-gradient(63deg,${rgba(b.rain.col, b.rain.a)} 0 1.5px,${rgba(b.rain.col, 0)} 1.5px 11px)`] : [];
+    return [...dots, ...rain, ...L, b.base].join(',');
+  }
+  ['hearth', 'rain', 'sea', 'sunset', 'candles', 'fireflies', 'aurora', 'stars', 'temple'].forEach(k => { BG[k] = cssOf(BG_PX[k]); });
   const glow = g => GODS[g] ? `0 0 0 1px ${GODS[g][1]}, 0 0 34px ${GODS[g][1]}55` : '0 12px 34px rgba(0,0,0,0.42)';
   const DEFAULT_LOOK = { sp: 'cat', eyeSt: 'round', iris: '#ffd700', pat: 'stripe', acc: 'none', place: 'pillow', col: '#d0caff', egg: '#f3ecdb', eggSpot: '#d0caff' };
   const pick = a => a[Math.floor(Math.random() * a.length)];

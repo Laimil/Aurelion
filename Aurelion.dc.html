@@ -34,7 +34,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&amp;family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;display=swap" rel="stylesheet">
 <style>
-select{color-scheme:dark}select option,select optgroup{background:#222;color:#fff}select option:disabled{color:rgba(255,255,255,0.4)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#161616}::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.3);border-radius:3px}
@@ -734,6 +733,9 @@ a:hover{color:#a8c4f7;}
     </section>
     </sc-if>
 
+    <!-- ═══ НЕНАЖЕРА ТИЖНЯ — фамільяр, що зʼїв найбільше дописів (порожньо, доки ніхто не показав свого) ═══ -->
+    <dc-import name="Meadow" variant="top" hint-size="100%,0px"></dc-import>
+
     <!-- ═══ ПУЛЬС СПІЛЬНОТИ ═══ -->
     <sc-if value="{{ showPulse }}" hint-placeholder-val="{{ false }}">
     <section ref="{{ pulseRef }}" style="max-width:1080px;margin:0 auto;padding:0 24px 120px;">
@@ -1403,10 +1405,10 @@ a:hover{color:#a8c4f7;}
               </div>
             </sc-if>
             <sc-if value="{{ hasChronTags }}" hint-placeholder-val="{{ false }}">
-              <select value="{{ chronTagSel }}" onChange="{{ pickChronTag }}" style="color-scheme:dark;flex:0 0 auto;max-width:240px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 16px;font-size:0.85rem;color:rgba(255,255,255,0.75);outline:none;cursor:pointer;">
-                <option value="" style="background:#222;color:#fff;">Усі теги</option>
+              <select value="{{ chronTagSel }}" onChange="{{ pickChronTag }}" style="flex:0 0 auto;max-width:240px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:10px 16px;font-size:0.85rem;color:rgba(255,255,255,0.75);outline:none;cursor:pointer;">
+                <option value="">Усі теги</option>
                 <sc-for list="{{ chronTags }}" as="tag" hint-placeholder-count="0">
-                  <option value="{{ tag.value }}" style="background:#222;color:#fff;">{{ tag.label }} · {{ tag.n }}</option>
+                  <option value="{{ tag.value }}">{{ tag.label }} · {{ tag.n }}</option>
                 </sc-for>
               </select>
             </sc-if>
@@ -2838,6 +2840,28 @@ a:hover{color:#a8c4f7;}
   </main>
 </sc-if>
 
+<!-- ═══ ГАЛЯВИНА (бета): фамільяри, яких власники показали іншим ═══ -->
+<sc-if value="{{ showMeadow }}" hint-placeholder-val="{{ false }}">
+  <main class="au-page" style="min-height:100vh;padding:96px 24px 90px;max-width:1100px;margin:0 auto;">
+    <sc-if value="{{ navClassic }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:26px;">
+      <p style="font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin:0;">✦ Забавки</p>
+      <div style="max-width:100%;overflow-x:auto;display:flex;">
+        <div style="display:inline-flex;gap:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:4px;margin:0 auto;">
+          <sc-for list="{{ funTabs }}" as="t" hint-placeholder-count="4">
+            <a class="fun-tab" href="#{{ t.id }}" data-active="{{ t.active }}" style="display:inline-flex;align-items:center;gap:6px;">{{ t.label }}<sc-if value="{{ t.beta }}" hint-placeholder-val="{{ false }}"><span style="font-family:Arial,sans-serif;font-size:0.54rem;letter-spacing:0.12em;text-transform:uppercase;padding:2px 6px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;line-height:1;">бета</span></sc-if></a>
+          </sc-for>
+        </div>
+      </div>
+    </div></sc-if>
+    <header style="text-align:center;margin-bottom:30px;">
+      <sc-if value="{{ navClassic }}" hint-placeholder-val="{{ true }}"><p style="font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,215,0,0.75);margin-bottom:10px;">✦ За рецепцією, біля саду</p></sc-if>
+      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:#fff;letter-spacing:0.07em;display:inline-flex;align-items:flex-start;gap:12px;">Галявина<span style="font-family:Arial,sans-serif;font-size:0.68rem;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid rgba(100,149,237,0.45);color:#6495ed;line-height:1;margin-top:8px;">бета</span></h1>
+      <p style="margin-top:12px;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.42);max-width:480px;margin-left:auto;margin-right:auto;">Тут живуть фамільяри гравців. Їдять дописи, сплять, коли довго тихо, і ходять на розвідку.</p>
+    </header>
+    <dc-import name="Meadow" variant="page" hint-size="100%,760px"></dc-import>
+  </main>
+</sc-if>
+
 <!-- ═══ ЦИТАТНИК ═══ -->
 <sc-if value="{{ showQuotes }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="min-height:100vh;padding:96px 24px 90px;max-width:880px;margin:0 auto;">
@@ -4163,7 +4187,7 @@ const DEFAULT_LORE_QUOTE = '«Мандрівнику чи мандрівнице
 const ARCHIVE_SEGS = ['lore', 'stories', 'chronicles', 'pantheon'];
 // «Забавки» — парасолька для дрібних послуг рецепції: тести, віконце пліток
 // і цитатник. Дайс і мапа лишилися окремими пунктами — так попросили гравці.
-const FUN_SEGS = ['tests', 'gossip', 'quotes', 'glyphs', 'words'];
+const FUN_SEGS = ['tests', 'gossip', 'quotes', 'glyphs', 'words', 'meadow'];
 // «Спільнота» — те, що росте з рольового чату й відкрите лише своїм:
 // стрічка дописів і аудіотека. Пульс бачать усі, тому він окремим пунктом.
 const LIFE_SEGS = ['posts', 'arcs', 'audio', 'offers', 'seals'];
@@ -4214,7 +4238,7 @@ function splitArcs(v) {
   return String(v || '').split(ARC_SEP).map((s) => s.trim()).filter(Boolean);
 }
 
-const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake', 'posts', 'arcs', 'audio', 'offers', 'seals', 'glyphs', 'words'].concat(ARCHIVE_SEGS);
+const KNOWN_SEGS = ['home', 'characters', 'connections', 'ruler', 'dice', 'quotes', 'map', 'pulse', 'contacts', 'archive', 'tests', 'gossip', 'cabinet', 'intake', 'posts', 'arcs', 'audio', 'offers', 'seals', 'glyphs', 'words', 'meadow'].concat(ARCHIVE_SEGS);
 
 // ── Галерея персонажа ──────────────────────────────────────
 // Головний портрет лишається в characters.image; усе інше (арти від
@@ -9356,6 +9380,7 @@ class Component extends DCLogic {
       showQuotes:      page === 'quotes',
       showGlyphs:      page === 'glyphs',
       showWords:       page === 'words',
+      showMeadow:      page === 'meadow',
       ...(() => {
         const all = (data.quotes || []).filter(q => q && q.text);
         const nameOf = (q) => ((q.author || '').trim() || 'без підпису');
@@ -9963,6 +9988,7 @@ class Component extends DCLogic {
         { id: 'quotes', label: 'Цитатник',  active: page === 'quotes' },
         { id: 'glyphs', label: 'Письмена',  active: page === 'glyphs', beta: true },
         { id: 'words', label: 'Хмара слів',  active: page === 'words', beta: true },
+        { id: 'meadow', label: 'Галявина', active: page === 'meadow', beta: true },
       ],
       // Смужка «Спільноти»: пости — усім (гість бачить тизер), решта — за доступом.
       lifeTabs: [

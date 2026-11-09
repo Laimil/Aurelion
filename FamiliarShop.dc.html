@@ -10,7 +10,20 @@
 <helmet>
   <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
   <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
-  <script src="familiar.js?v=3"></script>
+  <script src="familiar.js?v=4"></script>
+  <style>
+    /* Примірочна прилипає до верху лише тоді, коли стоїть збоку від товарів.
+       На телефоні (одна колонка) липка примірочна їхала поверх вітрини й
+       закривала товари — там вона просто стоїть над ними. */
+    .fs-wrap{container-type:inline-size}
+    .fs-fit{position:static}
+    @container (min-width:702px){.fs-fit{position:sticky;top:76px}}
+    /* Смужка примірки: лише на вузькому (телефон), лише коли щось вибрано.
+       Липне до низу екрана, поки гортаєте товари; над нижньою панеллю «нової» шапки. */
+    .fs-bar{display:none}
+    @container (max-width:701px){.fs-bar{display:flex}}
+    @media(max-width:880px){html.au-nav2 .fs-bar{bottom:calc(64px + env(safe-area-inset-bottom))!important}}
+  </style>
 </helmet>
 
 <div style="display:flex;flex-direction:column;gap:22px;font-family:Arial,sans-serif;color:#fff;">
@@ -38,12 +51,12 @@
         <p style="font-size:0.82rem;line-height:1.55;color:#e59aa3;margin:0;padding:10px 12px;border-radius:8px;background:rgba(125,47,56,0.18);border:1px solid rgba(229,154,163,0.35);">Телеграм до аркуша не привʼязано, тож дописи не рахуються і зернятка не капають. Привʼязати може адмін.</p>
       </sc-if>
 
-      <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;">
+      <div class="fs-wrap" style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;">
 
-        <div style="flex:0 0 260px;max-width:100%;display:flex;flex-direction:column;gap:12px;position:sticky;top:76px;">
+        <div class="fs-fit" style="flex:0 1 260px;width:260px;max-width:100%;display:flex;flex-direction:column;gap:12px;">
           <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Примірочна</span>
-          <div style="width:260px;max-width:100%;height:260px;border-radius:15px;background:{{ fitBg }};border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;box-shadow:{{ fitGlow }};transition:all 0.3s ease;">
-            <canvas ref="{{ refFit }}" onClick="{{ onPet }}" width="48" height="48" style="width:240px;height:240px;image-rendering:pixelated;cursor:pointer;"></canvas>
+          <div style="width:260px;max-width:100%;aspect-ratio:1;border-radius:15px;background:{{ fitBg }};border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;box-shadow:{{ fitGlow }};transition:all 0.3s ease;">
+            <canvas ref="{{ refFit }}" onClick="{{ onPet }}" width="48" height="48" style="width:92%;max-width:240px;aspect-ratio:1;image-rendering:pixelated;cursor:pointer;"></canvas>
           </div>
           <div style="display:flex;flex-direction:column;gap:2px;">
             <span style="font-family:'Cinzel',Georgia,serif;font-size:1.1rem;letter-spacing:0.05em;">{{ famName }}</span>
@@ -105,12 +118,12 @@
               <span style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.05em;">Вітрина тижня</span>
               <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.5;color:rgba(255,255,255,0.65);text-wrap:pretty;">{{ weekSay }}</span>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px;">
               <sc-for list="{{ vitrine }}" as="it" hint-placeholder-count="5">
                 <button onClick="{{ it.on }}" style="cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid {{ it.bd }};color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.3);transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);transform:translateY(-3px);">
                   <div style="height:104px;border-radius:8px;background:{{ it.bg }};display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:{{ it.glow }};">
                     <sc-if value="{{ it.isCanvas }}" hint-placeholder-val="{{ true }}">
-                      <canvas ref="{{ it.ref }}" width="48" height="48" style="width:100px;height:100px;image-rendering:pixelated;"></canvas>
+                      <canvas ref="{{ it.ref }}" width="48" height="48" style="width:100%;max-width:100px;aspect-ratio:1;image-rendering:pixelated;"></canvas>
                     </sc-if>
                     <sc-if value="{{ it.isTitle }}" hint-placeholder-val="{{ false }}">
                       <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.3;color:#ffd700;text-align:center;padding:8px;text-wrap:balance;">{{ it.val }}</span>
@@ -130,12 +143,12 @@
               <span style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.05em;">Завжди на прилавку</span>
               <span style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Не зникає. На це можна спокійно копити.</span>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px;">
               <sc-for list="{{ perm }}" as="it" hint-placeholder-count="8">
                 <button onClick="{{ it.on }}" style="cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid {{ it.bd }};color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.3);transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);transform:translateY(-3px);">
                   <div style="height:104px;border-radius:8px;background:{{ it.bg }};display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:{{ it.glow }};">
                     <sc-if value="{{ it.isCanvas }}" hint-placeholder-val="{{ true }}">
-                      <canvas ref="{{ it.ref }}" width="48" height="48" style="width:100px;height:100px;image-rendering:pixelated;"></canvas>
+                      <canvas ref="{{ it.ref }}" width="48" height="48" style="width:100%;max-width:100px;aspect-ratio:1;image-rendering:pixelated;"></canvas>
                     </sc-if>
                     <sc-if value="{{ it.isTitle }}" hint-placeholder-val="{{ false }}">
                       <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.3;color:#ffd700;text-align:center;padding:8px;text-wrap:balance;">{{ it.val }}</span>
@@ -153,12 +166,12 @@
           <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:10px;">
               <span style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.05em;">Ваше з минулих тижнів</span>
-              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px;">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px;">
                 <sc-for list="{{ mine }}" as="it" hint-placeholder-count="0">
                   <button onClick="{{ it.on }}" style="cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid {{ it.bd }};color:#fff;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.09);">
                     <div style="height:104px;border-radius:8px;background:{{ it.bg }};display:flex;align-items:center;justify-content:center;overflow:hidden;">
                       <sc-if value="{{ it.isCanvas }}" hint-placeholder-val="{{ true }}">
-                        <canvas ref="{{ it.ref }}" width="48" height="48" style="width:100px;height:100px;image-rendering:pixelated;"></canvas>
+                        <canvas ref="{{ it.ref }}" width="48" height="48" style="width:100%;max-width:100px;aspect-ratio:1;image-rendering:pixelated;"></canvas>
                       </sc-if>
                       <sc-if value="{{ it.isTitle }}" hint-placeholder-val="{{ false }}">
                         <span style="font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;line-height:1.3;color:#ffd700;text-align:center;padding:8px;">{{ it.val }}</span>
@@ -197,6 +210,27 @@
             </div>
           </div>
 
+          <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+            <div class="fs-bar" style="position:sticky;bottom:0;z-index:5;align-items:center;gap:12px;padding:10px 12px 12px;border-radius:14px 14px 0 0;background:#1d1b17;border:1px solid rgba(255,215,0,0.35);border-bottom:none;box-shadow:0 -10px 26px rgba(0,0,0,0.6);">
+              <div onClick="{{ onPet }}" style="width:72px;height:72px;flex:none;border-radius:10px;background:{{ fitBg }};box-shadow:{{ fitGlow }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                <canvas ref="{{ refBar }}" width="48" height="48" style="width:68px;height:68px;image-rendering:pixelated;"></canvas>
+              </div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:7px;">
+                <div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline;">
+                  <span style="font-size:0.86rem;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ selName }}</span>
+                  <span style="font-size:0.76rem;color:{{ selPriceC }};white-space:nowrap;">{{ selPrice }}</span>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button onClick="{{ onAct }}" disabled="{{ actOff }}" style="cursor:pointer;border:none;border-radius:999px;padding:7px 14px;font-size:0.76rem;font-weight:700;white-space:nowrap;background:{{ actBg }};color:{{ actC }};">{{ actLabel }}</button>
+                  <sc-if value="{{ canReserve }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ onReserve }}" disabled="{{ busy }}" style="cursor:pointer;border-radius:999px;padding:7px 12px;font-size:0.76rem;background:transparent;border:1px solid #ffd700;color:#ffd700;">{{ reserveLabel }}</button>
+                  </sc-if>
+                  <button onClick="{{ onClear }}" aria-label="Зняти примірку" style="cursor:pointer;border-radius:999px;padding:7px 11px;font-size:0.76rem;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.65);">✕</button>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
           <p style="font-size:0.76rem;line-height:1.6;color:rgba(255,255,255,0.42);margin:0;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;">Відкласти можна річ з вітрини або з-під прилавка: завдаток 5 зерняток зараховується в ціну, коли річ повернеться. Благословення діє 7 днів, одне за раз. Речі з-під прилавка повертаються не раніше ніж через 8 тижнів. Куплене лишається за вами, навіть якщо скинути фамільяра.</p>
         </div>
       </div>
@@ -217,10 +251,17 @@ const DEMO_CATALOG = [
   ['b_lesta', 'perm', 'bless', 'lesta', 'Благословення: Леста', 60], ['b_nokta', 'perm', 'bless', 'nokta', 'Благословення: Нокта', 60], ['b_konk', 'perm', 'bless', 'konk', 'Благословення: Конкорфату', 60], ['b_flor', 'perm', 'bless', 'flor', 'Благословення: Флоріана', 60], ['b_ark', 'perm', 'bless', 'ark', 'Благословення: Арканія', 60],
   ['horns', 'pool', 'acc', 'horns', 'Ріжки', 30], ['candle', 'pool', 'place', 'candle', 'Свічка', 25], ['crimson', 'pool', 'col', '#9c4f63', 'Хутро «Багрянець»', 35], ['copper', 'pool', 'col', '#c8794a', 'Хутро «Мідь»', 35], ['ember', 'pool', 'col', '#ff7a45', 'Хутро «Жар»', 40], ['moss', 'pool', 'iris', '#5e9a8f', 'Очі «Мох»', 20], ['note', 'pool', 'toy', 'note', 'Дзвіночок', 20], ['yarn', 'pool', 'toy', 'yarn', 'Клубок', 25], ['moth', 'pool', 'toy', 'moth', 'Метелики', 25], ['lamp', 'pool', 'bg', 'lamp', 'Лампа рецепції', 30], ['night', 'pool', 'bg', 'night', 'Нічне вікно', 30], ['garden', 'pool', 'bg', 'garden', 'Сад', 40], ['archive', 'pool', 'bg', 'archive', 'Архів', 40], ['snow', 'pool', 'bg', 'snow', 'Зимове вікно', 35], ['t2', 'pool', 'title', 'Гроза мишей', '«Гроза мишей»', 10], ['t3', 'pool', 'title', 'Нічний вартовий', '«Нічний вартовий»', 15], ['t4', 'pool', 'title', 'Улюбленець рецепції', '«Улюбленець рецепції»', 25], ['t6', 'pool', 'title', 'Тінь за шафою', '«Тінь за шафою»', 20], ['t7', 'pool', 'title', 'Перший у черзі', '«Перший у черзі»', 15],
   ['throne', 'rare', 'place', 'throne', 'Трон', 70], ['halo', 'rare', 'acc', 'halo', 'Ореол', 55], ['t5', 'rare', 'title', 'Той, хто бачив Нокту', '«Той, хто бачив Нокту»', 40], ['ash', 'rare', 'col', '#2b2540', 'Хутро «Попіл»', 50], ['monocle', 'rare', 'acc', 'monocle', 'Монокль', 45], ['chest', 'rare', 'place', 'chest', 'Скриня', 55], ['amethyst', 'rare', 'iris', '#9b5de5', 'Очі «Аметист»', 40], ['moon', 'rare', 'bg', 'moon', 'Місячна ніч', 45],
+  ['hearth', 'perm', 'bg', 'hearth', 'Камін', 35], ['rain', 'perm', 'bg', 'rain', 'Дощ за вікном', 30], ['sea', 'perm', 'bg', 'sea', 'Глибина', 35], ['sunset', 'perm', 'bg', 'sunset', 'Захід над дахами', 40], ['candles', 'perm', 'bg', 'candles', 'Свічки рецепції', 35], ['fireflies', 'perm', 'bg', 'fireflies', 'Світлячки', 40],
+  ['aurora', 'rare', 'bg', 'aurora', 'Північне сяйво', 60], ['stars', 'rare', 'bg', 'stars', 'Зоряне небо', 50], ['temple', 'rare', 'bg', 'temple', 'Вітраж Пантеону', 55],
 ].map(([id, tier, kind, val, name, price]) => ({ id, tier, kind, val, name, price }));
 const NOTES = {
   throne: 'Списаний з театру. З якого — Марта не каже.', candle: 'Горить, поки відкрита сторінка.',
   monocle: 'Видає в ньому особу, що читає дрібний шрифт.', chest: 'Що всередині — не ваша справа. І не його.',
+  hearth: 'Дрова за рахунок рецепції. Іскри — за рахунок фамільяра.', rain: 'За вікном завжди осінь. Усередині — сухо й тепло.',
+  sea: 'Звідки бульбашки — не питайте. Він сам не знає.', sunset: 'Дахи Ауреліону о сьомій вечора. Краще за листівку.',
+  candles: 'Три свічки з рецепції. Марта рахує недогарки.', fireflies: 'Світлячки з саду. Повертати не треба, вони самі прилітають.',
+  aurora: 'Буває над північними перевалами раз на зиму. Тут — щодня.', stars: 'Зорі справжні. Принаймні Марта так записала.',
+  temple: 'Пʼять шибок — пʼять богів. Світло падає, на кого захоче.',
   star: 'Коли гладите — замість сердечок іскри.', note: 'Коли гладите — дзенькає нотами.', yarn: 'Коли гладите — підкидає клубок.', moth: 'Коли гладите — злітають нічні метелики.',
 };
 const SAYS = [
@@ -350,7 +391,9 @@ class Component extends DCLogic {
     const F = window.AuFamiliar; if (!F || !this._cv || !this.state.d) return;
     const s = this.state, info = this._info(), it = this._by(s.sel);
     const fitLook = it && LOOKK.includes(it.kind) ? this._itemLook(it) : this._look();
-    if (this._cv.fit) F.draw(this._cv.fit, F.frame(fitLook, info, s.tick, { pet: s.pet > 0 || (it && it.kind === 'toy') }));
+    const fitFrame = F.frame(fitLook, info, s.tick, { pet: s.pet > 0 || (it && it.kind === 'toy') });
+    if (this._cv.fit) F.draw(this._cv.fit, fitFrame);
+    if (this._cv.bar) F.draw(this._cv.bar, fitFrame);
     Object.keys(this._cv).forEach(k => {
       const m = /^(it|sh)_(.+)$/.exec(k); if (!m || !this._cv[k]) return;
       const x = this._by(m[2]); if (x) F.draw(this._cv[k], F.frame(this._itemLook(x), info, 0, { pet: x.kind === 'toy' }));
@@ -411,7 +454,7 @@ class Component extends DCLogic {
       famName, balanceText: SEED(bal), notLinked: d.linked === false,
       depositLine: resN ? `ще ${SEED(resN * dep)} завдатком` : '1 допис = 1 зернятко',
       say: s.say, sayTag: s.tag, busy: s.busy,
-      refFit: this._ref('fit'), onPet: () => this.setState({ pet: 6 }),
+      refFit: this._ref('fit'), refBar: this._ref('bar'), onPet: () => this.setState({ pet: 6 }),
       fitBg: BG[fitBgKey] || BG.none, fitGlow: glowOf(fitBless), fitHasTitle: !!fitTitle, fitTitle,
       fitHint: this._hidden() ? 'Поки це яйце, приміряти не вийде: шкаралупа не носить капелюхів. Купити можна вже зараз.'
         : `Натисніть на річ, і ${famName} одразу її приміряє.${this._stage() < 3 ? ' Прикраси й місця видно лише на дорослому, тож у примірочній — він дорослий.' : ''} Куплене зʼявляється в «Змінити вигляд».`,

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <script src="familiar.js?v=4"></script>
+  <style>
+    .md-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+    .md-scroll::-webkit-scrollbar{height:6px}.md-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:999px}
+    .md-px{image-rendering:pixelated;display:block}
+  </style>
+</helmet>
+
+<!-- ═══ ГАЛЯВИНА (сторінка в «Забавках») ═══ -->
+<sc-if value="{{ isPage }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:22px;font-family:Arial,sans-serif;color:#fff;">
+
+  <sc-if value="{{ showMsg }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:22px 20px;border-radius:15px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;">
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.08rem;line-height:1.55;color:rgba(255,255,255,0.7);margin:0;max-width:520px;text-wrap:pretty;">{{ msgText }}</p>
+      <sc-if value="{{ msgLink }}" hint-placeholder-val="{{ false }}">
+        <a href="#cabinet" style="font-size:0.84rem;color:#ffd700;text-decoration:none;border:1px solid rgba(255,215,0,0.4);border-radius:999px;padding:7px 16px;">До кабінету →</a>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ false }}">
+    <div class="md-scroll" style="border-radius:16px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 14px 40px rgba(0,0,0,0.45);">
+      <div style="position:relative;height:{{ sceneH }};min-width:{{ sceneW }};background:radial-gradient(ellipse 70% 55% at 50% 100%,rgba(94,154,143,0.32),rgba(19,25,23,0) 70%),radial-gradient(ellipse 60% 50% at 80% 0%,rgba(107,111,174,0.22),rgba(19,25,23,0) 70%),#121815;">
+        <sc-for list="{{ sky }}" as="k" hint-placeholder-count="0">
+          <span style="position:absolute;left:{{ k.x }};top:{{ k.y }};width:2px;height:2px;background:rgba(243,236,219,{{ k.a }});"></span>
+        </sc-for>
+        <div style="position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,rgba(94,154,143,0.14),rgba(94,154,143,0.05));border-top:1px solid rgba(94,154,143,0.28);"></div>
+        <sc-for list="{{ spots }}" as="m" hint-placeholder-count="6">
+          <button onClick="{{ m.on }}" title="{{ m.tip }}" style="position:absolute;left:{{ m.x }};bottom:{{ m.y }};z-index:{{ m.z }};transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;background:none;border:none;padding:0;cursor:pointer;color:#fff;">
+            <sc-if value="{{ m.top }}" hint-placeholder-val="{{ false }}"><span style="font-size:0.7rem;color:#ffd700;margin-bottom:-4px;text-shadow:0 0 8px rgba(255,215,0,0.6);">✦</span></sc-if>
+            <canvas ref="{{ m.ref }}" width="48" height="48" class="md-px" style="width:{{ m.s }};height:{{ m.s }};filter:{{ m.f }};"></canvas>
+            <span style="margin-top:-6px;font-size:0.66rem;white-space:nowrap;color:{{ m.c }};padding:1px 6px;border-radius:999px;background:{{ m.lb }};">{{ m.name }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <sc-if value="{{ scrollHint }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:-12px 0 0;font-size:0.74rem;color:rgba(255,255,255,0.4);text-align:center;">← гортайте галявину вбік →</p>
+    </sc-if>
+
+    <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;padding:20px;border-radius:15px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);">
+        <div style="flex:none;width:150px;height:150px;max-width:100%;border-radius:14px;background:{{ sel.bg }};box-shadow:{{ sel.glow }};display:flex;align-items:center;justify-content:center;">
+          <canvas ref="{{ refSel }}" width="48" height="48" class="md-px" style="width:144px;height:144px;"></canvas>
+        </div>
+        <div style="flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+              <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.5rem;letter-spacing:0.04em;overflow-wrap:anywhere;">{{ sel.name }}</p>
+              <sc-if value="{{ sel.hasTitle }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.02rem;color:#ffd700;">{{ sel.title }}</p>
+              </sc-if>
+              <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.6);">{{ sel.sub }}</p>
+            </div>
+            <span style="display:flex;align-items:center;gap:7px;font-size:0.78rem;color:{{ sel.pillC }};padding:4px 11px;border-radius:999px;border:1px solid {{ sel.pillC }};white-space:nowrap;"><span style="width:7px;height:7px;border-radius:999px;background:{{ sel.pillC }};"></span>{{ sel.pill }}</span>
+          </div>
+          <p style="margin:0;font-size:0.86rem;line-height:1.55;color:rgba(255,255,255,0.75);">{{ sel.ate }}</p>
+          <sc-if value="{{ sel.hasFeeds }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;font-size:0.82rem;color:rgba(255,255,255,0.55);">Цього тижня годують: <span style="color:rgba(255,255,255,0.85);">{{ sel.feeds }}</span></p>
+          </sc-if>
+          <sc-if value="{{ sel.hasBless }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;font-size:0.8rem;color:{{ sel.blessC }};">✦ {{ sel.bless }}</p>
+          </sc-if>
+          <sc-if value="{{ sel.hasFind }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:10px 13px;border-radius:10px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.25);display:flex;flex-direction:column;gap:4px;">
+              <span style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.75);">Приніс з розвідки</span>
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.5;color:rgba(255,255,255,0.85);">{{ sel.find }}</span>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;">
+        <span style="font-family:'Cinzel',Georgia,serif;font-size:1.05rem;letter-spacing:0.05em;">Усі мешканці</span>
+        <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">{{ countLine }}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;">
+        <sc-for list="{{ roster }}" as="r" hint-placeholder-count="6">
+          <button onClick="{{ r.on }}" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;background:{{ r.bg }};border:1px solid {{ r.bd }};color:#fff;text-align:left;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.08);">
+            <canvas ref="{{ r.ref }}" width="48" height="48" class="md-px" style="width:40px;height:40px;flex:none;"></canvas>
+            <span style="min-width:0;display:flex;flex-direction:column;gap:1px;">
+              <span style="font-size:0.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</span>
+              <span style="font-size:0.7rem;color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.line }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+      <p style="margin:6px 0 0;font-size:0.76rem;line-height:1.55;color:rgba(255,255,255,0.42);">Тут живуть ті, кого власники вирішили показати. Свого фамільяра можна завести й випустити на галявину в кабінеті → «Фамільяр» → «Показувати іншим».</p>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ═══ НЕНАЖЕРА ТИЖНЯ (блок на головній) ═══ -->
+<sc-if value="{{ isTop }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ topHas }}" hint-placeholder-val="{{ false }}">
+<section style="max-width:1080px;margin:0 auto;padding:0 24px 96px;font-family:Arial,sans-serif;color:#fff;">
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    <a href="#meadow" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;padding:20px 22px;border-radius:16px;text-decoration:none;color:#fff;background:{{ topBg }};border:1px solid rgba(255,215,0,0.3);box-shadow:0 0 28px rgba(255,215,0,0.1);transition:all 0.3s ease;" style-hover="transform:translateY(-3px);box-shadow:0 0 34px rgba(255,215,0,0.22);">
+      <canvas ref="{{ refTop }}" width="48" height="48" class="md-px" style="width:{{ topS }};height:{{ topS }};flex:none;"></canvas>
+      <div style="flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:6px;">
+        <p style="margin:0;font-size:0.64rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,215,0,0.75);">✦ Ненажера тижня</p>
+        <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.5rem;letter-spacing:0.04em;color:#ffd700;overflow-wrap:anywhere;">{{ top.name }}</p>
+        <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;line-height:1.5;color:rgba(255,255,255,0.78);text-wrap:pretty;">{{ topLine }}</p>
+        <p style="margin:2px 0 0;font-size:0.76rem;color:rgba(255,255,255,0.48);">{{ topWho }}</p>
+      </div>
+      <span style="font-size:0.8rem;color:rgba(255,215,0,0.8);white-space:nowrap;">На галявину →</span>
+    </a>
+    <sc-if value="{{ hasPodium }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;">
+        <sc-for list="{{ podium }}" as="p" hint-placeholder-count="2">
+          <a href="#meadow" style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);text-decoration:none;color:#fff;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.08);">
+            <span style="font-family:'Cinzel',Georgia,serif;font-size:0.95rem;color:rgba(255,215,0,0.7);width:16px;">{{ p.n }}</span>
+            <canvas ref="{{ p.ref }}" width="48" height="48" class="md-px" style="width:44px;height:44px;flex:none;"></canvas>
+            <span style="min-width:0;display:flex;flex-direction:column;gap:1px;">
+              <span style="font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.name }}</span>
+              <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);">{{ p.posts }}</span>
+            </span>
+          </a>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</section>
+</sc-if>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:760},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;page&quot;,&quot;top&quot;],&quot;default&quot;:&quot;page&quot;,&quot;tsType&quot;:&quot;'page' | 'top'&quot;},&quot;demo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const MD_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const MD_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const MD_CACHE = 'au_meadow_cache';
+const STAGE = ['яйце', 'малеча', 'дорослий'];
+const plural = (n, a, b, c) => { const x = n % 10, y = n % 100; return x === 1 && y !== 11 ? a : x >= 2 && x <= 4 && (y < 12 || y > 14) ? b : c; };
+const POSTS = n => `${n} ${plural(n, 'допис', 'дописи', 'дописів')}`;
+const day = iso => { try { return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }); } catch (e) { return ''; } };
+// Рядки Марти для Ненажери. Обираються за номером тижня, щоб не стрибали між оновленнями.
+const TOP_LINES = [
+  n => `Зʼїв ${n} за тиждень. Марта каже, що це вже не апетит, а характер.`,
+  n => `${n} за сім днів. На рецепції кажуть, що чують, як воно жує.`,
+  n => `Проковтнув ${n} і дивиться так, ніби це був лише сніданок.`,
+  n => `${n} за тиждень. Марта вже двічі перераховувала — цифра не змінилась.`,
+];
+const DEMO = [
+  { name: 'Ожина', nick: 'kava_z_dymom', look: { sp: 'dragon', eyeSt: 'slit', iris: '#8fd18a', pat: 'spots', acc: 'flower', place: 'cloud', col: '#e59aa3' }, stage: 3, state: 'awake', total: 214, week: 31, feeds: ['Іда Трілл', 'Сяо Фей'], since: '2026-08-02', bg: 'fireflies', title: 'Улюбленець рецепції', bless: 'flor', find: { kind: 'quote', text: 'Тиша — теж відповідь, просто тихіша.', author: 'Каан' } },
+  { name: 'Іскра', nick: 'lira', look: { sp: 'cat', eyeSt: 'round', iris: '#ffd700', pat: 'stripe', acc: 'hat', place: 'pillow', col: '#d0caff' }, stage: 3, state: 'awake', total: 186, week: 24, feeds: ['Северин'], since: '2026-09-12', bg: 'hearth', title: 'Охоронець штампу' },
+  { name: 'Сажка', nick: 'voron', look: { sp: 'crow', eyeSt: 'round', iris: '#ff4d4d', pat: 'none', acc: 'crown', place: 'branch', col: '#3a3a48' }, stage: 3, state: 'awake', total: 140, week: 19, feeds: ['Кастор Атейрос'], since: '2026-07-20', bg: 'stars' },
+  { name: 'Попіл', nick: 'sovenya', look: { sp: 'owl', eyeSt: 'round', iris: '#ffb347', pat: 'stripe', acc: 'bow', place: 'branch', col: '#d6dbe3' }, stage: 3, state: 'drowsy', total: 77, week: 3, feeds: ['Міріана'], since: '2026-08-15', away: true },
+  { name: 'Мжичка', nick: 'ruda', look: { sp: 'fox', eyeSt: 'slit', iris: '#7fd1c4', pat: 'none', acc: 'none', place: 'pillow', col: '#ffd700' }, stage: 2, state: 'awake', total: 31, week: 9, feeds: ['Канделарія Фокс'], since: '2026-10-11', bg: 'sunset' },
+  { name: 'Кмин', nick: 'slyz', look: { sp: 'slime', eyeSt: 'button', iris: '#ffffff', pat: 'spots', acc: 'hat', place: 'none', col: '#7fd1c4' }, stage: 2, state: 'asleep', total: 22, week: 0, feeds: [], since: '2026-09-30' },
+  { name: 'Чорнило', nick: 'pero', look: { sp: 'cat', eyeSt: 'slit', iris: '#d0caff', pat: 'none', acc: 'bow', place: 'cloud', col: '#6495ed' }, stage: 3, state: 'awake', total: 96, week: 6, feeds: ['Генрі Вістраль-Тес'], since: '2026-07-01', bg: 'rain' },
+  { name: 'Горіх', nick: 'nova', look: { sp: 'fox', eyeSt: 'round', iris: '#ffd700', pat: 'none', acc: 'none', place: 'none', col: '#e59aa3', egg: '#d0caff', eggSpot: '#ffd700' }, stage: 1, state: 'awake', total: 4, week: 4, feeds: ['Лірон'], since: '2026-11-03' },
+];
+
+class Component extends DCLogic {
+  state = { phase: 'load', rows: [], sel: 0, tick: 0 };
+  componentDidMount() {
+    this._cv = {}; this._rf = {};
+    this._t = setInterval(() => { if (!document.hidden) this.setState(s => ({ tick: s.tick + 1 })); }, 450);
+    this._w = setInterval(() => { if (window.AuFamiliar) { clearInterval(this._w); this.forceUpdate(); } }, 150);
+    this._onFam = () => this._load(true);
+    window.addEventListener('au-fam', this._onFam);
+    this._load();
+  }
+  componentWillUnmount() { clearInterval(this._t); clearInterval(this._w); window.removeEventListener('au-fam', this._onFam); }
+  componentDidUpdate() { this._paint(); }
+  _ref(k) { if (!this._rf) { this._rf = {}; this._cv = {}; } if (!this._rf[k]) this._rf[k] = el => { this._cv[k] = el; if (el) this._paint(); }; return this._rf[k]; }
+  _isTop() { return this.props.variant === 'top'; }
+
+  async _load(force) {
+    if (this.props.demo) { this.setState({ phase: 'ok', rows: DEMO }); return; }
+    if (!force) {
+      try { const c = JSON.parse(sessionStorage.getItem(MD_CACHE) || 'null'); if (c && Date.now() - c.at < 5 * 60 * 1000 && Array.isArray(c.rows)) { this.setState({ phase: 'ok', rows: c.rows }); return; } } catch (e) {}
+    }
+    try {
+      const r = await fetch(`${MD_URL}/rpc/familiar_meadow`, { method: 'POST', headers: { apikey: MD_KEY, Authorization: `Bearer ${MD_KEY}`, 'Content-Type': 'application/json' }, body: '{}' });
+      if (r.status === 404) { console.warn('галявина: немає familiar_meadow — прогнати supabase_familiar_meadow_migration.sql'); this.setState({ phase: 'missing' }); return; }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const rows = await r.json();
+      const list = Array.isArray(rows) ? rows : [];
+      try { sessionStorage.setItem(MD_CACHE, JSON.stringify({ at: Date.now(), rows: list })); } catch (e) {}
+      this.setState({ phase: 'ok', rows: list });
+    } catch (e) {
+      console.warn('галявина:', e && e.message);
+      this.setState({ phase: 'err' });
+    }
+  }
+
+  // Хто де стоїть: найактивніші — в передньому ряду посередині, решта — глибше.
+  _layout(rows, wide) {
+    const home = rows.map((r, i) => ({ r, i })).filter(x => !x.r.away);
+    const per = wide ? 7 : 5;
+    const nRows = Math.max(1, Math.min(3, Math.ceil(home.length / per)));
+    const lanes = Array.from({ length: nRows }, () => []);
+    home.forEach((x, k) => lanes[Math.min(nRows - 1, Math.floor(k / Math.ceil(home.length / nRows)))].push(x));
+    const out = [];
+    lanes.forEach((lane, li) => {
+      // 0 — передній ряд. Ставимо з центру назовні: перший посередині.
+      const order = []; lane.forEach((x, k) => { if (k % 2 === 0) order.push(x); else order.unshift(x); });
+      order.forEach((x, k) => {
+        const n = order.length, jitter = ((x.i * 37) % 11 - 5) * 0.4;
+        out.push({ ...x, lane: li, x: ((k + 0.5) / n) * 100 + (n > 1 ? jitter : 0), depth: li });
+      });
+    });
+    return out;
+  }
+  _paint() {
+    const F = window.AuFamiliar; if (!F || !this._cv) return;
+    const s = this.state, rows = s.rows || [];
+    rows.forEach((r, i) => {
+      const fr = F.frame(r.look || {}, { stage: r.stage || 1, state: r.state || 'awake' }, s.tick + i * 3, { noPlace: (r.stage || 1) === 3 });
+      ['m', 'r', 'p'].forEach(p => { const c = this._cv[p + i]; if (c) F.draw(c, fr); });
+    });
+    const sel = rows[s.sel];
+    if (sel && this._cv.sel) F.draw(this._cv.sel, F.frame(sel.look || {}, { stage: sel.stage || 1, state: sel.away ? 'awake' : sel.state || 'awake' }, s.tick, { away: !!sel.away }));
+    const top = this._topRow();
+    if (top && this._cv.top) F.draw(this._cv.top, F.frame(top.look || {}, { stage: top.stage || 1, state: 'awake' }, s.tick, { pet: s.tick % 14 < 3 }));
+  }
+  _topRow() { const r = (this.state.rows || [])[0]; return r && r.week > 0 ? r : null; }
+
+  renderVals() {
+    const s = this.state, F = window.AuFamiliar, rows = s.rows || [];
+    const GODS = (F && F.GODS) || {}, BG = (F && F.BG) || { none: '#1a1a1a' };
+    if (this._isTop()) {
+      const top = this._topRow();
+      if (!top || !F) return { isPage: false, isTop: true, topHas: false };
+      const wk = Math.floor(Date.now() / 6048e5);
+      const rest = rows.slice(1, 3).filter(r => r.week > 0);
+      return {
+        isPage: false, isTop: true, topHas: true, top,
+        refTop: this._ref('top'), topS: window.innerWidth < 600 ? '112px' : '140px',
+        // Банер широкий — фон власника розтягнувся б; ставимо свій, нічний.
+        topBg: 'radial-gradient(ellipse 60% 120% at 12% 50%,rgba(255,215,0,0.12),rgba(18,18,25,0) 70%),radial-gradient(ellipse 70% 60% at 50% 0%,rgba(107,111,174,0.3),rgba(17,17,24,0) 70%),#121219',
+        topLine: TOP_LINES[wk % TOP_LINES.length](POSTS(top.week)),
+        topWho: [top.feeds && top.feeds.length ? `годують: ${top.feeds.join(' · ')}` : '', top.nick ? `господар: ${top.nick}` : ''].filter(Boolean).join(' · '),
+        hasPodium: rest.length > 0,
+        podium: rest.map((r, k) => ({ key: r.name + k, n: k + 2, name: r.name, posts: POSTS(r.week), ref: this._ref('p' + (k + 1)) })),
+      };
+    }
+
+    const msg = s.phase === 'load' || !F ? 'Марта відчиняє хвіртку на галявину…'
+      : s.phase === 'missing' ? 'Галявину ще не відкрито: адмінам треба прогнати supabase_familiar_meadow_migration.sql.'
+      : s.phase === 'err' ? 'Галявина не відгукнулась. Оновіть сторінку трохи згодом.'
+      : !rows.length ? 'Галявина поки порожня. Заведіть фамільяра в кабінеті й увімкніть «Показувати іншим» — і він прийде сюди першим.' : '';
+    if (msg) return { isPage: true, isTop: false, showMsg: true, msgText: msg, msgLink: s.phase === 'ok' && !rows.length, hasRows: false };
+
+    const wide = window.innerWidth >= 760;
+    const lay = this._layout(rows, wide);
+    const nRows = lay.reduce((m, x) => Math.max(m, x.lane + 1), 1);
+    const perLane = Math.max(...Array.from({ length: nRows }, (_, l) => lay.filter(x => x.lane === l).length), 1);
+    const sceneMin = perLane * (wide ? 108 : 92);
+    const H = wide ? 210 + (nRows - 1) * 56 : 190 + (nRows - 1) * 48;
+    const laneY = [10, 10 + (wide ? 56 : 48), 10 + (wide ? 112 : 96)];
+    const laneK = [1, 0.82, 0.68];
+    const topIdx = rows[0] && rows[0].week > 0 ? 0 : -1;
+    const spots = lay.map(x => {
+      const r = x.r, st = r.stage || 1, base = st === 3 ? (wide ? 104 : 88) : st === 2 ? (wide ? 78 : 66) : (wide ? 60 : 52);
+      const on = s.sel === x.i;
+      return { key: r.name + x.i, ref: this._ref('m' + x.i), x: `${x.x.toFixed(1)}%`, y: `${laneY[x.lane]}px`, z: 10 - x.lane,
+        s: `${Math.round(base * laneK[x.lane])}px`, f: r.state === 'asleep' ? 'brightness(0.75)' : 'none',
+        name: r.name, top: x.i === topIdx, c: on ? '#1a1a1a' : 'rgba(255,255,255,0.75)', lb: on ? '#ffd700' : 'rgba(0,0,0,0.35)',
+        tip: `${r.name} · ${r.nick || ''}`, on: () => this.setState({ sel: x.i }) };
+    });
+    const sky = Array.from({ length: wide ? 26 : 16 }, (_, k) => ({ key: k, x: `${((k * 53) % 97) + 1}%`, y: `${((k * 29) % 45) + 4}%`, a: (0.15 + ((k * 7) % 5) * 0.08).toFixed(2) }));
+    const r = rows[s.sel] || rows[0];
+    const spName = (F.SP.find(x => x[0] === (r.look || {}).sp) || ['', 'фамільяр'])[1].toLowerCase();
+    const pill = r.away ? ['На розвідці', 'rgba(255,255,255,0.6)'] : r.state === 'asleep' ? ['Спить', 'rgba(255,255,255,0.45)'] : r.state === 'drowsy' ? ['Дрімає', '#d0caff'] : ['Не спить', '#ffd700'];
+    const god = r.bless && GODS[r.bless] ? GODS[r.bless] : null;
+    const find = r.find ? (r.find.kind === 'quote' ? `«${r.find.text}»${r.find.author ? ' — ' + r.find.author : ''}` : `Приніс ${r.find.text}`) : '';
+    const away = rows.filter(x => x.away).length;
+    return {
+      isPage: true, isTop: false, showMsg: false, hasRows: true,
+      sceneH: `${H}px`, sceneW: `${sceneMin}px`, scrollHint: !wide && sceneMin > window.innerWidth - 40, sky, spots,
+      hasSel: !!r, refSel: this._ref('sel'),
+      sel: {
+        name: r.name, hasTitle: !!r.title, title: r.title || '',
+        sub: `${(r.stage || 1) === 1 && (r.look || {}).surprise ? 'яйце-сюрприз' : spName} · ${STAGE[(r.stage || 1) - 1]} · з ${day(r.since)}${r.nick ? ` · господар ${r.nick}` : ''}`,
+        pill: pill[0], pillC: pill[1],
+        ate: `Зʼїв ${POSTS(r.total || 0)} від дня заведення${r.week ? ` · цього тижня ${POSTS(r.week)}` : ' · цього тижня постився'}.`,
+        hasFeeds: !!(r.feeds && r.feeds.length), feeds: (r.feeds || []).join(' · '),
+        hasBless: !!god, bless: god ? `Благословення: ${god[0]}` : '', blessC: god ? god[1] : '#fff',
+        hasFind: !!find, find,
+        bg: BG[r.bg] || BG.none, glow: F.glow ? F.glow(r.bless) : 'none',
+      },
+      countLine: `${rows.length} ${plural(rows.length, 'фамільяр', 'фамільяри', 'фамільярів')}${away ? ` · на розвідці ${away}` : ''}`,
+      roster: rows.map((x, i) => ({ key: x.name + i, ref: this._ref('r' + i), name: x.name,
+        line: x.away ? 'на розвідці' : x.week ? `${x.week} за тиждень` : `${x.total || 0} усього`,
+        bg: s.sel === i ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.04)', bd: s.sel === i ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.09)',
+        on: () => this.setState({ sel: i }) })),
+    };
+  }
+}
+</script>
+</body>
+</html>

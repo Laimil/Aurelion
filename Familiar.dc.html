@@ -10,7 +10,11 @@
 <helmet>
   <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
   <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
-  <script src="familiar.js?v=3"></script>
+  <script src="familiar.js?v=4"></script>
+  <style>
+    /* «Нова» шапка на телефоні має нижню панель — визирання стає над нею. */
+    @media(max-width:880px){html.au-nav2 .fam-peek{bottom:calc(64px + env(safe-area-inset-bottom))!important}html.au-nav2 .fam-bub{bottom:calc(64px + 30px + env(safe-area-inset-bottom))!important}}
+  </style>
 </helmet>
 
 <sc-if value="{{ isCard }}" hint-placeholder-val="{{ true }}">
@@ -35,8 +39,8 @@
 
   <sc-if value="{{ showMain }}" hint-placeholder-val="{{ false }}">
     <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;">
-      <div style="flex:0 0 300px;max-width:100%;height:300px;border-radius:15px;background:{{ mainBg }};border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;box-shadow:{{ mainGlow }};transition:all 0.3s ease;">
-        <canvas ref="{{ refMain }}" onClick="{{ onPet }}" width="48" height="48" style="width:288px;height:288px;image-rendering:pixelated;cursor:pointer;"></canvas>
+      <div style="flex:0 1 300px;width:300px;max-width:100%;aspect-ratio:1;border-radius:15px;background:{{ mainBg }};border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;box-shadow:{{ mainGlow }};transition:all 0.3s ease;">
+        <canvas ref="{{ refMain }}" onClick="{{ onPet }}" width="48" height="48" style="width:96%;max-width:288px;aspect-ratio:1;image-rendering:pixelated;cursor:pointer;"></canvas>
       </div>
       <div style="flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:16px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
@@ -97,6 +101,15 @@
             <button onClick="{{ o.on }}" style="cursor:pointer;font-size:0.8rem;padding:5px 12px;border-radius:999px;background:{{ o.bg }};border:1px solid {{ o.bd }};color:{{ o.c }};transition:all 0.3s ease;">{{ o.label }}</button>
           </sc-for>
         </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Показувати іншим</span>
+            <sc-for list="{{ showOpts }}" as="o" hint-placeholder-count="2">
+              <button onClick="{{ o.on }}" style="cursor:pointer;font-size:0.8rem;padding:5px 12px;border-radius:999px;background:{{ o.bg }};border:1px solid {{ o.bd }};color:{{ o.c }};transition:all 0.3s ease;">{{ o.label }}</button>
+            </sc-for>
+          </div>
+          <span style="font-size:0.76rem;line-height:1.5;color:rgba(255,255,255,0.45);">{{ showHint }}</span>
+        </div>
         <sc-if value="{{ noConfirm }}" hint-placeholder-val="{{ true }}">
           <button onClick="{{ onAskReset }}" style="align-self:flex-start;cursor:pointer;background:transparent;border:none;padding:0;font-size:0.78rem;color:rgba(255,255,255,0.45);text-decoration:underline;text-underline-offset:3px;transition:all 0.3s ease;" style-hover="color:#ff4d4d;">Скинути фамільяра</button>
         </sc-if>
@@ -137,9 +150,9 @@
 
   <sc-if value="{{ showEditor }}" hint-placeholder-val="{{ false }}">
     <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;">
-      <div style="flex:0 0 240px;max-width:100%;display:flex;flex-direction:column;gap:12px;align-items:center;">
-        <div style="width:240px;height:240px;border-radius:15px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">
-          <canvas ref="{{ refPrev }}" width="48" height="48" style="width:240px;height:240px;image-rendering:pixelated;"></canvas>
+      <div style="flex:0 1 240px;width:240px;max-width:100%;display:flex;flex-direction:column;gap:12px;align-items:center;">
+        <div style="width:240px;max-width:100%;aspect-ratio:1;border-radius:15px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">
+          <canvas ref="{{ refPrev }}" width="48" height="48" style="width:100%;max-width:240px;aspect-ratio:1;image-rendering:pixelated;"></canvas>
         </div>
         <p style="font-size:0.76rem;line-height:1.5;color:rgba(255,255,255,0.5);text-align:center;margin:0;">{{ prevNote }}</p>
       </div>
@@ -184,18 +197,27 @@
 </div>
 </sc-if>
 
+<sc-if value="{{ isChip }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ chipHas }}" hint-placeholder-val="{{ false }}">
+    <span title="{{ famName }}" style="display:inline-block;position:relative;width:{{ chipS }};height:{{ chipS }};flex:none;border-radius:999px;overflow:hidden;background:{{ chipBg }};box-shadow:0 0 0 1px rgba(255,215,0,0.35);vertical-align:middle;">
+      <canvas ref="{{ refChip }}" width="48" height="48" style="position:absolute;left:{{ chipL }};top:{{ chipT }};width:{{ chipC }};height:{{ chipC }};image-rendering:pixelated;"></canvas>
+    </span>
+  </sc-if>
+  <sc-if value="{{ chipNo }}" hint-placeholder-val="{{ true }}"><span>{{ chipFallback }}</span></sc-if>
+</sc-if>
+
 <sc-if value="{{ isPeek }}" hint-placeholder-val="{{ false }}">
   <sc-if value="{{ peekSay }}" hint-placeholder-val="{{ false }}">
-    <div style="position:fixed;right:150px;bottom:44px;z-index:61;max-width:230px;padding:10px 13px;border-radius:12px 12px 4px 12px;background:#f3ecdb;color:#2f2920;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.4;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:none;">{{ peekLine }}</div>
+    <div class="fam-bub" style="position:fixed;right:{{ bubR }};bottom:{{ bubB }};z-index:61;max-width:{{ bubW }};padding:10px 13px;border-radius:12px 12px 4px 12px;background:#f3ecdb;color:#2f2920;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.4;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:none;">{{ peekLine }}</div>
   </sc-if>
-  <div onMouseEnter="{{ onPeekHover }}" style="position:fixed;right:22px;bottom:0;z-index:60;width:132px;height:{{ peekBoxH }};overflow:hidden;pointer-events:{{ peekPE }};">
-    <div onClick="{{ onPeekClick }}" title="{{ famName }}" style="position:absolute;left:0;top:0;width:132px;height:132px;cursor:pointer;transform:translateY({{ peekY }});transition:transform 0.6s ease;">
-      <canvas ref="{{ refPeek }}" width="48" height="48" style="width:132px;height:132px;image-rendering:pixelated;"></canvas>
+  <div class="fam-peek" onMouseEnter="{{ onPeekHover }}" style="position:fixed;right:{{ pkR }};bottom:0;z-index:60;width:{{ pkW }};height:{{ peekBoxH }};overflow:hidden;pointer-events:{{ peekPE }};">
+    <div onClick="{{ onPeekClick }}" title="{{ famName }}" style="position:absolute;left:0;top:0;width:{{ pkW }};height:{{ pkW }};cursor:pointer;transform:translateY({{ peekY }});transition:transform 0.6s ease;">
+      <canvas ref="{{ refPeek }}" width="48" height="48" style="width:{{ pkW }};height:{{ pkW }};image-rendering:pixelated;"></canvas>
     </div>
   </div>
 </sc-if>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:520},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;card&quot;,&quot;peek&quot;],&quot;default&quot;:&quot;card&quot;,&quot;tsType&quot;:&quot;'card' | 'peek'&quot;},&quot;demo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;demoNew&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:520},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;card&quot;,&quot;peek&quot;,&quot;chip&quot;],&quot;default&quot;:&quot;card&quot;,&quot;tsType&quot;:&quot;'card' | 'peek' | 'chip'&quot;},&quot;fallback&quot;:{&quot;editor&quot;:&quot;string&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;demo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;demoNew&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
 const FAM_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
 const FAM_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 const FAM_CACHE = 'au_fam_cache';
@@ -210,9 +232,10 @@ class Component extends DCLogic {
 
   componentDidMount() {
     this._refs = {}; this._cv = {};
-    ['main', 'prev', 'peek', 'chEgg', 'chBuild'].forEach(k => { this._refs[k] = el => { this._cv[k] = el; this._paint(); }; });
+    ['main', 'prev', 'peek', 'chEgg', 'chBuild', 'chip'].forEach(k => { this._refs[k] = el => { this._cv[k] = el; this._paint(); }; });
     this._t = setInterval(() => {
       if (document.hidden) return;
+      if (this.isChip()) return;
       if (this.isPeek() && !this.state.up) return;
       this.setState(s => ({ tick: s.tick + 1, pet: Math.max(0, s.pet - 1) }));
     }, 450);
@@ -231,6 +254,9 @@ class Component extends DCLogic {
   }
   componentDidUpdate() { this._paint(); }
   isPeek() { return this.props.variant === 'peek'; }
+  isChip() { return this.props.variant === 'chip'; }
+  // Телефон: без наведення мишкою або вузький екран — фамільяр менший і ховається сам.
+  _touch() { try { return window.innerWidth < 700 || !window.matchMedia('(hover: hover)').matches; } catch (e) { return window.innerWidth < 700; } }
 
   _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
   async _rpc(fn, body) {
@@ -258,7 +284,7 @@ class Component extends DCLogic {
       return;
     }
     if (!this._tok()) { this.setState({ phase: 'out', data: null }); return; }
-    if (this.isPeek() && !force) {
+    if ((this.isPeek() || this.isChip()) && !force) {
       try { const c = JSON.parse(localStorage.getItem(FAM_CACHE) || 'null'); if (c && Date.now() - c.at < 10 * 60 * 1000 && c.d) { this.setState({ phase: c.d.fam ? 'ok' : 'new', data: c.d }); return; } } catch (e) {}
     }
     let d;
@@ -287,6 +313,7 @@ class Component extends DCLogic {
     if (this._cv.chEgg) F.draw(this._cv.chEgg, F.frame({ ...F.DEFAULT_LOOK, egg: F.SHELL[Math.floor(s.tick / 8) % F.SHELL.length], eggSpot: F.SPOT[Math.floor(s.tick / 8) % F.SPOT.length] }, { stage: 1, state: 'awake' }, s.tick, {}));
     if (this._cv.chBuild) { const i = Math.floor(s.tick / 8); F.draw(this._cv.chBuild, F.frame({ ...F.DEFAULT_LOOK, sp: F.SP[i % F.SP.length][0], col: F.COLS[i % F.COLS.length], acc: F.ACC[(i + 1) % F.ACC.length][0] }, { stage: 3, state: 'awake' }, s.tick, {})); }
     if (this._cv.peek && fam) F.draw(this._cv.peek, F.frame(fam.look, d, s.tick, { pet: !!s.say, noPlace: true }));
+    if (this._cv.chip && fam) F.draw(this._cv.chip, F.frame(fam.look, { stage: d.stage, state: 'awake' }, 1, { noPlace: true }));
   }
 
   // ── визирання ─────────────────────────────────────────────
@@ -294,10 +321,9 @@ class Component extends DCLogic {
     const s = this.state, d = s.data;
     if (s.phase !== 'ok' || !d || !d.fam) return false;
     if (d.fam.peek === 'never' || d.state === 'asleep' || (d.scout && d.scout.away)) return false;
-    if (!this.props.demo) {
-      if (window.innerWidth < 1100) return false;
-      try { if (!window.matchMedia('(hover: hover)').matches) return false; } catch (e) {}
-    }
+    // На вузькому ноутбуці (700–1099) фамільяр заважав би тексту — там не визирає.
+    // На телефоні визирає маленьким у кутку (див. _touch і розміри в renderVals).
+    if (!this.props.demo && window.innerWidth >= 700 && window.innerWidth < 1100) return false;
     return true;
   }
   _plan(ms) {
@@ -313,7 +339,7 @@ class Component extends DCLogic {
     if (!this._canPeek() || document.hidden) { this._plan(this._gap()); return; }
     this.setState({ up: true, say: '' });
     clearTimeout(this._ph);
-    this._ph = setTimeout(() => this._hide(), 9000);
+    this._ph = setTimeout(() => this._hide(), this._touch() ? 6000 : 9000);
   }
   _hide() {
     clearTimeout(this._ph);
@@ -371,6 +397,38 @@ class Component extends DCLogic {
     this.setState({ busy: false, confirm: false, mode: null, edit: false, name: '', draft: null });
     this._bump(); this._load(true);
   }
+  _chipCrop(look, stage) {
+    const key = JSON.stringify([look, stage]);
+    if (this._crop && this._crop.key === key) return this._crop.v;
+    const F = window.AuFamiliar;
+    let v = { k: 1, x: 0, y: 0 };
+    try {
+      const px = F.pixels(F.frame(look, { stage, state: 'awake' }, 1, { noPlace: true }));
+      let x0 = 48, x1 = -1, y0 = 48, y1 = -1;
+      for (let y = 0; y < 48; y++) for (let x = 0; x < 48; x++) if (px[(y * 48 + x) * 4 + 3] > 40) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+      if (x1 >= 0) {
+        // Вікно — квадрат завширшки з голову: для яйця весь малюнок, для звіра верхні ~60%.
+        const w = Math.max(12, Math.min(x1 - x0 + 3, stage === 1 ? y1 - y0 + 3 : Math.round((y1 - y0 + 1) * 0.62)));
+        const cx = (x0 + x1 + 1) / 2;
+        v = { k: 24 / w, x: cx - w / 2, y: Math.max(0, y0 - 1) };
+      }
+    } catch (e) {}
+    this._crop = { key, v };
+    return v;
+  }
+  async _showMode(on) {
+    const d = this.state.data; if (!d || !d.fam) return;
+    const prev = !!d.fam.show;
+    this.setState({ data: { ...d, fam: { ...d.fam, show: on } }, note: '' });
+    if (this.props.demo) return;
+    let r; try { r = await this._rpc('familiar_show', { p_on: on }); } catch (e) { r = { error: 'net' }; }
+    if (!r || r.error) {
+      this.setState(st => ({ data: { ...st.data, fam: { ...st.data.fam, show: prev } },
+        note: r && r.error === 'missing' ? 'Галявину ще не відкрито: адмінам треба прогнати supabase_familiar_meadow_migration.sql.' : 'Не вийшло. Спробуйте ще раз.' }));
+      return;
+    }
+    this._bump();
+  }
   async _peekMode(m) {
     const d = this.state.data; if (!d || !d.fam) return;
     this.setState({ data: { ...d, fam: { ...d.fam, peek: m } } });
@@ -381,10 +439,22 @@ class Component extends DCLogic {
   renderVals() {
     const s = this.state, F = window.AuFamiliar, d = s.data || {}, fam = d.fam;
     const isPeek = this.isPeek();
-    const base = { isCard: !isPeek, isPeek, refMain: this._refs && this._refs.main, refPrev: this._refs && this._refs.prev, refPeek: this._refs && this._refs.peek, refChEgg: this._refs && this._refs.chEgg, refChBuild: this._refs && this._refs.chBuild, famName: fam ? fam.name : '' };
+    const isChip = this.isChip();
+    const base = { isCard: !isPeek && !isChip, isPeek, isChip, refChip: this._refs && this._refs.chip, refMain: this._refs && this._refs.main, refPrev: this._refs && this._refs.prev, refPeek: this._refs && this._refs.peek, refChEgg: this._refs && this._refs.chEgg, refChBuild: this._refs && this._refs.chBuild, famName: fam ? fam.name : '' };
+    if (isChip) {
+      const has = s.phase === 'ok' && !!fam && !!F;
+      // Обрізаємо 48×48 до голови: шукаємо верх малюнка й беремо квадрат під ним.
+      const c = has ? this._chipCrop(fam.look, d.stage || 1) : { k: 1, x: 0, y: 0 };
+      return { ...base, chipHas: has, chipNo: !has, chipFallback: this.props.fallback || '',
+        chipS: '24px', chipC: `${Math.round(48 * c.k)}px`, chipL: `${-Math.round(c.x * c.k)}px`, chipT: `${-Math.round(c.y * c.k)}px`,
+        chipBg: (F && F.BG && d.shop && d.shop.equip && F.BG[d.shop.equip.bg]) || '#1a1a1a' };
+    }
     if (isPeek) {
-      return { ...base, peekY: s.up ? '28%' : '100%', peekBoxH: s.up ? '132px' : '0px', peekPE: s.up ? 'auto' : 'none', peekSay: !!s.say, peekLine: s.say,
-        onPeekHover: () => { if (!s.say) this._hide(); }, onPeekClick: () => this._peekClick() };
+      const t = this._touch(), w = t ? 76 : 132;
+      return { ...base, peekY: s.up ? '28%' : '100%', peekBoxH: s.up ? `${w}px` : '0px', peekPE: s.up ? 'auto' : 'none', peekSay: !!s.say, peekLine: s.say,
+        pkW: `${w}px`, pkR: t ? '10px' : '22px', bubR: t ? '86px' : '150px', bubB: t ? '26px' : '44px', bubW: t ? '190px' : '230px',
+        // На сенсорному екрані «наведення» приходить разом із дотиком — не ховаємо від нього.
+        onPeekHover: () => { if (!s.say && !t) this._hide(); }, onPeekClick: () => this._peekClick() };
     }
     const msg = s.phase === 'load' || !s.ready ? 'Шукаю вашого фамільяра…'
       : s.phase === 'missing' ? 'Фамільярів ще не ввімкнено: адмінам треба прогнати supabase_familiar_migration.sql.'
@@ -492,6 +562,9 @@ class Component extends DCLogic {
       onScout: () => this._scout(),
       onEdit: () => this.setState({ edit: true, mode: hidden ? 'egg' : 'build', draft: { ...look }, name: fam.name, note: '' }),
       peekOpts: [['often', 'Часто'], ['rare', 'Рідко'], ['never', 'Ніколи']].map(([v, label]) => ({ label, on: () => this._peekMode(v), ...sel(fam.peek === v) })),
+      showOpts: [[true, 'Так'], [false, 'Ні']].map(([v, label]) => ({ label, on: () => this._showMode(v), ...sel(!!fam.show === v) })),
+      showHint: fam.show ? `${fam.name} живе на галявині в «Забавках» і може стати Ненажерою тижня на головній. Видно імʼя, вигляд, ваш нік і скільки зʼїв.`
+        : `Зараз ${fam.name} живе лише тут. Увімкніть — і його побачать на галявині в «Забавках».`,
     });
     return out;
   }
