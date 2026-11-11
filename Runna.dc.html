@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/aurelion-design-system-1459239c-fef4-4eaa-9ebe-ec1e057c1a17/tokens/colors.css">
+  <style>
+    .rn-ta{width:100%;box-sizing:border-box;resize:vertical;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;line-height:1.55;outline:none;transition:border-color 0.3s ease}
+    .rn-ta:focus{border-color:rgba(255,215,0,0.45)}
+    .rn-tok{cursor:pointer;border-radius:3px;padding:0 1px;transition:background 0.2s ease}
+    .rn-tok:hover{background:rgba(255,255,255,0.08)}
+    @media(max-width:600px){.rn-stone{padding:44px 14px 18px!important}.rn-out{font-size:1.2rem!important}}
+  </style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;gap:16px;font-family:Arial,sans-serif;color:#fff;">
+
+  <sc-if value="{{ showMsg }}" hint-placeholder-val="{{ false }}">
+    <p style="margin:0;padding:14px 16px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);font-size:0.88rem;color:rgba(255,255,255,0.6);text-align:center;">{{ msgText }}</p>
+  </sc-if>
+
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+      <sc-for list="{{ dirs }}" as="d" hint-placeholder-count="2">
+        <button onClick="{{ d.on }}" style="cursor:pointer;border-radius:999px;padding:8px 16px;font-size:0.82rem;background:{{ d.bg }};border:1px solid {{ d.bd }};color:{{ d.c }};transition:all 0.3s ease;">{{ d.label }}</button>
+      </sc-for>
+      <sc-if value="{{ isRune }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ toggleReg }}" title="Інша вимова для Темряви й Мертвого хору" style="cursor:pointer;border-radius:999px;padding:8px 16px;font-size:0.82rem;background:{{ regBg }};border:1px solid {{ regBd }};color:{{ regC }};transition:all 0.3s ease;">☾ Голос Темряви</button>
+      </sc-if>
+    </div>
+
+    <textarea class="rn-ta" rows="3" value="{{ text }}" onInput="{{ onText }}" placeholder="{{ ph }}" aria-label="Текст для перекладу"></textarea>
+
+    <div class="rn-stone" style="position:relative;padding:30px 24px 24px;border-radius:14px;background:radial-gradient(ellipse 70% 80% at 50% 0%,{{ glow }},rgba(26,26,26,0) 70%),#151515;border:1px solid rgba(255,215,0,0.3);box-shadow:inset 0 0 40px rgba(0,0,0,0.6),0 12px 34px rgba(0,0,0,0.42);text-align:center;min-height:96px;transition:background 0.3s ease;">
+      <sc-if value="{{ hasOut }}" hint-placeholder-val="{{ true }}">
+        <p class="rn-out" style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:{{ size }};line-height:1.5;letter-spacing:0.04em;text-wrap:balance;"><sc-for list="{{ toks }}" as="t" hint-placeholder-count="5"><span class="rn-tok" onClick="{{ t.pick }}" onMouseEnter="{{ t.pick }}" title="{{ t.tip }}" style="color:{{ t.c }};border-bottom:{{ t.bb }};font-style:{{ t.fs }};background:{{ t.bg }};">{{ t.t }}</span> </sc-for></p>
+      </sc-if>
+      <sc-if value="{{ noOut }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(255,255,255,0.35);">Тут зʼявиться переклад.</p>
+      </sc-if>
+      <button onClick="{{ copy }}" disabled="{{ noOut }}" style="position:absolute;top:10px;right:10px;cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.72rem;background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.35);color:#ffd700;">{{ copyL }}</button>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+      <sc-for list="{{ legend }}" as="l" hint-placeholder-count="5">
+        <span style="display:inline-flex;align-items:center;gap:6px;font-size:0.74rem;color:rgba(255,255,255,0.55);"><span style="color:{{ l.c }};border-bottom:{{ l.bb }};font-style:{{ l.fs }};font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;">{{ l.sample }}</span>{{ l.label }}</span>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;">
+          <p style="margin:0;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Розбір</p>
+          <span style="font-size:0.74rem;color:rgba(255,255,255,0.45);">{{ stat }}</span>
+        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+          <div onClick="{{ r.pick }}" onMouseEnter="{{ r.pick }}" style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:8px 11px;border-radius:8px;background:{{ r.rowBg }};border-left:2px solid {{ r.c }};transition:background 0.2s ease;">
+            <span style="font-family:'Cinzel',Georgia,serif;font-size:0.92rem;color:{{ r.c }};min-width:100px;overflow-wrap:anywhere;">{{ r.out }}</span>
+            <span style="font-size:0.86rem;color:rgba(255,255,255,0.72);flex:1;min-width:110px;">{{ r.src }}</span>
+            <span style="font-size:0.66rem;color:{{ r.c }};border:1px solid {{ r.c }};border-radius:999px;padding:1px 8px;white-space:nowrap;">{{ r.status }}</span>
+            <sc-if value="{{ r.hasMore }}" hint-placeholder-val="{{ false }}">
+              <span style="flex-basis:100%;font-size:0.78rem;color:rgba(255,255,255,0.48);line-height:1.45;">{{ r.more }}</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <p style="margin:4px 0 0;font-size:0.76rem;line-height:1.6;color:rgba(255,255,255,0.42);text-align:center;text-wrap:pretty;">Канон — лише фрази з постів. Решту виведено зіставленням фраз або запропоновано й чекає слова GM; незнайомі слова генератор складає за звучанням — щоразу однаково, але в грі їх ніхто не казав.</p>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+// Ядро й дані — runna/ (пакет перекладача; правити не тут, а в runna-translator і копіювати).
+const RN_DIR = 'runna/';
+const RN_SAVE = 'au_runna_last';
+const KIND = {
+  'canon-phrase': { label: 'Канон · фраза з поста', c: '#ffd700', bb: '2px solid rgba(255,215,0,0.8)', fs: 'normal' },
+  canon:          { label: 'Канон · підтверджено GM', c: '#ffd700', bb: '2px solid rgba(255,215,0,0.8)', fs: 'normal' },
+  derived:        { label: 'Виведене', c: '#6ec0b0', bb: '1px solid rgba(110,192,176,0.7)', fs: 'normal' },
+  name:           { label: 'Власна назва', c: '#6ec0b0', bb: '1px solid rgba(110,192,176,0.7)', fs: 'normal' },
+  proposed:       { label: 'Запропоноване', c: '#d0caff', bb: '1px dashed rgba(208,202,255,0.7)', fs: 'normal' },
+  generated:      { label: 'Вигадане', c: 'rgba(255,255,255,0.6)', bb: '1px dotted rgba(255,255,255,0.45)', fs: 'italic' },
+  'compound-guess': { label: 'Здогадка по коренях', c: '#ffb347', bb: '1px dotted rgba(255,179,71,0.7)', fs: 'italic' },
+  unknown:        { label: 'Невідоме', c: '#e59aa3', bb: '1px dashed rgba(229,154,163,0.8)', fs: 'normal' },
+};
+const LEGEND = [['canon-phrase', 'Kaen', 'канон'], ['derived', 'drau', 'виведене · назва'], ['proposed', 'no', 'запропоноване'], ['generated', 'vuul', 'вигадане'], ['unknown', '‹vorn›', 'невідоме']];
+const SAMPLE = { rune: 'Я не хочу помирати, коханий.', uk: "Kaen drau khael'drath." };
+
+class Component extends DCLogic {
+  state = { phase: 'load', dir: 'rune', reg: 'standard', text: SAMPLE.rune, pick: -1, copied: false, revReady: false };
+
+  componentDidMount() {
+    try { const s = JSON.parse(localStorage.getItem(RN_SAVE) || 'null'); if (s && typeof s.text === 'string') this.setState({ dir: s.dir === 'uk' ? 'uk' : 'rune', reg: s.reg === 'darkness' ? 'darkness' : 'standard', text: s.text }); } catch (e) {}
+    this._boot();
+  }
+  componentWillUnmount() { clearTimeout(this._cp); clearTimeout(this._sv); }
+  async _json(n) { const r = await fetch(RN_DIR + n + '.json'); if (!r.ok) throw new Error(`${n}: HTTP ${r.status}`); return r.json(); }
+  async _boot() {
+    try {
+      const [mod, corpus, lexicon, rules, generator] = await Promise.all([
+        import(new URL(RN_DIR + 'runna-core.js', document.baseURI).href),
+        this._json('corpus'), this._json('lexicon'), this._json('rules'), this._json('generator')]);
+      this._d = { corpus, lexicon, rules, generator };
+      this._mk = mod.createTranslator;
+      this._t = mod.createTranslator(this._d);
+      this._phr = new Map(corpus.phrases.map(p => [p.id, p]));
+      this._lex = new Map(lexicon.words.map(w => [w.rune, w]));
+      this.setState({ phase: 'ok' });
+      if (this.state.dir === 'uk') this._loadReverse();
+    } catch (e) {
+      console.warn('рунна:', e);
+      this.setState({ phase: 'err' });
+    }
+  }
+  // Зворотний словник згенерованих слів (~90 КБ) — лише коли вперше перекладають з рунної.
+  async _loadReverse() {
+    if (this._revBusy || this.state.revReady || !this._d) return;
+    this._revBusy = true;
+    try { const reverse = await this._json('generated_reverse'); this._t = this._mk({ ...this._d, reverse }); this.setState({ revReady: true }); }
+    catch (e) { console.warn('рунна: generated_reverse', e); }
+    this._revBusy = false;
+  }
+  _save(patch) {
+    this.setState({ ...patch, pick: -1 });
+    clearTimeout(this._sv);
+    this._sv = setTimeout(() => { try { const s = this.state; localStorage.setItem(RN_SAVE, JSON.stringify({ dir: s.dir, reg: s.reg, text: String(s.text).slice(0, 2000) })); } catch (e) {} }, 400);
+  }
+  _run() {
+    const s = this.state;
+    if (!this._t || !String(s.text).trim()) return { text: '', segments: [] };
+    try { return s.dir === 'rune' ? this._t.toRune(s.text, { register: s.reg }) : this._t.toUk(s.text); }
+    catch (e) { console.warn('рунна: переклад', e); return { text: '', segments: [] }; }
+  }
+  _more(seg) {
+    if (seg.kind === 'canon-phrase') { const p = this._phr.get(seg.ref); return p ? `${p.speaker} · «${p.arc}» · ${p.date}${p.note ? ' — ' + p.note : ''}` : ''; }
+    if (seg.ref && this._lex.has(seg.ref)) { const w = this._lex.get(seg.ref); return `${w.gloss}${w.confidence ? ` · упевненість: ${w.confidence}` : ''}`; }
+    if (seg.kind === 'name') return 'Імʼя передано рунними літерами.';
+    if (seg.kind === 'proposed') return 'Чекає підтвердження GM.';
+    return '';
+  }
+  _swap(d) {
+    const s = this.state; if (s.dir === d) return;
+    const res = this._run();
+    // Беремо переклад як новий вхід, якщо він «чистий» (без варіантів у дужках).
+    const text = res.text && !/[\[‹]/.test(res.text) ? res.text : SAMPLE[d];
+    this._save({ dir: d, text });
+    if (d === 'uk') this._loadReverse();
+  }
+
+  renderVals() {
+    const s = this.state;
+    if (s.phase !== 'ok') return { showMsg: true, ready: false, msgText: s.phase === 'err' ? 'Словник не завантажився. Оновіть сторінку трохи згодом.' : 'Розгортаю словник…' };
+    const res = this._run(), segs = res.segments || [];
+    const words = s.dir === 'rune' ? res.text.split(/\s+/).filter(Boolean) : null;
+    let i = 0;
+    const toks = segs.map((seg, n) => {
+      const k = KIND[seg.kind] || KIND.unknown;
+      let t;
+      if (words) { const len = String(seg.out).split(/\s+/).length; t = words.slice(i, i + len).join(' '); i += len; }
+      else t = seg.kind === 'canon-phrase' || seg.kind === 'unknown' ? seg.out : `[${seg.out}]`;
+      return { key: n, t, c: k.c, bb: k.bb, fs: k.fs, label: k.label, seg, bg: s.pick === n ? 'rgba(255,255,255,0.1)' : 'transparent',
+        tip: `${seg.src} — ${k.label}`, pick: () => { if (this.state.pick !== n) this.setState({ pick: n }); } };
+    });
+    const canon = segs.filter(x => x.kind === 'canon-phrase' || x.kind === 'canon').length;
+    const made = segs.filter(x => x.kind === 'generated' || x.kind === 'unknown').length;
+    const dark = s.reg === 'darkness', isRune = s.dir === 'rune';
+    const pending = !isRune && !s.revReady;
+    return {
+      showMsg: false, ready: true,
+      dirs: [['rune', 'Українська → Рунна'], ['uk', 'Рунна → Українська']].map(([d, label]) => ({ key: d, label,
+        bg: s.dir === d ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)', bd: s.dir === d ? '#ffd700' : 'rgba(255,255,255,0.14)', c: s.dir === d ? '#ffd700' : 'rgba(255,255,255,0.7)',
+        on: () => this._swap(d) })),
+      isRune, toggleReg: () => this._save({ reg: dark ? 'standard' : 'darkness' }),
+      regBg: dark ? 'rgba(155,93,229,0.18)' : 'rgba(255,255,255,0.04)', regBd: dark ? '#9b5de5' : 'rgba(255,255,255,0.14)', regC: dark ? '#d0caff' : 'rgba(255,255,255,0.7)',
+      glow: isRune && dark ? 'rgba(155,93,229,0.24)' : 'rgba(255,215,0,0.1)',
+      text: s.text, onText: (e) => this._save({ text: e.target.value }), ph: isRune ? 'Напишіть українською…' : 'Напишіть рунною…',
+      hasOut: toks.length > 0, noOut: toks.length === 0, toks,
+      size: (res.text || '').length > 90 ? '1.25rem' : (res.text || '').length > 50 ? '1.45rem' : '1.75rem',
+      copy: () => { try { navigator.clipboard.writeText(res.text); } catch (e) {} this.setState({ copied: true }); clearTimeout(this._cp); this._cp = setTimeout(() => this.setState({ copied: false }), 1600); },
+      copyL: s.copied ? '✓ скопійовано' : '⧉ копіювати',
+      legend: LEGEND.map(([k, sample, label]) => ({ key: k, sample, label, c: KIND[k].c, bb: KIND[k].bb, fs: KIND[k].fs })),
+      hasRows: toks.length > 0,
+      stat: [canon ? `канон: ${canon}` : '', segs.length - canon - made ? `з розбору: ${segs.length - canon - made}` : '', made ? `вигадано / невідомо: ${made}` : '', pending ? 'зворотний словник ще вантажиться…' : ''].filter(Boolean).join(' · '),
+      rows: toks.map((t, n) => { const more = this._more(t.seg); return { key: n, out: t.t, src: t.seg.src, status: t.label, c: t.c, more, hasMore: !!more,
+        rowBg: s.pick === n ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.03)', pick: t.pick }; }),
+    };
+  }
+}
+</script>
+</body>
+</html>
