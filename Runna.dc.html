@@ -211,8 +211,17 @@ class Component extends DCLogic {
   componentDidMount() {
     try { const s = JSON.parse(localStorage.getItem(RN_SAVE) || 'null'); if (s && typeof s.text === 'string') this.setState({ dir: s.dir === 'uk' ? 'uk' : 'rune', reg: s.reg === 'darkness' ? 'darkness' : 'standard', text: s.text }); } catch (e) {}
     this._boot();
+    // Затверджене підхоплюється без перезавантаження: при поверненні на вкладку (не частіше разу на 30 с)
+    // і раз на 2 хв, поки вкладка відкрита й видима.
+    this._vis = () => { if (document.visibilityState === 'visible' && Date.now() - (this._at || 0) > 30000) this._loadCommunity(); };
+    document.addEventListener('visibilitychange', this._vis);
+    window.addEventListener('focus', this._vis);
+    this._poll = setInterval(() => { if (document.visibilityState === 'visible' && !this.state.form) this._loadCommunity(); }, 120000);
   }
-  componentWillUnmount() { clearTimeout(this._cp); clearTimeout(this._sv); clearTimeout(this._ex); }
+  componentWillUnmount() {
+    clearTimeout(this._cp); clearTimeout(this._sv); clearTimeout(this._ex); clearInterval(this._poll);
+    document.removeEventListener('visibilitychange', this._vis); window.removeEventListener('focus', this._vis);
+  }
   _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
   _h(json) { const t = this._tok(); return { apikey: RN_KEY, Authorization: `Bearer ${t || RN_KEY}`, ...(json ? { 'Content-Type': 'application/json', Prefer: 'return=representation' } : {}) }; }
   async _json(n) { const r = await fetch(RN_DIR + n + '.json'); if (!r.ok) throw new Error(`${n}: HTTP ${r.status}`); return r.json(); }
@@ -251,6 +260,8 @@ class Component extends DCLogic {
   }
   // Хто я і що закріплено. Без міграції — тихо без пропозицій: перекладач працює як і був.
   async _loadCommunity() {
+    if (!this._mk) return;
+    this._at = Date.now();
     try {
       const [me, rows] = await Promise.all([
         this._tok() ? fetch(`${RN_URL}/rpc/runna_me`, { method: 'POST', headers: this._h(true), body: '{}' }).then(r => r.ok ? r.json() : null).catch(() => null) : null,
@@ -258,7 +269,8 @@ class Component extends DCLogic {
           .then(r => r.ok ? r.json() : null).catch(() => null),
       ]);
       const words = Array.isArray(rows) ? rows : [];
-      this.state.words = words; this._rebuild();
+      const sig = JSON.stringify(words.map(w => [w.id, w.status, w.rune]));
+      if (sig !== this._sig) { this._sig = sig; this.state.words = words; this._rebuild(); }
       this.setState({ me: me && me.signed ? me : null, words, community: Array.isArray(rows) });
     } catch (e) { console.warn('рунна: слова спільноти', e); }
   }
