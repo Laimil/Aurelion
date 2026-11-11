@@ -67,9 +67,109 @@
             <sc-if value="{{ r.hasMore }}" hint-placeholder-val="{{ false }}">
               <span style="flex-basis:100%;font-size:0.78rem;color:rgba(255,255,255,0.48);line-height:1.45;">{{ r.more }}</span>
             </sc-if>
+            <sc-if value="{{ r.canPropose }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ r.openForm }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:transparent;border:1px solid rgba(208,202,255,0.45);color:#d0caff;">{{ r.proposeL }}</button>
+            </sc-if>
+            <sc-if value="{{ r.isPending }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:0.72rem;color:rgba(255,215,0,0.75);">⏳ ваша пропозиція «{{ r.pendingRune }}» на розгляді</span>
+            </sc-if>
+            <sc-if value="{{ r.formOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="flex-basis:100%;display:flex;flex-direction:column;gap:8px;margin-top:6px;padding:12px;border-radius:10px;background:rgba(208,202,255,0.06);border:1px solid rgba(208,202,255,0.3);">
+                <span style="font-size:0.8rem;color:rgba(255,255,255,0.7);">Як має звучати «<b>{{ formUk }}</b>» рунною? Можна лишити те, що склав генератор, або вписати своє.</span>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <input value="{{ formRune }}" onInput="{{ setFormRune }}" maxlength="30" placeholder="рунне слово" style="box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:7px 10px;color:#fff;font-size:0.86rem;outline:none;flex:1 1 140px;font-family:'Cinzel',Georgia,serif;">
+                  <input value="{{ formNote }}" onInput="{{ setFormNote }}" maxlength="300" placeholder="чому так — необовʼязково" style="box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:7px 10px;color:#fff;font-size:0.86rem;outline:none;flex:2 1 200px;">
+                </div>
+                <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                    <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);">Одразу закріпити як:</span>
+                    <sc-for list="{{ formStatuses }}" as="o" hint-placeholder-count="2">
+                      <button onClick="{{ o.on }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:{{ o.bg }};border:1px solid {{ o.bd }};color:{{ o.c }};">{{ o.label }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                  <button onClick="{{ submitForm }}" disabled="{{ formBusy }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;border:none;font-weight:700;padding:6px 14px;background:#ffd700;color:#1a1a1a;">{{ submitL }}</button>
+                  <button onClick="{{ closeForm }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.6);">Скасувати</button>
+                  <span style="font-size:0.76rem;color:#e59aa3;">{{ formMsg }}</span>
+                </div>
+              </div>
+            </sc-if>
           </div>
         </sc-for>
       </div>
+    </sc-if>
+
+    <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);">
+        <p style="margin:0;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(208,202,255,0.75);">Мої пропозиції</p>
+        <sc-for list="{{ mine }}" as="m" hint-placeholder-count="2">
+          <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:6px 0;border-top:1px solid rgba(255,255,255,0.06);">
+            <span style="font-size:0.86rem;min-width:90px;">{{ m.uk }}</span>
+            <span style="font-family:'Cinzel',Georgia,serif;font-size:0.9rem;color:{{ m.c }};flex:1;min-width:90px;">{{ m.rune }}</span>
+            <span style="font-size:0.66rem;color:{{ m.c }};border:1px solid {{ m.c }};border-radius:999px;padding:1px 8px;">{{ m.status }}</span>
+            <sc-if value="{{ m.canDrop }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ m.drop }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.55);">Відкликати</button>
+            </sc-if>
+            <sc-if value="{{ m.hasNote }}" hint-placeholder-val="{{ false }}">
+              <span style="flex-basis:100%;font-size:0.76rem;color:rgba(255,215,0,0.75);">GM: {{ m.adminNote }}</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:12px;background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.25);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;">
+          <p style="margin:0;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.75);">GM · черга пропозицій · {{ queueN }}</p>
+          <button onClick="{{ reload }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5);">↻ Оновити</button>
+        </div>
+        <sc-if value="{{ queueEmpty }}" hint-placeholder-val="{{ true }}">
+          <span style="font-size:0.8rem;color:rgba(255,255,255,0.45);">Порожньо — нових пропозицій немає.</span>
+        </sc-if>
+        <sc-for list="{{ queue }}" as="q" hint-placeholder-count="0">
+          <div style="display:flex;flex-direction:column;gap:7px;padding:10px 0;border-top:1px solid rgba(255,255,255,0.07);">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <span style="font-size:0.92rem;min-width:90px;">{{ q.uk }}</span>
+              <input value="{{ q.rune }}" onInput="{{ q.setRune }}" maxlength="30" style="box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:7px 10px;color:#fff;font-size:0.86rem;outline:none;flex:1 1 140px;font-family:'Cinzel',Georgia,serif;color:#d0caff;">
+              <span style="font-size:0.72rem;color:rgba(255,255,255,0.45);">{{ q.who }}</span>
+            </div>
+            <sc-if value="{{ q.hasNote }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.6);font-style:italic;">«{{ q.note }}»</span>
+            </sc-if>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+              <button onClick="{{ q.asProposed }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:rgba(208,202,255,0.12);border:1px solid rgba(208,202,255,0.5);color:#d0caff;">✓ Запропоноване</button>
+              <button onClick="{{ q.asCanon }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.5);color:#ffd700;">✦ Канон</button>
+              <input value="{{ q.why }}" onInput="{{ q.setWhy }}" placeholder="чому ні — для автора" style="box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:7px 10px;color:#fff;font-size:0.86rem;outline:none;flex:1 1 160px;font-size:0.8rem;padding:5px 9px;">
+              <button onClick="{{ q.reject }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:transparent;border:1px solid rgba(255,77,77,0.35);color:rgba(255,140,140,0.85);">Відхилити</button>
+            </div>
+          </div>
+        </sc-for>
+        <span style="font-size:0.78rem;color:#e59aa3;">{{ adminMsg }}</span>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px;padding-top:10px;border-top:1px solid rgba(255,215,0,0.15);">
+          <button onClick="{{ togglePinned }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.65);">{{ pinnedL }}</button>
+          <button onClick="{{ exportPinned }}" title="Рядки для tools/build_data.py пакета runna-translator" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:transparent;border:1px solid rgba(255,215,0,0.4);color:#ffd700;">{{ exportL }}</button>
+        </div>
+        <sc-if value="{{ showPinned }}" hint-placeholder-val="{{ false }}">
+          <sc-for list="{{ pinned }}" as="w" hint-placeholder-count="0">
+            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:5px 0;border-top:1px solid rgba(255,255,255,0.06);">
+              <span style="font-size:0.86rem;min-width:90px;">{{ w.uk }}</span>
+              <span style="font-family:'Cinzel',Georgia,serif;font-size:0.9rem;color:{{ w.c }};flex:1;min-width:90px;">{{ w.rune }}</span>
+              <span style="font-size:0.7rem;color:rgba(255,255,255,0.45);">{{ w.who }}</span>
+              <sc-if value="{{ w.canUp }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ w.up }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:transparent;border:1px solid rgba(255,215,0,0.4);color:#ffd700;">✦ Канон</button>
+              </sc-if>
+              <button onClick="{{ w.drop }}" style="cursor:pointer;border-radius:999px;padding:4px 11px;font-size:0.74rem;background:transparent;border:1px solid rgba(255,77,77,0.3);color:rgba(255,140,140,0.8);">Відкріпити</button>
+            </div>
+          </sc-for>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showSignHint }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:0;font-size:0.76rem;color:rgba(208,202,255,0.7);text-align:center;">{{ signHint }}</p>
     </sc-if>
 
     <p style="margin:4px 0 0;font-size:0.76rem;line-height:1.6;color:rgba(255,255,255,0.42);text-align:center;text-wrap:pretty;">Канон — лише фрази з постів. Решту виведено зіставленням фраз або запропоновано й чекає слова GM; незнайомі слова генератор складає за звучанням — щоразу однаково, але в грі їх ніхто не казав.</p>
@@ -78,8 +178,11 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 // Ядро й дані — runna/ (пакет перекладача; правити не тут, а в runna-translator і копіювати).
+// Слова спільноти — таблиця runna_words (supabase_runna_words_migration.sql): закріплене йде в ядро як extra.
 const RN_DIR = 'runna/';
 const RN_SAVE = 'au_runna_last';
+const RN_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const RN_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
 const KIND = {
   'canon-phrase': { label: 'Канон · фраза з поста', c: '#ffd700', bb: '2px solid rgba(255,215,0,0.8)', fs: 'normal' },
   canon:          { label: 'Канон · підтверджено GM', c: '#ffd700', bb: '2px solid rgba(255,215,0,0.8)', fs: 'normal' },
@@ -90,17 +193,28 @@ const KIND = {
   'compound-guess': { label: 'Здогадка по коренях', c: '#ffb347', bb: '1px dotted rgba(255,179,71,0.7)', fs: 'italic' },
   unknown:        { label: 'Невідоме', c: '#e59aa3', bb: '1px dashed rgba(229,154,163,0.8)', fs: 'normal' },
 };
+const ST = { pending: ['на розгляді', 'rgba(255,215,0,0.75)'], proposed: ['запропоноване', '#d0caff'], canon: ['канон', '#ffd700'], rejected: ['відхилено', '#e59aa3'] };
 const LEGEND = [['canon-phrase', 'Kaen', 'канон'], ['derived', 'drau', 'виведене · назва'], ['proposed', 'no', 'запропоноване'], ['generated', 'vuul', 'вигадане'], ['unknown', '‹vorn›', 'невідоме']];
 const SAMPLE = { rune: 'Я не хочу помирати, коханий.', uk: "Kaen drau khael'drath." };
+const ERRS = [
+  [/runna_words_rune_ok/, 'Рунне слово — лише латинські літери, апостроф чи дефіс, до 30 знаків.'],
+  [/runna_words_uk_ok/, 'Українське слово має бути одним словом.'],
+  [/runna_words_live_uq|duplicate key/, 'Для цього слова вже є закріплене значення.'],
+  [/relation .*runna_words.* does not exist|PGRST205/, 'Пропозиції ще не ввімкнено: адмінам треба прогнати supabase_runna_words_migration.sql.'],
+];
+const normRune = (s) => String(s || '').toLowerCase().replace(/[’‘ʼ`´]/g, "'").replace(/[^a-z'-]/g, '');
 
 class Component extends DCLogic {
-  state = { phase: 'load', dir: 'rune', reg: 'standard', text: SAMPLE.rune, pick: -1, copied: false, revReady: false };
+  state = { phase: 'load', dir: 'rune', reg: 'standard', text: SAMPLE.rune, pick: -1, copied: false, revReady: false,
+    me: null, words: [], form: null, qEdit: {}, adminMsg: '', showPinned: false, exported: false };
 
   componentDidMount() {
     try { const s = JSON.parse(localStorage.getItem(RN_SAVE) || 'null'); if (s && typeof s.text === 'string') this.setState({ dir: s.dir === 'uk' ? 'uk' : 'rune', reg: s.reg === 'darkness' ? 'darkness' : 'standard', text: s.text }); } catch (e) {}
     this._boot();
   }
-  componentWillUnmount() { clearTimeout(this._cp); clearTimeout(this._sv); }
+  componentWillUnmount() { clearTimeout(this._cp); clearTimeout(this._sv); clearTimeout(this._ex); }
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _h(json) { const t = this._tok(); return { apikey: RN_KEY, Authorization: `Bearer ${t || RN_KEY}`, ...(json ? { 'Content-Type': 'application/json', Prefer: 'return=representation' } : {}) }; }
   async _json(n) { const r = await fetch(RN_DIR + n + '.json'); if (!r.ok) throw new Error(`${n}: HTTP ${r.status}`); return r.json(); }
   async _boot() {
     try {
@@ -109,26 +223,54 @@ class Component extends DCLogic {
         this._json('corpus'), this._json('lexicon'), this._json('rules'), this._json('generator')]);
       this._d = { corpus, lexicon, rules, generator };
       this._mk = mod.createTranslator;
-      this._t = mod.createTranslator(this._d);
       this._phr = new Map(corpus.phrases.map(p => [p.id, p]));
-      this._lex = new Map(lexicon.words.map(w => [w.rune, w]));
+      this._rebuild();
       this.setState({ phase: 'ok' });
       if (this.state.dir === 'uk') this._loadReverse();
     } catch (e) {
       console.warn('рунна:', e);
       this.setState({ phase: 'err' });
+      return;
     }
+    this._loadCommunity();
   }
-  // Зворотний словник згенерованих слів (~90 КБ) — лише коли вперше перекладають з рунної.
+  // Перекладач = статичний словник + закріплене спільнотою (extra). Генератор від extra не залежить.
+  _rebuild() {
+    if (!this._mk) return;
+    const live = (this.state.words || []).filter(w => w.status === 'proposed' || w.status === 'canon');
+    const extra = live.map(w => ({ rune: w.rune, uk: [w.uk], gloss: w.uk, status: w.status, community: w }));
+    this._t = this._mk({ ...this._d, ...(this._rev ? { reverse: this._rev } : {}), extra });
+    this._lex = new Map([...extra, ...this._d.lexicon.words].reverse().map(w => [w.rune, w]));
+  }
   async _loadReverse() {
     if (this._revBusy || this.state.revReady || !this._d) return;
     this._revBusy = true;
-    try { const reverse = await this._json('generated_reverse'); this._t = this._mk({ ...this._d, reverse }); this.setState({ revReady: true }); }
+    try { this._rev = await this._json('generated_reverse'); this._rebuild(); this.setState({ revReady: true }); }
     catch (e) { console.warn('рунна: generated_reverse', e); }
     this._revBusy = false;
   }
+  // Хто я і що закріплено. Без міграції — тихо без пропозицій: перекладач працює як і був.
+  async _loadCommunity() {
+    try {
+      const [me, rows] = await Promise.all([
+        this._tok() ? fetch(`${RN_URL}/rpc/runna_me`, { method: 'POST', headers: this._h(true), body: '{}' }).then(r => r.ok ? r.json() : null).catch(() => null) : null,
+        fetch(`${RN_URL}/runna_words?select=id,uk,rune,note,status,admin_note,created_by,created_nick,created_at,decided_by&order=created_at.desc&limit=1000`, { headers: this._h() })
+          .then(r => r.ok ? r.json() : null).catch(() => null),
+      ]);
+      const words = Array.isArray(rows) ? rows : [];
+      this.state.words = words; this._rebuild();
+      this.setState({ me: me && me.signed ? me : null, words, community: Array.isArray(rows) });
+    } catch (e) { console.warn('рунна: слова спільноти', e); }
+  }
+  _err(t) { for (const [re, m] of ERRS) if (re.test(t)) return m; try { const j = JSON.parse(t); if (j && j.message) return j.message; } catch (e) {} return 'Не вийшло. Спробуйте ще раз.'; }
+  async _api(path, init) {
+    const r = await fetch(`${RN_URL}/${path}`, { ...init, headers: this._h(true) });
+    const t = await r.text();
+    if (!r.ok) throw new Error(this._err(t));
+    try { return JSON.parse(t); } catch (e) { return null; }
+  }
   _save(patch) {
-    this.setState({ ...patch, pick: -1 });
+    this.setState({ ...patch, pick: -1, form: null });
     clearTimeout(this._sv);
     this._sv = setTimeout(() => { try { const s = this.state; localStorage.setItem(RN_SAVE, JSON.stringify({ dir: s.dir, reg: s.reg, text: String(s.text).slice(0, 2000) })); } catch (e) {} }, 400);
   }
@@ -140,7 +282,9 @@ class Component extends DCLogic {
   }
   _more(seg) {
     if (seg.kind === 'canon-phrase') { const p = this._phr.get(seg.ref); return p ? `${p.speaker} · «${p.arc}» · ${p.date}${p.note ? ' — ' + p.note : ''}` : ''; }
-    if (seg.ref && this._lex.has(seg.ref)) { const w = this._lex.get(seg.ref); return `${w.gloss}${w.confidence ? ` · упевненість: ${w.confidence}` : ''}`; }
+    const w = seg.ref ? this._lex.get(seg.ref) : seg.kind !== 'generated' && seg.kind !== 'name' ? this._lex.get(String(seg.src).toLowerCase()) : null;
+    if (w && w.community) { const c = w.community; return `Закріплено спільнотою: запропонував(-ла) ${c.created_nick || 'хтось'}${c.decided_by ? `, затвердив(-ла) ${c.decided_by}` : ''}${c.note ? ` — «${c.note}»` : ''}`; }
+    if (w) return `${w.gloss}${w.confidence ? ` · упевненість: ${w.confidence}` : ''}`;
     if (seg.kind === 'name') return 'Імʼя передано рунними літерами.';
     if (seg.kind === 'proposed') return 'Чекає підтвердження GM.';
     return '';
@@ -148,22 +292,60 @@ class Component extends DCLogic {
   _swap(d) {
     const s = this.state; if (s.dir === d) return;
     const res = this._run();
-    // Беремо переклад як новий вхід, якщо він «чистий» (без варіантів у дужках).
     const text = res.text && !/[\[‹]/.test(res.text) ? res.text : SAMPLE[d];
     this._save({ dir: d, text });
     if (d === 'uk') this._loadReverse();
+  }
+  _copy(text, key) {
+    try { navigator.clipboard.writeText(text); } catch (e) {}
+    this.setState({ [key]: true }); clearTimeout(this._cp); this._cp = setTimeout(() => this.setState({ [key]: false }), 1600);
+  }
+
+  // ── пропозиції ─────────────────────────────────────────────
+  async _submit() {
+    const f = this.state.form, me = this.state.me; if (!f || f.busy) return;
+    const rune = normRune(f.rune);
+    if (!/^[a-z]+(['-][a-z]+)*$/.test(rune)) { this.setState({ form: { ...f, msg: 'Рунне слово — лише латинські літери, апостроф чи дефіс.' } }); return; }
+    const clash = this._d.lexicon.words.find(w => w.rune === rune);
+    if (clash && !f.okClash) { this.setState({ form: { ...f, okClash: true, msg: `«${rune}» уже означає «${clash.gloss}». Натисніть ще раз, якщо так і задумано.` } }); return; }
+    this.setState({ form: { ...f, busy: true, msg: '' } });
+    try {
+      await this._api('runna_words', { method: 'POST', body: JSON.stringify({ uk: f.uk, rune, note: String(f.note || '').trim() || null, ...(me && me.admin ? { status: f.status } : {}) }) });
+      this.setState({ form: null });
+      await this._loadCommunity();
+    } catch (e) { this.setState({ form: { ...this.state.form, busy: false, msg: e.message } }); }
+  }
+  async _decide(w, patch) {
+    this.setState({ adminMsg: '' });
+    try { await this._api(`runna_words?id=eq.${w.id}`, { method: 'PATCH', body: JSON.stringify(patch) }); await this._loadCommunity(); }
+    catch (e) { this.setState({ adminMsg: e.message }); }
+  }
+  async _drop(w, confirmText) {
+    if (confirmText && !window.confirm(confirmText)) return;
+    this.setState({ adminMsg: '' });
+    try { await this._api(`runna_words?id=eq.${w.id}`, { method: 'DELETE' }); await this._loadCommunity(); }
+    catch (e) { this.setState({ adminMsg: e.message }); }
+  }
+  _export() {
+    const live = (this.state.words || []).filter(w => w.status === 'proposed' || w.status === 'canon').sort((a, b) => a.uk.localeCompare(b.uk, 'uk'));
+    const q = (x) => JSON.stringify(x);
+    const lines = live.map(w => `(${q(w.rune)},[${q(w.uk)}],${q(w.uk)},${w.status === 'canon' ? '"висока"' : '"proposed"'}),  # ${w.status === 'canon' ? 'GM: канон' : 'спільнота'} · ${w.created_nick || ''}`);
+    this._copy(`# Закріплене на сайті (runna_words), ${new Date().toISOString().slice(0, 10)}\n${lines.join('\n')}\n`, 'exported');
   }
 
   renderVals() {
     const s = this.state;
     if (s.phase !== 'ok') return { showMsg: true, ready: false, msgText: s.phase === 'err' ? 'Словник не завантажився. Оновіть сторінку трохи згодом.' : 'Розгортаю словник…' };
+    const me = s.me, admin = !!(me && me.admin), canSuggest = !!(me && (me.approved || me.admin)) && s.community;
+    const words = s.words || [];
+    const myPending = new Map(words.filter(w => w.status === 'pending' && me && w.created_by && w.created_nick === me.nick).map(w => [w.uk, w]));
     const res = this._run(), segs = res.segments || [];
-    const words = s.dir === 'rune' ? res.text.split(/\s+/).filter(Boolean) : null;
+    const outWords = s.dir === 'rune' ? res.text.split(/\s+/).filter(Boolean) : null;
     let i = 0;
     const toks = segs.map((seg, n) => {
       const k = KIND[seg.kind] || KIND.unknown;
       let t;
-      if (words) { const len = String(seg.out).split(/\s+/).length; t = words.slice(i, i + len).join(' '); i += len; }
+      if (outWords) { const len = String(seg.out).split(/\s+/).length; t = outWords.slice(i, i + len).join(' '); i += len; }
       else t = seg.kind === 'canon-phrase' || seg.kind === 'unknown' ? seg.out : `[${seg.out}]`;
       return { key: n, t, c: k.c, bb: k.bb, fs: k.fs, label: k.label, seg, bg: s.pick === n ? 'rgba(255,255,255,0.1)' : 'transparent',
         tip: `${seg.src} — ${k.label}`, pick: () => { if (this.state.pick !== n) this.setState({ pick: n }); } };
@@ -172,8 +354,13 @@ class Component extends DCLogic {
     const made = segs.filter(x => x.kind === 'generated' || x.kind === 'unknown').length;
     const dark = s.reg === 'darkness', isRune = s.dir === 'rune';
     const pending = !isRune && !s.revReady;
+    const f = s.form;
+    const live = words.filter(w => w.status === 'proposed' || w.status === 'canon');
+    const queue = words.filter(w => w.status === 'pending').sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+    const mine = me ? words.filter(w => w.created_nick === me.nick && (!admin || w.status !== 'canon' || w.decided_by !== me.nick)).slice(0, 30) : [];
+    const sel = on => ({ bg: on ? 'rgba(255,215,0,0.14)' : 'transparent', bd: on ? '#ffd700' : 'rgba(255,255,255,0.16)', c: on ? '#ffd700' : 'rgba(255,255,255,0.65)' });
     return {
-      showMsg: false, ready: true,
+      showMsg: false, ready: true, isAdmin: admin,
       dirs: [['rune', 'Українська → Рунна'], ['uk', 'Рунна → Українська']].map(([d, label]) => ({ key: d, label,
         bg: s.dir === d ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)', bd: s.dir === d ? '#ffd700' : 'rgba(255,255,255,0.14)', c: s.dir === d ? '#ffd700' : 'rgba(255,255,255,0.7)',
         on: () => this._swap(d) })),
@@ -183,13 +370,48 @@ class Component extends DCLogic {
       text: s.text, onText: (e) => this._save({ text: e.target.value }), ph: isRune ? 'Напишіть українською…' : 'Напишіть рунною…',
       hasOut: toks.length > 0, noOut: toks.length === 0, toks,
       size: (res.text || '').length > 90 ? '1.25rem' : (res.text || '').length > 50 ? '1.45rem' : '1.75rem',
-      copy: () => { try { navigator.clipboard.writeText(res.text); } catch (e) {} this.setState({ copied: true }); clearTimeout(this._cp); this._cp = setTimeout(() => this.setState({ copied: false }), 1600); },
-      copyL: s.copied ? '✓ скопійовано' : '⧉ копіювати',
+      copy: () => this._copy(res.text, 'copied'), copyL: s.copied ? '✓ скопійовано' : '⧉ копіювати',
       legend: LEGEND.map(([k, sample, label]) => ({ key: k, sample, label, c: KIND[k].c, bb: KIND[k].bb, fs: KIND[k].fs })),
       hasRows: toks.length > 0,
       stat: [canon ? `канон: ${canon}` : '', segs.length - canon - made ? `з розбору: ${segs.length - canon - made}` : '', made ? `вигадано / невідомо: ${made}` : '', pending ? 'зворотний словник ще вантажиться…' : ''].filter(Boolean).join(' · '),
-      rows: toks.map((t, n) => { const more = this._more(t.seg); return { key: n, out: t.t, src: t.seg.src, status: t.label, c: t.c, more, hasMore: !!more,
-        rowBg: s.pick === n ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.03)', pick: t.pick }; }),
+      rows: toks.map((t, n) => {
+        const more = this._more(t.seg);
+        const uk = String(t.seg.src).toLowerCase().replace(/[’‘ʼ`´]/g, "'");
+        const pend = isRune && t.seg.kind === 'generated' ? myPending.get(uk) : null;
+        const propose = isRune && t.seg.kind === 'generated' && canSuggest && !pend && /^[а-яіїєґ]+('[а-яіїєґ]+)*$/.test(uk);
+        return { key: n, out: t.t, src: t.seg.src, status: t.label, c: t.c, more, hasMore: !!more,
+          rowBg: s.pick === n ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.03)', pick: t.pick,
+          canPropose: propose && !(f && f.n === n), proposeL: admin ? '📌 Закріпити' : '📌 Запропонувати закріпити',
+          openForm: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ form: { n, uk, rune: normRune(t.t), note: '', status: 'proposed', busy: false, msg: '' } }); },
+          isPending: !!pend, pendingRune: pend ? pend.rune : '', formOpen: !!(f && f.n === n) };
+      }),
+      formUk: f ? f.uk : '', formRune: f ? f.rune : '', formNote: f ? f.note : '', formBusy: !!(f && f.busy), formMsg: f ? f.msg : '',
+      setFormRune: (e) => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, rune: v, okClash: false, msg: '' } })); },
+      setFormNote: (e) => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, note: v } })); },
+      formStatuses: [['proposed', 'запропоноване'], ['canon', 'канон']].map(([v, label]) => ({ key: v, label, ...sel(f && f.status === v), on: () => this.setState(st => ({ form: { ...st.form, status: v } })) })),
+      submitForm: () => this._submit(), closeForm: () => this.setState({ form: null }),
+      submitL: f && f.busy ? 'Надсилаю…' : admin ? 'Закріпити' : 'Надіслати GM',
+      hasMine: !admin && mine.length > 0,
+      mine: mine.map(w => ({ key: w.id, uk: w.uk, rune: w.rune, status: ST[w.status][0], c: ST[w.status][1], canDrop: w.status === 'pending',
+        drop: () => this._drop(w, `Відкликати пропозицію «${w.uk} → ${w.rune}»?`), hasNote: !!w.admin_note, adminNote: w.admin_note || '' })),
+      queueN: String(queue.length), queueEmpty: queue.length === 0, adminMsg: s.adminMsg, reload: () => this._loadCommunity(),
+      queue: queue.map(w => {
+        const ed = s.qEdit[w.id] || {}, rune = ed.rune ?? w.rune;
+        const set = (k) => (e) => { const v = e.target.value; this.setState(st => ({ qEdit: { ...st.qEdit, [w.id]: { ...(st.qEdit[w.id] || {}), [k]: v } } })); };
+        const fix = rune !== w.rune ? { rune: normRune(rune), admin_note: `Затверджено як «${normRune(rune)}».` } : {};
+        return { key: w.id, uk: w.uk, rune, who: `${w.created_nick || '—'} · ${new Date(w.created_at).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short' })}`,
+          note: w.note || '', hasNote: !!w.note, why: ed.why || '', setRune: set('rune'), setWhy: set('why'),
+          asProposed: () => this._decide(w, { status: 'proposed', ...fix }), asCanon: () => this._decide(w, { status: 'canon', ...fix }),
+          reject: () => this._decide(w, { status: 'rejected', admin_note: String(ed.why || '').trim() || null }) };
+      }),
+      showPinned: s.showPinned, togglePinned: () => this.setState({ showPinned: !s.showPinned }),
+      pinnedL: `${s.showPinned ? '▾' : '▸'} Закріплені слова · ${live.length}`,
+      exportPinned: () => this._export(), exportL: s.exported ? '✓ скопійовано' : '⧉ Для build_data.py',
+      pinned: live.sort((a, b) => a.uk.localeCompare(b.uk, 'uk')).map(w => ({ key: w.id, uk: w.uk, rune: w.rune, c: ST[w.status][1],
+        who: `${w.status === 'canon' ? 'канон' : 'запропоноване'} · ${w.created_nick || '—'}`, canUp: w.status === 'proposed',
+        up: () => this._decide(w, { status: 'canon' }), drop: () => this._drop(w, `Відкріпити «${w.uk} → ${w.rune}»? Слово знову стане вигаданим генератором.`) })),
+      showSignHint: s.community && !canSuggest && isRune && made > 0,
+      signHint: me ? 'Пропонувати слова можуть підтверджені гравці.' : 'Увійдіть у кабінет, щоб пропонувати, як мають звучати вигадані слова.',
     };
   }
 }

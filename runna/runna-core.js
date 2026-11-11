@@ -31,21 +31,27 @@ function pick(table, rnd) {
 }
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export function createTranslator({ corpus, lexicon, rules, generator, reverse = {} }) {
+// extra — слова спільноти, закріплені на сайті (runna_words у базі): ті самі поля, що в lexicon.words.
+// Мають перевагу над словником, але НЕ впливають на генератор: інакше кожне закріплене слово
+// змінювало б вигадані слова для інших.
+export function createTranslator({ corpus, lexicon, rules, generator, reverse = {}, extra = [] }) {
   const st = rules.stemmer;
   const endings = [...st.endings].sort((a, b) => b.length - a.length);
 
+  const fleeting = st.fleeting ?? [], alternations = st.alternations ?? {};
   function stem(word) {
     let w = word.toLowerCase().replace(APOS, "'").replace(/'/g, '');
+    // випадний голосний: «світанок» зводиться до тієї ж основи, що й «світанку»
+    for (const [suf, to] of fleeting) if (w.endsWith(suf) && w.length - suf.length >= st.min_stem) return w.slice(0, -suf.length) + to;
     for (const r of st.reflexive) if (w.endsWith(r) && w.length - r.length >= st.min_stem) { w = w.slice(0, -r.length); break; }
     for (const e of endings) if (w.endsWith(e) && w.length - e.length >= st.min_stem) { w = w.slice(0, -e.length); break; }
-    return w;
+    return alternations[w] ?? w;
   }
 
   // ---- indexes
   const exact = new Map(), byStem = new Map(), runeIdx = new Map();
-  for (const w of lexicon.words) {
-    runeIdx.set(w.rune, w);
+  for (const w of [...extra, ...lexicon.words]) {
+    if (!runeIdx.has(w.rune)) runeIdx.set(w.rune, w);
     for (const u of w.uk) {
       const k = u.toLowerCase().replace(/'/g, '');
       if (!exact.has(k)) exact.set(k, w);
@@ -53,7 +59,7 @@ export function createTranslator({ corpus, lexicon, rules, generator, reverse = 
       if (!byStem.has(s)) byStem.set(s, w);
     }
   }
-  const runeSet = new Set(runeIdx.keys());
+  const runeSet = new Set(lexicon.words.map((w) => w.rune));
   // корені, що вже щось означають: генератор не має права складати з них нові слова
   const morphSet = new Set([...runeSet].flatMap((r) => r.split(/['-]/)));
   const memUk = new Map(), memRune = new Map();
@@ -90,8 +96,11 @@ export function createTranslator({ corpus, lexicon, rules, generator, reverse = 
       const isCap = raw[0] !== raw[0].toLowerCase();
       if (hon.has(low) && i + 1 < words.length) { pendingHon = true; return; }
       let out, kind, ref;
+      // Слово з великої посеред речення спершу шукається у словнику («прийде Темрява» = thuur);
+      // транслітерується лише те, чого словник не знає, — справжні імена.
+      const known = isCap && i > 0 && !pendingHon ? (exact.get(k) ?? byStem.get(stem(low))) : null;
       if (rules.names[k]) { out = rules.names[k]; kind = 'name'; }
-      else if (pendingHon || (isCap && i > 0)) { out = translit(raw); kind = 'name'; }
+      else if (pendingHon || (isCap && i > 0 && !known)) { out = translit(raw); kind = 'name'; }
       else if (stop.has(low)) return;
       else if (low === 'що') { const w = runeIdx.get(i === 0 ? 'hraen' : "vaer'n"); out = w.rune; kind = w.status; }
       else {
