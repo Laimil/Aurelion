@@ -1,0 +1,149 @@
+{
+ "toRune": [
+  {
+   "in": "І прийде Темрява.",
+   "out": "Ael val'khau thuur."
+  },
+  {
+   "in": "Ми чекаємо світанку.",
+   "out": "Naer khuu'draen draun'vaar."
+  },
+  {
+   "in": "Я не хочу помирати, коханий.",
+   "out": "Drau no vael'n thuul'khael shae'ren."
+  },
+  {
+   "in": "Ти чуєш мене?",
+   "out": "Vael'n draer sael'ruun drau?"
+  },
+  {
+   "in": "Передай мені меч, пані Вістрал.",
+   "out": "Kaen drau khael'drath Vistral'na."
+  },
+  {
+   "in": "Темрява забере твою душу і твоє тіло.",
+   "out": "Thuur nar'thuur draer'n thuul ael draer'n taer."
+  },
+  {
+   "in": "Що ти думаєш про Крейна?",
+   "out": "Hraen draer thrae'vaer Khaen?"
+  },
+  {
+   "in": "Наша сила вічна.",
+   "out": "Vaer thraan vaen."
+  },
+  {
+   "in": "Вогонь горить у старому храмі.",
+   "out": "Sar'their draar'draen kaeth'khar vuur'thae."
+  },
+  {
+   "in": "Я знаю, що ти не звикнеш.",
+   "out": "Drau sael'ruun vaer'n draer no druul."
+  },
+  {
+   "in": "Я тебе кохаю. Ти моя фортеця.",
+   "out": "Drau vaer shael'thuul... Draer drau thaar."
+  },
+  {
+   "in": "Наша сила вічна.",
+   "register": "darkness",
+   "out": "Meir saarn vaen."
+  },
+  {
+   "in": "Ти чуєш мене?",
+   "register": "darkness",
+   "out": "Vael'n drai sael'ruun dra?"
+  },
+  {
+   "in": "Я не хочу помирати, коханий.",
+   "register": "darkness",
+   "out": "Dra no vael'n thuul'khael shae'ren."
+  }
+ ],
+ "toUk": [
+  {
+   "in": "Kaen drau khael'drath.",
+   "out": "[візьми / передай] [мене / мій] [меч]"
+  },
+  {
+   "in": "Draer shael, shae'ren?",
+   "out": "[ти] [берегти; цілий; гарний, дорогий] [коханий]"
+  },
+  {
+   "in": "Drau no druul vaen.",
+   "out": "[я] [не; чи не] [звикати(ся)] [теж / знову / назад]"
+  },
+  {
+   "in": "Vistral'na thrae'vaer shuur'kael.",
+   "out": "[пані/пан Vistral] [думати, гадати, розраховувати] [‹shuur'kael›]"
+  },
+  {
+   "in": "Khel'n vaer khael.",
+   "out": "[як легко] [наш / цей] [ім'я]"
+  }
+ ],
+ "generate": [
+  {
+   "in": "вогонь",
+   "out": "sar'their"
+  },
+  {
+   "in": "храм",
+   "out": "vuur'thae"
+  },
+  {
+   "in": "ніч",
+   "out": "seil"
+  },
+  {
+   "in": "дракон",
+   "out": "thein'khan"
+  },
+  {
+   "in": "літописець",
+   "out": "naa'nur"
+  }
+ ],
+ "sameStem": [
+  [
+   "храм",
+   "храмі"
+  ],
+  [
+   "кохаю",
+   "кохати"
+  ],
+  [
+   "меч",
+   "меча"
+  ],
+  [
+   "Вогнем",
+   "вогню"
+  ],
+  [
+   "вогонь",
+   "вогню"
+  ],
+  [
+   "світанок",
+   "світанку"
+  ],
+  [
+   "ніч",
+   "ночі"
+  ],
+  [
+   "рік",
+   "року"
+  ],
+  [
+   "українець",
+   "українця"
+  ],
+  [
+   "вересень",
+   "вересня"
+  ]
+ ]
+}

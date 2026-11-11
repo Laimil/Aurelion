@@ -1,0 +1,2 @@
+{ "name": "runna-translator", "version": "0.1.0", "type": "module", "private": true,
+  "scripts": { "test": "node tests/run-tests.mjs", "build:reverse": "node tools/build-reverse.mjs", "build:dict": "node tools/build-dict.mjs" } }

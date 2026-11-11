@@ -227,15 +227,15 @@ class Component extends DCLogic {
   async _json(n) { const r = await fetch(RN_DIR + n + '.json'); if (!r.ok) throw new Error(`${n}: HTTP ${r.status}`); return r.json(); }
   async _boot() {
     try {
-      const [mod, corpus, lexicon, rules, generator] = await Promise.all([
+      const [mod, corpus, lexicon, rules, generator, dict] = await Promise.all([
         import(new URL(RN_DIR + 'runna-core.js', document.baseURI).href),
-        this._json('corpus'), this._json('lexicon'), this._json('rules'), this._json('generator')]);
-      this._d = { corpus, lexicon, rules, generator };
+        this._json('corpus'), this._json('lexicon'), this._json('rules'), this._json('generator'),
+        this._json('dict').catch((e) => { console.warn('рунна: словник лем', e); return null; })]);
+      this._d = { corpus, lexicon, rules, generator, dict };
       this._mk = mod.createTranslator;
       this._phr = new Map(corpus.phrases.map(p => [p.id, p]));
       this._rebuild();
-      this.setState({ phase: 'ok' });
-      if (this.state.dir === 'uk') this._loadReverse();
+      this.setState({ phase: 'ok', revReady: true });
     } catch (e) {
       console.warn('рунна:', e);
       this.setState({ phase: 'err' });
@@ -248,15 +248,8 @@ class Component extends DCLogic {
     if (!this._mk) return;
     const live = (this.state.words || []).filter(w => w.status === 'proposed' || w.status === 'canon');
     const extra = live.map(w => ({ rune: w.rune, uk: [w.uk], gloss: w.uk, status: w.status, community: w }));
-    this._t = this._mk({ ...this._d, ...(this._rev ? { reverse: this._rev } : {}), extra });
+    this._t = this._mk({ ...this._d, extra });
     this._lex = new Map([...extra, ...this._d.lexicon.words].reverse().map(w => [w.rune, w]));
-  }
-  async _loadReverse() {
-    if (this._revBusy || this.state.revReady || !this._d) return;
-    this._revBusy = true;
-    try { this._rev = await this._json('generated_reverse'); this._rebuild(); this.setState({ revReady: true }); }
-    catch (e) { console.warn('рунна: generated_reverse', e); }
-    this._revBusy = false;
   }
   // Хто я і що закріплено. Без міграції — тихо без пропозицій: перекладач працює як і був.
   async _loadCommunity() {
@@ -297,6 +290,7 @@ class Component extends DCLogic {
     const w = seg.ref ? this._lex.get(seg.ref) : seg.kind !== 'generated' && seg.kind !== 'name' ? this._lex.get(String(seg.src).toLowerCase()) : null;
     if (w && w.community) { const c = w.community; return `Закріплено спільнотою: запропонував(-ла) ${c.created_nick || 'хтось'}${c.decided_by ? `, затвердив(-ла) ${c.decided_by}` : ''}${c.note ? ` — «${c.note}»` : ''}`; }
     if (w) return `${w.gloss}${w.confidence ? ` · упевненість: ${w.confidence}` : ''}`;
+    if (seg.kind === 'generated' && this._t.lemma(String(seg.src)) !== String(seg.src).toLowerCase()) return `Вигадане для «${this._t.lemma(String(seg.src))}» — усі форми цього слова дають те саме.`;
     if (seg.kind === 'name') return 'Імʼя передано рунними літерами.';
     if (seg.kind === 'proposed') return 'Чекає підтвердження GM.';
     return '';
@@ -306,7 +300,6 @@ class Component extends DCLogic {
     const res = this._run();
     const text = res.text && !/[\[‹]/.test(res.text) ? res.text : SAMPLE[d];
     this._save({ dir: d, text });
-    if (d === 'uk') this._loadReverse();
   }
   _copy(text, key) {
     try { navigator.clipboard.writeText(text); } catch (e) {}
@@ -385,10 +378,10 @@ class Component extends DCLogic {
       copy: () => this._copy(res.text, 'copied'), copyL: s.copied ? '✓ скопійовано' : '⧉ копіювати',
       legend: LEGEND.map(([k, sample, label]) => ({ key: k, sample, label, c: KIND[k].c, bb: KIND[k].bb, fs: KIND[k].fs })),
       hasRows: toks.length > 0,
-      stat: [canon ? `канон: ${canon}` : '', segs.length - canon - made ? `з розбору: ${segs.length - canon - made}` : '', made ? `вигадано / невідомо: ${made}` : '', pending ? 'зворотний словник ще вантажиться…' : ''].filter(Boolean).join(' · '),
+      stat: [canon ? `канон: ${canon}` : '', segs.length - canon - made ? `з розбору: ${segs.length - canon - made}` : '', made ? `вигадано / невідомо: ${made}` : '', pending ? 'зворотний словник ще вантажиться…' : '', !isRune && made ? 'вигадане показано словниковою формою' : ''].filter(Boolean).join(' · '),
       rows: toks.map((t, n) => {
         const more = this._more(t.seg);
-        const uk = String(t.seg.src).toLowerCase().replace(/[’‘ʼ`´]/g, "'");
+        const uk = this._t.lemma(String(t.seg.src).replace(/[’‘ʼ`´]/g, "'")); // словникова форма: «котом» → «кіт»
         const pend = isRune && t.seg.kind === 'generated' ? myPending.get(uk) : null;
         const propose = isRune && t.seg.kind === 'generated' && canSuggest && !pend && /^[а-яіїєґ]+('[а-яіїєґ]+)*$/.test(uk);
         return { key: n, out: t.t, src: t.seg.src, status: t.label, c: t.c, more, hasMore: !!more,

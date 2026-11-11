@@ -1,5 +1,5 @@
 // Рунна мова — еталонне ядро перекладача. Без залежностей, без мережі, детерміноване.
-// createTranslator({corpus, lexicon, rules, generator, reverse?}) -> { toRune, toUk, stem, generate }
+// createTranslator({corpus, lexicon, rules, generator, dict?, extra?, reverse?}) -> { toRune, toUk, stem, generate, lemma }
 
 const APOS = /[’‘ʼ`´]/g;
 const UK_WORD = /[а-яіїєґ]+(?:'[а-яіїєґ]+)*/giu;
@@ -34,7 +34,7 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 // extra — слова спільноти, закріплені на сайті (runna_words у базі): ті самі поля, що в lexicon.words.
 // Мають перевагу над словником, але НЕ впливають на генератор: інакше кожне закріплене слово
 // змінювало б вигадані слова для інших.
-export function createTranslator({ corpus, lexicon, rules, generator, reverse = {}, extra = [] }) {
+export function createTranslator({ corpus, lexicon, rules, generator, reverse = {}, extra = [], dict = null }) {
   const st = rules.stemmer;
   const endings = [...st.endings].sort((a, b) => b.length - a.length);
 
@@ -69,14 +69,58 @@ export function createTranslator({ corpus, lexicon, rules, generator, reverse = 
   }
   const stop = new Set(rules.stopwords), hon = new Set(rules.honorifics);
 
-  function generate(ukWord) {
-    const s = stem(ukWord), rnd = mulberry32(fnv1a(s));
+  // Сирий генератор: основа → слово. taken — уже зайняті слова (словник лем), їх пропускаємо
+  // тим самим потоком чисел; коротким основам, якщо односкладові вичерпались, дається два склади.
+  function rawGenerate(s, taken) {
+    const rnd = mulberry32(fnv1a(s));
     const syl = () => pick(generator.onsets, rnd) + pick(generator.nuclei, rnd) + pick(generator.codas, rnd);
-    for (let i = 0; i < 20; i++) {
-      const parts = s.length <= generator.one_syllable_max_stem ? [syl()] : [syl(), syl()];
-      if (parts.every((x) => !morphSet.has(x))) return parts.join(generator.joiner);
+    const one = s.length <= generator.one_syllable_max_stem;
+    for (let i = 0; i < 60; i++) {
+      const parts = one && i < 20 ? [syl()] : [syl(), syl()];
+      const w = parts.join(generator.joiner);
+      if (parts.every((x) => !morphSet.has(x)) && !(taken && taken.has(w))) return w;
     }
     return 'x' + syl(); // практично недосяжно; гарантує завершення
+  }
+
+  // ---- словник лем (data/dict.json, tools/build-dict.mjs)
+  // Кожна частотна українська лема має одне рунне слово, і кожне вигадане слово — одну лему:
+  // «вогонь / вогню / вогнем» дають одне слово, а назад воно читається однозначно.
+  // Леми статичного словника теж тут — так «мені», «мною» знаходять drau без ручних форм.
+  // dict.forms — часті форми, чию основу стемер віддав іншій, частішій лемі («ночі» ≠ «нічого»).
+  const lexIdx = new Map(lexicon.words.map((w) => [w.rune, w]));
+  const dictStem = new Map(), dictRune = new Map(), dictForm = new Map(Object.entries(dict?.forms ?? {}));
+  if (dict) {
+    for (const [lemma, rune, stems] of dict.words) {
+      if (rune !== '~' && !lexIdx.has(rune)) dictRune.set(rune, lemma); // «~» — службове слово, пропускається
+      for (let x of stems ? stems.split(' ') : []) {
+        if (dict.v >= 2) x = lemma.slice(0, +x[0]) + x.slice(1); // «N+хвіст» → повна основа
+        if (!dictStem.has(x)) dictStem.set(x, rune);
+      }
+    }
+  }
+  // Слово спільноти перекриває лему цілком: закріплене «кіт» діє і для «кота», «котом».
+  const extraByLemma = new Map();
+  const dictOf = (k, s) => dictForm.get(k) ?? dictStem.get(s);
+  for (const w of extra) for (const u of w.uk) { const r = dictOf(u.toLowerCase().replace(/'/g, ''), stem(u)); if (r && !extraByLemma.has(r)) extraByLemma.set(r, w); }
+
+  function generate(ukWord) {
+    const s = stem(ukWord);
+    return dictOf(ukWord.toLowerCase().replace(APOS, "'").replace(/'/g, ''), s) ?? rawGenerate(s, dictRune);
+  }
+  // Словникова форма слова, якщо вона відома (для пропозицій спільноти)
+  function lemma(ukWord) {
+    const r = dictOf(ukWord.toLowerCase().replace(APOS, "'").replace(/'/g, ''), stem(ukWord));
+    return r ? dictRune.get(r) : ukWord.toLowerCase();
+  }
+  // Пошук: точна форма словника → лема (спільнота, статичний словник) → основа словника.
+  // Якщо лема відома, але слова для неї в словниках нема, — null: далі піде вигадане слово цієї леми.
+  function lookup(k, low) {
+    const s = stem(low), ex = exact.get(k);
+    if (ex) return ex;
+    const r = dictOf(k, s);
+    if (r) return extraByLemma.get(r) ?? lexIdx.get(r) ?? null;
+    return byStem.get(s) ?? null;
   }
   const translit = (w) => cap([...w.toLowerCase().replace(APOS, "'")].map((c) => rules.translit[c] ?? c).join(''));
 
@@ -98,13 +142,13 @@ export function createTranslator({ corpus, lexicon, rules, generator, reverse = 
       let out, kind, ref;
       // Слово з великої посеред речення спершу шукається у словнику («прийде Темрява» = thuur);
       // транслітерується лише те, чого словник не знає, — справжні імена.
-      const known = isCap && i > 0 && !pendingHon ? (exact.get(k) ?? byStem.get(stem(low))) : null;
+      const known = isCap && i > 0 && !pendingHon ? lookup(k, low) : null;
       if (rules.names[k]) { out = rules.names[k]; kind = 'name'; }
       else if (pendingHon || (isCap && i > 0 && !known)) { out = translit(raw); kind = 'name'; }
-      else if (stop.has(low)) return;
+      else if (stop.has(low) || (!exact.has(k) && dictOf(k, stem(low)) === '~')) return;
       else if (low === 'що') { const w = runeIdx.get(i === 0 ? 'hraen' : "vaer'n"); out = w.rune; kind = w.status; }
       else {
-        const w = exact.get(k) ?? byStem.get(stem(low));
+        const w = lookup(k, low);
         if (w) { out = ov[w.rune] ?? w.rune; kind = w.status; ref = w.rune; }
         else { out = generate(low); kind = 'generated'; }
       }
@@ -149,6 +193,7 @@ export function createTranslator({ corpus, lexicon, rules, generator, reverse = 
     const toks = (normRune(sent).match(RUNE_WORD) ?? []).map((t) => lexicon.variants[t] ?? t);
     const segs = toks.map((t, i) => {
       if (runeIdx.has(t)) return { src: t, out: senseOf(t, i, toks), kind: runeIdx.get(t).status };
+      if (dictRune.has(t)) return { src: t, out: dictRune.get(t), kind: 'generated' };
       if (reverse[t]) return { src: t, out: reverse[t].join(' / '), kind: 'generated' };
       if (t.endsWith("'na")) return { src: t, out: 'пані/пан ' + cap(t.slice(0, -3)), kind: 'name' };
       const parts = t.split(/['-]/);
@@ -166,5 +211,5 @@ export function createTranslator({ corpus, lexicon, rules, generator, reverse = 
     return { text: parts.map((p) => p.uk).join(' '), segments: parts.flatMap((p) => p.segments) };
   }
 
-  return { toRune, toUk, stem, generate };
+  return { toRune, toUk, stem, generate, lemma, _raw: rawGenerate, _dictRune: dictRune };
 }
