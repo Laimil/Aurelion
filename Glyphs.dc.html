@@ -40,6 +40,59 @@ a:hover{color:#fff}
     </div>
   </div>
 
+  <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:15px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+      <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.8);">✦ Мої набори <span style="font-family:Arial,sans-serif;font-size:0.68rem;letter-spacing:0;text-transform:none;color:{{ whereC }};">· {{ whereL }}</span></p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <sc-if value="{{ hasLoadouts }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ toggleManage }}" style="cursor:pointer;border-radius:999px;padding:6px 12px;font-size:0.76rem;transition:all 0.3s ease;border:1px solid {{ manageBd }};background:{{ manageBg }};color:{{ manageC }};">{{ manageL }}</button>
+        </sc-if>
+        <button onClick="{{ openSave }}" style-hover="box-shadow:0 0 16px rgba(255,215,0,0.3)" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.78rem;font-weight:600;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.55);color:#ffd700;transition:all 0.3s ease;">＋ Зберегти поточні</button>
+      </div>
+    </div>
+
+    <sc-if value="{{ saveOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:rgba(0,0,0,0.22);border:1px solid rgba(255,215,0,0.25);border-radius:10px;padding:10px 12px;">
+        <input value="{{ saveName }}" onChange="{{ setSaveName }}" onKeyDown="{{ saveKey }}" maxlength="40" placeholder="Назва набору" style="flex:1;min-width:160px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:8px 11px;color:#fff;font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;outline:none;">
+        <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.75);white-space:nowrap;overflow:hidden;max-width:180px;">{{ savePreview }}</span>
+        <button onClick="{{ doSave }}" style="cursor:pointer;border-radius:999px;padding:7px 16px;font-size:0.8rem;font-weight:600;background:#ffd700;color:#1a1a1a;border:none;">{{ saveBtnL }}</button>
+        <button onClick="{{ closeSave }}" style="cursor:pointer;border-radius:999px;padding:7px 12px;font-size:0.78rem;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);">Скасувати</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasLoadouts }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,215px),1fr));gap:8px;">
+        <sc-for list="{{ loadouts }}" as="l" hint-placeholder-count="4">
+          <div style="display:flex;flex-direction:column;gap:6px;border-radius:10px;padding:10px 12px;transition:all 0.3s ease;border:1px solid {{ l.bd }};background:{{ l.bg }};">
+            <button onClick="{{ l.apply }}" title="Застосувати" style="cursor:pointer;text-align:left;background:none;border:none;padding:0;display:flex;flex-direction:column;gap:3px;min-width:0;">
+              <span style="display:flex;justify-content:space-between;gap:6px;font-size:0.8rem;font-weight:600;color:{{ l.c }};"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ l.name }}</span><span style="flex:none;font-size:0.7rem;font-weight:400;color:rgba(255,215,0,0.8);">{{ l.mark }}</span></span>
+              <span style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;line-height:1.7;color:#fff;white-space:nowrap;overflow:hidden;">{{ l.preview }}</span>
+            </button>
+            <sc-if value="{{ manage }}" hint-placeholder-val="{{ false }}">
+              <sc-if value="{{ l.renaming }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:5px;">
+                  <input value="{{ l.newName }}" onChange="{{ l.setNewName }}" onKeyDown="{{ l.renameKey }}" maxlength="40" style="flex:1;min-width:0;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.16);border-radius:6px;padding:4px 7px;color:#fff;font-size:0.8rem;outline:none;">
+                  <button onClick="{{ l.doRename }}" style="cursor:pointer;border-radius:6px;padding:3px 8px;font-size:0.74rem;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.5);color:#ffd700;">✓</button>
+                </div>
+              </sc-if>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <button onClick="{{ l.overwrite }}" title="Записати в набір поточні налаштування" style="cursor:pointer;border-radius:999px;padding:3px 9px;font-size:0.7rem;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.7);">↻ поточними</button>
+                <button onClick="{{ l.rename }}" style="cursor:pointer;border-radius:999px;padding:3px 9px;font-size:0.7rem;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.7);">✎ назва</button>
+                <button onClick="{{ l.drop }}" style="cursor:pointer;border-radius:999px;padding:3px 9px;font-size:0.7rem;background:transparent;border:1px solid rgba(255,77,77,0.35);color:rgba(255,140,140,0.85);">{{ l.dropL }}</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ noLoadouts }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-style:italic;font-size:0.98rem;color:rgba(255,255,255,0.45);">Налаштуйте тріск, позначки й шрифт — і збережіть як набір, щоб повертатися до нього одним дотиком.</p>
+    </sc-if>
+    <sc-if value="{{ hasMsg }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:0;font-size:0.78rem;color:{{ msgC }};">{{ msg }}</p>
+    </sc-if>
+  </div>
+
   <div style="display:flex;flex-direction:column;gap:8px;">
     <p style="margin:0;font-size:0.66rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Заготовки</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px;">
@@ -207,6 +260,23 @@ const CASES = [
 const WHERE = [{ id: 'up', label: 'Угору' }, { id: 'both', label: 'Довкола' }, { id: 'down', label: 'Донизу' }];
 const DEF = { zalgo: 0, where: 'both', marks: [], font: 'none', sep: 'none', kase: 'asis', count: 1 };
 const LS = 'au_glyphs_v1';
+const LS_SETS = 'au_glyphs_sets_v1';            // набори гостя (лише цей браузер)
+const SB_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const SB_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const MAX_SETS = 24;
+// Лише відомі ключі й допустимі значення — набір із бази чи старого браузера не зламає Письмена.
+function cleanO(x) {
+  const o = Object.assign({}, DEF), v = x && typeof x === 'object' ? x : {};
+  if (Number.isFinite(+v.zalgo)) o.zalgo = Math.max(0, Math.min(10, Math.round(+v.zalgo)));
+  if (['up', 'both', 'down'].indexOf(v.where) !== -1) o.where = v.where;
+  if (Array.isArray(v.marks)) o.marks = MARKS.map(m => m.id).filter(id => v.marks.indexOf(id) !== -1);
+  if (FONTS.some(f => f.id === v.font)) o.font = v.font;
+  if (SEPS.some(f => f.id === v.sep)) o.sep = v.sep;
+  if (CASES.some(f => f.id === v.kase)) o.kase = v.kase;
+  if ([1, 2, 3, 4, 5].indexOf(+v.count) !== -1) o.count = +v.count;
+  return o;
+}
+const sameO = (a, b) => JSON.stringify(cleanO(a)) === JSON.stringify(cleanO(b));
 const ws = ch => /\s/.test(ch);
 function rng(seed) {
   let a = seed >>> 0;
@@ -267,9 +337,93 @@ class Component extends DCLogic {
     super(p);
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem(LS) || '{}') || {}; } catch (e) {}
-    this.state = { text: saved.text || 'Нокта бачить усе', o: Object.assign({}, DEF, saved.o || {}), seed: 1 + Math.floor(Math.random() * 1e6), copied: null };
+    this.state = { text: saved.text || 'Нокта бачить усе', o: cleanO(saved.o), seed: 1 + Math.floor(Math.random() * 1e6), copied: null,
+      sets: this._localSets(), cloud: false, manage: false, save: null, ren: null, confirmDrop: null, msg: '', msgBad: false };
   }
-  componentWillUnmount() { clearTimeout(this._t); }
+  componentDidMount() { this._loadSets(); }
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._mt); }
+
+  // ── набори ───────────────────────────────────────────────
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _localSets() {
+    try { const a = JSON.parse(localStorage.getItem(LS_SETS) || '[]'); return Array.isArray(a) ? a.filter(x => x && x.name).map(x => ({ id: String(x.id || Math.random()), name: String(x.name).slice(0, 40), o: cleanO(x.o) })) : []; } catch (e) { return []; }
+  }
+  _storeLocal(sets) { try { localStorage.setItem(LS_SETS, JSON.stringify(sets.map(x => ({ id: x.id, name: x.name, o: x.o })))); } catch (e) {} }
+  _say(msg, bad) { this.setState({ msg, msgBad: !!bad }); clearTimeout(this._mt); this._mt = setTimeout(() => this.setState({ msg: '' }), bad ? 6000 : 2600); }
+  async _api(path, init) {
+    const t = this._tok();
+    const r = await fetch(SB_URL + '/' + path, Object.assign({}, init, { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + t, 'Content-Type': 'application/json', Prefer: 'return=representation' } }));
+    const txt = await r.text();
+    if (!r.ok) {
+      if (/glyph_loadouts_name_uq|duplicate key/.test(txt)) throw new Error('Набір із такою назвою вже є.');
+      if (r.status === 401 || /JWT/.test(txt)) { const e = new Error('Сесія закінчилась — увійдіть у кабінет знову.'); e.auth = true; throw e; }
+      let m = ''; try { m = JSON.parse(txt).message || ''; } catch (e) {}
+      throw new Error(/набор|видаліть/i.test(m) ? m : 'Не вдалося зберегти. Спробуйте ще раз.');
+    }
+    try { return JSON.parse(txt); } catch (e) { return null; }
+  }
+  // Увійшов — набори з кабінету (і перенос того, що гість зберіг у браузері). Ні — браузер.
+  async _loadSets() {
+    if (!this._tok()) return;
+    try {
+      let rows = await this._api('glyph_loadouts?select=id,name,o,pos&order=pos.asc,created_at.asc', { method: 'GET' });
+      const local = this._localSets();
+      if (local.length) {
+        const have = new Set(rows.map(r => r.name.toLowerCase()));
+        let moved = 0;
+        for (const x of local) {
+          if (have.has(x.name.toLowerCase()) || rows.length + moved >= MAX_SETS) continue;
+          try { await this._api('glyph_loadouts', { method: 'POST', body: JSON.stringify({ name: x.name, o: x.o, pos: rows.length + moved }) }); moved++; } catch (e) {}
+        }
+        try { localStorage.removeItem(LS_SETS); } catch (e) {}
+        if (moved) { rows = await this._api('glyph_loadouts?select=id,name,o,pos&order=pos.asc,created_at.asc', { method: 'GET' }); this._say(`Перенесено в кабінет: ${moved}`); }
+      }
+      this.setState({ cloud: true, sets: rows.map(r => ({ id: r.id, name: r.name, o: cleanO(r.o) })) });
+    } catch (e) {
+      // без міграції чи з простроченою сесією — працюємо з браузером
+      if (e.auth) this._say(e.message, true);
+      console.warn('письмена: набори з кабінету недоступні', e);
+    }
+  }
+  async _saveSet(name) {
+    name = String(name || '').trim().slice(0, 40);
+    if (!name) { this._say('Дайте наборові назву.', true); return; }
+    const sets = this.state.sets, o = cleanO(this.state.o);
+    const same = sets.find(x => x.name.toLowerCase() === name.toLowerCase());
+    if (!same && sets.length >= MAX_SETS) { this._say(`Уже ${MAX_SETS} наборів — видаліть якийсь.`, true); return; }
+    this.setState({ save: Object.assign({}, this.state.save, { busy: true }) });
+    try {
+      let next;
+      if (this.state.cloud) {
+        const rows = same ? await this._api('glyph_loadouts?id=eq.' + same.id, { method: 'PATCH', body: JSON.stringify({ o }) })
+                          : await this._api('glyph_loadouts', { method: 'POST', body: JSON.stringify({ name, o, pos: sets.length }) });
+        const r = rows && rows[0];
+        next = same ? sets.map(x => x.id === same.id ? Object.assign({}, x, { o }) : x) : sets.concat({ id: r ? r.id : String(Date.now()), name, o });
+      } else {
+        next = same ? sets.map(x => x.id === same.id ? Object.assign({}, x, { o }) : x) : sets.concat({ id: 'l' + Date.now(), name, o });
+        this._storeLocal(next);
+      }
+      this.setState({ sets: next, save: null });
+      this._say(same ? `«${same.name}» оновлено.` : `Збережено «${name}».`);
+    } catch (e) { this.setState({ save: Object.assign({}, this.state.save, { busy: false }) }); this._say(e.message, true); }
+  }
+  async _patchSet(x, patch, okMsg) {
+    try {
+      if (this.state.cloud) await this._api('glyph_loadouts?id=eq.' + x.id, { method: 'PATCH', body: JSON.stringify(patch) });
+      const next = this.state.sets.map(y => y.id === x.id ? Object.assign({}, y, patch) : y);
+      if (!this.state.cloud) this._storeLocal(next);
+      this.setState({ sets: next, ren: null }); if (okMsg) this._say(okMsg);
+    } catch (e) { this._say(e.message, true); }
+  }
+  async _dropSet(x) {
+    if (this.state.confirmDrop !== x.id) { this.setState({ confirmDrop: x.id }); return; }
+    try {
+      if (this.state.cloud) await this._api('glyph_loadouts?id=eq.' + x.id, { method: 'DELETE' });
+      const next = this.state.sets.filter(y => y.id !== x.id);
+      if (!this.state.cloud) this._storeLocal(next);
+      this.setState({ sets: next, confirmDrop: null, manage: next.length > 0 && this.state.manage }); this._say(`«${x.name}» видалено.`);
+    } catch (e) { this._say(e.message, true); }
+  }
   _save() { try { localStorage.setItem(LS, JSON.stringify({ text: this.state.text, o: this.state.o })); } catch (e) {} }
   _set(patch) { this.setState(s => ({ o: Object.assign({}, s.o, patch) }), () => this._save()); }
   _copy(str, key) {
@@ -281,7 +435,8 @@ class Component extends DCLogic {
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(str).then(done, fall); else fall();
   }
   renderVals() {
-    const { text, o, seed, copied } = this.state;
+    const { text, o, seed, copied, sets, cloud, manage, save, ren, confirmDrop, msg, msgBad } = this.state;
+    const prevOf = so => convert(so.font && so.font !== 'none' ? 'Nokta' : 'Нокта', so, 7); // шрифти діють лише на латиницю
     const chip = on => on
       ? { bg: 'rgba(255,215,0,0.14)', bd: 'rgba(255,215,0,0.55)', fg: '#ffd700' }
       : { bg: 'rgba(255,255,255,0.04)', bd: 'rgba(255,255,255,0.14)', fg: 'rgba(255,255,255,0.7)' };
@@ -293,7 +448,33 @@ class Component extends DCLogic {
     const hint = key => copied === key ? 'Скопійовано ✦' : 'копіювати';
     const hintColor = key => copied === key ? '#ffd700' : 'rgba(255,255,255,0.35)';
     const n = Array.from(text).length;
+    const signed = !!this._tok();
     return {
+      whereL: cloud ? 'у кабінеті, на всіх пристроях' : signed ? 'лише в цьому браузері' : 'лише в цьому браузері · увійдіть, щоб мати їх усюди',
+      whereC: cloud ? 'rgba(110,192,176,0.85)' : 'rgba(255,255,255,0.4)',
+      hasLoadouts: sets.length > 0, noLoadouts: sets.length === 0 && !save,
+      manage, toggleManage: () => this.setState({ manage: !manage, ren: null, confirmDrop: null }),
+      manageL: manage ? 'Готово' : '✎ Керувати',
+      manageBd: manage ? 'rgba(255,215,0,0.55)' : 'rgba(255,255,255,0.18)', manageBg: manage ? 'rgba(255,215,0,0.12)' : 'transparent', manageC: manage ? '#ffd700' : 'rgba(255,255,255,0.65)',
+      openSave: () => { const act = sets.find(x => sameO(x.o, o)); this.setState({ save: { name: act ? act.name : 'Набір ' + (sets.length + 1), busy: false } }); },
+      saveOpen: !!save, saveName: save ? save.name : '', savePreview: prevOf(o),
+      setSaveName: e => { const v = e.target.value; this.setState(st => ({ save: Object.assign({}, st.save, { name: v }) })); },
+      saveKey: e => { if (e.key === 'Enter') this._saveSet(this.state.save && this.state.save.name); if (e.key === 'Escape') this.setState({ save: null }); },
+      doSave: () => this._saveSet(save && save.name), closeSave: () => this.setState({ save: null }),
+      saveBtnL: save && save.busy ? 'Зберігаю…' : save && sets.some(x => x.name.toLowerCase() === String(save.name).trim().toLowerCase()) ? 'Оновити' : 'Зберегти',
+      loadouts: sets.map(x => {
+        const on = sameO(x.o, o), r = ren && ren.id === x.id;
+        const doRename = () => { const nm = String((this.state.ren && this.state.ren.name) || '').trim().slice(0, 40); if (!nm) return; if (sets.some(y => y.id !== x.id && y.name.toLowerCase() === nm.toLowerCase())) { this._say('Набір із такою назвою вже є.', true); return; } this._patchSet(x, { name: nm }); };
+        return { key: x.id, name: x.name, preview: prevOf(x.o), mark: on ? '✦ зараз' : '',
+          bd: on ? 'rgba(255,215,0,0.55)' : 'rgba(255,255,255,0.12)', bg: on ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.03)', c: on ? '#ffd700' : 'rgba(255,255,255,0.8)',
+          apply: () => { this.setState({ o: cleanO(x.o), seed: 1 + Math.floor(Math.random() * 1e6) }, () => this._save()); },
+          overwrite: () => this._patchSet(x, { o: cleanO(this.state.o) }, `«${x.name}» оновлено поточними.`),
+          rename: () => this.setState({ ren: r ? null : { id: x.id, name: x.name } }), renaming: r, newName: r ? ren.name : '',
+          setNewName: e => { const v = e.target.value; this.setState(st => ({ ren: Object.assign({}, st.ren, { name: v }) })); },
+          doRename, renameKey: e => { if (e.key === 'Enter') doRename(); if (e.key === 'Escape') this.setState({ ren: null }); },
+          drop: () => this._dropSet(x), dropL: confirmDrop === x.id ? 'точно видалити?' : '✕' };
+      }),
+      hasMsg: !!msg, msg, msgC: msgBad ? 'rgba(255,140,140,0.9)' : 'rgba(110,192,176,0.9)',
       text,
       onText: e => { this.setState({ text: e.target.value }, () => this._save()); },
       countLabel: n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? 'знак' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'знаки' : 'знаків'),
@@ -314,7 +495,7 @@ class Component extends DCLogic {
       fontOpts: FONTS.map(f => Object.assign({ label: f.label, sample: f.f ? Array.from('Aurelion').map(f.f).join('') : 'Як є', pick: () => this._set({ font: f.id }) }, chip(o.font === f.id))),
       sepOpts: SEPS.map(x => Object.assign({ label: x.label, pick: () => this._set({ sep: x.id }) }, chip(o.sep === x.id))),
       caseOpts: CASES.map(x => Object.assign({ label: x.label, pick: () => this._set({ kase: x.id }) }, chip(o.kase === x.id))),
-      presets: PRESETS.map(p => ({ label: p.label, apply: () => { this.setState({ o: Object.assign({}, DEF, p.o), seed: 1 + Math.floor(Math.random() * 1e6) }, () => this._save()); } })),
+      presets: PRESETS.map(p => ({ label: p.label, apply: () => { this.setState({ o: cleanO(p.o), seed: 1 + Math.floor(Math.random() * 1e6) }, () => this._save()); } })),
       showVariants: count > 1,
       variants: variants.map((v, i) => ({ n: String(i + 1), text: v, copy: () => this._copy(v, 'v' + i), hint: hint('v' + i), hintColor: hintColor('v' + i) })),
       gallery: GALLERY.map((g, i) => {
