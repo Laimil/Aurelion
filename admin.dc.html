@@ -7035,13 +7035,50 @@ class Component extends DCLogic {
   }
 
   // ── Storage ───────────────────────────────────────────────
+  // Зменшує картинку перед вивантаженням: довгий бік ≤ max, JPEG (прозоре —
+  // PNG). Cached egress — це байти картинок, які CDN
+  // віддає кожному відвідувачу, тож кожен зекономлений мегабайт множиться на
+  // перегляди. GIF/SVG, легкі файли й виграш < 10% — лишаються як є.
+  async _shrink(file, max = 1800, q = 0.84) {
+    try {
+      const t = String(file.type || '').toLowerCase();
+      if (!/^image\/(jpeg|jpg|png|webp|bmp)$/.test(t)) return file;
+      if (typeof createImageBitmap !== 'function') return file;
+      const bmp = await createImageBitmap(file);
+      const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      // Анімований WebP canvas сплющив би в кадр — у межах розміру не чіпаємо.
+      if (k === 1 && (file.size < 400 * 1024 || t === 'image/webp')) { if (bmp.close) bmp.close(); return file; }
+      const w = Math.round(bmp.width * k), h = Math.round(bmp.height * k);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(bmp, 0, 0, w, h);
+      if (bmp.close) bmp.close();
+      // Прозоре лишається PNG, решта — JPEG. Не WebP: бот вклеює портрет у
+      // бланк досьє через resvg, а той WebP не читає (`portrait()` у вебгуку).
+      let alpha = false;
+      if (t !== 'image/jpeg' && t !== 'image/jpg') {
+        const d = g.getImageData(0, 0, w, h).data;
+        for (let i = 3; i < d.length; i += 4) if (d[i] < 255) { alpha = true; break; }
+      }
+      const b = await new Promise(res => c.toBlob(res, alpha ? 'image/png' : 'image/jpeg', q));
+      if (!b || b.size > file.size * 0.9) return file;
+      const ext = alpha ? 'png' : 'jpg';
+      const base = String(file.name || 'image').replace(/\.[^.]+$/, '') || 'image';
+      console.log(`[shrink] ${file.name}: ${Math.round(file.size / 1024)} → ${Math.round(b.size / 1024)} КБ, ${w}×${h}`);
+      return new File([b], `${base}.${ext}`, { type: b.type });
+    } catch (e) { console.warn('[shrink] лишаю оригінал:', e); return file; }
+  }
+
   async _uploadImage(file, bucket = 'character-images') {
     const STORAGE = 'https://ztltzghfkppuwixhylng.supabase.co/storage/v1';
+    // Мапу розглядають зблизька — їй більший розмір і вища якість.
+    file = bucket === 'map-images' ? await this._shrink(file, 4096, 0.9) : await this._shrink(file);
     const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase();
     const name = Date.now() + '-' + Math.random().toString(36).slice(2) + '.' + ext;
     const r = await fetch(`${STORAGE}/object/${bucket}/${name}`, {
       method: 'POST',
-      headers: { ...this._authH(), 'Content-Type': file.type, 'x-upsert': 'true' },
+      // Імʼя файлу унікальне й ніколи не перезаписується — кеш на рік безпечний:
+      // повторний візит бере картинку з браузера, а не з CDN Supabase.
+      headers: { ...this._authH(), 'Content-Type': file.type, 'x-upsert': 'true', 'cache-control': 'max-age=31536000' },
       body: file,
     });
     if (!r.ok) throw new Error(await r.text());
