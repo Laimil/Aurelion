@@ -966,24 +966,37 @@ input,textarea,select{font-size:16px}
 <sc-if value="{{ showPeopleTab }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:900px;margin:0 auto;padding:28px 24px 80px;">
     <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:6px;">👥 Люди з сайту</h2>
-    <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.55;">Усі, хто завів аркуш у кабінеті. Права тримаються на одному перемикачі — статусі людини; решту (правки) додає ще й записаний за нею персонаж. Статус перевіряє база, а не браузер: змінений тут, він діє одразу.</p>
+    <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:16px;line-height:1.55;">Усі, хто завів аркуш у кабінеті. Права тримаються на статусі людини, частину ще й на записаному за нею персонажі. Статус перевіряє база, а не браузер: змінений тут, він діє одразу.</p>
 
-    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 18px 16px;margin-bottom:26px;">
-      <p style="font-size:0.7rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;">Хто що може</p>
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) 78px 78px 88px;column-gap:8px;row-gap:9px;align-items:center;">
-        <span></span>
-        <span style="text-align:center;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,215,0,0.85);">Чекає</span>
-        <span style="text-align:center;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(120,220,150,0.85);">Свій</span>
-        <span style="text-align:center;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,120,120,0.85);">Відмовлено</span>
-        <span style="font-size:0.8rem;color:rgba(255,255,255,0.72);line-height:1.4;">Подати анкету на персонажа <span style="color:rgba(255,255,255,0.3);">· до 3 на розгляді</span></span><span style="text-align:center;color:#ffd700;font-size:0.85rem;">✓</span><span style="text-align:center;color:#ffd700;font-size:0.85rem;">✓</span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span>
-        <span style="font-size:0.8rem;color:rgba(255,255,255,0.72);line-height:1.4;">Віконце пліток</span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span><span style="text-align:center;color:#ffd700;font-size:0.85rem;">✓</span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span>
-        <span style="font-size:0.8rem;color:rgba(255,255,255,0.72);line-height:1.4;">Правки своїх персонажів <span style="color:rgba(255,255,255,0.3);">· якщо персонажа записано</span></span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span><span style="text-align:center;color:#ffd700;font-size:0.85rem;">✓</span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span>
-        <span style="font-size:0.8rem;color:rgba(255,255,255,0.72);line-height:1.4;">Пости й аудіотека</span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span><span style="text-align:center;color:#ffd700;font-size:0.85rem;">✓</span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span>
-        <span style="font-size:0.8rem;color:rgba(255,255,255,0.72);line-height:1.4;">Конструктор тестів <span style="color:rgba(255,255,255,0.3);">· чернетки</span></span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span><span style="text-align:center;color:#ffd700;font-size:0.85rem;">✓</span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span>
-        <span style="font-size:0.8rem;color:rgba(255,255,255,0.72);line-height:1.4;">Аркуш «Про мене» у кабінеті</span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span><span style="text-align:center;color:#ffd700;font-size:0.85rem;">✓</span><span style="text-align:center;color:rgba(255,255,255,0.18);font-size:0.85rem;">—</span>
-      </div>
-      <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:12px;line-height:1.5;">Адмінку не відкриває жоден статус — адмінів веде таблиця <code style="color:rgba(255,255,255,0.5);">admins</code> у Supabase. Таємні плітки з людиною не звʼязані, тому в лічильниках нижче їх немає.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:10px;margin-bottom:18px;">
+      <sc-for list="{{ pplStats }}" as="k" hint-placeholder-count="4">
+        <button onClick="{{ k.onPick }}" title="{{ k.hint }}" style="cursor:pointer;text-align:left;background:rgba(255,255,255,0.03);border:1px solid {{ k.border }};border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;" style-hover="background:rgba(255,255,255,0.06);">
+          <span style="font-family:'Cinzel',serif;font-size:1.45rem;line-height:1;color:{{ k.color }};">{{ k.value }}</span>
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);line-height:1.35;">{{ k.label }}</span>
+        </button>
+      </sc-for>
     </div>
+
+    <details style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:0 18px;margin-bottom:22px;">
+      <summary style="cursor:pointer;padding:13px 0;font-size:0.7rem;letter-spacing:0.11em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Хто що може · {{ pplRightsCount }} пунктів</summary>
+      <div style="padding-bottom:16px;">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 70px 70px 86px;column-gap:8px;padding:2px 0 8px;border-bottom:1px solid rgba(255,255,255,0.07);">
+          <span></span>
+          <span style="text-align:center;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,215,0,0.85);">Чекає</span>
+          <span style="text-align:center;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(120,220,150,0.85);">Свій</span>
+          <span style="text-align:center;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,120,120,0.85);">Відмовлено</span>
+        </div>
+        <sc-for list="{{ pplRightsRows }}" as="r" hint-placeholder-count="8">
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 70px 70px 86px;column-gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+            <span style="font-size:0.8rem;color:rgba(255,255,255,0.75);line-height:1.4;">{{ r.label }} <span style="color:rgba(255,255,255,0.32);font-size:0.74rem;">{{ r.hint }}</span></span>
+            <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="3">
+              <span title="{{ c.title }}" style="text-align:center;font-size:{{ c.size }};color:{{ c.color }};">{{ c.mark }}</span>
+            </sc-for>
+          </div>
+        </sc-for>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.32);margin-top:12px;line-height:1.55;"><span style="color:#ffd700;">✓</span> — є одразу · <span style="color:rgba(255,215,0,0.75);">✦</span> — коли за людиною записано персонажа · <span style="color:rgba(255,255,255,0.3);">—</span> — немає. Адмінку не відкриває жоден статус — адмінів веде таблиця <code style="color:rgba(255,255,255,0.5);">admins</code>. Таємні плітки з людиною не звʼязані, тому в лічильниках їх немає.</p>
+      </div>
+    </details>
 
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,215,0,0.22);border-radius:12px;padding:14px 18px 16px;margin-bottom:26px;display:flex;flex-direction:column;gap:12px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -1018,7 +1031,27 @@ input,textarea,select{font-size:16px}
         <button onClick="{{ pplViewList }}" style="cursor:pointer;border:none;border-radius:999px;padding:5px 13px;font-size:0.74rem;background:{{ pplListBtnBg }};color:{{ pplListBtnColor }};">☰ Списком</button>
       </div>
     </div>
-    <input value="{{ gosPQ }}" onChange="{{ gosSetPQ }}" placeholder="Пошук: нік, телеграм, пошта або персонаж" style="width:100%;box-sizing:border-box;margin-bottom:14px;" />
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+      <input value="{{ gosPQ }}" onChange="{{ gosSetPQ }}" placeholder="Пошук: нік, телеграм, пошта, персонаж або нотатка" style="flex:1 1 260px;width:auto;min-width:0;box-sizing:border-box;" />
+      <select value="{{ pplSort }}" onChange="{{ pplSetSort }}" style="flex:0 0 auto;width:auto;min-width:190px;color-scheme:dark;">
+        <sc-for list="{{ pplSorts }}" as="o" hint-placeholder-count="4">
+          <option value="{{ o.value }}" style="background:#222;color:#fff;">{{ o.label }}</option>
+        </sc-for>
+      </select>
+      <button onClick="{{ pplPickToggle }}" style="cursor:pointer;background:{{ pplPickBg }};border:1px solid {{ pplPickBorder }};color:{{ pplPickColor }};border-radius:999px;padding:7px 15px;font-size:0.76rem;white-space:nowrap;">{{ pplPickLabel }}</button>
+    </div>
+
+    <sc-if value="{{ pplPicking }}" hint-placeholder-val="{{ false }}">
+      <div style="position:sticky;top:8px;z-index:5;background:rgba(30,28,20,0.96);border:1px solid rgba(255,215,0,0.35);border-radius:12px;padding:10px 14px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,0.45);">
+        <span style="font-size:0.8rem;color:#ffd700;margin-right:4px;">{{ pplPickCount }}</span>
+        <button onClick="{{ pplPickAll }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.55);border-radius:999px;padding:5px 12px;font-size:0.74rem;">{{ pplPickAllLabel }}</button>
+        <span style="flex:1;"></span>
+        <button onClick="{{ pplBulkApprove }}" disabled="{{ pplBulkOff }}" style="cursor:pointer;background:rgba(120,220,150,0.12);border:1px solid rgba(120,220,150,0.35);color:rgba(150,230,170,0.95);border-radius:999px;padding:6px 14px;font-size:0.76rem;opacity:{{ pplBulkOpacity }};">✓ Свої</button>
+        <button onClick="{{ pplBulkBlock }}" disabled="{{ pplBulkOff }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,190,130,0.35);color:rgba(255,190,130,0.9);border-radius:999px;padding:6px 14px;font-size:0.76rem;opacity:{{ pplBulkOpacity }};">Відмовити</button>
+        <button onClick="{{ pplBulkDrop }}" disabled="{{ pplBulkOff }}" style="cursor:pointer;background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.4);color:rgba(255,140,140,0.95);border-radius:999px;padding:6px 14px;font-size:0.76rem;opacity:{{ pplBulkOpacity }};">Видалити</button>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ gosNoPeople }}" hint-placeholder-val="{{ true }}">
       <p style="font-size:0.8rem;color:rgba(255,255,255,0.28);">{{ pplEmpty }}</p>
     </sc-if>
@@ -1051,6 +1084,9 @@ input,textarea,select{font-size:16px}
             </div>
           </div>
           <p style="font-size:0.72rem;color:rgba(255,255,255,0.28);margin-top:6px;">{{ p.decided }}</p>
+          <sc-if value="{{ p.hasBad }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px;background:rgba(255,160,80,0.07);border:1px solid rgba(255,160,80,0.3);border-radius:8px;padding:9px 12px;font-size:0.76rem;line-height:1.5;color:rgba(255,200,150,0.92);">⚠ Аркуш не пройшов би сьогоднішню перевірку: {{ p.badLine }}. Статус, пароль і видалення від цього не залежать (після <code>supabase_people_v2_migration.sql</code>); виправити можна кнопкою «✎ Правити аркуш».</div>
+          </sc-if>
           <sc-if value="{{ p.hasAbout }}" hint-placeholder-val="{{ false }}">
             <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.95rem;color:rgba(255,255,255,0.55);margin-top:8px;line-height:1.6;text-wrap:pretty;">{{ p.about }}</p>
           </sc-if>
@@ -1113,6 +1149,22 @@ input,textarea,select{font-size:16px}
                 </div>
               </div>
             </div>
+            <div style="display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;align-items:start;">
+              <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);padding-top:1px;">Вхід</span>
+              <span style="font-size:0.78rem;color:{{ p.authColor }};line-height:1.45;">{{ p.authLine }}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;align-items:start;">
+              <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);padding-top:6px;">Нотатка</span>
+              <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+                <textarea value="{{ p.noteVal }}" onChange="{{ p.setNote }}" rows="2" placeholder="{{ p.notePh }}" disabled="{{ p.noteOff }}" style="width:100%;box-sizing:border-box;font-size:0.8rem;"></textarea>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <sc-if value="{{ p.noteDirty }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ p.onSaveNote }}" style="cursor:pointer;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.35);color:#ffd700;border-radius:999px;padding:4px 14px;font-size:0.74rem;">Зберегти нотатку</button>
+                  </sc-if>
+                  <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);">{{ p.noteMeta }}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
@@ -1156,7 +1208,13 @@ input,textarea,select{font-size:16px}
     <sc-if value="{{ pplTilesOn }}" hint-placeholder-val="{{ true }}">
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;">
         <sc-for list="{{ pplTiles }}" as="t" hint-placeholder-count="8">
-          <div onClick="{{ t.onOpen }}" style="cursor:pointer;background:{{ t.tileBg }};border:1px solid {{ t.tileBorder }};border-radius:10px;padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.07);transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,0.4);">
+          <div onClick="{{ t.onOpen }}" style="position:relative;cursor:pointer;background:{{ t.tileBg }};border:1px solid {{ t.tileBorder }};border-radius:10px;padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;transition:all 0.3s ease;" style-hover="background:rgba(255,255,255,0.07);transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,0.4);">
+            <sc-if value="{{ t.showPick }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;top:8px;left:8px;width:18px;height:18px;border-radius:5px;border:1px solid {{ t.pickBorder }};background:{{ t.pickBg }};color:#1a1a1a;font-size:0.72rem;line-height:16px;font-weight:700;">{{ t.pickMark }}</span>
+            </sc-if>
+            <sc-if value="{{ t.hasBad }}" hint-placeholder-val="{{ false }}">
+              <span title="{{ t.badLine }}" style="position:absolute;top:7px;right:9px;font-size:0.78rem;color:rgba(255,180,110,0.95);">⚠</span>
+            </sc-if>
             <div style="position:relative;width:64px;height:64px;">
               <sc-if value="{{ t.hasArt }}" hint-placeholder-val="{{ false }}">
                 <div title="{{ t.artTitle }}" style="width:64px;height:64px;border-radius:50%;border:2px solid {{ t.ring }};box-shadow:0 4px 14px rgba(0,0,0,0.45);background:{{ t.artBg }};"></div>
@@ -1175,6 +1233,7 @@ input,textarea,select{font-size:16px}
             <p style="font-family:'Cinzel',serif;font-size:0.86rem;color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ t.nick }}</p>
             <p style="font-size:0.68rem;color:rgba(255,255,255,0.4);line-height:1.35;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ t.charLine }}</p>
             <span style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:{{ t.stColor }};">{{ t.stLabel }}</span>
+            <span style="font-size:0.62rem;color:{{ t.seenColor }};">{{ t.seenShort }}</span>
             <sc-if value="{{ t.hasWait }}" hint-placeholder-val="{{ false }}">
               <span style="font-size:0.64rem;color:rgba(255,190,130,0.9);">чекає: {{ t.waitLine }}</span>
             </sc-if>
@@ -5258,16 +5317,25 @@ class Component extends DCLogic {
   // ── Віконце: люди й черга пліток ─────────────────────
   // Поки міграції немає, _get віддає порожнє — вкладка просто порожня.
   async _loadGossipAdmin() {
-    const [people, rows, tg] = await Promise.all([
+    const [people, rows, tg, auth, notes] = await Promise.all([
       this._get('site_users?select=*&order=created_at.desc'),
       this._get('gossip_queue?select=*&order=created_at.desc&limit=200'),
       // Чат ↔ аркуш (supabase_user_tg_stats_migration.sql); немає міграції — рядок «Чат» каже про це.
       this._slRpc('admin_people_stats', {}).catch(e => ({ error: e.message })),
+      // Вхід і нотатки — supabase_people_v2_migration.sql; без неї рядки просто кажуть про міграцію.
+      this._slRpc('admin_people_auth', {}).catch(e => ({ error: e.message })),
+      fetch(`${SUPA_URL}/site_user_notes?select=*`, { headers: this._authH() }).then(r => r.ok ? r.json() : null).catch(() => null),
     ]);
+    const authMap = {};
+    if (Array.isArray(auth)) auth.forEach(a => { authMap[String(a.id)] = a; });
+    const noteMap = {};
+    if (Array.isArray(notes)) notes.forEach(n => { noteMap[String(n.user_id)] = n; });
     this.setState({
       gosPeople: Array.isArray(people) ? people : [],
       gosRows:   Array.isArray(rows)   ? rows   : [],
       pplTg: tg || null,
+      pplAuth: Array.isArray(auth) ? authMap : { error: (auth && auth.error) || 'немає функції' },
+      pplNotes: Array.isArray(notes) ? noteMap : null,
     });
   }
 
@@ -8633,22 +8701,43 @@ class Component extends DCLogic {
       approved: { label: 'Свій',       color: 'rgba(130,225,160,0.95)', bg: 'rgba(120,220,150,0.14)' },
       blocked:  { label: 'Відмовлено', color: 'rgba(255,130,130,0.95)', bg: 'rgba(255,77,77,0.13)' },
     };
-    const cnt = { all: people.length, pending: 0, approved: 0, blocked: 0 };
-    people.forEach(p => { const k = ST[p.status] ? p.status : 'pending'; cnt[k]++; });
-    const flt = s.pplFilter || 'all';
-    const pq = String(s.gosPQ || '').toLowerCase().trim();
+    const stOf = (p) => ST[p.status] ? p.status : 'pending';
     const ownOf = (id) => chars.filter(c => String(c.owner_id || '') === String(id));
-    const order = { pending: 0, approved: 1, blocked: 2 };
-    const shown = people
-      .filter(p => flt === 'all' || (ST[p.status] ? p.status : 'pending') === flt)
-      .filter(p => !pq || `${p.nick || ''} ${p.tg_nick || ''} ${p.email || ''} ${ownOf(p.id).map(c => c.name).join(' ')}`.toLowerCase().includes(pq))
-      .sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
     const by = (list, id) => (Array.isArray(list) ? list : []).filter(r => String(r.author_id || '') === String(id));
+    const nf = (v) => Number(v || 0).toLocaleString('uk-UA');
+    const DAY = 864e5;
+
+    // ── Що каже Auth (supabase_people_v2_migration.sql) ──
+    const AU = s.pplAuth && !s.pplAuth.error ? s.pplAuth : null;
+    const authOf = (p) => AU ? AU[String(p.id)] || null : null;
+    const seenAt = (p) => { const a = authOf(p); return a && a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0; };
+    const ago = (t) => {
+      const d = Math.floor((Date.now() - t) / DAY);
+      if (d <= 0) return 'сьогодні';
+      if (d === 1) return 'вчора';
+      if (d < 45) return `${d} дн. тому`;
+      if (d < 365) return `${Math.round(d / 30)} міс. тому`;
+      return `${Math.floor(d / 365)} р. тому`;
+    };
+    const IDLE = 60;
+    const isIdle = (p) => { if (!AU) return false; const t = seenAt(p); return !t || Date.now() - t > IDLE * DAY; };
+
+    // ── Аркуш, що не пройшов би сьогоднішню перевірку (ті самі правила, що в базі) ──
+    const badOf = (p) => {
+      const out = [];
+      const nick = String(p.nick || '').trim();
+      const tgv = String(p.tg_nick || '');
+      if (nick.length < 2 || nick.length > 40) out.push(nick ? `нік «${nick}» коротший за 2 знаки` : 'немає ніку');
+      if (tgv && !/^@[A-Za-z0-9_]{5,32}$/.test(tgv)) out.push(`телеграм «${tgv}» не у вигляді @нік`);
+      if (!tgv && String(p.about || '').trim().length < 40) out.push('ні телеграму, ні 40 знаків «про себе»');
+      return out;
+    };
+
+    // ── Чат ──
     const tg = s.pplTg && !s.pplTg.error ? s.pplTg : null;
     const tgLinked = new Map((tg ? tg.linked : []).map(x => [String(x.user_id), x]));
     const tgUnl = new Map((tg ? tg.unlinked : []).map(x => [String(x.id), x]));
     const tgStrays = tg ? tg.strays || [] : [];
-    const nf = (v) => Number(v || 0).toLocaleString('uk-UA');
     const tgLabel = (x) => [x.name || 'без імені', x.username ? '@' + x.username : '', x.msgs != null ? `${nf(x.msgs)} репл.` : ''].filter(Boolean).join(' · ');
     const tgVals = (p) => {
       const L = tgLinked.get(String(p.id)), U = tgUnl.get(String(p.id));
@@ -8684,39 +8773,40 @@ class Component extends DCLogic {
       };
     };
 
+    // ── Помилка бази людською мовою ──
+    const why = (e) => {
+      const m = String((e && e.message) || e || 'Не вийшло');
+      if (/site_users_(nick|tg|who)_ok|check constraint/i.test(m)) return 'старий аркуш упирається в перевірку ніку/телеграму — прогоніть supabase_people_v2_migration.sql або спершу виправте аркуш';
+      return m;
+    };
+
+    // ── Статус: одна людина (з питанням) або пачка (питання ставить пачка) ──
+    const putStatus = async (p, next) => {
+      const body = { status: next, decided_at: new Date().toISOString(), decided_by: me };
+      // Спершу функція (supabase_admin_users_migration.sql) — вона каже, якщо не вийшло.
+      // Немає її — звичайний PATCH, але порожня відповідь теж помилка.
+      let row = null;
+      try { row = await this._slRpc('admin_set_status', { p_user: p.id, p_status: next }); }
+      catch (e) { if (!/admin_set_status|PGRST202|404/i.test(String(e.message || e))) throw e; }
+      if (!row) {
+        const out = await this._patch('site_users', p.id, body);
+        if (!Array.isArray(out) || !out.length) throw new Error('База не змінила рядок — схоже, немає прав. Прогоніть supabase_admin_users_migration.sql');
+        row = out[0];
+      }
+      return { status: row.status || next, decided_at: row.decided_at || body.decided_at, decided_by: row.decided_by || me };
+    };
+    const applyRows = (patches) => this.setState(st => ({
+      gosPeople: (st.gosPeople || []).map(x => patches[String(x.id)] ? { ...x, ...patches[String(x.id)] } : x),
+    }));
     const setStatus = async (p, next) => {
       if (p.status === next) return;
       if (next === 'blocked' && !(await this._askYes({ title: `Відмовити «${p.nick}»?`, hint: 'Кабінет зачиниться: ні анкет, ні пліток, ні правок, ні постів.', ok: 'Відмовити', danger: true }))) return;
       if (next === 'pending' && !(await this._askYes({ title: `Повернути «${p.nick}» на розгляд?`, hint: 'Плітки, правки, тести й печатки закриються, доки не вирішите знову. Анкети, пости, арки й аудіо лишаться відкриті.', ok: 'Повернути' }))) return;
-      let body = { status: next, decided_at: new Date().toISOString(), decided_by: me };
       try {
-        // Спершу функція (supabase_admin_users_migration.sql) — вона каже, якщо не вийшло.
-        // Немає її — звичайний PATCH, але порожня відповідь тепер теж помилка:
-        // раніше політика тихо відсікала рядок, а адмінка писала «✓ Відмовлено».
-        let row = null;
-        try { row = await this._slRpc('admin_set_status', { p_user: p.id, p_status: next }); }
-        catch (e) { if (!/admin_set_status|PGRST202|404/i.test(String(e.message || e))) throw e; }
-        if (!row) {
-          const out = await this._patch('site_users', p.id, body);
-          if (!Array.isArray(out) || !out.length) throw new Error('База не змінила рядок — схоже, немає прав. Прогоніть supabase_admin_users_migration.sql');
-          row = out[0];
-        }
-        body = { status: row.status || next, decided_at: row.decided_at || body.decided_at, decided_by: row.decided_by || me };
-        this.setState(st => ({ gosPeople: (st.gosPeople || []).map(x => String(x.id) === String(p.id) ? { ...x, ...body } : x) }));
+        applyRows({ [String(p.id)]: await putStatus(p, next) });
         this._toast(next === 'approved' ? '✓ Доступ відкрито' : next === 'blocked' ? '✓ Відмовлено' : '✓ Повернуто на розгляд');
-      } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
+      } catch (e) { this._toast('✗ ' + why(e)); }
     };
-
-    const RIGHTS = [
-      { key: 'intake', label: 'Анкети',          ok: st => st !== 'blocked' },
-      { key: 'posts',  label: 'Пости, арки, аудіо', ok: st => st !== 'blocked' },
-      { key: 'offers', label: 'Оголошення',      ok: st => st !== 'blocked' },
-      { key: 'gossip', label: 'Плітки',          ok: st => st === 'approved' },
-      { key: 'edits',  label: 'Правки своїх',    ok: (st, n) => st === 'approved' && n > 0, why: (st, n) => st === 'approved' && !n ? 'немає персонажа' : '' },
-      { key: 'tests',  label: 'Тести',           ok: st => st === 'approved' },
-      { key: 'seals',  label: 'Печатки',         ok: st => st === 'approved' },
-      { key: 'me',     label: '«Про мене»',      ok: st => st === 'approved' },
-    ];
 
     const dropUser = async (p) => {
       const own = ownOf(p.id);
@@ -8731,28 +8821,216 @@ class Component extends DCLogic {
       try {
         await this._slRpc('admin_drop_user', { p_user: p.id });
         this.setState(st => ({ gosPeople: (st.gosPeople || []).filter(x => String(x.id) !== String(p.id)), pplOpen: '' }));
+        if (own.length) this._refreshTable('characters');
         this._toast('✓ Аркуш видалено');
       } catch (e) {
         const m = String(e.message || e);
-        this._toast('✗ ' + (/admin_drop_user|PGRST202|404/i.test(m) ? 'Спершу прогоніть supabase_admin_users_migration.sql' : m));
+        this._toast('✗ ' + (/admin_drop_user|PGRST202|404/i.test(m) ? 'Спершу прогоніть supabase_admin_users_migration.sql' : why(e)));
       }
     };
+
+    // ── Книга прав: одне джерело для таблиці вгорі й чипів у картці ──
+    // yes — є одразу; char — коли за людиною записано персонажа; no — немає.
+    // Джерело правди — тригери й RLS у міграціях; змінили гейт у SQL — правте й тут.
+    const BOOK = [
+      { key: 'intake', chip: 'Анкети',             label: 'Подати анкету на персонажа',        hint: '· до 3 на розгляді, чернетки без меж', pending: 'yes', approved: 'yes', blocked: 'no' },
+      { key: 'posts',  chip: 'Пости, арки, аудіо', label: 'Читати пости, арки, аудіотеку',     hint: '· і дошку оголошень',                 pending: 'yes', approved: 'yes', blocked: 'no' },
+      { key: 'desk',   chip: '',                   label: 'Кнопка «✦ Рецепція» на сайті',      hint: '· своїм уже не показується',          pending: 'yes', approved: 'no',  blocked: 'no' },
+      { key: 'gossip', chip: 'Плітки',             label: 'Віконце пліток',                    hint: '',                                    pending: 'no',  approved: 'yes', blocked: 'no' },
+      { key: 'turns',  chip: 'Черга в арках',      label: 'Черга в арках, підписки, збірки',   hint: '· і порядок арок',                    pending: 'no',  approved: 'yes', blocked: 'no' },
+      { key: 'tests',  chip: 'Тести',              label: 'Конструктор тестів',                hint: '· чернетки',                          pending: 'no',  approved: 'yes', blocked: 'no' },
+      { key: 'me',     chip: '«Про мене», печатки', label: '«Про мене», печатки, фамільяр',    hint: '',                                    pending: 'no',  approved: 'yes', blocked: 'no' },
+      { key: 'edits',  chip: 'Правки своїх',       label: 'Правки своїх персонажів',           hint: '· плейліст, кубик і тести за свого',  pending: 'no',  approved: 'char', blocked: 'no' },
+      { key: 'offers', chip: 'Оголошення',         label: 'Вивісити оголошення',               hint: '· за свого персонажа',                pending: 'no',  approved: 'char', blocked: 'no' },
+    ];
+    const MARK = {
+      yes:  { mark: '✓', color: '#ffd700', size: '0.85rem', title: 'є одразу' },
+      char: { mark: '✦', color: 'rgba(255,215,0,0.75)', size: '0.8rem', title: 'коли за людиною записано персонажа' },
+      no:   { mark: '—', color: 'rgba(255,255,255,0.18)', size: '0.85rem', title: 'немає' },
+    };
+
+    // ── Лічильники-ярлики ──
+    const cnt = { all: people.length, pending: 0, approved: 0, blocked: 0, bad: 0, idle: 0, nochar: 0, unlinked: 0 };
+    people.forEach(p => {
+      const st = stOf(p); cnt[st]++;
+      if (badOf(p).length) cnt.bad++;
+      if (st === 'approved' && isIdle(p)) cnt.idle++;
+      if (st === 'approved' && !ownOf(p.id).length) cnt.nochar++;
+      if (st === 'approved' && tg && !tgLinked.has(String(p.id))) cnt.unlinked++;
+    });
+    const EXTRA = {
+      bad:      { label: '⚠ аркуш не за правилами', test: (p) => badOf(p).length > 0 },
+      idle:     { label: `свої, що не входили ${IDLE}+ днів`, test: (p) => stOf(p) === 'approved' && isIdle(p) },
+      nochar:   { label: 'свої без персонажа', test: (p) => stOf(p) === 'approved' && !ownOf(p.id).length },
+      unlinked: { label: 'свої без привʼязки до чату', test: (p) => stOf(p) === 'approved' && !!tg && !tgLinked.has(String(p.id)) },
+    };
+
+    const flt = s.pplFilter || 'all';
+    const notes = s.pplNotes || null;
+    const noteOf = (p) => notes && notes[String(p.id)] ? notes[String(p.id)].note || '' : '';
+    const pq = String(s.gosPQ || '').toLowerCase().trim();
+    const sort = s.pplSort || 'wait';
+    const order = { pending: 0, approved: 1, blocked: 2 };
+    const created = (p) => p.created_at ? new Date(p.created_at).getTime() : 0;
+    const SORTS = {
+      wait: (a, b) => (order[stOf(a)] - order[stOf(b)]) || (created(b) - created(a)),
+      new:  (a, b) => created(b) - created(a),
+      seen: (a, b) => seenAt(b) - seenAt(a),
+      idle: (a, b) => seenAt(a) - seenAt(b),
+      nick: (a, b) => String(a.nick || '').localeCompare(String(b.nick || ''), 'uk'),
+    };
+    const shown = people
+      .filter(p => flt === 'all' ? true : EXTRA[flt] ? EXTRA[flt].test(p) : stOf(p) === flt)
+      .filter(p => !pq || `${p.nick || ''} ${p.tg_nick || ''} ${p.email || ''} ${ownOf(p.id).map(c => c.name).join(' ')} ${noteOf(p)}`.toLowerCase().includes(pq))
+      .sort(SORTS[sort] || SORTS.wait);
+
+    // ── Масовий вибір ──
+    const picking = !!s.pplPicking;
+    const picked = s.pplPicked || {};
+    const pickedRows = people.filter(p => picked[String(p.id)]);
+    const togglePick = (p) => this.setState(st => {
+      const m = { ...(st.pplPicked || {}) }, k = String(p.id);
+      if (m[k]) delete m[k]; else m[k] = true;
+      return { pplPicked: m };
+    });
+    const allPicked = shown.length > 0 && shown.every(p => picked[String(p.id)]);
+    const bulkStatus = async (next) => {
+      const list = pickedRows.filter(p => p.status !== next);
+      if (!list.length) { this._toast('У вибраних цей статус уже стоїть'); return; }
+      const ok = await this._askYes({
+        title: next === 'approved' ? `Відкрити доступ ${list.length} людям?` : `Відмовити ${list.length} людям?`,
+        hint: list.map(p => p.nick || p.email).slice(0, 12).join(', ') + (list.length > 12 ? ` і ще ${list.length - 12}` : ''),
+        ok: next === 'approved' ? 'Відкрити' : 'Відмовити', danger: next === 'blocked',
+      });
+      if (!ok) return;
+      const patches = {}, fails = [];
+      for (const p of list) {
+        try { patches[String(p.id)] = await putStatus(p, next); }
+        catch (e) { fails.push(`${p.nick || p.email}: ${why(e)}`); }
+      }
+      applyRows(patches);
+      this.setState({ pplPicked: {} });
+      const n = Object.keys(patches).length;
+      this._toast(fails.length ? `✓ ${n} · ✗ ${fails.length} — ${fails[0]}` : `✓ Готово: ${n}`);
+    };
+    const bulkDrop = async () => {
+      const list = pickedRows;
+      if (!list.length) return;
+      const owned = list.filter(p => ownOf(p.id).length);
+      const ok = await this._askYes({
+        title: `Видалити ${list.length} аркуш(ів) назовсім?`,
+        hint: list.map(p => p.nick || p.email).slice(0, 12).join(', ') + (list.length > 12 ? ` і ще ${list.length - 12}` : '')
+          + '. Акаунти зникнуть разом із входом; анкети, плітки й дописи лишаться без автора.'
+          + (owned.length ? ` У ${owned.length} з них є персонажі — вони стануть нічиїми.` : '')
+          + ' Скасувати не можна.',
+        ok: 'Видалити назовсім', danger: true,
+      });
+      if (!ok) return;
+      const ids = list.map(p => p.id);
+      let gone = [], fails = [];
+      try {
+        const r = await this._slRpc('admin_drop_users', { p_users: ids });
+        const bad = (r && Array.isArray(r.failed)) ? r.failed : [];
+        const badIds = new Set(bad.map(b => String(b.id)));
+        gone = ids.filter(id => !badIds.has(String(id)));
+        fails = bad.map(b => { const p = list.find(x => String(x.id) === String(b.id)); return `${p ? p.nick || p.email : b.id}: ${why(b.why)}`; });
+      } catch (e) {
+        // Немає пачкової функції — по одному.
+        if (!/admin_drop_users|PGRST202|404/i.test(String(e.message || e))) { this._toast('✗ ' + why(e)); return; }
+        for (const p of list) {
+          try { await this._slRpc('admin_drop_user', { p_user: p.id }); gone.push(p.id); }
+          catch (e2) { fails.push(`${p.nick || p.email}: ${why(e2)}`); }
+        }
+      }
+      const goneSet = new Set(gone.map(String));
+      this.setState(st => ({ gosPeople: (st.gosPeople || []).filter(x => !goneSet.has(String(x.id))), pplPicked: {}, pplOpen: '' }));
+      if (owned.length) this._refreshTable('characters');
+      this._toast(fails.length ? `✓ Видалено ${gone.length} · ✗ ${fails.length} — ${fails[0]}` : `✓ Видалено ${gone.length}`);
+    };
+
+    // ── Нотатка адміна ──
+    const saveNote = async (p) => {
+      const text = String((s.pNotes || {})[String(p.id)] ?? '').trim();
+      try {
+        const r = await fetch(`${SUPA_URL}/site_user_notes?on_conflict=user_id`, {
+          method: 'POST',
+          headers: { ...this._authHJ(), 'Prefer': 'resolution=merge-duplicates,return=representation' },
+          body: JSON.stringify({ user_id: p.id, note: text, updated_at: new Date().toISOString(), updated_by: me }),
+        });
+        if (!r.ok) { const t = await r.text(); let m = t; try { m = JSON.parse(t).message || t; } catch (e) {} throw new Error(m); }
+        const row = (await r.json())[0] || { user_id: p.id, note: text, updated_at: new Date().toISOString(), updated_by: me };
+        this.setState(st => {
+          const d = { ...(st.pNotes || {}) }; delete d[String(p.id)];
+          return { pNotes: d, pplNotes: { ...(st.pplNotes || {}), [String(p.id)]: row } };
+        });
+        this._toast('✓ Нотатку збережено');
+      } catch (e) { this._toast('✗ ' + (e.message || 'Не вийшло')); }
+    };
+
+    const pill = (on) => ({
+      bg: on ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
+      border: on ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
+      color: on ? '#ffd700' : 'rgba(255,255,255,0.45)',
+    });
+    const statCard = (key, value, label, color, hint) => ({
+      key, value: nf(value), label, hint, color,
+      border: flt === key ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.09)',
+      onPick: () => this.setState({ pplFilter: flt === key ? 'all' : key }),
+    });
 
     return {
       showPeopleTab: s.tab === 'people',
       ...this._histVals(),
+      pplStats: [
+        statCard('pending', cnt.pending, 'чекають рішення', cnt.pending ? '#ffd700' : 'rgba(255,255,255,0.5)', 'Показати тих, хто чекає'),
+        statCard('approved', cnt.approved, `своїх · з ${nf(cnt.all)} аркушів`, 'rgba(150,230,170,0.95)', 'Показати своїх'),
+        statCard('nochar', cnt.nochar, 'своїх без персонажа', cnt.nochar ? 'rgba(255,215,0,0.8)' : 'rgba(255,255,255,0.5)', 'Кому ще не записали персонажа'),
+        ...(AU ? [statCard('idle', cnt.idle, `своїх не входили ${IDLE}+ днів`, cnt.idle ? 'rgba(255,190,130,0.9)' : 'rgba(255,255,255,0.5)', 'За даними входу з Supabase Auth')] : []),
+        ...(tg ? [statCard('unlinked', cnt.unlinked, 'своїх без привʼязки до чату', cnt.unlinked ? 'rgba(140,175,255,0.9)' : 'rgba(255,255,255,0.5)', 'Їхні печатки людей і статистика чату не рахуються')] : []),
+        ...(cnt.bad ? [statCard('bad', cnt.bad, 'аркушів не за правилами', 'rgba(255,180,110,0.95)', 'Нік коротший за 2 знаки, кривий @нік або порожнє «про себе»')] : []),
+      ],
+      pplRightsCount: BOOK.length,
+      pplRightsRows: BOOK.map(r => ({
+        key: r.key, label: r.label, hint: r.hint,
+        cells: ['pending', 'approved', 'blocked'].map(k => ({ key: k, ...MARK[r[k]] })),
+      })),
       pplFilters: [
         { key: 'all', label: `Усі · ${cnt.all}` },
         { key: 'pending', label: `Чекають · ${cnt.pending}` },
         { key: 'approved', label: `Свої · ${cnt.approved}` },
         { key: 'blocked', label: `Відмовлено · ${cnt.blocked}` },
+        ...(EXTRA[flt] ? [{ key: flt, label: `${EXTRA[flt].label} · ${shown.length} ✕` }] : []),
       ].map(f => ({
-        key: f.key, label: f.label,
-        bg: flt === f.key ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
-        border: flt === f.key ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
-        color: flt === f.key ? '#ffd700' : 'rgba(255,255,255,0.45)',
-        onPick: () => this.setState({ pplFilter: f.key }),
+        key: f.key, label: f.label, ...pill(flt === f.key),
+        onPick: () => this.setState({ pplFilter: EXTRA[f.key] && flt === f.key ? 'all' : f.key }),
       })),
+      pplSort: sort,
+      pplSorts: [
+        { value: 'wait', label: 'Спершу ті, хто чекає' },
+        { value: 'new', label: 'Новіші аркуші' },
+        ...(AU ? [{ value: 'seen', label: 'Нещодавно заходили' }, { value: 'idle', label: 'Давно не заходили' }] : []),
+        { value: 'nick', label: 'За ніком, А→Я' },
+      ].map(o => ({ ...o, key: o.value })),
+      pplSetSort: (e) => this.setState({ pplSort: e.target.value }),
+      pplPicking: picking,
+      pplPickToggle: () => this.setState({ pplPicking: !picking, pplPicked: {}, pplOpen: '' }),
+      pplPickLabel: picking ? '✕ Скінчити вибір' : '☐ Вибрати кілька',
+      pplPickBg: picking ? 'rgba(255,215,0,0.14)' : 'transparent',
+      pplPickBorder: picking ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.14)',
+      pplPickColor: picking ? '#ffd700' : 'rgba(255,255,255,0.5)',
+      pplPickCount: pickedRows.length ? `Вибрано: ${pickedRows.length}` : 'Клацайте по плитках, щоб вибрати',
+      pplPickAllLabel: allPicked ? 'Зняти вибір' : `Усіх показаних · ${shown.length}`,
+      pplPickAll: () => this.setState(st => {
+        if (allPicked) return { pplPicked: {} };
+        const m = { ...(st.pplPicked || {}) };
+        shown.forEach(p => { m[String(p.id)] = true; });
+        return { pplPicked: m };
+      }),
+      pplBulkOff: pickedRows.length === 0,
+      pplBulkOpacity: pickedRows.length ? 1 : 0.4,
+      pplBulkApprove: () => bulkStatus('approved'),
+      pplBulkBlock: () => bulkStatus('blocked'),
+      pplBulkDrop: () => bulkDrop(),
       pplEmpty: people.length
         ? 'Під цей фільтр ніхто не підходить.'
         : 'Поки ніхто не записався. Якщо ви щойно прогнали міграцію — це нормально.',
@@ -8761,14 +9039,15 @@ class Component extends DCLogic {
       gosSetPQ: (e) => this.setState({ gosPQ: e.target.value }),
 
       ...(() => {
-      const tiles = s.pplView !== 'list';
+      const tiles = s.pplView !== 'list' || picking;
       const cards = shown.map(p => {
-        const status = ST[p.status] ? p.status : 'pending';
+        const status = stOf(p);
         const own = ownOf(p.id);
         // Аватарка — портрет першого її персонажа, в якого він є; нема — літера ніку.
         const withArt = own.filter(c => c.image);
         const art = withArt[0];
-        const open = String(s.pplOpen || '') === String(p.id);
+        const open = !picking && String(s.pplOpen || '') === String(p.id);
+        const isPicked = !!picked[String(p.id)];
         const ins = by(s.inRows, p.id), eds = by(s.edRows, p.id), gos = by(s.gosRows, p.id);
         const insWait = ins.filter(r => r.status === 'pending').length;
         const edWait = eds.filter(r => r.status === 'pending').length;
@@ -8777,6 +9056,22 @@ class Component extends DCLogic {
           `правок ${eds.length}${edWait ? ` (на розгляді ${edWait})` : ''}`,
           `підписаних пліток ${gos.length}`,
         ];
+        const bad = badOf(p);
+        const a = authOf(p);
+        const seen = seenAt(p);
+        const idle = isIdle(p);
+        const authLine = !AU
+          ? `не читається — прогоніть supabase_people_v2_migration.sql${s.pplAuth && s.pplAuth.error ? ` (${s.pplAuth.error})` : ''}`
+          : !a ? 'акаунта в Auth немає — аркуш-сирота, його можна просто видалити'
+          : [
+              seen ? `востаннє ${ago(seen)} · ${this._gosWhen(a.last_sign_in_at)}` : 'жодного разу не входив',
+              a.email_confirmed_at ? '' : 'пошта не підтверджена',
+              a.must_change_pw ? 'чекає, щоб змінили тимчасовий пароль' : '',
+              a.is_admin ? 'це адмін' : '',
+            ].filter(Boolean).join(' · ');
+        const saved = notes && notes[String(p.id)] ? notes[String(p.id)] : null;
+        const draft = (s.pNotes || {})[String(p.id)];
+        const noteVal = draft !== undefined ? draft : (saved ? saved.note : '');
         return {
           key: p.id, id: p.id,
           nick: p.nick || '—',
@@ -8786,18 +9081,20 @@ class Component extends DCLogic {
             ? `Статус «${ST[status].label}» · ${p.decided_by || 'адмін'} · ${this._gosWhen(p.decided_at)}`
             : status === 'pending' ? 'Рішення ще не було' : '',
           about: p.about || '', hasAbout: !!p.about,
+          hasBad: bad.length > 0, badLine: bad.join('; '),
           statuses: ['pending', 'approved', 'blocked'].map(k => ({
             key: k, label: ST[k].label,
             bg: k === status ? ST[k].bg : 'transparent',
             color: k === status ? ST[k].color : 'rgba(255,255,255,0.38)',
             onPick: () => setStatus(p, k),
           })),
-          rights: RIGHTS.map(r => {
-            const on = r.ok(status, own.length);
-            const why = on ? '' : (r.why && r.why(status, own.length)) || (status === 'blocked' ? 'закрито' : 'після доступу');
+          rights: BOOK.filter(r => r.chip && !(r[status] === 'no' && status === 'approved')).map(r => {
+            const v = r[status];
+            const on = v === 'yes' || (v === 'char' && own.length > 0);
+            const whyNot = on ? '' : status === 'blocked' ? 'закрито' : status === 'pending' ? 'після доступу' : v === 'char' ? 'немає персонажа' : '';
             return {
-              key: r.key, why,
-              text: on ? `✓ ${r.label}` : `${r.label} · ${why}`,
+              key: r.key, why: whyNot,
+              text: on ? `✓ ${r.chip}` : `${r.chip} · ${whyNot}`,
               bg: on ? 'rgba(120,220,150,0.08)' : 'transparent',
               border: on ? 'rgba(120,220,150,0.3)' : 'rgba(255,255,255,0.08)',
               color: on ? 'rgba(150,230,170,0.92)' : 'rgba(255,255,255,0.3)',
@@ -8818,6 +9115,15 @@ class Component extends DCLogic {
           },
           activity: act.join(' · '),
           ...tgVals(p),
+          authLine,
+          authColor: !AU || !a ? 'rgba(255,255,255,0.35)' : idle && status === 'approved' ? 'rgba(255,190,130,0.9)' : 'rgba(255,255,255,0.55)',
+          noteVal,
+          noteOff: !notes,
+          notePh: notes ? 'Бачать лише адміни: звідки людина, про що домовились, чого чекаємо…' : 'Нотатки зʼявляться після supabase_people_v2_migration.sql',
+          noteDirty: draft !== undefined && String(draft).trim() !== String(saved ? saved.note : '').trim(),
+          noteMeta: saved && saved.note ? `${saved.updated_by || 'адмін'} · ${this._gosWhen(saved.updated_at)}` : '',
+          setNote: (e) => { const v = e.target.value; this.setState(st => ({ pNotes: { ...(st.pNotes || {}), [String(p.id)]: v } })); },
+          onSaveNote: () => saveNote(p),
           canEdit: String(s.pEdit || '') !== String(p.id),
           editing: String(s.pEdit || '') === String(p.id),
           fNick: String((s.pForm || {}).nick || ''),
@@ -8843,23 +9149,30 @@ class Component extends DCLogic {
           open, showClose: tiles,
           onClose: () => this.setState({ pplOpen: '', pEdit: '', pForm: {} }),
           onOpen: () => {
+            if (picking) { togglePick(p); return; }
             this.setState({ pplOpen: open ? '' : String(p.id), pEdit: '', pForm: {} });
             if (!open) { try { const el = document.getElementById('ppl-detail'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' }); } catch (e) {} }
           },
+          showPick: picking,
+          pickMark: isPicked ? '✓' : '',
+          pickBg: isPicked ? '#ffd700' : 'rgba(0,0,0,0.3)',
+          pickBorder: isPicked ? '#ffd700' : 'rgba(255,255,255,0.3)',
           hasArt: !!art, noArt: !art,
           artBg: art ? `url('${art.image}') center/cover no-repeat` : 'transparent',
           artTitle: art ? art.name : '',
           initial: String(p.nick || '?').trim().charAt(0).toUpperCase() || '?',
-          ring: open ? '#ffd700' : ST[status].color,
-          tileBorder: open ? 'rgba(255,215,0,0.55)' : status === 'pending' ? 'rgba(255,215,0,0.28)' : 'rgba(255,255,255,0.09)',
-          tileBg: open ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.035)',
+          ring: open || isPicked ? '#ffd700' : ST[status].color,
+          tileBorder: open || isPicked ? 'rgba(255,215,0,0.55)' : status === 'pending' ? 'rgba(255,215,0,0.28)' : 'rgba(255,255,255,0.09)',
+          tileBg: open || isPicked ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.035)',
           stLabel: ST[status].label, stColor: ST[status].color,
+          seenShort: !AU ? '' : !a ? 'без акаунта' : seen ? `вхід ${ago(seen)}` : 'не входив',
+          seenColor: idle && status === 'approved' ? 'rgba(255,190,130,0.8)' : 'rgba(255,255,255,0.3)',
           more: withArt.slice(1, 4).map(c => ({ key: c.id, bg: `url('${c.image}') center/cover no-repeat`, name: c.name })),
           hasMore: withArt.length > 1,
           charLine: own.length ? own.map(c => c.name).join(', ') : (p.tg_nick || 'без персонажа'),
           waitLine: [insWait ? `анкет ${insWait}` : '', edWait ? `правок ${edWait}` : ''].filter(Boolean).join(' · '),
           hasWait: !!(insWait || edWait),
-          isPending: status === 'pending',
+          isPending: status === 'pending' && !picking,
           onApprove: (e) => { e.stopPropagation(); setStatus(p, 'approved'); },
           onBlock: (e) => { e.stopPropagation(); setStatus(p, 'blocked'); },
         };
@@ -8867,7 +9180,7 @@ class Component extends DCLogic {
       return {
         pplTilesOn: tiles, pplListOn: !tiles,
         pplViewTiles: () => this.setState({ pplView: 'tiles' }),
-        pplViewList: () => this.setState({ pplView: 'list', pplOpen: '' }),
+        pplViewList: () => this.setState({ pplView: 'list', pplOpen: '', pplPicking: false, pplPicked: {} }),
         pplTileBtnBg: tiles ? 'rgba(255,215,0,0.14)' : 'transparent',
         pplTileBtnColor: tiles ? '#ffd700' : 'rgba(255,255,255,0.45)',
         pplListBtnBg: tiles ? 'transparent' : 'rgba(255,215,0,0.14)',
