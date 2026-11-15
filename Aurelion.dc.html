@@ -3195,6 +3195,73 @@ a:hover{color:#a8c4f7;}
           </div>
         </section>
 
+        <!-- Для тих, хто придивляється (pulse_outlook) -->
+        <sc-if value="{{ poOn }}" hint-placeholder-val="{{ true }}">
+        <section style="display:flex;flex-direction:column;gap:14px;padding:22px 24px 24px;border-radius:16px;border:1px solid rgba(110,192,176,0.28);background:radial-gradient(ellipse 70% 80% at 0% 0%,rgba(110,192,176,0.09),rgba(110,192,176,0) 60%),rgba(255,255,255,0.025);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px 20px;flex-wrap:wrap;">
+            <div>
+              <p style="font-size:0.64rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(110,192,176,0.9);margin-bottom:8px;">✦ Для тих, хто придивляється</p>
+              <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.25rem,3vw,1.5rem);color:#fff;letter-spacing:0.05em;">Чи живе тут гра</h2>
+              <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;color:rgba(255,255,255,0.5);margin-top:4px;text-wrap:pretty;">{{ poPeriod }}</p>
+            </div>
+            <a href="#intake" style="flex-shrink:0;display:inline-flex;align-items:center;gap:7px;background:rgba(255,215,0,0.14);border:1px solid rgba(255,215,0,0.4);color:#ffd700;border-radius:999px;padding:9px 20px;font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.05em;text-decoration:none;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.24);box-shadow:0 0 20px rgba(255,215,0,0.28);color:#fff;">✍ Спробувати — подати анкету</a>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,138px),1fr));gap:10px;">
+            <sc-for list="{{ poTiles }}" as="t" hint-placeholder-count="4">
+              <div title="{{ t.tip }}" style="padding:14px 16px;border-radius:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:6px;">
+                <p style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);">{{ t.label }}</p>
+                <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:1.75rem;font-weight:700;line-height:1;color:#fff;">{{ t.value }}</span>
+                </div>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:rgba(255,255,255,0.45);text-wrap:pretty;">{{ t.sub }}</p>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px;">
+            <sc-if value="{{ poHoursOn }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:18px 20px;border-radius:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:10px;min-width:0;">
+                <p style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Коли тут пишуть · за Києвом</p>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.45;color:rgba(255,255,255,0.6);text-wrap:pretty;">{{ poHoursNote }}</p>
+                <div style="display:grid;grid-template-columns:22px repeat(24,1fr);gap:2px;align-items:center;">
+                  <sc-for list="{{ poHourRows }}" as="r" hint-placeholder-count="7">
+                    <span style="font-size:0.6rem;color:rgba(255,255,255,0.4);">{{ r.d }}</span>
+                    <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="24">
+                      <span title="{{ c.tip }}" style="display:block;aspect-ratio:1;border-radius:2px;background:{{ c.bg }};"></span>
+                    </sc-for>
+                  </sc-for>
+                  <span></span>
+                  <sc-for list="{{ poHourTicks }}" as="k" hint-placeholder-count="24">
+                    <span style="font-size:0.56rem;color:rgba(255,255,255,0.35);text-align:center;">{{ k.l }}</span>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ poLenOn }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:18px 20px;border-radius:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:10px;">
+                <p style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);">Який завдовжки пост</p>
+                <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+                  <span style="font-family:'Cinzel',Georgia,serif;font-size:2rem;font-weight:700;line-height:1;color:#fff;">{{ poLenMed }}</span>
+                  <span style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.6);">{{ poLenWord }}</span>
+                </div>
+                <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.45;color:rgba(255,255,255,0.6);text-wrap:pretty;">{{ poLenNote }}</p>
+                <div style="display:flex;flex-direction:column;gap:7px;margin-top:auto;">
+                  <sc-for list="{{ poLenBars }}" as="b" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:96px minmax(0,1fr) 38px;gap:10px;align-items:center;">
+                      <span style="font-size:0.74rem;color:rgba(255,255,255,0.55);">{{ b.label }}</span>
+                      <span style="height:8px;border-radius:999px;background:rgba(255,255,255,0.06);overflow:hidden;display:block;"><span style="display:block;height:100%;width:{{ b.w }};border-radius:999px;background:{{ b.bg }};"></span></span>
+                      <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);text-align:right;">{{ b.pct }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+        </section>
+        </sc-if>
+
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px;">
           <!-- Тиждень проти звичного -->
           <section class="glass" style="padding:24px 26px;border-radius:12px;">
@@ -6546,6 +6613,71 @@ class Component extends DCLogic {
     this.setState({ pulsePosts: Array.isArray(pp) ? pp : [] });
   }
 
+  // «Для тих, хто придивляється» — знеособлені підсумки з rpc pulse_outlook()
+  // (supabase_pulse_outlook_migration.sql). Без міграції — блоку просто немає.
+  async _loadOutlook() {
+    try {
+      const r = await fetch(SUPA_URL + '/rpc/pulse_outlook', { method: 'POST', headers: { ...SUPA_H, 'Content-Type': 'application/json' }, body: '{}' });
+      const j = r.ok ? await r.json() : null;
+      this.setState({ pulseOutlook: j && typeof j === 'object' ? j : null });
+    } catch (e) { this.setState({ pulseOutlook: null }); }
+  }
+
+  _outlookVals() {
+    const o = this.state.pulseOutlook;
+    if (!o) return { poOn: false };
+    const pl = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? a : (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) ? b : c; };
+    const num = (v) => Number(v) || 0;
+    const fmt = (v, dec) => (dec ? (Math.round(v * 10) / 10) : Math.round(v)).toLocaleString('uk-UA');
+
+    // люди: лише «скільки», без порівнянь
+    const pe = o.people, tiles = [];
+    if (pe && num(pe.authors) > 0) {
+      tiles.push({ label: 'Людей пише щодня', value: '≈ ' + fmt(num(pe.per_day), true), sub: 'у середньому за останні 30 днів', tip: 'Скільки різних людей у середньому пише в рольовому чаті за день' });
+      tiles.push({ label: 'Писало за місяць', value: fmt(num(pe.authors)), sub: pl(num(pe.authors), 'людина', 'людини', 'людей') + ' за останні 30 днів', tip: 'Різні люди, які хоч раз писали в чат за 30 днів' });
+    }
+
+    // коли пишуть
+    const hours = Array.isArray(o.hours) && o.hours.length === 7 ? o.hours.map(r => (r || []).map(num)) : null;
+    const hTotal = hours ? hours.reduce((a, r) => a + r.reduce((x, y) => x + y, 0), 0) : 0;
+    const hOn = hTotal >= 20;
+    const DN = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'], DFULL = ['понеділок', 'вівторок', 'середу', 'четвер', 'п\'ятницю', 'суботу', 'неділю'];
+    let hoursNote = '', hourRows = [];
+    if (hOn) {
+      const max = Math.max(1, ...hours.flat());
+      const col = Array.from({ length: 24 }, (_, h) => hours.reduce((a, r) => a + r[h], 0));
+      let best = 0, bs = -1;
+      for (let h = 0; h < 24; h++) { const s3 = col[h] + col[(h + 1) % 24] + col[(h + 2) % 24]; if (s3 > bs) { bs = s3; best = h; } }
+      const dsum = hours.map(r => r.reduce((a, b) => a + b, 0));
+      const bd = dsum.indexOf(Math.max(...dsum));
+      const quiet = col.filter(v => v === 0).length;
+      hoursNote = 'Найжвавіше з ' + best + ':00 до ' + ((best + 3) % 24) + ':00 — це ' + Math.round(bs / hTotal * 100) + '% постів. Найбільше пишуть у ' + DFULL[bd] + (quiet >= 4 ? '; вночі й зранку — тихо.' : '.');
+      hourRows = hours.map((r, i) => ({ key: i, d: DN[i], cells: r.map((v, h) => ({ key: h, bg: v ? 'rgba(255,215,0,' + (0.1 + 0.85 * v / max).toFixed(2) + ')' : 'rgba(255,255,255,0.04)', tip: DN[i] + ' ' + h + ':00 — ' + v + ' ' + pl(v, 'пост', 'пости', 'постів') })) }));
+    }
+
+    // довжина
+    const ln = o.length;
+    const lnOn = !!(ln && num(ln.n) >= 10);
+    const PAGE = 1800; // знаків на сторінку
+    const pages = (c) => { const p = c / PAGE; return p < 0.4 ? 'кілька абзаців' : p < 0.75 ? 'пів сторінки' : p < 1.3 ? 'приблизно сторінка' : '≈ ' + String(Math.round(p * 2) / 2).replace('.', ',') + ' сторінки'; };
+    const lb = lnOn ? (ln.b || []).map(num) : [];
+    const lbTot = Math.max(1, lb.reduce((a, b) => a + b, 0)), lbMax = Math.max(1, ...lb);
+
+    return {
+      poOn: tiles.length > 0 || hOn || lnOn,
+      poPeriod: 'Люди — за останні 30 днів, пости — за три місяці. Лише числа, без імен.',
+      poTiles: tiles.map((t, i) => ({ key: i, ...t })),
+      poHoursOn: hOn, poHoursNote: hoursNote, poHourRows: hourRows,
+      poHourTicks: Array.from({ length: 24 }, (_, h) => ({ key: h, l: h % 6 === 0 ? String(h) : '' })),
+      poLenOn: lnOn,
+      poLenMed: lnOn ? fmt(num(ln.med)) : '',
+      poLenWord: lnOn ? 'знаків у звичайному пості — ' + pages(num(ln.med)) : '',
+      poLenNote: lnOn ? 'Половина постів — від ' + fmt(num(ln.p25)) + ' до ' + fmt(num(ln.p75)) + ' знаків. Коротко теж можна: головне — щоб сцена рухалась.' : '',
+      poLenBars: ['до 500', '500–1 500', '1 500–3 000', '3 000+'].map((label, k) => ({ key: k, label, w: Math.round((lb[k] || 0) / lbMax * 100) + '%', pct: Math.round((lb[k] || 0) / lbTot * 100) + '%', bg: k === lb.indexOf(lbMax) ? '#ffd700' : 'rgba(255,215,0,0.45)' })),
+    };
+  }
+
+
   // «Звірити» на сторінці «Пульс»: тягне лише числа, не перезавантажуючи сайт.
   async _refreshPulse() {
     if (this.state.pulseBusy) return;
@@ -6560,6 +6692,7 @@ class Component extends DCLogic {
         this._getSoft('pulse_posts_daily?select=day,posts&order=day.asc'),
       ]);
       if (Array.isArray(pp)) this.setState({ pulsePosts: pp });
+      this._loadOutlook();
       const data = {
         ...(this.state.data || {}),
         post_activity: Array.isArray(pa) ? pa : [],
@@ -9522,7 +9655,7 @@ class Component extends DCLogic {
       // ── Сторінка «Пульс»: усе рахується з денних сум, без імен ──
       ...((() => {
         if (page !== 'pulse') return { showPulsePage: false };
-        if (!this._ppAsked) { this._ppAsked = true; setTimeout(() => this._loadPulsePosts(), 0); }
+        if (!this._ppAsked) { this._ppAsked = true; setTimeout(() => { this._loadPulsePosts(); this._loadOutlook(); }, 0); }
         const marta = {
           martaLine:     this.state.martaLine || MARTA_IDLE,
           martaStamp:    this.state.pulseStamp ? 'звірено о ' + this.state.pulseStamp : '',
@@ -9933,6 +10066,7 @@ class Component extends DCLogic {
           pgTotalWord: plural(total, 'допис', 'дописи', 'дописів'),
           ppTotalWord: plural(ppTotalN, 'пост', 'пости', 'постів'),
           peopleAllWord: peopleOn ? plural(Number(pt.authors_all) || 0, 'голос', 'голоси', 'голосів') : '',
+          ...this._outlookVals(),
           showPulsePage: true,
           pulseNoData: false,
           pulseHasData: true,
