@@ -3695,9 +3695,9 @@ a:hover{color:#a8c4f7;}
 </sc-if>
 <!-- ═══ ВІКОНЦЕ РЕЦЕПЦІЇ — зворотний звʼязок для гостей і «на розгляді» ═══ -->
 <sc-if value="{{ fbDock }}" hint-placeholder-val="{{ false }}">
-  <button onClick="{{ openFb }}" title="{{ fbDockLabel }}" aria-label="{{ fbDockLabel }}" style="position:fixed;right:22px;bottom:22px;z-index:9999;height:48px;min-width:48px;padding:0 18px 0 16px;border-radius:999px;border:1px solid rgba(255,215,0,0.45);background:rgba(26,24,20,0.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#ffd700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:9px;transition:all 0.25s ease;font-family:'Cinzel',Georgia,serif;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;" style-hover="background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.85);box-shadow:0 0 22px rgba(255,215,0,0.35);transform:translateY(-3px);">
+  <button class="au-fbdock" onClick="{{ openFb }}" title="{{ fbDockLabel }}" aria-label="{{ fbDockLabel }}" style="position:fixed;right:22px;bottom:22px;z-index:9999;height:48px;min-width:48px;padding:0 18px 0 16px;border-radius:999px;border:1px solid rgba(255,215,0,0.45);background:rgba(26,24,20,0.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#ffd700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:9px;transition:all 0.25s ease;font-family:'Cinzel',Georgia,serif;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;" style-hover="background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.85);box-shadow:0 0 22px rgba(255,215,0,0.35);transform:translateY(-3px);">
     <span style="font-size:1.05rem;line-height:1;letter-spacing:0;">✦</span>
-    <span>Рецепція</span>
+    <span class="au-fbdock-l">Рецепція</span>
     <sc-if value="{{ fbUnread }}" hint-placeholder-val="{{ false }}">
       <span style="width:8px;height:8px;border-radius:999px;background:#ffd700;box-shadow:0 0 10px rgba(255,215,0,0.9);"></span>
     </sc-if>

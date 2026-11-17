@@ -15,31 +15,41 @@
   <style>
     .nv2-desk{display:flex}
     .nv2-mob{display:none}
+    .nv2-burger{display:none!important}
     @media(max-width:1060px){.nv2-lbl{display:none!important}}
     @media(max-width:880px){
       .nv2-desk{display:none!important}
       .nv2-hide-m{display:none!important}
       .nv2-mob{display:grid!important}
-      html.au-nav2 body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
-      html.au-nav2 .au-totop{bottom:calc(78px + env(safe-area-inset-bottom))!important;right:14px!important;width:44px!important;height:44px!important}
+      .nv2-burger{display:inline-flex!important}
+      html.au-nav2 body{padding-bottom:calc(64px + env(safe-area-inset-bottom) + var(--au-lift,0px))}
+      /* плаваючі кнопки — над нижньою смугою, а не на ній: «Рецепція» гостей закривала «Забавки» й «Увійти» */
+      html.au-nav2 .au-fbdock{bottom:calc(76px + env(safe-area-inset-bottom) + var(--au-lift,0px))!important;right:14px!important;height:44px!important;min-width:44px!important;padding:0 14px!important}
+      html.au-nav2 .au-totop{bottom:calc(76px + env(safe-area-inset-bottom) + var(--au-lift,0px))!important;right:14px!important;width:44px!important;height:44px!important}
+      html.au-nav2.au-fb .au-totop{bottom:calc(128px + env(safe-area-inset-bottom) + var(--au-lift,0px))!important}
+      html.au-kb .au-fbdock,html.au-kb .au-totop,html.au-menu .au-fbdock,html.au-menu .au-totop{display:none!important}
     }
     .nv2-in::placeholder{color:rgba(255,255,255,0.32)}
     .nv2-sub::-webkit-scrollbar{display:none}
     .nv2-fade{display:none}
     html.au-sub body{padding-top:44px}
     @media(max-width:880px){.nv2-fade{display:block}.nv2-sub a{padding:0 11px!important}}
+    @media(max-width:430px){.nv2-burger-l{display:none}.nv2-burger{padding:0 11px!important}}
+    @media(max-width:370px){.nv2-logo{margin-right:8px!important;font-size:0.98rem!important;letter-spacing:0.06em!important}nav .nv2-burger,nav a[href="#audio"],nav a[href="#dice"],nav button[aria-label="Пошук"]{padding:0 9px!important}}
+    @media(max-width:520px){html.au-nav2 .au-fbdock{padding:0!important;justify-content:center}html.au-nav2 .au-fbdock-l{display:none}}
   </style>
 </helmet>
 
 <nav style="position:fixed;top:0;left:0;right:0;height:60px;background:rgba(34,34,34,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:100;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 2px 12px rgba(0,0,0,0.35);transform:{{ navTf }};transition:transform 0.3s ease;">
   <div style="max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;padding:0 20px;box-sizing:border-box;">
-    <a href="#home" style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;white-space:nowrap;">✦ AURELION</a>
+    <a href="#home" class="nv2-logo" style="font-family:'Cinzel',Georgia,serif;font-size:1.15rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;flex-shrink:0;margin-right:28px;text-shadow:0 0 20px rgba(255,215,0,0.35);text-decoration:none;white-space:nowrap;">✦ AURELION</a>
     <div class="nv2-desk" style="align-items:stretch;height:100%;gap:2px;">
       <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
         <button data-id="{{ g.id }}" onClick="{{ pick }}" aria-expanded="{{ g.open }}" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0 14px;font-size:0.9rem;letter-spacing:0.02em;white-space:nowrap;color:{{ g.color }};box-shadow:inset 0 -2px 0 {{ g.line }};transition:all 0.3s ease;" style-hover="color:#fff;">{{ g.label }}<span style="font-size:0.6rem;opacity:0.6;">▾</span></button>
       </sc-for>
     </div>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+      <button class="nv2-burger" onClick="{{ toggleMenu }}" aria-label="Усе меню" aria-expanded="{{ menuOn }}" style="cursor:pointer;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;height:32px;padding:0 12px;border-radius:999px;background:{{ menuBg }};border:1px solid {{ menuBd }};color:{{ menuC }};font-size:0.78rem;">☰<span class="nv2-burger-l">Меню</span></button>
       <a href="#audio" title="Аудіотека" aria-label="Аудіотека" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border-radius:999px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);color:#9db8f0;font-size:0.78rem;text-decoration:none;transition:all 0.3s ease;" style-hover="background:rgba(100,149,237,0.2);color:#fff;">♪<span class="nv2-lbl">Плеєр</span></a>
       <a href="#dice" title="Кинути кубик (d20)" aria-label="Кинути кубик" style="display:inline-flex;align-items:center;justify-content:center;gap:7px;height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ diceBd }};color:{{ diceC }};font-size:0.76rem;font-weight:600;letter-spacing:0.04em;text-decoration:none;transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.45);color:#ffd700;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"></polygon><polygon points="12,7 17,15.5 7,15.5"></polygon><line x1="12" y1="2" x2="12" y2="7"></line><line x1="21" y1="7" x2="17" y2="15.5"></line><line x1="3" y1="7" x2="7" y2="15.5"></line><line x1="7" y1="15.5" x2="3" y2="17"></line><line x1="17" y1="15.5" x2="21" y2="17"></line><line x1="7" y1="15.5" x2="12" y2="22"></line><line x1="17" y1="15.5" x2="12" y2="22"></line></svg><span class="nv2-lbl" style="font-weight:500;letter-spacing:0;">Кубик</span></a>
       <button onClick="{{ openSearch }}" aria-label="Пошук" title="Пошук ( / )" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 11px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);font-size:0.78rem;transition:all 0.3s ease;" style-hover="border-color:rgba(255,215,0,0.45);color:#ffd700;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg><span class="nv2-lbl">Пошук</span><span class="nv2-lbl nv2-hide-m" style="font-size:0.66rem;border:1px solid rgba(255,255,255,0.18);border-radius:4px;padding:1px 5px;">/</span></button>
@@ -99,9 +109,38 @@
   <div onClick="{{ closeAll }}" style="position:fixed;inset:60px 0 0 0;z-index:99;background:rgba(0,0,0,0.35);"></div>
 </sc-if>
 
+<!-- Телефон: усе меню з шапки. Запасний шлях, якщо нижню смугу перекрив браузер
+     (вбудований браузер Telegram, нижня адресна панель тощо). -->
+<sc-if value="{{ menuOn }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeAll }}" style="position:fixed;inset:0;z-index:104;background:rgba(0,0,0,0.55);"></div>
+  <div style="position:fixed;top:0;left:0;right:0;z-index:105;max-height:100vh;max-height:100dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;background:rgba(22,20,15,0.99);border-bottom:1px solid rgba(255,215,0,0.25);border-radius:0 0 18px 18px;box-shadow:0 18px 48px rgba(0,0,0,0.6);padding:14px 18px 18px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+      <a href="#home" onClick="{{ closeAll }}" style="font-family:'Cinzel',Georgia,serif;font-size:1.1rem;font-weight:700;color:#ffd700;letter-spacing:0.1em;text-decoration:none;">✦ AURELION</a>
+      <button onClick="{{ closeAll }}" aria-label="Закрити меню" style="cursor:pointer;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#fff;font-size:1rem;">✕</button>
+    </div>
+    <sc-for list="{{ menuGroups }}" as="g" hint-placeholder-count="4">
+      <p style="margin:14px 0 4px;font-size:0.64rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.75);">{{ g.glyph }} {{ g.label }}</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;">
+        <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+          <a href="{{ it.href }}" onClick="{{ closeAll }}" style="min-height:44px;display:flex;align-items:center;gap:7px;padding:8px 12px;box-sizing:border-box;border-radius:10px;background:{{ it.bg }};border:1px solid {{ it.bd }};font-size:0.9rem;color:{{ it.tc }};text-decoration:none;">{{ it.t }}<sc-if value="{{ it.beta }}" hint-placeholder-val="{{ false }}"><span style="width:6px;height:6px;border-radius:50%;background:#6495ed;"></span></sc-if></a>
+        </sc-for>
+      </div>
+    </sc-for>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+      <a href="#cabinet" onClick="{{ closeAll }}" style="display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:#ffd700;font-size:0.84rem;text-decoration:none;">⌂&nbsp;{{ cabLabel }}</a>
+      <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+        <a href="#contacts" onClick="{{ closeAll }}" style="display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;background:#ffd700;color:#1a1a1a;font-size:0.84rem;font-weight:600;text-decoration:none;">✦ Долучитися</a>
+      </sc-if>
+      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+        <a href="admin.dc.html" style="display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid rgba(100,149,237,0.4);background:rgba(100,149,237,0.1);color:#9dbcf7;font-size:0.8rem;text-decoration:none;">⚙ Адмінка</a>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
 <sc-if value="{{ hasSheet }}" hint-placeholder-val="{{ false }}">
   <div onClick="{{ closeAll }}" style="position:fixed;inset:0;z-index:101;background:rgba(0,0,0,0.55);"></div>
-  <div style="position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:102;background:rgba(24,22,18,0.99);border-top:1px solid rgba(255,215,0,0.25);border-radius:20px 20px 0 0;padding:10px 18px 14px;box-shadow:0 -18px 40px rgba(0,0,0,0.6);max-height:calc(100dvh - 140px);overflow-y:auto;box-sizing:border-box;">
+  <div style="position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom) + {{ barBottom }});z-index:102;background:rgba(24,22,18,0.99);border-top:1px solid rgba(255,215,0,0.25);border-radius:20px 20px 0 0;padding:10px 18px 14px;box-shadow:0 -18px 40px rgba(0,0,0,0.6);max-height:calc(100dvh - 140px);overflow-y:auto;box-sizing:border-box;">
     <div style="width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:0 auto 14px;"></div>
     <p style="margin:0 0 4px;font-family:'Cinzel',Georgia,serif;font-size:1.3rem;letter-spacing:0.05em;color:#fff;">{{ sheet.label }}</p>
     <p style="margin:0 0 10px;font-family:'EB Garamond',Georgia,serif;font-style:italic;color:rgba(255,255,255,0.55);">{{ sheet.cap }}</p>
@@ -125,7 +164,7 @@
   </div>
 </sc-if>
 
-<div class="nv2-mob" style="transform:{{ barTf }};transition:transform 0.3s ease;position:fixed;left:0;right:0;bottom:0;z-index:103;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);box-sizing:border-box;border-top:1px solid rgba(255,255,255,0.1);background:rgba(28,27,24,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);grid-template-columns:repeat(5,1fr);">
+<div class="nv2-mob" style="transform:{{ barTf }};transition:transform 0.25s ease;position:fixed;left:0;right:0;bottom:{{ barBottom }};z-index:103;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);box-sizing:border-box;border-top:1px solid rgba(255,255,255,0.1);background:rgba(28,27,24,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);grid-template-columns:repeat(5,1fr);">
   <sc-for list="{{ tabbar }}" as="t" hint-placeholder-count="5">
     <a href="{{ t.href }}" data-id="{{ t.id }}" onClick="{{ t.go }}" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:0.7rem;letter-spacing:0.02em;text-decoration:none;color:{{ t.color }};box-shadow:inset 0 2px 0 {{ t.line }};">
       <sc-if value="{{ t.fam }}" hint-placeholder-val="{{ false }}"><dc-import name="Familiar" variant="chip" fallback="⌂" hint-size="24px,24px"></dc-import></sc-if><sc-if value="{{ t.noFam }}" hint-placeholder-val="{{ true }}"><span style="font-size:1.05rem;line-height:1;">{{ t.g }}</span></sc-if>{{ t.l }}
@@ -230,15 +269,15 @@ class Component extends DCLogic {
   componentDidMount() {
     document.documentElement.classList.add('au-nav2');
     try { this.setState({ admin: !!localStorage.getItem('aur-admin-token') }); } catch (e) {}
-    this._onHash = () => { this._lastY = window.scrollY; this.setState({ open: null, sheet: null, search: false, mode: 'top' }); };
+    this._onHash = () => { this._lastY = window.scrollY; this.setState({ open: null, sheet: null, menu: false, search: false, mode: 'top' }); };
     this._onKey = (e) => {
       const t = e.target, tag = t && t.tagName;
       const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable);
       if (e.key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         this.setState({ search: true, open: null, sheet: null });
-      } else if (e.key === 'Escape' && (this.state.open || this.state.sheet)) {
-        this.setState({ open: null, sheet: null });
+      } else if (e.key === 'Escape' && (this.state.open || this.state.sheet || this.state.menu)) {
+        this.setState({ open: null, sheet: null, menu: false });
       }
     };
     window.addEventListener('hashchange', this._onHash);
@@ -247,7 +286,26 @@ class Component extends DCLogic {
     this._mq = window.matchMedia('(max-width:880px)');
     this._onMq = () => this.setState({ mob: this._mq.matches });
     this._onMq();
-    this._mq.addEventListener('change', this._onMq);
+    // старі Safari (до 14) не знають addEventListener у MediaQueryList — без цього падав увесь компонент
+    if (this._mq.addEventListener) this._mq.addEventListener('change', this._onMq); else if (this._mq.addListener) this._mq.addListener(this._onMq);
+    // Нижня смуга: якщо браузер своєю панеллю перекрив низ сторінки (видима область
+    // менша за макет) — піднімаємо смугу на цю різницю; якщо різниця велика — це
+    // клавіатура, смугу ховаємо, щоб не висіла над полем вводу.
+    this._vv = () => {
+      const v = window.visualViewport; if (!v || Math.abs((v.scale || 1) - 1) > 0.02) return;
+      const lay = document.documentElement.clientHeight || window.innerHeight;
+      const off = Math.round(lay - (v.height + v.offsetTop));
+      const kb = off > 150;
+      const lift = kb || off < 2 ? 0 : Math.min(off, 120);
+      const de = document.documentElement;
+      de.style.setProperty('--au-lift', lift + 'px');
+      de.classList.toggle('au-kb', kb);
+      de.classList.toggle('au-fb', !!document.querySelector('.au-fbdock'));
+      if (lift !== this.state.lift || kb !== this.state.kb) this.setState({ lift, kb });
+    };
+    if (window.visualViewport) { window.visualViewport.addEventListener('resize', this._vv); window.visualViewport.addEventListener('scroll', this._vv); }
+    window.addEventListener('resize', this._vv);
+    this._vv();
     this._lastY = window.scrollY;
     this._onScroll = () => {
       if (this._raf) return;
@@ -264,14 +322,18 @@ class Component extends DCLogic {
     this._syncSub();
   }
   componentWillUnmount() {
-    document.documentElement.classList.remove('au-nav2', 'au-sub');
+    document.documentElement.classList.remove('au-nav2', 'au-sub', 'au-kb', 'au-fb', 'au-menu');
     window.removeEventListener('scroll', this._onScroll);
-    if (this._mq) this._mq.removeEventListener('change', this._onMq);
+    if (this._mq) { if (this._mq.removeEventListener) this._mq.removeEventListener('change', this._onMq); else if (this._mq.removeListener) this._mq.removeListener(this._onMq); }
+    if (window.visualViewport) { window.visualViewport.removeEventListener('resize', this._vv); window.visualViewport.removeEventListener('scroll', this._vv); }
+    window.removeEventListener('resize', this._vv);
     window.removeEventListener('hashchange', this._onHash);
     window.removeEventListener('keydown', this._onKey);
   }
   componentDidUpdate(pp, ps) {
     this._syncSub();
+    document.documentElement.classList.toggle('au-fb', !!document.querySelector('.au-fbdock'));
+    document.documentElement.classList.toggle('au-menu', !!(this.state.menu || this.state.sheet));
     if (this.state.search && !ps.search) setTimeout(() => { const el = this.searchRef.current; if (el) el.focus(); }, 30);
   }
 
@@ -301,7 +363,7 @@ class Component extends DCLogic {
     const full = (g) => g ? { label: g.label, cap: g.cap, items: g.items.map(deco) } : { label: '', cap: '', items: [] };
     const open = groups.find(g => g.id === s.open) || null;
     const sheet = groups.find(g => g.id === s.sheet) || null;
-    const closeAll = () => this.setState({ open: null, sheet: null });
+    const closeAll = () => this.setState({ open: null, sheet: null, menu: false });
     const closeSearch = () => { this.setState({ search: false }); if (p.clearHomeSearch) p.clearHomeSearch(); };
     const results = p.homeSearchResults || [];
     const page = p.page || 'home';
@@ -312,13 +374,13 @@ class Component extends DCLogic {
       return { id: g.id, href: '#' + (g.items[0] ? g.items[0].id : 'home'), g: GLYPH[g.id], l: g.label,
         color: on ? '#ffd700' : 'rgba(255,255,255,0.58)', line: on ? '#ffd700' : 'transparent', badge: false, badgeN: '', badgeBg: '', badgeC: '',
         fam: false, noFam: true,
-        go: (e) => { e.preventDefault(); this.setState(st => ({ sheet: st.sheet === g.id ? null : g.id, open: null })); } };
+        go: (e) => { e.preventDefault(); this.setState(st => ({ sheet: st.sheet === g.id ? null : g.id, open: null, menu: false })); } };
     }).concat([{
       id: 'cab', href: '#cabinet', g: '⌂', l: signedIn ? 'Кабінет' : 'Увійти', fam: signedIn, noFam: !signedIn,
       color: cabOn && !s.sheet ? '#ffd700' : 'rgba(255,255,255,0.58)', line: cabOn && !s.sheet ? '#ffd700' : 'transparent',
       badge: !!(p.turnsHas || p.turnsPHas), badgeN: p.turnsHas ? p.turnsNum : p.turnsPNum,
       badgeBg: p.turnsHas ? '#ffd700' : '#6495ed', badgeC: p.turnsHas ? '#1a1a1a' : '#fff',
-      go: () => this.setState({ sheet: null }),
+      go: () => this.setState({ sheet: null, menu: false }),
     }]);
     const sub = this._pickSub(groups);
     const away = s.mob && !!sub && s.mode !== 'top';
@@ -327,11 +389,18 @@ class Component extends DCLogic {
       subOn: !!sub, subLabel: sub ? sub.label : '', subActive: subAct ? subAct.t : '', subRef: this.subRef,
       subItems: sub ? sub.items.map(it => ({ ...it, cur: it.active ? 'page' : undefined,
         c: it.active ? '#fff' : 'rgba(255,255,255,0.58)', line: it.active ? '#ffd700' : 'transparent' })) : [],
-      navTf: away ? 'translateY(-120%)' : 'none',
-      subTop: away ? '0px' : '60px',
+      // гортаємо вниз — шапка ховається; трохи вгору — вертається вся, з «☰ Меню»
+      navTf: away && s.mode === 'down' ? 'translateY(-120%)' : 'none',
+      subTop: '60px',
       subTf: away && s.mode === 'down' ? 'translateY(-120%)' : 'none',
       slimOn: away && s.mode === 'down',
-      barTf: away && s.mode === 'down' ? 'translateY(110%)' : 'none',
+      barTf: s.kb ? 'translateY(110%)' : 'none',
+      barBottom: (s.lift || 0) + 'px',
+      menuOn: !!s.menu,
+      toggleMenu: () => this.setState(st => ({ menu: !st.menu, open: null, sheet: null })),
+      menuBg: s.menu ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)', menuBd: s.menu ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.14)', menuC: s.menu ? '#ffd700' : 'rgba(255,255,255,0.75)',
+      menuGroups: groups.filter(g => g.items.length).map(g => ({ key: g.id, label: g.label, glyph: GLYPH[g.id] || '✦', items: g.items.map(deco) })),
+      cabLabel: signedIn ? 'Кабінет' : 'Увійти',
       toTop: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
       groups: groups.map(g => ({ id: g.id, label: g.label, open: s.open === g.id,
         color: s.open === g.id || g.current ? '#ffd700' : 'rgba(255,255,255,0.72)',
