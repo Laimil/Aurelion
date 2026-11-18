@@ -36,6 +36,10 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:#1a1a1a;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+/* Ніщо не має розширювати сторінку вбік: на телефоні Chrome тоді «розтягує» екран,
+   і шапка та нижнє меню (вони прив'язані до ширини сторінки) з'їжджають за край. */
+html{overflow-x:hidden}
+@supports (overflow-x:clip){html,body{overflow-x:clip}}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#161616}::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.3);border-radius:3px}
 ::selection{background:rgba(255,215,0,0.18);color:#fff}
 @keyframes goldPulse{0%,100%{text-shadow:0 0 20px rgba(255,215,0,0.4),0 0 60px rgba(255,215,0,0.1)}50%{text-shadow:0 0 50px rgba(255,215,0,0.9),0 0 90px rgba(255,215,0,0.3)}}
@@ -350,8 +354,8 @@ a:hover{color:#a8c4f7;}
 @media(prefers-reduced-motion:reduce){.au-hero-word.rise,.au-deck.rise > *,.au-card-in{animation:none!important}}
 /* ── Свіже й найближчі дати (Головна) ── */
 .fresh-grid{display:grid;grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);gap:16px;align-items:start}
-@media(max-width:900px){.fresh-grid{grid-template-columns:1fr}}
-.fresh-box{background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:20px 20px 14px}
+@media(max-width:900px){.fresh-grid{grid-template-columns:minmax(0,1fr)}}
+.fresh-box{min-width:0;background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:20px 20px 14px}
 .fresh-row{display:flex;align-items:center;gap:13px;padding:9px 8px;border-radius:9px;text-decoration:none;color:inherit;transition:background 0.2s ease,border-color 0.2s ease}
 .fresh-row:hover{background:rgba(255,255,255,0.055)}
 .fresh-row:focus-visible{outline:1px solid rgba(255,215,0,0.55);outline-offset:1px}
@@ -676,7 +680,7 @@ a:hover{color:#a8c4f7;}
 
     <section ref="{{ tilesRef }}" style="max-width:1200px;margin:0 auto;padding:20px 24px 100px;scroll-margin-top:74px;">
       <p style="text-align:center;font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-bottom:40px;">— Розділи —</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,255px),1fr));gap:16px;">
         <sc-for list="{{ homeTiles }}" as="tile" hint-placeholder-count="6">
           <a href="#{{ tile.id }}" class="glass" style="display:block;padding:28px;text-decoration:none;color:inherit;border-radius:10px;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;">
@@ -699,7 +703,7 @@ a:hover{color:#a8c4f7;}
         <p style="font-size:0.7rem;letter-spacing:0.24em;text-transform:uppercase;color:rgba(255,255,255,0.22);">— Навмання —</p>
         <button onClick="{{ rerollRandom }}" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:999px;padding:6px 16px;font-size:0.76rem;letter-spacing:0.04em;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.25s ease;" style-hover="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4);color:#ffd700;">↻ Інше</button>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px;align-items:start;">
         <sc-if value="{{ rndCharHas }}" hint-placeholder-val="{{ false }}">
           <a href="{{ rndCharHref }}" class="glass" style="display:block;padding:22px;border-radius:12px;text-decoration:none;color:inherit;">
             <p style="font-size:0.64rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:14px;">✦ {{ rndCharNote }}</p>
@@ -887,7 +891,7 @@ a:hover{color:#a8c4f7;}
         </div>
       </article>
     </sc-if>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px;">
       <sc-for list="{{ loreGridItems }}" as="item" hint-placeholder-count="6">
         <article data-id="{{ item.id }}" onClick="{{ openLore }}" class="lore-card glass" style="cursor:pointer;overflow:hidden;border-radius:14px;display:flex;flex-direction:column;">
           <div style="position:relative;aspect-ratio:4/3;overflow:hidden;background:#111;flex-shrink:0;">
@@ -2003,7 +2007,7 @@ a:hover{color:#a8c4f7;}
                 </div>
               </div>
             </sc-if>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:8px;margin-top:14px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,258px),1fr));gap:8px;margin-top:14px;">
               <sc-for list="{{ relRels }}" as="r" hint-placeholder-count="0">
                 <div data-id="{{ r.id }}" onClick="{{ openCharacter }}" style="display:flex;align-items:center;gap:10px;background:{{ r.bg }};border:1px solid rgba(255,255,255,0.08);border-left:3px solid {{ r.color }};border-radius:9px;padding:8px 12px;cursor:pointer;transition:all 0.16s;" style-hover="background:rgba(255,255,255,0.09);">
                   <div style="{{ r.imgBg }}width:26px;height:34px;border-radius:4px;background-color:#222;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
@@ -2088,7 +2092,7 @@ a:hover{color:#a8c4f7;}
           <h2 style="font-family:'Cinzel',Georgia,serif;font-size:clamp(1.4rem,3.4vw,1.9rem);font-weight:700;color:#fff;letter-spacing:0.06em;">Хто кому вірує</h2>
           <p style="font-family:'EB Garamond',Georgia,serif;font-size:1rem;color:rgba(255,255,255,0.4);margin-top:10px;">{{ faithSummary }}</p>
         </header>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:14px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,258px),1fr));gap:14px;">
           <sc-for list="{{ faithItems }}" as="f" hint-placeholder-count="5">
             <div data-god="{{ f.god }}" class="glass" style="border-radius:12px;overflow:hidden;align-self:start;">
               <div data-gkey="{{ f.key }}" onClick="{{ toggleFaith }}" style="display:flex;align-items:center;gap:13px;padding:15px 16px;cursor:pointer;" style-hover="background:rgba(255,255,255,0.04);">
@@ -2454,7 +2458,7 @@ a:hover{color:#a8c4f7;}
               <button onClick="{{ clearWallFocus }}" style="background:none;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.5);border-radius:999px;padding:7px 16px;font-size:0.76rem;cursor:pointer;transition:all 0.2s;" style-hover="color:#fff;border-color:rgba(255,255,255,0.4);">вся стіна</button>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:8px;margin-top:14px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,258px),1fr));gap:8px;margin-top:14px;">
             <sc-for list="{{ wallRels }}" as="r" hint-placeholder-count="0">
               <div data-card="{{ r.id }}" onClick="{{ setWallFocus }}" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-left:3px solid {{ r.color }};border-radius:9px;padding:8px 12px;cursor:pointer;transition:all 0.16s;" style-hover="background:rgba(255,255,255,0.08);">
                 <div style="{{ r.imgBg }}width:26px;height:34px;border-radius:4px;background-color:#222;flex-shrink:0;"></div>
@@ -2506,7 +2510,7 @@ a:hover{color:#a8c4f7;}
               </sc-for>
             </div>
 
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:9px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,268px),1fr));gap:9px;">
               <sc-for list="{{ wallStatRows }}" as="sr" hint-placeholder-count="6">
                 <div data-card="{{ sr.id }}" onClick="{{ pickStatChar }}" style="background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.08);border-left:3px solid {{ sr.color }};border-radius:10px;padding:11px 14px 12px;cursor:{{ sr.cur }};transition:all 0.16s;" style-hover="background:rgba(255,255,255,0.075);">
                   <p style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin:0;">{{ sr.title }}</p>

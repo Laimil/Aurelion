@@ -295,8 +295,10 @@ class Component extends DCLogic {
       const v = window.visualViewport; if (!v || Math.abs((v.scale || 1) - 1) > 0.02) return;
       const lay = document.documentElement.clientHeight || window.innerHeight;
       const off = Math.round(lay - (v.height + v.offsetTop));
-      const kb = off > 150;
-      const lift = kb || off < 2 ? 0 : Math.min(off, 120);
+      // клавіатура — лише коли справді щось друкують; інакше велика різниця — це не вона
+      const ae = document.activeElement, typing = !!ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
+      const kb = off > 150 && typing;
+      const lift = kb || off < 2 || off > 150 ? 0 : Math.min(off, 120);
       const de = document.documentElement;
       de.style.setProperty('--au-lift', lift + 'px');
       de.classList.toggle('au-kb', kb);
@@ -305,6 +307,7 @@ class Component extends DCLogic {
     };
     if (window.visualViewport) { window.visualViewport.addEventListener('resize', this._vv); window.visualViewport.addEventListener('scroll', this._vv); }
     window.addEventListener('resize', this._vv);
+    document.addEventListener('focusin', this._vv); document.addEventListener('focusout', this._vvLate = () => setTimeout(this._vv, 50));
     this._vv();
     this._lastY = window.scrollY;
     this._onScroll = () => {
@@ -327,6 +330,7 @@ class Component extends DCLogic {
     if (this._mq) { if (this._mq.removeEventListener) this._mq.removeEventListener('change', this._onMq); else if (this._mq.removeListener) this._mq.removeListener(this._onMq); }
     if (window.visualViewport) { window.visualViewport.removeEventListener('resize', this._vv); window.visualViewport.removeEventListener('scroll', this._vv); }
     window.removeEventListener('resize', this._vv);
+    document.removeEventListener('focusin', this._vv); document.removeEventListener('focusout', this._vvLate);
     window.removeEventListener('hashchange', this._onHash);
     window.removeEventListener('keydown', this._onKey);
   }

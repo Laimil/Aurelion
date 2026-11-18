@@ -129,7 +129,7 @@
   <sc-if value="{{ showChoose }}" hint-placeholder-val="{{ false }}">
     <div style="display:flex;flex-direction:column;gap:16px;">
       <p style="font-family:'EB Garamond',Georgia,serif;font-size:1.1rem;line-height:1.55;color:rgba(255,255,255,0.8);margin:0;text-wrap:pretty;">Марта поставила на стіл кошик. Можна взяти яйце навмання, а можна скласти фамільяра самому.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px;">
         <button onClick="{{ onPickEgg }}" style="cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:15px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.35);color:#fff;transition:all 0.3s ease;" style-hover="transform:translateY(-4px);box-shadow:0 0 22px rgba(255,215,0,0.25);">
           <div style="height:170px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#1a1a1a;">
             <canvas ref="{{ refChEgg }}" width="48" height="48" style="width:168px;height:168px;image-rendering:pixelated;"></canvas>
