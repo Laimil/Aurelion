@@ -174,7 +174,7 @@
             </div>
             <div style="display:flex;flex-direction:column;padding-top:8px;">
               <sc-for list="{{ plRows }}" as="t" hint-placeholder-count="4">
-                <div onClick="{{ t.play }}" title="{{ t.hint }}" style="display:grid;grid-template-columns:{{ listCols }};gap:14px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:{{ t.rowBg }};transition:background 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);">
+                <div onClick="{{ t.play }}" title="{{ t.hint }}" data-now="{{ t.now }}" style="display:grid;grid-template-columns:{{ listCols }};gap:14px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:{{ t.rowBg }};transition:background 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);">
                   <div style="position:relative;width:48px;height:36px;border-radius:5px;overflow:hidden;background:#111;">
                     <img src="{{ t.thumb }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
                     <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);color:#ffd700;font-size:0.7rem;">{{ t.icon }}</span>
@@ -216,7 +216,7 @@
             <p style="margin:6px 0 0;font-size:0.76rem;color:rgba(255,255,255,0.45);">{{ allNote }}</p>
             <div style="display:flex;flex-direction:column;padding-top:10px;">
               <sc-for list="{{ allRows }}" as="t" hint-placeholder-count="6">
-                <div onClick="{{ t.play }}" title="{{ t.hint }}" style="display:grid;grid-template-columns:{{ allCols }};gap:14px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:{{ t.rowBg }};transition:background 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);">
+                <div onClick="{{ t.play }}" title="{{ t.hint }}" data-now="{{ t.now }}" style="display:grid;grid-template-columns:{{ allCols }};gap:14px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:{{ t.rowBg }};transition:background 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);">
                   <div style="position:relative;width:48px;height:36px;border-radius:5px;overflow:hidden;background:#111;">
                     <img src="{{ t.thumb }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
                     <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);color:#ffd700;font-size:0.7rem;">{{ t.icon }}</span>
@@ -342,7 +342,7 @@
           <sc-if value="{{ showList }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;padding-top:8px;">
               <sc-for list="{{ rows }}" as="t" hint-placeholder-count="6">
-                <div onClick="{{ t.play }}" title="{{ t.hint }}" style="display:grid;grid-template-columns:{{ listCols }};gap:14px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:{{ t.rowBg }};transition:background 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);">
+                <div onClick="{{ t.play }}" title="{{ t.hint }}" data-now="{{ t.now }}" style="display:grid;grid-template-columns:{{ listCols }};gap:14px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:{{ t.rowBg }};transition:background 0.2s ease;" style-hover="background:rgba(255,255,255,0.06);">
                   <div style="position:relative;width:48px;height:36px;border-radius:5px;overflow:hidden;background:#111;">
                     <img src="{{ t.thumb }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
                     <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);color:#ffd700;font-size:0.7rem;">{{ t.icon }}</span>
@@ -468,6 +468,10 @@ class Component extends DCLogic {
 
   componentDidMount() {
     this._hookPlayer();
+    // «в Аудіотеці ↗» з черги плеєра (au-player.js): відкрити той список, що грає.
+    this._onOpenNow = () => this._openNow();
+    window.addEventListener('au:audio-open', this._onOpenNow);
+    try { if (sessionStorage.getItem('au_audio_open')) this._openNow(); } catch (e) {}
     this._load();
     this._loadPl();
     // Шапка крутиться сама, але не тоді, коли людина вже обрала персонажа
@@ -480,6 +484,8 @@ class Component extends DCLogic {
     }, SPIN);
   }
   componentWillUnmount() {
+    window.removeEventListener('au:audio-open', this._onOpenNow);
+    clearTimeout(this._nowT);
     clearInterval(this._hookTimer);
     clearInterval(this._spin);
     if (this._ro) this._ro.disconnect();
@@ -498,6 +504,30 @@ class Component extends DCLogic {
       if (narrow !== this.state.narrow) this.setState({ narrow });
     });
     this._ro.observe(el);
+  }
+
+  // Відкрити список, з якого грає плеєр, і прокрутити до поточного треку.
+  // Дані можуть ще вантажитися — пробуємо кілька разів, поки рядок не зʼявиться.
+  _openNow(tries = 0) {
+    try { sessionStorage.removeItem('au_audio_open'); } catch (e) {}
+    clearTimeout(this._nowT);
+    const c = window.AuPlayer && window.AuPlayer.current();
+    if (!c) return;
+    const src = (c.track && c.track.src) || '';
+    if (src.indexOf('pl:') === 0) {
+      const i = this.state.pl.findIndex((p) => 'pl:' + p.id === src);
+      if (i < 0) { if (tries < 16) this._nowT = setTimeout(() => this._openNow(tries + 1), 400); return; }
+      if (this.state.src !== 'pl' || this.state.spot !== i || this.state.q) this.setState({ src: 'pl', spot: i, pinned: true, q: '' });
+    } else if (src === 'all') {
+      if (this.state.src !== 'all' || this.state.q) this.setState({ src: 'all', q: '' });
+    } else if (this.state.src !== 'shelf' || this.state.view !== 'list' || this.state.q) {
+      this.setState({ src: 'shelf', view: 'list', q: '' });
+    }
+    this._nowT = setTimeout(() => {
+      const row = document.querySelector('[data-now="1"]');
+      if (row) { row.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+      if (tries < 16) this._openNow(tries + 1);
+    }, tries ? 400 : 250);
   }
 
   async _loadPl() {
@@ -935,7 +965,7 @@ class Component extends DCLogic {
           icon: go ? '❙❙' : '▶', hint: go ? 'Пауза' : 'Грати звідси й далі плейлістом',
           ink: on ? '#ffd700' : 'rgba(255,255,255,0.88)',
           sub: t.author || '', who: t.note || '', when: '№ ' + (i + 1),
-          rowBg: on ? 'rgba(255,215,0,0.07)' : 'transparent',
+          rowBg: on ? 'rgba(255,215,0,0.07)' : 'transparent', now: on ? '1' : '',
           vid: t.vid,
           play: () => this._playPlAt(listP, i),
         };
@@ -964,7 +994,7 @@ class Component extends DCLogic {
           who: t.name, whoInk: on ? '#ffd700' : 'rgba(255,255,255,0.75)',
           ring: on ? '#ffd700' : 'rgba(255,255,255,0.2)',
           when: '№ ' + (i + 1),
-          rowBg: on ? 'rgba(255,215,0,0.07)' : 'transparent',
+          rowBg: on ? 'rgba(255,215,0,0.07)' : 'transparent', now: on ? '1' : '',
           play: () => this._playAllAt(allQ, i),
         };
       });
@@ -1204,7 +1234,7 @@ class Component extends DCLogic {
           sub: [t.author, t.uses.length > 1 ? `звучала ${t.uses.length}×` : ''].filter(Boolean).join(' · ') || (t.arcs[0] || ''),
           who: [t.who.slice(0, 2).join(', '), t.arcs[0]].filter(Boolean).join(' · '),
           when: this._fmt(t.last),
-          rowBg: on ? 'rgba(255,215,0,0.07)' : 'transparent',
+          rowBg: on ? 'rgba(255,215,0,0.07)' : 'transparent', now: on ? '1' : '',
         };
       }),
 

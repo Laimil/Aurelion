@@ -11,6 +11,12 @@
      AuPlayer.current()            — {vid, playing, track, at, total} або null
      AuPlayer.queue()              — копія черги в тому порядку, як вона грає
      AuPlayer.onChange(fn)         — fn(vid, playing, track): позначки ♪ у стрічці
+     AuPlayer.showQueue(on?)       — розгорнути/згорнути список черги над панеллю
+
+   Кнопка «☰ Черга» в панелі показує, що відіграло, що грає і що далі —
+   на будь-якій сторінці, без переходу в Аудіотеку. «в Аудіотеці ↗» у
+   шапці списку веде туди й просить її відкрити саме цей плейлист
+   (sessionStorage au_audio_open + подія au:audio-open, див. Audio.dc.html).
 
    track = { vid, title, author, name, arc, postId, cid, img, src }
      name — ЧИЙ трек (персонаж), img — його портрет, cid — його тека;
@@ -209,6 +215,14 @@
       letterSpacing: '0.08em', minWidth: '38px', textAlign: 'center',
     }, '');
     var shut = btn('✕', 'Зупинити й закрити');
+    var qb = btn('☰ Черга', 'Що грало й що далі', {
+      width: 'auto', padding: '0 13px', font: '400 0.78rem/1 Arial, sans-serif', gap: '6px', whiteSpace: 'nowrap',
+    });
+    qb.onclick = function (e) { e.stopPropagation(); showQ(!qOpen); };
+    // лічильник «3 / 12» теж відкриває чергу — на нього й так тиснуть
+    count.style.cursor = 'pointer';
+    count.title = 'Показати чергу';
+    count.onclick = function (e) { e.stopPropagation(); showQ(!qOpen); };
 
     var volBox = mk('div', { display: 'flex', alignItems: 'center', gap: '6px', flex: 'none', marginLeft: '4px' });
     var mute = btn('', 'Вимкнути звук');
@@ -231,8 +245,17 @@
     // На телефоні гучність — це кнопки на корпусі (а iOS setVolume ігнорує),
     // тому повзунок ховаємо й лишаємо тільки «без звуку».
     var narrow = window.matchMedia ? window.matchMedia('(max-width: 620px)') : null;
-    var fit = function () { vr.style.display = narrow && narrow.matches ? 'none' : ''; };
-    fit(); if (narrow && narrow.addEventListener) narrow.addEventListener('change', fit);
+    // Зовсім вузько: «‹» ховаємо (лишаються ▶ і ›), «☰ Черга» стискається до «☰».
+    var tiny = window.matchMedia ? window.matchMedia('(max-width: 430px)') : null;
+    var fit = function () {
+      vr.style.display = narrow && narrow.matches ? 'none' : '';
+      prev.style.display = tiny && tiny.matches ? 'none' : '';
+      qb.textContent = narrow && narrow.matches ? '☰' : '☰ Черга';
+      css(qb, narrow && narrow.matches ? { width: '34px', padding: '0' } : { width: 'auto', padding: '0 13px' });
+      if (qOpen) placeQ();
+    };
+    fit();
+    [narrow, tiny].forEach(function (m) { if (m && m.addEventListener) m.addEventListener('change', fit); else if (m && m.addListener) m.addListener(fit); });
 
     if (!document.querySelector('style[data-au-vol]')) {
       var st = document.createElement('style');
@@ -244,13 +267,14 @@
     next.onclick = function () { step(1); };
     play.onclick = toggle;
     shut.onclick = stop;
-    [prev, play, next, count, volBox, shut].forEach(function (n) { ctl.appendChild(n); });
+    [prev, play, next, count, qb, volBox, shut].forEach(function (n) { ctl.appendChild(n); });
 
     row.appendChild(frame); row.appendChild(mid); row.appendChild(ctl);
     bar.appendChild(line); bar.appendChild(row);
     document.body.appendChild(bar);
 
-    el = { bar: bar, fill: fill, host: host, kicker: kicker, who: who, title: title, sub: sub, play: play, count: count, prev: prev, next: next, frame: frame, mute: mute, vol: vr };
+    el = { bar: bar, fill: fill, host: host, kicker: kicker, who: who, title: title, sub: sub, play: play, count: count, prev: prev, next: next, frame: frame, mute: mute, vol: vr, qb: qb };
+    buildQ();
     applyVol();
   }
 
@@ -259,6 +283,7 @@
   function show(on) {
     if (!el.bar) return;
     shown = !!on;
+    if (!on) showQ(false);
     el.bar.style.transform = on ? 'translateY(0)' : 'translateY(110%)';
     // Панель перекриває низ сторінки — відсуваємо вміст, а не накриваємо його.
     document.body.style.paddingBottom = on ? '96px' : '';
@@ -290,6 +315,8 @@
     el.play.textContent = playing ? '❙❙' : '▶';
     el.play.title = playing ? 'Пауза' : 'Грати';
     el.count.textContent = Q.length > 1 ? (at + 1) + ' / ' + Q.length : '';
+    if (el.qb) el.qb.style.display = Q.length > 1 ? '' : 'none';
+    if (qOpen) drawQ(false);
     var one = Q.length < 2;
     el.prev.style.opacity = one ? '0.25' : '1';
     el.next.style.opacity = one ? '0.25' : '1';
@@ -299,6 +326,169 @@
   function meter() {
     var d = dur();
     el.fill.style.width = d ? Math.min(100, (pos() / d) * 100) + '%' : '0%';
+  }
+
+  /* ── Черга: що грало, що грає, що далі ─────────────────────
+     Окремий вузол над панеллю (не всередині: панель ховається за край
+     вікна transform-ом, а список мусить стояти на своєму місці). */
+  var qOpen = false;
+  var qel = {};
+
+  function qName(t) {
+    t = t || {};
+    var s = t.src || '';
+    if (s === 'all') return 'Усі плейлисти разом' + (t.mix ? ' · впереміш' : '');
+    if (s.indexOf('pl:') === 0) return 'Плейлист · ' + (t.name || 'персонажа');
+    if (s === 'shelf') return 'Полиця зі стрічки';
+    return 'Черга';
+  }
+  function qTitle(t, i) {
+    if (t.title) return t.title;
+    var k = window.AuTitles ? window.AuTitles.known()[t.vid] : null;
+    return (k && k.t) || 'Трек № ' + (i + 1);
+  }
+
+  function buildQ() {
+    var box = mk('div', {
+      position: 'fixed', zIndex: '2147483001', display: 'none', flexDirection: 'column',
+      background: 'rgba(22,20,15,0.985)', border: '1px solid rgba(255,215,0,0.28)',
+      boxShadow: '0 -14px 44px rgba(0,0,0,0.6)', fontFamily: 'Arial, sans-serif',
+      overflow: 'hidden', backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)',
+    });
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-label', 'Черга треків');
+    var head = mk('div', {
+      display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px',
+      borderBottom: '1px solid rgba(255,255,255,0.08)', flex: 'none',
+    });
+    var face = document.createElement('img');
+    face.alt = '';
+    css(face, { width: '26px', height: '26px', borderRadius: '999px', objectFit: 'cover', objectPosition: 'top', flex: 'none', border: '1px solid rgba(255,215,0,0.5)', display: 'none' });
+    face.onerror = function () { face.style.display = 'none'; };
+    var name = mk('p', {
+      margin: '0', flex: '1', minWidth: '0', fontFamily: "'Cinzel', Georgia, serif", fontSize: '0.86rem',
+      color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+    });
+    var go = mk('a', {
+      fontSize: '0.74rem', color: '#6ec0b0', textDecoration: 'none', whiteSpace: 'nowrap', flex: 'none',
+    }, 'в Аудіотеці ↗');
+    go.href = '#audio';
+    go.title = 'Відкрити цей список в Аудіотеці';
+    go.onclick = function () {
+      // Аудіотека сама відкриє потрібний плейлист і прокрутить до треку, що грає.
+      try { sessionStorage.setItem('au_audio_open', '1'); } catch (e) {}
+      setTimeout(function () { try { window.dispatchEvent(new CustomEvent('au:audio-open')); } catch (e) {} }, 0);
+      showQ(false);
+    };
+    var x = btn('✕', 'Згорнути чергу', { width: '28px', height: '28px', fontSize: '0.75rem' });
+    x.onclick = function () { showQ(false); };
+    head.appendChild(face); head.appendChild(name); head.appendChild(go); head.appendChild(x);
+    var list = mk('div', { overflowY: 'auto', flex: '1', padding: '4px 0 8px', overscrollBehavior: 'contain' });
+    box.appendChild(head); box.appendChild(list);
+    document.body.appendChild(box);
+    qel = { box: box, face: face, name: name, list: list, go: go };
+
+    // Клік повз список і Esc — згорнути.
+    var outside = function (e) {
+      if (qOpen && !box.contains(e.target) && !el.qb.contains(e.target) && e.target !== el.count) showQ(false);
+    };
+    document.addEventListener('mousedown', outside);
+    document.addEventListener('touchstart', outside, { passive: true });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && qOpen) showQ(false); });
+    window.addEventListener('resize', function () { if (qOpen) placeQ(); });
+  }
+
+  // Над панеллю: на широкому — віконце праворуч, на телефоні — шторка на всю ширину.
+  function placeQ() {
+    if (!qel.box || !el.bar) return;
+    var top = el.bar.getBoundingClientRect().top;
+    var gapB = Math.max(0, window.innerHeight - top);
+    var wide = window.innerWidth > 620;
+    css(qel.box, wide ? {
+      left: 'auto', right: Math.max(12, (window.innerWidth - 1200) / 2 + 18) + 'px', width: '380px',
+      bottom: (gapB + 10) + 'px', maxHeight: Math.max(200, Math.min(480, top - 80)) + 'px', borderRadius: '14px',
+    } : {
+      left: '0', right: '0', width: 'auto', bottom: gapB + 'px',
+      maxHeight: Math.max(220, Math.min(window.innerHeight * 0.62, top - 60)) + 'px', borderRadius: '16px 16px 0 0',
+    });
+  }
+
+  function drawQ(scroll) {
+    if (!qel.box) return;
+    var t = Q[at] || {};
+    qel.name.textContent = qName(t);
+    var pl = (t.src || '').indexOf('pl:') === 0;
+    if (pl && t.img) { if (qel.face.getAttribute('src') !== t.img) qel.face.src = t.img; qel.face.style.display = ''; }
+    else qel.face.style.display = 'none';
+    qel.go.style.display = t.src ? '' : 'none';
+    var mixed = t.src === 'all';
+    var L = qel.list;
+    var keepTop = L.scrollTop;
+    L.textContent = '';
+    var nowRow = null;
+    Q.forEach(function (q, i) {
+      if (i === at + 1 && i > 0) L.appendChild(mk('p', {
+        margin: '6px 0 2px', padding: '0 14px', fontSize: '0.6rem', letterSpacing: '0.22em',
+        textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
+      }, 'Далі'));
+      var now = i === at, past = i < at;
+      var r = mk('button', {
+        display: 'flex', alignItems: 'center', gap: '10px', width: '100%', textAlign: 'left',
+        padding: '8px 14px', border: 'none', cursor: 'pointer', font: '400 0.8rem/1.3 Arial, sans-serif',
+        background: now ? 'rgba(255,215,0,0.09)' : 'transparent',
+        color: now ? '#ffd700' : 'rgba(255,255,255,0.8)', opacity: past ? '0.5' : '1',
+      });
+      r.title = now ? (playing ? 'Грає зараз' : 'На паузі') : 'Грати цей трек';
+      r.onmouseenter = function () { if (!now) r.style.background = 'rgba(255,255,255,0.05)'; };
+      r.onmouseleave = function () { if (!now) r.style.background = 'transparent'; };
+      r.onclick = function () { if (now) toggle(); else jump(i); };
+      r.appendChild(mk('span', { width: '22px', flex: 'none', textAlign: 'right', fontSize: '0.68rem', color: now ? '#ffd700' : 'rgba(255,255,255,0.35)' },
+        now ? (playing ? '♪' : '❙❙') : String(i + 1)));
+      if (mixed && q.img) {
+        var f = document.createElement('img');
+        f.alt = ''; f.src = q.img; f.title = q.name || '';
+        css(f, { width: '22px', height: '22px', borderRadius: '999px', objectFit: 'cover', objectPosition: 'top', flex: 'none', border: '1px solid ' + (now ? '#ffd700' : 'rgba(255,255,255,0.2)') });
+        f.onerror = function () { f.style.visibility = 'hidden'; };
+        r.appendChild(f);
+      }
+      var tx = mk('span', { flex: '1', minWidth: '0', display: 'flex', flexDirection: 'column', gap: '1px' });
+      tx.appendChild(mk('span', { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, qTitle(q, i)));
+      var sub = mixed ? q.name : (q.author || '');
+      if (sub) tx.appendChild(mk('span', { fontSize: '0.68rem', color: now ? 'rgba(255,215,0,0.7)' : 'rgba(255,255,255,0.4)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, sub));
+      r.appendChild(tx);
+      L.appendChild(r);
+      if (now) nowRow = r;
+    });
+    // поточний трек — другим-третім рядком згори, щоб «далі» було видно одразу
+    if (scroll && nowRow) L.scrollTop = Math.max(0, nowRow.offsetTop - 60);
+    else L.scrollTop = keepTop;
+  }
+
+  function showQ(on) {
+    if (!qel.box) return;
+    on = !!on && Q.length > 1 && shown;
+    qOpen = on;
+    if (el.qb) {
+      css(el.qb, on
+        ? { color: '#ffd700', background: 'rgba(255,215,0,0.14)', borderColor: 'rgba(255,215,0,0.5)' }
+        : { color: 'rgba(255,255,255,0.75)', background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.16)' });
+      el.qb.setAttribute('aria-expanded', on ? 'true' : 'false');
+    }
+    if (!on) { qel.box.style.display = 'none'; return; }
+    placeQ();
+    qel.box.style.display = 'flex';
+    drawQ(true);
+    // Назви, яких ще немає, — добрати з YouTube і перемалювати.
+    var need = Q.filter(function (q) { return !q.title; }).map(function (q) { return q.vid; });
+    if (need.length && window.AuTitles) window.AuTitles.fetch(need, function (_, got) { if (got && qOpen) drawQ(false); });
+  }
+
+  function jump(i) {
+    if (i < 0 || i >= Q.length) return;
+    at = i;
+    swap(Q[at].vid, 0, true);
+    playing = true;
+    paint(); save();
   }
 
   /* ── YouTube IFrame API ──────────────────────────────────── */
@@ -430,6 +620,7 @@
     queue: function () { return Q.slice(); },
     toggle: toggle,
     stop: stop,
+    showQueue: function (on) { showQ(on == null ? !qOpen : on); return qOpen; },
     volume: function (v) { if (typeof v === 'number') setVol(v); return muted ? 0 : vol; },
     onChange: function (fn) { if (typeof fn === 'function') subs.push(fn); },
     /* ── Органи керування: висунути / прибрати ──────────────
