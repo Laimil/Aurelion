@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    .at-side,.at-card,.at-form{touch-action:pan-y}
+    .at-root{position:fixed;inset:0;overflow:hidden;background:#090810;color:#fff;font-family:Arial,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+    .at-stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+    .at-stage img{display:block;max-width:none;pointer-events:none}
+    .at-pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;z-index:3}
+    .at-pin .at-ico{width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(0,0,0,0.65);box-shadow:0 3px 9px rgba(0,0,0,0.7);transition:transform 0.15s}
+    .at-pin .at-ico svg{transform:rotate(45deg);pointer-events:none}
+    .at-pin:hover .at-ico{transform:rotate(-45deg) scale(1.12)}
+    .at-pin.on{z-index:5}
+    .at-pin.on .at-ico{outline:2px solid #fff;outline-offset:2px}
+    .at-pin.mine .at-ico{border:1.5px dashed #6ec0b0;background:rgba(110,192,176,0.3)!important}
+    .at-lbl{font-family:'Cinzel',Georgia,serif;font-size:0.66rem;color:#fff;text-shadow:0 1px 3px #000,0 0 8px #000,0 0 2px #000;white-space:nowrap;letter-spacing:0.04em;pointer-events:none}
+    .at-pin.mine .at-lbl{color:#bfeee5}
+    .at-area{position:absolute;transform:translate(-50%,-50%);font-family:'Cinzel',Georgia,serif;white-space:nowrap;text-align:center;cursor:pointer;z-index:2;line-height:1.1;text-shadow:0 2px 6px #000,0 0 14px #000}
+    .at-area.c{font-weight:700;letter-spacing:0.3em;color:rgba(255,215,107,0.72)}
+    .at-area.r{letter-spacing:0.36em;color:rgba(255,232,190,0.62)}
+    .at-area.on{color:#fff}
+    .at-area small{display:block;font-size:0.5em;letter-spacing:0.25em;font-weight:400;opacity:0.7}
+    .at-ghost{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:3px;z-index:6;pointer-events:none}
+    .at-ghost .at-ico{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px dashed #6ec0b0;background:rgba(110,192,176,0.3);box-shadow:0 0 0 7px rgba(110,192,176,0.16)}
+    .at-ghost .at-lbl{color:#bfeee5}
+
+    .at-side{position:absolute;left:14px;top:72px;bottom:16px;width:280px;background:rgba(16,15,13,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:14px;display:flex;flex-direction:column;z-index:20;box-shadow:0 14px 36px rgba(0,0,0,0.55);user-select:text}
+    .at-sh{padding:14px 14px 8px;display:flex;align-items:center;gap:8px}
+    .at-sh h1{font-family:'Cinzel',Georgia,serif;font-size:1rem;letter-spacing:0.12em;color:#ffd700;margin:0;flex:1}
+    .at-x{background:none;border:none;color:rgba(255,255,255,0.5);font-size:1rem;cursor:pointer;padding:4px 6px;display:none}
+    .at-search{margin:0 12px 8px;width:calc(100% - 24px);height:34px;border-radius:9px;border:1px solid rgba(255,255,255,0.13);background:rgba(255,255,255,0.05);color:#fff;padding:0 11px;font-size:0.8rem;outline:none}
+    .at-search:focus{border-color:rgba(255,215,107,0.5)}
+    .at-chips{display:flex;gap:5px;flex-wrap:wrap;padding:0 12px 8px}
+    .at-chip{font-size:0.66rem;padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.62);background:none;cursor:pointer}
+    .at-chip[data-on="true"]{border-color:rgba(255,215,107,0.6);color:#ffd76b;background:rgba(255,215,107,0.08)}
+    .at-list{flex:1;overflow-y:auto;padding-bottom:8px;overscroll-behavior:contain}
+    .at-tr{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 0;cursor:pointer;border:none;background:none;width:100%;text-align:left;color:inherit}
+    .at-tr:hover{background:rgba(255,255,255,0.04)}
+    .at-tr[data-on="true"]{background:rgba(255,215,107,0.09);box-shadow:inset 2px 0 0 #ffd76b}
+    .at-tr .nm{font-size:0.8rem;color:#fff;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .at-tr.c .nm{font-family:'Cinzel',Georgia,serif;font-size:0.8rem;color:#ffd76b;letter-spacing:0.04em}
+    .at-tr.r .nm{font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.55)}
+    .at-tr .sb{font-size:0.62rem;color:rgba(255,255,255,0.38);margin-top:1px}
+    .at-tr .cnt{margin-left:auto;font-size:0.62rem;color:rgba(255,255,255,0.32);flex:none}
+    .at-dot{width:16px;height:16px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
+    .at-grp{font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:12px 14px 4px}
+    .at-empty{font-size:0.74rem;color:rgba(255,255,255,0.4);padding:12px 14px;line-height:1.5}
+    .at-mine{margin:4px 10px;padding:8px 10px;border-radius:9px;border:1px solid rgba(110,192,176,0.25);background:rgba(110,192,176,0.04);cursor:pointer;display:flex;flex-direction:column;gap:4px;text-align:left;color:inherit;width:calc(100% - 20px)}
+    .at-st{font-size:0.58rem;padding:2px 8px;border-radius:999px;flex:none}
+    .at-st.pending{color:#ffd700;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3)}
+    .at-st.accepted{color:#8fe0a8;background:rgba(120,220,150,0.1);border:1px solid rgba(120,220,150,0.3)}
+    .at-st.returned{color:#ff9a9a;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.3)}
+    .at-prop{margin:8px 12px 12px;height:38px;border-radius:10px;border:1px dashed rgba(110,192,176,0.6);background:rgba(110,192,176,0.08);color:#6ec0b0;font-size:0.78rem;cursor:pointer;flex:none}
+    .at-prop:hover{background:rgba(110,192,176,0.15)}
+
+    .at-card{position:absolute;right:54px;top:72px;width:330px;max-height:calc(100% - 92px);overflow-y:auto;background:rgba(18,16,13,0.97);border:1px solid rgba(255,215,107,0.32);border-radius:14px;z-index:21;box-shadow:0 18px 44px rgba(0,0,0,0.7);user-select:text}
+    .at-cover{height:130px;background-size:cover;background-position:center;position:relative;border-radius:14px 14px 0 0}
+    .at-cover:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(18,16,13,1))}
+    .at-cb{padding:14px 16px 16px;display:flex;flex-direction:column;gap:9px}
+    .at-cover + .at-cb{margin-top:-34px;position:relative}
+    .at-kind{display:inline-flex;align-items:center;gap:6px;font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase}
+    .at-ttl{font-family:'Cinzel',Georgia,serif;font-size:1.15rem;color:#fff;margin:2px 0 0;line-height:1.2}
+    .at-bc{display:flex;flex-wrap:wrap;gap:4px;font-size:0.68rem;color:rgba(255,255,255,0.4)}
+    .at-bc button{background:none;border:none;padding:0;color:#ffd76b;font-size:inherit;cursor:pointer}
+    .at-ex{font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.5;color:rgba(255,255,255,0.72);margin:0;white-space:pre-line}
+    .at-facts{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:0.74rem;margin:0}
+    .at-facts dt{color:rgba(255,255,255,0.42)}
+    .at-facts dd{margin:0;color:rgba(255,255,255,0.88)}
+    .at-kids{display:flex;flex-wrap:wrap;gap:5px}
+    .at-kids button{font-size:0.68rem;padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);background:none;color:rgba(255,255,255,0.78);cursor:pointer}
+    .at-chars{display:flex;flex-wrap:wrap;gap:5px}
+    .at-chars a{display:inline-flex;align-items:center;gap:6px;font-size:0.7rem;padding:3px 9px 3px 3px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);text-decoration:none}
+    .at-av{width:20px;height:20px;border-radius:50%;background:rgba(255,215,0,0.12) center/cover;display:inline-flex;align-items:center;justify-content:center;font-size:0.6rem;color:#ffd76b;font-family:'Cinzel',serif}
+    .at-credit{font-size:0.66rem;color:rgba(110,192,176,0.85)}
+    .at-btns{display:flex;gap:8px;flex-wrap:wrap}
+    .at-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:0.78rem;border-radius:999px;padding:8px 16px;cursor:pointer;border:none}
+    .at-btn.gold{background:#ffd700;color:#1a1a1a;font-weight:700}
+    .at-btn.gh{background:none;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.75)}
+    .at-btn.teal{background:#6ec0b0;color:#10201c;font-weight:700}
+    .at-btn[disabled]{opacity:0.5;cursor:default}
+    .at-close{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,0.18);background:rgba(15,15,15,0.75);color:rgba(255,255,255,0.7);cursor:pointer;z-index:2}
+
+    .at-zoom{position:absolute;right:54px;bottom:24px;display:flex;flex-direction:column;gap:5px;z-index:19}
+    .at-zoom button{width:36px;height:36px;background:rgba(15,13,10,0.9);border:1px solid rgba(255,255,255,0.16);border-radius:8px;color:rgba(255,255,255,0.75);font-size:1rem;cursor:pointer}
+    .at-hint{position:absolute;left:50%;top:72px;transform:translateX(-50%);z-index:22;font-size:0.74rem;padding:8px 14px;border-radius:9px;background:rgba(15,15,15,0.92);border:1px solid rgba(110,192,176,0.45);color:#bfeee5;white-space:nowrap}
+    .at-mtoggle{display:none;position:absolute;left:12px;top:70px;z-index:19;height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,215,107,0.45);background:rgba(15,13,10,0.92);color:#ffd76b;font-size:0.78rem;cursor:pointer}
+
+    .at-form{position:absolute;right:54px;top:72px;bottom:16px;width:350px;background:rgba(16,18,18,0.98);border:1px solid rgba(110,192,176,0.4);border-radius:14px;z-index:23;display:flex;flex-direction:column;box-shadow:0 18px 44px rgba(0,0,0,0.7);user-select:text}
+    .at-fh{display:flex;align-items:center;gap:8px;padding:14px 16px 6px}
+    .at-fh h2{font-family:'Cinzel',Georgia,serif;font-size:0.98rem;color:#6ec0b0;margin:0;flex:1}
+    .at-fb{flex:1;overflow-y:auto;padding:4px 16px 12px;display:flex;flex-direction:column;gap:11px}
+    .at-fl{font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.42);margin-bottom:5px;display:block}
+    .at-in{width:100%;box-sizing:border-box;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;padding:0 11px;font-size:0.84rem;outline:none;color-scheme:dark}
+    .at-ta{width:100%;box-sizing:border-box;min-height:130px;border-radius:8px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;padding:9px 11px;font-size:0.86rem;line-height:1.5;outline:none;resize:vertical;font-family:'EB Garamond',Georgia,serif}
+    .at-in:focus,.at-ta:focus{border-color:rgba(110,192,176,0.6)}
+    .at-kinds{display:flex;gap:5px;flex-wrap:wrap}
+    .at-kinds button{font-size:0.7rem;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.15);background:none;color:rgba(255,255,255,0.68);cursor:pointer}
+    .at-kinds button[data-on="true"]{border-color:rgba(110,192,176,0.7);color:#bfeee5;background:rgba(110,192,176,0.12)}
+    .at-ups{display:flex;gap:6px;flex-wrap:wrap}
+    .at-up{width:62px;height:48px;border-radius:8px;border:1px dashed rgba(255,255,255,0.22);background:rgba(255,255,255,0.03) center/cover;position:relative;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.45);font-size:1rem;cursor:pointer}
+    .at-up button{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;background:#2a2a2a;color:#ff9a9a;font-size:0.6rem;cursor:pointer}
+    .at-small{font-size:0.66rem;color:rgba(255,255,255,0.4);line-height:1.45;margin:4px 0 0}
+    .at-note{font-size:0.74rem;line-height:1.45;color:rgba(255,255,255,0.7);border-left:2px solid rgba(255,77,77,0.5);padding-left:9px;margin:0}
+    .at-ff{padding:12px 16px 14px;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:8px;align-items:center}
+    .at-toast{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);z-index:40;max-width:min(92vw,440px);padding:11px 16px;border-radius:11px;background:#1f2a27;border:1px solid rgba(110,192,176,0.5);font-size:0.8rem;color:#e6fff9;box-shadow:0 12px 30px rgba(0,0,0,0.6);text-align:center}
+
+    @media (max-width:880px){
+      .at-side{left:0;right:0;top:58px;bottom:0;width:auto;border-radius:0;border:none;display:none;background:rgba(16,15,13,0.995);z-index:24}
+      .at-side[data-open="true"]{display:flex}
+      .at-x{display:block}
+      .at-mtoggle{display:block}
+      .at-card{left:0;right:0;top:auto;bottom:0;width:auto;max-height:62vh;border-radius:16px 16px 0 0;border-bottom:none}
+      .at-cover{height:96px}
+      .at-form{left:0;right:0;top:auto;bottom:0;width:auto;height:72vh;border-radius:16px 16px 0 0;border-bottom:none}
+      .at-zoom{right:12px;bottom:auto;top:70px}
+      .at-hint{top:112px;white-space:normal;width:86%;text-align:center}
+      html.au-nav2 .at-card,html.au-nav2 .at-form,html.au-nav2 .at-side{bottom:calc(64px + env(safe-area-inset-bottom) + var(--au-lift,0px))}
+    }
+  </style>
+</helmet>
+
+<div class="at-root" ref="{{ rootRef }}" onPointerDown="{{ down }}" onPointerMove="{{ move }}" onPointerUp="{{ up }}" onPointerCancel="{{ cancel }}">
+  <div class="at-stage" style="transform:translate({{ tx }}px,{{ ty }}px) scale({{ sc }});">
+    <img src="{{ mapUrl }}" alt="Мапа світу Ауреліону" onLoad="{{ imgLoad }}" draggable="false" />
+  </div>
+
+  <sc-for list="{{ areas }}" as="a" hint-placeholder-count="0">
+    <div class="{{ a.cls }}" style="left:{{ a.sx }}px;top:{{ a.sy }}px;font-size:{{ a.fs }};" data-id="{{ a.id }}" onPointerDown="{{ stop }}" onClick="{{ pick }}">{{ a.name }}<small>{{ a.sub }}</small></div>
+  </sc-for>
+  <sc-for list="{{ pins }}" as="p" hint-placeholder-count="0">
+    <div class="{{ p.cls }}" style="left:{{ p.sx }}px;top:{{ p.sy }}px;" data-id="{{ p.id }}" onPointerDown="{{ stop }}" onClick="{{ p.click }}" title="{{ p.name }}">
+      <span class="at-ico" style="background:{{ p.color }};">{{ p.svg }}</span>
+      <sc-if value="{{ p.showLbl }}" hint-placeholder-val="{{ true }}"><span class="at-lbl">{{ p.name }}</span></sc-if>
+    </div>
+  </sc-for>
+  <sc-if value="{{ ghostOn }}" hint-placeholder-val="{{ false }}">
+    <div class="at-ghost" style="left:{{ ghostX }}px;top:{{ ghostY }}px;"><span class="at-ico"></span><span class="at-lbl">{{ ghostName }}</span></div>
+  </sc-if>
+
+  <button class="at-mtoggle" onPointerDown="{{ stop }}" onClick="{{ openSide }}">☰ Місця</button>
+  <div class="at-zoom" onPointerDown="{{ stop }}">
+    <button onClick="{{ zoomIn }}" title="Наблизити">+</button>
+    <button onClick="{{ zoomOut }}" title="Віддалити">−</button>
+    <button onClick="{{ zoomFit }}" title="Уся мапа">⌂</button>
+  </div>
+  <sc-if value="{{ hintOn }}" hint-placeholder-val="{{ false }}">
+    <div class="at-hint">{{ hintText }}</div>
+  </sc-if>
+
+  <!-- ── перелік ── -->
+  <aside class="at-side" data-open="{{ sideOpen }}" onPointerDown="{{ stop }}" onWheel="{{ stopWheel }}">
+    <div class="at-sh"><h1>✦ Атлас</h1><button class="at-x" onClick="{{ closeSide }}" title="Сховати">✕</button></div>
+    <input class="at-search" value="{{ q }}" onChange="{{ setQ }}" placeholder="⌕ Знайти місце…" />
+    <div class="at-chips">
+      <sc-for list="{{ kchips }}" as="k" hint-placeholder-count="4"><button class="at-chip" data-k="{{ k.k }}" data-on="{{ k.on }}" onClick="{{ setKind }}">{{ k.label }}</button></sc-for>
+    </div>
+    <div class="at-list">
+      <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
+        <div class="at-grp" style="color:rgba(110,192,176,0.8);">Мої заявки</div>
+        <sc-for list="{{ mine }}" as="m" hint-placeholder-count="0">
+          <button class="at-mine" data-id="{{ m.id }}" onClick="{{ openMine }}">
+            <span style="display:flex;align-items:center;gap:8px;width:100%;"><span style="flex:1;font-size:0.8rem;color:#fff;">{{ m.name }}</span><span class="at-st {{ m.status }}">{{ m.stL }}</span></span>
+            <sc-if value="{{ m.hasNote }}" hint-placeholder-val="{{ false }}"><span class="at-note">ГМ: «{{ m.note }}»</span></sc-if>
+          </button>
+        </sc-for>
+        <div class="at-grp">Світ</div>
+      </sc-if>
+      <sc-for list="{{ rows }}" as="t" hint-placeholder-count="0">
+        <button class="{{ t.cls }}" style="padding-left:{{ t.pad }};" data-id="{{ t.id }}" data-on="{{ t.on }}" onClick="{{ pick }}">
+          <sc-if value="{{ t.isPlace }}" hint-placeholder-val="{{ true }}"><span class="at-dot" style="background:{{ t.color }};">{{ t.svgSm }}</span></sc-if>
+          <span style="min-width:0;display:flex;flex-direction:column;"><span class="nm">{{ t.name }}</span><sc-if value="{{ t.hasSub }}" hint-placeholder-val="{{ false }}"><span class="sb">{{ t.sub }}</span></sc-if></span>
+          <span class="cnt">{{ t.cnt }}</span>
+        </button>
+      </sc-for>
+      <sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}"><p class="at-empty">{{ emptyText }}</p></sc-if>
+    </div>
+    <sc-if value="{{ canPropose }}" hint-placeholder-val="{{ false }}">
+      <button class="at-prop" onClick="{{ startPropose }}">＋ Запропонувати місце</button>
+    </sc-if>
+  </aside>
+
+  <!-- ── картка місця ── -->
+  <sc-if value="{{ cardOn }}" hint-placeholder-val="{{ false }}">
+    <div class="at-card" onPointerDown="{{ stop }}" onWheel="{{ stopWheel }}">
+      <button class="at-close" onClick="{{ unpick }}" title="Закрити">✕</button>
+      <sc-if value="{{ c.hasCover }}" hint-placeholder-val="{{ false }}"><div class="at-cover" style="background-image:url('{{ c.cover }}');"></div></sc-if>
+      <div class="at-cb">
+        <div>
+          <span class="at-kind" style="color:{{ c.color }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ c.color }};"></span>{{ c.kindL }}</span>
+          <p class="at-ttl">{{ c.name }}</p>
+          <sc-if value="{{ c.hasPath }}" hint-placeholder-val="{{ false }}">
+            <div class="at-bc" style="margin-top:4px;"><sc-for list="{{ c.path }}" as="b" hint-placeholder-count="0"><span>{{ b.sep }}<button data-id="{{ b.id }}" onClick="{{ pick }}">{{ b.name }}</button></span></sc-for></div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ c.hasEx }}" hint-placeholder-val="{{ false }}"><p class="at-ex">{{ c.ex }}</p></sc-if>
+        <sc-if value="{{ c.hasFacts }}" hint-placeholder-val="{{ false }}">
+          <dl class="at-facts"><sc-for list="{{ c.facts }}" as="f" hint-placeholder-count="0"><dt>{{ f.k }}</dt><dd>{{ f.v }}</dd></sc-for></dl>
+        </sc-if>
+        <sc-if value="{{ c.hasKids }}" hint-placeholder-val="{{ false }}">
+          <div><span class="at-fl">{{ c.kidsL }}</span><div class="at-kids"><sc-for list="{{ c.kids }}" as="k" hint-placeholder-count="0"><button data-id="{{ k.id }}" onClick="{{ pick }}">{{ k.name }}</button></sc-for></div></div>
+        </sc-if>
+        <sc-if value="{{ c.hasChars }}" hint-placeholder-val="{{ false }}">
+          <div><span class="at-fl">Персонажі</span><div class="at-chars"><sc-for list="{{ c.chars }}" as="h" hint-placeholder-count="0"><a href="{{ h.href }}"><span class="at-av" style="{{ h.avStyle }}">{{ h.ini }}</span>{{ h.name }}</a></sc-for></div></div>
+        </sc-if>
+        <sc-if value="{{ c.hasCredit }}" hint-placeholder-val="{{ false }}"><span class="at-credit">✦ {{ c.credit }}</span></sc-if>
+        <div class="at-btns">
+          <sc-if value="{{ c.hasLore }}" hint-placeholder-val="{{ false }}"><a class="at-btn gold" href="{{ c.loreHref }}" style="text-decoration:none;">Читати статтю →</a></sc-if>
+          <sc-if value="{{ c.isMine }}" hint-placeholder-val="{{ false }}"><button class="at-btn teal" data-id="{{ c.mineId }}" onClick="{{ openMine }}">Моя заявка · {{ c.mineSt }}</button></sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ── форма заявки ── -->
+  <sc-if value="{{ formOn }}" hint-placeholder-val="{{ false }}">
+    <div class="at-form" onPointerDown="{{ stop }}" onWheel="{{ stopWheel }}">
+      <div class="at-fh"><h2>{{ formTitle }}</h2><button class="at-btn gh" style="padding:5px 12px;" onClick="{{ cancelPropose }}">✕</button></div>
+      <div class="at-fb">
+        <sc-if value="{{ f.hasNote }}" hint-placeholder-val="{{ false }}"><p class="at-note">ГМ: «{{ f.note }}»</p></sc-if>
+        <div><label class="at-fl">Назва</label><input class="at-in" value="{{ f.name }}" data-k="name" onChange="{{ fSet }}" maxlength="80" placeholder="Як зветься місце" /></div>
+        <div><span class="at-fl">Що це</span><div class="at-kinds"><sc-for list="{{ f.kinds }}" as="k" hint-placeholder-count="6"><button data-k="{{ k.k }}" data-on="{{ k.on }}" onClick="{{ fKind }}">{{ k.label }}</button></sc-for></div></div>
+        <div><label class="at-fl">Входить до</label>
+          <select class="at-in" value="{{ f.parent }}" data-k="parent_id" onChange="{{ fParent }}" disabled="{{ f.isCountry }}">
+            <option value="">— нікуди (окремо)</option>
+            <sc-for list="{{ f.parents }}" as="o" hint-placeholder-count="0"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+          </select>
+          <p class="at-small">{{ f.parentHint }}</p></div>
+        <div><span class="at-fl">Місце на мапі</span><p class="at-small" style="margin:0;color:{{ f.ptColor }};">{{ f.ptText }}</p></div>
+        <div><label class="at-fl">Опис</label><textarea class="at-ta" value="{{ f.body }}" data-k="body" onChange="{{ fSet }}" maxlength="6000" placeholder="Що це за місце, хто тут живе, чим воно відоме. Можна Markdown."></textarea></div>
+        <div><span class="at-fl">Картинки · до 4 · перша стане обкладинкою</span>
+          <div class="at-ups">
+            <sc-for list="{{ f.imgs }}" as="g" hint-placeholder-count="0"><span class="at-up" style="background-image:url('{{ g.url }}');border-style:solid;"><button data-i="{{ g.i }}" onClick="{{ fImgDel }}" title="Прибрати">✕</button></span></sc-for>
+            <sc-if value="{{ f.canAddImg }}" hint-placeholder-val="{{ true }}"><label class="at-up">{{ f.upLabel }}<input type="file" accept="image/*" multiple onChange="{{ fImgAdd }}" style="display:none;" /></label></sc-if>
+          </div></div>
+        <div><label class="at-fl">Від імені</label>
+          <select class="at-in" value="{{ f.charId }}" data-k="character_id" onChange="{{ fSet }}">
+            <sc-for list="{{ f.chars }}" as="o" hint-placeholder-count="0"><option value="{{ o.id }}">{{ o.name }}</option></sc-for>
+          </select></div>
+      </div>
+      <div class="at-ff">
+        <sc-if value="{{ f.canWithdraw }}" hint-placeholder-val="{{ false }}"><button class="at-btn gh" onClick="{{ fWithdraw }}">{{ f.wdL }}</button></sc-if>
+        <button class="at-btn teal" style="flex:1;" disabled="{{ f.busy }}" onClick="{{ fSend }}">{{ f.sendL }}</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}"><div class="at-toast">{{ toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:800}}">
+// ── Атлас: мапа світу з країнами, регіонами й місцями ──────────
+// Дані — з Aurelion.dc.html (locations = map_locations, lore = список статей,
+// characters). Заявки гравців — сам компонент: place_proposals / place_propose.
+const AT_URL   = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const AT_STORE = 'https://ztltzghfkppuwixhylng.supabase.co/storage/v1';
+const AT_KEY   = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const KINDS = {
+  country: { l: 'Країна',  c: '#ffd76b' },
+  region:  { l: 'Регіон',  c: '#e8d3a8' },
+  capital: { l: 'Столиця', c: '#ffd700', d: 'M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z' },
+  city:    { l: 'Місто',   c: '#e0b878', d: 'M5 20V10l4-3 4 3V5h6v15z' },
+  fort:    { l: 'Фортеця', c: '#c98a7a', d: 'M4 20V6h3v3h3V6h4v3h3V6h3v14z' },
+  ruin:    { l: 'Руїни',   c: '#9a9a9a', d: 'M4 20v-7l3-2v9zm6 0V8l3 3v9zm6 0v-5l4-2v7z' },
+};
+const KIND_ORDER = ['country', 'region', 'capital', 'city', 'fort', 'ruin'];
+const kindOf = (n) => (KINDS[n && n.location_type] ? n.location_type : 'city');
+const isArea = (k) => k === 'country' || k === 'region';
+const ST_L = { pending: 'на розгляді', accepted: 'прийнято', returned: 'повернуто' };
+const MQ = () => window.matchMedia && window.matchMedia('(max-width:880px)').matches;
+
+class Component extends DCLogic {
+  rootRef = React.createRef();
+  constructor(p) {
+    super(p);
+    this.state = { tx: 0, ty: 0, sc: 0.2, fit: 0.2, iw: 0, ih: 0, sel: '', q: '', kf: '', sideOpen: false,
+      mode: 'view', draft: null, busy: false, upBusy: false, mine: [], toast: '', askWd: false };
+    this._ptr = new Map();
+  }
+
+  componentDidMount() {
+    const el = this.rootRef.current;
+    this._wheel = (e) => {
+      if (e.target.closest && e.target.closest('.at-side,.at-card,.at-form')) return;
+      e.preventDefault();
+      const r = el.getBoundingClientRect();
+      this._zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.18 : 1 / 1.18);
+    };
+    if (el) el.addEventListener('wheel', this._wheel, { passive: false });
+    this._resize = () => { if (this.state.iw) this._fit(true); };
+    window.addEventListener('resize', this._resize);
+    this._loadMine();
+  }
+  componentWillUnmount() {
+    const el = this.rootRef.current;
+    if (el && this._wheel) el.removeEventListener('wheel', this._wheel);
+    window.removeEventListener('resize', this._resize);
+    cancelAnimationFrame(this._raf); clearTimeout(this._tt);
+  }
+  componentDidUpdate(pp) {
+    if (pp.selId !== this.props.selId && this.props.selId && this.state.iw) this._selectFromProp();
+    if (pp.userId !== this.props.userId) this._loadMine();
+    if (pp.locations !== this.props.locations && this.state.iw && !this._didSel && this.props.selId) this._selectFromProp();
+  }
+
+  // ── дані ──
+  _nodes() { return Array.isArray(this.props.locations) ? this.props.locations : []; }
+  _byId() {
+    const L = this._nodes();
+    if (this._bySrc !== L) { this._bySrc = L; this._byMap = new Map(L.map((n) => [String(n.id), n])); }
+    return this._byMap;
+  }
+  _kids(id) { return this._nodes().filter((n) => String(n.parent_id || '') === String(id)); }
+  _chain(n) { const by = this._byId(); const out = []; let p = n && by.get(String(n.parent_id || '')); let g = 0; while (p && g++ < 20) { out.unshift(p); p = by.get(String(p.parent_id || '')); } return out; }
+  _count(id) { let c = 0; for (const k of this._kids(id)) c += (isArea(kindOf(k)) ? 0 : 1) + this._count(k.id); return c; }
+  _lore(id) { return id ? (this.props.lore || []).find((x) => String(x.id) === String(id)) || null : null; }
+  _tok() { try { return localStorage.getItem('au_user_token') || ''; } catch (e) { return ''; } }
+  _h(json) { const t = this._tok(); return { apikey: AT_KEY, Authorization: 'Bearer ' + (t || AT_KEY), ...(json ? { 'Content-Type': 'application/json' } : {}) }; }
+  _say(t) { clearTimeout(this._tt); this.setState({ toast: t }); this._tt = setTimeout(() => this.setState({ toast: '' }), 4200); }
+  _myChars() { const uid = String(this.props.userId || ''); return uid ? (this.props.characters || []).filter((c) => c && c.owner_id && String(c.owner_id) === uid) : []; }
+
+  async _loadMine() {
+    const uid = String(this.props.userId || '');
+    if (!uid || !this._tok()) { this.setState({ mine: [] }); return; }
+    try {
+      const r = await fetch(`${AT_URL}/place_proposals?select=*&user_id=eq.${uid}&order=created_at.desc`, { headers: this._h() });
+      this.setState({ mine: r.ok ? await r.json() : [] });
+    } catch (e) { this.setState({ mine: [] }); }
+  }
+
+  // ── геометрія ──
+  _area() {
+    const el = this.rootRef.current; const W = el ? el.clientWidth : window.innerWidth, H = el ? el.clientHeight : window.innerHeight;
+    if (MQ()) return { x: 0, y: 58, w: W, h: H - 58 - (document.documentElement.classList.contains('au-nav2') ? 64 : 0) };
+    return { x: 308, y: 60, w: Math.max(200, W - 308), h: H - 60 };
+  }
+  _fit(keep) {
+    const { iw, ih } = this.state; if (!iw) return;
+    const a = this._area();
+    const fit = Math.min(a.w / iw, a.h / ih);
+    if (keep && this.state.sc > fit * 0.5) { this.setState({ fit }); return; }
+    this.setState({ fit, sc: fit, tx: a.x + (a.w - iw * fit) / 2, ty: a.y + (a.h - ih * fit) / 2 });
+  }
+  _clampSc(s) { const f = this.state.fit; return Math.max(f * 0.6, Math.min(Math.max(f * 14, 2), s)); }
+  _zoomAt(px, py, k) {
+    cancelAnimationFrame(this._raf);
+    this.setState((st) => { const sc = this._clampSc(st.sc * k), r = sc / st.sc; return { sc, tx: px - (px - st.tx) * r, ty: py - (py - st.ty) * r }; });
+  }
+  _flyTo(n, mul) {
+    const { iw, ih } = this.state; if (!iw || !n) return;
+    const a = this._area(), mob = MQ();
+    const sc1 = this._clampSc(this.state.fit * mul);
+    // центр — з поправкою на картку: праворуч на компʼютері, знизу на телефоні
+    const cx = mob ? a.x + a.w / 2 : a.x + (a.w - 340) / 2;
+    const cy = mob ? a.y + a.h * 0.3 : a.y + a.h / 2;
+    const tx1 = cx - (n.x_percent / 100) * iw * sc1, ty1 = cy - (n.y_percent / 100) * ih * sc1;
+    const s0 = { sc: this.state.sc, tx: this.state.tx, ty: this.state.ty }, t0 = performance.now(), D = 380;
+    cancelAnimationFrame(this._raf);
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3);
+      this.setState({ sc: s0.sc + (sc1 - s0.sc) * e, tx: s0.tx + (tx1 - s0.tx) * e, ty: s0.ty + (ty1 - s0.ty) * e });
+      if (k < 1) this._raf = requestAnimationFrame(step);
+    };
+    this._raf = requestAnimationFrame(step);
+  }
+  _selectFromProp() {
+    const raw = String(this.props.selId || ''); if (!raw) return;
+    const by = this._byId();
+    const n = by.get(raw) || this._nodes().find((x) => String(x.name || '').trim().toLowerCase() === raw.trim().toLowerCase());
+    if (!n) return;
+    this._didSel = true;
+    this._select(n, true);
+  }
+  _select(n, noHash) {
+    const k = kindOf(n);
+    this.setState({ sel: String(n.id), sideOpen: false });
+    this._flyTo(n, k === 'country' ? 1.3 : k === 'region' ? 2.2 : 3.4);
+    if (!noHash) { try { history.replaceState(null, '', '#map/' + encodeURIComponent(n.id)); } catch (e) {} }
+  }
+  _toPct(px, py) { const { tx, ty, sc, iw, ih } = this.state; return { x: (px - tx) / (iw * sc) * 100, y: (py - ty) / (ih * sc) * 100 }; }
+  _nearestParent(x, y) {
+    let best = null, bd = 1e9;
+    for (const n of this._nodes()) {
+      const k = kindOf(n); if (!isArea(k)) continue;
+      const d = Math.hypot(n.x_percent - x, n.y_percent - y) * (k === 'region' ? 1 : 1.6);
+      if (d < bd) { bd = d; best = n; }
+    }
+    return best && bd < 40 ? String(best.id) : '';
+  }
+
+  // ── заявка ──
+  _blank() {
+    const ch = this._myChars()[0];
+    return { id: '', name: '', kind: 'city', parent_id: '', parentTouched: false, x: null, y: null, body: '', images: [], character_id: ch ? String(ch.id) : '', note: '' };
+  }
+  _openDraft(m) {
+    if (m) {
+      this.setState({ mode: 'propose', sideOpen: false, sel: '', askWd: false, draft: { id: String(m.id), name: m.name || '', kind: m.kind || 'city', parent_id: m.parent_id ? String(m.parent_id) : '', parentTouched: true,
+        x: m.x_percent, y: m.y_percent, body: m.body || '', images: Array.isArray(m.images) ? m.images.slice() : [], character_id: m.character_id ? String(m.character_id) : '', note: m.status === 'returned' ? (m.gm_note || '') : '', status: m.status } });
+      this._flyTo({ x_percent: m.x_percent, y_percent: m.y_percent }, 3);
+    } else {
+      this.setState({ mode: 'propose', sideOpen: false, sel: '', askWd: false, draft: this._blank() });
+    }
+  }
+  async _shrink(file) {
+    try {
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size < 400 * 1024) return file;
+      const bmp = await createImageBitmap(file);
+      const k = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+      const cv = document.createElement('canvas'); cv.width = Math.round(bmp.width * k); cv.height = Math.round(bmp.height * k);
+      cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+      const b = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.86));
+      return b ? new File([b], 'place.jpg', { type: 'image/jpeg' }) : file;
+    } catch (e) { return file; }
+  }
+  async _upload(file) {
+    file = await this._shrink(file);
+    const ext = (String(file.name || 'jpg').split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const name = `place-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const r = await fetch(`${AT_STORE}/object/intake-portraits/${name}`, { method: 'POST',
+      headers: { apikey: AT_KEY, Authorization: 'Bearer ' + this._tok(), 'Content-Type': file.type || 'image/jpeg', 'x-upsert': 'true', 'cache-control': 'max-age=31536000' }, body: file });
+    if (!r.ok) throw new Error(await r.text());
+    return `${AT_STORE}/object/public/intake-portraits/${name}`;
+  }
+  async _rpc(fn, body) {
+    const r = await fetch(`${AT_URL}/rpc/${fn}`, { method: 'POST', headers: this._h(true), body: JSON.stringify(body) });
+    const t = await r.text();
+    if (!r.ok) { let m = t; try { const j = JSON.parse(t); m = j.message || j.hint || t; } catch (e) {} throw new Error(m); }
+    try { return JSON.parse(t); } catch (e) { return t; }
+  }
+
+  // ── вказівник: пан, щипок, клік ──
+  _down(e) {
+    if (e.button != null && e.button !== 0 && e.pointerType === 'mouse') return;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {}
+    cancelAnimationFrame(this._raf);
+    this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (this._ptr.size === 1) this._g = { x: e.clientX, y: e.clientY, tx: this.state.tx, ty: this.state.ty, moved: 0 };
+    else if (this._ptr.size === 2) { const [a, b] = [...this._ptr.values()]; this._g = { pinch: true, d: Math.hypot(a.x - b.x, a.y - b.y), sc: this.state.sc, tx: this.state.tx, ty: this.state.ty, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, moved: 99 }; }
+  }
+  _move(e) {
+    if (!this._ptr.has(e.pointerId)) return;
+    this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const g = this._g; if (!g) return;
+    if (g.pinch && this._ptr.size >= 2) {
+      const [a, b] = [...this._ptr.values()]; const r0 = this.rootRef.current.getBoundingClientRect();
+      const sc = this._clampSc(g.sc * Math.hypot(a.x - b.x, a.y - b.y) / (g.d || 1)), k = sc / g.sc;
+      const mx = g.mx - r0.left, my = g.my - r0.top;
+      this.setState({ sc, tx: mx - (mx - g.tx) * k + ((a.x + b.x) / 2 - g.mx), ty: my - (my - g.ty) * k + ((a.y + b.y) / 2 - g.my) });
+    } else if (!g.pinch) {
+      const dx = e.clientX - g.x, dy = e.clientY - g.y; g.moved = Math.max(g.moved, Math.abs(dx) + Math.abs(dy));
+      if (g.moved > 4) this.setState({ tx: g.tx + dx, ty: g.ty + dy });
+    }
+  }
+  _up(e) {
+    const g = this._g; this._ptr.delete(e.pointerId);
+    if (this._ptr.size === 0) {
+      if (g && !g.pinch && g.moved <= 4) this._tap(e);
+      this._g = null;
+    } else if (this._ptr.size === 1) { const [a] = [...this._ptr.values()]; this._g = { x: a.x, y: a.y, tx: this.state.tx, ty: this.state.ty, moved: 99 }; }
+  }
+  _tap(e) {
+    if (this.state.mode === 'propose') {
+      const r = this.rootRef.current.getBoundingClientRect(); const p = this._toPct(e.clientX - r.left, e.clientY - r.top);
+      if (p.x < 0 || p.x > 100 || p.y < 0 || p.y > 100) return;
+      const x = Math.round(p.x * 100) / 100, y = Math.round(p.y * 100) / 100;
+      this.setState((st) => ({ draft: { ...st.draft, x, y, parent_id: st.draft.parentTouched ? st.draft.parent_id : (st.draft.kind === 'country' ? '' : this._nearestParent(x, y)) } }));
+      return;
+    }
+    if (this.state.sel) { this.setState({ sel: '' }); try { history.replaceState(null, '', '#map'); } catch (x) {} }
+  }
+
+  renderVals() {
+    const s = this.state, P = this.props;
+    const nodes = this._nodes(), by = this._byId();
+    const ico = (k, sz) => KINDS[k] && KINDS[k].d ? React.createElement('svg', { width: sz, height: sz, viewBox: '0 0 24 24' }, React.createElement('path', { d: KINDS[k].d, fill: '#1a1408' })) : null;
+    const { tx, ty, sc, iw, ih, fit } = s;
+    const scr = (n) => ({ sx: Math.round(tx + (n.x_percent / 100) * iw * sc), sy: Math.round(ty + (n.y_percent / 100) * ih * sc) });
+    const z = fit ? sc / fit : 1;
+    const pick = (e) => { const n = by.get(String(e.currentTarget.dataset.id)); if (n) this._select(n); };
+    const uid = String(P.userId || '');
+    const mine = uid ? (s.mine || []).filter((m) => String(m.user_id) === uid) : [];
+    const mineByLoc = new Map(mine.filter((m) => m.location_id).map((m) => [String(m.location_id), m]));
+    const canPropose = !!P.canPropose && this._myChars().length > 0;
+    const proposing = s.mode === 'propose' && s.draft;
+
+    // ── підписи країн і регіонів ──
+    const areas = iw ? nodes.filter((n) => isArea(kindOf(n))).filter((n) => {
+      const k = kindOf(n); return k === 'country' ? z < 5 : (z >= 1.25 && z < 9);
+    }).map((n) => {
+      const k = kindOf(n), p = scr(n), c = k === 'country';
+      const fs = c ? Math.max(0.95, Math.min(1.8, 0.8 + z * 0.25)) : Math.max(0.66, Math.min(1.05, 0.5 + z * 0.12));
+      return { key: n.id, id: n.id, ...p, name: String(n.name || '').toUpperCase(), sub: c ? 'країна' : '', fs: fs + 'rem',
+        cls: 'at-area ' + (c ? 'c' : 'r') + (String(n.id) === s.sel ? ' on' : '') };
+    }) : [];
+
+    // ── точки ──
+    const pins = iw ? nodes.filter((n) => !isArea(kindOf(n))).map((n) => {
+      const k = kindOf(n), on = String(n.id) === s.sel;
+      return { key: n.id, id: n.id, name: n.name, ...scr(n), color: KINDS[k].c, svg: ico(k, 13), click: pick,
+        cls: 'at-pin' + (on ? ' on' : ''), showLbl: on || k === 'capital' || z >= 1.9 };
+    }) : [];
+    // свої заявки на розгляді — пунктиром, лише авторові
+    if (iw) for (const m of mine) {
+      if (m.status === 'accepted' || (proposing && String(s.draft.id) === String(m.id))) continue;
+      const k = KINDS[m.kind] ? m.kind : 'city';
+      pins.push({ key: 'm' + m.id, id: m.id, name: m.name + ' · ' + ST_L[m.status], ...scr(m), color: KINDS[k].c, svg: ico(k, 13),
+        click: (e) => { e.stopPropagation(); this._openDraft(m); }, cls: 'at-pin mine', showLbl: true });
+    }
+
+    // ── перелік ──
+    const q = s.q.trim().toLowerCase();
+    const rowOf = (n, depth, sub) => {
+      const k = kindOf(n), area = isArea(k);
+      return { key: n.id, id: n.id, name: n.name, pad: (12 + depth * 14) + 'px', on: String(n.id) === s.sel,
+        cls: 'at-tr ' + (k === 'country' ? 'c' : k === 'region' ? 'r' : 'p'),
+        isPlace: !area, color: KINDS[k].c, svgSm: ico(k, 10), cnt: area ? String(this._count(n.id)) : '', sub: sub || '', hasSub: !!sub };
+    };
+    let rows = [];
+    if (q || s.kf) {
+      const match = nodes.filter((n) => (!q || String(n.name || '').toLowerCase().includes(q)) && (!s.kf || kindOf(n) === s.kf || (s.kf === 'city' && kindOf(n) === 'capital')));
+      rows = match.sort((a, b) => String(a.name).localeCompare(String(b.name), 'uk')).map((n) => rowOf(n, 0, [KINDS[kindOf(n)].l].concat(this._chain(n).map((x) => x.name)).join(' · ')));
+    } else {
+      const walk = (n, d) => { rows.push(rowOf(n, d)); this._kids(n.id).sort((a, b) => KIND_ORDER.indexOf(kindOf(a)) - KIND_ORDER.indexOf(kindOf(b)) || (a.sort_order || 0) - (b.sort_order || 0) || String(a.name).localeCompare(String(b.name), 'uk')).forEach((k) => walk(k, d + 1)); };
+      const roots = nodes.filter((n) => !n.parent_id || !by.has(String(n.parent_id)));
+      roots.filter((n) => kindOf(n) === 'country').sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0) || String(a.name).localeCompare(String(b.name), 'uk')).forEach((n) => walk(n, 0));
+      const loose = roots.filter((n) => kindOf(n) !== 'country');
+      if (loose.length && rows.length) rows.push({ key: '__loose', id: '', name: 'Поза країнами', pad: '12px', on: false, cls: 'at-tr r', isPlace: false, color: '', svgSm: null, cnt: '', sub: '', hasSub: false });
+      loose.forEach((n) => walk(n, rows.length && loose.length ? 1 : 0));
+    }
+
+    // ── картка ──
+    const n = s.sel ? by.get(s.sel) : null;
+    let c = {};
+    if (n) {
+      const k = kindOf(n), lore = this._lore(n.lore_id), chain = this._chain(n);
+      const facts = Array.isArray(lore && lore.facts) ? lore.facts.filter((f) => f && String(f.k || '').trim() && String(f.v || '').trim()).map((f, i) => ({ key: i, k: f.k, v: f.v })) : [];
+      const ex = String((lore && lore.excerpt) || n.description || '').trim();
+      const kids = this._kids(n.id).map((x) => ({ key: x.id, id: x.id, name: x.name }));
+      const charIds = String(n.character_ids || '').split(',').map((x) => x.trim()).filter(Boolean);
+      const chars = charIds.map((id) => (P.characters || []).find((ch) => String(ch.id) === id)).filter(Boolean).map((ch) => ({
+        key: ch.id, name: ch.name, href: '#characters/' + encodeURIComponent(ch.id), ini: String(ch.name || '?').slice(0, 1).toUpperCase(),
+        avStyle: ch.image ? `background-image:url(${JSON.stringify(ch.image)});color:transparent;` : '' }));
+      const mm = mineByLoc.get(String(n.id));
+      c = { name: n.name, kindL: KINDS[k].l, color: KINDS[k].c, cover: (lore && lore.cover) || '', hasCover: !!(lore && lore.cover),
+        path: chain.map((x, i) => ({ key: x.id, id: x.id, name: x.name, sep: i ? ' › ' : '' })), hasPath: chain.length > 0,
+        ex, hasEx: !!ex, facts, hasFacts: facts.length > 0,
+        kids, hasKids: kids.length > 0, kidsL: k === 'country' ? 'Що тут є · ' + this._count(n.id) : 'Тут · ' + kids.length,
+        chars, hasChars: chars.length > 0, credit: n.credit || '', hasCredit: !!n.credit,
+        hasLore: !!lore, loreHref: lore ? '#lore/' + encodeURIComponent(lore.id) : '',
+        isMine: false, mineId: mm ? mm.id : '', mineSt: mm ? ST_L[mm.status] : '' };
+    }
+
+    // ── форма ──
+    let f = {};
+    if (proposing) {
+      const d = s.draft, isC = d.kind === 'country';
+      const opts = []; const walkO = (x, dep) => { if (kindOf(x) !== 'fort' && kindOf(x) !== 'ruin') opts.push({ key: x.id, id: String(x.id), label: ' '.repeat(dep) + x.name + ' · ' + KINDS[kindOf(x)].l }); this._kids(x.id).forEach((y) => walkO(y, dep + 1)); };
+      nodes.filter((x) => !x.parent_id || !by.has(String(x.parent_id))).sort((a, b) => KIND_ORDER.indexOf(kindOf(a)) - KIND_ORDER.indexOf(kindOf(b))).forEach((x) => walkO(x, 0));
+      const pn = d.parent_id ? by.get(String(d.parent_id)) : null;
+      f = { name: d.name, body: d.body, note: d.note, hasNote: !!d.note,
+        kinds: KIND_ORDER.map((k) => ({ key: k, k, label: KINDS[k].l, on: d.kind === k })),
+        parents: opts, parent: isC ? '' : d.parent_id, isCountry: isC,
+        parentHint: isC ? 'Країна ні в що не входить.' : pn ? ('Шлях: ' + this._chain(pn).concat([pn]).map((x) => x.name).join(' › ')) : (d.x == null ? 'Підставиться найближче, коли поставите точку.' : 'Окреме місце — без країни.'),
+        ptText: d.x == null ? 'Клацніть на мапі, де стоїть це місце.' : `Точку поставлено (${d.x.toFixed(1)} · ${d.y.toFixed(1)}). Клацніть ще раз, щоб перенести.`,
+        ptColor: d.x == null ? '#ffd76b' : 'rgba(110,192,176,0.9)',
+        imgs: d.images.map((u, i) => ({ key: u, url: u, i })), canAddImg: d.images.length < 4, upLabel: s.upBusy ? '…' : '＋',
+        chars: this._myChars().map((ch) => ({ key: ch.id, id: String(ch.id), name: ch.name })), charId: d.character_id,
+        busy: s.busy, sendL: s.busy ? 'Надсилаю…' : (d.id ? 'Надіслати знову' : 'Надіслати на розгляд'),
+        canWithdraw: !!d.id && d.status !== 'accepted', wdL: s.askWd ? 'Точно відкликати?' : 'Відкликати' };
+    }
+    const setD = (patch) => this.setState((st) => ({ draft: { ...st.draft, ...patch } }));
+
+    return {
+      rootRef: this.rootRef, mapUrl: P.mapUrl || '', tx, ty, sc,
+      imgLoad: (e) => { const im = e.currentTarget; this.setState({ iw: im.naturalWidth, ih: im.naturalHeight }, () => { this._fit(); if (P.selId) this._selectFromProp(); }); },
+      down: (e) => this._down(e), move: (e) => this._move(e), up: (e) => this._up(e), cancel: (e) => { this._ptr.delete(e.pointerId); this._g = null; },
+      stop: (e) => e.stopPropagation(), stopWheel: (e) => e.stopPropagation(),
+      pick, unpick: () => { this.setState({ sel: '' }); try { history.replaceState(null, '', '#map'); } catch (x) {} },
+      areas, pins,
+      ghostOn: !!(proposing && s.draft.x != null && iw), ghostName: proposing ? (s.draft.name || 'нове місце') : '',
+      ...(proposing && s.draft.x != null && iw ? (() => { const p = scr({ x_percent: s.draft.x, y_percent: s.draft.y }); return { ghostX: p.sx, ghostY: p.sy }; })() : { ghostX: 0, ghostY: 0 }),
+      hintOn: !!(proposing && s.draft.x == null), hintText: 'Клацніть на мапі, де стоїть місце. Мапу можна тягати й наближати.',
+      zoomIn: () => { const a = this._area(); this._zoomAt(a.x + a.w / 2, a.y + a.h / 2, 1.35); },
+      zoomOut: () => { const a = this._area(); this._zoomAt(a.x + a.w / 2, a.y + a.h / 2, 1 / 1.35); },
+      zoomFit: () => this._fit(),
+      sideOpen: !!s.sideOpen, openSide: () => this.setState({ sideOpen: true }), closeSide: () => this.setState({ sideOpen: false }),
+      q: s.q, setQ: (e) => this.setState({ q: e.target.value }),
+      kchips: [['', 'Усе · ' + nodes.filter((x) => !isArea(kindOf(x))).length], ['city', 'Міста'], ['fort', 'Фортеці'], ['ruin', 'Руїни']].map(([k, label]) => ({ key: k || 'all', k, label, on: s.kf === k })),
+      setKind: (e) => this.setState({ kf: e.currentTarget.dataset.k || '' }),
+      rows, noRows: rows.length === 0,
+      emptyText: q || s.kf ? 'Нічого не знайшлося.' : 'На мапі ще немає місць.',
+      hasMine: mine.length > 0,
+      mine: mine.map((m) => ({ key: m.id, id: m.id, name: m.name, status: m.status, stL: ST_L[m.status] || m.status, note: m.gm_note || '', hasNote: m.status === 'returned' && !!m.gm_note })),
+      openMine: (e) => {
+        const m = mine.find((x) => String(x.id) === String(e.currentTarget.dataset.id)); if (!m) return;
+        if (m.status === 'accepted') { const loc = by.get(String(m.location_id)); if (loc) this._select(loc); else this._say('Місце вже прийняли — воно з’явиться після оновлення сторінки.'); return; }
+        this._openDraft(m);
+      },
+      canPropose, startPropose: () => this._openDraft(null),
+      cardOn: !!n && !proposing && !(s.sideOpen && MQ()), c,
+      formOn: !!proposing, f, formTitle: proposing && s.draft.id ? 'Моя заявка' : 'Нове місце',
+      cancelPropose: () => this.setState({ mode: 'view', draft: null, askWd: false }),
+      fSet: (e) => { const k = e.currentTarget.dataset.k, v = e.target.value; setD({ [k]: v }); },
+      fParent: (e) => setD({ parent_id: e.target.value, parentTouched: true }),
+      fKind: (e) => { const k = e.currentTarget.dataset.k; setD(k === 'country' ? { kind: k, parent_id: '' } : { kind: k }); },
+      fImgDel: (e) => { const i = +e.currentTarget.dataset.i; this.setState((st) => ({ draft: { ...st.draft, images: st.draft.images.filter((_, j) => j !== i) } })); },
+      fImgAdd: async (e) => {
+        const files = [...(e.target.files || [])]; e.target.value = '';
+        const room = 4 - s.draft.images.length; if (!files.length || room <= 0) return;
+        this.setState({ upBusy: true });
+        let bad = 0;
+        for (const file of files.slice(0, room)) {
+          if (file.size > 12 * 1024 * 1024) { bad++; continue; }
+          try { const url = await this._upload(file); this.setState((st) => ({ draft: st.draft ? { ...st.draft, images: st.draft.images.concat([url]).slice(0, 4) } : st.draft })); } catch (x) { bad++; }
+        }
+        this.setState({ upBusy: false });
+        if (bad) this._say(bad === 1 ? 'Одну картинку не вдалося завантажити.' : `Не завантажилось картинок: ${bad}.`);
+      },
+      fWithdraw: async () => {
+        if (!s.askWd) { this.setState({ askWd: true }); return; }
+        try { await this._rpc('place_withdraw', { pid: s.draft.id }); this.setState({ mode: 'view', draft: null, askWd: false }); this._say('Заявку відкликано.'); this._loadMine(); }
+        catch (x) { this._say('Не вийшло: ' + x.message); }
+      },
+      fSend: async () => {
+        const d = s.draft;
+        if (!d.name.trim()) { this._say('Дайте місцю назву.'); return; }
+        if (d.x == null) { this._say('Поставте точку на мапі.'); return; }
+        if (!d.body.trim()) { this._say('Додайте хоч кілька речень опису.'); return; }
+        this.setState({ busy: true });
+        try {
+          await this._rpc('place_propose', { p: { id: d.id || null, name: d.name.trim(), kind: d.kind, parent_id: d.kind === 'country' ? null : (d.parent_id || null), x: d.x, y: d.y, body: d.body.trim(), images: d.images, character_id: d.character_id || null } });
+          this.setState({ busy: false, mode: 'view', draft: null });
+          this._say(d.id ? 'Заявку оновлено — ГМ перегляне її знову.' : '✦ Заявку надіслано. Статус — у «Моїх заявках» у переліку.');
+          this._loadMine();
+        } catch (x) { this.setState({ busy: false }); this._say('Не вийшло: ' + x.message); }
+      },
+      toastOn: !!s.toast, toast: s.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

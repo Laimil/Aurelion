@@ -981,6 +981,9 @@ a:hover{color:#a8c4f7;}
           </sc-if>
           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(24,22,17,0.97) 8%,rgba(24,22,17,0.72) 52%,rgba(24,22,17,0.5) 100%);"></div>
           <div style="position:relative;padding:44px 40px 34px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;">
+            <sc-if value="{{ lrHasPath }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:0.76rem;letter-spacing:0.04em;color:rgba(255,255,255,0.45);margin-bottom:8px;display:flex;flex-wrap:wrap;gap:4px;"><sc-for list="{{ lrPath }}" as="b" hint-placeholder-count="0"><span>{{ b.sep }}<a href="{{ b.href }}" style="color:#ffd76b;text-decoration:none;">{{ b.name }}</a></span></sc-for></p>
+            </sc-if>
             <sc-if value="{{ loreReaderHasCategory }}" hint-placeholder-val="{{ false }}">
               <p style="font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.72);margin-bottom:10px;">✦ {{ loreReaderCategory }}</p>
             </sc-if>
@@ -1012,6 +1015,23 @@ a:hover{color:#a8c4f7;}
 
         <div class="chron-reader-grid">
           <div>
+            <sc-if value="{{ lrBoxOn }}" hint-placeholder-val="{{ false }}">
+              <aside style="border:1px solid rgba(255,215,107,0.25);border-radius:12px;background:rgba(255,215,107,0.03);overflow:hidden;margin-bottom:22px;">
+                <sc-if value="{{ lrHasMini }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ lrMapHref }}" title="Відкрити на мапі" style="display:block;position:relative;width:100%;aspect-ratio:{{ lrMiniAspect }};overflow:hidden;background:#0c0c0c;border-bottom:1px solid rgba(255,215,107,0.2);">
+                    <img src="{{ lrMapUrl }}" alt="" loading="lazy" style="position:absolute;width:400%;height:400%;max-width:none;left:{{ lrMiniL }};top:{{ lrMiniT }};filter:saturate(0.85) brightness(0.85);" />
+                    <span style="position:absolute;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%) rotate(45deg);background:{{ lrPinColor }};border:2px solid #fff;border-radius:3px;box-shadow:0 0 0 4px rgba(0,0,0,0.35),0 0 14px rgba(0,0,0,0.8);"></span>
+                    <span style="position:absolute;right:7px;bottom:7px;font-size:0.68rem;padding:4px 9px;border-radius:999px;background:rgba(15,15,15,0.88);border:1px solid rgba(255,215,107,0.45);color:#ffd76b;">На мапі ↗</span>
+                  </a>
+                </sc-if>
+                <div style="padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;">
+                  <dl style="display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:0;font-size:0.82rem;">
+                    <sc-for list="{{ lrFacts }}" as="f" hint-placeholder-count="0"><dt style="color:rgba(255,255,255,0.42);">{{ f.k }}</dt><dd style="margin:0;color:rgba(255,255,255,0.88);">{{ f.v }}</dd></sc-for>
+                  </dl>
+                  <sc-if value="{{ lrHasCredit }}" hint-placeholder-val="{{ false }}"><p style="font-size:0.72rem;color:rgba(110,192,176,0.85);margin:0;">✦ {{ lrCredit }}</p></sc-if>
+                </div>
+              </aside>
+            </sc-if>
             <sc-if value="{{ loreReaderHasToc }}" hint-placeholder-val="{{ false }}">
               <div class="chron-toc-sticky">
                 <nav class="lore-toc">
@@ -1028,6 +1048,17 @@ a:hover{color:#a8c4f7;}
           <article style="min-width:0;">
             <sc-if value="{{ loreReaderHasContent }}" hint-placeholder-val="{{ true }}">
               {{ loreReaderBodyEl }}
+            </sc-if>
+            <sc-if value="{{ lrHasKids }}" hint-placeholder-val="{{ false }}">
+              <section style="margin-top:38px;border-top:1px solid rgba(255,255,255,0.08);padding-top:22px;">
+                <h2 style="font-family:'Cinzel',Georgia,serif;font-size:1.1rem;color:#ffd76b;letter-spacing:0.05em;margin:0 0 12px;">{{ lrKidsTitle }}</h2>
+                <sc-for list="{{ lrKids }}" as="k" hint-placeholder-count="0">
+                  <a href="{{ k.href }}" style="display:flex;align-items:center;gap:9px;padding:5px 0 5px {{ k.pad }};text-decoration:none;color:{{ k.color }};font-size:{{ k.fs }};letter-spacing:{{ k.ls }};text-transform:{{ k.tt }};">
+                    <span style="width:9px;height:9px;flex:none;transform:rotate(45deg);border-radius:2px;background:{{ k.dot }};"></span>{{ k.name }}<span style="font-size:0.7rem;color:rgba(255,255,255,0.35);text-transform:none;letter-spacing:0;">{{ k.kindL }}</span>
+                  </a>
+                </sc-for>
+                <a href="{{ lrMapHref }}" style="display:inline-flex;margin-top:14px;font-size:0.82rem;padding:7px 16px;border-radius:999px;border:1px solid rgba(255,215,107,0.4);color:#ffd76b;text-decoration:none;">◎ Показати на мапі</a>
+              </section>
             </sc-if>
             <sc-if value="{{ loreReaderNoContent }}" hint-placeholder-val="{{ false }}">
               <div style="text-align:center;padding:60px 24px;color:rgba(255,255,255,0.28);">
@@ -3537,64 +3568,7 @@ a:hover{color:#a8c4f7;}
 <!-- ═══ КАРТА ═══ -->
 <sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
   <main class="au-page" style="position:fixed;inset:0;overflow:hidden;background:#090810;">
-    <!-- Overlay title -->
-    <div style="position:absolute;top:70px;left:22px;z-index:20;pointer-events:none;">
-      <p style="font-size:0.6rem;letter-spacing:0.26em;text-transform:uppercase;color:rgba(255,215,0,0.6);margin-bottom:3px;">✦ Мапа Світу</p>
-      <h1 style="font-family:'Cinzel',Georgia,serif;font-size:1.25rem;font-weight:700;color:rgba(255,255,255,0.75);letter-spacing:0.1em;">AURELION</h1>
-    </div>
-<!-- Zoom controls -->
-    <div style="position:absolute;bottom:28px;right:24px;z-index:20;display:flex;flex-direction:column;gap:5px;">
-      <button onClick="{{ mapZoomIn }}" style="width:36px;height:36px;background:rgba(15,13,10,0.88);border:1px solid rgba(255,255,255,0.15);border-radius:7px;color:rgba(255,255,255,0.75);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.18s;" style-hover="border-color:rgba(255,215,0,0.5);color:#ffd700;">+</button>
-      <button onClick="{{ mapZoomOut }}" style="width:36px;height:36px;background:rgba(15,13,10,0.88);border:1px solid rgba(255,255,255,0.15);border-radius:7px;color:rgba(255,255,255,0.75);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.18s;" style-hover="border-color:rgba(255,215,0,0.5);color:#ffd700;">−</button>
-      <button onClick="{{ mapZoomReset }}" style="width:36px;height:36px;background:rgba(15,13,10,0.7);border:1px solid rgba(255,255,255,0.09);border-radius:7px;color:rgba(255,255,255,0.38);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.18s;" style-hover="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.22);">↺</button>
-    </div>
-    <!-- Hint -->
-    <div style="position:absolute;bottom:28px;left:22px;z-index:20;pointer-events:none;">
-      <p style="font-size:0.58rem;letter-spacing:0.1em;color:rgba(255,255,255,0.18);">Scroll — zoom · Drag — pan · ✦ — локація</p>
-    </div>
-    <!-- Pan/Zoom stage -->
-    <div style="position:absolute;inset:0;cursor:{{ mapCursor }};touch-action:none;" onMouseDown="{{ handleMapMouseDown }}" onMouseMove="{{ handleMapMouseMove }}" onMouseUp="{{ handleMapMouseUp }}" onMouseLeave="{{ handleMapMouseLeave }}" onClick="{{ handleMapClick }}" onTouchStart="{{ handleMapTouchStart }}" onTouchMove="{{ handleMapTouchMove }}" onTouchEnd="{{ handleMapTouchEnd }}">
-      <div style="position:absolute;top:0;left:0;transform:{{ mapTransform }};transform-origin:0 0;will-change:transform;user-select:none;">
-        {{ mapImageEl }}
-        <!-- Pins -->
-        <sc-for list="{{ mapPins }}" as="pin" hint-placeholder-count="0">
-          <div data-id="{{ pin.id }}" onClick="{{ openMapPin }}" style="position:absolute;left:{{ pin.x_percent }}%;top:{{ pin.y_percent }}%;transform:translate(-50%,-100%);cursor:pointer;z-index:10;pointer-events:auto;">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
-              <div style="width:11px;height:11px;background:#ffd700;transform:rotate(45deg);border-radius:2px;border:1.5px solid rgba(255,255,255,0.5);box-shadow:0 0 8px rgba(255,215,0,0.9),0 0 18px rgba(255,215,0,0.4);"></div>
-              <p style="font-family:'Cinzel',Georgia,serif;font-size:0.5rem;color:#fff;white-space:nowrap;letter-spacing:0.07em;text-shadow:0 1px 6px rgba(0,0,0,1),0 0 12px rgba(0,0,0,0.9);font-weight:600;background:rgba(0,0,0,0.65);padding:1px 4px;border-radius:2px;">{{ pin.name }}</p>
-            </div>
-          </div>
-        </sc-for>
-      </div>
-    </div>
-    <!-- Pin popup -->
-    <sc-if value="{{ showMapPopup }}" hint-placeholder-val="{{ false }}">
-      <div style="position:fixed;inset:0;z-index:150;pointer-events:none;">
-        <div onClick="{{ stopMapProp }}" style="position:absolute;left:{{ mapPopupX }}px;top:{{ mapPopupY }}px;width:278px;background:rgba(14,12,9,0.97);border:1px solid rgba(255,215,0,0.22);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.88),0 0 24px rgba(255,215,0,0.06);padding:18px 20px;pointer-events:auto;">
-          <button onClick="{{ closeMapPopup }}" style="position:absolute;top:10px;right:12px;background:none;border:none;color:rgba(255,255,255,0.32);cursor:pointer;font-size:0.85rem;padding:4px;" style-hover="color:#fff;">✕</button>
-          <p style="font-size:0.57rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,215,0,0.58);margin-bottom:5px;">✦ Локація</p>
-          <h3 style="font-family:'Cinzel',Georgia,serif;font-size:1rem;color:#fff;letter-spacing:0.05em;line-height:1.3;padding-right:20px;margin-bottom:10px;">{{ mapPopupName }}</h3>
-          <sc-if value="{{ mapPopupHasDesc }}" hint-placeholder-val="{{ false }}">
-            <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.93rem;color:rgba(255,255,255,0.54);line-height:1.65;margin-bottom:10px;">{{ mapPopupDesc }}</p>
-          </sc-if>
-          <sc-if value="{{ mapPopupHasChars }}" hint-placeholder-val="{{ false }}">
-            <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:10px;margin-top:2px;">
-              <p style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.26);margin-bottom:9px;">Персонажі</p>
-              <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                <sc-for list="{{ mapPopupChars }}" as="ch" hint-placeholder-count="0">
-                  <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:6px;padding:4px 8px 4px 5px;">
-                    <div style="width:20px;height:20px;border-radius:50%;background:rgba(255,215,0,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(255,215,0,0.22);">
-                      <span style="font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,215,0,0.75);font-weight:700;">{{ ch.initials }}</span>
-                    </div>
-                    <span style="font-family:'Cinzel',Georgia,serif;font-size:0.72rem;color:rgba(255,255,255,0.76);white-space:nowrap;">{{ ch.name }}</span>
-                  </div>
-                </sc-for>
-              </div>
-            </div>
-          </sc-if>
-        </div>
-      </div>
-    </sc-if>
+    <dc-import name="Atlas" locations="{{ atlasLocs }}" lore="{{ atlasLore }}" characters="{{ atlasChars }}" map-url="{{ atlasMapUrl }}" sel-id="{{ atlasSel }}" user-id="{{ userId }}" can-propose="{{ atlasCanPropose }}" hint-size="100%,100vh"></dc-import>
   </main>
 </sc-if>
 
@@ -4360,7 +4334,7 @@ const GAL_KINDS = [
 // мапи й документи.
 const MAT_KINDS = [
   { id: 'illustration', label: 'Ілюстрація' },
-  { id: 'map',          label: 'Мапа' },
+  { id: 'map',          label: 'Атлас' },
   { id: 'scene',        label: 'Сцена' },
   { id: 'document',     label: 'Документ' },
   { id: 'symbol',       label: 'Символ' },
@@ -6381,7 +6355,7 @@ class Component extends DCLogic {
     };
     const PAGES = {
       lore: 'Довідник Мандрівника', stories: 'Історії', chronicles: 'Хроніки', characters: 'Персонажі',
-      pantheon: 'Пантеон', connections: 'Зв’язки', map: 'Мапа', dice: 'Кубик', quotes: 'Цитатник', pulse: 'Пульс',
+      pantheon: 'Пантеон', connections: 'Зв’язки', map: 'Атлас', dice: 'Кубик', quotes: 'Цитатник', pulse: 'Пульс',
     };
     const out = [];
     raw.forEach(it => {
@@ -6745,7 +6719,9 @@ class Component extends DCLogic {
     let res;
     try {
       res = await Promise.all([
-        this._get(`lore?select=${LIST_SELECT.lore}&order=sort_order.asc,created_at.asc`),
+        // in_lore/facts — з supabase_atlas_migration.sql; без неї звичайний список.
+        this._get(`lore?select=${LIST_SELECT.lore},in_lore,facts&order=sort_order.asc,created_at.asc`)
+          .catch((e) => { console.warn('довідник: без граф in_lore/facts —', e && e.message); return this._get(`lore?select=${LIST_SELECT.lore}&order=sort_order.asc,created_at.asc`); }),
         this._get(`stories?select=${LIST_SELECT.stories}&order=sort_order.asc,created_at.asc`),
         this._get(`chronicles?select=${LIST_SELECT.chronicles}&order=sort_order.asc,created_at.asc`),
         // Тризахідно: `build` і `owner_id` зʼявляються лише по своїх
@@ -7758,7 +7734,7 @@ class Component extends DCLogic {
       const ratio = newScale / st.mapScale;
       this.setState({ mapScale: newScale, mapPanX: e.clientX - (e.clientX - st.mapPanX) * ratio, mapPanY: e.clientY - (e.clientY - st.mapPanY) * ratio, mapActivePin: null });
     };
-    window.addEventListener('wheel', this._mapWheelHandler, { passive: false });
+    // Колесо на мапі тепер слухає сам Atlas.dc.html (лише поки мапа відкрита).
     // Галерея: стрілки й Esc. Слухаємо глобально — лайтбокс не має фокусу.
     this._galKeyHandler = (e) => {
       const st = this.state;
@@ -9392,9 +9368,17 @@ class Component extends DCLogic {
     // ── Фільтр/сорт Лор
     const loreTagFilter  = s.loreTagFilter || null;
     const loreSortBy     = s.loreSortBy || 'order';
-    const allCategories  = [...new Set((data.lore||[]).map(it=>it.category).filter(Boolean))].sort();
-    const loreTags       = allCategories.map(cat => ({ value: cat, label: cat, active: loreTagFilter === cat }));
-    const filteredLore   = (data.lore||[]).filter(it => !loreTagFilter || it.category === loreTagFilter);
+    // Статті, на які посилаються точки Атласу. Ті з них, що мають in_lore=false,
+    // живуть у Атласі й під фільтром «◎ Місця», а не в загальній сітці.
+    const placeLoreIds   = new Set((data.map_locations||[]).map(l => l.lore_id).filter(Boolean).map(String));
+    const loreShown      = (data.lore||[]).filter(it => !(it.in_lore === false && placeLoreIds.has(String(it.id))));
+    const placeLoreCount = (data.lore||[]).filter(it => placeLoreIds.has(String(it.id))).length;
+    const allCategories  = [...new Set(loreShown.map(it=>it.category).filter(Boolean))].sort();
+    const loreTags       = allCategories.map(cat => ({ value: cat, label: cat, active: loreTagFilter === cat }))
+      .concat(placeLoreCount ? [{ value: '__places', label: '◎ Місця · ' + placeLoreCount, active: loreTagFilter === '__places' }] : []);
+    const filteredLore   = loreTagFilter === '__places'
+      ? (data.lore||[]).filter(it => placeLoreIds.has(String(it.id)))
+      : loreShown.filter(it => !loreTagFilter || it.category === loreTagFilter);
     const sortedLoreData = loreSortBy === 'az'
       ? [...filteredLore].sort((a,b)=>(a.title||'').localeCompare(b.title||'','uk',{sensitivity:'base'}))
       : loreSortBy === 'za'
@@ -9548,6 +9532,17 @@ class Component extends DCLogic {
       testsSignedIn:   signedIn,
       showContacts:    page === 'contacts',
       showMap:         page === 'map',
+      ...(page === 'map' ? (() => {
+        const { seg, id } = this._parseHash();
+        return {
+          atlasLocs:   data.map_locations || [],
+          atlasLore:   data.lore || [],
+          atlasChars:  data.characters || [],
+          atlasMapUrl: (data.site && data.site.map_image_url) || 'uploads/aurelion-map-orig.jpg',
+          atlasSel:    seg === 'map' ? (id || '') : '',
+          atlasCanPropose: signedIn && s.userStatus === 'approved',
+        };
+      })() : { atlasLocs: [], atlasLore: [], atlasChars: [], atlasMapUrl: '', atlasSel: '', atlasCanPropose: false }),
 
       // ── Цитатник: фрази, які Марта записала з чату ──
       showQuotes:      page === 'quotes',
@@ -10151,7 +10146,7 @@ class Component extends DCLogic {
         { id: 'characters',  label: 'Персонажі',   active: page === 'characters' },
         { id: 'dice',        label: 'Дайс',       active: page === 'dice' },
         { id: 'quotes',      label: 'Забавки',    active: FUN_SEGS.indexOf(page) !== -1 },
-        { id: 'map',         label: 'Мапа',       active: page === 'map' },
+        { id: 'map',         label: 'Атлас',      active: page === 'map' },
         { id: 'pulse',       label: 'Пульс',      active: page === 'pulse' },
         { id: 'posts', label: 'Спільнота', active: LIFE_SEGS.indexOf(page) !== -1 },
       ],
@@ -10322,7 +10317,7 @@ class Component extends DCLogic {
           { id: 'dice',       iconPath: TILE.dice, title: 'Дайс-роллер',  desc: 'Воля богів у ваших руках — d4 до d20', hasCount: false, countLabel: '' },
           ...(testsOn ? [{ id: 'tests', iconPath: TILE.tests, title: 'Тести', desc: 'Дзеркало для вас і для вашого персонажа', ...mk((data.tests||[]).length, 'тест', 'тести', 'тестів') }] : []),
           ...(gossipOn ? [{ id: 'gossip', iconPath: TILE.gossip, title: 'Пліткарка', desc: 'Віконце пліток — принесіть Марті те, що почули', hasCount: false, countLabel: '' }] : []),
-          { id: 'map',        iconPath: TILE.map, title: 'Мапа',        desc: 'Інтерактивна мапа світу Ауреліону', ...mk((data.map_locations||[]).length, 'локація', 'локації', 'локацій') },
+          { id: 'map',        iconPath: TILE.map, title: 'Атлас',       desc: 'Мапа світу: країни, регіони й міста з описами', ...mk((data.map_locations||[]).length, 'місце', 'місця', 'місць') },
           { id: 'contacts',   iconPath: TILE.contacts, title: 'Долучитися',  desc: 'Правила, анкета — і як стати частиною світу', hasCount: false, countLabel: '' },
         ]};
       })(),
@@ -11380,6 +11375,47 @@ class Component extends DCLogic {
           galPrev:          () => this._galStep(-1),
           galNext:          () => this._galStep(1),
           galReveal:        () => { if (cur) reveal(cur); },
+        };
+      })(),
+
+      // ── ЧИТАЛКА: Довідник — місце з Атласу (шлях, мінікарта, факти, «Що тут є») ──
+      ...(() => {
+        const K = { country: ['Країна', '#ffd76b'], region: ['Регіон', '#e8d3a8'], capital: ['Столиця', '#ffd700'], city: ['Місто', '#e0b878'], fort: ['Фортеця', '#c98a7a'], ruin: ['Руїни', '#9a9a9a'] };
+        const kk = (n) => (K[n && n.location_type] ? n.location_type : 'city');
+        const locs = data.map_locations || [];
+        const loc = sl ? locs.find(l => l.lore_id && String(l.lore_id) === String(sl.id)) : null;
+        const byId = new Map(locs.map(l => [String(l.id), l]));
+        const loreOf = (n) => n && n.lore_id ? (data.lore || []).find(x => String(x.id) === String(n.lore_id)) : null;
+        const hrefOf = (n) => { const l = loreOf(n); return l ? '#lore/' + encodeURIComponent(l.id) : '#map/' + encodeURIComponent(n.id); };
+        const chain = []; if (loc) { let p = byId.get(String(loc.parent_id || '')), g = 0; while (p && g++ < 20) { chain.unshift(p); p = byId.get(String(p.parent_id || '')); } }
+        const own = Array.isArray(sl && sl.facts) ? sl.facts.filter(f => f && String(f.k || '').trim() && String(f.v || '').trim()) : [];
+        const auto = loc ? [['Тип', K[kk(loc)][0]]].concat(chain.filter(x => kk(x) === 'country').map(x => ['Країна', x.name]), chain.filter(x => kk(x) === 'region').slice(-1).map(x => ['Регіон', x.name])) : [];
+        const facts = auto.map(([k, v]) => ({ k, v })).concat(own.map(f => ({ k: f.k, v: f.v }))).map((f, i) => ({ key: i, ...f }));
+        const kids = [];
+        if (loc) {
+          const walk = (id, d) => locs.filter(x => String(x.parent_id || '') === String(id))
+            .sort((a, b) => Object.keys(K).indexOf(kk(a)) - Object.keys(K).indexOf(kk(b)) || String(a.name).localeCompare(String(b.name), 'uk'))
+            .forEach(x => { const r = kk(x) === 'region'; kids.push({ key: x.id, name: x.name, href: hrefOf(x), pad: (d * 18) + 'px', dot: K[kk(x)][1], kindL: r ? '' : K[kk(x)][0],
+              color: r ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.86)', fs: r ? '0.74rem' : '0.95rem', ls: r ? '0.14em' : '0', tt: r ? 'uppercase' : 'none' }); walk(x.id, d + 1); });
+          walk(loc.id, 0);
+        }
+        const nPlaces = kids.filter(x => x.kindL).length;
+        const x = loc ? Number(loc.x_percent) || 50 : 50, y = loc ? Number(loc.y_percent) || 50 : 50;
+        return {
+          lrHasPath: chain.length > 0,
+          lrPath: chain.map((n, i) => ({ key: n.id, name: n.name, href: hrefOf(n), sep: i ? ' › ' : '' })),
+          lrBoxOn: !!loc || facts.length > 0,
+          lrHasMini: !!loc,
+          lrMapUrl: (data.site && data.site.map_image_url) || 'uploads/aurelion-map-orig.jpg',
+          lrMiniAspect: '4 / 3',
+          lrMiniL: 'calc(50% - ' + (x * 4) + '%)', lrMiniT: 'calc(50% - ' + (y * 4) + '%)',
+          lrPinColor: loc ? K[kk(loc)][1] : '#ffd76b',
+          lrMapHref: loc ? '#map/' + encodeURIComponent(loc.id) : '#map',
+          lrFacts: facts,
+          lrCredit: (loc && loc.credit) || '', lrHasCredit: !!(loc && loc.credit),
+          lrHasKids: kids.length > 0,
+          lrKids: kids,
+          lrKidsTitle: 'Що тут є' + (nPlaces ? ' · ' + nPlaces : ''),
         };
       })(),
 

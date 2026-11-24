@@ -1949,6 +1949,35 @@ input,textarea,select{font-size:16px}
           <div><label>Категорія</label><input value="{{ formCategory }}" onChange="{{ handleInput }}" data-field="category" /></div>
         </div>
         <div style="margin-bottom:14px;"><label>Уривок (для картки)</label><input value="{{ formExcerpt }}" onChange="{{ handleInput }}" data-field="excerpt" /></div>
+        <!-- Атлас: точка на мапі, факти, видимість у Довіднику -->
+        <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;border:1px solid rgba(255,215,107,0.22);background:rgba(255,215,107,0.03);display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#ffd76b;">◎ Атлас</span>
+            <span style="flex:1;min-width:180px;font-size:0.82rem;color:rgba(255,255,255,0.7);">{{ lfMapText }}</span>
+            <sc-if value="{{ lfHasLoc }}" hint-placeholder-val="{{ false }}"><button onClick="{{ lfOpenLoc }}" style="background:rgba(255,215,107,0.1);border:1px solid rgba(255,215,107,0.35);color:#ffd76b;border-radius:999px;padding:5px 14px;font-size:0.76rem;cursor:pointer;">Точка в Атласі →</button></sc-if>
+            <sc-if value="{{ lfCanPlace }}" hint-placeholder-val="{{ false }}"><button onClick="{{ lfPlace }}" style="background:rgba(255,215,107,0.1);border:1px solid rgba(255,215,107,0.35);color:#ffd76b;border-radius:999px;padding:5px 14px;font-size:0.76rem;cursor:pointer;">＋ Поставити на мапу</button></sc-if>
+          </div>
+          <sc-if value="{{ lfHasLoc }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ lfToggleInLore }}" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+              <div style="width:36px;height:20px;border-radius:999px;position:relative;flex:none;background:{{ lfInLoreBg }};"><div style="position:absolute;top:2px;left:{{ lfInLoreKnob }};width:16px;height:16px;border-radius:50%;background:#fff;"></div></div>
+              <span style="font-size:0.8rem;color:rgba(255,255,255,0.75);">{{ lfInLoreText }}</span>
+            </div>
+          </sc-if>
+          <div>
+            <label>Картка фактів (збоку статті)</label>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <sc-for list="{{ lfFacts }}" as="f" hint-placeholder-count="0">
+                <div style="display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr) 30px;gap:6px;">
+                  <input value="{{ f.k }}" data-i="{{ f.i }}" data-p="k" onChange="{{ lfFactSet }}" placeholder="Править" style="font-size:0.82rem;padding:7px 10px;" />
+                  <input value="{{ f.v }}" data-i="{{ f.i }}" data-p="v" onChange="{{ lfFactSet }}" placeholder="Кабала Темряви" style="font-size:0.82rem;padding:7px 10px;" />
+                  <button data-i="{{ f.i }}" onClick="{{ lfFactDel }}" title="Прибрати" style="background:none;border:1px solid rgba(255,77,77,0.3);color:rgba(255,140,140,0.8);border-radius:6px;cursor:pointer;">✕</button>
+                </div>
+              </sc-for>
+              <button onClick="{{ lfFactAdd }}" style="align-self:flex-start;background:none;border:1px dashed rgba(255,255,255,0.2);color:rgba(255,255,255,0.55);border-radius:6px;padding:5px 12px;font-size:0.76rem;cursor:pointer;">+ рядок</button>
+            </div>
+            <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:5px;">Тип, Країну й Регіон для місць сайт підставляє сам з Атласу.</p>
+          </div>
+        </div>
         <div style="margin-bottom:14px;">
           <label>Обкладинка (необов'язково)</label>
           <input type="file" accept="image/*" onChange="{{ handleCoverUpload }}" data-coverpick="1" style="display:none;" />
@@ -3941,9 +3970,45 @@ input,textarea,select{font-size:16px}
 <sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:1100px;margin:0 auto;padding:28px 24px 80px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">🗺 Локації на карті</h2>
-      <button onClick="{{ startAddMapPin }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.18);">+ Нова локація</button>
+      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">◎ Атлас — місця на мапі</h2>
+      <button onClick="{{ startAddMapPin }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.18);">+ Нове місце</button>
     </div>
+    <!-- Заявки гравців -->
+    <sc-if value="{{ ppNoTable }}" hint-placeholder-val="{{ false }}">
+      <p style="font-size:0.78rem;color:rgba(255,215,0,0.7);background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:10px 14px;margin-bottom:18px;">Країни, регіони й заявки гравців запрацюють після міграції <b>supabase_atlas_migration.sql</b>.</p>
+    </sc-if>
+    <sc-if value="{{ ppHas }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-bottom:24px;display:flex;flex-direction:column;gap:12px;">
+        <p style="font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:#6ec0b0;">Заявки гравців · {{ ppCount }}</p>
+        <sc-for list="{{ ppList }}" as="q" hint-placeholder-count="0">
+          <div style="display:grid;grid-template-columns:180px minmax(0,1fr);border:1px solid rgba(110,192,176,0.3);border-radius:11px;background:rgba(110,192,176,0.04);overflow:hidden;">
+            <div style="position:relative;overflow:hidden;background:#0c0c0c;aspect-ratio:4/3;align-self:start;border-right:1px solid rgba(110,192,176,0.2);border-bottom:1px solid rgba(110,192,176,0.2);">
+              <img src="{{ adminMapImgSrc }}" alt="" style="position:absolute;width:400%;height:400%;max-width:none;left:{{ q.mL }};top:{{ q.mT }};filter:brightness(0.85);" />
+              <span style="position:absolute;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%) rotate(45deg);border:2px dashed #6ec0b0;background:rgba(110,192,176,0.35);border-radius:3px;"></span>
+            </div>
+            <div style="padding:13px 15px;display:flex;flex-direction:column;gap:7px;min-width:0;">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="font-family:'Cinzel',serif;font-size:0.95rem;color:#fff;">{{ q.name }}</span>
+                <span style="font-size:0.66rem;padding:2px 8px;border-radius:999px;color:{{ q.kc }};border:1px solid {{ q.kc }};">{{ q.kindL }}</span>
+                <span style="font-size:0.66rem;padding:2px 8px;border-radius:999px;color:{{ q.stC }};background:{{ q.stBg }};">{{ q.stL }}</span>
+              </div>
+              <p style="font-size:0.74rem;color:#ffd76b;">{{ q.path }}</p>
+              <p style="font-family:'EB Garamond',serif;font-size:0.95rem;line-height:1.5;color:rgba(255,255,255,0.75);white-space:pre-wrap;max-height:150px;overflow-y:auto;">{{ q.body }}</p>
+              <sc-if value="{{ q.hasImgs }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:6px;"><sc-for list="{{ q.imgs }}" as="g" hint-placeholder-count="0"><a href="{{ g.url }}" target="_blank" rel="noopener" style="width:64px;height:46px;border-radius:6px;background:url('{{ g.url }}') center/cover;border:1px solid rgba(255,255,255,0.12);"></a></sc-for></div></sc-if>
+              <p style="font-size:0.72rem;color:rgba(255,255,255,0.45);">{{ q.who }}</p>
+              <sc-if value="{{ q.hasOldNote }}" hint-placeholder-val="{{ false }}"><p style="font-size:0.74rem;color:rgba(255,255,255,0.6);border-left:2px solid rgba(255,77,77,0.45);padding-left:8px;">Ваш коментар: «{{ q.oldNote }}»</p></sc-if>
+              <input value="{{ q.note }}" data-id="{{ q.id }}" onChange="{{ ppSetNote }}" placeholder="Коментар гравцю (обовʼязковий, якщо повертаєте)" style="font-size:0.8rem;padding:7px 10px;" />
+              <div style="display:flex;gap:7px;flex-wrap:wrap;">
+                <button data-id="{{ q.id }}" onClick="{{ ppAccept }}" disabled="{{ q.busy }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:7px 16px;font-size:0.8rem;font-weight:700;cursor:pointer;">✓ Прийняти</button>
+                <button data-id="{{ q.id }}" onClick="{{ ppAcceptOpen }}" disabled="{{ q.busy }}" style="background:rgba(110,192,176,0.1);border:1px solid rgba(110,192,176,0.45);color:#6ec0b0;border-radius:999px;padding:7px 14px;font-size:0.8rem;cursor:pointer;">Прийняти й доредагувати</button>
+                <button data-id="{{ q.id }}" onClick="{{ ppReturn }}" disabled="{{ q.busy }}" style="background:none;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.7);border-radius:999px;padding:7px 14px;font-size:0.8rem;cursor:pointer;">↩ Повернути з коментарем</button>
+                <button data-id="{{ q.id }}" onClick="{{ ppShow }}" style="background:none;border:none;color:rgba(255,255,255,0.45);font-size:0.76rem;cursor:pointer;">показати на мапі ↓</button>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
     <!-- Завантаження карти -->
     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
       <div style="flex:1;min-width:180px;">
@@ -3966,11 +4031,14 @@ input,textarea,select{font-size:16px}
             <div data-id="{{ pin.id }}" onClick="{{ selectAdminMapPin }}"
                  style="position:absolute;left:{{ pin.x_percent }}%;top:{{ pin.y_percent }}%;transform:translate(-50%,-100%);cursor:pointer;z-index:5;pointer-events:auto;">
               <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
-                <div style="width:8px;height:8px;background:{{ pin.dotColor }};transform:rotate(45deg);border-radius:1px;box-shadow:0 0 5px {{ pin.dotColor }};border:1px solid rgba(255,255,255,0.5);"></div>
+                <div style="width:{{ pin.sz }};height:{{ pin.sz }};background:{{ pin.dotColor }};transform:rotate(45deg);border-radius:1px;box-shadow:0 0 5px {{ pin.dotColor }};border:1px solid rgba(255,255,255,0.5);"></div>
                 <p style="font-size:0.36rem;color:#fff;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,1);background:rgba(0,0,0,0.7);padding:0 2px;border-radius:1px;font-family:'Cinzel',serif;">{{ pin.name }}</p>
               </div>
             </div>
           </sc-for>
+          <sc-if value="{{ ppShowOn }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:{{ ppShowX }}%;top:{{ ppShowY }}%;transform:translate(-50%,-50%) rotate(45deg);width:12px;height:12px;border:2px dashed #6ec0b0;background:rgba(110,192,176,0.35);z-index:9;pointer-events:none;"></div>
+          </sc-if>
           <sc-if value="{{ adminMapIsPlacing }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute;left:{{ adminMapNewX }}%;top:{{ adminMapNewY }}%;transform:translate(-50%,-100%);z-index:10;pointer-events:none;">
               <div style="width:10px;height:10px;background:#6495ed;transform:rotate(45deg);border-radius:2px;box-shadow:0 0 10px rgba(100,149,237,0.9);border:1.5px solid rgba(255,255,255,0.7);"></div>
@@ -3984,7 +4052,30 @@ input,textarea,select{font-size:16px}
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:20px;animation:fadeUp 0.2s ease;">
             <p style="font-size:0.73rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:16px;">{{ adminMapFormLabel }}</p>
             <div style="margin-bottom:12px;"><label>Назва локації</label><input value="{{ adminMapFormName }}" onChange="{{ handleAdminMapField }}" data-field="name" placeholder="Наприклад: Арконікс" /></div>
-            <div style="margin-bottom:12px;"><label>Опис</label><textarea value="{{ adminMapFormDesc }}" onChange="{{ handleAdminMapField }}" data-field="description" style="min-height:70px;" placeholder="Коротко про місце…"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+              <div><label>Що це</label>
+                <select value="{{ amfKind }}" onChange="{{ handleAdminMapField }}" data-field="location_type" style="color-scheme:dark;">
+                  <option value="country">Країна</option><option value="region">Регіон</option><option value="capital">Столиця</option><option value="city">Місто</option><option value="fort">Фортеця</option><option value="ruin">Руїни</option>
+                </select></div>
+              <div><label>Входить до</label>
+                <select value="{{ amfParent }}" onChange="{{ handleAdminMapField }}" data-field="parent_id" disabled="{{ amfIsCountry }}" style="color-scheme:dark;">
+                  <option value="">— нікуди</option>
+                  <sc-for list="{{ amfParents }}" as="o" hint-placeholder-count="0"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+                </select></div>
+            </div>
+            <div style="margin-bottom:12px;"><label>Стаття Довідника</label>
+              <div style="display:flex;gap:6px;">
+                <select value="{{ amfLore }}" onChange="{{ handleAdminMapField }}" data-field="lore_id" style="flex:1;min-width:0;color-scheme:dark;">
+                  <option value="">— без статті</option>
+                  <sc-for list="{{ amfLoreOpts }}" as="o" hint-placeholder-count="0"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+                </select>
+                <sc-if value="{{ amfHasLore }}" hint-placeholder-val="{{ false }}"><button onClick="{{ amfOpenLore }}" title="Відкрити статтю" style="background:rgba(255,215,107,0.1);border:1px solid rgba(255,215,107,0.3);color:#ffd76b;border-radius:6px;padding:0 10px;cursor:pointer;">✎</button></sc-if>
+              </div>
+              <sc-if value="{{ amfNoLore }}" hint-placeholder-val="{{ false }}"><button onClick="{{ amfMakeLore }}" style="margin-top:6px;background:none;border:1px dashed rgba(255,215,107,0.35);color:#ffd76b;border-radius:6px;padding:5px 12px;font-size:0.76rem;cursor:pointer;">＋ Створити статтю з цієї точки</button></sc-if>
+              <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:4px;">Нова стаття-місце живе в Атласі й під «◎ Місця», не в загальній сітці Довідника (це вмикається в самій статті).</p>
+            </div>
+            <div style="margin-bottom:12px;"><label>Автор (необов'язково)</label><input value="{{ amfCredit }}" onChange="{{ handleAdminMapField }}" data-field="credit" placeholder="Запропонував гравець · персонаж «…»" /></div>
+            <div style="margin-bottom:12px;"><label>Короткий опис (якщо немає статті)</label><textarea value="{{ adminMapFormDesc }}" onChange="{{ handleAdminMapField }}" data-field="description" style="min-height:70px;" placeholder="Коротко про місце…"></textarea></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
               <div><label>X % (ліво→право)</label><input type="number" value="{{ adminMapFormX }}" onChange="{{ handleAdminMapField }}" data-field="x_percent" min="0" max="100" step="0.1" /></div>
               <div><label>Y % (верх→низ)</label><input type="number" value="{{ adminMapFormY }}" onChange="{{ handleAdminMapField }}" data-field="y_percent" min="0" max="100" step="0.1" /></div>
@@ -4039,7 +4130,7 @@ input,textarea,select{font-size:16px}
           <sc-for list="{{ adminMapPinList }}" as="pin" hint-placeholder-count="0">
             <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:7px;transition:background 0.15s;" style-hover="background:rgba(255,255,255,0.06);">
               <div style="width:8px;height:8px;background:#ffd700;transform:rotate(45deg);border-radius:1px;box-shadow:0 0 4px rgba(255,215,0,0.7);flex-shrink:0;"></div>
-              <p style="flex:1;font-size:0.88rem;color:#fff;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ pin.name }}</p>
+              <p style="flex:1;font-size:0.88rem;color:#fff;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:{{ pin.pad }};">{{ pin.name }} <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">· {{ pin.kindL }}{{ pin.loreMark }}</span></p>
               <p style="font-size:0.7rem;color:rgba(255,255,255,0.26);flex-shrink:0;font-family:monospace;">{{ pin.coordsLabel }}</p>
               <button data-id="{{ pin.id }}" onClick="{{ selectAdminMapPin }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:3px 10px;font-size:0.74rem;flex-shrink:0;cursor:pointer;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
             </div>
@@ -4050,7 +4141,7 @@ input,textarea,select{font-size:16px}
     <sc-if value="{{ adminMapNoPins }}" hint-placeholder-val="{{ false }}">
       <div style="text-align:center;padding:60px 24px;color:rgba(255,255,255,0.22);">
         <p style="font-size:1.5rem;margin-bottom:12px;">🗺</p>
-        <p>Локацій ще немає — натисни «+ Нова локація» або клікни на карту</p>
+        <p>Локацій ще немає — натисни «+ Нове місце» або клікни на карту</p>
       </div>
     </sc-if>
   </div>
@@ -5347,8 +5438,38 @@ class Component extends DCLogic {
   }
 
   // ── Data loading ───────────────────────────────────────────
+  // ── Атлас: заявки гравців на нові місця (supabase_atlas_migration.sql) ──
+  async _loadPlaceProps() {
+    try {
+      const r = await fetch(`${SUPA_URL}/place_proposals?select=*&status=neq.accepted&order=created_at.asc`, { headers: this._authH() });
+      this.setState({ placeProps: r.ok ? await r.json() : null });
+    } catch (e) { this.setState({ placeProps: null }); }
+  }
+  async _placeDecide(pr, act, open) {
+    const note = String((this.state.ppNotes || {})[pr.id] || '').trim();
+    if (act === 'return' && !note) { this._toast('✗ Напишіть гравцю, що виправити'); return; }
+    this.setState({ ppBusy: pr.id });
+    try {
+      const r = await fetch(`${SUPA_URL}/rpc/place_decide`, { method: 'POST', headers: this._authHJ(), body: JSON.stringify({ pid: pr.id, act, note: note || null }) });
+      const t = await r.text();
+      if (!r.ok) { let m = t; try { m = JSON.parse(t).message || t; } catch (e) {} throw new Error(m); }
+      const res = JSON.parse(t || '{}');
+      await Promise.all([this._refreshTable('map_locations'), this._refreshTable('lore'), this._loadPlaceProps()]);
+      localStorage.setItem('aurelion-refresh', Date.now().toString());
+      this.setState({ ppBusy: null });
+      if (act === 'accept') {
+        this._toast('✓ «' + pr.name + '» тепер у Атласі й Довіднику');
+        if (open && res.lore_id) {
+          const idx = (this.state.data.lore || []).findIndex(x => String(x.id) === String(res.lore_id));
+          if (idx >= 0) { this.setState({ tab: 'lore' }); this._openEdit('lore', idx); }
+        }
+      } else this._toast('↩ Повернуто гравцю з коментарем');
+    } catch (e) { this.setState({ ppBusy: null }); this._toast('✗ ' + (e.message || 'Не вийшло')); }
+  }
+
   async _loadAll() {
     this.setState({ loading: true });
+    this._loadPlaceProps();
     try {
       const [lore, stories, chronicles, characters, pantheon, contacts, settings, mapLocs, tests] = await Promise.all([
         this._get(TABLE_QUERIES.lore),
@@ -6828,7 +6949,7 @@ class Component extends DCLogic {
       R('chronicles', 'Хроніки', { meta: len('chronicles') }),
       R('npcs', 'Технічні НПЦ', { meta: (this.state.tuneNpcs || []).length, sub: 'поза картотекою' }),
       R('pantheon', 'Пантеон', { meta: len('pantheon') }),
-      R('map', 'Мапа', { meta: len('map_locations') }),
+      R('map', 'Атлас', { meta: len('map_locations'), badge: (this.state.placeProps || []).filter(x => x.status === 'pending').length, sub: (this.state.placeProps || []).some(x => x.status === 'pending') ? 'заявки гравців' : '' }),
     ];
     const play = [
       R('tests', 'Тести', { badge: c.tests, meta: len('tests') }),
@@ -6877,7 +6998,7 @@ class Component extends DCLogic {
     const q = String(s.navQ || '').trim();
     const labels = this._tabLabels || {};
     const SEC_LABEL = { characters: 'Персонажі', lore: 'Довідник', stories: 'Історії', chronicles: 'Хроніки', pantheon: 'Пантеон', contacts: 'Долучитися' };
-    const FAB = { characters: 'Новий персонаж', lore: 'Нова стаття', stories: 'Нова історія', chronicles: 'Нова хроніка', pantheon: 'Новий бог', map: 'Нова локація' };
+    const FAB = { characters: 'Новий персонаж', lore: 'Нова стаття', stories: 'Нова історія', chronicles: 'Нова хроніка', pantheon: 'Новий бог', map: 'Нове місце' };
     const SPLIT = ['lore', 'stories', 'chronicles', 'characters', 'pantheon'];
     const curId = ed && ed.index !== -1 ? ((s.data[ed.section] || [])[ed.index] || {}).id : null;
     const savedHere = !!(ed && curId != null && s.savedKey === ed.section + ':' + curId && s.savedAt);
@@ -10389,6 +10510,15 @@ class Component extends DCLogic {
       // порожній рядок із «— чоловіча —» обмеження не пропускає.
       if ('build' in body && !['man', 'woman', 'gown'].includes(body.build)) body.build = null;
       if ('is_hidden' in body) body.is_hidden = body.is_hidden === true || body.is_hidden === 'true';
+      // Атлас: графи з supabase_atlas_migration.sql — лише коли вони вже є в рядку
+      // (або їх щойно торкнулися), щоб без міграції збереження статей не ламалося.
+      if (section === 'lore') {
+        if ('facts' in s.form) {
+          const ff = (Array.isArray(s.form.facts) ? s.form.facts : []).map(f => ({ k: String(f.k || '').trim(), v: String(f.v || '').trim() })).filter(f => f.k && f.v);
+          body.facts = ff.length ? ff : null;
+        }
+        if ('in_lore' in s.form) body.in_lore = s.form.in_lore !== false;
+      }
       this.setState({ saving: true });
       try {
         let savedId = null;
@@ -11508,12 +11638,104 @@ class Component extends DCLogic {
       mdLink:   () => this._mdWrap('[', '](https://)'),
       mdImg:    () => this._mdInsert('\n\n![Підпис](https://)\n\n'),
       toggleLorePreview: () => this.setState(st => ({ lorePreview: !st.lorePreview })),
-      // ── Карта (Admin) ──────────────────────────────────────
-      adminMapPinList: (s.data.map_locations || []).map(loc => ({
-        ...loc,
-        dotColor: (s.mapAdminSelectedId === loc.id) ? '#6495ed' : '#ffd700',
-        coordsLabel: `${parseFloat(loc.x_percent||0).toFixed(1)}%, ${parseFloat(loc.y_percent||0).toFixed(1)}%`,
-      })),
+      ...(() => {
+        const ed = s.editing && s.editing.section === 'lore' ? s.editing : null;
+        const row = ed && ed.index >= 0 ? (s.data.lore || [])[ed.index] : null;
+        const locs = s.data.map_locations || [];
+        const loc = row ? locs.find(l => l.lore_id && String(l.lore_id) === String(row.id)) : null;
+        const KL = { country: 'Країна', region: 'Регіон', capital: 'Столиця', city: 'Місто', fort: 'Фортеця', ruin: 'Руїни' };
+        const facts = Array.isArray(s.form.facts) ? s.form.facts : [];
+        const inLore = s.form.in_lore !== false;
+        const setFacts = (fn) => this.setState(st => { const a = (Array.isArray(st.form.facts) ? st.form.facts : []).map(x => ({ ...x })); fn(a); return { form: { ...st.form, facts: a } }; });
+        return {
+          lfHasLoc: !!loc, lfCanPlace: !loc && !!row,
+          lfMapText: loc ? ('На мапі: ' + loc.name + ' · ' + (KL[loc.location_type] || 'Місто')) : (row ? 'Цієї статті немає на мапі.' : 'Поставити на мапу можна після першого збереження.'),
+          lfOpenLoc: () => this.setState({ tab: 'map', editing: null, mapAdminSelectedId: loc.id, mapAdminPlacing: false, mapAdminForm: { ...loc }, mapAdminNewX: loc.x_percent, mapAdminNewY: loc.y_percent }),
+          lfPlace: () => this.setState({ tab: 'map', editing: null, mapAdminSelectedId: null, mapAdminPlacing: true, mapAdminForm: { name: row.title, lore_id: row.id, location_type: 'city', x_percent: 50, y_percent: 50 } }),
+          lfInLoreBg: inLore ? 'rgba(255,215,107,0.7)' : 'rgba(255,255,255,0.15)', lfInLoreKnob: inLore ? '18px' : '2px',
+          lfInLoreText: inLore ? 'Показується й у загальній сітці Довідника' : 'Лише в Атласі та під «◎ Місця» — у загальній сітці Довідника не видно',
+          lfToggleInLore: () => this.setState(st => ({ form: { ...st.form, in_lore: st.form.in_lore === false } })),
+          lfFacts: facts.map((x, i) => ({ key: i, i, k: x.k || '', v: x.v || '' })),
+          lfFactSet: (e) => { const i = +e.currentTarget.dataset.i, p = e.currentTarget.dataset.p, v = e.target.value; setFacts(a => { if (a[i]) a[i][p] = v; }); },
+          lfFactDel: (e) => { const i = +e.currentTarget.dataset.i; setFacts(a => { a.splice(i, 1); }); },
+          lfFactAdd: () => setFacts(a => { a.push({ k: '', v: '' }); }),
+        };
+      })(),
+      // ── Атлас (Admin): дерево, форма, заявки ─────────────────
+      ...(() => {
+        const KK = { country: ['Країна', '#ffd76b'], region: ['Регіон', '#e8d3a8'], capital: ['Столиця', '#ffd700'], city: ['Місто', '#e0b878'], fort: ['Фортеця', '#c98a7a'], ruin: ['Руїни', '#9a9a9a'] };
+        const ORD = Object.keys(KK);
+        const kk = (n) => (KK[n && n.location_type] ? n.location_type : 'city');
+        const locs = s.data.map_locations || [];
+        const by = new Map(locs.map(l => [String(l.id), l]));
+        const chainOf = (n) => { const out = []; let p = n && by.get(String(n.parent_id || '')), g = 0; while (p && g++ < 20) { out.unshift(p); p = by.get(String(p.parent_id || '')); } return out; };
+        const pathOf = (pid) => { const p = pid && by.get(String(pid)); return p ? chainOf(p).concat([p]).map(x => x.name).join(' › ') : ''; };
+        // дерево для списку й вибору «Входить до»
+        const flat = [];
+        const walk = (n, d) => { flat.push({ n, d }); locs.filter(x => String(x.parent_id || '') === String(n.id)).sort((a, b) => ORD.indexOf(kk(a)) - ORD.indexOf(kk(b)) || String(a.name).localeCompare(String(b.name), 'uk')).forEach(x => walk(x, d + 1)); };
+        locs.filter(x => !x.parent_id || !by.has(String(x.parent_id))).sort((a, b) => ORD.indexOf(kk(a)) - ORD.indexOf(kk(b)) || String(a.name).localeCompare(String(b.name), 'uk')).forEach(x => walk(x, 0));
+        const f = s.mapAdminForm || {};
+        const selfId = String(s.mapAdminSelectedId || '');
+        const isDesc = (n) => { let p = n, g = 0; while (p && g++ < 20) { if (String(p.id) === selfId) return true; p = by.get(String(p.parent_id || '')); } return false; };
+        const loreRows = s.data.lore || [];
+        const loreOpt = loreRows.slice().sort((a, b) => String(a.title).localeCompare(String(b.title), 'uk')).map(l => ({ key: l.id, id: String(l.id), label: l.title + (l.category ? ' · ' + l.category : '') }));
+        // заявки
+        const pp = Array.isArray(s.placeProps) ? s.placeProps : [];
+        const ST = { pending: ['на розгляді', '#ffd700', 'rgba(255,215,0,0.1)'], returned: ['повернуто', '#ff9a9a', 'rgba(255,77,77,0.1)'] };
+        const notes = s.ppNotes || {};
+        const ppById = (e) => pp.find(x => String(x.id) === String(e.currentTarget.dataset.id));
+        const show = s.ppShowId ? pp.find(x => String(x.id) === String(s.ppShowId)) : null;
+        return {
+          adminMapPinList: flat.map(({ n: loc, d }) => ({
+            ...loc,
+            dotColor: (s.mapAdminSelectedId === loc.id) ? '#6495ed' : KK[kk(loc)][1],
+            sz: kk(loc) === 'country' ? '12px' : kk(loc) === 'region' ? '10px' : '8px',
+            pad: (d * 16) + 'px', kindL: KK[kk(loc)][0], loreMark: loc.lore_id ? ' · стаття' : '',
+            coordsLabel: `${parseFloat(loc.x_percent||0).toFixed(1)}%, ${parseFloat(loc.y_percent||0).toFixed(1)}%`,
+          })),
+          amfKind: f.location_type || 'city',
+          amfIsCountry: (f.location_type || 'city') === 'country',
+          amfParent: f.parent_id ? String(f.parent_id) : '',
+          amfParents: flat.filter(({ n }) => !isDesc(n) && kk(n) !== 'fort' && kk(n) !== 'ruin').map(({ n, d }) => ({ key: n.id, id: String(n.id), label: '\u2003'.repeat(d) + n.name + ' · ' + KK[kk(n)][0] })),
+          amfLore: f.lore_id ? String(f.lore_id) : '', amfLoreOpts: loreOpt,
+          amfHasLore: !!f.lore_id, amfNoLore: !f.lore_id,
+          amfCredit: f.credit || '',
+          amfOpenLore: () => {
+            const idx = loreRows.findIndex(x => String(x.id) === String(f.lore_id));
+            if (idx >= 0) { this.setState({ tab: 'lore' }); this._openEdit('lore', idx); }
+          },
+          amfMakeLore: async () => {
+            const name = String(f.name || '').trim();
+            if (!name) { this._toast('✗ Спершу дайте точці назву'); return; }
+            try {
+              const res = await this._insert('lore', { title: name, content: String(f.description || '').trim(), category: 'Місця', in_lore: false, sort_order: 1000 });
+              const row = Array.isArray(res) ? res[0] : res;
+              await this._refreshTable('lore');
+              this.setState(st => ({ mapAdminForm: { ...st.mapAdminForm, lore_id: row && row.id } }));
+              this._toast('✓ Статтю створено — збережіть точку, щоб привʼязати');
+            } catch (e) { this._toast('✗ ' + (/in_lore/.test(e.message || '') ? 'Спершу прогоніть supabase_atlas_migration.sql' : e.message)); }
+          },
+          ppNoTable: s.placeProps === null,
+          ppHas: pp.length > 0, ppCount: String(pp.filter(x => x.status === 'pending').length) + (pp.some(x => x.status === 'returned') ? ' · повернутих ' + pp.filter(x => x.status === 'returned').length : ''),
+          ppList: pp.slice().sort((a, b) => (a.status === 'pending' ? 0 : 1) - (b.status === 'pending' ? 0 : 1)).map(q => {
+            const k = KK[q.kind] ? q.kind : 'city';
+            return { key: q.id, id: q.id, name: q.name, kindL: KK[k][0], kc: KK[k][1],
+              stL: (ST[q.status] || ST.pending)[0], stC: (ST[q.status] || ST.pending)[1], stBg: (ST[q.status] || ST.pending)[2],
+              path: pathOf(q.parent_id) || 'без країни', body: q.body || '',
+              imgs: (q.images || []).map((u, i) => ({ key: i, url: u })), hasImgs: (q.images || []).length > 0,
+              who: (q.user_nick || 'гравець') + (q.character_name ? ' · від імені «' + q.character_name + '»' : '') + ' · ' + String(q.updated_at || q.created_at || '').slice(0, 10),
+              oldNote: q.gm_note || '', hasOldNote: q.status === 'returned' && !!q.gm_note,
+              note: notes[q.id] || '', busy: s.ppBusy === q.id,
+              mL: 'calc(50% - ' + (Number(q.x_percent) * 4) + '%)', mT: 'calc(50% - ' + (Number(q.y_percent) * 4) + '%)' };
+          }),
+          ppSetNote: (e) => { const id = e.currentTarget.dataset.id, v = e.target.value; this.setState(st => ({ ppNotes: { ...(st.ppNotes || {}), [id]: v } })); },
+          ppAccept: (e) => { const q = ppById(e); if (q) this._placeDecide(q, 'accept', false); },
+          ppAcceptOpen: (e) => { const q = ppById(e); if (q) this._placeDecide(q, 'accept', true); },
+          ppReturn: (e) => { const q = ppById(e); if (q) this._placeDecide(q, 'return'); },
+          ppShow: (e) => this.setState({ ppShowId: e.currentTarget.dataset.id }),
+          ppShowOn: !!show, ppShowX: show ? show.x_percent : 0, ppShowY: show ? show.y_percent : 0,
+        };
+      })(),
       adminMapHasPins: !!(s.data.map_locations || []).length,
       adminMapNoPins:  !(s.data.map_locations || []).length,
       adminMapPinCount: (s.data.map_locations || []).length,
@@ -11523,7 +11745,7 @@ class Component extends DCLogic {
       showAdminMapForm:  !!(s.mapAdminPlacing || s.mapAdminSelectedId),
       adminMapFormEmpty: !(s.mapAdminPlacing || s.mapAdminSelectedId),
       adminMapIsEditing: !!(s.mapAdminSelectedId),
-      adminMapFormLabel: s.mapAdminSelectedId ? '✎ Редагування локації' : '+ Нова локація',
+      adminMapFormLabel: s.mapAdminSelectedId ? '✎ Редагування локації' : '+ Нове місце',
       adminMapSaveLabel: s.saving ? 'Збереження…' : (s.mapAdminSelectedId ? 'Зберегти зміни' : 'Додати локацію'),
       adminMapFormName:    s.mapAdminForm.name || '',
       adminMapFormDesc:    s.mapAdminForm.description || '',
@@ -11573,13 +11795,20 @@ class Component extends DCLogic {
         this.setState({ saving: true });
         try {
           const body = { name: (f.name||'').trim(), description: (f.description||'').trim(), x_percent: parseFloat(f.x_percent)||50, y_percent: parseFloat(f.y_percent)||50, character_ids: (f.character_ids||'').trim() };
+          // Атлас (supabase_atlas_migration.sql): тип, у що входить, стаття, автор.
+          body.location_type = f.location_type || 'city';
+          if ((s.data.map_locations || []).some(l => 'lore_id' in l) || 'parent_id' in f || 'lore_id' in f) {
+            body.parent_id = body.location_type === 'country' ? null : (f.parent_id || null);
+            body.lore_id = f.lore_id || null;
+            body.credit = (f.credit || '').trim() || null;
+          }
           if (s.mapAdminSelectedId) { await this._patch('map_locations', s.mapAdminSelectedId, body); }
           else { await this._insert('map_locations', body); }
           await this._refreshTable('map_locations');
           localStorage.setItem('aurelion-refresh', Date.now().toString());
           this._toast('✓ Локацію збережено!');
           this.setState({ saving: false, mapAdminSelectedId: null, mapAdminPlacing: false, mapAdminForm: {} });
-        } catch(e) { this.setState({ saving: false }); this._toast('✗ ' + (e.message || 'Помилка')); }
+        } catch(e) { this.setState({ saving: false }); this._toast('✗ ' + (/parent_id|lore_id|credit/.test(e.message || '') ? 'Спершу прогоніть supabase_atlas_migration.sql' : (e.message || 'Помилка'))); }
       },
       deleteAdminMapPin: async () => {
         if (!s.mapAdminSelectedId) return;
