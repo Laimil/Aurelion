@@ -100,6 +100,10 @@
     .at-in{width:100%;box-sizing:border-box;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;padding:0 11px;font-size:0.84rem;outline:none;color-scheme:dark}
     .at-ta{width:100%;box-sizing:border-box;min-height:130px;border-radius:8px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;padding:9px 11px;font-size:0.86rem;line-height:1.5;outline:none;resize:vertical;font-family:'EB Garamond',Georgia,serif}
     .at-in:focus,.at-ta:focus{border-color:rgba(110,192,176,0.6)}
+    /* випадаючі списки: Chrome на Windows малює список світлим — фарбуємо явно */
+    select.at-in{background-color:#1d1f1f;color:#fff;cursor:pointer}
+    select.at-in option{background-color:#1d1f1f;color:#fff}
+    select.at-in:disabled{opacity:0.5;cursor:default}
     .at-kinds{display:flex;gap:5px;flex-wrap:wrap}
     .at-kinds button{font-size:0.7rem;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.15);background:none;color:rgba(255,255,255,0.68);cursor:pointer}
     .at-kinds button[data-on="true"]{border-color:rgba(110,192,176,0.7);color:#bfeee5;background:rgba(110,192,176,0.12)}
