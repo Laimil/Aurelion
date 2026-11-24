@@ -4554,7 +4554,7 @@ const EDIT_FIELDS = {
   bio: 'Коротко на картці', content: 'Текст анкети',
 };
 const LINK_KIND_UA = {
-  family: 'родина', love: 'романтика', feud: 'ворожнеча',
+  family: 'родина', love: 'романтика', obsession: 'одержимість', feud: 'ворожнеча',
   ally: 'спілка', duty: 'обовʼязок', plain: 'знайомство',
 };
 const TABLE_QUERIES = {
@@ -6208,7 +6208,7 @@ class Component extends DCLogic {
       this._get('character_links?select=from_id,to_id,kind,label'),
       this._get('material_links?select=from_type,from_id,to_type,to_id,label'),
     ]);
-    const KIND = { family: 'родина', love: 'романтика', feud: 'ворожнеча', ally: 'союз', duty: 'служба', plain: 'знайомі' };
+    const KIND = { family: 'родина', love: 'романтика', obsession: 'одержимість', feud: 'ворожнеча', ally: 'союз', duty: 'служба', plain: 'знайомі' };
     const ties = {}; const typed = new Set();
     const addTie = (a, b, kind, label) => {
       if (!byId[a] || !byId[b] || a === b) return;
@@ -10922,6 +10922,7 @@ class Component extends DCLogic {
             const KINDS = [
               ['family', 'Родина',    '#ffd76b'],
               ['love',   'Романтика', '#c56a80'],
+              ['obsession', 'Одержимість', '#9b5de5'],
               ['feud',   'Ворожнеча', '#ff4d4d'],
               ['ally',   'Союз',      '#6495ed'],
               ['duty',   'Служба',    '#5e9a8f'],
