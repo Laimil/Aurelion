@@ -349,6 +349,21 @@ input,textarea,select{font-size:16px}
       <button data-tab="contacts" onClick="{{ setTab }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.78rem;cursor:pointer;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.2);">✍️ Відкрити «Долучитися» →</button>
     </div>
 
+    <!-- ── Путівник (Guide.dc.html) ── -->
+    <div style="margin-top:34px;padding-top:26px;border-top:1px solid rgba(255,255,255,0.09);">
+      <h3 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#6ec0b0;letter-spacing:0.06em;margin-bottom:6px;">? Путівник</h3>
+      <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:14px;line-height:1.5;">Язичок «? Що тут» на краю екрана: підказка про поточну сторінку й увесь путівник по сайту. Гравець може прибрати язичок — тоді Путівник лишається в кабінеті й на головній («Уперше тут?»).</p>
+      <div onClick="{{ guideToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;">
+        <div style="width:40px;height:22px;border-radius:999px;flex-shrink:0;position:relative;transition:background 0.2s;background:{{ guideTrackBg }};">
+          <div style="position:absolute;top:2px;left:{{ guideKnobLeft }};width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s;"></div>
+        </div>
+        <div>
+          <p style="font-size:0.84rem;color:#fff;">Путівник на сайті</p>
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:1px;line-height:1.45;">{{ guideHint }}</p>
+        </div>
+      </div>
+    </div>
+
     <!-- ── Анімація відкриття анкети ── -->
     <div style="margin-top:34px;padding-top:26px;border-top:1px solid rgba(255,255,255,0.09);">
       <h3 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:6px;">✦ Анімація відкриття анкети</h3>
@@ -10430,6 +10445,28 @@ class Component extends DCLogic {
       },
 
       showSite:       tab === 'site',
+      ...(() => {
+        const on = String((this.state.data.site || {}).guide_on || '') === '1';
+        return {
+          guideTrackBg: on ? 'rgba(110,192,176,0.75)' : 'rgba(255,255,255,0.15)',
+          guideKnobLeft: on ? '20px' : '2px',
+          guideHint: on
+            ? 'Увімкнено: язичок бачать усі, і гості, і гравці.'
+            : 'Вимкнено: язичка й «? Путівник» на головній немає. Адміни бачать усе — щоб перевірити перед увімкненням.',
+          guideToggle: async () => {
+            const next = on ? '0' : '1';
+            this._setSite('guide_on', next);
+            try {
+              await this._upsertSetting('guide_on', next);
+              localStorage.setItem('aurelion-refresh', Date.now().toString());
+              this._toast(next === '1' ? '✓ Путівник на сайті' : '✓ Путівник сховано');
+            } catch (ex) {
+              this._setSite('guide_on', on ? '1' : '0');
+              this._toast('✗ Не вдалося зберегти вимикач');
+            }
+          },
+        };
+      })(),
       showLore:       tab === 'lore',
       showStories:    tab === 'stories',
       showChronicles: tab === 'chronicles',

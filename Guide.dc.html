@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    /* Язичок: на комп'ютері — вертикальна смужка на правому краї; на телефоні —
+       маленьке «?» на лівому краї (правий нижній кут уже зайнятий: рецепція, «↑»,
+       фамільяр, плеєр). */
+    .gd-tongue{position:fixed;z-index:95;cursor:pointer;display:flex;align-items:center;gap:8px;
+      font-family:Arial,sans-serif;color:#cdf3eb;background:linear-gradient(180deg,rgba(110,192,176,0.26),rgba(110,192,176,0.14));
+      border:1px solid rgba(110,192,176,0.55);box-shadow:0 8px 22px rgba(0,0,0,0.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+      transition:background 0.25s ease,box-shadow 0.25s ease,opacity 0.25s ease;opacity:0.82}
+    .gd-tongue:hover{opacity:1;background:linear-gradient(180deg,rgba(110,192,176,0.36),rgba(110,192,176,0.2));box-shadow:0 8px 26px rgba(110,192,176,0.25)}
+    .gd-desk{right:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;padding:14px 7px;border-right:none;border-radius:10px 0 0 10px;
+      font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase}
+    .gd-desk .gd-q{writing-mode:horizontal-tb}
+    .gd-mob{display:none}
+    .gd-q{width:18px;height:18px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#6ec0b0;color:#10201c;font-weight:700;font-size:0.72rem;letter-spacing:0;text-transform:none}
+    @media(max-width:880px){
+      .gd-desk{display:none}
+      .gd-mob{display:flex;left:0;top:58%;padding:9px 9px 9px 7px;border-left:none;border-radius:0 12px 12px 0}
+    }
+    html.au-kb .gd-tongue{display:none}
+    /* відкрита шторка — плаваючі кнопки (рецепція, «↑») не лізуть поверх */
+    html.au-guide .au-fbdock,html.au-guide .au-totop{display:none!important}
+    @keyframes gdGlow{0%,100%{box-shadow:0 8px 22px rgba(0,0,0,0.45)}50%{box-shadow:0 0 0 3px rgba(110,192,176,0.35),0 0 26px rgba(110,192,176,0.55)}}
+    .gd-glow{animation:gdGlow 1.6s ease-in-out 3;opacity:1}
+    /* шторка */
+    .gd-dim{position:fixed;inset:0;z-index:106;background:rgba(0,0,0,0.45)}
+    .gd-drawer{position:fixed;z-index:107;top:0;right:0;bottom:0;width:min(380px,100vw);display:flex;flex-direction:column;
+      background:rgba(19,22,21,0.99);border-left:1px solid rgba(110,192,176,0.35);box-shadow:-18px 0 50px rgba(0,0,0,0.6);
+      font-family:Arial,sans-serif;animation:gdIn 0.25s ease both}
+    @keyframes gdIn{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+    @media(max-width:880px){
+      .gd-drawer{top:auto;left:0;width:auto;height:82vh;height:82dvh;border-left:none;border-top:1px solid rgba(110,192,176,0.35);border-radius:18px 18px 0 0;animation-name:gdUp}
+      @keyframes gdUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+    }
+    .gd-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:4px 0 14px}
+    .gd-sec{width:100%;display:flex;align-items:center;gap:10px;justify-content:space-between;text-align:left;cursor:pointer;background:none;border:none;
+      border-bottom:1px solid rgba(255,255,255,0.07);padding:13px 4px;color:#fff;font-family:'Cinzel',Georgia,serif;font-size:0.86rem;letter-spacing:0.02em}
+    .gd-sec:hover{color:#bfeee5}
+    .gd-li{display:flex;gap:9px;align-items:flex-start;font-family:'EB Garamond',Georgia,serif;font-size:1rem;line-height:1.5;color:rgba(255,255,255,0.72);margin:0}
+    .gd-li b{color:#fff;font-weight:600}
+  </style>
+</helmet>
+
+<sc-if value="{{ tongueOn }}" hint-placeholder-val="{{ true }}">
+  <button class="gd-tongue gd-desk" onClick="{{ openIt }}" title="Путівник: що тут і як усе влаштовано" aria-label="Путівник" style="animation:{{ glowAnim }};"><span class="gd-q">?</span>Що тут</button>
+  <button class="gd-tongue gd-mob" onClick="{{ openIt }}" title="Путівник" aria-label="Путівник: що тут" style="animation:{{ glowAnim }};"><span class="gd-q">?</span></button>
+</sc-if>
+
+<sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
+  <div class="gd-dim" onClick="{{ close }}"></div>
+  <div class="gd-drawer" role="dialog" aria-label="Путівник">
+    <sc-if value="{{ mob }}" hint-placeholder-val="{{ false }}">
+      <div style="width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:9px auto 0;flex:none;"></div>
+    </sc-if>
+    <div style="display:flex;align-items:center;gap:10px;padding:14px 18px 12px;border-bottom:1px solid rgba(255,255,255,0.08);flex:none;">
+      <span class="gd-q" style="width:24px;height:24px;font-size:0.85rem;">?</span>
+      <div style="flex:1;min-width:0;">
+        <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:1.02rem;color:#fff;letter-spacing:0.04em;">Путівник</p>
+        <p style="margin:2px 0 0;font-size:0.7rem;color:rgba(255,255,255,0.42);">як тут усе влаштовано</p>
+      </div>
+      <button onClick="{{ close }}" aria-label="Закрити" style="cursor:pointer;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.75);font-size:0.85rem;flex:none;">✕</button>
+    </div>
+    <sc-if value="{{ adminOff }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:10px 18px 0;padding:8px 11px;border-radius:8px;background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.3);font-size:0.72rem;line-height:1.45;color:#9dbcf7;">Путівник вимкнено в адмінці — зараз його бачать лише адміни.</p>
+    </sc-if>
+    <div class="gd-body">
+      <sc-if value="{{ hasHere }}" hint-placeholder-val="{{ true }}">
+        <div style="margin:14px 18px 6px;padding:13px 14px;border-radius:12px;background:rgba(110,192,176,0.08);border:1px solid rgba(110,192,176,0.3);display:flex;flex-direction:column;gap:7px;">
+          <p style="margin:0;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:#6ec0b0;">Тут · {{ hereName }}</p>
+          <sc-for list="{{ hereLines }}" as="l" hint-placeholder-count="2">
+            <p class="gd-li"><span style="color:#6ec0b0;flex:none;">{{ l.mark }}</span><span>{{ l.t }}</span></p>
+          </sc-for>
+        </div>
+      </sc-if>
+      <p style="margin:16px 18px 2px;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Увесь путівник</p>
+      <div style="padding:0 14px;">
+        <sc-for list="{{ sections }}" as="s" hint-placeholder-count="5">
+          <button class="gd-sec" onClick="{{ s.toggle }}" aria-expanded="{{ s.open }}"><span>{{ s.title }}</span><span style="color:rgba(255,255,255,0.35);font-family:Arial,sans-serif;font-size:0.75rem;">{{ s.arrow }}</span></button>
+          <sc-if value="{{ s.open }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:9px;padding:12px 4px 16px;border-bottom:1px solid rgba(255,255,255,0.07);">
+              <sc-for list="{{ s.items }}" as="it" hint-placeholder-count="4">
+                <p class="gd-li"><span style="color:#6ec0b0;flex:none;">✦</span><span><b>{{ it.b }}</b>{{ it.t }}</span></p>
+              </sc-for>
+            </div>
+          </sc-if>
+        </sc-for>
+      </div>
+    </div>
+    <div style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 18px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.08);">
+      <button onClick="{{ flipTongue }}" style="cursor:pointer;border-radius:999px;padding:7px 14px;font-size:0.74rem;background:transparent;border:1px solid {{ flipBd }};color:{{ flipC }};">{{ flipL }}</button>
+      <span style="font-size:0.68rem;color:rgba(255,255,255,0.36);">{{ footNote }}</span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+  <div role="status" style="position:fixed;z-index:10001;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));width:min(380px,calc(100vw - 32px));padding:13px 15px;border-radius:13px;background:#1d2926;border:1px solid rgba(110,192,176,0.5);box-shadow:0 14px 40px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:7px;font-family:Arial,sans-serif;">
+    <p style="margin:0;font-family:'Cinzel',Georgia,serif;font-size:0.86rem;color:#fff;">Язичок сховано</p>
+    <p style="margin:0;font-family:'EB Garamond',Georgia,serif;font-size:0.98rem;line-height:1.45;color:rgba(255,255,255,0.7);">{{ toastText }}</p>
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button onClick="{{ toastBack }}" style="cursor:pointer;border-radius:999px;padding:6px 14px;font-size:0.74rem;background:rgba(110,192,176,0.14);border:1px solid rgba(110,192,176,0.55);color:#cdf3eb;">Повернути</button>
+      <button onClick="{{ toastClose }}" style="cursor:pointer;border-radius:999px;padding:6px 12px;font-size:0.74rem;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.6);">Добре</button>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;1200px&quot;,&quot;height&quot;:&quot;800px&quot;},&quot;on&quot;:true,&quot;page&quot;:&quot;glyphs&quot;}">
+// Путівник: язичок «? Що тут» + шторка. Props від Aurelion.dc.html:
+//   on       — site_settings.guide_on === '1' (вимикач в адмінці → «Налаштування»)
+//   admin    — адміни бачать Путівник і тоді, коли його вимкнено (щоб перевірити)
+//   page     — поточна сторінка (navPage), mode — режим «Персонажів» (gallery/conn/ruler)
+//   signed   — чи увійшла людина (від цього — де шукати Путівник після «Прибрати»)
+// Відкрити звідусіль: window.AuGuide.open('cabinet') або подія 'au:guide' {detail:{section}},
+// або посилання #guide / #guide/<розділ> (Aurelion.dc.html його не перехоплює).
+// Язичок прибирається на цьому пристрої (localStorage au_guide_tongue = 'off');
+// повернути — у шторці, у кабінеті або в підказці одразу після «Прибрати».
+//
+// ТЕКСТИ — чернетка. Правити тут: SECTIONS (увесь путівник) і HERE (блок «Тут» для сторінки).
+// Сторінка без запису в HERE — шторка відкривається одразу на всьому путівнику.
+
+const SECTIONS = [
+  { id: 'start', title: 'Перші кроки', items: [
+    { b: 'Ауреліон', t: ' — текстова рольова гра в темному фентезі. Грають у Telegram-чаті, а сайт — її бібліотека: світ, персонажі, дописи й забавки.' },
+    { b: 'Почніть із Довідника', t: ' (розділ «Світ»): там лор, географія, магія й закони світу. Вітання й вступ — на головній, у рядку «Уперше тут?».' },
+    { b: 'Хочете грати?', t: ' Тисніть «Долучитися»: там правила, порядок читання й анкета персонажа. Адміни переглянуть її й напишуть.' },
+    { b: 'Після схвалення', t: ' відкриється кабінет: ваші анкети, дописи, фамільяр.' },
+    { b: 'Питання', t: ' — у «Рецепцію» (кнопка ✦ унизу праворуч) або адмінам у чат.' },
+  ] },
+  { id: 'map', title: 'Що де на сайті', items: [
+    { b: 'Світ', t: ' — Довідник (лор і закони), Історії (статті й серії гравців), Пантеон (п’ятеро богів), Мапа світу.' },
+    { b: 'Персонажі', t: ' — Галерея (гравецькі й ключові герої), Зв’язки (хто з ким пов’язаний), Лінійка (пліч-о-пліч за зростом).' },
+    { b: 'Спільнота', t: ' — Пости й Арки (дописи з рольового чату), Аудіотека, Оголошення (хто вільний для відіграшу), Печатки, Пульс. Частина — лише для тих, хто має кабінет.' },
+    { b: 'Забавки', t: ' — Цитатник, Письмена (химерний текст для чату), Рунна (перекладач), Хмара слів, Галявина фамільярів.' },
+    { b: 'У шапці', t: ' — ♪ Плеєр, кубик і пошук. На телефоні розділи — у нижньому меню, а «☰ Меню» вгорі відкриває все одразу.' },
+  ] },
+  { id: 'cabinet', title: 'Кабінет і фамільяр', items: [
+    { b: 'Вхід', t: ' — «Увійти» в шапці (на телефоні — ⌂ у нижньому меню). Увійшли — там же «Кабінет».' },
+    { b: 'Анкети', t: ' — ваші персонажі: правки, фото в галерею. Прибрати фото — запитом на видалення, адміни підтвердять.' },
+    { b: 'Фамільяр', t: ' живе в кабінеті й росте від дописів ваших персонажів. У крамниці — фони й титули; «Показувати іншим» випускає його на Галявину.' },
+    { b: 'Путівник', t: ' теж є в кабінеті — разом із перемикачем язичка «? Що тут».' },
+  ] },
+  { id: 'marta', title: 'Марта й рольовий чат', items: [
+    { b: 'Марта', t: ' — бот рольового чату: збирає дописи на сайт і відповідає на прохання.' },
+    { b: 'Теги', t: ' — підписуйте рольові пости #Ім’я #Арка: так вони потрапляють у Пости й Арки, а ваш фамільяр отримує їжу.' },
+    { b: '«Марто, фамільяр»', t: ' — покаже вашого фамільяра з його титулом.' },
+    { b: 'Плітки', t: ' Марті можна принести через «Плітку» в кабінеті.' },
+  ] },
+  { id: 'misc', title: 'Дрібниці', items: [
+    { b: 'Плеєр', t: ' унизу грає музику з дописів і плейлистів; «☰ Черга» в ньому показує, що далі.' },
+    { b: 'Письмена', t: ' — налаштування можна зберегти набором і повертатися до нього одним дотиком.' },
+    { b: 'Рунна', t: ' — вигадане генератором слово можна запропонувати закріпити; GM затверджує.' },
+    { b: 'Щось не працює', t: ' чи незрозуміло — напишіть у «Рецепцію» або адмінам. Скриншот дуже допомагає.' },
+  ] },
+];
+
+// «Тут»: ключ — сторінка (або characters:<режим>). name — як підписати; lines — 1–3 рядки.
+const HERE = {
+  home: { name: 'Головна', lines: ['Найсвіжіше на сайті: нові арти, теки й дописи, найближчі дні народжень.', 'Пошук угорі шукає персонажів, лор та історії. «Уперше тут?» — вітання й вступ.'] },
+  lore: { name: 'Довідник', lines: ['Лор, географія, магія й закони Ауреліону. Якщо ви тут уперше — почніть звідси.'] },
+  stories: { name: 'Історії', lines: ['Авторські статті та серії від гравців спільноти.'] },
+  chronicles: { name: 'Хроніки', lines: ['Літописи відіграшів персонажів та арок.'] },
+  pantheon: { name: 'Пантеон', lines: ['П’ятеро богів, що тримають рівновагу світу.'] },
+  map: { name: 'Мапа', lines: ['Тягніть мапу, щоб рухатися; коліщатко миші чи два пальці — масштаб.', 'Позначки відкривають місця.'] },
+  'characters:gallery': { name: 'Галерея', lines: ['Гравецькі й ключові герої. Угорі — пошук, фільтри (гравці / НПЦ, у грі / в архіві) і порядок.', 'Натисніть картку — відкриється тека персонажа.'] },
+  'characters:conn': { name: 'Зв’язки', lines: ['Хто з ким пов’язаний. Теки можна перетягувати, щоб роздивитися.'] },
+  'characters:ruler': { name: 'Лінійка', lines: ['Персонажі пліч-о-пліч за зростом.'] },
+  posts: { name: 'Пости', lines: ['Дописи з рольового чату, підписані тегами #Ім’я #Арка — за персонажем і аркою.'] },
+  arcs: { name: 'Арки', lines: ['Сторінки, зібрані з дописів однієї історії.'] },
+  audio: { name: 'Аудіотека', lines: ['Музика з дописів і плейлисти персонажів. Натисніть трек — заграє в плеєрі внизу.', '«☰ Черга» в плеєрі покаже, що далі, на будь-якій сторінці.'] },
+  offers: { name: 'Оголошення', lines: ['Хто з персонажів вільний для відіграшу — тут шукають пару для сцени.'] },
+  pulse: { name: 'Пульс', lines: ['Як живе спільнота: скільки пишуть, коли й якими постами.'] },
+  quotes: { name: 'Цитатник', lines: ['Що сказали й записали в чаті.'] },
+  glyphs: { name: 'Письмена', lines: ['Перетворює текст на «проклятий»: тріск, риски, шрифти. Скопіюйте результат у Telegram чи Discord.', 'Налаштування можна зберегти набором — «＋ Зберегти поточні».'] },
+  runna: { name: 'Рунна', lines: ['Перекладач українська ⇄ рунна. Колір слова каже, звідки воно: канон, виведене чи вигадане.', 'Вигадане слово можна запропонувати закріпити — кнопка в «Розборі».'] },
+  words: { name: 'Хмара слів', lines: ['Якими словами пише персонаж.'] },
+  meadow: { name: 'Галявина', lines: ['Тут живуть фамільяри гравців, які дозволили їх показувати.', 'Свого фамільяра випускають у кабінеті — «Показувати іншим».'] },
+  contacts: { name: 'Долучитися', lines: ['Правила, порядок читання й анкета. Прочитайте — і подавайте анкету, адміни відпишуть.'] },
+  cabinet: { name: 'Кабінет', lines: ['Ваші анкети, фамільяр і плітки. Тут же — Путівник і перемикач язичка.'] },
+};
+
+const LS_TONGUE = 'au_guide_tongue', LS_SEEN = 'au_guide_seen';
+const HIDE_ON = ['intake', 'gossip']; // там пишуть — не заважати
+const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} };
+
+class Component extends DCLogic {
+  state = { open: false, sec: null, toast: false, mob: false, glow: false, tick: 0 };
+
+  componentDidMount() {
+    this._mq = window.matchMedia ? window.matchMedia('(max-width: 880px)') : null;
+    this._onMq = () => this.setState({ mob: !!(this._mq && this._mq.matches) });
+    if (this._mq) { if (this._mq.addEventListener) this._mq.addEventListener('change', this._onMq); else if (this._mq.addListener) this._mq.addListener(this._onMq); }
+    this._onMq();
+    this._onEv = (e) => this._open((e && e.detail && e.detail.section) || null);
+    window.addEventListener('au:guide', this._onEv);
+    this._onHash = () => this._fromHash();
+    window.addEventListener('hashchange', this._onHash);
+    this._onKey = (e) => { if (e.key === 'Escape' && this.state.open) this._close(); };
+    document.addEventListener('keydown', this._onKey);
+    this._lastHash = /^#guide/.test(location.hash) ? '#home' : location.hash;
+    window.AuGuide = {
+      open: (section) => this._open(section || null),
+      enabled: () => this._on(),
+      tongue: () => lsGet(LS_TONGUE) !== 'off',
+      setTongue: (on) => this._setTongue(on, true),
+    };
+    this._fromHash();
+    // Перші відвідини: язичок кілька разів ледь світиться — і все.
+    if (!lsGet(LS_SEEN) && this._on()) { this.setState({ glow: true }); lsSet(LS_SEEN, '1'); }
+    this._announce();
+  }
+  componentDidUpdate(pp) {
+    if (pp.on !== this.props.on || pp.admin !== this.props.admin) this._announce();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('au:guide', this._onEv);
+    window.removeEventListener('hashchange', this._onHash);
+    document.removeEventListener('keydown', this._onKey);
+    if (this._mq) { if (this._mq.removeEventListener) this._mq.removeEventListener('change', this._onMq); else if (this._mq.removeListener) this._mq.removeListener(this._onMq); }
+    clearTimeout(this._tt);
+    document.documentElement.classList.remove('au-guide');
+  }
+  _on() { return !!(this.props.on || this.props.admin); }
+  // Кабінет і головна питають у window.AuGuide, чи показувати свої входи.
+  _announce() { try { window.dispatchEvent(new CustomEvent('au:guide-state')); } catch (e) {} }
+  _fromHash() {
+    const h = location.hash || '';
+    if (!/^#guide(\/|$)/.test(h)) { this._lastHash = h; this.forceUpdate(); return; }
+    const sec = decodeURIComponent(h.slice(7)) || null;
+    try { history.replaceState(null, '', this._lastHash || '#home'); } catch (e) {}
+    this._open(sec);
+  }
+  _open(section) {
+    if (!this._on()) return;
+    const key = { 'кабінет': 'cabinet', 'старт': 'start', 'марта': 'marta', 'сайт': 'map' }[section] || section;
+    const sec = SECTIONS.some((s) => s.id === key) ? key : null;
+    this.setState({ open: true, sec, glow: false, toast: false });
+    document.documentElement.classList.add('au-guide');
+  }
+  _close() { this.setState({ open: false }); document.documentElement.classList.remove('au-guide'); }
+  _setTongue(on, quiet) {
+    lsSet(LS_TONGUE, on ? null : 'off');
+    clearTimeout(this._tt);
+    if (!on && !quiet) {
+      this.setState({ open: false, toast: true, tick: this.state.tick + 1 });
+      document.documentElement.classList.remove('au-guide');
+      this._tt = setTimeout(() => this.setState({ toast: false }), 9000);
+    } else this.setState({ toast: false, tick: this.state.tick + 1 });
+    this._announce();
+  }
+
+  renderVals() {
+    const p = this.props, s = this.state;
+    const on = this._on();
+    // Кабінет, плітки й анкета — одна сторінка сайту ('gossip'); розрізняємо за адресою.
+    const seg = (location.hash || '').replace(/^#/, '').split('/')[0];
+    const page = p.page === 'gossip' && ['cabinet', 'intake', 'gossip'].indexOf(seg) !== -1 ? seg : String(p.page || 'home');
+    const key = page === 'characters' ? 'characters:' + (p.mode || 'gallery') : page;
+    const here = HERE[key] || null;
+    const tongueVisible = lsGet(LS_TONGUE) !== 'off';
+    const signed = !!p.signed;
+    return {
+      tongueOn: on && tongueVisible && !s.open && HIDE_ON.indexOf(page) === -1,
+      glowAnim: s.glow ? 'gdGlow 1.6s ease-in-out 3' : 'none',
+      openIt: () => this._open(null),
+      open: on && s.open, mob: s.mob,
+      close: () => this._close(),
+      adminOff: !p.on && !!p.admin,
+      hasHere: !!here, hereName: here ? here.name : '',
+      hereLines: here ? here.lines.map((t, i) => ({ key: i, t, mark: '✦' })) : [],
+      // Є «Тут» — розділи згорнуті; немає — перший розділ розгорнутий, щоб шторка не була порожньою.
+      sections: SECTIONS.map((x, i) => {
+        const o = s.sec ? s.sec === x.id : (!here && i === 0);
+        return { key: x.id, title: x.title, open: o, arrow: o ? '▴' : '▾', items: x.items.map((it, j) => ({ key: j, ...it })),
+          toggle: () => this.setState({ sec: o ? '__none' : x.id }) };
+      }),
+      flipL: tongueVisible ? 'Прибрати язичок' : 'Повернути язичок',
+      flipBd: tongueVisible ? 'rgba(255,255,255,0.18)' : 'rgba(110,192,176,0.6)',
+      flipC: tongueVisible ? 'rgba(255,255,255,0.6)' : '#cdf3eb',
+      flipTongue: () => this._setTongue(!tongueVisible),
+      footNote: tongueVisible ? (s.mob ? '' : 'Esc — закрити') : (signed ? 'Путівник — у кабінеті' : 'Путівник — на головній'),
+      toastOn: on && s.toast,
+      toastText: signed
+        ? 'Путівник тепер у кабінеті — там же язичок можна повернути.'
+        : 'Путівник лишається на головній — кнопка «? Путівник». Язичок можна повернути в самій шторці.',
+      toastBack: () => this._setTongue(true),
+      toastClose: () => this.setState({ toast: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>

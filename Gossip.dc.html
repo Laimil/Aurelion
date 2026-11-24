@@ -221,6 +221,20 @@ a:hover{color:#fff}
             </sc-if>
           </div>
           </sc-if>
+          <!-- Путівник (Guide.dc.html): сюди він «переїжджає», коли язичок прибрано -->
+          <sc-if value="{{ guideCab }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:8px;padding:11px 12px;border-radius:10px;background:rgba(110,192,176,0.07);border:1px solid rgba(110,192,176,0.32);">
+              <button onClick="{{ openGuideCab }}" style="cursor:pointer;display:flex;align-items:center;gap:9px;text-align:left;background:none;border:none;padding:0;color:#fff;">
+                <span style="width:22px;height:22px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#6ec0b0;color:#10201c;font-weight:700;font-size:0.78rem;">?</span>
+                <span style="flex:1;min-width:0;"><span style="display:block;font-family:'Cinzel',Georgia,serif;font-size:0.84rem;">Путівник</span><span style="display:block;font-size:0.7rem;color:rgba(255,255,255,0.45);margin-top:1px;">як тут усе влаштовано</span></span>
+                <span style="font-size:0.72rem;color:#6ec0b0;flex:none;">Відкрити</span>
+              </button>
+              <div onClick="{{ flipGuideTongue }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;font-size:0.74rem;color:rgba(255,255,255,0.6);">
+                <span>Язичок «? Що тут» на сторінках</span>
+                <span style="width:34px;height:18px;border-radius:999px;position:relative;flex:none;transition:background 0.2s;background:{{ guideTrack }};"><span style="position:absolute;top:2px;left:{{ guideKnob }};width:14px;height:14px;border-radius:50%;background:#fff;transition:left 0.2s;"></span></span>
+              </div>
+            </div>
+          </sc-if>
           <button onClick="{{ doLogout }}" class="gos-ghost" style="align-self:flex-start;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.4);border-radius:999px;padding:6px 16px;font-size:0.74rem;transition:all 0.2s ease;">Вийти</button>
         </div>
 
@@ -1599,6 +1613,9 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
+    // Путівник монтується поруч (Aurelion.dc.html) — перемальовуємося, коли він готовий чи міняє язичок.
+    this._onGuide = () => this.forceUpdate();
+    window.addEventListener('au:guide-state', this._onGuide);
     // Зміст бічної панелі підсвічує розділ, до якого догорнули.
     this._spy = () => {
       if (this._spyRaf) return;
@@ -1651,6 +1668,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('au:guide-state', this._onGuide);
     window.removeEventListener('scroll', this._spy);
     clearInterval(this._keepAlive);
     document.removeEventListener('visibilitychange', this._wake);
@@ -4855,6 +4873,16 @@ class Component extends DCLogic {
       pickSignup: () => this.setState({ mode: 'signup', authErr: '' }),
       doAuth:   () => this._auth(),
       doLogout: () => this._logout(),
+      ...(() => {
+        const G = window.AuGuide, ok = !!(G && G.enabled()), t = !!(G && G.tongue());
+        return {
+          guideCab: ok,
+          openGuideCab: () => { if (window.AuGuide) window.AuGuide.open(); },
+          guideTrack: t ? 'rgba(110,192,176,0.75)' : 'rgba(255,255,255,0.15)',
+          guideKnob: t ? '18px' : '2px',
+          flipGuideTongue: () => { if (window.AuGuide) { window.AuGuide.setTongue(!window.AuGuide.tongue()); this.forceUpdate(); } },
+        };
+      })(),
 
       myNick: nick,
 

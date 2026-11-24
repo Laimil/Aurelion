@@ -465,6 +465,9 @@ a:hover{color:#a8c4f7;}
 <sc-if value="{{ navNew }}" hint-placeholder-val="{{ true }}">
   <dc-import name="Nav New" site-admin="{{ siteAdmin }}" chron-on="{{ chronOn }}" page="{{ navPage }}" char-mode="{{ navCharMode }}" fun-tabs="{{ funTabs }}" life-tabs="{{ lifeTabs }}" audio-dock-show="{{ audioDockShow }}" toggle-audio-dock="{{ toggleAudioDock }}" signed-in="{{ signedIn }}" user-chip-title="{{ userChipTitle }}" turns-has="{{ turnsHas }}" turns-num="{{ turnsNum }}" turns-p-has="{{ turnsPHas }}" turns-p-num="{{ turnsPNum }}" home-search-val="{{ homeSearchVal }}" set-home-search="{{ setHomeSearch }}" home-search-key="{{ homeSearchKey }}" home-search-results="{{ homeSearchResults }}" home-search-empty="{{ homeSearchEmpty }}" open-search-result="{{ openSearchResult }}" clear-home-search="{{ clearHomeSearch }}" set-nav-style="{{ setNavStyle }}" hint-size="100%,0px"></dc-import>
 </sc-if>
+<!-- ═══ ПУТІВНИК ═══ язичок «? Що тут» + шторка (Guide.dc.html). Вмикається в адмінці
+     («Налаштування» → Путівник, site_settings.guide_on); адміни бачать його завжди. -->
+<dc-import name="Guide" on="{{ guideOn }}" admin="{{ siteAdmin }}" page="{{ navPage }}" mode="{{ navCharMode }}" signed="{{ signedIn }}" hint-size="100%,0px"></dc-import>
 
 <!-- Вушко аудіотеки: музику слухають фоном, тому вхід до неї має бути
      з будь-якої сторінки, а не лише з меню. -->
@@ -532,6 +535,10 @@ a:hover{color:#a8c4f7;}
           <button onClick="{{ toggleWelcome }}" style="background:none;border:none;padding:0;font-size:0.83rem;color:rgba(255,255,255,0.62);cursor:pointer;white-space:nowrap;transition:color 0.25s ease;" style-hover="color:#ffd700;">{{ welcomeBannerLabel }}</button>
           <span style="width:1px;height:13px;background:rgba(255,255,255,0.14);"></span>
           <button onClick="{{ replayIntro }}" style="background:none;border:none;padding:0;font-size:0.83rem;color:rgba(255,255,255,0.62);cursor:pointer;white-space:nowrap;transition:color 0.25s ease;" style-hover="color:#ffd700;">Показати вступ</button>
+          <sc-if value="{{ guideEntry }}" hint-placeholder-val="{{ false }}">
+            <span style="width:1px;height:13px;background:rgba(255,255,255,0.14);"></span>
+            <button onClick="{{ openGuide }}" style="background:none;border:none;padding:0;font-size:0.83rem;color:#6ec0b0;cursor:pointer;white-space:nowrap;transition:color 0.25s ease;" style-hover="color:#cdf3eb;">? Путівник</button>
+          </sc-if>
         </div>
         <sc-if value="{{ welcomeBannerOpen }}" hint-placeholder-val="{{ false }}">
           <div style="animation:fadeUp 0.4s ease both;">{{ homeWelcomeFullEl }}</div>
@@ -546,6 +553,9 @@ a:hover{color:#a8c4f7;}
         </sc-if>
         <sc-if value="{{ homeWelcomeHasMore }}" hint-placeholder-val="{{ false }}">
           <button onClick="{{ toggleWelcome }}" style="margin-top:14px;background:none;border:none;padding:4px 0;font-family:'Cinzel',Georgia,serif;font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,215,0,0.7);cursor:pointer;transition:color 0.25s ease;" style-hover="color:#ffd700;">{{ homeWelcomeMoreLabel }}</button>
+        </sc-if>
+        <sc-if value="{{ guideEntry }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:12px;"><button onClick="{{ openGuide }}" style="background:none;border:none;padding:4px 0;font-size:0.84rem;color:#6ec0b0;cursor:pointer;transition:color 0.25s ease;" style-hover="color:#cdf3eb;">? Путівник — як тут усе влаштовано</button></div>
         </sc-if>
       </div>
       </sc-if>
@@ -4864,6 +4874,7 @@ class Component extends DCLogic {
       ),
       endIntro: () => this.endIntro(),
       replayIntro: () => this._introGo(),
+      openGuide: () => { if (window.AuGuide) window.AuGuide.open(); },
     };
   }
 
@@ -7726,6 +7737,8 @@ class Component extends DCLogic {
     window.addEventListener('pointermove', this._wallMove);
     window.addEventListener('pointerup', this._wallUp);
     window.addEventListener('hashchange', () => {
+      // #guide / #guide/<розділ> — це Путівник (Guide.dc.html сам відкриється й поверне адресу), не сторінка
+      if (/^#guide(\/|$)/.test(location.hash)) return;
       this.setState({ ...this._routePatch(), navOpen: false });
       window.scrollTo({ top: 0 });
     });
@@ -10192,6 +10205,8 @@ class Component extends DCLogic {
       navNew: s.navStyle === 'new',
       siteAdmin: !!s.siteAdmin,
       chronOn,
+      guideOn: String((data.site || {}).guide_on || '') === '1',
+      guideEntry: String((data.site || {}).guide_on || '') === '1' || !!s.siteAdmin,
       navPage: page,
       navCharMode: s.charMode || 'gallery',
       audioDockSide: postsReader && page !== 'audio' && page !== 'map' && s.navStyle !== 'new',
