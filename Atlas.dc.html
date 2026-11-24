@@ -11,7 +11,8 @@
   <style>
     .at-side,.at-card,.at-form{touch-action:pan-y}
     .at-root{position:fixed;inset:0;overflow:hidden;background:#090810;color:#fff;font-family:Arial,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
-    .at-stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+    .at-world{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
+    .at-stage{position:absolute;left:0;top:0;transform-origin:0 0}
     .at-stage img{display:block;max-width:none;pointer-events:none}
     /* м'які краї мапи: чотири градієнтні смуги всередині сцени (малюються разом із мапою, без маски) */
     .at-edge{position:absolute;pointer-events:none}
@@ -143,6 +144,7 @@
 <div class="at-root" ref="{{ rootRef }}" onPointerDown="{{ down }}" onPointerMove="{{ move }}" onPointerUp="{{ up }}" onPointerCancel="{{ cancel }}">
   <sc-if value="{{ bgOn }}" hint-placeholder-val="{{ false }}"><div class="at-bg" style="background-image:url('{{ bgUrl }}');"></div></sc-if>
   <div class="at-vig"></div>
+  <div class="at-world" ref="{{ worldRef }}">
   <div class="at-stage" style="transform:translate({{ tx }}px,{{ ty }}px) scale({{ sc }});">
     <img src="{{ mapUrl }}" alt="Мапа світу Ауреліону" onLoad="{{ imgLoad }}" draggable="false" />
     <span class="at-edge l"></span><span class="at-edge r"></span><span class="at-edge t"></span><span class="at-edge b"></span>
@@ -160,6 +162,7 @@
   <sc-if value="{{ ghostOn }}" hint-placeholder-val="{{ false }}">
     <div class="at-ghost" style="left:{{ ghostX }}px;top:{{ ghostY }}px;"><span class="at-ico"></span><span class="at-lbl">{{ ghostName }}</span></div>
   </sc-if>
+  </div>
 
   <button class="at-mtoggle" onPointerDown="{{ stop }}" onClick="{{ openSide }}">☰ Місця</button>
   <div class="at-zoom" onPointerDown="{{ stop }}">
@@ -294,6 +297,8 @@ const MQ = () => window.matchMedia && window.matchMedia('(max-width:880px)').mat
 
 class Component extends DCLogic {
   rootRef = React.createRef();
+  worldRef = React.createRef();
+  _vis = { a: 1, e: 0, f: 0 };
   constructor(p) {
     super(p);
     this.state = { tx: 0, ty: 0, sc: 0.2, fit: 0.2, iw: 0, ih: 0, sel: '', q: '', kf: '', sideOpen: false,
@@ -307,7 +312,12 @@ class Component extends DCLogic {
       if (e.target.closest && e.target.closest('.at-side,.at-card,.at-form')) return;
       e.preventDefault();
       const r = el.getBoundingClientRect();
-      this._zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.18 : 1 / 1.18);
+      const px = e.clientX - r.left, py = e.clientY - r.top, v = this._vis;
+      const want = e.deltaY < 0 ? 1.18 : 1 / 1.18;
+      const cur = this.state.sc * v.a, k = this._clampSc(cur * want) / cur;
+      this._vis = { a: v.a * k, e: k * v.e + px * (1 - k), f: k * v.f + py * (1 - k) };
+      this._applyVis();
+      clearTimeout(this._wt); this._wt = setTimeout(() => this._commitVis(), 160);
     };
     if (el) el.addEventListener('wheel', this._wheel, { passive: false });
     this._resize = () => { if (this.state.iw) this._fit(true); };
@@ -379,9 +389,26 @@ class Component extends DCLogic {
     if (keep && this.state.sc > fit * 0.5) { this.setState({ fit }); return; }
     this.setState({ fit, sc: fit, tx: a.x + (a.w - iw * fit) / 2, ty: a.y + (a.h - ih * fit) / 2 });
   }
+  // Під час жесту рухаємо шар «світу» напряму (без перебудови компонента);
+  // справжні tx/ty/sc записуємо в стан лише в кінці жесту.
+  _applyVis() {
+    cancelAnimationFrame(this._visRaf);
+    this._visRaf = requestAnimationFrame(() => {
+      const w = this.worldRef.current, v = this._vis; if (!w) return;
+      w.style.transform = (v.a === 1 && v.e === 0 && v.f === 0) ? '' : `translate(${v.e}px,${v.f}px) scale(${v.a})`;
+    });
+  }
+  _commitVis() {
+    clearTimeout(this._wt);
+    const v = this._vis; if (v.a === 1 && v.e === 0 && v.f === 0) return;
+    this._vis = { a: 1, e: 0, f: 0 }; cancelAnimationFrame(this._visRaf);
+    this.setState((st) => ({ sc: st.sc * v.a, tx: v.a * st.tx + v.e, ty: v.a * st.ty + v.f }), () => {
+      const w = this.worldRef.current; if (w) w.style.transform = '';
+    });
+  }
   _clampSc(s) { const f = this.state.fit; return Math.max(f * 0.6, Math.min(Math.max(f * 14, 2), s)); }
   _zoomAt(px, py, k) {
-    cancelAnimationFrame(this._raf);
+    cancelAnimationFrame(this._raf); this._commitVis();
     this.setState((st) => { const sc = this._clampSc(st.sc * k), r = sc / st.sc; return { sc, tx: px - (px - st.tx) * r, ty: py - (py - st.ty) * r }; });
   }
   _flyTo(n, mul) {
@@ -392,6 +419,7 @@ class Component extends DCLogic {
     const cx = mob ? a.x + a.w / 2 : a.x + (a.w - 340) / 2;
     const cy = mob ? a.y + a.h * 0.3 : a.y + a.h / 2;
     const tx1 = cx - (n.x_percent / 100) * iw * sc1, ty1 = cy - (n.y_percent / 100) * ih * sc1;
+    this._commitVis();
     const s0 = { sc: this.state.sc, tx: this.state.tx, ty: this.state.ty }, t0 = performance.now(), D = 380;
     cancelAnimationFrame(this._raf);
     const step = (t) => {
@@ -472,30 +500,33 @@ class Component extends DCLogic {
     if (e.button != null && e.button !== 0 && e.pointerType === 'mouse') return;
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {}
     cancelAnimationFrame(this._raf);
+    this._commitVis();
     this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (this._ptr.size === 1) this._g = { x: e.clientX, y: e.clientY, tx: this.state.tx, ty: this.state.ty, moved: 0 };
-    else if (this._ptr.size === 2) { const [a, b] = [...this._ptr.values()]; this._g = { pinch: true, d: Math.hypot(a.x - b.x, a.y - b.y), sc: this.state.sc, tx: this.state.tx, ty: this.state.ty, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, moved: 99 }; }
+    if (this._ptr.size === 1) this._g = { x: e.clientX, y: e.clientY, moved: 0 };
+    else if (this._ptr.size === 2) { this._commitVis(); const [a, b] = [...this._ptr.values()]; const r0 = this.rootRef.current.getBoundingClientRect();
+      this._g = { pinch: true, d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, ox: r0.left, oy: r0.top, moved: 99 }; }
   }
   _move(e) {
     if (!this._ptr.has(e.pointerId)) return;
     this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const g = this._g; if (!g) return;
     if (g.pinch && this._ptr.size >= 2) {
-      const [a, b] = [...this._ptr.values()]; const r0 = this.rootRef.current.getBoundingClientRect();
-      const sc = this._clampSc(g.sc * Math.hypot(a.x - b.x, a.y - b.y) / (g.d || 1)), k = sc / g.sc;
-      const mx = g.mx - r0.left, my = g.my - r0.top;
-      this.setState({ sc, tx: mx - (mx - g.tx) * k + ((a.x + b.x) / 2 - g.mx), ty: my - (my - g.ty) * k + ((a.y + b.y) / 2 - g.my) });
+      const [a, b] = [...this._ptr.values()];
+      const cur = this.state.sc, k = this._clampSc(cur * Math.hypot(a.x - b.x, a.y - b.y) / (g.d || 1)) / cur;
+      const px = g.mx - g.ox, py = g.my - g.oy, sx = (a.x + b.x) / 2 - g.mx, sy = (a.y + b.y) / 2 - g.my;
+      this._vis = { a: k, e: px * (1 - k) + sx, f: py * (1 - k) + sy }; this._applyVis();
     } else if (!g.pinch) {
       const dx = e.clientX - g.x, dy = e.clientY - g.y; g.moved = Math.max(g.moved, Math.abs(dx) + Math.abs(dy));
-      if (g.moved > 4) this.setState({ tx: g.tx + dx, ty: g.ty + dy });
+      if (g.moved > 4) { this._vis = { a: 1, e: dx, f: dy }; this._applyVis(); }
     }
   }
   _up(e) {
     const g = this._g; this._ptr.delete(e.pointerId);
     if (this._ptr.size === 0) {
       if (g && !g.pinch && g.moved <= 4) this._tap(e);
+      else this._commitVis();
       this._g = null;
-    } else if (this._ptr.size === 1) { const [a] = [...this._ptr.values()]; this._g = { x: a.x, y: a.y, tx: this.state.tx, ty: this.state.ty, moved: 99 }; }
+    } else if (this._ptr.size === 1) { this._commitVis(); const [a] = [...this._ptr.values()]; this._g = { x: a.x, y: a.y, moved: 99 }; }
   }
   _tap(e) {
     if (this.state.mode === 'propose') {
@@ -610,10 +641,10 @@ class Component extends DCLogic {
     const setD = (patch) => this.setState((st) => ({ draft: { ...st.draft, ...patch } }));
 
     return {
-      rootRef: this.rootRef, mapUrl: P.mapUrl || '', tx, ty, sc,
+      rootRef: this.rootRef, worldRef: this.worldRef, mapUrl: P.mapUrl || '', tx, ty, sc,
       bgOn: !!s.bgUrl, bgUrl: s.bgUrl || '',
       imgLoad: (e) => { const im = e.currentTarget; this.setState({ iw: im.naturalWidth, ih: im.naturalHeight }, () => { this._fit(); if (P.selId) this._selectFromProp(); }); this._makeBg(); },
-      down: (e) => this._down(e), move: (e) => this._move(e), up: (e) => this._up(e), cancel: (e) => { this._ptr.delete(e.pointerId); this._g = null; },
+      down: (e) => this._down(e), move: (e) => this._move(e), up: (e) => this._up(e), cancel: (e) => { this._ptr.delete(e.pointerId); this._g = null; this._commitVis(); },
       stop: (e) => e.stopPropagation(), stopWheel: (e) => e.stopPropagation(),
       pick, unpick: () => { this.setState({ sel: '' }); try { history.replaceState(null, '', '#map'); } catch (x) {} },
       areas, pins,
