@@ -12,12 +12,17 @@
     .at-side,.at-card,.at-form{touch-action:pan-y}
     .at-root{position:fixed;inset:0;overflow:hidden;background:#090810;color:#fff;font-family:Arial,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
     .at-stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-    .at-stage img{display:block;max-width:none;pointer-events:none;
-      -webkit-mask-image:linear-gradient(to right,transparent 0,#000 3%,#000 97%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 4%,#000 96%,transparent 100%);
-      -webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent 0,#000 3%,#000 97%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 4%,#000 96%,transparent 100%);mask-composite:intersect}
-    /* тло: та сама мапа, сильно розмита й притемнена — замість чорного */
-    .at-bg{position:absolute;inset:-80px;background-size:cover;background-position:center;filter:blur(42px) brightness(0.34) saturate(1.25);transform:scale(1.08);pointer-events:none;transition:background-position 0.6s ease-out}
-    .at-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 55% 50%,rgba(9,8,16,0) 35%,rgba(9,8,16,0.55) 100%)}
+    .at-stage img{display:block;max-width:none;pointer-events:none}
+    /* м'які краї мапи: чотири градієнтні смуги всередині сцени (малюються разом із мапою, без маски) */
+    .at-edge{position:absolute;pointer-events:none}
+    .at-edge.l{left:0;top:0;bottom:0;width:4%;background:linear-gradient(to right,rgba(9,8,16,0.75),rgba(9,8,16,0))}
+    .at-edge.r{right:0;top:0;bottom:0;width:4%;background:linear-gradient(to left,rgba(9,8,16,0.75),rgba(9,8,16,0))}
+    .at-edge.t{left:0;right:0;top:0;height:5%;background:linear-gradient(to bottom,rgba(9,8,16,0.75),rgba(9,8,16,0))}
+    .at-edge.b{left:0;right:0;bottom:0;height:5%;background:linear-gradient(to top,rgba(9,8,16,0.75),rgba(9,8,16,0))}
+    /* тло: крихітна копія мапи (48×36), розтягнута на весь екран — розмита сама собою,
+       без CSS-фільтра; нерухома, тож браузер малює її один раз */
+    .at-bg{position:absolute;inset:0;background-size:cover;background-position:center;pointer-events:none;opacity:0.6}
+    .at-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 55% 50%,rgba(9,8,16,0.1) 30%,rgba(9,8,16,0.6) 100%)}
     .at-pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;z-index:3}
     .at-pin .at-ico{width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(0,0,0,0.65);box-shadow:0 3px 9px rgba(0,0,0,0.7);transition:transform 0.15s}
     .at-pin .at-ico svg{transform:rotate(45deg);pointer-events:none}
@@ -136,10 +141,11 @@
 </helmet>
 
 <div class="at-root" ref="{{ rootRef }}" onPointerDown="{{ down }}" onPointerMove="{{ move }}" onPointerUp="{{ up }}" onPointerCancel="{{ cancel }}">
-  <div class="at-bg" style="background-image:url('{{ mapUrl }}');background-position:{{ bgPos }};"></div>
+  <sc-if value="{{ bgOn }}" hint-placeholder-val="{{ false }}"><div class="at-bg" style="background-image:url('{{ bgUrl }}');"></div></sc-if>
   <div class="at-vig"></div>
   <div class="at-stage" style="transform:translate({{ tx }}px,{{ ty }}px) scale({{ sc }});">
     <img src="{{ mapUrl }}" alt="Мапа світу Ауреліону" onLoad="{{ imgLoad }}" draggable="false" />
+    <span class="at-edge l"></span><span class="at-edge r"></span><span class="at-edge t"></span><span class="at-edge b"></span>
   </div>
 
   <sc-for list="{{ areas }}" as="a" hint-placeholder-count="0">
@@ -343,6 +349,21 @@ class Component extends DCLogic {
       const r = await fetch(`${AT_URL}/place_proposals?select=*&user_id=eq.${uid}&order=created_at.desc`, { headers: this._h() });
       this.setState({ mine: r.ok ? await r.json() : [] });
     } catch (e) { this.setState({ mine: [] }); }
+  }
+
+  // Тло: зменшуємо мапу до 48×36 один раз; розтягнута, вона й так розмита.
+  // Окремий Image з crossOrigin — якщо сховище не віддасть CORS, просто лишаємо темне тло.
+  _makeBg() {
+    const url = this.props.mapUrl; if (!url || this._bgFor === url) return; this._bgFor = url;
+    const im = new Image(); im.crossOrigin = 'anonymous';
+    im.onload = () => {
+      try {
+        const cv = document.createElement('canvas'); cv.width = 48; cv.height = 36;
+        const g = cv.getContext('2d'); g.drawImage(im, 0, 0, 48, 36);
+        this.setState({ bgUrl: cv.toDataURL('image/jpeg', 0.8) });
+      } catch (e) { /* tainted canvas — без тла */ }
+    };
+    im.src = url;
   }
 
   // ── геометрія ──
@@ -590,9 +611,8 @@ class Component extends DCLogic {
 
     return {
       rootRef: this.rootRef, mapUrl: P.mapUrl || '', tx, ty, sc,
-      bgPos: (() => { if (!iw) return 'center'; const a = this._area(); const cx = ((a.x + a.w / 2 - tx) / (iw * sc)) * 100, cy = ((a.y + a.h / 2 - ty) / (ih * sc)) * 100;
-        const cl = (v) => Math.max(0, Math.min(100, Math.round(v))); return cl(cx) + '% ' + cl(cy) + '%'; })(),
-      imgLoad: (e) => { const im = e.currentTarget; this.setState({ iw: im.naturalWidth, ih: im.naturalHeight }, () => { this._fit(); if (P.selId) this._selectFromProp(); }); },
+      bgOn: !!s.bgUrl, bgUrl: s.bgUrl || '',
+      imgLoad: (e) => { const im = e.currentTarget; this.setState({ iw: im.naturalWidth, ih: im.naturalHeight }, () => { this._fit(); if (P.selId) this._selectFromProp(); }); this._makeBg(); },
       down: (e) => this._down(e), move: (e) => this._move(e), up: (e) => this._up(e), cancel: (e) => { this._ptr.delete(e.pointerId); this._g = null; },
       stop: (e) => e.stopPropagation(), stopWheel: (e) => e.stopPropagation(),
       pick, unpick: () => { this.setState({ sel: '' }); try { history.replaceState(null, '', '#map'); } catch (x) {} },
