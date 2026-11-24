@@ -14,6 +14,7 @@
 <script src="./telegraph-import.js"></script>
 <script src="./anketa-schema.js"></script>
 <script src="./docx-import.js"></script>
+<script src="./guide-content.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:#141414;color:rgba(255,255,255,0.8);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
@@ -333,6 +334,70 @@ input,textarea,select{font-size:16px}
 </sc-if>
 
 <!-- SITE TAB -->
+<sc-if value="{{ showGuide }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:820px;margin:0 auto;padding:32px 24px 60px;">
+    <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#6ec0b0;letter-spacing:0.07em;margin-bottom:8px;">? Путівник</h2>
+    <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);line-height:1.55;margin-bottom:18px;">Язичок «? Що тут» на краю екрана і шторка: згори — підказка про поточну сторінку («Тут»), нижче — увесь путівник розділами. Гравець може прибрати язичок; Путівник лишається в кабінеті й на головній.</p>
+
+    <div onClick="{{ guideToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;margin-bottom:28px;">
+      <div style="width:40px;height:22px;border-radius:999px;flex-shrink:0;position:relative;transition:background 0.2s;background:{{ guideTrackBg }};">
+        <div style="position:absolute;top:2px;left:{{ guideKnobLeft }};width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s;"></div>
+      </div>
+      <div>
+        <p style="font-size:0.84rem;color:#fff;">Путівник на сайті</p>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:1px;line-height:1.45;">{{ guideHint }}</p>
+      </div>
+    </div>
+
+    <!-- ── Розділи ── -->
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
+      <h3 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.06em;">Увесь путівник · розділи</h3>
+      <button onClick="{{ gdAddSec }}" style="cursor:pointer;background:rgba(110,192,176,0.1);border:1px solid rgba(110,192,176,0.4);color:#6ec0b0;border-radius:999px;padding:6px 14px;font-size:0.76rem;">+ Розділ</button>
+    </div>
+    <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);line-height:1.5;margin-bottom:14px;">Кожен рядок — окремий пункт. <b style="color:rgba(255,255,255,0.6);">**Так**</b> на початку рядка — жирний початок пункту. Порожні рядки пропускаються.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:34px;">
+      <sc-for list="{{ gdSecs }}" as="g" hint-placeholder-count="3">
+        <div style="padding:14px 16px;border-radius:10px;background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.09);display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);width:18px;flex:none;">{{ g.n }}</span>
+            <input value="{{ g.title }}" onChange="{{ g.setTitle }}" placeholder="Назва розділу" style="flex:1;min-width:0;" />
+            <button onClick="{{ g.up }}" title="Вище" style="cursor:pointer;flex:none;width:30px;height:30px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);opacity:{{ g.upOp }};">↑</button>
+            <button onClick="{{ g.down }}" title="Нижче" style="cursor:pointer;flex:none;width:30px;height:30px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);opacity:{{ g.downOp }};">↓</button>
+            <button onClick="{{ g.drop }}" title="Видалити розділ" style="cursor:pointer;flex:none;height:30px;padding:0 10px;border-radius:6px;background:transparent;border:1px solid rgba(255,77,77,0.35);color:rgba(255,140,140,0.85);font-size:0.74rem;">{{ g.dropL }}</button>
+          </div>
+          <textarea value="{{ g.text }}" onChange="{{ g.setText }}" placeholder="**Жирний початок** — решта пункту" style="min-height:{{ g.h }};font-size:0.84rem;line-height:1.5;"></textarea>
+          <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);">посилання на розділ: <span style="color:rgba(110,192,176,0.8);">#guide/{{ g.id }}</span> · пунктів: {{ g.count }}</p>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- ── «Тут» ── -->
+    <h3 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:6px;">«Тут» — підказки для сторінок</h3>
+    <p style="font-size:0.74rem;color:rgba(255,255,255,0.35);line-height:1.5;margin-bottom:14px;">1–3 короткі рядки, кожен з нового рядка. Порожньо — для цієї сторінки шторка відкривається одразу на всьому путівнику.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <sc-for list="{{ gdHere }}" as="h" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.025);border:1px solid {{ h.bd }};">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <span style="font-size:0.7rem;color:rgba(255,255,255,0.45);">{{ h.label }}</span>
+            <input value="{{ h.name }}" onChange="{{ h.setName }}" placeholder="{{ h.label }}" title="Підпис у шторці: «Тут · …»" style="font-size:0.8rem;padding:6px 8px;" />
+          </div>
+          <textarea value="{{ h.text }}" onChange="{{ h.setText }}" placeholder="порожньо — без «Тут»" style="min-height:58px;font-size:0.82rem;line-height:1.45;"></textarea>
+        </div>
+      </sc-for>
+    </div>
+
+  <!-- панель збереження: липне до низу колонки -->
+  <div style="position:sticky;bottom:12px;z-index:20;margin-top:26px;background:rgba(22,24,24,0.97);border:1px solid rgba(110,192,176,0.35);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.55);padding:11px 14px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span style="flex:1;min-width:180px;font-size:0.76rem;color:{{ gdStatusC }};">{{ gdStatus }}</span>
+      <button onClick="{{ gdReset }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.55);border-radius:999px;padding:8px 14px;font-size:0.76rem;">{{ gdResetL }}</button>
+      <button onClick="{{ gdUndo }}" disabled="{{ gdClean }}" style="cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.65);border-radius:999px;padding:8px 14px;font-size:0.76rem;opacity:{{ gdUndoOp }};">Скасувати зміни</button>
+      <button onClick="{{ gdSave }}" style="cursor:pointer;background:#6ec0b0;border:none;color:#10201c;font-weight:700;border-radius:999px;padding:9px 20px;font-size:0.8rem;opacity:{{ gdSaveOp }};">{{ gdSaveL }}</button>
+    </div>
+  </div>
+  </div>
+</sc-if>
+
 <sc-if value="{{ showSite }}" hint-placeholder-val="{{ false }}">
   <div style="max-width:720px;margin:0 auto;padding:32px 24px 80px;">
     <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;margin-bottom:24px;">⚙ Налаштування сайту</h2>
@@ -349,19 +414,10 @@ input,textarea,select{font-size:16px}
       <button data-tab="contacts" onClick="{{ setTab }}" style="background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.3);color:#ffd700;border-radius:999px;padding:6px 16px;font-size:0.78rem;cursor:pointer;white-space:nowrap;" style-hover="background:rgba(255,215,0,0.2);">✍️ Відкрити «Долучитися» →</button>
     </div>
 
-    <!-- ── Путівник (Guide.dc.html) ── -->
-    <div style="margin-top:34px;padding-top:26px;border-top:1px solid rgba(255,255,255,0.09);">
-      <h3 style="font-family:'Cinzel',serif;font-size:0.95rem;color:#6ec0b0;letter-spacing:0.06em;margin-bottom:6px;">? Путівник</h3>
-      <p style="font-size:0.76rem;color:rgba(255,255,255,0.35);margin-bottom:14px;line-height:1.5;">Язичок «? Що тут» на краю екрана: підказка про поточну сторінку й увесь путівник по сайту. Гравець може прибрати язичок — тоді Путівник лишається в кабінеті й на головній («Уперше тут?»).</p>
-      <div onClick="{{ guideToggle }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;">
-        <div style="width:40px;height:22px;border-radius:999px;flex-shrink:0;position:relative;transition:background 0.2s;background:{{ guideTrackBg }};">
-          <div style="position:absolute;top:2px;left:{{ guideKnobLeft }};width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s;"></div>
-        </div>
-        <div>
-          <p style="font-size:0.84rem;color:#fff;">Путівник на сайті</p>
-          <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:1px;line-height:1.45;">{{ guideHint }}</p>
-        </div>
-      </div>
+    <!-- ── Путівник переїхав в окрему вкладку ── -->
+    <div style="margin-top:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(110,192,176,0.05);border:1px solid rgba(110,192,176,0.2);border-radius:9px;padding:13px 16px;">
+      <p style="flex:1;min-width:200px;font-size:0.79rem;color:rgba(255,255,255,0.5);line-height:1.5;">Путівник (язичок «? Що тут»): вимикач і тексти —</p>
+      <button data-tab="guide" onClick="{{ setTab }}" style="background:rgba(110,192,176,0.12);border:1px solid rgba(110,192,176,0.35);color:#6ec0b0;border-radius:999px;padding:6px 16px;font-size:0.78rem;cursor:pointer;white-space:nowrap;">? Путівник →</button>
     </div>
 
     <!-- ── Анімація відкриття анкети ── -->
@@ -6777,7 +6833,7 @@ class Component extends DCLogic {
     const play = [
       R('tests', 'Тести', { badge: c.tests, meta: len('tests') }),
       R('posts', 'Пости'), R('dice', 'Дайс'), R('seals', 'Печатки'),
-      R('site', 'Налаштування'), R('contacts', 'Сторінка «Долучитися»'), R('stats', 'Пульс'),
+      R('site', 'Налаштування'), R('guide', 'Путівник'), R('contacts', 'Сторінка «Долучитися»'), R('stats', 'Пульс'),
     ];
     const navGroups = [
       { key: 'top', label: '', hasLabel: false, rows: [R('desk', 'Сьогодні', { badge: c.total })] },
@@ -10445,8 +10501,35 @@ class Component extends DCLogic {
       },
 
       showSite:       tab === 'site',
+      showGuide:      tab === 'guide',
       ...(() => {
-        const on = String((this.state.data.site || {}).guide_on || '') === '1';
+        // ── Путівник: редактор текстів (site_settings.guide_content, JSON як у guide-content.js) ──
+        const site = this.state.data.site || {};
+        const on = String(site.guide_on || '') === '1';
+        const GPAGES = [['home', 'Головна'], ['lore', 'Довідник'], ['stories', 'Історії'], ['chronicles', 'Хроніки'], ['pantheon', 'Пантеон'], ['map', 'Мапа'],
+          ['characters:gallery', 'Персонажі · Галерея'], ['characters:conn', 'Персонажі · Зв’язки'], ['characters:ruler', 'Персонажі · Лінійка'],
+          ['posts', 'Пости'], ['arcs', 'Арки'], ['audio', 'Аудіотека'], ['offers', 'Оголошення'], ['seals', 'Печатки'], ['pulse', 'Пульс'], ['tests', 'Тести'],
+          ['quotes', 'Цитатник'], ['glyphs', 'Письмена'], ['runna', 'Рунна'], ['words', 'Хмара слів'], ['meadow', 'Галявина'], ['dice', 'Кубик'],
+          ['contacts', 'Долучитися'], ['cabinet', 'Кабінет']];
+        // чернетка: тексти рядками, як у полях редактора
+        const toDraft = (g) => ({
+          sections: (g.sections || []).map((x, i) => ({ id: String(x.id || 's' + (i + 1)), title: String(x.title || ''), text: (x.items || []).join('\n') })),
+          here: Object.fromEntries(GPAGES.map(([k]) => { const h = (g.here || {})[k] || {}; return [k, { name: String(h.name || ''), text: (h.lines || []).join('\n') }]; })),
+        });
+        const fromDraft = (d) => ({
+          v: 1,
+          sections: d.sections.filter((x) => x.title.trim()).map((x) => ({ id: x.id, title: x.title.trim(), items: x.text.split('\n').map((t) => t.trim()).filter(Boolean) })),
+          here: Object.fromEntries(Object.entries(d.here).map(([k, h]) => [k, { name: h.name.trim(), lines: h.text.split('\n').map((t) => t.trim()).filter(Boolean) }]).filter(([, h]) => h.lines.length)),
+        });
+        const parse = (raw) => { try { const g = JSON.parse(raw); return g && Array.isArray(g.sections) && g.sections.length ? g : null; } catch (e) { return null; } };
+        const saved = parse(site.guide_content || '');
+        const base = saved || window.AU_GUIDE_DEFAULT || { sections: [], here: {} };
+        const baseJson = JSON.stringify(fromDraft(toDraft(base)));
+        const d = this.state.gdDraft || toDraft(base);
+        const curJson = JSON.stringify(fromDraft(d));
+        const dirty = !!this.state.gdDraft && curJson !== baseJson;
+        const put = (fn) => this.setState((st) => { const x = JSON.parse(JSON.stringify(st.gdDraft || toDraft(base))); fn(x); return { gdDraft: x, gdAsk: null }; });
+        const n = d.sections.length;
         return {
           guideTrackBg: on ? 'rgba(110,192,176,0.75)' : 'rgba(255,255,255,0.15)',
           guideKnobLeft: on ? '20px' : '2px',
@@ -10463,6 +10546,53 @@ class Component extends DCLogic {
             } catch (ex) {
               this._setSite('guide_on', on ? '1' : '0');
               this._toast('✗ Не вдалося зберегти вимикач');
+            }
+          },
+          gdSecs: d.sections.map((x, i) => ({
+            key: x.id + ':' + i, id: x.id, n: String(i + 1), title: x.title, text: x.text,
+            count: String(x.text.split('\n').filter((t) => t.trim()).length),
+            h: Math.min(260, 70 + x.text.split('\n').length * 22) + 'px',
+            setTitle: (e) => { const v = e.target.value; put((y) => { y.sections[i].title = v; }); },
+            setText: (e) => { const v = e.target.value; put((y) => { y.sections[i].text = v; }); },
+            up: () => { if (i > 0) put((y) => { const t = y.sections[i]; y.sections[i] = y.sections[i - 1]; y.sections[i - 1] = t; }); },
+            down: () => { if (i < n - 1) put((y) => { const t = y.sections[i]; y.sections[i] = y.sections[i + 1]; y.sections[i + 1] = t; }); },
+            upOp: i > 0 ? '1' : '0.3', downOp: i < n - 1 ? '1' : '0.3',
+            dropL: this.state.gdAsk === x.id ? 'точно?' : '✕',
+            drop: () => { if (this.state.gdAsk !== x.id) { this.setState({ gdAsk: x.id }); return; } put((y) => { y.sections.splice(i, 1); }); },
+          })),
+          gdAddSec: () => put((y) => { let k = y.sections.length + 1; while (y.sections.some((s) => s.id === 's' + k)) k++; y.sections.push({ id: 's' + k, title: 'Новий розділ', text: '' }); }),
+          gdHere: GPAGES.map(([k, label]) => {
+            const h = d.here[k] || { name: '', text: '' };
+            return { key: k, label, name: h.name, text: h.text, bd: h.text.trim() ? 'rgba(110,192,176,0.3)' : 'rgba(255,255,255,0.07)',
+              setName: (e) => { const v = e.target.value; put((y) => { y.here[k] = { ...(y.here[k] || { text: '' }), name: v }; }); },
+              setText: (e) => { const v = e.target.value; put((y) => { y.here[k] = { ...(y.here[k] || { name: '' }), text: v }; }); } };
+          }),
+          gdStatus: dirty ? '● Є незбережені зміни' : (saved ? 'Збережено — на сайті ці тексти' : 'Зараз на сайті стандартні тексти'),
+          gdStatusC: dirty ? '#ffd700' : 'rgba(255,255,255,0.45)',
+          gdClean: !dirty, gdUndoOp: dirty ? '1' : '0.4', gdSaveOp: dirty || !saved ? '1' : '0.55',
+          gdSaveL: this.state.gdBusy ? 'Зберігаю…' : 'Зберегти',
+          gdUndo: () => this.setState({ gdDraft: null, gdAsk: null }),
+          gdResetL: this.state.gdAsk === '__reset' ? 'Точно повернути стандартні?' : 'Стандартні тексти',
+          gdReset: () => {
+            if (this.state.gdAsk !== '__reset') { this.setState({ gdAsk: '__reset' }); return; }
+            this.setState({ gdDraft: toDraft(window.AU_GUIDE_DEFAULT || { sections: [], here: {} }), gdAsk: null });
+            this._toast('Підставлено стандартні тексти — натисніть «Зберегти», щоб вони пішли на сайт');
+          },
+          gdSave: async () => {
+            if (this.state.gdBusy) return;
+            const out = fromDraft(d);
+            if (!out.sections.length) { this._toast('✗ Потрібен хоча б один розділ із назвою'); return; }
+            const json = JSON.stringify(out);
+            this.setState({ gdBusy: true });
+            try {
+              await this._upsertSetting('guide_content', json);
+              this._setSite('guide_content', json);
+              localStorage.setItem('aurelion-refresh', Date.now().toString());
+              this.setState({ gdDraft: null, gdBusy: false, gdAsk: null });
+              this._toast('✓ Путівник збережено');
+            } catch (ex) {
+              this.setState({ gdBusy: false });
+              this._toast('✗ Не вдалося зберегти: ' + String(ex.message || ex).slice(0, 120));
             }
           },
         };

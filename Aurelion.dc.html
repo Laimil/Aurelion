@@ -429,6 +429,7 @@ a:hover{color:#a8c4f7;}
      \u0433\u043e\u0440\u0442\u0430\u043d\u043d\u0456 \u0441\u0442\u0440\u0456\u0447\u043a\u0438, \u043d\u0456 \u043d\u0430 \u043f\u0435\u0440\u0435\u0445\u043e\u0434\u0456 \u0432 \u0456\u043d\u0448\u0438\u0439 \u0440\u043e\u0437\u0434\u0456\u043b. -->
 <script src="./au-player.js"></script>
 <script src="./turns.js"></script>
+<script src="./guide-content.js"></script>
 </helmet>
 
 <dc-import name="Familiar" variant="peek" hint-size="0px,0px"></dc-import>
@@ -467,7 +468,7 @@ a:hover{color:#a8c4f7;}
 </sc-if>
 <!-- ═══ ПУТІВНИК ═══ язичок «? Що тут» + шторка (Guide.dc.html). Вмикається в адмінці
      («Налаштування» → Путівник, site_settings.guide_on); адміни бачать його завжди. -->
-<dc-import name="Guide" on="{{ guideOn }}" admin="{{ siteAdmin }}" page="{{ navPage }}" mode="{{ navCharMode }}" signed="{{ signedIn }}" hint-size="100%,0px"></dc-import>
+<dc-import name="Guide" on="{{ guideOn }}" content="{{ guideContent }}" admin="{{ siteAdmin }}" page="{{ navPage }}" mode="{{ navCharMode }}" signed="{{ signedIn }}" hint-size="100%,0px"></dc-import>
 
 <!-- Вушко аудіотеки: музику слухають фоном, тому вхід до неї має бути
      з будь-якої сторінки, а не лише з меню. -->
@@ -10206,6 +10207,7 @@ class Component extends DCLogic {
       siteAdmin: !!s.siteAdmin,
       chronOn,
       guideOn: String((data.site || {}).guide_on || '') === '1',
+      guideContent: String((data.site || {}).guide_content || ''),
       guideEntry: String((data.site || {}).guide_on || '') === '1' || !!s.siteAdmin,
       navPage: page,
       navCharMode: s.charMode || 'gallery',
