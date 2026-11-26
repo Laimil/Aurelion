@@ -248,7 +248,7 @@ const LOOKK = ['acc', 'place', 'col', 'iris', 'toy'];
 // Каталог для демо; на сайті склад, ціни й порядок приходять з familiar_items (supabase_familiar_shop_migration.sql).
 const DEMO_CATALOG = [
   ['glasses', 'perm', 'acc', 'glasses', 'Окуляри', 20], ['scarf', 'perm', 'acc', 'scarf', 'Шарф', 25], ['books', 'perm', 'place', 'books', 'Стос книжок', 30], ['basket', 'perm', 'place', 'basket', 'Кошик', 35], ['mint', 'perm', 'col', '#a8e6c1', 'Хутро «Мʼята»', 30], ['amber', 'perm', 'iris', '#c8794a', 'Очі «Бурштин»', 20], ['star', 'perm', 'toy', 'star', 'Зірочки', 20], ['t1', 'perm', 'title', 'Охоронець штампу', '«Охоронець штампу»', 10],
-  ['b_lesta', 'perm', 'bless', 'lesta', 'Благословення: Леста', 60], ['b_nokta', 'perm', 'bless', 'nokta', 'Благословення: Нокта', 60], ['b_konk', 'perm', 'bless', 'konk', 'Благословення: Конкорфату', 60], ['b_flor', 'perm', 'bless', 'flor', 'Благословення: Флоріана', 60], ['b_ark', 'perm', 'bless', 'ark', 'Благословення: Арканія', 60],
+  ['b_lesta', 'perm', 'bless', 'lesta', 'Благословення: Леста', 15], ['b_nokta', 'perm', 'bless', 'nokta', 'Благословення: Нокта', 10], ['b_konk', 'perm', 'bless', 'konk', 'Благословення: Конкорфату', 10], ['b_flor', 'perm', 'bless', 'flor', 'Благословення: Флоріана', 10], ['b_ark', 'perm', 'bless', 'ark', 'Благословення: Арканія', 15],
   ['horns', 'pool', 'acc', 'horns', 'Ріжки', 30], ['candle', 'pool', 'place', 'candle', 'Свічка', 25], ['crimson', 'pool', 'col', '#9c4f63', 'Хутро «Багрянець»', 35], ['copper', 'pool', 'col', '#c8794a', 'Хутро «Мідь»', 35], ['ember', 'pool', 'col', '#ff7a45', 'Хутро «Жар»', 40], ['moss', 'pool', 'iris', '#5e9a8f', 'Очі «Мох»', 20], ['note', 'pool', 'toy', 'note', 'Дзвіночок', 20], ['yarn', 'pool', 'toy', 'yarn', 'Клубок', 25], ['moth', 'pool', 'toy', 'moth', 'Метелики', 25], ['lamp', 'pool', 'bg', 'lamp', 'Лампа рецепції', 30], ['night', 'pool', 'bg', 'night', 'Нічне вікно', 30], ['garden', 'pool', 'bg', 'garden', 'Сад', 40], ['archive', 'pool', 'bg', 'archive', 'Архів', 40], ['snow', 'pool', 'bg', 'snow', 'Зимове вікно', 35], ['t2', 'pool', 'title', 'Гроза мишей', '«Гроза мишей»', 10], ['t3', 'pool', 'title', 'Нічний вартовий', '«Нічний вартовий»', 15], ['t4', 'pool', 'title', 'Улюбленець рецепції', '«Улюбленець рецепції»', 25], ['t6', 'pool', 'title', 'Тінь за шафою', '«Тінь за шафою»', 20], ['t7', 'pool', 'title', 'Перший у черзі', '«Перший у черзі»', 15],
   ['throne', 'rare', 'place', 'throne', 'Трон', 70], ['halo', 'rare', 'acc', 'halo', 'Ореол', 55], ['t5', 'rare', 'title', 'Той, хто бачив Нокту', '«Той, хто бачив Нокту»', 40], ['ash', 'rare', 'col', '#2b2540', 'Хутро «Попіл»', 50], ['monocle', 'rare', 'acc', 'monocle', 'Монокль', 45], ['chest', 'rare', 'place', 'chest', 'Скриня', 55], ['amethyst', 'rare', 'iris', '#9b5de5', 'Очі «Аметист»', 40], ['moon', 'rare', 'bg', 'moon', 'Місячна ніч', 45],
   ['hearth', 'perm', 'bg', 'hearth', 'Камін', 35], ['rain', 'perm', 'bg', 'rain', 'Дощ за вікном', 30], ['sea', 'perm', 'bg', 'sea', 'Глибина', 35], ['sunset', 'perm', 'bg', 'sunset', 'Захід над дахами', 40], ['candles', 'perm', 'bg', 'candles', 'Свічки рецепції', 35], ['fireflies', 'perm', 'bg', 'fireflies', 'Світлячки', 40],
@@ -278,9 +278,9 @@ const RARE_SAYS = [
 ];
 const FALLBACK_BG = { none: '#1a1a1a' };
 const FALLBACK_GODS = {
-  lesta: ['Леста', '#ffd76b', 'Розвідка повертається за дві години, а не за три.'], nokta: ['Нокта', '#6b6fae', 'Засинає лише після трьох тижнів тиші, а не двох.'],
-  konk: ['Конкорфату', '#9c4f63', 'З розвідки частіше приносить цитати, ніж ґудзики.'], flor: ['Флоріана', '#5e9a8f', 'Кожен пʼятий допис дає зайве зернятко.'],
-  ark: ['Арканія', '#b8bcc8', 'На розвідку можна раз на 14 годин, а не на 20.'],
+  lesta: ['Леста', '#ffd76b', '5 розвідок: повертається за дві години, а не за три.'], nokta: ['Нокта', '#6b6fae', '30 днів: засинає лише після трьох тижнів тиші, а не двох.'],
+  konk: ['Конкорфату', '#9c4f63', '5 розвідок: частіше приносить цитати.'], flor: ['Флоріана', '#5e9a8f', '20 дописів: кожен дає два зернятка, а не одне.'],
+  ark: ['Арканія', '#b8bcc8', '5 розвідок: після кожної знову можна йти через 14 годин, а не 20.'],
 };
 const HELLO = 'Прилавок відчинено. Платять тут зернятками: гривні не беру, їх нема куди записати.';
 const KIND_LINE = {
@@ -336,7 +336,7 @@ class Component extends DCLogic {
     const total = this.props.posts ?? 186, abs = absOf(new Date());
     return { name: 'Іскра', total, spent: 120, bonus: 0, balance: total - 120, linked: true, deposit: 5,
       look: { sp: 'cat', eyeSt: 'round', iris: '#ffd700', pat: 'stripe', acc: 'glasses', place: 'pillow', col: '#d0caff' }, base: { acc: 'hat' },
-      equip: { title: 'Охоронець штампу' }, bless: { g: 'lesta', until: new Date(Date.now() + 5 * 86400000).toISOString() },
+      equip: { title: 'Охоронець штампу' }, bless: { g: 'lesta', until: '9999-12-31T00:00:00Z', n: 3, unit: 'scout' },
       owned: ['glasses', 't1', 'b_lesta', 'night'], reserved: ['throne'], catalog: DEMO_CATALOG, plans: [],
       week: shelfAt(DEMO_CATALOG, [], abs, 5) };
   }
@@ -348,7 +348,7 @@ class Component extends DCLogic {
     if (op === 'buy') {
       if (d.balance < cost) return { error: 'short', need: cost - d.balance };
       d.spent += cost; d.balance -= cost;
-      if (it.kind === 'bless') d.bless = { g: it.val, until: new Date(Date.now() + 7 * 86400000).toISOString() };
+      if (it.kind === 'bless') { const N = { nokta: 30, flor: 20 }[it.val] || 5, unit = it.val === 'nokta' ? 'day' : it.val === 'flor' ? 'post' : 'scout'; d.bless = d.bless && d.bless.g === it.val ? { ...d.bless, n: (d.bless.n || 0) + N } : { g: it.val, until: '9999-12-31T00:00:00Z', n: N, unit }; }
       else { d.owned.push(it.id); d.reserved = d.reserved.filter(x => x !== it.id); if (LOOKK.includes(it.kind)) { keep(); d.look[it.kind] = it.val; } else d.equip[it.kind] = it.val; }
     } else if (op === 'reserve') {
       if (d.balance < d.deposit) return { error: 'short', need: d.deposit - d.balance };
@@ -418,6 +418,7 @@ class Component extends DCLogic {
     const onSale = new Set([...(sh.vitrine || []), sh.rare].filter(Boolean));
     const bl = d.bless && GODS[d.bless.g] ? d.bless : null;
     const blDays = bl ? Math.max(1, Math.ceil((new Date(bl.until) - Date.now()) / 86400000)) : 0;
+    const blLeft = bl ? (F.blessLeft ? F.blessLeft(bl) : `ще ${blDays} дн.`) : '';
     const equipped = it => it.kind === 'bless' ? !!(bl && bl.g === it.val) : LOOKK.includes(it.kind) ? d.look[it.kind] === it.val : d.equip[it.kind] === it.val;
     const cost = it => it.price - (reserved.has(it.id) ? dep : 0);
     const sale = it => it.tier === 'perm' || onSale.has(it.id);
@@ -430,7 +431,7 @@ class Component extends DCLogic {
         bg: it.kind === 'bg' ? (BG[it.val] || BG.none) : '#1a1a1a',
         glow: isB && GODS[it.val] ? `inset 0 0 0 1px ${GODS[it.val][1]}, inset 0 0 26px ${GODS[it.val][1]}55` : 'none',
         bd: s.sel === it.id ? '#ffd700' : eq || res ? 'rgba(255,215,0,0.45)' : 'rgba(255,255,255,0.12)',
-        price: eq ? (isB ? `Діє · ще ${blDays} дн.` : 'Вдягнено') : own && !isB ? 'Куплено' : res ? `Відкладено · ${SEED(c)}` : SEED(c),
+        price: eq ? (isB ? `Діє · ${blLeft}` : 'Вдягнено') : own && !isB ? 'Куплено' : res ? `Відкладено · ${SEED(c)}` : SEED(c),
         priceC: eq || res ? '#ffd700' : own && !isB ? 'rgba(255,255,255,0.7)' : short ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.75)',
         on: () => this.setState({ sel: s.sel === it.id ? null : it.id, say: it.tier === 'rare' ? RARE_SAYS[abs % RARE_SAYS.length] : KIND_LINE[it.kind] || s.say, tag: '— М.' }),
       };
@@ -475,9 +476,10 @@ class Component extends DCLogic {
       const own = owned.has(it.id), eq = equipped(it), isB = it.kind === 'bless', c = cost(it), short = bal < c, res = reserved.has(it.id), ok = sale(it);
       let label, off = s.busy, gold = true, act = null;
       if (isB) {
-        if (eq) { label = `Діє ще ${blDays} дн.`; off = true; gold = false; }
-        else if (short) { label = `Бракує ${SEED(c - bal)}`; off = true; gold = false; }
-        else { label = bl ? `Замінити за ${SEED(c)}` : `Попросити за ${SEED(c)}`; act = () => this._do('buy', it, `Передала. ${GODS[it.val][0]} тепер дивиться на ${famName} тиждень. Що буде потім, вирішує не рецепція.`); }
+        const more = it.val === 'nokta' ? 'ще 30 днів' : it.val === 'flor' ? 'ще 20 дописів' : 'ще 5 розвідок';
+        if (short) { label = `Бракує ${SEED(c - bal)}`; off = true; gold = false; }
+        else if (eq) { label = `Додати ${more} за ${SEED(c)}`; act = () => this._do('buy', it, `Доклала: ${GODS[it.val][0]} дивиться на ${famName} ${more} понад те, що вже було.`); }
+        else { label = bl ? `Замінити за ${SEED(c)}` : `Попросити за ${SEED(c)}`; act = () => this._do('buy', it, `Передала. ${GODS[it.val][0]} тепер дивиться на ${famName}: ${GODS[it.val][2].split(':')[0]}. Що буде потім, вирішує не рецепція.`); }
       } else if (!own) {
         if (!ok) { label = 'Не цього тижня'; off = true; gold = false; }
         else if (short) { label = `Бракує ${SEED(c - bal)}`; off = true; gold = false; }
@@ -487,7 +489,7 @@ class Component extends DCLogic {
         act = () => this._do(eq ? 'off' : 'on', it, eq ? 'Зняла й поклала в шухляду. Нікуди не дінеться.' : 'Вдягнула. Сидить рівно, я поправила.');
       }
       const godNote = isB && GODS[it.val] ? GODS[it.val][2] : '';
-      const note = [NOTES[it.id], godNote, isB && bl && !eq ? `Замінить благословення: ${GODS[bl.g][0]}.` : '',
+      const note = [NOTES[it.id], godNote, isB && eq ? `Зараз діє: ${blLeft}. Купівля додасть до цього.` : '', isB && bl && !eq ? `Замінить благословення: ${GODS[bl.g][0]} (${blLeft} згорить).` : '',
         res ? `Відкладено для вас: завдаток ${dep} уже в ціні.` : '',
         !own && it.tier === 'rare' ? 'З-під прилавка: повернеться не раніше ніж через 8 тижнів.' : !own && it.tier === 'pool' ? 'Вітрина тижня: потім піде в шафу.' : ''].filter(Boolean).join(' ');
       Object.assign(out, {
