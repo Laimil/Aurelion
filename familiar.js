@@ -3,7 +3,7 @@
 // Усе в AuFamiliar на window (браузер) або globalThis (Deno); жодних залежностей.
 (function (root) {
   // Версія: стара копія з кешу браузера не має блокувати нову (раніше тут стояв голий return).
-  const V = 5;
+  const V = 6;
   if (root.AuFamiliar && root.AuFamiliar.v >= V) return;
 
   const SP = [['cat', 'Кіт'], ['owl', 'Сова'], ['crow', 'Крук'], ['fox', 'Лис'], ['dragon', 'Дракончик'], ['slime', 'Слиз']];
@@ -38,12 +38,22 @@
     snow: 'radial-gradient(ellipse 70% 55% at 50% 0%,rgba(214,219,227,0.26),rgba(20,22,26,0) 70%),#15171b',
   };
   const GODS = {
-    lesta: ['Леста', '#ffd76b', 'Розвідка повертається за дві години, а не за три.'],
-    nokta: ['Нокта', '#6b6fae', 'Засинає лише після трьох тижнів тиші, а не двох.'],
-    konk: ['Конкорфату', '#9c4f63', 'З розвідки частіше приносить цитати, ніж ґудзики.'],
-    flor: ['Флоріана', '#5e9a8f', 'Кожен пʼятий допис дає зайве зернятко.'],
-    ark: ['Арканія', '#b8bcc8', 'На розвідку можна раз на 14 годин, а не на 20.'],
+    // Благословення — на заряди (supabase_familiar_bless_charges_migration.sql); Нокта — на 30 днів.
+    lesta: ['Леста', '#ffd76b', '5 розвідок: повертається за дві години, а не за три.'],
+    nokta: ['Нокта', '#6b6fae', '30 днів: засинає лише після трьох тижнів тиші, а не двох.'],
+    konk: ['Конкорфату', '#9c4f63', '5 розвідок: частіше приносить цитати.'],
+    flor: ['Флоріана', '#5e9a8f', '20 дописів: кожен дає два зернятка, а не одне.'],
+    ark: ['Арканія', '#b8bcc8', '5 розвідок: після кожної знову можна йти через 14 годин, а не 20.'],
   };
+  // «ще 3 розвідки» / «ще 12 дописів» / «ще 28 днів» — з bless {n, unit} або, для старих даних, з until.
+  const plural = (n, one, few, many) => { const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many; };
+  function blessLeft(b) {
+    if (!b) return '';
+    if (b.unit === 'scout') return `ще ${b.n} ${plural(b.n, 'розвідка', 'розвідки', 'розвідок')}`;
+    if (b.unit === 'post') return `ще ${b.n} ${plural(b.n, 'допис', 'дописи', 'дописів')}`;
+    const d = b.n || Math.max(1, Math.ceil((new Date(b.until) - Date.now()) / 86400000));
+    return `ще ${d} ${plural(d, 'день', 'дні', 'днів')}`;
+  }
   // Ті самі фони для PNG бота: радіальне світло поверх тла, у клітинках спрайта (пікселізовано, як сам фамільяр).
   // cx, cy, rx, ry — частки кадру, як у CSS вище; a — непрозорість світла в центрі; згасає до 72% радіуса.
   const BG_PX = {
@@ -360,5 +370,5 @@
     return { ...base, eyes: blink ? 'closed' : 'open', bob: t % 2 };
   }
 
-  root.AuFamiliar = { v: V, draw, pixels, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK, SHOP_ACC, SHOP_PL, SHOP_COLS, SHOP_IRIS, TOYS, BG, GODS, glow, BG_PX, bgPixel };
+  root.AuFamiliar = { v: V, draw, pixels, frame, clean, random, SP, EYE, PAT, ACC, PL, COLS, IRIS, SHELL, SPOT, DEFAULT_LOOK, SHOP_ACC, SHOP_PL, SHOP_COLS, SHOP_IRIS, TOYS, BG, GODS, glow, BG_PX, bgPixel, blessLeft };
 })(typeof window !== 'undefined' ? window : globalThis);
