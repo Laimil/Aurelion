@@ -279,7 +279,7 @@ class Component extends DCLogic {
       if (this.state.data) return;
       const d = { fam: { name: 'Іскра', look: { sp: 'cat', eyeSt: 'round', iris: '#ffd700', pat: 'stripe', acc: 'hat', place: 'pillow', col: '#d0caff' }, peek: 'often', pets: 12, created_at: '2026-09-12T10:00:00Z' },
         linked: true, total: 46, stage: 2, state: 'awake', week: [{ name: 'Северин', n: 6 }, { name: 'Іда Трілл', n: 2 }], week_total: 8, scout: null,
-        shop: { equip: { title: 'Охоронець штампу', bg: 'night' }, balance: 66, bless: { g: 'lesta', until: new Date(Date.now() + 5 * 86400000).toISOString() }, owned: [{ k: 'acc', v: 'glasses' }, { k: 'col', v: '#a8e6c1' }] } };
+        shop: { equip: { title: 'Охоронець штампу', bg: 'night' }, balance: 66, bless: { g: 'lesta', until: '9999-12-31T00:00:00Z', n: 3, unit: 'scout' }, owned: [{ k: 'acc', v: 'glasses' }, { k: 'col', v: '#a8e6c1' }] } };
       this.setState({ phase: 'ok', data: d, name: d.fam.name });
       return;
     }
@@ -536,7 +536,7 @@ class Component extends DCLogic {
       balanceText: shop ? seeds(Number(shop.balance) || 0) : '', hasShop: !!shop, toShop: () => this.setState({ tab: 'shop' }),
       mainBg: (F.BG && F.BG[eqp.bg]) || (F.BG && F.BG.none) || '#1a1a1a', mainGlow: F.glow ? F.glow(bl && bl.g) : '0 12px 34px rgba(0,0,0,0.42)',
       hasTitle: !!eqp.title, titleText: eqp.title || '',
-      hasBless: !!god, blessCol: god ? god[1] : '#fff', blessHead: god ? `✦ Благословення: ${god[0]} · ще ${blDays} дн.` : '', blessPerk: god ? god[2] : '',
+      hasBless: !!god, blessCol: god ? god[1] : '#fff', blessHead: god ? `✦ Благословення: ${god[0]} · ${F.blessLeft ? F.blessLeft(bl) : `ще ${blDays} дн.`}` : '', blessPerk: god ? god[2] : '',
     });
     if (tab === 'shop') return out;
     Object.assign(out, {
