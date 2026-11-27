@@ -38,6 +38,16 @@
     .at-area.r{letter-spacing:0.36em;color:rgba(255,232,190,0.62)}
     .at-area.on{color:#fff}
     .at-area small{display:block;font-size:0.5em;letter-spacing:0.25em;font-weight:400;opacity:0.7}
+    /* межі й зони: один SVG у шарі світу — рухається разом із мапою, під час жесту не перемальовується */
+    .at-svg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+    .at-area.z{font-weight:700;letter-spacing:0.22em;font-style:italic;opacity:0.9}
+    .at-area.z.on{opacity:1}
+    .at-layers{display:flex;margin:0 12px 8px;border:1px solid rgba(255,255,255,0.14);border-radius:9px;overflow:hidden;flex:none}
+    .at-layers button{flex:1;background:none;border:none;color:rgba(255,255,255,0.6);font-size:0.66rem;padding:7px 4px;cursor:pointer}
+    .at-layers button[data-on="true"]{background:rgba(255,215,107,0.14);color:#ffd76b}
+    .at-sw{width:14px;height:14px;border-radius:4px;flex:none;border:1.5px solid}
+    .at-eye{flex:none;width:22px;text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.5);cursor:pointer;border-radius:5px;padding:2px 0}
+    .at-eye:hover{background:rgba(255,255,255,0.08);color:#fff}
     .at-ghost{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:3px;z-index:6;pointer-events:none}
     .at-ghost .at-ico{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px dashed #6ec0b0;background:rgba(110,192,176,0.3);box-shadow:0 0 0 7px rgba(110,192,176,0.16)}
     .at-ghost .at-lbl{color:#bfeee5}
@@ -149,9 +159,21 @@
     <img src="{{ mapUrl }}" alt="Мапа світу Ауреліону" onLoad="{{ imgLoad }}" draggable="false" />
     <span class="at-edge l"></span><span class="at-edge r"></span><span class="at-edge t"></span><span class="at-edge b"></span>
   </div>
+  <sc-if value="{{ shOn }}" hint-placeholder-val="{{ false }}">
+    <svg class="at-svg" style="left:{{ shX }}px;top:{{ shY }}px;" width="{{ shW }}" height="{{ shH }}">
+      <defs>
+        <sc-for list="{{ hatches }}" as="h" hint-placeholder-count="0">
+          <pattern id="{{ h.id }}" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="9" fill="{{ h.col }}" opacity="0.5"></rect></pattern>
+        </sc-for>
+      </defs>
+      <sc-for list="{{ shapes }}" as="g" hint-placeholder-count="0">
+        <polygon points="{{ g.pts }}" fill="{{ g.fill }}" stroke="{{ g.col }}" stroke-width="{{ g.sw }}" stroke-dasharray="{{ g.dash }}" stroke-linejoin="round" opacity="{{ g.op }}"></polygon>
+      </sc-for>
+    </svg>
+  </sc-if>
 
   <sc-for list="{{ areas }}" as="a" hint-placeholder-count="0">
-    <div class="{{ a.cls }}" style="left:{{ a.sx }}px;top:{{ a.sy }}px;font-size:{{ a.fs }};" data-id="{{ a.id }}" onPointerDown="{{ stop }}" onClick="{{ pick }}">{{ a.name }}<small>{{ a.sub }}</small></div>
+    <div class="{{ a.cls }}" style="left:{{ a.sx }}px;top:{{ a.sy }}px;font-size:{{ a.fs }};color:{{ a.col }};" data-id="{{ a.id }}" onPointerDown="{{ stop }}" onClick="{{ pick }}">{{ a.name }}<small>{{ a.sub }}</small></div>
   </sc-for>
   <sc-for list="{{ pins }}" as="p" hint-placeholder-count="0">
     <div class="{{ p.cls }}" style="left:{{ p.sx }}px;top:{{ p.sy }}px;" data-id="{{ p.id }}" onPointerDown="{{ stop }}" onClick="{{ p.click }}" title="{{ p.name }}">
@@ -181,6 +203,9 @@
     <div class="at-chips">
       <sc-for list="{{ kchips }}" as="k" hint-placeholder-count="4"><button class="at-chip" data-k="{{ k.k }}" data-on="{{ k.on }}" onClick="{{ setKind }}">{{ k.label }}</button></sc-for>
     </div>
+    <div class="at-layers">
+      <sc-for list="{{ layers }}" as="g" hint-placeholder-count="3"><button data-k="{{ g.k }}" data-on="{{ g.on }}" onClick="{{ setLayer }}">{{ g.label }}</button></sc-for>
+    </div>
     <div class="at-list">
       <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ false }}">
         <div class="at-grp" style="color:rgba(110,192,176,0.8);">Мої заявки</div>
@@ -190,13 +215,25 @@
             <sc-if value="{{ m.hasNote }}" hint-placeholder-val="{{ false }}"><span class="at-note">ГМ: «{{ m.note }}»</span></sc-if>
           </button>
         </sc-for>
-        <div class="at-grp">Світ</div>
       </sc-if>
+      <sc-if value="{{ hasZones }}" hint-placeholder-val="{{ false }}">
+        <div class="at-grp">Зони впливу · {{ zCount }}</div>
+        <sc-for list="{{ zrows }}" as="z" hint-placeholder-count="0">
+          <button class="at-tr p" style="padding-left:12px;" data-id="{{ z.id }}" data-on="{{ z.on }}" onClick="{{ pick }}">
+            <span class="at-sw" style="background:{{ z.fill }};border-color:{{ z.col }};"></span>
+            <span style="min-width:0;display:flex;flex-direction:column;"><span class="nm">{{ z.name }}</span></span>
+            <span class="cnt">{{ z.cnt }}</span>
+            <span class="at-eye" data-id="{{ z.id }}" onClick="{{ toggleVis }}" title="Сховати / показати на мапі">{{ z.eye }}</span>
+          </button>
+        </sc-for>
+      </sc-if>
+      <sc-if value="{{ worldHdr }}" hint-placeholder-val="{{ false }}"><div class="at-grp">Світ</div></sc-if>
       <sc-for list="{{ rows }}" as="t" hint-placeholder-count="0">
         <button class="{{ t.cls }}" style="padding-left:{{ t.pad }};" data-id="{{ t.id }}" data-on="{{ t.on }}" onClick="{{ pick }}">
           <sc-if value="{{ t.isPlace }}" hint-placeholder-val="{{ true }}"><span class="at-dot" style="background:{{ t.color }};">{{ t.svgSm }}</span></sc-if>
           <span style="min-width:0;display:flex;flex-direction:column;"><span class="nm">{{ t.name }}</span><sc-if value="{{ t.hasSub }}" hint-placeholder-val="{{ false }}"><span class="sb">{{ t.sub }}</span></sc-if></span>
           <span class="cnt">{{ t.cnt }}</span>
+          <sc-if value="{{ t.hasEye }}" hint-placeholder-val="{{ false }}"><span class="at-eye" data-id="{{ t.id }}" onClick="{{ toggleVis }}" title="Сховати / показати межу">{{ t.eye }}</span></sc-if>
         </button>
       </sc-for>
       <sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}"><p class="at-empty">{{ emptyText }}</p></sc-if>
@@ -225,6 +262,9 @@
         </sc-if>
         <sc-if value="{{ c.hasKids }}" hint-placeholder-val="{{ false }}">
           <div><span class="at-fl">{{ c.kidsL }}</span><div class="at-kids"><sc-for list="{{ c.kids }}" as="k" hint-placeholder-count="0"><button data-id="{{ k.id }}" onClick="{{ pick }}">{{ k.name }}</button></sc-for></div></div>
+        </sc-if>
+        <sc-if value="{{ c.hasZones }}" hint-placeholder-val="{{ false }}">
+          <div><span class="at-fl">Під впливом</span><div class="at-kids"><sc-for list="{{ c.zones }}" as="k" hint-placeholder-count="0"><button data-id="{{ k.id }}" onClick="{{ pick }}" style="border-color:{{ k.col }};color:{{ k.col }};">{{ k.name }}</button></sc-for></div></div>
         </sc-if>
         <sc-if value="{{ c.hasChars }}" hint-placeholder-val="{{ false }}">
           <div><span class="at-fl">Персонажі</span><div class="at-chars"><sc-for list="{{ c.chars }}" as="h" hint-placeholder-count="0"><a href="{{ h.href }}"><span class="at-av" style="{{ h.avStyle }}">{{ h.ini }}</span>{{ h.name }}</a></sc-for></div></div>
@@ -293,6 +333,14 @@ const KIND_ORDER = ['country', 'region', 'capital', 'city', 'fort', 'ruin'];
 const kindOf = (n) => (KINDS[n && n.location_type] ? n.location_type : 'city');
 const isArea = (k) => k === 'country' || k === 'region';
 const ST_L = { pending: 'на розгляді', accepted: 'прийнято', returned: 'повернуто' };
+// ── геометрія контурів (усе у відсотках мапи) ──
+const ptsOf = (sh) => { const p = Array.isArray(sh) ? sh : sh && Array.isArray(sh.p) ? sh.p : []; return p.filter((q) => Array.isArray(q) && isFinite(q[0]) && isFinite(q[1])).map((q) => [+q[0], +q[1]]); };
+const pip = (x, y, P) => { let o = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, yi] = P[i], [xj, yj] = P[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) o = !o; } return o; };
+const pArea = (P) => { let a = 0; for (let i = 0, j = P.length - 1; i < P.length; j = i++) a += (P[j][0] + P[i][0]) * (P[j][1] - P[i][1]); return Math.abs(a / 2); };
+const pMid = (P) => { let a = 0, cx = 0, cy = 0; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const f = P[j][0] * P[i][1] - P[i][0] * P[j][1]; a += f; cx += (P[j][0] + P[i][0]) * f; cy += (P[j][1] + P[i][1]) * f; }
+  if (Math.abs(a) < 1e-6) { const n = P.length || 1; return [P.reduce((s, q) => s + q[0], 0) / n, P.reduce((s, q) => s + q[1], 0) / n]; } return [cx / (3 * a), cy / (3 * a)]; };
+const overlap = (A, B) => A.some(([x, y]) => pip(x, y, B)) || B.some(([x, y]) => pip(x, y, A));
+const LAYERS = [['countries', 'Країни'], ['zones', 'Зони впливу'], ['none', 'Без меж']];
 const MQ = () => window.matchMedia && window.matchMedia('(max-width:880px)').matches;
 
 class Component extends DCLogic {
@@ -302,7 +350,8 @@ class Component extends DCLogic {
   constructor(p) {
     super(p);
     this.state = { tx: 0, ty: 0, sc: 0.2, fit: 0.2, iw: 0, ih: 0, sel: '', q: '', kf: '', sideOpen: false,
-      mode: 'view', draft: null, busy: false, upBusy: false, mine: [], toast: '', askWd: false };
+      mode: 'view', draft: null, busy: false, upBusy: false, mine: [], toast: '', askWd: false,
+      zones: [], layer: (() => { try { return localStorage.getItem('au_atlas_layer') || 'countries'; } catch (e) { return 'countries'; } })(), hidden: {} };
     this._ptr = new Map();
   }
 
@@ -323,6 +372,7 @@ class Component extends DCLogic {
     this._resize = () => { if (this.state.iw) this._fit(true); };
     window.addEventListener('resize', this._resize);
     this._loadMine();
+    this._loadZones();
   }
   componentWillUnmount() {
     const el = this.rootRef.current;
@@ -359,6 +409,28 @@ class Component extends DCLogic {
       const r = await fetch(`${AT_URL}/place_proposals?select=*&user_id=eq.${uid}&order=created_at.desc`, { headers: this._h() });
       this.setState({ mine: r.ok ? await r.json() : [] });
     } catch (e) { this.setState({ mine: [] }); }
+  }
+
+  async _loadZones() {
+    try {
+      const r = await fetch(`${AT_URL}/map_zones?select=*&order=sort_order.asc,name.asc`, { headers: { apikey: AT_KEY, Authorization: 'Bearer ' + AT_KEY } });
+      const z = r.ok ? await r.json() : [];
+      this.setState({ zones: Array.isArray(z) ? z.filter((x) => ptsOf(x.shape).length >= 3) : [] });
+    } catch (e) { this.setState({ zones: [] }); }
+  }
+  _zone(id) { return (this.state.zones || []).find((z) => String(z.id) === String(id)) || null; }
+  _selectZone(z, fly) {
+    const P = ptsOf(z.shape), [cx, cy] = pMid(P);
+    this.setState({ sel: 'z:' + z.id, sideOpen: false, layer: 'zones' });
+    if (fly) this._flyTo({ x_percent: cx, y_percent: cy }, 1.4);
+    try { history.replaceState(null, '', '#map'); } catch (e) {}
+  }
+  // клік по порожній мапі: якщо влучили в контур видимого шару — вибираємо найменший
+  _hitShape(x, y) {
+    const s = this.state; let best = null, ba = 1e9;
+    if (s.layer === 'zones') for (const z of s.zones || []) { if (s.hidden['z:' + z.id]) continue; const P = ptsOf(z.shape); if (pip(x, y, P)) { const a = pArea(P); if (a < ba) { ba = a; best = { z }; } } }
+    if (s.layer === 'countries') for (const n of this._nodes()) { if (!isArea(kindOf(n)) || s.hidden[String(n.id)]) continue; const P = ptsOf(n.shape); if (P.length >= 3 && pip(x, y, P)) { const a = pArea(P); if (a < ba) { ba = a; best = { n }; } } }
+    return best;
   }
 
   // Тло: зменшуємо мапу до 48×36 один раз; розтягнута, вона й так розмита.
@@ -536,6 +608,12 @@ class Component extends DCLogic {
       this.setState((st) => ({ draft: { ...st.draft, x, y, parent_id: st.draft.parentTouched ? st.draft.parent_id : (st.draft.kind === 'country' ? '' : this._nearestParent(x, y)) } }));
       return;
     }
+    if (this.state.iw && this.state.layer !== 'none') {
+      const r = this.rootRef.current.getBoundingClientRect(); const p = this._toPct(e.clientX - r.left, e.clientY - r.top);
+      const h = this._hitShape(p.x, p.y);
+      if (h && h.z) { if (this.state.sel !== 'z:' + h.z.id) { this._selectZone(h.z, false); return; } }
+      else if (h && h.n) { if (this.state.sel !== String(h.n.id)) { this.setState({ sel: String(h.n.id), sideOpen: false }); try { history.replaceState(null, '', '#map/' + encodeURIComponent(h.n.id)); } catch (x) {} return; } }
+    }
     if (this.state.sel) { this.setState({ sel: '' }); try { history.replaceState(null, '', '#map'); } catch (x) {} }
   }
 
@@ -546,7 +624,7 @@ class Component extends DCLogic {
     const { tx, ty, sc, iw, ih, fit } = s;
     const scr = (n) => ({ sx: Math.round(tx + (n.x_percent / 100) * iw * sc), sy: Math.round(ty + (n.y_percent / 100) * ih * sc) });
     const z = fit ? sc / fit : 1;
-    const pick = (e) => { const n = by.get(String(e.currentTarget.dataset.id)); if (n) this._select(n); };
+    const pick = (e) => { const id = String(e.currentTarget.dataset.id || ''); if (id.startsWith('z:')) { const z = this._zone(id.slice(2)); if (z) this._selectZone(z, true); return; } const n = by.get(id); if (n) this._select(n); };
     const uid = String(P.userId || '');
     const mine = uid ? (s.mine || []).filter((m) => String(m.user_id) === uid) : [];
     const mineByLoc = new Map(mine.filter((m) => m.location_id).map((m) => [String(m.location_id), m]));
@@ -559,9 +637,39 @@ class Component extends DCLogic {
     }).map((n) => {
       const k = kindOf(n), p = scr(n), c = k === 'country';
       const fs = c ? Math.max(0.95, Math.min(1.8, 0.8 + z * 0.25)) : Math.max(0.66, Math.min(1.05, 0.5 + z * 0.12));
-      return { key: n.id, id: n.id, ...p, name: String(n.name || '').toUpperCase(), sub: c ? 'країна' : '', fs: fs + 'rem',
+      return { key: n.id, id: n.id, ...p, name: String(n.name || '').toUpperCase(), sub: c ? 'країна' : '', fs: fs + 'rem', col: s.layer === 'zones' ? 'rgba(255,232,190,0.38)' : '',
         cls: 'at-area ' + (c ? 'c' : 'r') + (String(n.id) === s.sel ? ' on' : '') };
     }) : [];
+
+    // ── межі країн і зони впливу ──
+    // SVG завбільшки з мапу на екрані; точки — у пікселях, щоб штрихування й товщина ліній були сталими.
+    const shW = Math.max(1, Math.round(iw * sc)), shH = Math.max(1, Math.round(ih * sc));
+    const toPx = (P) => P.map(([x, y]) => (x * shW / 100).toFixed(1) + ',' + (y * shH / 100).toFixed(1)).join(' ');
+    const zonesAll = s.zones || [];
+    const selZ = s.sel.startsWith('z:') ? this._zone(s.sel.slice(2)) : null;
+    const shapes = [], hatches = [];
+    if (iw && s.layer === 'countries') {
+      const selN = !selZ && s.sel ? by.get(s.sel) : null;
+      const selC = selN ? [selN].concat(this._chain(selN)).find((x) => isArea(kindOf(x)) && ptsOf(x.shape).length >= 3) : null;
+      nodes.filter((n) => isArea(kindOf(n)) && !s.hidden[String(n.id)]).forEach((n) => {
+        const P = ptsOf(n.shape); if (P.length < 3) return;
+        const reg = kindOf(n) === 'region', col = (n.shape && n.shape.c) || KINDS[kindOf(n)].c, on = selC && String(selC.id) === String(n.id);
+        shapes.push({ key: n.id, pts: toPx(P), col, fill: col + (on ? '33' : reg ? '10' : '1a'), sw: on ? 2.4 : reg ? 1 : 1.5, dash: reg ? '3 4' : '7 5', op: selC && !on ? 0.6 : 1, a: pArea(P) });
+      });
+      shapes.sort((a, b) => b.a - a.a); // великі під малими
+    }
+    if (iw && s.layer === 'zones') {
+      zonesAll.filter((z) => !s.hidden['z:' + z.id]).forEach((z) => {
+        const P = ptsOf(z.shape), col = z.color || '#9b5de5', on = selZ && String(selZ.id) === String(z.id);
+        hatches.push({ key: z.id, id: 'atz_' + z.id, col });
+        shapes.push({ key: z.id, pts: toPx(P), col, fill: `url(#atz_${z.id})`, sw: on ? 2.6 : 1.6, dash: '', op: selZ && !on ? 0.45 : 1 });
+      });
+    }
+    if (iw && s.layer === 'zones' && z < 6) zonesAll.filter((zn) => !s.hidden['z:' + zn.id]).forEach((zn) => {
+      const [cx, cy] = pMid(ptsOf(zn.shape)), p = scr({ x_percent: cx, y_percent: cy }), on = selZ && String(selZ.id) === String(zn.id);
+      areas.push({ key: 'z' + zn.id, id: 'z:' + zn.id, ...p, name: String(zn.name || '').toUpperCase(), sub: 'зона впливу', col: zn.color || '#9b5de5',
+        fs: Math.max(0.72, Math.min(1.3, 0.62 + z * 0.16)) + 'rem', cls: 'at-area z' + (on ? ' on' : '') });
+    });
 
     // ── точки ──
     const pins = iw ? nodes.filter((n) => !isArea(kindOf(n))).map((n) => {
@@ -583,7 +691,8 @@ class Component extends DCLogic {
       const k = kindOf(n), area = isArea(k);
       return { key: n.id, id: n.id, name: n.name, pad: (12 + depth * 14) + 'px', on: String(n.id) === s.sel,
         cls: 'at-tr ' + (k === 'country' ? 'c' : k === 'region' ? 'r' : 'p'),
-        isPlace: !area, color: KINDS[k].c, svgSm: ico(k, 10), cnt: area ? String(this._count(n.id)) : '', sub: sub || '', hasSub: !!sub };
+        isPlace: !area, color: KINDS[k].c, svgSm: ico(k, 10), cnt: area ? String(this._count(n.id)) : '', sub: sub || '', hasSub: !!sub,
+        hasEye: s.layer === 'countries' && area && ptsOf(n.shape).length >= 3, eye: s.hidden[String(n.id)] ? '—' : '👁' };
     };
     let rows = [];
     if (q || s.kf) {
@@ -599,9 +708,21 @@ class Component extends DCLogic {
     }
 
     // ── картка ──
-    const n = s.sel ? by.get(s.sel) : null;
+    const n = s.sel && !selZ ? by.get(s.sel) : null;
     let c = {};
-    if (n) {
+    if (selZ) {
+      const P = ptsOf(selZ.shape), lore = this._lore(selZ.lore_id);
+      const facts = Array.isArray(lore && lore.facts) ? lore.facts.filter((f) => f && String(f.k || '').trim() && String(f.v || '').trim()).map((f, i) => ({ key: i, k: f.k, v: f.v })) : [];
+      const ex = String(selZ.description || (lore && lore.excerpt) || '').trim();
+      const touch = [];
+      nodes.filter((x) => kindOf(x) === 'country').forEach((x) => { const Q = ptsOf(x.shape); if (Q.length >= 3 ? overlap(P, Q) : pip(x.x_percent, x.y_percent, P)) touch.push(x); });
+      nodes.filter((x) => !isArea(kindOf(x)) && pip(x.x_percent, x.y_percent, P)).sort((a, b) => KIND_ORDER.indexOf(kindOf(a)) - KIND_ORDER.indexOf(kindOf(b)) || String(a.name).localeCompare(String(b.name), 'uk')).forEach((x) => touch.push(x));
+      c = { name: selZ.name, kindL: 'Зона впливу', color: selZ.color || '#9b5de5', cover: (lore && lore.cover) || '', hasCover: !!(lore && lore.cover),
+        path: [], hasPath: false, ex, hasEx: !!ex, facts, hasFacts: facts.length > 0,
+        kids: touch.slice(0, 40).map((x) => ({ key: x.id, id: x.id, name: x.name })), hasKids: touch.length > 0, kidsL: 'Зачіпає · ' + touch.length,
+        zones: [], hasZones: false, chars: [], hasChars: false, credit: '', hasCredit: false,
+        hasLore: !!lore, loreHref: lore ? '#lore/' + encodeURIComponent(lore.id) : '', isMine: false, mineId: '', mineSt: '' };
+    } else if (n) {
       const k = kindOf(n), lore = this._lore(n.lore_id), chain = this._chain(n);
       const facts = Array.isArray(lore && lore.facts) ? lore.facts.filter((f) => f && String(f.k || '').trim() && String(f.v || '').trim()).map((f, i) => ({ key: i, k: f.k, v: f.v })) : [];
       const ex = String((lore && lore.excerpt) || n.description || '').trim();
@@ -611,10 +732,15 @@ class Component extends DCLogic {
         key: ch.id, name: ch.name, href: '#characters/' + encodeURIComponent(ch.id), ini: String(ch.name || '?').slice(0, 1).toUpperCase(),
         avStyle: ch.image ? `background-image:url(${JSON.stringify(ch.image)});color:transparent;` : '' }));
       const mm = mineByLoc.get(String(n.id));
+      // у які зони впливу потрапляє: місто — точкою, країна/регіон — контуром (або точкою, якщо контуру нема)
+      const NP = ptsOf(n.shape);
+      const zin = zonesAll.filter((z) => { const P = ptsOf(z.shape); return isArea(k) && NP.length >= 3 ? overlap(P, NP) : pip(n.x_percent, n.y_percent, P); })
+        .map((z) => ({ key: z.id, id: 'z:' + z.id, name: z.name, col: z.color || '#9b5de5' }));
       c = { name: n.name, kindL: KINDS[k].l, color: KINDS[k].c, cover: (lore && lore.cover) || '', hasCover: !!(lore && lore.cover),
         path: chain.map((x, i) => ({ key: x.id, id: x.id, name: x.name, sep: i ? ' › ' : '' })), hasPath: chain.length > 0,
         ex, hasEx: !!ex, facts, hasFacts: facts.length > 0,
         kids, hasKids: kids.length > 0, kidsL: k === 'country' ? 'Що тут є · ' + this._count(n.id) : 'Тут · ' + kids.length,
+        zones: zin, hasZones: zin.length > 0,
         chars, hasChars: chars.length > 0, credit: n.credit || '', hasCredit: !!n.credit,
         hasLore: !!lore, loreHref: lore ? '#lore/' + encodeURIComponent(lore.id) : '',
         isMine: false, mineId: mm ? mm.id : '', mineSt: mm ? ST_L[mm.status] : '' };
@@ -648,6 +774,13 @@ class Component extends DCLogic {
       stop: (e) => e.stopPropagation(), stopWheel: (e) => e.stopPropagation(),
       pick, unpick: () => { this.setState({ sel: '' }); try { history.replaceState(null, '', '#map'); } catch (x) {} },
       areas, pins,
+      shOn: !!iw && shapes.length > 0, shX: Math.round(tx), shY: Math.round(ty), shW, shH, shapes, hatches,
+      layers: LAYERS.map(([k, label]) => ({ key: k, k, label, on: s.layer === k })),
+      setLayer: (e) => { const k = e.currentTarget.dataset.k; try { localStorage.setItem('au_atlas_layer', k); } catch (x) {} this.setState((st) => ({ layer: k, sel: st.sel.startsWith('z:') && k !== 'zones' ? '' : st.sel })); },
+      toggleVis: (e) => { e.stopPropagation(); const id = e.currentTarget.dataset.id; this.setState((st) => ({ hidden: { ...st.hidden, [id]: !st.hidden[id] } })); },
+      hasZones: s.layer === 'zones' && zonesAll.length > 0 && !q && !s.kf, zCount: String(zonesAll.length),
+      zrows: zonesAll.map((z) => { const col = z.color || '#9b5de5'; return { key: z.id, id: 'z:' + z.id, name: z.name, col, fill: col + '44', on: s.sel === 'z:' + z.id,
+        cnt: String(nodes.filter((x) => !isArea(kindOf(x)) && pip(x.x_percent, x.y_percent, ptsOf(z.shape))).length), eye: s.hidden['z:' + z.id] ? '—' : '👁' }; }),
       ghostOn: !!(proposing && s.draft.x != null && iw), ghostName: proposing ? (s.draft.name || 'нове місце') : '',
       ...(proposing && s.draft.x != null && iw ? (() => { const p = scr({ x_percent: s.draft.x, y_percent: s.draft.y }); return { ghostX: p.sx, ghostY: p.sy }; })() : { ghostX: 0, ghostY: 0 }),
       hintOn: !!(proposing && s.draft.x == null), hintText: 'Клацніть на мапі, де стоїть місце. Мапу можна тягати й наближати.',
@@ -660,7 +793,7 @@ class Component extends DCLogic {
       setKind: (e) => this.setState({ kf: e.currentTarget.dataset.k || '' }),
       rows, noRows: rows.length === 0,
       emptyText: q || s.kf ? 'Нічого не знайшлося.' : 'На мапі ще немає місць.',
-      hasMine: mine.length > 0,
+      hasMine: mine.length > 0, worldHdr: (mine.length > 0 || (s.layer === 'zones' && zonesAll.length > 0 && !q && !s.kf)) && rows.length > 0,
       mine: mine.map((m) => ({ key: m.id, id: m.id, name: m.name, status: m.status, stL: ST_L[m.status] || m.status, note: m.gm_note || '', hasNote: m.status === 'returned' && !!m.gm_note })),
       openMine: (e) => {
         const m = mine.find((x) => String(x.id) === String(e.currentTarget.dataset.id)); if (!m) return;
@@ -668,7 +801,7 @@ class Component extends DCLogic {
         this._openDraft(m);
       },
       canPropose, startPropose: () => this._openDraft(null),
-      cardOn: !!n && !proposing && !(s.sideOpen && MQ()), c,
+      cardOn: (!!n || !!selZ) && !proposing && !(s.sideOpen && MQ()), c,
       formOn: !!proposing, f, formTitle: proposing && s.draft.id ? 'Моя заявка' : 'Нове місце',
       cancelPropose: () => this.setState({ mode: 'view', draft: null, askWd: false }),
       fSet: (e) => { const k = e.currentTarget.dataset.k, v = e.target.value; setD({ [k]: v }); },

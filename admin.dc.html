@@ -3973,6 +3973,13 @@ input,textarea,select{font-size:16px}
       <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">◎ Атлас — місця на мапі</h2>
       <button onClick="{{ startAddMapPin }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.18);">+ Нове місце</button>
     </div>
+    <!-- Межі країн і зони впливу -->
+    <div style="margin-bottom:20px;border:1px solid rgba(255,215,107,0.22);border-radius:11px;background:rgba(255,215,107,0.03);">
+      <button onClick="{{ toggleShapes }}" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;color:#ffd76b;padding:11px 14px;cursor:pointer;font-size:0.84rem;text-align:left;"><span style="flex:1;">◇ Межі країн і зони впливу</span><span style="font-size:0.72rem;color:rgba(255,255,255,0.45);">{{ shapesToggleL }}</span></button>
+      <sc-if value="{{ shapesOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:4px 14px 16px;"><dc-import name="AtlasShapes" map-url="{{ adminMapImgSrc }}" locations="{{ shapesLocs }}" lore="{{ shapesLore }}" on-saved="{{ shapesSaved }}" hint-size="100%,700px"></dc-import></div>
+      </sc-if>
+    </div>
     <!-- Заявки гравців -->
     <sc-if value="{{ ppNoTable }}" hint-placeholder-val="{{ false }}">
       <p style="font-size:0.78rem;color:rgba(255,215,0,0.7);background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:10px 14px;margin-bottom:18px;">Країни, регіони й заявки гравців запрацюють після міграції <b>supabase_atlas_migration.sql</b>.</p>
@@ -11737,6 +11744,10 @@ class Component extends DCLogic {
           ppShowOn: !!show, ppShowX: show ? show.x_percent : 0, ppShowY: show ? show.y_percent : 0,
         };
       })(),
+      shapesOpen: !!s.shapesOpen, shapesToggleL: s.shapesOpen ? 'згорнути ▴' : 'малювати межі й зони ▾',
+      toggleShapes: () => this.setState(st => ({ shapesOpen: !st.shapesOpen })),
+      shapesLocs: s.data.map_locations || [], shapesLore: s.data.lore || [],
+      shapesSaved: this._shapesSaved || (this._shapesSaved = async () => { await this._refreshTable('map_locations'); }),
       adminMapHasPins: !!(s.data.map_locations || []).length,
       adminMapNoPins:  !(s.data.map_locations || []).length,
       adminMapPinCount: (s.data.map_locations || []).length,
