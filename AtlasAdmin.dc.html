@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    .aa{position:relative;display:flex;flex-direction:column;height:calc(100vh - 110px);min-height:560px;background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;color:#fff;font-family:Arial,sans-serif;text-align:left}
+    .aa *{box-sizing:border-box}
+    .aa-bar{flex:none;display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.08);background:#181818;flex-wrap:wrap}
+    .aa-ttl{font-family:'Cinzel',serif;font-size:0.95rem;color:#ffd700;letter-spacing:0.06em;margin:0}
+    .aa-tabs{display:flex;gap:2px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:2px}
+    .aa-tab{font-size:0.74rem;padding:6px 12px;border-radius:7px;color:rgba(255,255,255,0.6);background:none;border:none;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+    .aa-tab[data-on="true"]{background:rgba(255,215,107,0.14);color:#ffd76b}
+    .aa-badge{font-size:0.6rem;font-weight:700;background:#6ec0b0;color:#10201c;border-radius:999px;padding:1px 6px}
+    .aa-btn{font-size:0.72rem;padding:7px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.16);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.8);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+    .aa-btn:hover{background:rgba(255,255,255,0.08)}
+    .aa-btn[data-on="true"]{border-color:rgba(255,215,107,0.65);color:#ffd76b;background:rgba(255,215,107,0.08)}
+    .aa-btn[disabled]{opacity:0.4;cursor:default}
+    .aa-gold{background:#ffd700!important;color:#1a1a1a!important;border-color:#ffd700!important;font-weight:700}
+    .aa-teal{background:#6ec0b0!important;color:#10201c!important;border-color:#6ec0b0!important;font-weight:700}
+    .aa-red{color:#ff9a9a!important;border-color:rgba(255,77,77,0.35)!important}
+    .aa-menu{position:absolute;right:14px;top:50px;z-index:50;background:#1e1e1e;border:1px solid rgba(255,255,255,0.16);border-radius:10px;padding:5px;display:flex;flex-direction:column;min-width:210px;box-shadow:0 14px 34px rgba(0,0,0,0.6)}
+    .aa-mi{background:none;border:none;color:#fff;text-align:left;padding:9px 11px;border-radius:7px;font-size:0.8rem;cursor:pointer}
+    .aa-mi:hover{background:rgba(255,255,255,0.06)}
+    .aa-mi small{display:block;font-size:0.64rem;color:rgba(255,255,255,0.45);margin-top:2px}
+    .aa-panes{display:none}
+    .aa-body{flex:1;display:grid;grid-template-columns:250px minmax(0,1fr) 320px;min-height:0}
+
+    .aa-tree{border-right:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;min-height:0;background:#151515}
+    .aa-srch{margin:10px 10px 6px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:#fff;padding:0 10px;font-size:0.76rem;outline:none;width:calc(100% - 20px)}
+    .aa-filt{display:flex;gap:4px;flex-wrap:wrap;padding:0 10px 6px}
+    .aa-fc{font-size:0.62rem;padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);background:none;color:rgba(255,255,255,0.6);cursor:pointer}
+    .aa-fc[data-on="true"]{border-color:rgba(255,176,112,0.7);color:#ffb070;background:rgba(255,176,112,0.08)}
+    .aa-tl{flex:1;overflow-y:auto;padding-bottom:10px;overscroll-behavior:contain}
+    .aa-grp{font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.38);padding:10px 12px 4px;display:flex;justify-content:space-between;gap:6px}
+    .aa-row{display:flex;align-items:center;gap:8px;padding:5px 12px;font-size:0.77rem;cursor:pointer;border:none;background:none;color:#fff;width:100%;text-align:left;min-height:28px}
+    .aa-row:hover{background:rgba(255,255,255,0.04)}
+    .aa-row[data-on="true"]{background:rgba(255,215,107,0.1);box-shadow:inset 2px 0 0 #ffd76b}
+    .aa-nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .aa-nm.c{font-family:'Cinzel',serif;color:#ffd76b}
+    .aa-nm.r{font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.58)}
+    .aa-dot{width:10px;height:10px;border-radius:50%;flex:none}
+    .aa-sw{width:12px;height:12px;border-radius:3px;flex:none;border:1.5px solid}
+    .aa-ic{margin-left:auto;display:flex;gap:5px;font-size:0.62rem;color:rgba(255,255,255,0.35);flex:none}
+    .aa-w{color:#ffb070}
+    .aa-pp{margin:2px 10px;padding:7px 9px;border-radius:8px;border:1px solid rgba(110,192,176,0.3);background:rgba(110,192,176,0.05);font-size:0.74rem;display:flex;gap:7px;align-items:center;cursor:pointer;color:#fff;width:calc(100% - 20px);text-align:left}
+    .aa-pp[data-on="true"]{border-color:#6ec0b0;background:rgba(110,192,176,0.14)}
+    .aa-st{font-size:0.58rem;flex:none}
+    .aa-empty{font-size:0.74rem;color:rgba(255,255,255,0.4);padding:12px 14px;line-height:1.5;margin:0}
+
+    .aa-map{position:relative;overflow:hidden;background:#090810;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+    .aa-map[data-mode="draw"],.aa-map[data-mode="place"]{cursor:crosshair}
+    .aa-world{position:absolute;inset:0;transform-origin:0 0}
+    .aa-stage{position:absolute;left:0;top:0;transform-origin:0 0}
+    .aa-stage img{display:block;max-width:none;pointer-events:none;filter:brightness(0.82)}
+    .aa-svg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+    .aa-svg circle[data-v],.aa-svg circle[data-mid]{pointer-events:all}
+    .aa-pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;z-index:3}
+    .aa-pin .ico{width:16px;height:16px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:1.5px solid rgba(0,0,0,0.65);box-shadow:0 2px 6px rgba(0,0,0,0.7)}
+    .aa-pin .lb{font-family:'Cinzel',serif;font-size:0.6rem;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap;pointer-events:none}
+    .aa-pin.on{z-index:6;cursor:move}
+    .aa-pin.on .ico{outline:2px solid #fff;outline-offset:2px}
+    .aa-pin.prop .ico{border:2px dashed #6ec0b0;background:rgba(110,192,176,0.4)!important}
+    .aa-pin.area .ico{width:12px;height:12px;border-radius:2px;transform:rotate(45deg)}
+    .aa-lab{position:absolute;transform:translate(-50%,-50%);font-family:'Cinzel',serif;font-weight:700;letter-spacing:0.26em;text-shadow:0 2px 6px #000,0 0 12px #000;white-space:nowrap;pointer-events:none;z-index:2}
+    .aa-mtool{position:absolute;left:10px;top:10px;display:flex;gap:5px;flex-wrap:wrap;max-width:calc(100% - 190px);z-index:8}
+    .aa-mtool .aa-btn{background:rgba(15,15,15,0.92)}
+    .aa-layers{position:absolute;right:10px;top:10px;display:flex;background:rgba(15,15,15,0.92);border:1px solid rgba(255,255,255,0.16);border-radius:8px;overflow:hidden;z-index:8}
+    .aa-ly{font-size:0.66rem;padding:6px 10px;color:rgba(255,255,255,0.6);background:none;border:none;cursor:pointer}
+    .aa-ly[data-on="true"]{background:rgba(255,215,107,0.14);color:#ffd76b}
+    .aa-zoom{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:4px;z-index:8}
+    .aa-zb{width:32px;height:32px;border-radius:7px;background:rgba(15,15,15,0.92);border:1px solid rgba(255,255,255,0.16);color:rgba(255,255,255,0.8);font-size:0.95rem;cursor:pointer}
+    .aa-hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font-size:0.68rem;padding:7px 12px;border-radius:8px;background:rgba(15,15,15,0.94);border:1px solid rgba(255,215,107,0.4);color:#ffe7a8;max-width:80%;text-align:center;z-index:8;pointer-events:none}
+    .aa-mdet{display:none}
+
+    .aa-insp{border-left:1px solid rgba(255,255,255,0.08);background:#171717;display:flex;flex-direction:column;min-height:0}
+    .aa-ih{padding:13px 16px 10px;border-bottom:1px solid rgba(255,255,255,0.06);flex:none}
+    .aa-ik{font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase}
+    .aa-it{font-family:'Cinzel',serif;font-size:1.08rem;margin:3px 0 0;word-break:break-word}
+    .aa-ip{font-size:0.66rem;color:rgba(255,255,255,0.45);margin-top:3px}
+    .aa-ib{flex:1;overflow-y:auto;padding:10px 16px 14px;display:flex;flex-direction:column;gap:13px;overscroll-behavior:contain}
+    .aa-sec{display:flex;flex-direction:column;gap:6px}
+    .aa-sl{font-size:0.56rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.42);display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .aa-lnk{background:none;border:none;padding:0;color:#ffd76b;text-transform:none;letter-spacing:0;font-size:0.68rem;cursor:pointer}
+    .aa-in{height:32px;border-radius:7px;border:1px solid rgba(255,255,255,0.13);background:#1f1f1f;color:#fff;padding:0 10px;font-size:0.8rem;outline:none;width:100%;color-scheme:dark}
+    select.aa-in{cursor:pointer}
+    select.aa-in option{background:#1f1f1f;color:#fff}
+    .aa-in:focus,.aa-ta:focus{border-color:rgba(255,215,107,0.5)}
+    .aa-ta{min-height:76px;border-radius:7px;border:1px solid rgba(255,255,255,0.13);background:#1f1f1f;color:#fff;padding:8px 10px;font-size:0.84rem;line-height:1.45;outline:none;resize:vertical;width:100%;font-family:'EB Garamond',Georgia,serif}
+    .aa-two{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .aa-kinds{display:flex;flex-wrap:wrap;gap:4px}
+    .aa-k{font-size:0.66rem;padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,0.14);background:none;color:rgba(255,255,255,0.65);cursor:pointer}
+    .aa-k[data-on="true"]{border-color:rgba(255,215,107,0.6);color:#ffd76b;background:rgba(255,215,107,0.08)}
+    .aa-lc{display:flex;gap:9px;padding:8px;border-radius:9px;border:1px solid rgba(255,215,107,0.25);background:rgba(255,215,107,0.04)}
+    .aa-cv{width:54px;height:54px;border-radius:7px;background:linear-gradient(135deg,#4a3a5a,#2a2030) center/cover;flex:none}
+    .aa-lt{font-family:'Cinzel',serif;font-size:0.82rem;margin:0 0 2px}
+    .aa-lx{margin:0;font-size:0.7rem;line-height:1.4;color:rgba(255,255,255,0.62)}
+    .aa-chips{display:flex;flex-wrap:wrap;gap:4px}
+    .aa-chip{font-size:0.68rem;padding:3px 8px 3px 3px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);display:inline-flex;align-items:center;gap:5px;color:#fff;cursor:pointer}
+    .aa-chip:hover{border-color:rgba(255,77,77,0.5)}
+    .aa-av{width:18px;height:18px;border-radius:50%;background:rgba(255,215,0,0.18) center/cover;font-size:0.52rem;display:inline-flex;align-items:center;justify-content:center;color:#ffd76b;flex:none}
+    .aa-tag{font-size:0.66rem;padding:3px 9px;border-radius:999px;border:1px solid;background:none;cursor:pointer}
+    .aa-res{display:flex;flex-direction:column;border:1px solid rgba(255,255,255,0.12);border-radius:8px;overflow:hidden;max-height:200px;overflow-y:auto}
+    .aa-ri{display:flex;align-items:center;gap:7px;padding:6px 9px;background:none;border:none;color:#fff;font-size:0.76rem;cursor:pointer;text-align:left}
+    .aa-ri:hover{background:rgba(255,255,255,0.06)}
+    .aa-cols{display:flex;gap:5px;flex-wrap:wrap}
+    .aa-col{width:22px;height:22px;border-radius:6px;border:2px solid transparent;cursor:pointer}
+    .aa-col[data-on="true"]{border-color:#fff}
+    .aa-shp{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1px dashed rgba(255,215,107,0.35);font-size:0.72rem;color:rgba(255,255,255,0.72)}
+    .aa-note{font-size:0.72rem;color:rgba(255,255,255,0.55);line-height:1.5;margin:0}
+    .aa-ret{font-size:0.72rem;line-height:1.45;color:rgba(255,255,255,0.7);border-left:2px solid rgba(255,77,77,0.5);padding-left:9px;margin:0}
+    .aa-imgs{display:flex;gap:6px;flex-wrap:wrap}
+    .aa-img{width:70px;height:50px;border-radius:6px;background:#222 center/cover;border:1px solid rgba(255,255,255,0.12)}
+    .aa-if{padding:11px 14px;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:none}
+    .aa-dirty{font-size:0.64rem;color:#8fe0a8}
+    .aa-sp{flex:1}
+    .aa-toggle{display:flex;align-items:center;gap:8px;font-size:0.72rem;color:rgba(255,255,255,0.7);cursor:pointer;background:none;border:none;padding:0;text-align:left}
+    .aa-knob{width:30px;height:16px;border-radius:999px;position:relative;flex:none}
+    .aa-knob i{position:absolute;top:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+
+    @media (max-width:900px){
+      .aa{height:calc(100vh - 150px)}
+      .aa-panes{display:flex;flex:none;border-bottom:1px solid rgba(255,255,255,0.08)}
+      .aa-pane{flex:1;background:none;border:none;color:rgba(255,255,255,0.6);font-size:0.8rem;padding:10px;cursor:pointer}
+      .aa-pane[data-on="true"]{color:#ffd76b;box-shadow:inset 0 -2px 0 #ffd76b}
+      .aa-body{display:block;position:relative}
+      .aa-tree,.aa-map,.aa-insp{position:absolute;inset:0;display:none;border:none}
+      .aa-body[data-pane="tree"] .aa-tree{display:flex}
+      .aa-body[data-pane="map"] .aa-map{display:block}
+      .aa-body[data-pane="insp"] .aa-insp{display:flex}
+      .aa-mdet{display:block;position:absolute;left:50%;bottom:54px;transform:translateX(-50%);z-index:9}
+      .aa-mtool{max-width:calc(100% - 20px);top:52px}
+    }
+  </style>
+</helmet>
+
+<div class="aa">
+  <div class="aa-bar">
+    <p class="aa-ttl">◎ Атлас</p>
+    <div class="aa-tabs">
+      <button class="aa-tab" data-k="map" data-on="{{ tabMap }}" onClick="{{ setTab }}">Мапа</button>
+      <button class="aa-tab" data-k="props" data-on="{{ tabProps }}" onClick="{{ setTab }}">Заявки <sc-if value="{{ hasPPBadge }}" hint-placeholder-val="{{ false }}"><b class="aa-badge">{{ ppPending }}</b></sc-if></button>
+    </div>
+    <span class="aa-sp"></span>
+    <label class="aa-btn" style="text-transform:none;letter-spacing:0;font-size:0.72rem;margin:0;display:inline-flex;color:rgba(255,255,255,0.8);">{{ uploadL }}<input type="file" accept="image/*" onChange="{{ uploadMap }}" style="display:none;" /></label>
+    <button class="aa-btn aa-gold" onClick="{{ toggleAdd }}">＋ Додати ▾</button>
+  </div>
+  <sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="aa-menu">
+      <button class="aa-mi" data-k="city" onClick="{{ addNew }}">Місце<small>місто, фортеця, руїни — точка на мапі</small></button>
+      <button class="aa-mi" data-k="region" onClick="{{ addNew }}">Регіон<small>частина країни — точка й межа</small></button>
+      <button class="aa-mi" data-k="country" onClick="{{ addNew }}">Країна<small>точка для назви, потім межа</small></button>
+      <button class="aa-mi" data-k="zone" onClick="{{ addNew }}">Зона впливу<small>Кабала, гільдія, орден — контур</small></button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ noZoneTable }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:6px 14px;font-size:0.7rem;color:rgba(255,215,0,0.8);background:rgba(255,215,0,0.06);">Межі й зони впливу запрацюють після supabase_atlas_zones_migration.sql.</p></sc-if>
+  <div class="aa-panes">
+    <button class="aa-pane" data-k="tree" data-on="{{ paneTree }}" onClick="{{ setPane }}">Дерево</button>
+    <button class="aa-pane" data-k="map" data-on="{{ paneMap }}" onClick="{{ setPane }}">Мапа</button>
+    <button class="aa-pane" data-k="insp" data-on="{{ paneInsp }}" onClick="{{ setPane }}">Деталі</button>
+  </div>
+
+  <div class="aa-body" data-pane="{{ pane }}">
+    <!-- ── дерево ── -->
+    <div class="aa-tree">
+      <input class="aa-srch" value="{{ q }}" onChange="{{ setQ }}" placeholder="⌕ Знайти місце чи зону…" />
+      <sc-if value="{{ tabMap }}" hint-placeholder-val="{{ true }}">
+        <div class="aa-filt"><sc-for list="{{ filts }}" as="f" hint-placeholder-count="3"><button class="aa-fc" data-k="{{ f.k }}" data-on="{{ f.on }}" onClick="{{ setFilt }}">{{ f.l }}</button></sc-for></div>
+      </sc-if>
+      <div class="aa-tl">
+        <sc-if value="{{ showPP }}" hint-placeholder-val="{{ false }}">
+          <div class="aa-grp"><span style="color:#6ec0b0;">Заявки гравців · {{ ppCount }}</span></div>
+          <sc-for list="{{ ppRows }}" as="r" hint-placeholder-count="0">
+            <button class="aa-pp" data-id="{{ r.id }}" data-on="{{ r.on }}" onClick="{{ pickProp }}"><span class="aa-dot" style="background:{{ r.col }};"></span><span class="aa-nm" style="flex:1;">{{ r.name }}</span><span class="aa-st" style="color:{{ r.stC }};">{{ r.stL }}</span></button>
+          </sc-for>
+          <sc-if value="{{ ppNone }}" hint-placeholder-val="{{ false }}"><p class="aa-empty">{{ ppNoneText }}</p></sc-if>
+        </sc-if>
+        <sc-if value="{{ tabMap }}" hint-placeholder-val="{{ true }}">
+          <div class="aa-grp"><span>{{ locTitle }}</span><span>межа · стаття</span></div>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+            <button class="aa-row" style="padding-left:{{ r.pad }};" data-id="{{ r.id }}" data-on="{{ r.on }}" onClick="{{ pickLoc }}">
+              <sc-if value="{{ r.isPlace }}" hint-placeholder-val="{{ true }}"><span class="aa-dot" style="background:{{ r.col }};"></span></sc-if>
+              <span class="aa-nm {{ r.cls }}">{{ r.name }}</span>
+              <span class="aa-ic"><b class="{{ r.shC }}" style="font-weight:400;">{{ r.sh }}</b><b class="{{ r.loC }}" style="font-weight:400;">{{ r.lo }}</b></span>
+            </button>
+          </sc-for>
+          <sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}"><p class="aa-empty">{{ noRowsText }}</p></sc-if>
+          <div class="aa-grp" style="margin-top:4px;"><span>Зони впливу · {{ zCount }}</span></div>
+          <sc-for list="{{ zrows }}" as="z" hint-placeholder-count="0">
+            <button class="aa-row" data-id="{{ z.id }}" data-on="{{ z.on }}" onClick="{{ pickZone }}"><span class="aa-sw" style="background:{{ z.fill }};border-color:{{ z.col }};"></span><span class="aa-nm">{{ z.name }}</span><span class="aa-ic">{{ z.n }}</span></button>
+          </sc-for>
+          <sc-if value="{{ noZones }}" hint-placeholder-val="{{ false }}"><p class="aa-empty">Ще немає — «＋ Додати ▾ → Зона впливу».</p></sc-if>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- ── мапа ── -->
+    <div class="aa-map" ref="{{ mapRef }}" data-mode="{{ mapMode }}" onPointerDown="{{ down }}" onPointerMove="{{ move }}" onPointerUp="{{ up }}" onPointerCancel="{{ cancelPtr }}">
+      <div class="aa-world" ref="{{ worldRef }}">
+        <div class="aa-stage" style="transform:translate({{ tx }}px,{{ ty }}px) scale({{ sc }});">
+          <img src="{{ mapUrl }}" alt="" onLoad="{{ imgLoad }}" draggable="false" />
+        </div>
+        <svg class="aa-svg" style="left:{{ shX }}px;top:{{ shY }}px;" width="{{ shW }}" height="{{ shH }}">
+          <defs><sc-for list="{{ hatches }}" as="h" hint-placeholder-count="0"><pattern id="{{ h.id }}" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="9" fill="{{ h.col }}" opacity="0.5"></rect></pattern></sc-for></defs>
+          <sc-for list="{{ shapes }}" as="g" hint-placeholder-count="0"><polygon points="{{ g.pts }}" fill="{{ g.fill }}" stroke="{{ g.col }}" stroke-width="{{ g.sw }}" stroke-dasharray="{{ g.dash }}" stroke-linejoin="round" opacity="{{ g.op }}"></polygon></sc-for>
+          <sc-if value="{{ edClosed }}" hint-placeholder-val="{{ false }}"><polygon points="{{ edPts }}" fill="{{ edFill }}" stroke="{{ edCol }}" stroke-width="2.2" stroke-linejoin="round"></polygon></sc-if>
+          <sc-if value="{{ edOpen }}" hint-placeholder-val="{{ false }}"><polyline points="{{ edPts }}" fill="none" stroke="{{ edCol }}" stroke-width="2.2" stroke-linejoin="round"></polyline></sc-if>
+          <sc-for list="{{ mids }}" as="m" hint-placeholder-count="0"><circle cx="{{ m.x }}" cy="{{ m.y }}" r="5" fill="rgba(255,255,255,0.2)" stroke="{{ edCol }}" stroke-width="1" data-mid="{{ m.i }}" style="cursor:copy;"></circle></sc-for>
+          <sc-for list="{{ dots }}" as="d" hint-placeholder-count="0"><circle cx="{{ d.x }}" cy="{{ d.y }}" r="{{ d.r }}" fill="{{ d.fill }}" stroke="#1a1408" stroke-width="1.5" data-v="{{ d.i }}" style="cursor:move;"></circle></sc-for>
+        </svg>
+        <sc-for list="{{ labels }}" as="l" hint-placeholder-count="0"><span class="aa-lab" style="left:{{ l.x }}px;top:{{ l.y }}px;color:{{ l.col }};font-size:{{ l.fs }};">{{ l.t }}</span></sc-for>
+        <sc-for list="{{ pins }}" as="p" hint-placeholder-count="0">
+          <div class="{{ p.cls }}" style="left:{{ p.x }}px;top:{{ p.y }}px;" data-pin="{{ p.id }}" data-pk="{{ p.pk }}" title="{{ p.name }}"><span class="ico" style="background:{{ p.col }};"></span><sc-if value="{{ p.lbl }}" hint-placeholder-val="{{ true }}"><span class="lb">{{ p.name }}</span></sc-if></div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ hasTools }}" hint-placeholder-val="{{ false }}">
+        <div class="aa-mtool" onPointerDown="{{ stop }}">
+          <span class="aa-btn" data-on="true" style="cursor:default;">✎ {{ drawName }}</span>
+          <button class="aa-btn" data-on="{{ snap }}" onClick="{{ toggleSnap }}">⌖ Прилипати</button>
+          <button class="aa-btn" disabled="{{ noUndo }}" onClick="{{ undo }}">↶</button>
+          <button class="aa-btn" disabled="{{ noVSel }}" onClick="{{ delPt }}">⌫ точку</button>
+          <button class="aa-btn" disabled="{{ noPts }}" onClick="{{ clearPts }}">⟲ заново</button>
+          <button class="aa-btn aa-gold" onClick="{{ drawDone }}">✓ Готово</button>
+        </div>
+      </sc-if>
+      <div class="aa-layers" onPointerDown="{{ stop }}"><sc-for list="{{ layers }}" as="g" hint-placeholder-count="3"><button class="aa-ly" data-k="{{ g.k }}" data-on="{{ g.on }}" onClick="{{ setLayer }}">{{ g.l }}</button></sc-for></div>
+      <div class="aa-zoom" onPointerDown="{{ stop }}"><button class="aa-zb" onClick="{{ zIn }}">+</button><button class="aa-zb" onClick="{{ zOut }}">−</button><button class="aa-zb" onClick="{{ zFit }}">⌂</button></div>
+      <sc-if value="{{ hasHint }}" hint-placeholder-val="{{ false }}"><div class="aa-hint">{{ hint }}</div></sc-if>
+      <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}"><button class="aa-btn aa-gold aa-mdet" onPointerDown="{{ stop }}" data-k="insp" onClick="{{ setPane }}">{{ selName }} · деталі ›</button></sc-if>
+    </div>
+
+    <!-- ── інспектор ── -->
+    <div class="aa-insp">
+      <div class="aa-ih"><div class="aa-ik" style="color:{{ i.col }};">{{ i.kind }}</div><p class="aa-it">{{ i.title }}</p><div class="aa-ip">{{ i.sub }}</div></div>
+      <div class="aa-ib">
+        <!-- місце / країна / регіон -->
+        <sc-if value="{{ isLoc }}" hint-placeholder-val="{{ false }}">
+          <div class="aa-sec"><span class="aa-sl">Назва</span><input class="aa-in" value="{{ f.name }}" data-k="name" onChange="{{ setF }}" placeholder="Як зветься" /></div>
+          <div class="aa-sec"><span class="aa-sl">Що це</span><div class="aa-kinds"><sc-for list="{{ kinds }}" as="k" hint-placeholder-count="6"><button class="aa-k" data-k="{{ k.k }}" data-on="{{ k.on }}" onClick="{{ setKind }}">{{ k.l }}</button></sc-for></div></div>
+          <sc-if value="{{ f.notCountry }}" hint-placeholder-val="{{ true }}">
+            <div class="aa-sec"><span class="aa-sl">Входить до</span>
+              <select class="aa-in" value="{{ f.parent }}" data-k="parent_id" onChange="{{ setF }}"><option value="">— нікуди (окремо)</option><sc-for list="{{ parents }}" as="o" hint-placeholder-count="0"><option value="{{ o.id }}">{{ o.label }}</option></sc-for></select></div>
+          </sc-if>
+          <div class="aa-sec"><span class="aa-sl">На мапі <span style="text-transform:none;letter-spacing:0;color:rgba(255,215,107,0.75);">{{ f.ptHint }}</span></span>
+            <div class="aa-two"><input class="aa-in" type="number" step="0.1" value="{{ f.x }}" data-k="x_percent" onChange="{{ setNum }}" placeholder="X %" /><input class="aa-in" type="number" step="0.1" value="{{ f.y }}" data-k="y_percent" onChange="{{ setNum }}" placeholder="Y %" /></div></div>
+          <sc-if value="{{ f.isArea }}" hint-placeholder-val="{{ false }}">
+            <div class="aa-sec"><span class="aa-sl">Межа</span>
+              <div class="aa-shp"><span class="aa-sw" style="background:{{ f.shFill }};border-color:{{ f.col }};"></span><span style="flex:1;">{{ f.shapeL }}</span><button class="aa-lnk" onClick="{{ startDraw }}">{{ f.drawL }}</button></div>
+              <div class="aa-cols"><sc-for list="{{ cols }}" as="c" hint-placeholder-count="8"><button class="aa-col" data-c="{{ c.c }}" data-on="{{ c.on }}" style="background:{{ c.c }};" onClick="{{ setCol }}"></button></sc-for></div>
+              <sc-if value="{{ f.canDropShape }}" hint-placeholder-val="{{ false }}"><button class="aa-lnk" style="color:#ff9a9a;align-self:flex-start;" onClick="{{ dropShape }}">Прибрати межу</button></sc-if>
+            </div>
+          </sc-if>
+          <div class="aa-sec"><span class="aa-sl">Стаття в Довіднику <sc-if value="{{ f.hasLore }}" hint-placeholder-val="{{ false }}"><button class="aa-lnk" onClick="{{ toggleLorePick }}">{{ f.lorePickL }}</button></sc-if></span>
+            <sc-if value="{{ f.showLoreCard }}" hint-placeholder-val="{{ false }}">
+              <div class="aa-lc"><div class="aa-cv" style="{{ f.loreCv }}"></div><div style="min-width:0;"><p class="aa-lt">{{ f.loreT }}</p><p class="aa-lx">{{ f.loreX }}</p><button class="aa-lnk" style="margin-top:4px;" onClick="{{ openLore }}">Відкрити статтю →</button></div></div>
+            </sc-if>
+            <sc-if value="{{ f.showLoreSel }}" hint-placeholder-val="{{ true }}">
+              <select class="aa-in" value="{{ f.lore }}" data-k="lore_id" onChange="{{ setF }}"><option value="">— без статті</option><sc-for list="{{ loreOpts }}" as="o" hint-placeholder-count="0"><option value="{{ o.id }}">{{ o.label }}</option></sc-for></select>
+            </sc-if>
+            <sc-if value="{{ f.canMakeLore }}" hint-placeholder-val="{{ false }}"><button class="aa-btn" style="align-self:flex-start;border-style:dashed;color:#ffd76b;" onClick="{{ makeLore }}">＋ Створити статтю з цього місця</button></sc-if>
+          </div>
+          <sc-if value="{{ f.showDesc }}" hint-placeholder-val="{{ true }}">
+            <div class="aa-sec"><span class="aa-sl">Короткий опис (поки немає статті)</span><textarea class="aa-ta" value="{{ f.desc }}" data-k="description" onChange="{{ setF }}" placeholder="Пара речень для картки на мапі"></textarea></div>
+          </sc-if>
+          <div class="aa-sec"><span class="aa-sl"><span>Персонажі тут · {{ f.charN }}</span></span>
+            <div class="aa-chips"><sc-for list="{{ f.chars }}" as="c" hint-placeholder-count="0"><button class="aa-chip" data-id="{{ c.id }}" onClick="{{ remChar }}" title="Прибрати"><span class="aa-av" style="{{ c.av }}">{{ c.ini }}</span>{{ c.name }} ✕</button></sc-for></div>
+            <input class="aa-in" value="{{ cq }}" onChange="{{ setCQ }}" placeholder="＋ додати персонажа — почніть вводити імʼя" />
+            <sc-if value="{{ hasCRes }}" hint-placeholder-val="{{ false }}"><div class="aa-res"><sc-for list="{{ cres }}" as="c" hint-placeholder-count="0"><button class="aa-ri" data-id="{{ c.id }}" onClick="{{ addChar }}"><span class="aa-av" style="{{ c.av }}">{{ c.ini }}</span>{{ c.name }}</button></sc-for></div></sc-if>
+          </div>
+          <div class="aa-sec"><span class="aa-sl">Автор (необовʼязково)</span><input class="aa-in" value="{{ f.credit }}" data-k="credit" onChange="{{ setF }}" placeholder="Запропонував гравець · персонаж «…»" /></div>
+        </sc-if>
+
+        <!-- зона -->
+        <sc-if value="{{ isZone }}" hint-placeholder-val="{{ false }}">
+          <div class="aa-sec"><span class="aa-sl">Назва</span><input class="aa-in" value="{{ f.name }}" data-k="name" onChange="{{ setF }}" placeholder="Кабала Темряви" /></div>
+          <div class="aa-sec"><span class="aa-sl">Колір</span><div class="aa-cols"><sc-for list="{{ cols }}" as="c" hint-placeholder-count="8"><button class="aa-col" data-c="{{ c.c }}" data-on="{{ c.on }}" style="background:{{ c.c }};" onClick="{{ setCol }}"></button></sc-for></div></div>
+          <div class="aa-sec"><span class="aa-sl">Контур</span><div class="aa-shp"><span style="flex:1;">{{ f.shapeL }}</span><button class="aa-lnk" onClick="{{ startDraw }}">{{ f.drawL }}</button></div></div>
+          <div class="aa-sec"><span class="aa-sl">Опис у картці</span><textarea class="aa-ta" value="{{ f.desc }}" data-k="description" onChange="{{ setF }}" placeholder="Хто це і чим тримає ці землі"></textarea></div>
+          <div class="aa-sec"><span class="aa-sl">Стаття в Довіднику <sc-if value="{{ f.hasLore }}" hint-placeholder-val="{{ false }}"><button class="aa-lnk" onClick="{{ openLore }}">відкрити →</button></sc-if></span>
+            <select class="aa-in" value="{{ f.lore }}" data-k="lore_id" onChange="{{ setF }}"><option value="">— без статті</option><sc-for list="{{ loreOpts }}" as="o" hint-placeholder-count="0"><option value="{{ o.id }}">{{ o.label }}</option></sc-for></select></div>
+          <sc-if value="{{ f.hasTouch }}" hint-placeholder-val="{{ false }}">
+            <div class="aa-sec"><span class="aa-sl"><span>Зачіпає · {{ f.touchN }}</span></span><div class="aa-chips"><sc-for list="{{ f.touch }}" as="c" hint-placeholder-count="0"><button class="aa-tag" style="border-color:rgba(255,255,255,0.16);color:rgba(255,255,255,0.8);" data-id="{{ c.id }}" onClick="{{ pickLoc }}">{{ c.name }}</button></sc-for></div></div>
+          </sc-if>
+        </sc-if>
+
+        <!-- заявка -->
+        <sc-if value="{{ isProp }}" hint-placeholder-val="{{ false }}">
+          <div class="aa-sec"><span class="aa-sl">Від кого</span><p class="aa-note">{{ f.who }}</p></div>
+          <div class="aa-sec"><span class="aa-sl">Що це · куди</span><p class="aa-note"><b style="color:#fff;">{{ f.kindL }}</b> · <span style="color:#ffd76b;">{{ f.path }}</span><br/>{{ f.ptHint }}</p></div>
+          <sc-if value="{{ f.hasOld }}" hint-placeholder-val="{{ false }}"><p class="aa-ret">Ваш минулий коментар: «{{ f.old }}»</p></sc-if>
+          <div class="aa-sec"><span class="aa-sl">Опис</span><p class="aa-note" style="font-family:'EB Garamond',serif;font-size:0.92rem;color:rgba(255,255,255,0.8);white-space:pre-wrap;">{{ f.body }}</p></div>
+          <sc-if value="{{ f.hasImgs }}" hint-placeholder-val="{{ false }}"><div class="aa-sec"><span class="aa-sl"><span>Картинки · {{ f.imgN }}</span></span><div class="aa-imgs"><sc-for list="{{ f.imgs }}" as="g" hint-placeholder-count="0"><a class="aa-img" href="{{ g.url }}" target="_blank" rel="noopener" style="background-image:url('{{ g.url }}');"></a></sc-for></div></div></sc-if>
+          <div class="aa-sec"><span class="aa-sl">Коментар гравцю</span><input class="aa-in" value="{{ f.note }}" data-k="note" onChange="{{ setF }}" placeholder="Обовʼязковий, якщо повертаєте" /></div>
+        </sc-if>
+
+        <!-- нічого не вибрано -->
+        <sc-if value="{{ isNone }}" hint-placeholder-val="{{ true }}">
+          <div class="aa-sec"><span class="aa-sl">Зображення мапи</span>
+            <div class="aa-lc"><div class="aa-cv" style="background-image:url('{{ mapUrl }}');"></div><div><p class="aa-lt">{{ mapSize }}</p><p class="aa-lx">Точки й межі збережені у відсотках — після заміни зображення тих самих пропорцій усе лишиться на місцях.</p></div></div></div>
+          <div class="aa-sec"><span class="aa-sl">Що на мапі</span><p class="aa-note" style="white-space:pre-line;">{{ stats }}</p></div>
+          <p class="aa-note">Виберіть місце в дереві чи клацніть точку на мапі. Клік у межу країни чи зони теж відкриває її.</p>
+        </sc-if>
+      </div>
+      <sc-if value="{{ hasFoot }}" hint-placeholder-val="{{ false }}">
+        <div class="aa-if">
+          <sc-if value="{{ isProp }}" hint-placeholder-val="{{ false }}">
+            <button class="aa-btn aa-gold" disabled="{{ busy }}" data-a="accept" onClick="{{ decide }}">✓ Прийняти</button>
+            <button class="aa-btn" disabled="{{ busy }}" data-a="open" onClick="{{ decide }}">Прийняти й відкрити</button>
+            <button class="aa-btn aa-red" disabled="{{ busy }}" data-a="return" onClick="{{ decide }}">↩ Повернути</button>
+          </sc-if>
+          <sc-if value="{{ isEditable }}" hint-placeholder-val="{{ false }}">
+            <button class="aa-btn aa-gold" disabled="{{ noSave }}" onClick="{{ save }}">{{ saveL }}</button>
+            <button class="aa-btn" onClick="{{ cancelSel }}">Скасувати</button>
+            <sc-if value="{{ dirty }}" hint-placeholder-val="{{ false }}"><span class="aa-dirty">● незбережено</span></sc-if>
+            <span class="aa-sp"></span>
+            <sc-if value="{{ canDel }}" hint-placeholder-val="{{ false }}"><button class="aa-btn aa-red" disabled="{{ busy }}" onClick="{{ del }}">{{ delL }}</button></sc-if>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1300,&quot;height&quot;:800}}">
+// ── Адмінка · Атлас: одне робоче місце (дерево · мапа · інспектор) ─────
+// Пропси з admin.dc.html: mapUrl, locations, lore, characters, placeProps (null = немає таблиці),
+// onRefresh() — перечитати map_locations і lore; onDecide(pr, act, open, note, xy) — рішення по заявці;
+// onOpenLore(loreId); onUploadMap(file); toast(msg).
+// Запис місць, меж і зон — сам компонент, REST з токеном адміна.
+const AA_URL = 'https://ztltzghfkppuwixhylng.supabase.co/rest/v1';
+const AA_KEY = 'sb_publishable_lU6gWW3udazfKAlBljqIhw_SoTeaqID';
+const KINDS = { country: ['Країна', '#ffd76b'], region: ['Регіон', '#e8d3a8'], capital: ['Столиця', '#ffd700'], city: ['Місто', '#e0b878'], fort: ['Фортеця', '#c98a7a'], ruin: ['Руїни', '#9a9a9a'] };
+const KORD = Object.keys(KINDS);
+const kindOf = (n) => (KINDS[n && n.location_type] ? n.location_type : 'city');
+const isArea = (k) => k === 'country' || k === 'region';
+const COLS = ['#ffd76b', '#6ec0b0', '#ff7a45', '#c8394a', '#9b5de5', '#6495ed', '#c8794a', '#8fe0a8', '#e8d3a8', '#d977c4'];
+const ptsOf = (sh) => { const p = Array.isArray(sh) ? sh : sh && Array.isArray(sh.p) ? sh.p : []; return p.filter((q) => Array.isArray(q) && isFinite(q[0]) && isFinite(q[1])).map((q) => [+q[0], +q[1]]); };
+const pip = (x, y, P) => { let o = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, yi] = P[i], [xj, yj] = P[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) o = !o; } return o; };
+const pArea = (P) => { let a = 0; for (let i = 0, j = P.length - 1; i < P.length; j = i++) a += (P[j][0] + P[i][0]) * (P[j][1] - P[i][1]); return Math.abs(a / 2); };
+const pMid = (P) => { let a = 0, cx = 0, cy = 0; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const f = P[j][0] * P[i][1] - P[i][0] * P[j][1]; a += f; cx += (P[j][0] + P[i][0]) * f; cy += (P[j][1] + P[i][1]) * f; }
+  if (Math.abs(a) < 1e-6) { const n = P.length || 1; return [P.reduce((s, q) => s + q[0], 0) / n, P.reduce((s, q) => s + q[1], 0) / n]; } return [cx / (3 * a), cy / (3 * a)]; };
+const overlap = (A, B) => A.some(([x, y]) => pip(x, y, B)) || B.some(([x, y]) => pip(x, y, A));
+const r2 = (v) => Math.round(v * 100) / 100;
+const MQ = () => window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+const ini = (n) => String(n || '?').trim().slice(0, 1).toUpperCase();
+const avOf = (ch) => ch && ch.image ? `background-image:url(${JSON.stringify(ch.image)});color:transparent;` : '';
+
+class Component extends DCLogic {
+  mapRef = React.createRef();
+  worldRef = React.createRef();
+  _vis = { a: 1, e: 0, f: 0 };
+  constructor(p) {
+    super(p);
+    this.state = { tab: 'map', pane: 'tree', addOpen: false, q: '', filt: '', layer: 'countries',
+      zones: [], noZoneTable: false, sel: null, f: null, dirty: false, draw: false, pts: [], hist: [], vsel: -1, snap: true,
+      lorePick: false, cq: '', busy: false, upBusy: false, tx: 0, ty: 0, sc: 0.2, fit: 0.2, iw: 0, ih: 0 };
+    this._ptr = new Map();
+  }
+  componentDidMount() {
+    const el = this.mapRef.current;
+    this._wheel = (e) => {
+      e.preventDefault();
+      const r = el.getBoundingClientRect(), v = this._vis;
+      const px = e.clientX - r.left, py = e.clientY - r.top, cur = this.state.sc * v.a;
+      const k = this._clampSc(cur * (e.deltaY < 0 ? 1.18 : 1 / 1.18)) / cur;
+      this._vis = { a: v.a * k, e: k * v.e + px * (1 - k), f: k * v.f + py * (1 - k) }; this._applyVis();
+      clearTimeout(this._wt); this._wt = setTimeout(() => this._commitVis(), 160);
+    };
+    if (el) el.addEventListener('wheel', this._wheel, { passive: false });
+    this._rs = () => { if (this.state.iw) this._fit(true); };
+    window.addEventListener('resize', this._rs);
+    this._loadZones();
+  }
+  componentWillUnmount() { const el = this.mapRef.current; if (el && this._wheel) el.removeEventListener('wheel', this._wheel); window.removeEventListener('resize', this._rs); }
+  componentDidUpdate(pp) {
+    // нові дані з адмінки: якщо в інспекторі нічого не змінено — перечитуємо вибране
+    if (pp.locations !== this.props.locations && this.state.sel && this.state.sel.t === 'loc' && !this.state.dirty && !this.state.draw) {
+      const n = this._locs().find((x) => String(x.id) === String(this.state.sel.id));
+      if (n) this.setState({ f: this._locForm(n), pts: ptsOf(n.shape) }); else this.setState({ sel: null, f: null });
+    }
+    if (pp.placeProps !== this.props.placeProps && this.state.sel && this.state.sel.t === 'prop' && !this._props().some((x) => String(x.id) === String(this.state.sel.id))) this.setState({ sel: null, f: null });
+  }
+
+  // ── дані ──
+  _locs() { return Array.isArray(this.props.locations) ? this.props.locations : []; }
+  _props() { return Array.isArray(this.props.placeProps) ? this.props.placeProps : []; }
+  _by() { const L = this._locs(); if (this._bySrc !== L) { this._bySrc = L; this._byMap = new Map(L.map((n) => [String(n.id), n])); } return this._byMap; }
+  _kids(id) { return this._locs().filter((n) => String(n.parent_id || '') === String(id)); }
+  _chain(n) { const by = this._by(), out = []; let p = n && by.get(String(n.parent_id || '')), g = 0; while (p && g++ < 20) { out.unshift(p); p = by.get(String(p.parent_id || '')); } return out; }
+  _lore(id) { return id ? (this.props.lore || []).find((x) => String(x.id) === String(id)) || null : null; }
+  _tok() { try { return localStorage.getItem('aur-admin-token') || ''; } catch (e) { return ''; } }
+  _say(m) { if (this.props.toast) this.props.toast(m); }
+  async _req(path, opt) {
+    const r = await fetch(AA_URL + '/' + path, { ...opt, headers: { apikey: AA_KEY, Authorization: 'Bearer ' + (this._tok() || AA_KEY), ...(opt && opt.body ? { 'Content-Type': 'application/json', Prefer: 'return=representation' } : {}) } });
+    const t = await r.text();
+    if (!r.ok) { let m = t; try { const j = JSON.parse(t); m = j.message || j.hint || t; } catch (e) {} throw new Error(m); }
+    try { return JSON.parse(t); } catch (e) { return null; }
+  }
+  async _loadZones() {
+    try {
+      const r = await fetch(`${AA_URL}/map_zones?select=*&order=sort_order.asc,name.asc`, { headers: { apikey: AA_KEY, Authorization: 'Bearer ' + (this._tok() || AA_KEY) } });
+      if (!r.ok) { this.setState({ zones: [], noZoneTable: true }); return; }
+      const z = await r.json(); this.setState({ zones: Array.isArray(z) ? z : [], noZoneTable: false });
+    } catch (e) { this.setState({ zones: [], noZoneTable: true }); }
+  }
+  _locForm(n) {
+    return { id: n.id, name: n.name || '', location_type: kindOf(n), parent_id: n.parent_id ? String(n.parent_id) : '', x_percent: n.x_percent, y_percent: n.y_percent,
+      lore_id: n.lore_id ? String(n.lore_id) : '', description: n.description || '', character_ids: n.character_ids || '', credit: n.credit || '',
+      col: (n.shape && n.shape.c) || KINDS[kindOf(n)][1], shapeTouched: false };
+  }
+
+  // ── геометрія мапи ──
+  _area() { const el = this.mapRef.current; return { w: el ? el.clientWidth : 800, h: el ? el.clientHeight : 600 }; }
+  _fit(keep) {
+    const { iw, ih } = this.state; if (!iw) return;
+    const a = this._area(); if (!a.w || !a.h) return;
+    const fit = Math.min(a.w / iw, a.h / ih);
+    if (keep && this.state.sc > fit * 0.5) { this.setState({ fit }); return; }
+    this.setState({ fit, sc: fit, tx: (a.w - iw * fit) / 2, ty: (a.h - ih * fit) / 2 });
+  }
+  _clampSc(s) { const f = this.state.fit; return Math.max(f * 0.6, Math.min(Math.max(f * 16, 2), s)); }
+  _applyVis() {
+    cancelAnimationFrame(this._visRaf);
+    this._visRaf = requestAnimationFrame(() => { const w = this.worldRef.current, v = this._vis; if (w) w.style.transform = (v.a === 1 && !v.e && !v.f) ? '' : `translate(${v.e}px,${v.f}px) scale(${v.a})`; });
+  }
+  _commitVis() {
+    clearTimeout(this._wt);
+    const v = this._vis; if (v.a === 1 && !v.e && !v.f) return;
+    this._vis = { a: 1, e: 0, f: 0 }; cancelAnimationFrame(this._visRaf);
+    this.setState((st) => ({ sc: st.sc * v.a, tx: v.a * st.tx + v.e, ty: v.a * st.ty + v.f }), () => { const w = this.worldRef.current; if (w) w.style.transform = ''; });
+  }
+  _zoom(k) { this._commitVis(); const a = this._area(); this.setState((st) => { const sc = this._clampSc(st.sc * k), r = sc / st.sc; return { sc, tx: a.w / 2 - (a.w / 2 - st.tx) * r, ty: a.h / 2 - (a.h / 2 - st.ty) * r }; }); }
+  _center(x, y, mul) {
+    const { iw, ih, fit } = this.state; if (!iw || x == null) return;
+    this._commitVis();
+    const a = this._area(), sc = Math.max(this.state.sc, this._clampSc(fit * mul));
+    this.setState({ sc, tx: a.w / 2 - (x / 100) * iw * sc, ty: a.h / 2 - (y / 100) * ih * sc });
+  }
+  _pct(e) { const r = this.mapRef.current.getBoundingClientRect(), { tx, ty, sc, iw, ih } = this.state; return [((e.clientX - r.left) - tx) / (iw * sc) * 100, ((e.clientY - r.top) - ty) / (ih * sc) * 100]; }
+  _others() {
+    const s = this.state, out = [], me = s.sel ? String(s.sel.id || '') : '';
+    for (const l of this._locs()) { if (s.sel && s.sel.t === 'loc' && String(l.id) === me) continue; const P = ptsOf(l.shape); if (P.length >= 3) out.push(P); }
+    for (const z of s.zones) { if (s.sel && s.sel.t === 'zone' && String(z.id) === me) continue; const P = ptsOf(z.shape); if (P.length >= 3) out.push(P); }
+    return out;
+  }
+  _snapPt(x, y) {
+    const { snap, iw, ih, sc } = this.state; if (!snap || !iw) return [r2(x), r2(y)];
+    const W = iw * sc, H = ih * sc, px = (q) => [q[0] * W / 100, q[1] * H / 100], [X, Y] = px([x, y]), others = this._others();
+    let best = null, bd = 10;
+    for (const P of others) for (const q of P) { const [a, b] = px(q), d = Math.hypot(a - X, b - Y); if (d < bd) { bd = d; best = q; } }
+    if (best) return [best[0], best[1]];
+    bd = 7;
+    for (const P of others) for (let i = 0; i < P.length; i++) {
+      const A = px(P[i]), B = px(P[(i + 1) % P.length]), dx = B[0] - A[0], dy = B[1] - A[1], L = dx * dx + dy * dy; if (!L) continue;
+      const t = Math.max(0, Math.min(1, ((X - A[0]) * dx + (Y - A[1]) * dy) / L)), qx = A[0] + t * dx, qy = A[1] + t * dy, d = Math.hypot(qx - X, qy - Y);
+      if (d < bd) { bd = d; best = [r2(qx / W * 100), r2(qy / H * 100)]; }
+    }
+    return best || [r2(x), r2(y)];
+  }
+  _hit(x, y) {
+    const s = this.state; let best = null, ba = 1e9;
+    if (s.layer === 'zones') for (const z of s.zones) { const P = ptsOf(z.shape); if (P.length >= 3 && pip(x, y, P)) { const a = pArea(P); if (a < ba) { ba = a; best = { t: 'zone', id: z.id }; } } }
+    if (s.layer === 'countries') for (const n of this._locs()) { if (!isArea(kindOf(n))) continue; const P = ptsOf(n.shape); if (P.length >= 3 && pip(x, y, P)) { const a = pArea(P); if (a < ba) { ba = a; best = { t: 'loc', id: n.id }; } } }
+    return best;
+  }
+
+  // ── вибір ──
+  _guard() { if (this.state.dirty && !window.confirm('Є незбережені зміни. Відкинути їх?')) return false; return true; }
+  _selLoc(id, fly) {
+    const n = this._by().get(String(id)); if (!n || !this._guard()) return;
+    const k = kindOf(n);
+    this.setState({ sel: { t: 'loc', id: n.id }, f: this._locForm(n), pts: ptsOf(n.shape), hist: [], vsel: -1, draw: false, dirty: false, lorePick: false, cq: '', addOpen: false,
+      layer: this.state.layer === 'zones' ? 'countries' : this.state.layer, pane: MQ() ? (fly === 'tree' ? 'insp' : this.state.pane) : this.state.pane });
+    if (fly) this._center(n.x_percent, n.y_percent, k === 'country' ? 1.1 : k === 'region' ? 1.8 : 2.6);
+  }
+  _selZone(id, fly) {
+    const z = this.state.zones.find((x) => String(x.id) === String(id)); if (!z || !this._guard()) return;
+    this.setState({ sel: { t: 'zone', id: z.id }, f: { id: z.id, name: z.name || '', col: z.color || '#9b5de5', description: z.description || '', lore_id: z.lore_id ? String(z.lore_id) : '' },
+      pts: ptsOf(z.shape), hist: [], vsel: -1, draw: false, dirty: false, layer: 'zones', addOpen: false, pane: MQ() && fly === 'tree' ? 'insp' : this.state.pane });
+    if (fly) { const [cx, cy] = pMid(ptsOf(z.shape)); this._center(cx, cy, 1.2); }
+  }
+  _selProp(id, fly) {
+    const q = this._props().find((x) => String(x.id) === String(id)); if (!q || !this._guard()) return;
+    this.setState({ sel: { t: 'prop', id: q.id }, f: { note: '', x_percent: q.x_percent, y_percent: q.y_percent, moved: false }, draw: false, dirty: false, addOpen: false, pane: MQ() && fly === 'tree' ? 'insp' : this.state.pane });
+    if (fly) this._center(q.x_percent, q.y_percent, 2.6);
+  }
+  _new(k) {
+    if (!this._guard()) return;
+    if (k === 'zone') { this.setState({ sel: { t: 'zone', id: null }, f: { id: null, name: '', col: '#9b5de5', description: '', lore_id: '' }, pts: [], hist: [], vsel: -1, draw: true, dirty: true, layer: 'zones', addOpen: false, pane: MQ() ? 'map' : this.state.pane }); return; }
+    this.setState({ sel: { t: 'loc', id: null }, f: { id: null, name: '', location_type: k, parent_id: '', x_percent: null, y_percent: null, lore_id: '', description: '', character_ids: '', credit: '', col: KINDS[k][1], shapeTouched: false },
+      pts: [], hist: [], vsel: -1, draw: false, dirty: true, addOpen: false, lorePick: false, cq: '', layer: this.state.layer === 'zones' ? 'countries' : this.state.layer, pane: MQ() ? 'map' : this.state.pane });
+  }
+  _clear() { this.setState({ sel: null, f: null, pts: [], draw: false, dirty: false, vsel: -1, hist: [] }); }
+  _patchF(p) { this.setState((st) => ({ f: { ...st.f, ...p }, dirty: true })); }
+  _setPts(pts) { this.setState((st) => ({ hist: st.hist.concat([st.pts]).slice(-80), pts, vsel: -1, dirty: true, f: st.f && st.sel && st.sel.t === 'loc' ? { ...st.f, shapeTouched: true } : st.f })); }
+
+  // ── вказівник ──
+  _down(e) {
+    if (e.button != null && e.button !== 0 && e.pointerType === 'mouse') return;
+    const t = e.target, el = this.mapRef.current;
+    try { el.setPointerCapture(e.pointerId); } catch (x) {}
+    this._commitVis();
+    this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (this._ptr.size === 2) { const [a, b] = [...this._ptr.values()], r0 = el.getBoundingClientRect(); this._g = { pinch: true, d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2 - r0.left, my: (a.y + b.y) / 2 - r0.top, moved: 99 }; return; }
+    const v = t.getAttribute && t.getAttribute('data-v'), m = t.getAttribute && t.getAttribute('data-mid');
+    if (this.state.draw && v != null) { this._g = { kind: 'v', i: +v, base: this.state.pts, moved: 0, x: e.clientX, y: e.clientY }; this.setState({ vsel: +v }); return; }
+    if (this.state.draw && m != null) {
+      const i = +m, p = this._snapPt(...this._pct(e)), pts = this.state.pts.slice(); pts.splice(i + 1, 0, p);
+      this._setPts(pts); this._g = { kind: 'v', i: i + 1, base: pts, moved: 5, noHist: true, x: e.clientX, y: e.clientY }; this.setState({ vsel: i + 1 }); return;
+    }
+    const pin = t.closest && t.closest('[data-pin]');
+    if (pin && !this.state.draw) {
+      const id = pin.getAttribute('data-pin'), pk = pin.getAttribute('data-pk'), s = this.state;
+      const isSel = s.sel && String(s.sel.id || '') === id && ((pk === 'prop') === (s.sel.t === 'prop'));
+      this._g = { kind: isSel ? 'pin' : 'pick', id, pk, moved: 0, x: e.clientX, y: e.clientY };
+      return;
+    }
+    this._g = { kind: 'pan', x: e.clientX, y: e.clientY, moved: 0 };
+  }
+  _move(e) {
+    if (!this._ptr.has(e.pointerId)) return;
+    this._ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const g = this._g; if (!g) return;
+    if (g.pinch && this._ptr.size >= 2) {
+      const [a, b] = [...this._ptr.values()], r0 = this.mapRef.current.getBoundingClientRect(), cur = this.state.sc;
+      const k = this._clampSc(cur * Math.hypot(a.x - b.x, a.y - b.y) / (g.d || 1)) / cur, sx = (a.x + b.x) / 2 - r0.left - g.mx, sy = (a.y + b.y) / 2 - r0.top - g.my;
+      this._vis = { a: k, e: g.mx * (1 - k) + sx, f: g.my * (1 - k) + sy }; this._applyVis(); return;
+    }
+    const dx = e.clientX - g.x, dy = e.clientY - g.y; g.moved = Math.max(g.moved, Math.abs(dx) + Math.abs(dy));
+    if (g.kind === 'pan' || g.kind === 'pick') { if (g.moved > 4) { g.kind = 'pan'; this._vis = { a: 1, e: dx, f: dy }; this._applyVis(); } return; }
+    if (g.kind === 'v') { if (g.moved < 3) return; const p = this._snapPt(...this._pct(e)), pts = this.state.pts.slice(); pts[g.i] = p; this.setState({ pts }); return; }
+    if (g.kind === 'pin' && g.moved > 3) {
+      const [x, y] = this._pct(e), X = r2(Math.max(0, Math.min(100, x))), Y = r2(Math.max(0, Math.min(100, y)));
+      if (g.pk === 'prop') this.setState((st) => ({ f: { ...st.f, x_percent: X, y_percent: Y, moved: true } }));
+      else this._patchF({ x_percent: X, y_percent: Y });
+    }
+  }
+  _up(e) {
+    const g = this._g; this._ptr.delete(e.pointerId);
+    if (this._ptr.size === 1) { const [a] = [...this._ptr.values()]; this._commitVis(); this._g = { kind: 'pan', x: a.x, y: a.y, moved: 99 }; return; }
+    if (this._ptr.size > 0) return;
+    this._g = null;
+    if (!g) return;
+    if (g.pinch) { this._commitVis(); return; }
+    if (g.kind === 'v') { if (g.moved >= 3 && !g.noHist) this.setState((st) => ({ hist: st.hist.concat([g.base]).slice(-80), dirty: true, f: st.f && st.sel && st.sel.t === 'loc' ? { ...st.f, shapeTouched: true } : st.f })); return; }
+    if (g.kind === 'pin') return;
+    if (g.kind === 'pick') { if (g.pk === 'prop') this._selProp(g.id); else this._selLoc(g.id); return; }
+    if (g.moved > 4) { this._commitVis(); return; }
+    // клік по порожньому
+    const s = this.state, [x, y] = this._pct(e);
+    if (x < 0 || x > 100 || y < 0 || y > 100) return;
+    if (s.draw) { this._setPts(s.pts.concat([this._snapPt(x, y)])); return; }
+    if (s.sel && s.sel.t === 'loc' && !s.sel.id && s.f.x_percent == null) { this._patchF({ x_percent: r2(x), y_percent: r2(y), parent_id: s.f.location_type === 'country' ? '' : (s.f.parent_id || this._nearestParent(x, y)) }); return; }
+    const h = this._hit(x, y);
+    if (h) { if (h.t === 'zone') this._selZone(h.id); else this._selLoc(h.id); return; }
+    if (s.sel && !s.dirty) this._clear();
+  }
+  _nearestParent(x, y) {
+    let best = null, bd = 1e9;
+    for (const n of this._locs()) { const k = kindOf(n); if (!isArea(k)) continue; const P = ptsOf(n.shape);
+      if (P.length >= 3 && pip(x, y, P)) { const a = pArea(P) * (k === 'region' ? 0.5 : 1); if (a < bd) { bd = a; best = n; } } }
+    return best ? String(best.id) : '';
+  }
+
+  // ── збереження ──
+  async _save() {
+    const s = this.state, sel = s.sel, f = s.f; if (!sel || !f) return;
+    if (s.draw && s.pts.length > 0 && s.pts.length < 3) { this._say('✗ Контур має бути щонайменше з 3 точок'); return; }
+    this.setState({ busy: true });
+    try {
+      if (sel.t === 'loc') {
+        if (!String(f.name || '').trim()) throw new Error('Дайте місцю назву');
+        if (f.x_percent == null) throw new Error('Клацніть на мапі, де стоїть місце');
+        const k = f.location_type;
+        const body = { name: f.name.trim(), location_type: k, parent_id: k === 'country' ? null : (f.parent_id || null), x_percent: +f.x_percent, y_percent: +f.y_percent,
+          lore_id: f.lore_id || null, description: String(f.description || '').trim(), character_ids: f.character_ids || '', credit: String(f.credit || '').trim() || null };
+        if (isArea(k) && (f.shapeTouched || f.colTouched)) body.shape = s.pts.length >= 3 ? { c: f.col, p: s.pts } : null;
+        if (!isArea(k) && f.shapeTouched) body.shape = null;
+        const res = sel.id ? await this._req(`map_locations?id=eq.${sel.id}`, { method: 'PATCH', body: JSON.stringify(body) })
+          : await this._req('map_locations', { method: 'POST', body: JSON.stringify(body) });
+        const row = Array.isArray(res) ? res[0] : res;
+        this.setState({ dirty: false, draw: false, busy: false, sel: { t: 'loc', id: (row && row.id) || sel.id } });
+        if (this.props.onRefresh) await this.props.onRefresh();
+      } else if (sel.t === 'zone') {
+        if (!String(f.name || '').trim()) throw new Error('Дайте зоні назву');
+        if (s.pts.length < 3) throw new Error('Намалюйте контур — щонайменше 3 точки');
+        const body = { name: f.name.trim(), color: f.col, shape: s.pts, description: String(f.description || '').trim() || null, lore_id: f.lore_id || null };
+        const res = sel.id ? await this._req(`map_zones?id=eq.${sel.id}`, { method: 'PATCH', body: JSON.stringify(body) })
+          : await this._req('map_zones', { method: 'POST', body: JSON.stringify(body) });
+        const row = Array.isArray(res) ? res[0] : res;
+        await this._loadZones();
+        this.setState({ dirty: false, draw: false, busy: false, sel: { t: 'zone', id: (row && row.id) || sel.id }, f: { ...f, id: (row && row.id) || sel.id } });
+      }
+      try { localStorage.setItem('aurelion-refresh', Date.now().toString()); } catch (e) {}
+      this._say('✓ Збережено');
+    } catch (e) {
+      this.setState({ busy: false });
+      this._say('✗ ' + (/shape|map_zones/.test(e.message || '') ? 'Спершу прогоніть supabase_atlas_zones_migration.sql' : /parent_id|lore_id|credit/.test(e.message || '') ? 'Спершу прогоніть supabase_atlas_migration.sql' : e.message));
+    }
+  }
+  async _del() {
+    const s = this.state, sel = s.sel; if (!sel || !sel.id) return;
+    if (sel.t === 'loc') {
+      const kids = this._kids(sel.id).length;
+      if (!window.confirm(kids ? `Видалити «${s.f.name}»? Усередині ${kids} місць — вони стануть «окремо».` : `Видалити «${s.f.name}» з мапи?`)) return;
+    } else if (!window.confirm(`Видалити зону «${s.f.name}»?`)) return;
+    this.setState({ busy: true });
+    try {
+      if (sel.t === 'loc') { await this._req(`map_locations?id=eq.${sel.id}`, { method: 'DELETE' }); this.setState({ busy: false, sel: null, f: null, dirty: false, draw: false }); if (this.props.onRefresh) await this.props.onRefresh(); }
+      else { await this._req(`map_zones?id=eq.${sel.id}`, { method: 'DELETE' }); await this._loadZones(); this.setState({ busy: false, sel: null, f: null, dirty: false, draw: false }); }
+      try { localStorage.setItem('aurelion-refresh', Date.now().toString()); } catch (e) {}
+      this._say('✓ Видалено');
+    } catch (e) { this.setState({ busy: false }); this._say('✗ ' + e.message); }
+  }
+  async _makeLore() {
+    const f = this.state.f, name = String(f.name || '').trim();
+    if (!name) { this._say('✗ Спершу дайте місцю назву'); return; }
+    try {
+      const res = await this._req('lore', { method: 'POST', body: JSON.stringify({ title: name, content: String(f.description || '').trim(), category: 'Місця', in_lore: false, sort_order: 1000 }) });
+      const row = Array.isArray(res) ? res[0] : res;
+      this._patchF({ lore_id: row && row.id ? String(row.id) : '' });
+      if (this.props.onRefresh) await this.props.onRefresh();
+      this._say('✓ Статтю створено — збережіть місце, щоб привʼязати');
+    } catch (e) { this._say('✗ ' + (/in_lore/.test(e.message || '') ? 'Спершу прогоніть supabase_atlas_migration.sql' : e.message)); }
+  }
+
+  renderVals() {
+    const s = this.state, P = this.props, f = s.f || {}, sel = s.sel;
+    const locs = this._locs(), by = this._by(), zones = s.zones, props = this._props();
+    const { tx, ty, sc, iw, ih, fit } = s, z = fit ? sc / fit : 1;
+    const W = Math.max(1, Math.round(iw * sc)), H = Math.max(1, Math.round(ih * sc));
+    const scr = (x, y) => ({ x: Math.round(tx + (x / 100) * iw * sc), y: Math.round(ty + (y / 100) * ih * sc) });
+    const toPx = (A) => A.map(([x, y]) => (x * W / 100).toFixed(1) + ',' + (y * H / 100).toFixed(1)).join(' ');
+    const isLoc = !!sel && sel.t === 'loc', isZone = !!sel && sel.t === 'zone', isProp = !!sel && sel.t === 'prop';
+    const selId = sel && sel.id ? String(sel.id) : '';
+    const selLoc = isLoc && selId ? by.get(selId) : null, selProp = isProp ? props.find((x) => String(x.id) === selId) : null;
+    const editingShape = (isLoc && isArea(f.location_type)) || isZone;
+    const q = s.q.trim().toLowerCase();
+
+    // ── дерево ──
+    const mark = (n) => { const k = kindOf(n), a = isArea(k), hs = ptsOf(n.shape).length >= 3, hl = !!n.lore_id;
+      return { sh: a ? (hs ? '◇' : '⚠◇') : '', shC: a && !hs ? 'aa-w' : '', lo: hl ? '¶' : '⚠¶', loC: hl ? '' : 'aa-w' }; };
+    const rowOf = (n, d, sub) => { const k = kindOf(n); return { key: n.id, id: n.id, name: n.name + (sub ? ' · ' + sub : ''), pad: (12 + d * 14) + 'px', col: KINDS[k][1], isPlace: !isArea(k),
+      cls: k === 'country' ? 'c' : k === 'region' ? 'r' : '', on: isLoc && selId === String(n.id), ...mark(n) }; };
+    const passF = (n) => { const k = kindOf(n);
+      if (s.filt === 'noshape') return isArea(k) && ptsOf(n.shape).length < 3;
+      if (s.filt === 'nolore') return !n.lore_id;
+      if (s.filt === 'nochars') return !isArea(k) && !String(n.character_ids || '').trim();
+      return true; };
+    let rows = [];
+    if (q || s.filt) {
+      rows = locs.filter((n) => (!q || String(n.name || '').toLowerCase().includes(q)) && passF(n)).sort((a, b) => String(a.name).localeCompare(String(b.name), 'uk'))
+        .map((n) => rowOf(n, 0, this._chain(n).map((x) => x.name).slice(-1)[0] || ''));
+    } else {
+      const srt = (a, b) => KORD.indexOf(kindOf(a)) - KORD.indexOf(kindOf(b)) || (a.sort_order || 0) - (b.sort_order || 0) || String(a.name).localeCompare(String(b.name), 'uk');
+      const walk = (n, d, g) => { if (g > 20) return; rows.push(rowOf(n, d)); this._kids(n.id).sort(srt).forEach((k) => walk(k, d + 1, g + 1)); };
+      locs.filter((n) => !n.parent_id || !by.has(String(n.parent_id))).sort(srt).forEach((n) => walk(n, 0, 0));
+    }
+    const zrows = zones.filter((x) => !q || String(x.name || '').toLowerCase().includes(q)).map((x) => ({ key: x.id, id: x.id, name: x.name, col: x.color || '#9b5de5', fill: (x.color || '#9b5de5') + '44', n: ptsOf(x.shape).length + ' т.', on: isZone && selId === String(x.id) }));
+    const ST = { pending: ['нова', '#ffd700'], returned: ['повернуто', '#ff9a9a'] };
+    const ppRows = props.filter((x) => !q || String(x.name || '').toLowerCase().includes(q)).map((x) => ({ key: x.id, id: x.id, name: x.name, col: (KINDS[x.kind] || KINDS.city)[1], stL: (ST[x.status] || ST.pending)[0], stC: (ST[x.status] || ST.pending)[1], on: isProp && selId === String(x.id) }));
+    const ppPending = props.filter((x) => x.status === 'pending').length;
+
+    // ── мапа: контури ──
+    const shapes = [], hatches = [];
+    if (iw && s.layer === 'countries') {
+      locs.filter((n) => isArea(kindOf(n))).forEach((n) => {
+        if (s.draw && isLoc && selId === String(n.id)) return;
+        const Pn = (isLoc && selId === String(n.id)) ? s.pts : ptsOf(n.shape); if (Pn.length < 3) return;
+        const reg = kindOf(n) === 'region', on = isLoc && selId === String(n.id), col = on ? f.col : ((n.shape && n.shape.c) || KINDS[kindOf(n)][1]);
+        shapes.push({ key: n.id, pts: toPx(Pn), col, fill: col + (on ? '30' : reg ? '10' : '1a'), sw: on ? 2.4 : reg ? 1 : 1.5, dash: reg ? '3 4' : '7 5', op: 1, a: pArea(Pn) });
+      });
+      shapes.sort((a, b) => b.a - a.a);
+    }
+    if (iw && s.layer === 'zones') zones.forEach((x) => {
+      if (s.draw && isZone && selId === String(x.id)) return;
+      const on = isZone && selId === String(x.id), Pz = on ? s.pts : ptsOf(x.shape); if (Pz.length < 3) return;
+      const col = on ? f.col : (x.color || '#9b5de5');
+      hatches.push({ key: x.id, id: 'aaz_' + x.id, col }); shapes.push({ key: x.id, pts: toPx(Pz), col, fill: `url(#aaz_${x.id})`, sw: on ? 2.6 : 1.6, dash: '', op: isZone && !on ? 0.5 : 1 });
+    });
+    // редагований контур
+    const n = s.pts.length, edCol = f.col || '#ffd76b';
+    const showEd = iw && s.draw;
+    const labels = [];
+    if (iw && s.layer === 'countries' && z < 5) locs.filter((x) => kindOf(x) === 'country').forEach((x) => { const p = scr(x.x_percent, x.y_percent); labels.push({ key: x.id, t: String(x.name || '').toUpperCase(), ...p, col: 'rgba(255,215,107,0.75)', fs: Math.max(0.7, Math.min(1.3, 0.6 + z * 0.2)) + 'rem' }); });
+    if (iw && s.layer === 'zones' && z < 6) zones.forEach((x) => { const Pz = ptsOf(x.shape); if (Pz.length < 3) return; const [cx, cy] = pMid(Pz), p = scr(cx, cy); labels.push({ key: 'z' + x.id, t: String(x.name || '').toUpperCase(), ...p, col: x.color || '#9b5de5', fs: '0.78rem' }); });
+
+    // ── мапа: точки ──
+    const pins = [];
+    if (iw) {
+      locs.forEach((x) => {
+        const k = kindOf(x), on = isLoc && selId === String(x.id), xx = on ? f.x_percent : x.x_percent, yy = on ? f.y_percent : x.y_percent;
+        if (xx == null) return;
+        if (isArea(k) && !on && z < 1.6) return; // точки країн/регіонів — лише зблизька або вибрані
+        const p = scr(xx, yy);
+        pins.push({ key: x.id, id: String(x.id), pk: 'loc', name: x.name, ...p, col: KINDS[k][1], lbl: on || k === 'capital' || z >= 1.8, cls: 'aa-pin' + (on ? ' on' : '') + (isArea(k) ? ' area' : '') });
+      });
+      if (isLoc && !selId && f.x_percent != null) { const p = scr(f.x_percent, f.y_percent); pins.push({ key: '__new', id: '', pk: 'loc', name: f.name || 'нове місце', ...p, col: KINDS[f.location_type][1], lbl: true, cls: 'aa-pin on' + (isArea(f.location_type) ? ' area' : '') }); }
+      props.forEach((x) => {
+        const on = isProp && selId === String(x.id), xx = on ? f.x_percent : x.x_percent, yy = on ? f.y_percent : x.y_percent;
+        if (!on && s.tab !== 'props') return;
+        const p = scr(xx, yy);
+        pins.push({ key: 'p' + x.id, id: String(x.id), pk: 'prop', name: x.name + ' · заявка', ...p, col: (KINDS[x.kind] || KINDS.city)[1], lbl: true, cls: 'aa-pin prop' + (on ? ' on' : '') });
+      });
+    }
+
+    // ── інспектор ──
+    let I = { kind: 'Мапа світу', col: 'rgba(255,255,255,0.5)', title: 'Нічого не вибрано', sub: 'Виберіть місце в дереві або на мапі' };
+    let F = {};
+    if (isLoc) {
+      const k = f.location_type, chain = f.parent_id ? (() => { const pn = by.get(String(f.parent_id)); return pn ? this._chain(pn).concat([pn]) : []; })() : [];
+      const lore = this._lore(f.lore_id);
+      const charIds = String(f.character_ids || '').split(',').map((x) => x.trim()).filter(Boolean);
+      const chars = charIds.map((id) => (P.characters || []).find((c) => String(c.id) === id)).filter(Boolean);
+      const facts = Array.isArray(lore && lore.facts) ? lore.facts.filter((x) => x && x.k && x.v).length : 0;
+      I = { kind: KINDS[k][0] + (selId ? '' : ' · нове'), col: KINDS[k][1], title: f.name || (selId ? '—' : 'Нове місце'),
+        sub: k === 'country' ? (selId ? this._kids(selId).length + ' усередині' : 'країна') : (chain.map((x) => x.name).join(' › ') || 'окремо') };
+      F = { name: f.name, notCountry: k !== 'country', parent: f.parent_id, x: f.x_percent == null ? '' : String(f.x_percent), y: f.y_percent == null ? '' : String(f.y_percent),
+        ptHint: f.x_percent == null ? 'клацніть на мапі' : '⤢ тягніть точку на мапі',
+        isArea: isArea(k), col: f.col, shFill: n >= 3 ? f.col + '55' : 'transparent',
+        shapeL: s.draw ? (n + ' точок · малюєте зараз') : n >= 3 ? (n + ' точок') : 'межі ще немає', drawL: s.draw ? '✓ Готово' : n >= 3 ? '✎ Змінити' : '✎ Малювати',
+        canDropShape: !s.draw && n >= 3,
+        hasLore: !!lore, showLoreCard: !!lore && !s.lorePick, showLoreSel: !lore || s.lorePick, lorePickL: s.lorePick ? 'готово' : 'змінити', lore: f.lore_id,
+        loreT: lore ? lore.title : '', loreX: lore ? [String(lore.excerpt || '').slice(0, 90), facts ? 'фактів: ' + facts : '', lore.in_lore === false ? 'лише в Атласі' : 'і в Довіднику'].filter(Boolean).join(' · ') : '',
+        loreCv: lore && lore.cover ? `background-image:url(${JSON.stringify(lore.cover)});` : '',
+        canMakeLore: !lore && !s.lorePick, showDesc: !lore, desc: f.description,
+        charN: String(chars.length), chars: chars.map((c) => ({ key: c.id, id: String(c.id), name: c.name, ini: ini(c.name), av: avOf(c) })),
+        credit: f.credit };
+    } else if (isZone) {
+      const Pz = s.pts, touch = [];
+      if (Pz.length >= 3) {
+        locs.filter((x) => kindOf(x) === 'country').forEach((x) => { const Q = ptsOf(x.shape); if (Q.length >= 3 ? overlap(Pz, Q) : pip(x.x_percent, x.y_percent, Pz)) touch.push(x); });
+        locs.filter((x) => !isArea(kindOf(x)) && pip(x.x_percent, x.y_percent, Pz)).forEach((x) => touch.push(x));
+      }
+      I = { kind: 'Зона впливу' + (selId ? '' : ' · нова'), col: f.col, title: f.name || 'Нова зона', sub: touch.length ? 'зачіпає ' + touch.length : 'контур ще не намальовано' };
+      F = { name: f.name, desc: f.description, lore: f.lore_id, hasLore: !!f.lore_id,
+        shapeL: s.draw ? (n + ' точок · малюєте зараз') : n >= 3 ? n + ' точок' : 'контуру ще немає', drawL: s.draw ? '✓ Готово' : n >= 3 ? '✎ Змінити' : '✎ Малювати',
+        touch: touch.slice(0, 40).map((x) => ({ key: x.id, id: String(x.id), name: x.name })), hasTouch: touch.length > 0, touchN: String(touch.length) };
+    } else if (selProp) {
+      const k = KINDS[selProp.kind] ? selProp.kind : 'city', pn = selProp.parent_id ? by.get(String(selProp.parent_id)) : null;
+      I = { kind: 'Заявка · ' + (ST[selProp.status] || ST.pending)[0], col: '#6ec0b0', title: selProp.name, sub: KINDS[k][0] };
+      F = { who: (selProp.user_nick || 'гравець') + (selProp.character_name ? ' · від імені «' + selProp.character_name + '»' : '') + ' · ' + String(selProp.updated_at || selProp.created_at || '').slice(0, 10),
+        kindL: KINDS[k][0], path: pn ? this._chain(pn).concat([pn]).map((x) => x.name).join(' › ') : 'без країни',
+        ptHint: f.moved ? 'Точку пересунуто — при прийнятті місце стане сюди.' : 'Точку видно пунктиром; можна підсунути перед прийняттям.',
+        body: selProp.body || '', imgs: (selProp.images || []).map((u, i) => ({ key: i, url: u })), hasImgs: (selProp.images || []).length > 0, imgN: String((selProp.images || []).length),
+        hasOld: selProp.status === 'returned' && !!selProp.gm_note, old: selProp.gm_note || '', note: f.note || '' };
+    }
+    const descOf = (id) => { const out = new Set([String(id)]); let grew = true; while (grew) { grew = false; for (const x of locs) if (x.parent_id && out.has(String(x.parent_id)) && !out.has(String(x.id))) { out.add(String(x.id)); grew = true; } } return out; };
+    const bad = isLoc && selId ? descOf(selId) : new Set();
+    const parents = [];
+    if (isLoc) { const walkO = (x, d) => { if (bad.has(String(x.id))) return; const k = kindOf(x); if (k !== 'fort' && k !== 'ruin') parents.push({ key: x.id, id: String(x.id), label: ' '.repeat(d) + x.name + ' · ' + KINDS[k][0] }); this._kids(x.id).forEach((y) => walkO(y, d + 1)); };
+      locs.filter((x) => !x.parent_id || !by.has(String(x.parent_id))).sort((a, b) => KORD.indexOf(kindOf(a)) - KORD.indexOf(kindOf(b))).forEach((x) => walkO(x, 0)); }
+    const charIds = new Set(String(f.character_ids || '').split(',').map((x) => x.trim()).filter(Boolean));
+    const cq = s.cq.trim().toLowerCase();
+    const cres = isLoc && cq ? (P.characters || []).filter((c) => !charIds.has(String(c.id)) && (String(c.name || '').toLowerCase().includes(cq) || String(c.alias || '').toLowerCase().includes(cq))).slice(0, 8)
+      .map((c) => ({ key: c.id, id: String(c.id), name: c.name, ini: ini(c.name), av: avOf(c) })) : [];
+    const nCountry = locs.filter((x) => kindOf(x) === 'country').length, nRegion = locs.filter((x) => kindOf(x) === 'region').length;
+    const noShape = locs.filter((x) => isArea(kindOf(x)) && ptsOf(x.shape).length < 3).length, noLore = locs.filter((x) => !x.lore_id).length;
+
+    const hint = s.draw ? 'Клік — нова точка · тягніть точку — пересунути · кружечок посередині лінії — вставити'
+      : isLoc && !selId && f.x_percent == null ? 'Клацніть на мапі, де стоїть місце'
+      : isLoc && selId ? 'Тягніть вибрану точку, щоб перенести — збережеться кнопкою «Зберегти»'
+      : isProp ? 'Пунктир — точка із заявки; її можна підсунути перед прийняттям' : '';
+
+    return {
+      mapRef: this.mapRef, worldRef: this.worldRef, mapUrl: P.mapUrl || '', tx, ty, sc,
+      tabMap: s.tab === 'map', tabProps: s.tab === 'props', hasPPBadge: ppPending > 0, ppPending: String(ppPending),
+      setTab: (e) => { const t = e.currentTarget.dataset.k; this.setState({ tab: t, pane: MQ() ? 'tree' : s.pane }); if (t === 'props' && props.length && !(isProp)) this._selProp(props[0].id, true); },
+      uploadL: s.upBusy ? 'Завантаження…' : '🖼 Замінити зображення мапи',
+      uploadMap: async (e) => { const file = e.target.files && e.target.files[0]; e.target.value = ''; if (!file || !P.onUploadMap) return; this.setState({ upBusy: true }); try { await P.onUploadMap(file); } finally { this.setState({ upBusy: false, iw: 0 }); } },
+      addOpen: s.addOpen, toggleAdd: () => this.setState((st) => ({ addOpen: !st.addOpen })), addNew: (e) => this._new(e.currentTarget.dataset.k),
+      noZoneTable: s.noZoneTable,
+      pane: s.pane, paneTree: s.pane === 'tree', paneMap: s.pane === 'map', paneInsp: s.pane === 'insp',
+      setPane: (e) => { const p = e.currentTarget.dataset.k; this.setState({ pane: p }, () => { if (p === 'map' && this.state.iw) setTimeout(() => this._fit(true), 30); }); },
+      q: s.q, setQ: (e) => this.setState({ q: e.target.value }),
+      filts: [['noshape', '⚠ без межі · ' + noShape], ['nolore', '⚠ без статті · ' + noLore], ['nochars', 'без персонажів']].map(([k, l]) => ({ key: k, k, l, on: s.filt === k })),
+      setFilt: (e) => { const k = e.currentTarget.dataset.k; this.setState((st) => ({ filt: st.filt === k ? '' : k })); },
+      showPP: s.tab === 'props' || props.length > 0, ppRows, ppCount: String(props.length), ppNone: props.length === 0,
+      ppNoneText: P.placeProps === null ? 'Заявки запрацюють після supabase_atlas_migration.sql.' : 'Нових заявок немає.',
+      pickProp: (e) => this._selProp(e.currentTarget.dataset.id, 'tree'),
+      locTitle: (q || s.filt ? 'Знайдено · ' : 'Країни й місця · ') + rows.length, rows, noRows: rows.length === 0,
+      noRowsText: q || s.filt ? 'Нічого не знайшлося.' : 'Місць ще немає — «＋ Додати ▾».',
+      pickLoc: (e) => this._selLoc(e.currentTarget.dataset.id, 'tree'),
+      zCount: String(zones.length), zrows, noZones: zones.length === 0 && !q, pickZone: (e) => this._selZone(e.currentTarget.dataset.id, 'tree'),
+
+      mapMode: s.draw ? 'draw' : (isLoc && !selId && f.x_percent == null) ? 'place' : '',
+      imgLoad: (e) => { const im = e.currentTarget; this.setState({ iw: im.naturalWidth, ih: im.naturalHeight }, () => this._fit()); },
+      down: (e) => this._down(e), move: (e) => this._move(e), up: (e) => this._up(e), cancelPtr: (e) => { this._ptr.delete(e.pointerId); this._g = null; this._commitVis(); },
+      stop: (e) => e.stopPropagation(),
+      shX: Math.round(tx), shY: Math.round(ty), shW: W, shH: H, shapes, hatches,
+      edClosed: !!showEd && n >= 3, edOpen: !!showEd && n > 0 && n < 3, edPts: showEd ? toPx(s.pts) : '', edCol, edFill: edCol + '2a',
+      mids: showEd && n >= 2 ? s.pts.slice(0, n >= 3 ? n : n - 1).map((p, i) => { const p2 = s.pts[(i + 1) % n]; return { key: i, i, x: ((p[0] + p2[0]) / 2 * W / 100).toFixed(1), y: ((p[1] + p2[1]) / 2 * H / 100).toFixed(1) }; }) : [],
+      dots: showEd ? s.pts.map((p, i) => ({ key: i, i, x: (p[0] * W / 100).toFixed(1), y: (p[1] * H / 100).toFixed(1), r: i === s.vsel ? 8 : 6, fill: i === s.vsel ? '#fff' : i === 0 ? '#6ec0b0' : edCol })) : [],
+      labels, pins,
+      hasTools: s.draw, drawName: isZone ? 'Контур · ' + (f.name || 'нова зона') : 'Межа · ' + (f.name || 'нове місце'),
+      snap: s.snap, toggleSnap: () => this.setState((st) => ({ snap: !st.snap })),
+      noUndo: s.hist.length === 0, undo: () => this.setState((st) => st.hist.length ? { pts: st.hist[st.hist.length - 1], hist: st.hist.slice(0, -1), vsel: -1, dirty: true } : null),
+      noVSel: s.vsel < 0, delPt: () => { if (s.vsel >= 0) this._setPts(s.pts.filter((_, i) => i !== s.vsel)); },
+      noPts: n === 0, clearPts: () => this._setPts([]),
+      drawDone: () => { if (n > 0 && n < 3) { this._say('✗ Потрібно щонайменше 3 точки — або «⟲ заново»'); return; } this.setState({ draw: false, vsel: -1 }); },
+      layers: [['countries', 'Межі'], ['zones', 'Зони'], ['none', 'Без']].map(([k, l]) => ({ key: k, k, l, on: s.layer === k })),
+      setLayer: (e) => this.setState({ layer: e.currentTarget.dataset.k }),
+      zIn: () => this._zoom(1.35), zOut: () => this._zoom(1 / 1.35), zFit: () => this._fit(),
+      hasHint: !!hint, hint, hasSel: !!sel, selName: I.title,
+
+      i: I, f: F, isLoc, isZone, isProp: !!selProp, isNone: !sel,
+      kinds: KORD.map((k) => ({ key: k, k, l: KINDS[k][0], on: f.location_type === k })),
+      setKind: (e) => { const k = e.currentTarget.dataset.k; this._patchF({ location_type: k, ...(k === 'country' ? { parent_id: '' } : {}), ...(s.f.col === KINDS[s.f.location_type][1] ? { col: KINDS[k][1] } : {}) }); if (!isArea(k) && s.draw) this.setState({ draw: false }); },
+      parents, setF: (e) => { const k = e.currentTarget.dataset.k, v = e.target.value; if (isProp) this.setState((st) => ({ f: { ...st.f, [k]: v } })); else this._patchF({ [k]: v }); },
+      setNum: (e) => { const k = e.currentTarget.dataset.k, v = parseFloat(e.target.value); if (isFinite(v)) this._patchF({ [k]: r2(Math.max(0, Math.min(100, v))) }); },
+      cols: COLS.map((c) => ({ key: c, c, on: c === f.col })), setCol: (e) => this._patchF({ col: e.currentTarget.dataset.c, colTouched: true }),
+      startDraw: () => { if (s.draw) { if (n > 0 && n < 3) { this._say('✗ Потрібно щонайменше 3 точки'); return; } this.setState({ draw: false, vsel: -1 }); return; }
+        this.setState({ draw: true, layer: isZone ? 'zones' : 'countries', pane: MQ() ? 'map' : s.pane }); },
+      dropShape: () => { this._setPts([]); },
+      toggleLorePick: () => this.setState((st) => ({ lorePick: !st.lorePick })),
+      loreOpts: (P.lore || []).slice().sort((a, b) => String(a.title).localeCompare(String(b.title), 'uk')).map((l) => ({ key: l.id, id: String(l.id), label: l.title + (l.category ? ' · ' + l.category : '') })),
+      openLore: () => { if (s.dirty && !window.confirm('Незбережені зміни місця пропадуть. Відкрити статтю?')) return; if (P.onOpenLore && f.lore_id) P.onOpenLore(f.lore_id); },
+      makeLore: () => this._makeLore(),
+      cq: s.cq, setCQ: (e) => this.setState({ cq: e.target.value }), cres, hasCRes: cres.length > 0,
+      addChar: (e) => { const id = e.currentTarget.dataset.id; const ids = [...charIds, id]; this._patchF({ character_ids: ids.join(',') }); this.setState({ cq: '' }); },
+      remChar: (e) => { const id = e.currentTarget.dataset.id; this._patchF({ character_ids: [...charIds].filter((x) => x !== id).join(',') }); },
+      mapSize: iw ? `${iw} × ${ih}` : '—',
+      stats: `${nCountry} країн · ${nRegion} регіонів · ${locs.length - nCountry - nRegion} місць · ${zones.length} зон\nбез межі: ${noShape} · без статті: ${noLore}`,
+
+      hasFoot: !!sel, isEditable: isLoc || isZone, busy: s.busy, dirty: s.dirty,
+      noSave: s.busy || !s.dirty, saveL: s.busy ? 'Зберігаю…' : selId ? 'Зберегти' : (isZone ? 'Створити зону' : 'Додати на мапу'),
+      save: () => this._save(), del: () => this._del(), canDel: !!selId, delL: isZone ? 'Видалити зону' : 'Видалити',
+      cancelSel: () => { if (!this._guard()) return; if (selId && isLoc) { this.setState({ dirty: false }, () => this._selLoc(selId)); } else if (selId && isZone) { this.setState({ dirty: false }, () => this._selZone(selId)); } else this._clear(); },
+      decide: async (e) => {
+        const a = e.currentTarget.dataset.a; if (!selProp || !P.onDecide) return;
+        if (a === 'return' && !String(f.note || '').trim()) { this._say('✗ Напишіть гравцю, що виправити'); return; }
+        this.setState({ busy: true });
+        try { await P.onDecide(selProp, a === 'return' ? 'return' : 'accept', a === 'open', String(f.note || '').trim(), f.moved ? { x: f.x_percent, y: f.y_percent } : null); }
+        finally { this.setState({ busy: false }); }
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

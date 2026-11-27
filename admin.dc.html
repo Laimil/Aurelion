@@ -3968,189 +3968,8 @@ input,textarea,select{font-size:16px}
 
 <!-- MAP TAB -->
 <sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
-  <div style="max-width:1100px;margin:0 auto;padding:28px 24px 80px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-      <h2 style="font-family:'Cinzel',serif;font-size:1.05rem;color:#ffd700;letter-spacing:0.07em;">◎ Атлас — місця на мапі</h2>
-      <button onClick="{{ startAddMapPin }}" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 16px;font-size:0.8rem;cursor:pointer;" style-hover="background:rgba(255,215,0,0.18);">+ Нове місце</button>
-    </div>
-    <!-- Межі країн і зони впливу -->
-    <div style="margin-bottom:20px;border:1px solid rgba(255,215,107,0.22);border-radius:11px;background:rgba(255,215,107,0.03);">
-      <button onClick="{{ toggleShapes }}" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;color:#ffd76b;padding:11px 14px;cursor:pointer;font-size:0.84rem;text-align:left;"><span style="flex:1;">◇ Межі країн і зони впливу</span><span style="font-size:0.72rem;color:rgba(255,255,255,0.45);">{{ shapesToggleL }}</span></button>
-      <sc-if value="{{ shapesOpen }}" hint-placeholder-val="{{ false }}">
-        <div style="padding:4px 14px 16px;"><dc-import name="AtlasShapes" map-url="{{ adminMapImgSrc }}" locations="{{ shapesLocs }}" lore="{{ shapesLore }}" on-saved="{{ shapesSaved }}" hint-size="100%,700px"></dc-import></div>
-      </sc-if>
-    </div>
-    <!-- Заявки гравців -->
-    <sc-if value="{{ ppNoTable }}" hint-placeholder-val="{{ false }}">
-      <p style="font-size:0.78rem;color:rgba(255,215,0,0.7);background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:10px 14px;margin-bottom:18px;">Країни, регіони й заявки гравців запрацюють після міграції <b>supabase_atlas_migration.sql</b>.</p>
-    </sc-if>
-    <sc-if value="{{ ppHas }}" hint-placeholder-val="{{ false }}">
-      <div style="margin-bottom:24px;display:flex;flex-direction:column;gap:12px;">
-        <p style="font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:#6ec0b0;">Заявки гравців · {{ ppCount }}</p>
-        <sc-for list="{{ ppList }}" as="q" hint-placeholder-count="0">
-          <div style="display:grid;grid-template-columns:180px minmax(0,1fr);border:1px solid rgba(110,192,176,0.3);border-radius:11px;background:rgba(110,192,176,0.04);overflow:hidden;">
-            <div style="position:relative;overflow:hidden;background:#0c0c0c;aspect-ratio:4/3;align-self:start;border-right:1px solid rgba(110,192,176,0.2);border-bottom:1px solid rgba(110,192,176,0.2);">
-              <img src="{{ adminMapImgSrc }}" alt="" style="position:absolute;width:400%;height:400%;max-width:none;left:{{ q.mL }};top:{{ q.mT }};filter:brightness(0.85);" />
-              <span style="position:absolute;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%) rotate(45deg);border:2px dashed #6ec0b0;background:rgba(110,192,176,0.35);border-radius:3px;"></span>
-            </div>
-            <div style="padding:13px 15px;display:flex;flex-direction:column;gap:7px;min-width:0;">
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span style="font-family:'Cinzel',serif;font-size:0.95rem;color:#fff;">{{ q.name }}</span>
-                <span style="font-size:0.66rem;padding:2px 8px;border-radius:999px;color:{{ q.kc }};border:1px solid {{ q.kc }};">{{ q.kindL }}</span>
-                <span style="font-size:0.66rem;padding:2px 8px;border-radius:999px;color:{{ q.stC }};background:{{ q.stBg }};">{{ q.stL }}</span>
-              </div>
-              <p style="font-size:0.74rem;color:#ffd76b;">{{ q.path }}</p>
-              <p style="font-family:'EB Garamond',serif;font-size:0.95rem;line-height:1.5;color:rgba(255,255,255,0.75);white-space:pre-wrap;max-height:150px;overflow-y:auto;">{{ q.body }}</p>
-              <sc-if value="{{ q.hasImgs }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:6px;"><sc-for list="{{ q.imgs }}" as="g" hint-placeholder-count="0"><a href="{{ g.url }}" target="_blank" rel="noopener" style="width:64px;height:46px;border-radius:6px;background:url('{{ g.url }}') center/cover;border:1px solid rgba(255,255,255,0.12);"></a></sc-for></div></sc-if>
-              <p style="font-size:0.72rem;color:rgba(255,255,255,0.45);">{{ q.who }}</p>
-              <sc-if value="{{ q.hasOldNote }}" hint-placeholder-val="{{ false }}"><p style="font-size:0.74rem;color:rgba(255,255,255,0.6);border-left:2px solid rgba(255,77,77,0.45);padding-left:8px;">Ваш коментар: «{{ q.oldNote }}»</p></sc-if>
-              <input value="{{ q.note }}" data-id="{{ q.id }}" onChange="{{ ppSetNote }}" placeholder="Коментар гравцю (обовʼязковий, якщо повертаєте)" style="font-size:0.8rem;padding:7px 10px;" />
-              <div style="display:flex;gap:7px;flex-wrap:wrap;">
-                <button data-id="{{ q.id }}" onClick="{{ ppAccept }}" disabled="{{ q.busy }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:999px;padding:7px 16px;font-size:0.8rem;font-weight:700;cursor:pointer;">✓ Прийняти</button>
-                <button data-id="{{ q.id }}" onClick="{{ ppAcceptOpen }}" disabled="{{ q.busy }}" style="background:rgba(110,192,176,0.1);border:1px solid rgba(110,192,176,0.45);color:#6ec0b0;border-radius:999px;padding:7px 14px;font-size:0.8rem;cursor:pointer;">Прийняти й доредагувати</button>
-                <button data-id="{{ q.id }}" onClick="{{ ppReturn }}" disabled="{{ q.busy }}" style="background:none;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.7);border-radius:999px;padding:7px 14px;font-size:0.8rem;cursor:pointer;">↩ Повернути з коментарем</button>
-                <button data-id="{{ q.id }}" onClick="{{ ppShow }}" style="background:none;border:none;color:rgba(255,255,255,0.45);font-size:0.76rem;cursor:pointer;">показати на мапі ↓</button>
-              </div>
-            </div>
-          </div>
-        </sc-for>
-      </div>
-    </sc-if>
-    <!-- Завантаження карти -->
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:180px;">
-        <p style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.36);margin-bottom:4px;">Зображення карти</p>
-        <p style="font-size:0.84rem;color:rgba(255,255,255,0.58);">{{ adminMapImgStatus }}</p>
-      </div>
-      <label style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.28);color:#ffd700;border-radius:6px;padding:7px 18px;font-size:0.8rem;cursor:pointer;white-space:nowrap;transition:background 0.18s;" style-hover="background:rgba(255,215,0,0.18);">
-        {{ adminMapUploadLabel }}
-        <input type="file" accept="image/*" onChange="{{ uploadMapImage }}" style="display:none;" />
-      </label>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:start;">
-      <!-- Map preview -->
-      <div>
-        <p style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:8px;">Натисни на карту для встановлення координат</p>
-        <div style="position:relative;border-radius:8px;overflow:hidden;cursor:crosshair;border:1px solid rgba(255,255,255,0.09);" onClick="{{ handleAdminMapClick }}">
-          <img src="{{ adminMapImgSrc }}" style="width:100%;display:block;pointer-events:none;" />
-          <sc-for list="{{ adminMapPinList }}" as="pin" hint-placeholder-count="0">
-            <div data-id="{{ pin.id }}" onClick="{{ selectAdminMapPin }}"
-                 style="position:absolute;left:{{ pin.x_percent }}%;top:{{ pin.y_percent }}%;transform:translate(-50%,-100%);cursor:pointer;z-index:5;pointer-events:auto;">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
-                <div style="width:{{ pin.sz }};height:{{ pin.sz }};background:{{ pin.dotColor }};transform:rotate(45deg);border-radius:1px;box-shadow:0 0 5px {{ pin.dotColor }};border:1px solid rgba(255,255,255,0.5);"></div>
-                <p style="font-size:0.36rem;color:#fff;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,1);background:rgba(0,0,0,0.7);padding:0 2px;border-radius:1px;font-family:'Cinzel',serif;">{{ pin.name }}</p>
-              </div>
-            </div>
-          </sc-for>
-          <sc-if value="{{ ppShowOn }}" hint-placeholder-val="{{ false }}">
-            <div style="position:absolute;left:{{ ppShowX }}%;top:{{ ppShowY }}%;transform:translate(-50%,-50%) rotate(45deg);width:12px;height:12px;border:2px dashed #6ec0b0;background:rgba(110,192,176,0.35);z-index:9;pointer-events:none;"></div>
-          </sc-if>
-          <sc-if value="{{ adminMapIsPlacing }}" hint-placeholder-val="{{ false }}">
-            <div style="position:absolute;left:{{ adminMapNewX }}%;top:{{ adminMapNewY }}%;transform:translate(-50%,-100%);z-index:10;pointer-events:none;">
-              <div style="width:10px;height:10px;background:#6495ed;transform:rotate(45deg);border-radius:2px;box-shadow:0 0 10px rgba(100,149,237,0.9);border:1.5px solid rgba(255,255,255,0.7);"></div>
-            </div>
-          </sc-if>
-        </div>
-      </div>
-      <!-- Form panel -->
-      <div>
-        <sc-if value="{{ showAdminMapForm }}" hint-placeholder-val="{{ false }}">
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:20px;animation:fadeUp 0.2s ease;">
-            <p style="font-size:0.73rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:16px;">{{ adminMapFormLabel }}</p>
-            <div style="margin-bottom:12px;"><label>Назва локації</label><input value="{{ adminMapFormName }}" onChange="{{ handleAdminMapField }}" data-field="name" placeholder="Наприклад: Арконікс" /></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-              <div><label>Що це</label>
-                <select value="{{ amfKind }}" onChange="{{ handleAdminMapField }}" data-field="location_type" style="color-scheme:dark;">
-                  <option value="country">Країна</option><option value="region">Регіон</option><option value="capital">Столиця</option><option value="city">Місто</option><option value="fort">Фортеця</option><option value="ruin">Руїни</option>
-                </select></div>
-              <div><label>Входить до</label>
-                <select value="{{ amfParent }}" onChange="{{ handleAdminMapField }}" data-field="parent_id" disabled="{{ amfIsCountry }}" style="color-scheme:dark;">
-                  <option value="">— нікуди</option>
-                  <sc-for list="{{ amfParents }}" as="o" hint-placeholder-count="0"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
-                </select></div>
-            </div>
-            <div style="margin-bottom:12px;"><label>Стаття Довідника</label>
-              <div style="display:flex;gap:6px;">
-                <select value="{{ amfLore }}" onChange="{{ handleAdminMapField }}" data-field="lore_id" style="flex:1;min-width:0;color-scheme:dark;">
-                  <option value="">— без статті</option>
-                  <sc-for list="{{ amfLoreOpts }}" as="o" hint-placeholder-count="0"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
-                </select>
-                <sc-if value="{{ amfHasLore }}" hint-placeholder-val="{{ false }}"><button onClick="{{ amfOpenLore }}" title="Відкрити статтю" style="background:rgba(255,215,107,0.1);border:1px solid rgba(255,215,107,0.3);color:#ffd76b;border-radius:6px;padding:0 10px;cursor:pointer;">✎</button></sc-if>
-              </div>
-              <sc-if value="{{ amfNoLore }}" hint-placeholder-val="{{ false }}"><button onClick="{{ amfMakeLore }}" style="margin-top:6px;background:none;border:1px dashed rgba(255,215,107,0.35);color:#ffd76b;border-radius:6px;padding:5px 12px;font-size:0.76rem;cursor:pointer;">＋ Створити статтю з цієї точки</button></sc-if>
-              <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:4px;">Нова стаття-місце живе в Атласі й під «◎ Місця», не в загальній сітці Довідника (це вмикається в самій статті).</p>
-            </div>
-            <div style="margin-bottom:12px;"><label>Автор (необов'язково)</label><input value="{{ amfCredit }}" onChange="{{ handleAdminMapField }}" data-field="credit" placeholder="Запропонував гравець · персонаж «…»" /></div>
-            <div style="margin-bottom:12px;"><label>Короткий опис (якщо немає статті)</label><textarea value="{{ adminMapFormDesc }}" onChange="{{ handleAdminMapField }}" data-field="description" style="min-height:70px;" placeholder="Коротко про місце…"></textarea></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-              <div><label>X % (ліво→право)</label><input type="number" value="{{ adminMapFormX }}" onChange="{{ handleAdminMapField }}" data-field="x_percent" min="0" max="100" step="0.1" /></div>
-              <div><label>Y % (верх→низ)</label><input type="number" value="{{ adminMapFormY }}" onChange="{{ handleAdminMapField }}" data-field="y_percent" min="0" max="100" step="0.1" /></div>
-            </div>
-            <div style="margin-bottom:18px;">
-              <label>Персонажі в локації ({{ mapSelectedCharCount }})</label>
-              <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
-                <div style="padding:8px 8px 4px;">
-                  <input value="{{ mapCharSearch }}" onChange="{{ handleMapCharSearch }}" placeholder="Пошук персонажа…" style="font-size:0.78rem;padding:6px 10px;border-radius:6px;" />
-                </div>
-                <div style="max-height:180px;overflow-y:auto;padding:4px 6px 8px;">
-                  <sc-for list="{{ mapAvailableChars }}" as="conn" hint-placeholder-count="0">
-                    <div data-id="{{ conn.id }}" onClick="{{ toggleMapChar }}" style="display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:6px;cursor:pointer;margin-bottom:2px;background:{{ conn.rowBg }};transition:background 0.15s;">
-                      <div style="width:18px;height:18px;border-radius:4px;border:1px solid {{ conn.checkBorder }};background:{{ conn.checkBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#ffd700;font-weight:700;transition:all 0.15s;">{{ conn.checkMark }}</div>
-                      <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ false }}">
-                        <div style="{{ conn.imgBg }}width:28px;height:28px;border-radius:4px;flex-shrink:0;"></div>
-                      </sc-if>
-                      <sc-if value="{{ conn.hasImg }}" hint-placeholder-val="{{ true }}">
-                        <div style="width:28px;height:28px;border-radius:4px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.1);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:0.6rem;color:rgba(255,215,0,0.4);">{{ conn.initials }}</div>
-                      </sc-if>
-                      <div style="min-width:0;flex:1;">
-                        <p style="font-size:0.83rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ conn.name }}</p>
-                        <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);">{{ conn.role }}</p>
-                      </div>
-                    </div>
-                  </sc-for>
-                </div>
-              </div>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button onClick="{{ saveAdminMapPin }}" style="background:#ffd700;color:#1a1a1a;border:none;border-radius:6px;padding:8px 18px;font-size:0.82rem;font-weight:700;font-family:'Cinzel',serif;cursor:pointer;transition:all 0.18s;" style-hover="box-shadow:0 0 14px rgba(255,215,0,0.4);">{{ adminMapSaveLabel }}</button>
-              <button onClick="{{ cancelAdminMapForm }}" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);border-radius:6px;padding:8px 14px;font-size:0.82rem;cursor:pointer;" style-hover="color:#fff;">Скасувати</button>
-              <sc-if value="{{ adminMapIsEditing }}" hint-placeholder-val="{{ false }}">
-                <button onClick="{{ deleteAdminMapPin }}" style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:rgba(255,77,77,0.65);border-radius:6px;padding:8px 14px;font-size:0.82rem;cursor:pointer;" style-hover="background:rgba(255,77,77,0.18);color:#ff7070;">Видалити</button>
-              </sc-if>
-            </div>
-          </div>
-        </sc-if>
-        <sc-if value="{{ adminMapFormEmpty }}" hint-placeholder-val="{{ true }}">
-          <div style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.22);border:1px dashed rgba(255,255,255,0.1);border-radius:10px;">
-            <p style="font-size:1.2rem;margin-bottom:10px;">✦</p>
-            <p style="font-size:0.82rem;line-height:1.6;">Натисни на карту щоб задати координати<br/>або обери локацію зі списку нижче</p>
-          </div>
-        </sc-if>
-      </div>
-    </div>
-    <!-- Pin list -->
-    <sc-if value="{{ adminMapHasPins }}" hint-placeholder-val="{{ false }}">
-      <div style="margin-top:28px;">
-        <p style="font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.26);margin-bottom:10px;">Всі локації ({{ adminMapPinCount }})</p>
-        <div style="display:flex;flex-direction:column;gap:5px;">
-          <sc-for list="{{ adminMapPinList }}" as="pin" hint-placeholder-count="0">
-            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:7px;transition:background 0.15s;" style-hover="background:rgba(255,255,255,0.06);">
-              <div style="width:8px;height:8px;background:#ffd700;transform:rotate(45deg);border-radius:1px;box-shadow:0 0 4px rgba(255,215,0,0.7);flex-shrink:0;"></div>
-              <p style="flex:1;font-size:0.88rem;color:#fff;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:{{ pin.pad }};">{{ pin.name }} <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">· {{ pin.kindL }}{{ pin.loreMark }}</span></p>
-              <p style="font-size:0.7rem;color:rgba(255,255,255,0.26);flex-shrink:0;font-family:monospace;">{{ pin.coordsLabel }}</p>
-              <button data-id="{{ pin.id }}" onClick="{{ selectAdminMapPin }}" style="background:rgba(100,149,237,0.1);border:1px solid rgba(100,149,237,0.22);color:#6495ed;border-radius:5px;padding:3px 10px;font-size:0.74rem;flex-shrink:0;cursor:pointer;" style-hover="background:rgba(100,149,237,0.2);">Ред.</button>
-            </div>
-          </sc-for>
-        </div>
-      </div>
-    </sc-if>
-    <sc-if value="{{ adminMapNoPins }}" hint-placeholder-val="{{ false }}">
-      <div style="text-align:center;padding:60px 24px;color:rgba(255,255,255,0.22);">
-        <p style="font-size:1.5rem;margin-bottom:12px;">🗺</p>
-        <p>Локацій ще немає — натисни «+ Нове місце» або клікни на карту</p>
-      </div>
-    </sc-if>
+  <div style="padding:16px 18px 24px;">
+    <dc-import name="AtlasAdmin" map-url="{{ adminMapImgSrc }}" locations="{{ aaLocs }}" lore="{{ aaLore }}" characters="{{ aaChars }}" place-props="{{ aaProps }}" on-refresh="{{ aaRefresh }}" on-decide="{{ aaDecide }}" on-open-lore="{{ aaOpenLore }}" on-upload-map="{{ aaUploadMap }}" toast="{{ aaToast }}" hint-size="100%,760px"></dc-import>
   </div>
 </sc-if>
 
@@ -5452,8 +5271,8 @@ class Component extends DCLogic {
       this.setState({ placeProps: r.ok ? await r.json() : null });
     } catch (e) { this.setState({ placeProps: null }); }
   }
-  async _placeDecide(pr, act, open) {
-    const note = String((this.state.ppNotes || {})[pr.id] || '').trim();
+  async _placeDecide(pr, act, open, noteArg, xy) {
+    const note = String(noteArg != null ? noteArg : ((this.state.ppNotes || {})[pr.id] || '')).trim();
     if (act === 'return' && !note) { this._toast('✗ Напишіть гравцю, що виправити'); return; }
     this.setState({ ppBusy: pr.id });
     try {
@@ -5461,6 +5280,8 @@ class Component extends DCLogic {
       const t = await r.text();
       if (!r.ok) { let m = t; try { m = JSON.parse(t).message || t; } catch (e) {} throw new Error(m); }
       const res = JSON.parse(t || '{}');
+      // точку з заявки підсунули в Атласі перед прийняттям — переносимо створене місце
+      if (act === 'accept' && xy && res.location_id) { try { await this._patch('map_locations', res.location_id, { x_percent: xy.x, y_percent: xy.y }); } catch (e) {} }
       await Promise.all([this._refreshTable('map_locations'), this._refreshTable('lore'), this._loadPlaceProps()]);
       localStorage.setItem('aurelion-refresh', Date.now().toString());
       this.setState({ ppBusy: null });
@@ -7030,7 +6851,7 @@ class Component extends DCLogic {
       mSaved: savedHere ? '✓ ' + s.savedAt : '',
       hasSavedNote: savedHere, savedNote: savedHere ? '✓ Збережено о ' + s.savedAt : '',
       fabHome: !s.wide && tab === 'home' && !s.addOpen,
-      fabSec: !s.wide && !ed && !!FAB[tab] && !s.addOpen && !(tab === 'map' && s.mapAdminPlacing),
+      fabSec: !s.wide && !ed && !!FAB[tab] && !s.addOpen && tab !== 'map',
       fabSection: tab, fabLabel: FAB[tab] || '',
       fabGo: () => {
         if (tab === 'map') { this.setState({ mapAdminPlacing: true, mapAdminSelectedId: null, mapAdminForm: { x_percent: 50, y_percent: 50 } }); return; }
@@ -11744,10 +11565,24 @@ class Component extends DCLogic {
           ppShowOn: !!show, ppShowX: show ? show.x_percent : 0, ppShowY: show ? show.y_percent : 0,
         };
       })(),
-      shapesOpen: !!s.shapesOpen, shapesToggleL: s.shapesOpen ? 'згорнути ▴' : 'малювати межі й зони ▾',
-      toggleShapes: () => this.setState(st => ({ shapesOpen: !st.shapesOpen })),
-      shapesLocs: s.data.map_locations || [], shapesLore: s.data.lore || [],
-      shapesSaved: this._shapesSaved || (this._shapesSaved = async () => { await this._refreshTable('map_locations'); }),
+      // ── Атлас: нове робоче місце (AtlasAdmin.dc.html) ──
+      aaLocs: s.data.map_locations || [], aaLore: s.data.lore || [], aaChars: s.data.characters || [],
+      aaProps: s.placeProps === undefined ? [] : s.placeProps,
+      ...(this._aaCb || (this._aaCb = {
+        aaRefresh: async () => { await Promise.all([this._refreshTable('map_locations'), this._refreshTable('lore')]); },
+        aaDecide: (pr, act, open, note, xy) => this._placeDecide(pr, act, open, note, xy),
+        aaOpenLore: (id) => { const idx = (this.state.data.lore || []).findIndex(x => String(x.id) === String(id)); if (idx >= 0) { this.setState({ tab: 'lore' }); this._openEdit('lore', idx); } },
+        aaUploadMap: async (file) => {
+          try {
+            const url = await this._uploadImage(file, 'map-images');
+            await this._upsertSetting('map_image_url', url);
+            this.setState(st => ({ data: { ...st.data, site: { ...st.data.site, map_image_url: url } } }));
+            localStorage.setItem('aurelion-refresh', Date.now().toString());
+            this._toast('✓ Мапу замінено');
+          } catch (e) { this._toast('✗ ' + (e.message || 'Помилка завантаження')); }
+        },
+        aaToast: (m) => this._toast(m),
+      })),
       adminMapHasPins: !!(s.data.map_locations || []).length,
       adminMapNoPins:  !(s.data.map_locations || []).length,
       adminMapPinCount: (s.data.map_locations || []).length,
